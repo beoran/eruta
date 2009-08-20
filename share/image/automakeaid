@@ -1,0 +1,3 @@
+#!/bin/bash
+COMPOSITE=/usr/local/bin/composite
+$COMPOSITE -matte -tile $1 -matte -size 200x120 xc:none -matte aid_set_${1}

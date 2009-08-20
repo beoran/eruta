@@ -1,0 +1,629 @@
+<map>
+  <tileset tilewide="32" tilehigh="32">
+    <names>
+      <name>common</name>
+      <name>village</name>
+    </names>
+      <tiles>
+          <tile down='no' index='0' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='2' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='3' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='4' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='5' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='6' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='7' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='8' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='9' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='10' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='11' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='12' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='13' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='14' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='15' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='16' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='17' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='18' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='19' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1000' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1001' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1002' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1003' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1004' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1005' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1006' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1007' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1008' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1009' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1010' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1011' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1012' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1013' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1014' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1015' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1016' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1017' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1018' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1019' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1020' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1021' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1022' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1023' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1024' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1025' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1026' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1027' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1028' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1029' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1030' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1031' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1032' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1033' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1034' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1035' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1036' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1037' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1038' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1039' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1040' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1041' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1042' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1043' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1044' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1045' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1046' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1047' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1048' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1049' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1050' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1051' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1052' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1053' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1054' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1055' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1056' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1057' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1058' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1059' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1060' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1061' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1062' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1063' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1064' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1065' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1066' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1067' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1068' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1069' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1070' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1071' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1072' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1073' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1074' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1075' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1076' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1077' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1078' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1079' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1080' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1081' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1082' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1083' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1084' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1085' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1086' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1087' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1088' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1089' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1090' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1091' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1092' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1093' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1094' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1095' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1096' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1097' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1098' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1099' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1100' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1101' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1102' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1103' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1104' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1105' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1106' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1107' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1108' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1109' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1110' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1111' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1112' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1113' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1114' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1115' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1116' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1117' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1118' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1119' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1120' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1121' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1122' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1123' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1124' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1125' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1126' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1127' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1128' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1129' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1130' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1131' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1132' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1133' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1134' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1135' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1136' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1137' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1138' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1139' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1140' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1141' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1142' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1143' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1144' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1145' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1146' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1147' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1148' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1149' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1150' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1151' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1152' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1153' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1154' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1155' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1156' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1157' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1158' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1159' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1160' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1161' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1162' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1163' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1164' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1165' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1166' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1167' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1168' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1169' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1170' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1171' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1172' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1173' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1174' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1175' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1176' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1177' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1178' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1179' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1180' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1181' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1182' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1183' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1184' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1185' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1186' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1187' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1188' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1189' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1190' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1191' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1192' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1193' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1194' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1195' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1196' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1197' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1198' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1199' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1200' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1201' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1202' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1203' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1204' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1205' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1206' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1207' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1208' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1209' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1210' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1211' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1212' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1213' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1214' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1215' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1216' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1217' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1218' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1219' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1220' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1221' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1222' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1223' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+    <tile down='no' index='1224' jump='yes' ledge='no' pain='no' swim='no' up='no' walk='yes'/>
+  </tiles>
+</tileset>
+<layers>
+  <layer wide='40' high='30' z='0' tilewide='32' tilehigh='32'>
+   <rows>
+    <row y='0'>
+     1 1 1 1 1 1 1 1 1 32 1 1 32 32 1 1 1 1 1 1 1 1 1 34 1 1 1 1 1 1 1 1 1 1 1 1
+     1 1 1 1
+    </row>
+    <row y='1'>
+     1 1 1 36 1 1 1 34 1 1 35 32 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+     1 1 1 1
+    </row>
+    <row y='2'>
+     1 1 1 1 1 34 1 1 1 35 1 35 34 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+     1 1 1 1
+    </row>
+    <row y='3'>
+     3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+     3 3
+    </row>
+    <row y='4'>
+     0 0 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+     0 0 0
+    </row>
+    <row y='5'>
+     0 0 0 0 0 0 0 14 0 0 0 0 0 0 0 0 0 0 14 0 0 0 0 14 0 0 0 0 0 0 0 0 0 0 0 0
+     0 0 0 0
+    </row>
+    <row y='6'>
+     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+     0 0
+    </row>
+    <row y='7'>
+     0 0 0 0 0 14 0 0 0 0 0 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 14 0 0 0 0 0 0 0 0
+     0 0 0 0
+    </row>
+    <row y='8'>
+     8 8 8 8 8 8 8 8 8 8 8 8 5 0 0 7 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+     8 8
+    </row>
+    <row y='9'>
+     32 32 32 32 32 32 32 32 32 32 32 32 13 0 0 2 32 32 32 32 32 32 32 32 32 32
+     32 32 32 32 32 32 32 32 32 32 32 32 32 32
+    </row>
+    <row y='10'>
+     3 3 3 3 3 3 3 3 3 3 3 3 10 0 0 12 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+     3 3 3
+    </row>
+    <row y='11'>
+     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+     0 0 0
+    </row>
+    <row y='12'>
+     0 0 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 14 0 0 0 0 0 0 0 0 0 0 0 0
+     0 0 0
+    </row>
+    <row y='13'>
+     0 0 0 0 0 0 0 0 14 0 0 0 0 0 0 0 0 0 0 0 14 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+     0 0 0
+    </row>
+    <row y='14'>
+     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 14 0 0
+     0 0 0
+    </row>
+    <row y='15'>
+     8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8
+     8 8
+    </row>
+    <row y='16'>
+     32 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+     1 1 1
+    </row>
+    <row y='17'>
+     32 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 34 35 35 1 1 34 1 1 1 1 34 1
+     1 1 1 1 1
+    </row>
+    <row y='18'>
+     32 1 1 1 1 1 1 1 1 34 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 35 1 1 1 1 1 1 1 1 1
+     1 1 1 1
+    </row>
+    <row y='19'>
+     32 1 1 34 1 1 1 1 1 1 34 1 1 1 1 1 34 1 1 1 1 1 1 35 1 1 35 1 1 1 1 1 1 1 1
+     34 1 1 1 1
+    </row>
+    <row y='20'>
+     32 1 1 1 1 1 1 1 1 1 1 34 1 1 1 1 1 1 34 1 1 1 1 1 35 35 1 1 1 1 1 1 1 1 1
+     1 1 1 1 1
+    </row>
+    <row y='21'>
+     32 1 1 1 1 34 1 1 1 1 1 1 1 1 1 1 1 1 1 1 34 1 1 1 1 1 1 1 1 1 1 34 1 1 1 1
+     1 34 1 1
+    </row>
+    <row y='22'>
+     32 1 1 1 1 1 1 1 34 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+     1 1 1
+    </row>
+    <row y='23'>
+     32 34 1 1 1 34 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 34 1 1 1 1 1 1 1 1
+     1 1 1 1
+    </row>
+    <row y='24'>
+     32 1 1 1 1 1 1 34 1 1 34 1 1 1 1 1 35 32 1 1 1 34 1 1 1 1 1 1 1 34 1 1 1 1
+     1 34 1 1 1 1
+    </row>
+    <row y='25'>
+     32 1 1 1 1 34 1 1 1 1 1 1 1 1 1 35 1 35 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+     1 1 1 1
+    </row>
+    <row y='26'>
+     32 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 34
+     1 1 1
+    </row>
+    <row y='27'>
+     32 1 34 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 34 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+     1 1 1 1
+    </row>
+    <row y='28'>
+     32 1 1 1 1 1 1 1 34 1 1 1 1 34 1 1 1 34 1 1 1 1 1 1 1 1 1 1 1 1 1 34 35 1 1
+     1 1 35 1 1
+    </row>
+    <row y='29'>
+     32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32 32
+     32 32 32 32 32 32 32 35 1 1 1 1 35 32 32
+    </row>
+   </rows>
+  </layer>
+  <layer wide='40' high='30' z='1' tilewide='40' tilehigh='40'>
+   <rows>
+    <row y='0'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='1'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='2'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='3'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='4'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='5'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='6'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='7'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='8'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='9'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='10'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='11'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='12'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='13'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='14'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='15'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='16'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='17'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='18'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='19'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='20'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 47 47 47 47 47 -1 -1 -1 -1 -1
+    </row>
+    <row y='21'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 47 47 47 47 47 47 47 47 -1 -1 -1
+    </row>
+    <row y='22'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 47 47 47 47 47 47 47 47 47 -1 -1 -1
+    </row>
+    <row y='23'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 47 47 47 47 47 47 47 47 -1 -1 -1 -1
+    </row>
+    <row y='24'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 47 47 47 47 47 47 -1 -1 -1 -1 -1
+    </row>
+    <row y='25'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='26'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='27'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='28'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='29'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+   </rows>
+  </layer>
+  <layer wide='40' high='30' z='2' tilewide='40' tilehigh='40'>
+   <rows>
+    <row y='0'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='1'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='2'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='3'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='4'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='5'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='6'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='7'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='8'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='9'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='10'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='11'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='12'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='13'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='14'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='15'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='16'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='17'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 47 47 47
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='18'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 47 47 47 47
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='19'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 47 47 47 47 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='20'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 47 -1 47 47 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='21'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 47 -1 47 47 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='22'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 47 -1 47 47 47 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='23'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 47 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='24'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='25'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='26'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='27'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='28'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='29'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+   </rows>
+  </layer>
+ </layers>
+</map>

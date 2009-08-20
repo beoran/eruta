@@ -1,0 +1,308 @@
+module Olivine
+
+  grammar Grammar
+ 
+
+    # Compilable unit is sequence of blocks
+    rule unit
+      ( various_list / block / blank_comment )*
+      # space_list /
+    end
+    
+    # Physical end of line
+    rule peol
+      "\r\n" / "\n" / "\r" <Node::Boring>
+    end
+    
+    # Escaped end of line
+    rule esc_eol
+      '\\' peol <Node::Boring>
+    end
+    
+    # Logical end of line 
+    rule eol
+      !('\\') peol <Node::Boring>
+    end
+    
+    # Not a logical end of line 
+    rule neol
+      !(eol) (esc_eol / . ) <Node::Boring>
+      # We have to say esc_eol here because . will 
+      # absorb the \ without matching the \n
+    end
+    
+    # A logial line of the input. 
+    # Escaped newlines don't count to this. Currently unused rule,
+    # kept around just for reference.
+    rule logical_line
+      (neol)* eol 
+    end
+    
+    
+    # One on-newline whitespace character
+    # An escaped eol counts as a whitespace 
+    rule ws
+      (esc_eol / [ \t]) <Modules::Boring>
+    end 
+    
+    # Spacing is multiple ws white space spacing
+    rule sp
+      ws+ <Modules::Boring>
+    end
+    
+    # Block comments begin with /* 
+    rule block_comment_open
+      '/*' <Node::Boring>
+    end  
+    
+    # Block comments end with */
+    rule block_comment_close
+      '*/' <Node::Boring>
+    end
+    
+    # A block comment may contain a block comment or any other character,
+    # but it's not the contents of the block if we meet the end of it!
+    rule block_comment_content
+      !block_comment_close (block_comment / .) <Node::Boring> 
+    end
+      
+    # Block comments are between /* */ and may be nested
+    rule block_comment
+      block_comment_open (block_comment_content)* block_comment_close
+    end
+    
+    # A line commen,ts starts with # and ends with aan unescaped new line
+    rule line_comment
+      '#' (neol)* &(eol)
+      # Don't consume the end of line character of this comment, it's needed as 
+      # a line delimiter
+    end
+    
+    # A comments is a line comment or a block comment
+    rule comment
+      block_comment / line_comment 
+    end  
+    
+    # blank means whitespace or end of line
+    rule blank
+      (ws / eol) <Modules::Boring>
+    end
+    
+    # Blank_comment is blank or comment
+    rule blank_comment
+      ( comment / blank ) <Modules::Boring>
+    end
+    
+    # Whitespace or comment 
+    rule ws_comment 
+      (ws / comment)
+    end  
+  
+    # End of statement separator is an unescaped newline or a ;
+    rule eos
+      eol / ';'
+    end
+    
+    # End of file is nothing left 
+    rule eof
+      !.
+    end
+    
+    # Empty means empty
+    rule empty
+      ''
+    end
+    
+    # Elementary messages
+    rule message 
+      string_message / symbol_message / number_message / operator_message / plain_message 
+    end
+    
+    # End of keyword, prefix with !
+    rule eok
+      (!(blank_comment) .) <Modules::Boring>
+    end
+      
+    rule end_keyword
+      "end" &(blank_comment)
+    end
+    
+    rule do_keyword
+      "do" &(blank_comment) 
+    end
+    
+    # all keywords
+    rule keywords
+      do_keyword / end_keyword  
+    end
+    
+    rule block
+      applied_block / closed_block / do_block      
+    end
+    
+    rule open_block
+      blockpart ( eos blockpart )*
+    end 
+    
+    rule do_block
+      do_keyword blank* (blockpart (eos* blockpart)*)? blank* end_keyword
+    end
+    
+    rule closed_block
+      '{' blank* (blockpart (eos* blockpart)*)? blank* '}'
+    end
+    
+    rule blockpart
+      various_list / blank_comment
+      # various_list  / applied_block / closed_block / blank_comment
+    end
+    
+    rule applied_block
+      various_list ws_comment* (closed_block / do_block)
+    end
+
+    rule various_list 
+       applied_list / closed_space_list / closed_comma_list / open_space_list / open_comma_list
+    end
+
+    rule open_brackets
+      '(' <Node::Boring>
+    end
+    
+    rule close_brackets
+      ')' <Node::Boring>
+    end
+    
+    # Delimiter for an open whitespace listpart
+    rule owsd
+      # &open_brackets / &close_brackets / 
+      (ws / block_comment)+  <Modules::Boring> 
+    end
+    
+    # End for an open whitespace delimited listpart
+    rule ewsd
+      (ws / comment)* eos / &do_keyword 
+    end
+    
+    # Delimiter for a closed whitespace listpart
+    rule cwsd
+      blank+  <Modules::Boring> 
+    end
+    
+    # List of space delimited messages
+    rule open_space_list
+      listpart (owsd listpart)* (ws)* ewsd
+    end
+    
+    # Closed list of space delimited messages    
+    rule closed_space_list
+      open_brackets ws* listpart (cwsd listpart)* ws* close_brackets
+    end
+    
+    # A literal, boring comma
+    rule comma
+      ',' <Node::Boring> 
+    end
+    
+    # Open list of comma delimited messages
+    rule open_comma_list
+      listpart (ws* comma blank* listpart)* (ws)* eos
+    end
+        
+    # Closed list of comma delimited messages
+    rule closed_comma_list
+      open_brackets listpart (ws* comma blank* listpart)* (ws)* close_brackets
+    end
+
+    rule listpart
+      applied_list / chain / closed_block / closed_space_list / closed_comma_list
+    end
+       
+    # Dot is the chain separator
+    rule chain_separator
+      '.'
+    end
+    
+    # Message chains 
+    rule chain
+      chain_element ( chain_separator chain_element )*    
+    end
+    
+    rule chain_element
+      message # / block
+    end
+    
+    # Applied lists
+    rule applied_list
+      chain ws_comment* (closed_space_list / closed_comma_list)
+    end
+    
+    
+ 
+   
+    rule string_message
+      double_quoted_string / single_quoted_string
+    end
+    
+    rule double_string_character
+      (!'"' ("\\\\" <Node::Boring> / '\"' <Node::Boring> / . <Node::Boring>)) <Node::Boring>
+    end
+    
+    rule single_quote
+      "'" <Node::Boring>
+    end
+    
+    rule double_quote
+      '"' <Node::Boring>
+    end
+    
+        
+    rule double_quoted_string
+      double_quote string:double_string_character* double_quote
+    end
+    
+    rule single_string_character
+      (!"'" ("\\\\" / "\\'" / .)) <Node::Boring>
+    end
+  
+    rule single_quoted_string
+      single_quote string:single_string_character* single_quote
+    end
+    
+    rule alpha_char
+      [A-Za-z_] <Node::Boring>
+    end
+    
+    rule numeric_char
+      [0-9] <Node::Boring>
+    end
+  
+    rule alphanumeric_char
+      (alpha_char / numeric_char) <Modules::Boring>
+    end
+    
+    rule message_char
+      (alpha_char / numeric_char) <Modules::Boring>      
+    end
+
+    
+    rule number_message
+      numeric_char+ <Modules::Boring>
+    end
+    
+    rule symbol_message
+      ":" plain_message / ":" string_message
+    end
+    
+    # Don't accept block comment opening as a message.
+    # It would makes the parser accept /* as a message.  
+    rule operator_message
+      !block_comment_open [\-\+\*\%\=\<\>\?\!\/]+
+    end
+    
+    rule plain_message
+      !(do_keyword / end_keyword) alpha_char message_char* [?!]?
+    end
+  
+  end # grammar
+end # module 

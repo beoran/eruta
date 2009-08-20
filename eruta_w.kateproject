@@ -1,0 +1,51 @@
+[Dir eggwatch]
+Dirs=egglib
+Files=eggpet.rb/eggwatch.rb/eggcage.rb/egglib.rb/eggmain.rb/eggscreen.rb/eggimage.rb/eggsprite.rb/eggutil.rb
+
+[Dir eggwatch/egglib]
+Dirs=
+Files=fairy.rb/game.rb/image.rb/tilemap.rb/ui.rb/utility.rb
+
+[Dir lib]
+Dirs=rucy/alox
+Files=
+
+[Dir lib/alox]
+Dirs=au
+Files=st.c/st.h/hash.alo/hash.alc/hash.alh/alox.c
+
+[Dir lib/alox/au]
+Dirs=
+Files=au_rt.h/test.c/au_rt.c
+
+[Dir lib/rucy]
+Dirs=
+Files=rdparser.rb/rdruby.rb/tree.rb/lexer.rb/rubylexer.rb/pattern.rb
+
+[Dir src]
+Dirs=rogaru/slacks/test
+Files=main.rb/eruma.rb/slacks_test.rb/rogaru.rb/filename.rb/settings.rb/slacks.rb
+
+[Dir src/rogaru]
+Dirs=tilemap
+Files=fairy.rb/game.rb/image.rb/tilemap.rb/ui.rb/utility.rb
+
+[Dir src/rogaru/tilemap]
+Dirs=
+Files=entity.rb/layer.rb/map.rb/tile.rb/camera.rb
+
+[Dir src/slacks]
+Dirs=
+Files=area.rb/button.rb/display.rb/slacks.rb/text.rb/utility.rb/widget.rb/decor.rb/dialog.rb/font.rb/image.rb/input.rb/label.rb/layout.rb/panel.rb/ui.rb/ring.rb/bracelet.rb
+
+[Dir src/test]
+Dirs=
+Files=test_bracelet.rb/test_wrapper.rb/test_ring.rb
+
+[Project Dir]
+Dirs=src/lib
+Files=eruta.c/Rakefile
+
+[Project File]
+Name=Eruta
+Type=Default

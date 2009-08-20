@@ -1,0 +1,1531 @@
+<map>
+ <background>
+  bluesky2.jpg
+ </background>
+ <tileset tilewide='32' tilehigh='32'>
+  <names>
+   <name>
+    common
+   </name>
+   <name>
+    village
+   </name>
+  </names>
+  <tiles>
+   <tile index='0' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='2' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='3' walk='yes' swim='no' jump='yes' ledge='no' up='yes' down='no' pain='no'/>
+   <tile index='4' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='yes' pain='no'/>
+   <tile index='5' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='6' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='7' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='8' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='9' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='10' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='11' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='12' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='13' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='14' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='15' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='16' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='17' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='18' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='19' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1000' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1001' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1002' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1003' walk='yes' swim='yes' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1004' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='yes' pain='no'/>
+   <tile index='1005' walk='yes' swim='no' jump='yes' ledge='no' up='yes' down='no' pain='no'/>
+   <tile index='1006' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1007' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1008' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1009' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1010' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1011' walk='yes' swim='yes' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1012' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1013' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1014' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1015' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1016' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1017' walk='no' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1018' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1019' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1020' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1021' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1022' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1023' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1024' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1025' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1026' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1027' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1028' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1029' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1030' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1031' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1032' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1033' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1034' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1035' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1036' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1037' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1038' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1039' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1040' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1041' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1042' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1043' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1044' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1045' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1046' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1047' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1048' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1049' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1050' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1051' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1052' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1053' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1054' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1055' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1056' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1057' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1058' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1059' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1060' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1061' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1062' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1063' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1064' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1065' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1066' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1067' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1068' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1069' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1070' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1071' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1072' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1073' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1074' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1075' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1076' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1077' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1078' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1079' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1080' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1081' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1082' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1083' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1084' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1085' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1086' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1087' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1088' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1089' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1090' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1091' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1092' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1093' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1094' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1095' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1096' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1097' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1098' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1099' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1100' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1101' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1102' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1103' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1104' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1105' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1106' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1107' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1108' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1109' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1110' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1111' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1112' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1113' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1114' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1115' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1116' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1117' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1118' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1119' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1120' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1121' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1122' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1123' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1124' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1125' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1126' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1127' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1128' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1129' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1130' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1131' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1132' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1133' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1134' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1135' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1136' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1137' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1138' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1139' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1140' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1141' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1142' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1143' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1144' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1145' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1146' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1147' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1148' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1149' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1150' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1151' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1152' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1153' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1154' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1155' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1156' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1157' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1158' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1159' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1160' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1161' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1162' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1163' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1164' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1165' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1166' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1167' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1168' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1169' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1170' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1171' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1172' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1173' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1174' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1175' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1176' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1177' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1178' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1179' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1180' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1181' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1182' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1183' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1184' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1185' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1186' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1187' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1188' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1189' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1190' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1191' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1192' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1193' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1194' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1195' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1196' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1197' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1198' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1199' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1200' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1201' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1202' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1203' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1204' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1205' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1206' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1207' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1208' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1209' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1210' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1211' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1212' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1213' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1214' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1215' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1216' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+   <tile index='1217' walk='yes' swim='no' jump='yes' ledge='no' up='no' down='no' pain='no'/>
+  </tiles>
+ </tileset>
+ <layers>
+  <layer wide='60' high='60' tilewide='32' tilehigh='32' z='0'>
+   <rows>
+    <row y='0'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='1'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='2'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='3'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='4'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='5'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='6'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='7'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='8'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='9'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1009 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='10'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1005 1005 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='11'>
+     1000 1000 1000 1034 1034 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1001 1002 1002 1001 1002 1002 1002 1001
+     1005 1005 1001 1002 1002 1002 -1 -1 1002 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='12'>
+     1000 1000 1000 1034 1034 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1002 1002 1002 1002 1000 1000 1000 1002
+     -1 -1 1002 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='13'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='14'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='15'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='16'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1003 1003 1003 1003 1003 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='17'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1003 1003 1003 1003 1003 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='18'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1003 1003 1003 1003 1003 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='19'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='20'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='21'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='22'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='23'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='24'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='25'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='26'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='27'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='28'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='29'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='30'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='31'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1003 1003 1003 1003 1003
+     1003 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='32'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1003 1003 1003 1003 1003
+     1003 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='33'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1003 1003 1003 1003 1003
+     1003 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='34'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1003 1003 1003 1000 1000
+     1000 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='35'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1003 1003 1003 1000 1000
+     1000 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='36'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1003 1003 1003 1000 1000
+     1000 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='37'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1003 1003 1003 1003 1003
+     1003 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='38'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1003 1003 1003 1003 1003
+     1003 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='39'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1003 1003 1003 1003 1003
+     1003 1003 1003 1003 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='40'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='41'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='42'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='43'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='44'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='45'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='46'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='47'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='48'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='49'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='50'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='51'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='52'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='53'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='54'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='55'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='56'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='57'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='58'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+    <row y='59'>
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+     1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+    </row>
+   </rows>
+  </layer>
+  <layer wide='60' high='60' tilewide='32' tilehigh='32' z='1'>
+   <rows>
+    <row y='0'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='1'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='2'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='3'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='4'>
+     1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017
+     1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017
+     1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017
+     1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017
+    </row>
+    <row y='5'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='6'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='7'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+     1017 1017 -1 -1 -1 -1 -1 1017 1017 1017 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='8'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 1017
+     1017 1017 -1 -1 -1 -1 -1 1017 1017 1017 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='9'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 1017
+     1017 1017 -1 -1 -1 -1 -1 1017 1017 1017 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='10'>
+     1017 -1 -1 1017 1017 -1 1017 -1 -1 1017 1017 1017 -1 1017 -1 1017 1017 -1
+     -1 -1 -1 -1 1017 1017 1017 -1 -1 -1 -1 -1 1017 1017 1017 -1 -1 1017 3 3 -1
+     -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='11'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     3 3 -1 -1 -1 -1 -1 3 3 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='12'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 1017 1017 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='13'>
+     1017 -1 -1 -1 -1 -1 1017 1017 1017 1017 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 1017 1017 1017 1017 1017
+     1017 1017 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='14'>
+     1017 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='15'>
+     1017 -1 -1 -1 -1 -1 1017 -1 -1 1017 1017 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='16'>
+     1017 -1 -1 -1 -1 -1 1017 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='17'>
+     1017 -1 -1 -1 -1 -1 1017 -1 -1 1017 1017 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='18'>
+     1017 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='19'>
+     1017 -1 -1 -1 -1 -1 1017 1017 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='20'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='21'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='22'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='23'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='24'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='25'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='26'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='27'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='28'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='29'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='30'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='31'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='32'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='33'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='34'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='35'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 1018 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='36'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='37'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='38'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='39'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='40'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='41'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='42'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='43'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='44'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='45'>
+     1017 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='46'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 1017 -1 1017 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='47'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 1017 -1 -1 -1 -1 -1 -1 -1
+     1017 -1 -1 -1 -1 -1 1017 1017 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='48'>
+     1017 -1 -1 -1 -1 1017 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 1017 -1 -1 -1 -1 1017 -1 -1 -1 1017
+    </row>
+    <row y='49'>
+     1017 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='50'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 1017
+     -1 1017 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='51'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 1017 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='52'>
+     1017 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='53'>
+     1017 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 1017 -1 -1 -1 1017
+     -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='54'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='55'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='56'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='57'>
+     1017 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1
+     -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='58'>
+     1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+    </row>
+    <row y='59'>
+     1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017
+     1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017
+     1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017
+     1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017
+    </row>
+   </rows>
+  </layer>
+  <layer wide='60' high='60' tilewide='32' tilehigh='32' z='2'>
+   <rows>
+    <row y='0'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='1'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='2'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='3'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='4'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='5'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='6'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='7'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1001 1001
+     1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='8'>
+     -1 -1 -1 -1 -1 -1 -1 1035 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1001
+     1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001
+     1001 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='9'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1001 1001
+     1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='10'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1001 1001
+     1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 1001 -1 -1 1001 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='11'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 0 -1
+     1017 -1 -1 -1 1017 -1 -1 1017 -1 -1 -1 1004 1004 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='12'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1002
+     1002 -1 -1 -1 -1 -1 1004 1004 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='13'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='14'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='15'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='16'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='17'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='18'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1029 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='19'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='20'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='21'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='22'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='23'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='24'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='25'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='26'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='27'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='28'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='29'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='30'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='31'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='32'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='33'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='34'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='35'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='36'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='37'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='38'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='39'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='40'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='41'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='42'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='43'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='44'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='45'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='46'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='47'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='48'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='49'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='50'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='51'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='52'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='53'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='54'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='55'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='56'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='57'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='58'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='59'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+   </rows>
+  </layer>
+  <layer wide='60' high='60' tilewide='32' tilehigh='32' z='3'>
+   <rows>
+    <row y='0'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='1'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='2'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='3'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='4'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='5'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='6'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='7'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 1017
+     1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017 1017
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='8'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='9'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='10'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017 -1
+     -1 1017 1017 1017 1017 1017 -1 -1 1017 1017 1017 1017 1 2 1017 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='11'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1 2 -1
+     -1 -1 -1 -1 1 2 -1 -1 -1 1017 4 4 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='12'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 4 4 -1
+     -1 -1 -1 -1 4 4 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='13'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='14'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='15'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='16'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='17'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='18'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='19'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='20'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='21'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='22'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='23'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='24'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='25'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='26'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='27'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='28'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='29'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='30'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='31'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='32'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='33'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='34'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='35'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='36'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='37'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='38'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='39'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='40'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='41'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='42'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='43'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='44'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='45'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='46'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='47'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='48'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='49'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='50'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='51'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='52'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='53'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='54'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='55'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='56'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='57'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='58'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+    <row y='59'>
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+     -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+    </row>
+   </rows>
+  </layer>
+ </layers>
+</map>

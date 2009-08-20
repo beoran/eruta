@@ -1,0 +1,3244 @@
+#define __STDC_HOSTED__ 1
+#define __GNUC__ 3
+#define __GNUC_MINOR__ 4
+#define __GNUC_PATCHLEVEL__ 6
+#define __GNUC_RH_RELEASE__ 9
+#define __SIZE_TYPE__ long unsigned int
+#define __PTRDIFF_TYPE__ long int
+#define __WCHAR_TYPE__ int
+#define __WINT_TYPE__ unsigned int
+#define __GXX_ABI_VERSION 1002
+#define __SCHAR_MAX__ 127
+#define __SHRT_MAX__ 32767
+#define __INT_MAX__ 2147483647
+#define __LONG_MAX__ 9223372036854775807L
+#define __LONG_LONG_MAX__ 9223372036854775807LL
+#define __WCHAR_MAX__ 2147483647
+#define __CHAR_BIT__ 8
+#define __FLT_EVAL_METHOD__ 0
+#define __FLT_RADIX__ 2
+#define __FLT_MANT_DIG__ 24
+#define __FLT_DIG__ 6
+#define __FLT_MIN_EXP__ (-125)
+#define __FLT_MIN_10_EXP__ (-37)
+#define __FLT_MAX_EXP__ 128
+#define __FLT_MAX_10_EXP__ 38
+#define __FLT_MAX__ 3.40282347e+38F
+#define __FLT_MIN__ 1.17549435e-38F
+#define __FLT_EPSILON__ 1.19209290e-7F
+#define __FLT_DENORM_MIN__ 1.40129846e-45F
+#define __FLT_HAS_INFINITY__ 1
+#define __FLT_HAS_QUIET_NAN__ 1
+#define __DBL_MANT_DIG__ 53
+#define __DBL_DIG__ 15
+#define __DBL_MIN_EXP__ (-1021)
+#define __DBL_MIN_10_EXP__ (-307)
+#define __DBL_MAX_EXP__ 1024
+#define __DBL_MAX_10_EXP__ 308
+#define __DBL_MAX__ 1.7976931348623157e+308
+#define __DBL_MIN__ 2.2250738585072014e-308
+#define __DBL_EPSILON__ 2.2204460492503131e-16
+#define __DBL_DENORM_MIN__ 4.9406564584124654e-324
+#define __DBL_HAS_INFINITY__ 1
+#define __DBL_HAS_QUIET_NAN__ 1
+#define __LDBL_MANT_DIG__ 64
+#define __LDBL_DIG__ 18
+#define __LDBL_MIN_EXP__ (-16381)
+#define __LDBL_MIN_10_EXP__ (-4931)
+#define __LDBL_MAX_EXP__ 16384
+#define __LDBL_MAX_10_EXP__ 4932
+#define __DECIMAL_DIG__ 21
+#define __LDBL_MAX__ 1.18973149535723176502e+4932L
+#define __LDBL_MIN__ 3.36210314311209350626e-4932L
+#define __LDBL_EPSILON__ 1.08420217248550443401e-19L
+#define __LDBL_DENORM_MIN__ 3.64519953188247460253e-4951L
+#define __LDBL_HAS_INFINITY__ 1
+#define __LDBL_HAS_QUIET_NAN__ 1
+#define __REGISTER_PREFIX__ 
+#define __USER_LABEL_PREFIX__ 
+#define __VERSION__ "3.4.6 20060404 (Red Hat 3.4.6-9)"
+#define _LP64 1
+#define __LP64__ 1
+#define __NO_INLINE__ 1
+#define __FINITE_MATH_ONLY__ 0
+
+
+#define __amd64 1
+#define __amd64__ 1
+#define __x86_64 1
+#define __x86_64__ 1
+#define __tune_k8__ 1
+#define __MMX__ 1
+#define __SSE__ 1
+#define __SSE2__ 1
+#define __SSE_MATH__ 1
+#define __SSE2_MATH__ 1
+#define __k8 1
+#define __k8__ 1
+#define __gnu_linux__ 1
+#define __linux 1
+#define __linux__ 1
+#define linux 1
+#define __unix 1
+#define __unix__ 1
+#define unix 1
+
+
+
+#define __ELF__ 1
+#define _SDL_H 
+#define _SDL_main_h 
+#define _SDL_types_h 
+
+
+#define SDL_TABLESIZE(table) (sizeof(table)/sizeof(table[0]))
+
+
+typedef enum {
+ SDL_FALSE = 0,
+ SDL_TRUE = 1
+} SDL_bool;
+typedef unsigned char Uint8;
+typedef signed char Sint8;
+typedef unsigned short Uint16;
+typedef signed short Sint16;
+typedef unsigned int Uint32;
+typedef signed int Sint32;
+
+
+
+
+#define SDL_HAS_64BIT_TYPE long long
+typedef unsigned long long Uint64;
+
+typedef long long Sint64;
+#define SDL_COMPILE_TIME_ASSERT(name,x) typedef int SDL_dummy_ ## name[(x) * 2 - 1]
+
+
+typedef int SDL_dummy_uint8[(sizeof(Uint8) == 1) * 2 - 1];
+typedef int SDL_dummy_sint8[(sizeof(Sint8) == 1) * 2 - 1];
+typedef int SDL_dummy_uint16[(sizeof(Uint16) == 2) * 2 - 1];
+typedef int SDL_dummy_sint16[(sizeof(Sint16) == 2) * 2 - 1];
+typedef int SDL_dummy_uint32[(sizeof(Uint32) == 4) * 2 - 1];
+typedef int SDL_dummy_sint32[(sizeof(Sint32) == 4) * 2 - 1];
+typedef int SDL_dummy_uint64[(sizeof(Uint64) == 8) * 2 - 1];
+typedef int SDL_dummy_sint64[(sizeof(Sint64) == 8) * 2 - 1];
+typedef enum {
+ DUMMY_ENUM_VALUE
+} SDL_DUMMY_ENUM;
+
+typedef int SDL_dummy_enum[(sizeof(SDL_DUMMY_ENUM) == sizeof(int)) * 2 - 1];
+
+#undef SDL_COMPILE_TIME_ASSERT
+
+
+enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
+#define _SDL_error_h 
+#define _begin_code_h 
+#define DECLSPEC 
+#define SDLCALL 
+#define SDL_INLINE_OKAY 
+#define NULL ((void *)0)
+extern void SDL_SetError(const char *fmt, ...);
+extern char * SDL_GetError(void);
+extern void SDL_ClearError(void);
+
+
+#define SDL_OutOfMemory() SDL_Error(SDL_ENOMEM)
+typedef enum {
+ SDL_ENOMEM,
+ SDL_EFREAD,
+ SDL_EFWRITE,
+ SDL_EFSEEK,
+ SDL_LASTERROR
+} SDL_errorcode;
+extern void SDL_Error(SDL_errorcode code);
+#undef _begin_code_h
+#define _SDL_RWops_h 
+#define _STDIO_H 1
+#define _FEATURES_H 1
+#undef __USE_ISOC99
+#undef __USE_POSIX
+#undef __USE_POSIX2
+#undef __USE_POSIX199309
+#undef __USE_POSIX199506
+#undef __USE_XOPEN
+#undef __USE_XOPEN_EXTENDED
+#undef __USE_UNIX98
+#undef __USE_XOPEN2K
+#undef __USE_LARGEFILE
+#undef __USE_LARGEFILE64
+#undef __USE_FILE_OFFSET64
+#undef __USE_BSD
+#undef __USE_SVID
+#undef __USE_MISC
+#undef __USE_GNU
+#undef __USE_REENTRANT
+#undef __USE_FORTIFY_LEVEL
+#undef __FAVOR_BSD
+#undef __KERNEL_STRICT_NAMES
+
+
+
+
+#define __KERNEL_STRICT_NAMES 
+
+
+
+#define __USE_ANSI 1
+#define __GNUC_PREREQ(maj,min) ((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
+#define _BSD_SOURCE 1
+#define _SVID_SOURCE 1
+#define _POSIX_SOURCE 1
+
+
+
+#define _POSIX_C_SOURCE 199506L
+
+
+
+
+#define __USE_POSIX 1
+
+
+
+#define __USE_POSIX2 1
+
+
+
+#define __USE_POSIX199309 1
+
+
+
+#define __USE_POSIX199506 1
+#define __USE_MISC 1
+
+
+
+#define __USE_BSD 1
+
+
+
+#define __USE_SVID 1
+#define __USE_FORTIFY_LEVEL 0
+
+
+
+#define __STDC_IEC_559__ 1
+#define __STDC_IEC_559_COMPLEX__ 1
+
+
+#define __STDC_ISO_10646__ 200009L
+
+
+
+
+
+
+
+#undef __GNU_LIBRARY__
+#define __GNU_LIBRARY__ 6
+
+
+
+#define __GLIBC__ 2
+#define __GLIBC_MINOR__ 3
+
+#define __GLIBC_PREREQ(maj,min) ((__GLIBC__ << 16) + __GLIBC_MINOR__ >= ((maj) << 16) + (min))
+
+
+
+
+
+
+
+#define __GLIBC_HAVE_LONG_LONG 1
+#define _SYS_CDEFS_H 1
+#undef __P
+#undef __PMT
+#define __THROW __attribute__ ((__nothrow__))
+#define __NTH(fct) __attribute__ ((__nothrow__)) fct
+#define __P(args) args
+#define __PMT(args) args
+
+
+
+
+#define __CONCAT(x,y) x ## y
+#define __STRING(x) #x
+
+
+#define __ptr_t void *
+#define __long_double_t long double
+
+
+
+
+
+
+
+#define __BEGIN_DECLS 
+#define __END_DECLS 
+#define __BEGIN_NAMESPACE_STD 
+#define __END_NAMESPACE_STD 
+#define __USING_NAMESPACE_STD(name) 
+#define __BEGIN_NAMESPACE_C99 
+#define __END_NAMESPACE_C99 
+#define __USING_NAMESPACE_C99(name) 
+
+
+
+
+
+#define __bounded 
+#define __unbounded 
+#define __ptrvalue 
+
+
+
+
+#define __bos(ptr) __builtin_object_size (ptr, __USE_FORTIFY_LEVEL > 1)
+#define __bos0(ptr) __builtin_object_size (ptr, 0)
+
+
+
+
+
+#define __flexarr []
+#define __REDIRECT(name,proto,alias) name proto __asm__ (__ASMNAME (#alias))
+
+
+
+
+#define __REDIRECT_NTH(name,proto,alias) name proto __asm__ (__ASMNAME (#alias)) __THROW
+
+
+#define __ASMNAME(cname) __ASMNAME2 (__USER_LABEL_PREFIX__, cname)
+#define __ASMNAME2(prefix,cname) __STRING (prefix) cname
+#define __attribute_malloc__ __attribute__ ((__malloc__))
+#define __attribute_pure__ __attribute__ ((__pure__))
+#define __attribute_used__ __attribute__ ((__used__))
+#define __attribute_noinline__ __attribute__ ((__noinline__))
+
+
+
+
+
+
+
+#define __attribute_deprecated__ __attribute__ ((__deprecated__))
+#define __attribute_format_arg__(x) __attribute__ ((__format_arg__ (x)))
+#define __attribute_format_strfmon__(a,b) __attribute__ ((__format__ (__strfmon__, a, b)))
+#define __nonnull(params) __attribute__ ((__nonnull__ params))
+#define __restrict_arr __restrict
+#define __stub___kernel_cosl 
+#define __stub___kernel_rem_pio2l 
+#define __stub___kernel_sinl 
+#define __stub___kernel_tanl 
+#define __stub_bdflush 
+#define __stub_chflags 
+#define __stub_fattach 
+#define __stub_fchflags 
+#define __stub_fdetach 
+#define __stub_feupdateenv 
+#define __stub_getmsg 
+#define __stub_gtty 
+#define __stub_lchmod 
+#define __stub_lutimes 
+#define __stub_putmsg 
+#define __stub_revoke 
+#define __stub_setlogin 
+#define __stub_sstk 
+#define __stub_stty 
+
+
+
+
+
+
+#define __need_size_t 
+#define __need_NULL 
+#define __size_t__ 
+#define __SIZE_T__ 
+#define _SIZE_T 
+#define _SYS_SIZE_T_H 
+#define _T_SIZE_ 
+#define _T_SIZE 
+#define __SIZE_T 
+#define _SIZE_T_ 
+#define _BSD_SIZE_T_ 
+#define _SIZE_T_DEFINED_ 
+#define _SIZE_T_DEFINED 
+#define _BSD_SIZE_T_DEFINED_ 
+#define _SIZE_T_DECLARED 
+#define ___int_size_t_h 
+#define _GCC_SIZE_T 
+#define _SIZET_ 
+
+
+
+#define __size_t 
+
+
+
+
+
+typedef long unsigned int size_t;
+#undef __need_size_t
+#undef NULL
+
+
+
+
+#define NULL ((void *)0)
+
+
+
+
+
+#undef __need_NULL
+#define _BITS_TYPES_H 1
+
+
+
+
+
+
+#define __WORDSIZE 64
+#define __WORDSIZE_COMPAT32 1
+
+
+
+
+#define __need_size_t 
+#undef __need_size_t
+#undef __need_NULL
+typedef unsigned char __u_char;
+typedef unsigned short int __u_short;
+typedef unsigned int __u_int;
+typedef unsigned long int __u_long;
+
+
+typedef signed char __int8_t;
+typedef unsigned char __uint8_t;
+typedef signed short int __int16_t;
+typedef unsigned short int __uint16_t;
+typedef signed int __int32_t;
+typedef unsigned int __uint32_t;
+
+typedef signed long int __int64_t;
+typedef unsigned long int __uint64_t;
+
+
+
+
+
+
+
+typedef long int __quad_t;
+typedef unsigned long int __u_quad_t;
+#define __S16_TYPE short int
+#define __U16_TYPE unsigned short int
+#define __S32_TYPE int
+#define __U32_TYPE unsigned int
+#define __SLONGWORD_TYPE long int
+#define __ULONGWORD_TYPE unsigned long int
+#define __SQUAD_TYPE long int
+#define __UQUAD_TYPE unsigned long int
+#define __SWORD_TYPE long int
+#define __UWORD_TYPE unsigned long int
+#define __SLONG32_TYPE int
+#define __ULONG32_TYPE unsigned int
+#define __S64_TYPE long int
+#define __U64_TYPE unsigned long int
+#define _BITS_TYPESIZES_H 1
+
+
+
+
+#define __DEV_T_TYPE __UQUAD_TYPE
+#define __UID_T_TYPE __U32_TYPE
+#define __GID_T_TYPE __U32_TYPE
+#define __INO_T_TYPE __ULONGWORD_TYPE
+#define __INO64_T_TYPE __UQUAD_TYPE
+#define __MODE_T_TYPE __U32_TYPE
+#define __NLINK_T_TYPE __UWORD_TYPE
+#define __OFF_T_TYPE __SLONGWORD_TYPE
+#define __OFF64_T_TYPE __SQUAD_TYPE
+#define __PID_T_TYPE __S32_TYPE
+#define __RLIM_T_TYPE __ULONGWORD_TYPE
+#define __RLIM64_T_TYPE __UQUAD_TYPE
+#define __BLKCNT_T_TYPE __SLONGWORD_TYPE
+#define __BLKCNT64_T_TYPE __SQUAD_TYPE
+#define __FSBLKCNT_T_TYPE __ULONGWORD_TYPE
+#define __FSBLKCNT64_T_TYPE __UQUAD_TYPE
+#define __FSFILCNT_T_TYPE __ULONGWORD_TYPE
+#define __FSFILCNT64_T_TYPE __UQUAD_TYPE
+#define __ID_T_TYPE __U32_TYPE
+#define __CLOCK_T_TYPE __SLONGWORD_TYPE
+#define __TIME_T_TYPE __SLONGWORD_TYPE
+#define __USECONDS_T_TYPE __U32_TYPE
+#define __SUSECONDS_T_TYPE __SLONGWORD_TYPE
+#define __DADDR_T_TYPE __S32_TYPE
+#define __SWBLK_T_TYPE __SLONGWORD_TYPE
+#define __KEY_T_TYPE __S32_TYPE
+#define __CLOCKID_T_TYPE __S32_TYPE
+#define __TIMER_T_TYPE __S32_TYPE
+#define __BLKSIZE_T_TYPE __SLONGWORD_TYPE
+#define __FSID_T_TYPE struct { int __val[2]; }
+#define __SSIZE_T_TYPE __SWORD_TYPE
+
+
+#define __FD_SETSIZE 1024
+
+
+
+
+
+
+#define __STD_TYPE __extension__ typedef
+
+
+__extension__ typedef unsigned long int __dev_t;
+__extension__ typedef unsigned int __uid_t;
+__extension__ typedef unsigned int __gid_t;
+__extension__ typedef unsigned long int __ino_t;
+__extension__ typedef unsigned long int __ino64_t;
+__extension__ typedef unsigned int __mode_t;
+__extension__ typedef unsigned long int __nlink_t;
+__extension__ typedef long int __off_t;
+__extension__ typedef long int __off64_t;
+__extension__ typedef int __pid_t;
+__extension__ typedef struct { int __val[2]; } __fsid_t;
+__extension__ typedef long int __clock_t;
+__extension__ typedef unsigned long int __rlim_t;
+__extension__ typedef unsigned long int __rlim64_t;
+__extension__ typedef unsigned int __id_t;
+__extension__ typedef long int __time_t;
+__extension__ typedef unsigned int __useconds_t;
+__extension__ typedef long int __suseconds_t;
+
+__extension__ typedef int __daddr_t;
+__extension__ typedef long int __swblk_t;
+__extension__ typedef int __key_t;
+
+
+__extension__ typedef int __clockid_t;
+
+
+__extension__ typedef int __timer_t;
+
+
+__extension__ typedef long int __blksize_t;
+
+
+
+
+__extension__ typedef long int __blkcnt_t;
+__extension__ typedef long int __blkcnt64_t;
+
+
+__extension__ typedef unsigned long int __fsblkcnt_t;
+__extension__ typedef unsigned long int __fsblkcnt64_t;
+
+
+__extension__ typedef unsigned long int __fsfilcnt_t;
+__extension__ typedef unsigned long int __fsfilcnt64_t;
+
+__extension__ typedef long int __ssize_t;
+
+
+
+typedef __off64_t __loff_t;
+typedef __quad_t *__qaddr_t;
+typedef char *__caddr_t;
+
+
+__extension__ typedef long int __intptr_t;
+
+
+__extension__ typedef unsigned int __socklen_t;
+
+
+#undef __STD_TYPE
+
+
+#define __need_FILE 
+#define __need___FILE 
+
+
+
+
+
+
+
+typedef struct _IO_FILE FILE;
+
+
+
+
+
+
+
+#define __FILE_defined 1
+
+#undef __need_FILE
+
+
+
+
+
+typedef struct _IO_FILE __FILE;
+
+#define ____FILE_defined 1
+
+#undef __need___FILE
+
+
+
+#define _STDIO_USES_IOSTREAM 
+#define _IO_STDIO_H 
+
+
+
+
+
+
+#define _G_config_h 1
+
+
+
+
+#define __need_size_t 
+#define __need_wchar_t 
+#define __need_wint_t 
+#define __need_NULL 
+#undef __need_size_t
+#define __wchar_t__ 
+#define __WCHAR_T__ 
+#define _WCHAR_T 
+#define _T_WCHAR_ 
+#define _T_WCHAR 
+#define __WCHAR_T 
+#define _WCHAR_T_ 
+#define _BSD_WCHAR_T_ 
+#define _WCHAR_T_DEFINED_ 
+#define _WCHAR_T_DEFINED 
+#define _WCHAR_T_H 
+#define ___int_wchar_t_h 
+#define __INT_WCHAR_T_H 
+#define _GCC_WCHAR_T 
+#define _WCHAR_T_DECLARED 
+#undef _BSD_WCHAR_T_
+typedef int wchar_t;
+#undef __need_wchar_t
+
+
+
+
+#define _WINT_T 
+
+
+
+
+typedef unsigned int wint_t;
+
+#undef __need_wint_t
+#undef NULL
+
+
+
+
+#define NULL ((void *)0)
+
+
+
+
+
+#undef __need_NULL
+#define __need_mbstate_t 
+#define __need_wint_t 
+#undef __need_wint_t
+#undef __need_NULL
+#define _BITS_WCHAR_H 1
+
+#define __WCHAR_MIN (-2147483647 - 1)
+#define __WCHAR_MAX (2147483647)
+#define __mbstate_t_defined 1
+
+typedef struct
+{
+  int __count;
+  union
+  {
+    wint_t __wch;
+    char __wchb[4];
+  } __value;
+} __mbstate_t;
+
+#undef __need_mbstate_t
+#define _G_size_t size_t
+typedef struct
+{
+  __off_t __pos;
+  __mbstate_t __state;
+} _G_fpos_t;
+typedef struct
+{
+  __off64_t __pos;
+  __mbstate_t __state;
+} _G_fpos64_t;
+#define _G_ssize_t __ssize_t
+#define _G_off_t __off_t
+#define _G_off64_t __off64_t
+#define _G_pid_t __pid_t
+#define _G_uid_t __uid_t
+#define _G_wchar_t wchar_t
+#define _G_wint_t wint_t
+#define _G_stat64 stat64
+#define _GCONV_H 1
+
+
+#define __need_mbstate_t 
+#define __need_wint_t 
+#undef __need_wint_t
+#undef __need_NULL
+#undef __need_mbstate_t
+#define __need_size_t 
+#define __need_wchar_t 
+#undef __need_size_t
+#undef __need_wchar_t
+#undef __need_NULL
+#define __UNKNOWN_10646_CHAR ((wchar_t) 0xfffd)
+
+
+enum
+{
+  __GCONV_OK = 0,
+  __GCONV_NOCONV,
+  __GCONV_NODB,
+  __GCONV_NOMEM,
+
+  __GCONV_EMPTY_INPUT,
+  __GCONV_FULL_OUTPUT,
+  __GCONV_ILLEGAL_INPUT,
+  __GCONV_INCOMPLETE_INPUT,
+
+  __GCONV_ILLEGAL_DESCRIPTOR,
+  __GCONV_INTERNAL_ERROR
+};
+
+
+
+enum
+{
+  __GCONV_IS_LAST = 0x0001,
+  __GCONV_IGNORE_ERRORS = 0x0002
+};
+
+
+
+struct __gconv_step;
+struct __gconv_step_data;
+struct __gconv_loaded_object;
+struct __gconv_trans_data;
+
+
+
+typedef int (*__gconv_fct) (struct __gconv_step *, struct __gconv_step_data *,
+       __const unsigned char **, __const unsigned char *,
+       unsigned char **, size_t *, int, int);
+
+
+typedef wint_t (*__gconv_btowc_fct) (struct __gconv_step *, unsigned char);
+
+
+typedef int (*__gconv_init_fct) (struct __gconv_step *);
+typedef void (*__gconv_end_fct) (struct __gconv_step *);
+
+
+
+typedef int (*__gconv_trans_fct) (struct __gconv_step *,
+      struct __gconv_step_data *, void *,
+      __const unsigned char *,
+      __const unsigned char **,
+      __const unsigned char *, unsigned char **,
+      size_t *);
+
+
+typedef int (*__gconv_trans_context_fct) (void *, __const unsigned char *,
+       __const unsigned char *,
+       unsigned char *, unsigned char *);
+
+
+typedef int (*__gconv_trans_query_fct) (__const char *, __const char ***,
+     size_t *);
+
+
+typedef int (*__gconv_trans_init_fct) (void **, const char *);
+typedef void (*__gconv_trans_end_fct) (void *);
+
+struct __gconv_trans_data
+{
+
+  __gconv_trans_fct __trans_fct;
+  __gconv_trans_context_fct __trans_context_fct;
+  __gconv_trans_end_fct __trans_end_fct;
+  void *__data;
+  struct __gconv_trans_data *__next;
+};
+
+
+
+struct __gconv_step
+{
+  struct __gconv_loaded_object *__shlib_handle;
+  __const char *__modname;
+
+  int __counter;
+
+  char *__from_name;
+  char *__to_name;
+
+  __gconv_fct __fct;
+  __gconv_btowc_fct __btowc_fct;
+  __gconv_init_fct __init_fct;
+  __gconv_end_fct __end_fct;
+
+
+
+  int __min_needed_from;
+  int __max_needed_from;
+  int __min_needed_to;
+  int __max_needed_to;
+
+
+  int __stateful;
+
+  void *__data;
+};
+
+
+
+struct __gconv_step_data
+{
+  unsigned char *__outbuf;
+  unsigned char *__outbufend;
+
+
+
+  int __flags;
+
+
+
+  int __invocation_counter;
+
+
+
+  int __internal_use;
+
+  __mbstate_t *__statep;
+  __mbstate_t __state;
+
+
+
+  struct __gconv_trans_data *__trans;
+};
+
+
+
+typedef struct __gconv_info
+{
+  size_t __nsteps;
+  struct __gconv_step *__steps;
+  __extension__ struct __gconv_step_data __data [];
+} *__gconv_t;
+
+
+typedef union
+{
+  struct __gconv_info __cd;
+  struct
+  {
+    struct __gconv_info __cd;
+    struct __gconv_step_data __data;
+  } __combined;
+} _G_iconv_t;
+
+typedef int _G_int16_t __attribute__ ((__mode__ (__HI__)));
+typedef int _G_int32_t __attribute__ ((__mode__ (__SI__)));
+typedef unsigned int _G_uint16_t __attribute__ ((__mode__ (__HI__)));
+typedef unsigned int _G_uint32_t __attribute__ ((__mode__ (__SI__)));
+
+#define _G_HAVE_BOOL 1
+
+
+
+#define _G_HAVE_ATEXIT 1
+#define _G_HAVE_SYS_CDEFS 1
+#define _G_HAVE_SYS_WAIT 1
+#define _G_NEED_STDARG_H 1
+#define _G_va_list __gnuc_va_list
+
+#define _G_HAVE_PRINTF_FP 1
+#define _G_HAVE_MMAP 1
+#define _G_HAVE_MREMAP 1
+#define _G_HAVE_LONG_DOUBLE_IO 1
+#define _G_HAVE_IO_FILE_OPEN 1
+#define _G_HAVE_IO_GETLINE_INFO 1
+
+#define _G_IO_IO_FILE_VERSION 0x20001
+
+#define _G_OPEN64 __open64
+#define _G_LSEEK64 __lseek64
+#define _G_MMAP64 __mmap64
+#define _G_FSTAT64(fd,buf) __fxstat64 (_STAT_VER, fd, buf)
+
+
+#define _G_HAVE_ST_BLKSIZE defined (_STATBUF_ST_BLKSIZE)
+
+#define _G_BUFSIZ 8192
+
+
+#define _G_NAMES_HAVE_UNDERSCORE 0
+#define _G_VTABLE_LABEL_HAS_LENGTH 1
+#define _G_USING_THUNKS 1
+#define _G_VTABLE_LABEL_PREFIX "__vt_"
+#define _G_VTABLE_LABEL_PREFIX_ID __vt_
+
+
+
+#define _G_ARGS(ARGLIST) ARGLIST
+
+
+
+
+
+
+#define _IO_pos_t _G_fpos_t
+#define _IO_fpos_t _G_fpos_t
+#define _IO_fpos64_t _G_fpos64_t
+#define _IO_size_t _G_size_t
+#define _IO_ssize_t _G_ssize_t
+#define _IO_off_t _G_off_t
+#define _IO_off64_t _G_off64_t
+#define _IO_pid_t _G_pid_t
+#define _IO_uid_t _G_uid_t
+#define _IO_iconv_t _G_iconv_t
+#define _IO_HAVE_SYS_WAIT _G_HAVE_SYS_WAIT
+#define _IO_HAVE_ST_BLKSIZE _G_HAVE_ST_BLKSIZE
+#define _IO_BUFSIZ _G_BUFSIZ
+#define _IO_va_list _G_va_list
+#define _IO_wint_t _G_wint_t
+
+
+
+#define __need___va_list 
+#undef __need___va_list
+
+
+
+
+#define __GNUC_VA_LIST 
+typedef __builtin_va_list __gnuc_va_list;
+#undef _IO_va_list
+#define _IO_va_list __gnuc_va_list
+#define _PARAMS(protos) __P(protos)
+
+
+
+
+
+
+
+#define _IO_UNIFIED_JUMPTABLES 1
+
+
+
+
+
+#define EOF (-1)
+#define _IOS_INPUT 1
+#define _IOS_OUTPUT 2
+#define _IOS_ATEND 4
+#define _IOS_APPEND 8
+#define _IOS_TRUNC 16
+#define _IOS_NOCREATE 32
+#define _IOS_NOREPLACE 64
+#define _IOS_BIN 128
+
+
+
+
+
+
+
+#define _IO_MAGIC 0xFBAD0000
+#define _OLD_STDIO_MAGIC 0xFABC0000
+#define _IO_MAGIC_MASK 0xFFFF0000
+#define _IO_USER_BUF 1
+#define _IO_UNBUFFERED 2
+#define _IO_NO_READS 4
+#define _IO_NO_WRITES 8
+#define _IO_EOF_SEEN 0x10
+#define _IO_ERR_SEEN 0x20
+#define _IO_DELETE_DONT_CLOSE 0x40
+#define _IO_LINKED 0x80
+#define _IO_IN_BACKUP 0x100
+#define _IO_LINE_BUF 0x200
+#define _IO_TIED_PUT_GET 0x400
+#define _IO_CURRENTLY_PUTTING 0x800
+#define _IO_IS_APPENDING 0x1000
+#define _IO_IS_FILEBUF 0x2000
+#define _IO_BAD_SEEN 0x4000
+#define _IO_USER_LOCK 0x8000
+
+#define _IO_FLAGS2_MMAP 1
+#define _IO_FLAGS2_NOTCANCEL 2
+
+
+
+
+
+#define _IO_SKIPWS 01
+#define _IO_LEFT 02
+#define _IO_RIGHT 04
+#define _IO_INTERNAL 010
+#define _IO_DEC 020
+#define _IO_OCT 040
+#define _IO_HEX 0100
+#define _IO_SHOWBASE 0200
+#define _IO_SHOWPOINT 0400
+#define _IO_UPPERCASE 01000
+#define _IO_SHOWPOS 02000
+#define _IO_SCIENTIFIC 04000
+#define _IO_FIXED 010000
+#define _IO_UNITBUF 020000
+#define _IO_STDIO 040000
+#define _IO_DONT_CLOSE 0100000
+#define _IO_BOOLALPHA 0200000
+
+
+struct _IO_jump_t; struct _IO_FILE;
+typedef void _IO_lock_t;
+
+
+
+
+
+struct _IO_marker {
+  struct _IO_marker *_next;
+  struct _IO_FILE *_sbuf;
+
+
+
+  int _pos;
+};
+
+
+enum __codecvt_result
+{
+  __codecvt_ok,
+  __codecvt_partial,
+  __codecvt_error,
+  __codecvt_noconv
+};
+struct _IO_FILE {
+  int _flags;
+#define _IO_file_flags _flags
+
+
+
+  char* _IO_read_ptr;
+  char* _IO_read_end;
+  char* _IO_read_base;
+  char* _IO_write_base;
+  char* _IO_write_ptr;
+  char* _IO_write_end;
+  char* _IO_buf_base;
+  char* _IO_buf_end;
+
+  char *_IO_save_base;
+  char *_IO_backup_base;
+  char *_IO_save_end;
+
+  struct _IO_marker *_markers;
+
+  struct _IO_FILE *_chain;
+
+  int _fileno;
+
+
+
+  int _flags2;
+
+  __off_t _old_offset;
+
+#define __HAVE_COLUMN 
+
+  unsigned short _cur_column;
+  signed char _vtable_offset;
+  char _shortbuf[1];
+
+
+
+  _IO_lock_t *_lock;
+  __off64_t _offset;
+  void *__pad1;
+  void *__pad2;
+  void *__pad3;
+  void *__pad4;
+  size_t __pad5;
+
+  int _mode;
+
+  char _unused2[15 * sizeof (int) - 4 * sizeof (void *) - sizeof (size_t)];
+
+};
+
+
+typedef struct _IO_FILE _IO_FILE;
+
+
+struct _IO_FILE_plus;
+
+extern struct _IO_FILE_plus _IO_2_1_stdin_;
+extern struct _IO_FILE_plus _IO_2_1_stdout_;
+extern struct _IO_FILE_plus _IO_2_1_stderr_;
+
+#define _IO_stdin ((_IO_FILE*)(&_IO_2_1_stdin_))
+#define _IO_stdout ((_IO_FILE*)(&_IO_2_1_stdout_))
+#define _IO_stderr ((_IO_FILE*)(&_IO_2_1_stderr_))
+typedef __ssize_t __io_read_fn (void *__cookie, char *__buf, size_t __nbytes);
+
+
+
+
+
+
+
+typedef __ssize_t __io_write_fn (void *__cookie, __const char *__buf,
+     size_t __n);
+
+
+
+
+
+
+
+typedef int __io_seek_fn (void *__cookie, __off64_t *__pos, int __w);
+
+
+typedef int __io_close_fn (void *__cookie);
+extern int __underflow (_IO_FILE *) __attribute__ ((__nothrow__));
+extern int __uflow (_IO_FILE *) __attribute__ ((__nothrow__));
+extern int __overflow (_IO_FILE *, int) __attribute__ ((__nothrow__));
+extern wint_t __wunderflow (_IO_FILE *) __attribute__ ((__nothrow__));
+extern wint_t __wuflow (_IO_FILE *) __attribute__ ((__nothrow__));
+extern wint_t __woverflow (_IO_FILE *, wint_t) __attribute__ ((__nothrow__));
+
+
+#define _IO_BE(expr,res) __builtin_expect (expr, res)
+
+
+
+
+#define _IO_getc_unlocked(_fp) (_IO_BE ((_fp)->_IO_read_ptr >= (_fp)->_IO_read_end, 0) ? __uflow (_fp) : *(unsigned char *) (_fp)->_IO_read_ptr++)
+
+
+#define _IO_peekc_unlocked(_fp) (_IO_BE ((_fp)->_IO_read_ptr >= (_fp)->_IO_read_end, 0) && __underflow (_fp) == EOF ? EOF : *(unsigned char *) (_fp)->_IO_read_ptr)
+
+
+
+#define _IO_putc_unlocked(_ch,_fp) (_IO_BE ((_fp)->_IO_write_ptr >= (_fp)->_IO_write_end, 0) ? __overflow (_fp, (unsigned char) (_ch)) : (unsigned char) (*(_fp)->_IO_write_ptr++ = (_ch)))
+
+
+
+
+#define _IO_getwc_unlocked(_fp) (_IO_BE ((_fp)->_wide_data->_IO_read_ptr >= (_fp)->_wide_data->_IO_read_end, 0) ? __wuflow (_fp) : (_IO_wint_t) *(_fp)->_wide_data->_IO_read_ptr++)
+
+
+
+#define _IO_putwc_unlocked(_wch,_fp) (_IO_BE ((_fp)->_wide_data->_IO_write_ptr >= (_fp)->_wide_data->_IO_write_end, 0) ? __woverflow (_fp, _wch) : (_IO_wint_t) (*(_fp)->_wide_data->_IO_write_ptr++ = (_wch)))
+
+
+
+
+
+#define _IO_feof_unlocked(__fp) (((__fp)->_flags & _IO_EOF_SEEN) != 0)
+#define _IO_ferror_unlocked(__fp) (((__fp)->_flags & _IO_ERR_SEEN) != 0)
+
+extern int _IO_getc (_IO_FILE *__fp) __attribute__ ((__nothrow__));
+extern int _IO_putc (int __c, _IO_FILE *__fp) __attribute__ ((__nothrow__));
+extern int _IO_feof (_IO_FILE *__fp) __attribute__ ((__nothrow__));
+extern int _IO_ferror (_IO_FILE *__fp) __attribute__ ((__nothrow__));
+
+extern int _IO_peekc_locked (_IO_FILE *__fp) __attribute__ ((__nothrow__));
+
+
+#define _IO_PENDING_OUTPUT_COUNT(_fp) ((_fp)->_IO_write_ptr - (_fp)->_IO_write_base)
+
+
+extern void _IO_flockfile (_IO_FILE *) __attribute__ ((__nothrow__));
+extern void _IO_funlockfile (_IO_FILE *) __attribute__ ((__nothrow__));
+extern int _IO_ftrylockfile (_IO_FILE *) __attribute__ ((__nothrow__));
+#define _IO_peekc(_fp) _IO_peekc_unlocked (_fp)
+#define _IO_flockfile(_fp) 
+#define _IO_funlockfile(_fp) 
+#define _IO_ftrylockfile(_fp) 
+#define _IO_cleanup_region_start(_fct,_fp) 
+#define _IO_cleanup_region_end(_Doit) 
+
+
+extern int _IO_vfscanf (_IO_FILE * __restrict, const char * __restrict,
+   __gnuc_va_list, int *__restrict);
+extern int _IO_vfprintf (_IO_FILE *__restrict, const char *__restrict,
+    __gnuc_va_list);
+extern __ssize_t _IO_padn (_IO_FILE *, int, __ssize_t) __attribute__ ((__nothrow__));
+extern size_t _IO_sgetn (_IO_FILE *, void *, size_t) __attribute__ ((__nothrow__));
+
+extern __off64_t _IO_seekoff (_IO_FILE *, __off64_t, int, int) __attribute__ ((__nothrow__));
+extern __off64_t _IO_seekpos (_IO_FILE *, __off64_t, int) __attribute__ ((__nothrow__));
+
+extern void _IO_free_backup_area (_IO_FILE *) __attribute__ ((__nothrow__));
+
+
+typedef _G_fpos_t fpos_t;
+
+
+
+
+
+
+
+
+
+#define _IOFBF 0
+#define _IOLBF 1
+#define _IONBF 2
+
+
+
+
+#define BUFSIZ _IO_BUFSIZ
+#define SEEK_SET 0
+#define SEEK_CUR 1
+#define SEEK_END 2
+
+
+
+
+#define P_tmpdir "/tmp"
+#define L_tmpnam 20
+#define TMP_MAX 238328
+#define FILENAME_MAX 4096
+
+
+#define L_ctermid 9
+#define L_cuserid 9
+
+
+
+
+#undef FOPEN_MAX
+#define FOPEN_MAX 16
+extern struct _IO_FILE *stdin;
+extern struct _IO_FILE *stdout;
+extern struct _IO_FILE *stderr;
+
+
+#define stdin stdin
+#define stdout stdout
+#define stderr stderr
+
+
+
+
+extern int remove (__const char *__filename) __attribute__ ((__nothrow__));
+
+extern int rename (__const char *__old, __const char *__new) __attribute__ ((__nothrow__));
+
+
+
+
+
+
+
+
+
+extern FILE *tmpfile (void);
+extern char *tmpnam (char *__s) __attribute__ ((__nothrow__));
+
+
+
+
+
+extern char *tmpnam_r (char *__s) __attribute__ ((__nothrow__));
+extern char *tempnam (__const char *__dir, __const char *__pfx)
+     __attribute__ ((__nothrow__)) __attribute__ ((__malloc__));
+
+
+
+
+
+
+
+
+extern int fclose (FILE *__stream);
+
+
+
+
+extern int fflush (FILE *__stream);
+
+extern int fflush_unlocked (FILE *__stream);
+
+
+
+
+
+
+extern FILE *fopen (__const char *__restrict __filename,
+      __const char *__restrict __modes);
+
+
+
+
+extern FILE *freopen (__const char *__restrict __filename,
+        __const char *__restrict __modes,
+        FILE *__restrict __stream);
+
+extern FILE *fdopen (int __fd, __const char *__modes) __attribute__ ((__nothrow__));
+
+
+
+extern void setbuf (FILE *__restrict __stream, char *__restrict __buf) __attribute__ ((__nothrow__));
+
+
+
+extern int setvbuf (FILE *__restrict __stream, char *__restrict __buf,
+      int __modes, size_t __n) __attribute__ ((__nothrow__));
+
+
+
+
+
+extern void setbuffer (FILE *__restrict __stream, char *__restrict __buf,
+         size_t __size) __attribute__ ((__nothrow__));
+
+
+extern void setlinebuf (FILE *__stream) __attribute__ ((__nothrow__));
+
+
+
+
+
+
+
+
+extern int fprintf (FILE *__restrict __stream,
+      __const char *__restrict __format, ...);
+
+
+
+
+extern int printf (__const char *__restrict __format, ...);
+
+extern int sprintf (char *__restrict __s,
+      __const char *__restrict __format, ...) __attribute__ ((__nothrow__));
+
+
+
+
+
+extern int vfprintf (FILE *__restrict __s, __const char *__restrict __format,
+       __gnuc_va_list __arg);
+
+
+
+
+extern int vprintf (__const char *__restrict __format, __gnuc_va_list __arg);
+
+extern int vsprintf (char *__restrict __s, __const char *__restrict __format,
+       __gnuc_va_list __arg) __attribute__ ((__nothrow__));
+
+
+
+
+
+extern int snprintf (char *__restrict __s, size_t __maxlen,
+       __const char *__restrict __format, ...)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 3, 4)));
+
+extern int vsnprintf (char *__restrict __s, size_t __maxlen,
+        __const char *__restrict __format, __gnuc_va_list __arg)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 3, 0)));
+
+
+
+
+
+
+extern int fscanf (FILE *__restrict __stream,
+     __const char *__restrict __format, ...);
+
+
+
+
+extern int scanf (__const char *__restrict __format, ...);
+
+extern int sscanf (__const char *__restrict __s,
+     __const char *__restrict __format, ...) __attribute__ ((__nothrow__));
+
+
+
+
+
+
+extern int fgetc (FILE *__stream);
+extern int getc (FILE *__stream);
+
+
+
+
+
+extern int getchar (void);
+
+
+
+
+#define getc(_fp) _IO_getc (_fp)
+
+
+
+
+
+
+extern int getc_unlocked (FILE *__stream);
+extern int getchar_unlocked (void);
+extern int fgetc_unlocked (FILE *__stream);
+
+
+
+
+
+
+
+
+
+
+
+extern int fputc (int __c, FILE *__stream);
+extern int putc (int __c, FILE *__stream);
+
+
+
+
+
+extern int putchar (int __c);
+
+
+
+
+#define putc(_ch,_fp) _IO_putc (_ch, _fp)
+extern int fputc_unlocked (int __c, FILE *__stream);
+
+
+
+
+
+
+
+extern int putc_unlocked (int __c, FILE *__stream);
+extern int putchar_unlocked (int __c);
+
+
+
+
+
+
+extern int getw (FILE *__stream);
+
+
+extern int putw (int __w, FILE *__stream);
+
+
+
+
+
+
+
+
+extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream);
+
+
+
+
+
+
+extern char *gets (char *__s);
+
+
+
+
+
+
+extern int fputs (__const char *__restrict __s, FILE *__restrict __stream);
+
+
+
+
+
+extern int puts (__const char *__s);
+
+
+
+
+
+
+extern int ungetc (int __c, FILE *__stream);
+
+
+
+
+
+
+extern size_t fread (void *__restrict __ptr, size_t __size,
+       size_t __n, FILE *__restrict __stream);
+
+
+
+
+extern size_t fwrite (__const void *__restrict __ptr, size_t __size,
+        size_t __n, FILE *__restrict __s);
+
+extern size_t fread_unlocked (void *__restrict __ptr, size_t __size,
+         size_t __n, FILE *__restrict __stream);
+extern size_t fwrite_unlocked (__const void *__restrict __ptr, size_t __size,
+          size_t __n, FILE *__restrict __stream);
+
+
+
+
+
+
+
+
+extern int fseek (FILE *__stream, long int __off, int __whence);
+
+
+
+
+extern long int ftell (FILE *__stream);
+
+
+
+
+extern void rewind (FILE *__stream);
+
+
+
+
+
+
+
+extern int fgetpos (FILE *__restrict __stream, fpos_t *__restrict __pos);
+
+
+
+
+extern int fsetpos (FILE *__stream, __const fpos_t *__pos);
+
+
+
+extern void clearerr (FILE *__stream) __attribute__ ((__nothrow__));
+
+extern int feof (FILE *__stream) __attribute__ ((__nothrow__));
+
+extern int ferror (FILE *__stream) __attribute__ ((__nothrow__));
+
+
+
+
+extern void clearerr_unlocked (FILE *__stream) __attribute__ ((__nothrow__));
+extern int feof_unlocked (FILE *__stream) __attribute__ ((__nothrow__));
+extern int ferror_unlocked (FILE *__stream) __attribute__ ((__nothrow__));
+
+
+
+
+
+
+
+
+extern void perror (__const char *__s);
+
+extern int sys_nerr;
+extern __const char *__const sys_errlist[];
+extern int fileno (FILE *__stream) __attribute__ ((__nothrow__));
+
+
+
+
+extern int fileno_unlocked (FILE *__stream) __attribute__ ((__nothrow__));
+extern FILE *popen (__const char *__command, __const char *__modes);
+
+
+
+
+
+extern int pclose (FILE *__stream);
+
+
+
+
+
+extern char *ctermid (char *__s) __attribute__ ((__nothrow__));
+extern void flockfile (FILE *__stream) __attribute__ ((__nothrow__));
+
+
+
+extern int ftrylockfile (FILE *__stream) __attribute__ ((__nothrow__));
+
+
+extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__));
+
+#define _begin_code_h 
+typedef struct SDL_RWops {
+
+
+
+
+ int (*seek)(struct SDL_RWops *context, int offset, int whence);
+
+
+
+
+
+ int (*read)(struct SDL_RWops *context, void *ptr, int size, int maxnum);
+
+
+
+
+
+ int (*write)(struct SDL_RWops *context, const void *ptr, int size, int num);
+
+
+ int (*close)(struct SDL_RWops *context);
+
+ Uint32 type;
+ union {
+     struct {
+  int autoclose;
+   FILE *fp;
+     } stdio;
+     struct {
+  Uint8 *base;
+   Uint8 *here;
+  Uint8 *stop;
+     } mem;
+     struct {
+  void *data1;
+     } unknown;
+ } hidden;
+
+} SDL_RWops;
+
+
+
+
+extern SDL_RWops * SDL_RWFromFile(const char *file, const char *mode);
+
+extern SDL_RWops * SDL_RWFromFP(FILE *fp, int autoclose);
+
+extern SDL_RWops * SDL_RWFromMem(void *mem, int size);
+extern SDL_RWops * SDL_RWFromConstMem(const void *mem, int size);
+
+extern SDL_RWops * SDL_AllocRW(void);
+extern void SDL_FreeRW(SDL_RWops *area);
+
+
+#define SDL_RWseek(ctx,offset,whence) (ctx)->seek(ctx, offset, whence)
+#define SDL_RWtell(ctx) (ctx)->seek(ctx, 0, SEEK_CUR)
+#define SDL_RWread(ctx,ptr,size,n) (ctx)->read(ctx, ptr, size, n)
+#define SDL_RWwrite(ctx,ptr,size,n) (ctx)->write(ctx, ptr, size, n)
+#define SDL_RWclose(ctx) (ctx)->close(ctx)
+#undef _begin_code_h
+#define _SDL_timer_h 
+#define _begin_code_h 
+#define SDL_TIMESLICE 10
+
+
+#define TIMER_RESOLUTION 10
+
+
+
+
+extern Uint32 SDL_GetTicks(void);
+
+
+extern void SDL_Delay(Uint32 ms);
+
+
+typedef Uint32 ( *SDL_TimerCallback)(Uint32 interval);
+extern int SDL_SetTimer(Uint32 interval, SDL_TimerCallback callback);
+typedef Uint32 ( *SDL_NewTimerCallback)(Uint32 interval, void *param);
+
+
+typedef struct _SDL_TimerID *SDL_TimerID;
+
+
+
+
+extern SDL_TimerID SDL_AddTimer(Uint32 interval, SDL_NewTimerCallback callback, void *param);
+
+
+
+
+extern SDL_bool SDL_RemoveTimer(SDL_TimerID t);
+#undef _begin_code_h
+#define _SDL_audio_h 
+#define _SDL_byteorder_h 
+
+
+#define SDL_LIL_ENDIAN 1234
+#define SDL_BIG_ENDIAN 4321
+#define _ENDIAN_H 1
+#define __LITTLE_ENDIAN 1234
+#define __BIG_ENDIAN 4321
+#define __PDP_ENDIAN 3412
+#define __BYTE_ORDER __LITTLE_ENDIAN
+
+
+
+
+#define __FLOAT_WORD_ORDER __BYTE_ORDER
+
+
+
+#define LITTLE_ENDIAN __LITTLE_ENDIAN
+#define BIG_ENDIAN __BIG_ENDIAN
+#define PDP_ENDIAN __PDP_ENDIAN
+#define BYTE_ORDER __BYTE_ORDER
+
+
+
+#define __LONG_LONG_PAIR(HI,LO) LO, HI
+
+
+
+
+
+#define SDL_BYTEORDER __BYTE_ORDER
+#define _begin_code_h 
+typedef struct {
+ int freq;
+ Uint16 format;
+ Uint8 channels;
+ Uint8 silence;
+ Uint16 samples;
+ Uint16 padding;
+ Uint32 size;
+
+
+
+
+
+
+ void (*callback)(void *userdata, Uint8 *stream, int len);
+ void *userdata;
+} SDL_AudioSpec;
+
+
+#define AUDIO_U8 0x0008
+#define AUDIO_S8 0x8008
+#define AUDIO_U16LSB 0x0010
+#define AUDIO_S16LSB 0x8010
+#define AUDIO_U16MSB 0x1010
+#define AUDIO_S16MSB 0x9010
+#define AUDIO_U16 AUDIO_U16LSB
+#define AUDIO_S16 AUDIO_S16LSB
+
+
+
+#define AUDIO_U16SYS AUDIO_U16LSB
+#define AUDIO_S16SYS AUDIO_S16LSB
+
+
+
+
+
+
+
+typedef struct SDL_AudioCVT {
+ int needed;
+ Uint16 src_format;
+ Uint16 dst_format;
+ double rate_incr;
+ Uint8 *buf;
+ int len;
+ int len_cvt;
+ int len_mult;
+ double len_ratio;
+ void (*filters[10])(struct SDL_AudioCVT *cvt, Uint16 format);
+ int filter_index;
+} SDL_AudioCVT;
+extern int SDL_AudioInit(const char *driver_name);
+extern void SDL_AudioQuit(void);
+
+
+
+
+
+extern char * SDL_AudioDriverName(char *namebuf, int maxlen);
+extern int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained);
+
+
+
+
+typedef enum {
+ SDL_AUDIO_STOPPED = 0,
+ SDL_AUDIO_PLAYING,
+ SDL_AUDIO_PAUSED
+} SDL_audiostatus;
+extern SDL_audiostatus SDL_GetAudioStatus(void);
+extern void SDL_PauseAudio(int pause_on);
+extern SDL_AudioSpec * SDL_LoadWAV_RW(SDL_RWops *src, int freesrc, SDL_AudioSpec *spec, Uint8 **audio_buf, Uint32 *audio_len);
+
+
+#define SDL_LoadWAV(file,spec,audio_buf,audio_len) SDL_LoadWAV_RW(SDL_RWFromFile(file, "rb"),1, spec,audio_buf,audio_len)
+
+
+
+
+
+extern void SDL_FreeWAV(Uint8 *audio_buf);
+extern int SDL_BuildAudioCVT(SDL_AudioCVT *cvt,
+  Uint16 src_format, Uint8 src_channels, int src_rate,
+  Uint16 dst_format, Uint8 dst_channels, int dst_rate);
+extern int SDL_ConvertAudio(SDL_AudioCVT *cvt);
+#define SDL_MIX_MAXVOLUME 128
+extern void SDL_MixAudio(Uint8 *dst, const Uint8 *src, Uint32 len, int volume);
+
+
+
+
+
+
+
+extern void SDL_LockAudio(void);
+extern void SDL_UnlockAudio(void);
+
+
+
+
+extern void SDL_CloseAudio(void);
+#undef _begin_code_h
+#define _SDL_cdrom_h 
+#define _begin_code_h 
+#define SDL_MAX_TRACKS 99
+
+
+#define SDL_AUDIO_TRACK 0x00
+#define SDL_DATA_TRACK 0x04
+
+
+typedef enum {
+ CD_TRAYEMPTY,
+ CD_STOPPED,
+ CD_PLAYING,
+ CD_PAUSED,
+ CD_ERROR = -1
+} CDstatus;
+
+
+#define CD_INDRIVE(status) ((int)status > 0)
+
+typedef struct {
+ Uint8 id;
+ Uint8 type;
+ Uint16 unused;
+ Uint32 length;
+ Uint32 offset;
+} SDL_CDtrack;
+
+
+typedef struct SDL_CD {
+ int id;
+ CDstatus status;
+
+
+ int numtracks;
+ int cur_track;
+ int cur_frame;
+ SDL_CDtrack track[99 +1];
+} SDL_CD;
+
+
+#define CD_FPS 75
+#define FRAMES_TO_MSF(f,M,S,F) { int value = f; *(F) = value%CD_FPS; value /= CD_FPS; *(S) = value%60; value /= 60; *(M) = value; }
+
+
+
+
+
+
+
+#define MSF_TO_FRAMES(M,S,F) ((M)*60*CD_FPS+(S)*CD_FPS+(F))
+
+
+
+
+
+
+extern int SDL_CDNumDrives(void);
+
+
+
+
+
+
+
+extern const char * SDL_CDName(int drive);
+
+
+
+
+
+
+
+extern SDL_CD * SDL_CDOpen(int drive);
+
+
+
+
+
+extern CDstatus SDL_CDStatus(SDL_CD *cdrom);
+extern int SDL_CDPlayTracks(SDL_CD *cdrom,
+  int start_track, int start_frame, int ntracks, int nframes);
+
+
+
+
+extern int SDL_CDPlay(SDL_CD *cdrom, int start, int length);
+
+
+extern int SDL_CDPause(SDL_CD *cdrom);
+
+
+extern int SDL_CDResume(SDL_CD *cdrom);
+
+
+extern int SDL_CDStop(SDL_CD *cdrom);
+
+
+extern int SDL_CDEject(SDL_CD *cdrom);
+
+
+extern void SDL_CDClose(SDL_CD *cdrom);
+#undef _begin_code_h
+#define _SDL_joystick_h 
+#define _begin_code_h 
+struct _SDL_Joystick;
+typedef struct _SDL_Joystick SDL_Joystick;
+
+
+
+
+
+
+extern int SDL_NumJoysticks(void);
+
+
+
+
+
+
+extern const char * SDL_JoystickName(int device_index);
+extern SDL_Joystick * SDL_JoystickOpen(int device_index);
+
+
+
+
+extern int SDL_JoystickOpened(int device_index);
+
+
+
+
+extern int SDL_JoystickIndex(SDL_Joystick *joystick);
+
+
+
+
+extern int SDL_JoystickNumAxes(SDL_Joystick *joystick);
+
+
+
+
+
+
+extern int SDL_JoystickNumBalls(SDL_Joystick *joystick);
+
+
+
+
+extern int SDL_JoystickNumHats(SDL_Joystick *joystick);
+
+
+
+
+extern int SDL_JoystickNumButtons(SDL_Joystick *joystick);
+
+
+
+
+
+
+extern void SDL_JoystickUpdate(void);
+extern int SDL_JoystickEventState(int state);
+
+
+
+
+
+
+extern Sint16 SDL_JoystickGetAxis(SDL_Joystick *joystick, int axis);
+
+
+
+
+
+#define SDL_HAT_CENTERED 0x00
+#define SDL_HAT_UP 0x01
+#define SDL_HAT_RIGHT 0x02
+#define SDL_HAT_DOWN 0x04
+#define SDL_HAT_LEFT 0x08
+#define SDL_HAT_RIGHTUP (SDL_HAT_RIGHT|SDL_HAT_UP)
+#define SDL_HAT_RIGHTDOWN (SDL_HAT_RIGHT|SDL_HAT_DOWN)
+#define SDL_HAT_LEFTUP (SDL_HAT_LEFT|SDL_HAT_UP)
+#define SDL_HAT_LEFTDOWN (SDL_HAT_LEFT|SDL_HAT_DOWN)
+
+
+
+extern Uint8 SDL_JoystickGetHat(SDL_Joystick *joystick, int hat);
+
+
+
+
+
+
+extern int SDL_JoystickGetBall(SDL_Joystick *joystick, int ball, int *dx, int *dy);
+
+
+
+
+
+extern Uint8 SDL_JoystickGetButton(SDL_Joystick *joystick, int button);
+
+
+
+
+extern void SDL_JoystickClose(SDL_Joystick *joystick);
+#undef _begin_code_h
+#define _SDL_events_h 
+#define _SDL_active_h 
+#define _begin_code_h 
+#define SDL_APPMOUSEFOCUS 0x01
+#define SDL_APPINPUTFOCUS 0x02
+#define SDL_APPACTIVE 0x04
+extern Uint8 SDL_GetAppState(void);
+#undef _begin_code_h
+#define _SDL_keyboard_h 
+#define _SDL_keysym_h 
+
+
+
+
+
+
+
+typedef enum {
+
+ SDLK_UNKNOWN = 0,
+ SDLK_FIRST = 0,
+ SDLK_BACKSPACE = 8,
+ SDLK_TAB = 9,
+ SDLK_CLEAR = 12,
+ SDLK_RETURN = 13,
+ SDLK_PAUSE = 19,
+ SDLK_ESCAPE = 27,
+ SDLK_SPACE = 32,
+ SDLK_EXCLAIM = 33,
+ SDLK_QUOTEDBL = 34,
+ SDLK_HASH = 35,
+ SDLK_DOLLAR = 36,
+ SDLK_AMPERSAND = 38,
+ SDLK_QUOTE = 39,
+ SDLK_LEFTPAREN = 40,
+ SDLK_RIGHTPAREN = 41,
+ SDLK_ASTERISK = 42,
+ SDLK_PLUS = 43,
+ SDLK_COMMA = 44,
+ SDLK_MINUS = 45,
+ SDLK_PERIOD = 46,
+ SDLK_SLASH = 47,
+ SDLK_0 = 48,
+ SDLK_1 = 49,
+ SDLK_2 = 50,
+ SDLK_3 = 51,
+ SDLK_4 = 52,
+ SDLK_5 = 53,
+ SDLK_6 = 54,
+ SDLK_7 = 55,
+ SDLK_8 = 56,
+ SDLK_9 = 57,
+ SDLK_COLON = 58,
+ SDLK_SEMICOLON = 59,
+ SDLK_LESS = 60,
+ SDLK_EQUALS = 61,
+ SDLK_GREATER = 62,
+ SDLK_QUESTION = 63,
+ SDLK_AT = 64,
+
+
+
+ SDLK_LEFTBRACKET = 91,
+ SDLK_BACKSLASH = 92,
+ SDLK_RIGHTBRACKET = 93,
+ SDLK_CARET = 94,
+ SDLK_UNDERSCORE = 95,
+ SDLK_BACKQUOTE = 96,
+ SDLK_a = 97,
+ SDLK_b = 98,
+ SDLK_c = 99,
+ SDLK_d = 100,
+ SDLK_e = 101,
+ SDLK_f = 102,
+ SDLK_g = 103,
+ SDLK_h = 104,
+ SDLK_i = 105,
+ SDLK_j = 106,
+ SDLK_k = 107,
+ SDLK_l = 108,
+ SDLK_m = 109,
+ SDLK_n = 110,
+ SDLK_o = 111,
+ SDLK_p = 112,
+ SDLK_q = 113,
+ SDLK_r = 114,
+ SDLK_s = 115,
+ SDLK_t = 116,
+ SDLK_u = 117,
+ SDLK_v = 118,
+ SDLK_w = 119,
+ SDLK_x = 120,
+ SDLK_y = 121,
+ SDLK_z = 122,
+ SDLK_DELETE = 127,
+
+
+
+ SDLK_WORLD_0 = 160,
+ SDLK_WORLD_1 = 161,
+ SDLK_WORLD_2 = 162,
+ SDLK_WORLD_3 = 163,
+ SDLK_WORLD_4 = 164,
+ SDLK_WORLD_5 = 165,
+ SDLK_WORLD_6 = 166,
+ SDLK_WORLD_7 = 167,
+ SDLK_WORLD_8 = 168,
+ SDLK_WORLD_9 = 169,
+ SDLK_WORLD_10 = 170,
+ SDLK_WORLD_11 = 171,
+ SDLK_WORLD_12 = 172,
+ SDLK_WORLD_13 = 173,
+ SDLK_WORLD_14 = 174,
+ SDLK_WORLD_15 = 175,
+ SDLK_WORLD_16 = 176,
+ SDLK_WORLD_17 = 177,
+ SDLK_WORLD_18 = 178,
+ SDLK_WORLD_19 = 179,
+ SDLK_WORLD_20 = 180,
+ SDLK_WORLD_21 = 181,
+ SDLK_WORLD_22 = 182,
+ SDLK_WORLD_23 = 183,
+ SDLK_WORLD_24 = 184,
+ SDLK_WORLD_25 = 185,
+ SDLK_WORLD_26 = 186,
+ SDLK_WORLD_27 = 187,
+ SDLK_WORLD_28 = 188,
+ SDLK_WORLD_29 = 189,
+ SDLK_WORLD_30 = 190,
+ SDLK_WORLD_31 = 191,
+ SDLK_WORLD_32 = 192,
+ SDLK_WORLD_33 = 193,
+ SDLK_WORLD_34 = 194,
+ SDLK_WORLD_35 = 195,
+ SDLK_WORLD_36 = 196,
+ SDLK_WORLD_37 = 197,
+ SDLK_WORLD_38 = 198,
+ SDLK_WORLD_39 = 199,
+ SDLK_WORLD_40 = 200,
+ SDLK_WORLD_41 = 201,
+ SDLK_WORLD_42 = 202,
+ SDLK_WORLD_43 = 203,
+ SDLK_WORLD_44 = 204,
+ SDLK_WORLD_45 = 205,
+ SDLK_WORLD_46 = 206,
+ SDLK_WORLD_47 = 207,
+ SDLK_WORLD_48 = 208,
+ SDLK_WORLD_49 = 209,
+ SDLK_WORLD_50 = 210,
+ SDLK_WORLD_51 = 211,
+ SDLK_WORLD_52 = 212,
+ SDLK_WORLD_53 = 213,
+ SDLK_WORLD_54 = 214,
+ SDLK_WORLD_55 = 215,
+ SDLK_WORLD_56 = 216,
+ SDLK_WORLD_57 = 217,
+ SDLK_WORLD_58 = 218,
+ SDLK_WORLD_59 = 219,
+ SDLK_WORLD_60 = 220,
+ SDLK_WORLD_61 = 221,
+ SDLK_WORLD_62 = 222,
+ SDLK_WORLD_63 = 223,
+ SDLK_WORLD_64 = 224,
+ SDLK_WORLD_65 = 225,
+ SDLK_WORLD_66 = 226,
+ SDLK_WORLD_67 = 227,
+ SDLK_WORLD_68 = 228,
+ SDLK_WORLD_69 = 229,
+ SDLK_WORLD_70 = 230,
+ SDLK_WORLD_71 = 231,
+ SDLK_WORLD_72 = 232,
+ SDLK_WORLD_73 = 233,
+ SDLK_WORLD_74 = 234,
+ SDLK_WORLD_75 = 235,
+ SDLK_WORLD_76 = 236,
+ SDLK_WORLD_77 = 237,
+ SDLK_WORLD_78 = 238,
+ SDLK_WORLD_79 = 239,
+ SDLK_WORLD_80 = 240,
+ SDLK_WORLD_81 = 241,
+ SDLK_WORLD_82 = 242,
+ SDLK_WORLD_83 = 243,
+ SDLK_WORLD_84 = 244,
+ SDLK_WORLD_85 = 245,
+ SDLK_WORLD_86 = 246,
+ SDLK_WORLD_87 = 247,
+ SDLK_WORLD_88 = 248,
+ SDLK_WORLD_89 = 249,
+ SDLK_WORLD_90 = 250,
+ SDLK_WORLD_91 = 251,
+ SDLK_WORLD_92 = 252,
+ SDLK_WORLD_93 = 253,
+ SDLK_WORLD_94 = 254,
+ SDLK_WORLD_95 = 255,
+
+
+ SDLK_KP0 = 256,
+ SDLK_KP1 = 257,
+ SDLK_KP2 = 258,
+ SDLK_KP3 = 259,
+ SDLK_KP4 = 260,
+ SDLK_KP5 = 261,
+ SDLK_KP6 = 262,
+ SDLK_KP7 = 263,
+ SDLK_KP8 = 264,
+ SDLK_KP9 = 265,
+ SDLK_KP_PERIOD = 266,
+ SDLK_KP_DIVIDE = 267,
+ SDLK_KP_MULTIPLY = 268,
+ SDLK_KP_MINUS = 269,
+ SDLK_KP_PLUS = 270,
+ SDLK_KP_ENTER = 271,
+ SDLK_KP_EQUALS = 272,
+
+
+ SDLK_UP = 273,
+ SDLK_DOWN = 274,
+ SDLK_RIGHT = 275,
+ SDLK_LEFT = 276,
+ SDLK_INSERT = 277,
+ SDLK_HOME = 278,
+ SDLK_END = 279,
+ SDLK_PAGEUP = 280,
+ SDLK_PAGEDOWN = 281,
+
+
+ SDLK_F1 = 282,
+ SDLK_F2 = 283,
+ SDLK_F3 = 284,
+ SDLK_F4 = 285,
+ SDLK_F5 = 286,
+ SDLK_F6 = 287,
+ SDLK_F7 = 288,
+ SDLK_F8 = 289,
+ SDLK_F9 = 290,
+ SDLK_F10 = 291,
+ SDLK_F11 = 292,
+ SDLK_F12 = 293,
+ SDLK_F13 = 294,
+ SDLK_F14 = 295,
+ SDLK_F15 = 296,
+
+
+ SDLK_NUMLOCK = 300,
+ SDLK_CAPSLOCK = 301,
+ SDLK_SCROLLOCK = 302,
+ SDLK_RSHIFT = 303,
+ SDLK_LSHIFT = 304,
+ SDLK_RCTRL = 305,
+ SDLK_LCTRL = 306,
+ SDLK_RALT = 307,
+ SDLK_LALT = 308,
+ SDLK_RMETA = 309,
+ SDLK_LMETA = 310,
+ SDLK_LSUPER = 311,
+ SDLK_RSUPER = 312,
+ SDLK_MODE = 313,
+ SDLK_COMPOSE = 314,
+
+
+ SDLK_HELP = 315,
+ SDLK_PRINT = 316,
+ SDLK_SYSREQ = 317,
+ SDLK_BREAK = 318,
+ SDLK_MENU = 319,
+ SDLK_POWER = 320,
+ SDLK_EURO = 321,
+ SDLK_UNDO = 322,
+
+
+
+ SDLK_LAST
+} SDLKey;
+
+
+typedef enum {
+ KMOD_NONE = 0x0000,
+ KMOD_LSHIFT= 0x0001,
+ KMOD_RSHIFT= 0x0002,
+ KMOD_LCTRL = 0x0040,
+ KMOD_RCTRL = 0x0080,
+ KMOD_LALT = 0x0100,
+ KMOD_RALT = 0x0200,
+ KMOD_LMETA = 0x0400,
+ KMOD_RMETA = 0x0800,
+ KMOD_NUM = 0x1000,
+ KMOD_CAPS = 0x2000,
+ KMOD_MODE = 0x4000,
+ KMOD_RESERVED = 0x8000
+} SDLMod;
+
+#define KMOD_CTRL (KMOD_LCTRL|KMOD_RCTRL)
+#define KMOD_SHIFT (KMOD_LSHIFT|KMOD_RSHIFT)
+#define KMOD_ALT (KMOD_LALT|KMOD_RALT)
+#define KMOD_META (KMOD_LMETA|KMOD_RMETA)
+#define _begin_code_h 
+typedef struct {
+ Uint8 scancode;
+ SDLKey sym;
+ SDLMod mod;
+ Uint16 unicode;
+} SDL_keysym;
+
+
+#define SDL_ALL_HOTKEYS 0xFFFFFFFF
+extern int SDL_EnableUNICODE(int enable);
+
+
+
+
+
+
+
+#define SDL_DEFAULT_REPEAT_DELAY 500
+#define SDL_DEFAULT_REPEAT_INTERVAL 30
+
+
+
+extern int SDL_EnableKeyRepeat(int delay, int interval);
+extern Uint8 * SDL_GetKeyState(int *numkeys);
+
+
+
+
+extern SDLMod SDL_GetModState(void);
+
+
+
+
+
+extern void SDL_SetModState(SDLMod modstate);
+
+
+
+
+extern char * SDL_GetKeyName(SDLKey key);
+#undef _begin_code_h
+#define _SDL_mouse_h 
+#define _SDL_video_h 
+#define _SDL_mutex_h 
+#define _begin_code_h 
+#define SDL_MUTEX_TIMEDOUT 1
+
+
+#define SDL_MUTEX_MAXWAIT (~(Uint32)0)
+
+
+
+
+
+
+
+struct SDL_mutex;
+typedef struct SDL_mutex SDL_mutex;
+
+
+extern SDL_mutex * SDL_CreateMutex(void);
+
+
+#define SDL_LockMutex(m) SDL_mutexP(m)
+extern int SDL_mutexP(SDL_mutex *mutex);
+
+
+
+
+
+#define SDL_UnlockMutex(m) SDL_mutexV(m)
+extern int SDL_mutexV(SDL_mutex *mutex);
+
+
+extern void SDL_DestroyMutex(SDL_mutex *mutex);
+
+
+
+
+
+
+
+struct SDL_semaphore;
+typedef struct SDL_semaphore SDL_sem;
+
+
+extern SDL_sem * SDL_CreateSemaphore(Uint32 initial_value);
+
+
+extern void SDL_DestroySemaphore(SDL_sem *sem);
+
+
+
+
+
+extern int SDL_SemWait(SDL_sem *sem);
+
+
+
+
+extern int SDL_SemTryWait(SDL_sem *sem);
+
+
+
+
+
+
+
+extern int SDL_SemWaitTimeout(SDL_sem *sem, Uint32 ms);
+
+
+
+
+extern int SDL_SemPost(SDL_sem *sem);
+
+
+extern Uint32 SDL_SemValue(SDL_sem *sem);
+
+
+
+
+
+
+
+struct SDL_cond;
+typedef struct SDL_cond SDL_cond;
+
+
+extern SDL_cond * SDL_CreateCond(void);
+
+
+extern void SDL_DestroyCond(SDL_cond *cond);
+
+
+
+
+extern int SDL_CondSignal(SDL_cond *cond);
+
+
+
+
+extern int SDL_CondBroadcast(SDL_cond *cond);
+
+
+
+
+
+extern int SDL_CondWait(SDL_cond *cond, SDL_mutex *mut);
+
+
+
+
+
+
+
+extern int SDL_CondWaitTimeout(SDL_cond *cond, SDL_mutex *mutex, Uint32 ms);
+#undef _begin_code_h
+#define _begin_code_h 
+#define SDL_ALPHA_OPAQUE 255
+#define SDL_ALPHA_TRANSPARENT 0
+
+
+typedef struct {
+ Sint16 x, y;
+ Uint16 w, h;
+} SDL_Rect;
+
+typedef struct {
+ Uint8 r;
+ Uint8 g;
+ Uint8 b;
+ Uint8 unused;
+} SDL_Color;
+#define SDL_Colour SDL_Color
+
+typedef struct {
+ int ncolors;
+ SDL_Color *colors;
+} SDL_Palette;
+
+
+typedef struct SDL_PixelFormat {
+ SDL_Palette *palette;
+ Uint8 BitsPerPixel;
+ Uint8 BytesPerPixel;
+ Uint8 Rloss;
+ Uint8 Gloss;
+ Uint8 Bloss;
+ Uint8 Aloss;
+ Uint8 Rshift;
+ Uint8 Gshift;
+ Uint8 Bshift;
+ Uint8 Ashift;
+ Uint32 Rmask;
+ Uint32 Gmask;
+ Uint32 Bmask;
+ Uint32 Amask;
+
+
+ Uint32 colorkey;
+
+ Uint8 alpha;
+} SDL_PixelFormat;
+
+
+struct SDL_Surface;
+typedef int (*SDL_blit)(struct SDL_Surface *src, SDL_Rect *srcrect,
+   struct SDL_Surface *dst, SDL_Rect *dstrect);
+
+
+
+
+typedef struct SDL_Surface {
+ Uint32 flags;
+ SDL_PixelFormat *format;
+ int w, h;
+ Uint16 pitch;
+ void *pixels;
+ int offset;
+
+
+ struct private_hwdata *hwdata;
+
+
+ SDL_Rect clip_rect;
+ Uint32 unused1;
+
+
+ Uint32 locked;
+
+
+ struct SDL_BlitMap *map;
+
+
+ unsigned int format_version;
+
+
+ int refcount;
+} SDL_Surface;
+
+
+
+#define SDL_SWSURFACE 0x00000000
+#define SDL_HWSURFACE 0x00000001
+#define SDL_ASYNCBLIT 0x00000004
+
+#define SDL_ANYFORMAT 0x10000000
+#define SDL_HWPALETTE 0x20000000
+#define SDL_DOUBLEBUF 0x40000000
+#define SDL_FULLSCREEN 0x80000000
+#define SDL_OPENGL 0x00000002
+#define SDL_OPENGLBLIT 0x0000000A
+#define SDL_RESIZABLE 0x00000010
+#define SDL_NOFRAME 0x00000020
+
+#define SDL_HWACCEL 0x00000100
+#define SDL_SRCCOLORKEY 0x00001000
+#define SDL_RLEACCELOK 0x00002000
+#define SDL_RLEACCEL 0x00004000
+#define SDL_SRCALPHA 0x00010000
+#define SDL_PREALLOC 0x01000000
+
+
+#define SDL_MUSTLOCK(surface) (surface->offset || ((surface->flags & (SDL_HWSURFACE|SDL_ASYNCBLIT|SDL_RLEACCEL)) != 0))
+
+
+
+
+
+typedef struct {
+ Uint32 hw_available :1;
+ Uint32 wm_available :1;
+ Uint32 UnusedBits1 :6;
+ Uint32 UnusedBits2 :1;
+ Uint32 blit_hw :1;
+ Uint32 blit_hw_CC :1;
+ Uint32 blit_hw_A :1;
+ Uint32 blit_sw :1;
+ Uint32 blit_sw_CC :1;
+ Uint32 blit_sw_A :1;
+ Uint32 blit_fill :1;
+ Uint32 UnusedBits3 :16;
+ Uint32 video_mem;
+ SDL_PixelFormat *vfmt;
+} SDL_VideoInfo;
+#define SDL_YV12_OVERLAY 0x32315659
+#define SDL_IYUV_OVERLAY 0x56555949
+#define SDL_YUY2_OVERLAY 0x32595559
+#define SDL_UYVY_OVERLAY 0x59565955
+#define SDL_YVYU_OVERLAY 0x55595659
+
+
+typedef struct SDL_Overlay {
+ Uint32 format;
+ int w, h;
+ int planes;
+ Uint16 *pitches;
+ Uint8 **pixels;
+
+
+ struct private_yuvhwfuncs *hwfuncs;
+ struct private_yuvhwdata *hwdata;
+
+
+ Uint32 hw_overlay :1;
+ Uint32 UnusedBits :31;
+} SDL_Overlay;
+
+
+
+typedef enum {
+    SDL_GL_RED_SIZE,
+    SDL_GL_GREEN_SIZE,
+    SDL_GL_BLUE_SIZE,
+    SDL_GL_ALPHA_SIZE,
+    SDL_GL_BUFFER_SIZE,
+    SDL_GL_DOUBLEBUFFER,
+    SDL_GL_DEPTH_SIZE,
+    SDL_GL_STENCIL_SIZE,
+    SDL_GL_ACCUM_RED_SIZE,
+    SDL_GL_ACCUM_GREEN_SIZE,
+    SDL_GL_ACCUM_BLUE_SIZE,
+    SDL_GL_ACCUM_ALPHA_SIZE,
+    SDL_GL_STEREO,
+    SDL_GL_MULTISAMPLEBUFFERS,
+    SDL_GL_MULTISAMPLESAMPLES
+} SDL_GLattr;
+
+
+#define SDL_LOGPAL 0x01
+#define SDL_PHYSPAL 0x02
+extern int SDL_VideoInit(const char *driver_name, Uint32 flags);
+extern void SDL_VideoQuit(void);
+
+
+
+
+
+extern char * SDL_VideoDriverName(char *namebuf, int maxlen);
+
+
+
+
+
+
+
+extern SDL_Surface * SDL_GetVideoSurface(void);
+
+
+
+
+
+
+
+extern const SDL_VideoInfo * SDL_GetVideoInfo(void);
+extern int SDL_VideoModeOK(int width, int height, int bpp, Uint32 flags);
+extern SDL_Rect ** SDL_ListModes(SDL_PixelFormat *format, Uint32 flags);
+extern SDL_Surface * SDL_SetVideoMode
+   (int width, int height, int bpp, Uint32 flags);
+
+
+
+
+
+
+
+extern void SDL_UpdateRects
+  (SDL_Surface *screen, int numrects, SDL_Rect *rects);
+extern void SDL_UpdateRect
+  (SDL_Surface *screen, Sint32 x, Sint32 y, Uint32 w, Uint32 h);
+extern int SDL_Flip(SDL_Surface *screen);
+extern int SDL_SetGamma(float red, float green, float blue);
+extern int SDL_SetGammaRamp(const Uint16 *red, const Uint16 *green, const Uint16 *blue);
+extern int SDL_GetGammaRamp(Uint16 *red, Uint16 *green, Uint16 *blue);
+extern int SDL_SetColors(SDL_Surface *surface,
+   SDL_Color *colors, int firstcolor, int ncolors);
+extern int SDL_SetPalette(SDL_Surface *surface, int flags,
+       SDL_Color *colors, int firstcolor,
+       int ncolors);
+
+
+
+
+extern Uint32 SDL_MapRGB
+   (SDL_PixelFormat *format, Uint8 r, Uint8 g, Uint8 b);
+
+
+
+
+extern Uint32 SDL_MapRGBA(SDL_PixelFormat *format,
+       Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+
+
+
+extern void SDL_GetRGB(Uint32 pixel, SDL_PixelFormat *fmt,
+    Uint8 *r, Uint8 *g, Uint8 *b);
+
+
+
+
+extern void SDL_GetRGBA(Uint32 pixel, SDL_PixelFormat *fmt,
+     Uint8 *r, Uint8 *g, Uint8 *b, Uint8 *a);
+#define SDL_AllocSurface SDL_CreateRGBSurface
+extern SDL_Surface * SDL_CreateRGBSurface
+   (Uint32 flags, int width, int height, int depth,
+   Uint32 Rmask, Uint32 Gmask, Uint32 Bmask, Uint32 Amask);
+extern SDL_Surface * SDL_CreateRGBSurfaceFrom(void *pixels,
+   int width, int height, int depth, int pitch,
+   Uint32 Rmask, Uint32 Gmask, Uint32 Bmask, Uint32 Amask);
+extern void SDL_FreeSurface(SDL_Surface *surface);
+extern int SDL_LockSurface(SDL_Surface *surface);
+extern void SDL_UnlockSurface(SDL_Surface *surface);
+
+
+
+
+
+
+
+extern SDL_Surface * SDL_LoadBMP_RW(SDL_RWops *src, int freesrc);
+
+
+#define SDL_LoadBMP(file) SDL_LoadBMP_RW(SDL_RWFromFile(file, "rb"), 1)
+
+
+
+
+
+
+extern int SDL_SaveBMP_RW
+  (SDL_Surface *surface, SDL_RWops *dst, int freedst);
+
+
+#define SDL_SaveBMP(surface,file) SDL_SaveBMP_RW(surface, SDL_RWFromFile(file, "wb"), 1)
+extern int SDL_SetColorKey
+   (SDL_Surface *surface, Uint32 flag, Uint32 key);
+extern int SDL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha);
+extern SDL_bool SDL_SetClipRect(SDL_Surface *surface, const SDL_Rect *rect);
+
+
+
+
+
+
+extern void SDL_GetClipRect(SDL_Surface *surface, SDL_Rect *rect);
+extern SDL_Surface * SDL_ConvertSurface
+   (SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 flags);
+#define SDL_BlitSurface SDL_UpperBlit
+
+
+
+
+extern int SDL_UpperBlit
+   (SDL_Surface *src, SDL_Rect *srcrect,
+    SDL_Surface *dst, SDL_Rect *dstrect);
+
+
+
+extern int SDL_LowerBlit
+   (SDL_Surface *src, SDL_Rect *srcrect,
+    SDL_Surface *dst, SDL_Rect *dstrect);
+extern int SDL_FillRect
+  (SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
+extern SDL_Surface * SDL_DisplayFormat(SDL_Surface *surface);
+extern SDL_Surface * SDL_DisplayFormatAlpha(SDL_Surface *surface);
+extern SDL_Overlay * SDL_CreateYUVOverlay(int width, int height,
+    Uint32 format, SDL_Surface *display);
+
+
+extern int SDL_LockYUVOverlay(SDL_Overlay *overlay);
+extern void SDL_UnlockYUVOverlay(SDL_Overlay *overlay);
+
+
+
+
+
+
+
+extern int SDL_DisplayYUVOverlay(SDL_Overlay *overlay, SDL_Rect *dstrect);
+
+
+extern void SDL_FreeYUVOverlay(SDL_Overlay *overlay);
+extern int SDL_GL_LoadLibrary(const char *path);
+
+
+
+
+extern void * SDL_GL_GetProcAddress(const char* proc);
+
+
+
+
+extern int SDL_GL_SetAttribute(SDL_GLattr attr, int value);
+extern int SDL_GL_GetAttribute(SDL_GLattr attr, int* value);
+
+
+
+
+extern void SDL_GL_SwapBuffers(void);
+
+
+
+
+
+extern void SDL_GL_UpdateRects(int numrects, SDL_Rect* rects);
+extern void SDL_GL_Lock(void);
+extern void SDL_GL_Unlock(void);
+extern void SDL_WM_SetCaption(const char *title, const char *icon);
+extern void SDL_WM_GetCaption(char **title, char **icon);
+
+
+
+
+
+
+
+extern void SDL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask);
+
+
+
+
+
+
+extern int SDL_WM_IconifyWindow(void);
+extern int SDL_WM_ToggleFullScreen(SDL_Surface *surface);
+
+
+
+
+
+typedef enum {
+ SDL_GRAB_QUERY = -1,
+ SDL_GRAB_OFF = 0,
+ SDL_GRAB_ON = 1,
+ SDL_GRAB_FULLSCREEN
+} SDL_GrabMode;
+
+
+
+
+
+extern SDL_GrabMode SDL_WM_GrabInput(SDL_GrabMode mode);
+
+
+extern int SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
+                                    SDL_Surface *dst, SDL_Rect *dstrect);
+#undef _begin_code_h
+#define _begin_code_h 
+typedef struct WMcursor WMcursor;
+typedef struct {
+ SDL_Rect area;
+ Sint16 hot_x, hot_y;
+ Uint8 *data;
+ Uint8 *mask;
+ Uint8 *save[2];
+ WMcursor *wm_cursor;
+} SDL_Cursor;
+extern Uint8 SDL_GetMouseState(int *x, int *y);
+
+
+
+
+
+
+
+extern Uint8 SDL_GetRelativeMouseState(int *x, int *y);
+
+
+
+
+extern void SDL_WarpMouse(Uint16 x, Uint16 y);
+extern SDL_Cursor * SDL_CreateCursor
+  (Uint8 *data, Uint8 *mask, int w, int h, int hot_x, int hot_y);
+
+
+
+
+
+
+extern void SDL_SetCursor(SDL_Cursor *cursor);
+
+
+
+
+extern SDL_Cursor * SDL_GetCursor(void);
+
+
+
+
+extern void SDL_FreeCursor(SDL_Cursor *cursor);
+extern int SDL_ShowCursor(int toggle);
+#define SDL_BUTTON(X) (SDL_PRESSED<<(X-1))
+#define SDL_BUTTON_LEFT 1
+#define SDL_BUTTON_MIDDLE 2
+#define SDL_BUTTON_RIGHT 3
+#define SDL_BUTTON_WHEELUP 4
+#define SDL_BUTTON_WHEELDOWN 5
+#define SDL_BUTTON_LMASK SDL_BUTTON(SDL_BUTTON_LEFT)
+#define SDL_BUTTON_MMASK SDL_BUTTON(SDL_BUTTON_MIDDLE)
+#define SDL_BUTTON_RMASK SDL_BUTTON(SDL_BUTTON_RIGHT)
+#undef _begin_code_h
+#define _SDL_quit_h 
+#define SDL_QuitRequested() (SDL_PumpEvents(), SDL_PeepEvents(NULL,0,SDL_PEEKEVENT,SDL_QUITMASK))
+#define _begin_code_h 
+enum { SDL_NOEVENT = 0,
+       SDL_ACTIVEEVENT,
+       SDL_KEYDOWN,
+       SDL_KEYUP,
+       SDL_MOUSEMOTION,
+       SDL_MOUSEBUTTONDOWN,
+       SDL_MOUSEBUTTONUP,
+       SDL_JOYAXISMOTION,
+       SDL_JOYBALLMOTION,
+       SDL_JOYHATMOTION,
+       SDL_JOYBUTTONDOWN,
+       SDL_JOYBUTTONUP,
+       SDL_QUIT,
+       SDL_SYSWMEVENT,
+       SDL_EVENT_RESERVEDA,
+       SDL_EVENT_RESERVEDB,
+       SDL_VIDEORESIZE,
+       SDL_VIDEOEXPOSE,
+       SDL_EVENT_RESERVED2,
+       SDL_EVENT_RESERVED3,
+       SDL_EVENT_RESERVED4,
+       SDL_EVENT_RESERVED5,
+       SDL_EVENT_RESERVED6,
+       SDL_EVENT_RESERVED7,
+
+       SDL_USEREVENT = 24,
+
+
+
+       SDL_NUMEVENTS = 32
+};
+
+
+#define SDL_EVENTMASK(X) (1<<(X))
+enum {
+ SDL_ACTIVEEVENTMASK = (1<<(SDL_ACTIVEEVENT)),
+ SDL_KEYDOWNMASK = (1<<(SDL_KEYDOWN)),
+ SDL_KEYUPMASK = (1<<(SDL_KEYUP)),
+ SDL_MOUSEMOTIONMASK = (1<<(SDL_MOUSEMOTION)),
+ SDL_MOUSEBUTTONDOWNMASK = (1<<(SDL_MOUSEBUTTONDOWN)),
+ SDL_MOUSEBUTTONUPMASK = (1<<(SDL_MOUSEBUTTONUP)),
+ SDL_MOUSEEVENTMASK = (1<<(SDL_MOUSEMOTION))|
+                           (1<<(SDL_MOUSEBUTTONDOWN))|
+                           (1<<(SDL_MOUSEBUTTONUP)),
+ SDL_JOYAXISMOTIONMASK = (1<<(SDL_JOYAXISMOTION)),
+ SDL_JOYBALLMOTIONMASK = (1<<(SDL_JOYBALLMOTION)),
+ SDL_JOYHATMOTIONMASK = (1<<(SDL_JOYHATMOTION)),
+ SDL_JOYBUTTONDOWNMASK = (1<<(SDL_JOYBUTTONDOWN)),
+ SDL_JOYBUTTONUPMASK = (1<<(SDL_JOYBUTTONUP)),
+ SDL_JOYEVENTMASK = (1<<(SDL_JOYAXISMOTION))|
+                           (1<<(SDL_JOYBALLMOTION))|
+                           (1<<(SDL_JOYHATMOTION))|
+                           (1<<(SDL_JOYBUTTONDOWN))|
+                           (1<<(SDL_JOYBUTTONUP)),
+ SDL_VIDEORESIZEMASK = (1<<(SDL_VIDEORESIZE)),
+ SDL_VIDEOEXPOSEMASK = (1<<(SDL_VIDEOEXPOSE)),
+ SDL_QUITMASK = (1<<(SDL_QUIT)),
+ SDL_SYSWMEVENTMASK = (1<<(SDL_SYSWMEVENT))
+};
+#define SDL_ALLEVENTS 0xFFFFFFFF
+
+
+typedef struct {
+ Uint8 type;
+ Uint8 gain;
+ Uint8 state;
+} SDL_ActiveEvent;
+
+
+typedef struct {
+ Uint8 type;
+ Uint8 which;
+ Uint8 state;
+ SDL_keysym keysym;
+} SDL_KeyboardEvent;
+
+
+typedef struct {
+ Uint8 type;
+ Uint8 which;
+ Uint8 state;
+ Uint16 x, y;
+ Sint16 xrel;
+ Sint16 yrel;
+} SDL_MouseMotionEvent;
+
+
+typedef struct {
+ Uint8 type;
+ Uint8 which;
+ Uint8 button;
+ Uint8 state;
+ Uint16 x, y;
+} SDL_MouseButtonEvent;
+
+
+typedef struct {
+ Uint8 type;
+ Uint8 which;
+ Uint8 axis;
+ Sint16 value;
+} SDL_JoyAxisEvent;
+
+
+typedef struct {
+ Uint8 type;
+ Uint8 which;
+ Uint8 ball;
+ Sint16 xrel;
+ Sint16 yrel;
+} SDL_JoyBallEvent;
+
+
+typedef struct {
+ Uint8 type;
+ Uint8 which;
+ Uint8 hat;
+ Uint8 value;
+
+
+
+
+
+} SDL_JoyHatEvent;
+
+
+typedef struct {
+ Uint8 type;
+ Uint8 which;
+ Uint8 button;
+ Uint8 state;
+} SDL_JoyButtonEvent;
+
+
+
+
+
+typedef struct {
+ Uint8 type;
+ int w;
+ int h;
+} SDL_ResizeEvent;
+
+
+typedef struct {
+ Uint8 type;
+} SDL_ExposeEvent;
+
+
+typedef struct {
+ Uint8 type;
+} SDL_QuitEvent;
+
+
+typedef struct {
+ Uint8 type;
+ int code;
+ void *data1;
+ void *data2;
+} SDL_UserEvent;
+
+
+struct SDL_SysWMmsg;
+typedef struct SDL_SysWMmsg SDL_SysWMmsg;
+typedef struct {
+ Uint8 type;
+ SDL_SysWMmsg *msg;
+} SDL_SysWMEvent;
+
+
+typedef union {
+ Uint8 type;
+ SDL_ActiveEvent active;
+ SDL_KeyboardEvent key;
+ SDL_MouseMotionEvent motion;
+ SDL_MouseButtonEvent button;
+ SDL_JoyAxisEvent jaxis;
+ SDL_JoyBallEvent jball;
+ SDL_JoyHatEvent jhat;
+ SDL_JoyButtonEvent jbutton;
+ SDL_ResizeEvent resize;
+ SDL_ExposeEvent expose;
+ SDL_QuitEvent quit;
+ SDL_UserEvent user;
+ SDL_SysWMEvent syswm;
+} SDL_Event;
+extern void SDL_PumpEvents(void);
+typedef enum {
+ SDL_ADDEVENT,
+ SDL_PEEKEVENT,
+ SDL_GETEVENT
+} SDL_eventaction;
+
+extern int SDL_PeepEvents(SDL_Event *events, int numevents,
+    SDL_eventaction action, Uint32 mask);
+
+
+
+
+
+extern int SDL_PollEvent(SDL_Event *event);
+
+
+
+
+
+extern int SDL_WaitEvent(SDL_Event *event);
+
+
+
+
+
+extern int SDL_PushEvent(SDL_Event *event);
+
+
+
+
+
+
+
+typedef int (*SDL_EventFilter)(const SDL_Event *event);
+extern void SDL_SetEventFilter(SDL_EventFilter filter);
+
+
+
+
+
+extern SDL_EventFilter SDL_GetEventFilter(void);
+#define SDL_QUERY -1
+#define SDL_IGNORE 0
+#define SDL_DISABLE 0
+#define SDL_ENABLE 1
+extern Uint8 SDL_EventState(Uint8 type, int state);
+#undef _begin_code_h
+#define _SDL_version_h 
+#define _begin_code_h 
+#define SDL_MAJOR_VERSION 1
+#define SDL_MINOR_VERSION 2
+#define SDL_PATCHLEVEL 7
+
+typedef struct {
+ Uint8 major;
+ Uint8 minor;
+ Uint8 patch;
+} SDL_version;
+
+
+
+
+#define SDL_VERSION(X) { (X)->major = SDL_MAJOR_VERSION; (X)->minor = SDL_MINOR_VERSION; (X)->patch = SDL_PATCHLEVEL; }
+#define SDL_VERSIONNUM(X,Y,Z) (X)*1000 + (Y)*100 + (Z)
+
+
+
+#define SDL_COMPILEDVERSION SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL)
+
+
+
+#define SDL_VERSION_ATLEAST(X,Y,Z) (SDL_COMPILEDVERSION >= SDL_VERSIONNUM(X, Y, Z))
+
+
+
+
+
+
+extern const SDL_version * SDL_Linked_Version(void);
+#undef _begin_code_h
+#define _begin_code_h 
+#define SDL_INIT_TIMER 0x00000001
+#define SDL_INIT_AUDIO 0x00000010
+#define SDL_INIT_VIDEO 0x00000020
+#define SDL_INIT_CDROM 0x00000100
+#define SDL_INIT_JOYSTICK 0x00000200
+#define SDL_INIT_NOPARACHUTE 0x00100000
+#define SDL_INIT_EVENTTHREAD 0x01000000
+#define SDL_INIT_EVERYTHING 0x0000FFFF
+
+
+
+
+
+
+extern int SDL_Init(Uint32 flags);
+
+
+extern int SDL_InitSubSystem(Uint32 flags);
+
+
+extern void SDL_QuitSubSystem(Uint32 flags);
+
+
+
+
+
+extern Uint32 SDL_WasInit(Uint32 flags);
+
+
+
+
+extern void SDL_Quit(void);
+#undef _begin_code_h
