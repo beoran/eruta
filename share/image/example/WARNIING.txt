@@ -1,0 +1,9 @@
+WARNING:
+
+
+These files in the example folder are example and reference images downloaded from 
+publically acessible pages on the internet. They are the copyright of their respective 
+owners and should not be distributed any further. Their presence here is considered
+to be for fair use purposes only.
+
+

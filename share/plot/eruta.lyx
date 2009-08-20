@@ -1,0 +1,112 @@
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass hollywood
+\language english
+\inputencoding default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize 12
+\spacing single
+\papersize default
+\use_geometry true
+\use_amsmath 0
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\leftmargin 1.5in
+\topmargin 48bp
+\rightmargin 0.75in
+\bottommargin 30bp
+\headheight 12bp
+\headsep 24bp
+\footskip 6bp
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle fancy
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Eruta
+\end_layout
+
+\begin_layout Author
+Bjorn De Meyer
+\end_layout
+
+\begin_layout General
+\begin_inset VSpace vfill
+\end_inset
+
+
+\end_layout
+
+\begin_layout General
+
+\newpage
+
+\end_layout
+
+\begin_layout FADE IN:
+
+\end_layout
+
+\begin_layout Scene
+A small, waterfall.
+\end_layout
+
+\begin_layout Narrative
+Uncountable eras have passed since the dawn of mankind.
+ The face of the world changed, land was washed into the sea, and out of
+ the oceans, new continents sprang up.
+ Civilizations rose and fell, wars, diseases and disasters wiped out billions.
+ Yet somehow, mankind overcame all difficulties time and again, only to
+ fall, and rise up again in an seemingly eternal circle of creation and
+ destruction.
+\end_layout
+
+\begin_layout Scene
+A prosperous quasi medieval-looking town with white towers, seen from afar.
+\end_layout
+
+\begin_layout Narrative
+For hundreds of years, peace has reigned over the land of Begi.
+ However, inevitably, change must come.
+ The wheel of time is starting to turn once more...
+ 
+\end_layout
+
+\begin_layout FADE OUT
+
+\end_layout
+
+\begin_layout FADE IN:
+
+\end_layout
+
+\begin_layout Description
+Focus on Berne, in a field.
+\end_layout
+
+\end_body
+\end_document

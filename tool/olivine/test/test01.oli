@@ -1,0 +1,45 @@
+# Single line comments
+
+/*
+  Multiple line comments.
+*/
+ 
+# def with implicit block  
+def foo a, b 
+  return a + b
+
+# def with implicit block, and end
+def foobar a, b 
+  return a + b
+end
+
+# def with explicit block, and end
+def baz a, b do
+  return a + b
+end
+
+# alternative syntax 
+def bazoo a, b {
+ 
+}
+
+
+# Anonymous block, do syntax  
+do 
+  foo
+end
+
+# Undelimited anonymous block
+mycontrol
+  foo 10, bar 10, 20
+  bar 10, 20
+    mycontrol
+      baz foo 10, 20, bar 10, 20
+      baz (foo 10, 20), (bar 10, 20)
+      # -> baz ( foo (10, 20, bar) (10, 20) versus
+      #  baz ( foo (10, 20), bar (10, 20)) 
+  
+
+
+
+
