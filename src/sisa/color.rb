@@ -23,6 +23,17 @@ module Sisa
       @a        = a_in
     end
     
+    # XXX: finish this
+    def initialize_hex(hex)
+      aid = hex.to_s.split('').e      
+      if hex.size == 3 || hex.size == 4 
+        return hex.aid.map { |c| c.to_i }
+      elsif hex.size == 6 || hex.size == 8      
+      else
+        raise "Hex string not valid!"
+      end      
+    end
+    
     # Convert to an array with the respecive r, g, and b  values 
     # Also includes and a if a is not nil.
     def to_a
