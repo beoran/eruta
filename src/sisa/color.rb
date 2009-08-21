@@ -24,11 +24,12 @@ module Sisa
     end
     
     # XXX: finish this
-    def initialize_hex(hex)
+    def parse_hex(hex)
       aid = hex.to_s.split('').e      
       if hex.size == 3 || hex.size == 4 
-        return hex.aid.map { |c| c.to_i }
+        return hex.aid.map { |c| c.to_i(16) * 17 }
       elsif hex.size == 6 || hex.size == 8      
+        
       else
         raise "Hex string not valid!"
       end      
