@@ -2,12 +2,17 @@ Eruta, An Action RPG for ADULTS written in Ruby. Some contents may be NSFW.
 
 How to try it:
 
-Check out fom github, then:
+First install Ruby 1.9.1 and Ruby/SDL 2.1.0. Get it from here:
+http://rubyforge.org/frs/?group_id=1006
+
+You also need Chipmunk 4.1.0 . Get it from here:
+http://files.slembcke.net/chipmunk/release/
+
+Then, check eruta out fom github, and:
 cd src
 ruby1.9 main.rb
 
 For the map editor:
 cd src
 ruby1.9 eruma.rb
-
 
