@@ -8,6 +8,6 @@ ruby1.9 main.rb
 
 For the map editor:
 cd src
-ruby1.9 eurma.rb
+ruby1.9 eruma.rb
 
 
