@@ -24,12 +24,20 @@ module Sisa
     end
     
     # XXX: finish this
-    def parse_hex(hex)
-      aid = hex.to_s.split('').e      
+    def self.parse_hex(hex)
+      aid = hex.to_s.split('')      
       if hex.size == 3 || hex.size == 4 
-        return hex.aid.map { |c| c.to_i(16) * 17 }
+        return aid.map { |c| c.to_i(16) * 17 }
       elsif hex.size == 6 || hex.size == 8      
-        
+        aid2 = aid.map { |c| c.to_i(16)}
+        aid3 = [] 
+        aid3 << (aid2[0] * 16 + aid2[1])
+        aid3 << (aid2[2] * 16 + aid2[3])
+        aid3 << (aid2[4] * 16 + aid2[5])
+        if hex.size == 8      
+          aid3 << (aid2[6] * 16 + aid2[7])
+        end
+        return aid3        
       else
         raise "Hex string not valid!"
       end      
