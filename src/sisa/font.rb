@@ -241,7 +241,7 @@ module Sisa
     end
   
     
-    
+if RUBY_PLATFORM =~  /linux/
     # Load the Fontconfig DLL using ruby/dl. Linux only, for now. 
     module FontConfig
       require 'dl'
@@ -293,6 +293,14 @@ module Sisa
       FontConfig.FcFontSetDestroy(fs)
       return result
     end
+    
+else 
+ # Non-linux stub 
+    def self.get_font_files
+      return []
+    end
+end    
+    
     
     # Returns all known font files, cached, unless refresh is called
     def self.font_files(refresh = false)
