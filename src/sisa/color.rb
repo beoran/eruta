@@ -15,12 +15,17 @@ module Sisa
        # TODO
     end    
     
-    # Allocates a new color with the given RGB values.
-    def initialize(r_in, g_in, b_in, a_in = nil)
-      @r        = r_in
-      @g        = g_in
-      @b        = b_in
-      @a        = a_in
+    # Allocates a new color with the given RGB values, 
+    # or with the given hex values if r_in is a string and g_in is nil .
+    def initialize(r_in, g_in = nil, b_in = nil, a_in = nil)
+      if g_in.nil?
+        @r, @g, @b ,@a = self.class.parse_hex(r_in)
+      else
+        @r        = r_in
+        @g        = g_in
+        @b        = b_in
+        @a        = a_in
+      end  
     end
     
     # XXX: finish this
@@ -60,7 +65,10 @@ module Sisa
     
     # Comparisons with other colors
     def ==(other)      
-      return self.to_a == other.to_a  
+      return self.r == other.r && 
+             self.g == other.g && 
+             self.b == other.b && 
+             self.a == other.a 
     end
     
     TRANSPARENT       = Color.new(255, 0, 255, SDL::ALPHA_TRANSPARENT)
