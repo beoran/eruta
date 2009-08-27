@@ -8,7 +8,7 @@ module Test
     def test_screen
       wide        = 640 
       high        = 480 
-      fullscreen  = true
+      fullscreen  = false
       depth       = nil
       doublebuf   = false 
       hardware    = false
