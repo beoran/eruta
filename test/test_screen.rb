@@ -11,18 +11,22 @@ module Test
       fullscreen  = false
       depth       = nil
       doublebuf   = true 
+      hardware    = false
       SDL::Screen.init
       bpp        = SDL::Screen.info.bpp rescue 32   
       depth    ||= bpp
-      flags      = SDL::HWSURFACE | SDL::ANYFORMAT
+      flags      = SDL::ANYFORMAT
+      flags     |= SDL::HWSURFACE  if hardware
       flags     |= SDL::DOUBLEBUF  if doublebuf
       flags     |= SDL::FULLSCREEN if fullscreen
       new_depth  = SDL::Screen.check_mode(wide, high, depth, flags)
+      puts "Screen depth OK? #{new_depth.inspect}"
       # Try again with minimal requirements.
       if new_depth == 0
-        flags      = SDL::HWSURFACE | SDL::ANYFORMAT
+        flags      = SDL::ANYFORMAT
         new_depth  = SDL::Screen.check_mode(wide, high, depth, flags)
       end
+      puts "Screen depth OK? #{new_depth.inspect}"
       return nil unless new_depth != 0
       vs           = SDL::Screen.open(wide, high, new_depth, flags) rescue nil
       assert vs 
