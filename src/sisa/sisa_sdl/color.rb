@@ -1,8 +1,8 @@
 #
-# Mostly RGB(A) based model for a color, for use with low level SDL functions
+# Mostly RGB(A) based model for a color, for use with low level Sisa functions
 # 
 
-module Sisa
+module Sisa_SDL
 
   class Color
     attr_reader :r

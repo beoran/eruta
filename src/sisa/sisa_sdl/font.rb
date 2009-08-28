@@ -1,7 +1,7 @@
 require 'pathname'
 require 'forwardable'
 
-module Sisa
+module Sisa_SDL
 
   class Font
     extend Forwardable # We forward most requests to the font @handle

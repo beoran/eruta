@@ -3,7 +3,7 @@ require 'delegate'
 
 
 
-module Sisa
+module Sisa_SDL
   module ScreenMixin
     module ClassDefs
       # Gets the currently active SDL video surface

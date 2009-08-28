@@ -3,7 +3,7 @@
 # For example, the drawing methods'colors are mapped automagically, 
 # and are taken from an array-like object [r, g, b, a].
 
-module Sisa  
+module Sisa_SDL  
   module SurfaceMixin 
     # Class functions
     module ClassDefs
