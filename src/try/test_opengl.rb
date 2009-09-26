@@ -238,7 +238,7 @@ SDL.init(SDL::INIT_VIDEO)
 SDL.setGLAttr(SDL::GL_RED_SIZE, 5 )
 SDL.setGLAttr(SDL::GL_BLUE_SIZE, 5 )
 SDL.setGLAttr(SDL::GL_GREEN_SIZE, 5 )
-SDL.setGLAttr(SDL::GL_DEPTH_SIZE, 16 )
+SDL.setGLAttr(SDL::GL_DEPTH_SIZE, 8 )
 SDL.setGLAttr(SDL::GL_DOUBLEBUFFER,1)
 # SDL::FULLSCREEN| SDL::FULLSCREEN|
 SDL.setVideoMode(640, 480, 0, SDL::OPENGL|SDL::HWSURFACE)
@@ -251,7 +251,7 @@ puts GL_MAX_TEXTURE_SIZE
 
 @objectsToDraw = PictureCollection.new
 pos = 0
-dirname = "/home/bjmey/eruta/share/image/tile"
+dirname = "/home/bjorn/eruta/share/image/tile"
 d = Dir.new(dirname)
 d.each do |path|
   if File.extname(path) == ".png"
