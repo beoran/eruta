@@ -15,7 +15,7 @@
      double elapsed = 0;
      double rate    = 0;
      int    ok      = 1;
-     /* putenv("SDL_VIDEODRIVER=dga"); */ 
+     putenv("SDL_VIDEODRIVER=dga");
      SDL_Init(SDL_INIT_EVERYTHING);
      screen = SDL_SetVideoMode(640, 480, 32, SDL_FULLSCREEN | SDL_ASYNCBLIT);
      image  = IMG_Load("test_tile.png");
