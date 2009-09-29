@@ -7,8 +7,16 @@ First of all, the game needs the SDL, SDL_ttf, SDL_mixer and SGE libraries.
 Then install Ruby 1.9.1 and Ruby/SDL 2.1.0. Get it from here:
 http://rubyforge.org/frs/?group_id=1006
 
-You also need Chipmunk 4.1.0 . Get it from here:
+You also need Chipmunk 4.1.0 . The original version is here:
 http://files.slembcke.net/chipmunk/release/
+
+Unfortunately, it doesn't compile on Ruby 1.9.1, so get it here in stead: 
+http://github.com/beoran/chipmunk/tree/master/ruby/
+
+Just do 
+ruby(1.9) extconf.rb ; make ; make install
+and it should work.
+
 
 Then, check eruta out fom github, and:
 cd src
