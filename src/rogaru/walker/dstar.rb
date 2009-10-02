@@ -280,7 +280,7 @@ module Rogaru
         insert(state) unless close_by(get_g(state), get_rhs(state))
       end
 
-      # Inserts state into openList and openHash.
+      # Inserts state into open_list and open_hash.
       # 
       def insert(state) 
           state   = calculate_key(state)
@@ -402,8 +402,7 @@ module Rogaru
       # first save all of the non-empty on the map, clear the map, move the
       # goal, and re-add all of non-empty cells. Since most of these cells
       # are not between the start and goal this does not seem to hurt
-      # performance too much. Also it frees a good deal of memory we
-      # likely no longer use.
+      # performance too much. 
       # 
       def update_goal(gx, gy)
         to_add = []    

@@ -39,22 +39,25 @@ module Rogaru
         if distance < Math.sqrt((@w)**2 + (@h)**2)
           return halt()
         end
+        
+        xdist   = (goal.x - self.x).to_i
+        ydist   = (goal.y - self.y).to_i
            
-        deltax = self.vx + ((goal.x - self.x).to_i / time)
-        deltay = self.vy + ((goal.y - self.y).to_i  / time)
+        deltax  = self.vx + (ydist / time)
+        deltay  = self.vy + (xdist / time)
         # Distance to go.
-        deltax = @max_speed if self.vx + deltax > @max_speed 
-        deltay = @max_speed if self.vy + deltay > @max_speed
-        deltax = -@max_speed if self.vx + deltax < -@max_speed 
-        deltay = -@max_speed if self.vy + deltay < -@max_speed 
+        deltax  = @max_speed if self.vx + deltax > @max_speed 
+        deltay  = @max_speed if self.vy + deltay > @max_speed
+        deltax  = -@max_speed if self.vx + deltax < -@max_speed 
+        deltay  = -@max_speed if self.vy + deltay < -@max_speed 
         # Clamp speed to max speed.
-        # deltax = 0  if deltax.abs < deltay.abs 
-        # deltay = 0  if deltay.abs < deltax.abs
-        # Limit minimum speed to avoid jitter. The above doesn't work.
+        deltax  = 0  if deltay.abs > deltax.abs && xdist.abs < 3 
+        deltay  = 0  if deltay.abs < deltax.abs && ydist.abs < 3
+        # Limit minimum speed if distance on axis is small to avoid jitter. 
          
         
-        self.vx    = deltax
-        self.vy    = deltay
+        self.vx   += deltax
+        self.vy   += deltay
         self.apply_force(deltax, deltay)
       end
 

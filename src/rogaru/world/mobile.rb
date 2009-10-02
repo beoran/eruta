@@ -22,7 +22,7 @@ module Rogaru
         @vx       = vx ; @vy = vy 
         @color    = [0, 255, 255]
         @index    = -1 
-        @nx       = @y ; @ny = @x 
+        @nx       = self.y ; @ny = self.x 
         # motion this object will make in the next step
         # and the new position it will aquire
         @want_ix  = @ix  = 0

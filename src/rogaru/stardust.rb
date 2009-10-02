@@ -1,3 +1,5 @@
+require 'narray'
+
 
 module Rogaru
   # A module that helps drawing particle effects
@@ -10,13 +12,28 @@ module Rogaru
     DUST_VX   = 3
     DUST_VY   = 4
     DUST_TIME = 5
-    # A particle is represented, for speed, as an array
+    # A particle is represented, for speed, as an NArray
     def self.make_particle(x, y, vx, vy, time, *others)
-      arr = [true, x, y, vx, vy, time, *others]
+      size          = others.size + 6
+      arr           = NArray.float(size)
+      arr[DUST_X]   = x
+      arr[DUST_Y]   = y
+      arr[DUST_VX]  = vx
+      arr[DUST_VY]  = vy
+      arr[DUST_TIME]= time
+      index         = DUST_TIME + 1
+      for other in others do
+        arr[index]  = other
+        index += 1  
+      end  
+      # arr = [true, x, y, vx, vy, time, *others]
       class << arr
         def alive? 
-          self[DUST_ALIVE]
-        end        
+          self[DUST_ALIVE] == 1.0
+        end
+        def alive=(val)
+          self[DUST_ALIVE] = val ? 1.0 : 0.0
+        end
       end
       return arr
     end
@@ -87,14 +104,14 @@ module Rogaru
       
       
       def update(time = 1.0)
-        @particles.reject! { |p| ! p[DUST_ALIVE]}
+        @particles.reject! { |p| ! p.alive?}
         # remove all killed particles
         # one step too late, but it's not important, to be accurate 
         # here, just to be fast.
         @particles.each do | particle |           
           time_particle(particle, time)
           alive = update_particle(particle, time)
-          particle[DUST_ALIVE] = alive
+          particle.alive = true
           move_particle(particle, time)
         end
       end

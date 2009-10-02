@@ -587,6 +587,7 @@ module Rogaru
       @layer  = layer
     end
     
+    # Simple distance estimate
     def estimate_simple(from, to)
       ([ (to.x - from.x).abs, (to.y - from.y).abs ].max) * 10      
     end

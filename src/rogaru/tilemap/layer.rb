@@ -164,7 +164,7 @@ class Rogaru::Tilemap::Layer
           screen.draw_rect(drawx+16, drawy+16 , 2, 2, c6) if aidtile.down
         end
       end
-        end
+    end
   end
 
   def w

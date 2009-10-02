@@ -1,4 +1,4 @@
-#!../ext/bin/ruby
+#!/bin/env ruby1.9
 #
 # Copyright Bjorn De Meyer 2007. Can be used freely under the zlib license.
 #
@@ -18,7 +18,6 @@ require 'rogaru/world'
 require 'rogaru/walker'
 require 'rogaru/world'
 include Rogaru
-
 
 
 class Eruta
@@ -81,7 +80,7 @@ def main(fullscreen = false)
   slash     = Stardust::Slash.new(s_color,1)
   rain_color= [200,200,255]  
   snow      = Stardust::Rain.new(rain_color, amount = 100) 
-  snow.hide = true 
+  snow.hide = false 
   dust_x    = 100
   dust_y    = 200 
   p joysticks
