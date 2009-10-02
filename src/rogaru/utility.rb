@@ -37,7 +37,18 @@ module Rogaru
     end
     return joysticks
   end
+  
+  # Utility functions that are needed in many places can be mixed in:
+  def clamp(value, min, max=nil)
+      if !max
+        return self.clamp(min.min, min.max)
+      end
+      return min if value < min
+      return max if value > max
+      return value
+    end
   end
+  
 end
 
 

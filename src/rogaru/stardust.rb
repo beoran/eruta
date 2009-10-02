@@ -1,4 +1,5 @@
-require 'narray'
+# require 'narray'. It seems like Narray is slower for this application,
+# or at least for the way we are using it
 
 
 module Rogaru
@@ -14,25 +15,13 @@ module Rogaru
     DUST_TIME = 5
     # A particle is represented, for speed, as an NArray
     def self.make_particle(x, y, vx, vy, time, *others)
-      size          = others.size + 6
-      arr           = NArray.float(size)
-      arr[DUST_X]   = x
-      arr[DUST_Y]   = y
-      arr[DUST_VX]  = vx
-      arr[DUST_VY]  = vy
-      arr[DUST_TIME]= time
-      index         = DUST_TIME + 1
-      for other in others do
-        arr[index]  = other
-        index += 1  
-      end  
-      # arr = [true, x, y, vx, vy, time, *others]
+      arr = [1.0, x, y, vx, vy, time, *others]
       class << arr
         def alive? 
-          self[DUST_ALIVE] == 1.0
+          self[DUST_ALIVE] > 0.1
         end
         def alive=(val)
-          self[DUST_ALIVE] = val ? 1.0 : 0.0
+          self[DUST_ALIVE] = (val ? 1.0 : 0.0)
         end
       end
       return arr
@@ -84,7 +73,7 @@ module Rogaru
       
       # Advances time for a particle
       # You may or may not have to override this.
-      # it is clalled automagically BEFORE update_particle
+      # it is called automagically BEFORE update_particle
       # if particle[DUST_TIME] is not nill
       def time_particle(particle, time)
         if particle[DUST_TIME] # allow for eternal paricles
@@ -95,23 +84,23 @@ module Rogaru
       
       # Standard motion for a particle. 
       # You may or may not have to override this.
-      # it is clalled automagically after update_particle
+      # it is called automagically after update_particle
       # It also automagically applies the fudge speeds
       def move_particle(particle, time)
-        particle[DUST_X]    += particle[DUST_VX] -+ @vx_fudge
+        particle[DUST_X]    += particle[DUST_VX]  - @vx_fudge
         particle[DUST_Y]    += particle[DUST_VY]  + @vy_fudge
       end
       
       
       def update(time = 1.0)
-        @particles.reject! { |p| ! p.alive?}
+        @particles.reject! { |p| !(p.alive?) }
         # remove all killed particles
         # one step too late, but it's not important, to be accurate 
         # here, just to be fast.
         @particles.each do | particle |           
           time_particle(particle, time)
           alive = update_particle(particle, time)
-          particle.alive = true
+          particle.alive = alive
           move_particle(particle, time)
         end
       end
@@ -125,7 +114,7 @@ module Rogaru
       end
       
       def render(surface, x, y)
-        return if @hide # dosn't display of hidden
+        return if @hide # doesn't display if hidden
         ci = surface.map_color(@color)
         # surface.auto_lock_off
         surface.lock

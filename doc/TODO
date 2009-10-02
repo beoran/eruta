@@ -10,9 +10,8 @@
 ==== General ====
 
 Eruta will be a 2D or 2.5D game. 
-  Rationale: I like the old-school 2D look. Also, I suck at modelling. 
-  I'm slighly better at 2D pixelling. 3D games are more difficult and 
-  time-consuming to implement. 
+  Rationale: I like the old-school 2D look. 3D games are more resource hungry 
+  and time-consuming to implement.  
 
 Programmed in Ruby and C: 
   Rationale: Ruby is used generaly for speed and ease of development. C for
@@ -25,7 +24,9 @@ Use ruby 1.9.1 preview and up:
   
 Using ruby-sdl version 2.x or higher and perhaps later ruby OpenGL, depending on
 how SDL 1.3 turns out. 
-  Rationale: SDL is still the de facto standard for open source games.
+  Rationale: SDL is still the de facto standard for open source games. SFML was 
+  tried but found a bit slow and difficult to wrap in Ruby. Allegro 5 could 
+  also be used later if SDL 1.3 does not stay up to date. 
 
 Screen resolution exactly 640x480. Color depth minimum 16bpp or better. Perhaps
 implement scaling to other resolutons trough OpenGL or 2xSai, etc later. 
@@ -45,10 +46,11 @@ Scripting of maps and events.
 Game system: stats, skills, techniques, battle resolution, etc, etc.
 
 Tile Map
+--------
+
 Tile map with tiles of 32x32 pixels. Before, 40x40 or 64x64 were considered, but
-my art skills are too low to create good art with such resolutions. Basically,
-the smaller the tiles and sprites, the easier they are to draw for me. Also,
-32x32 is easy to accelerate with OpenGL later, and fits the resolution well.
+these are too large and make the art requirements too high. Also, 32x32 is easy 
+to accelerate with OpenGL later, and fits the resolution well.
 Tile map distinguishes between tile layers wich dictate rendering and world
 layers which dictate gameplay (ie, on which levels the sprites can “be”).
 Tile map has optimally 2, 4, or sometimes 6  drawing layers of tiles. Testing
@@ -57,12 +59,13 @@ Layers are usually grouped in pairs for the “world layers”. Layer 1 is the f
 floor, layer 2 is anything that stands on that floor and any fringes/overlaps
 from one kind of floor to another. Layers 1 and 2 are always under al sprites.
 Layer 3 and 4 are normally the “floor above” the player, however, the player may
-walk there in case of bridges or parallax.
+walk there in case of bridges, overlays, or parallax.
 Option for parallax scrolling background bitmap, or for any layer to do parallax
 scrolling. Scrolling can be locked or unlocked in x and y directions. Although
 only one bitmap background can be displayed at once, it's possible for a map to
 change the background depending on what's needed. (night/day/scripting/etc). The
-background bitmap width and height must also be of integer multipleof 32 pixels.
+background bitmap width and height must also have a size that is an integer 
+multiple of 32 pixels.
 Tile maps use tile sets. Tile sets are directories containing tile images in
 .png format with a width and height that are integer multiples of 32, and that
 contain many individual tiles.
@@ -176,8 +179,8 @@ that has a position I the world and that can move there, and that cooperates
 well with the camera. Perhaps this belongs in the physics, though. 
 
 Physics
-Originally planning to use Chipmunk, but it's somewhat unwieldy. Hand-implemened
-a more simple system that is quite fast to boot.
+Use Chipmunk anyway, but tweaked it. My own system was way too unwieldy and 
+difficult to use. 
   
 +------+
 | TODO |

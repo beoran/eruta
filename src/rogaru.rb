@@ -49,6 +49,17 @@ module Rogaru
       return  @frames.to_f / delta.to_f 
     end
     
+    # Utility functions that are needed in many places:
+    def self.clamp(value, min, max=nil)
+      if !max
+        return self.clamp(min.min, min.max)
+      end
+      return min if value < min
+      return max if value > max
+      return value
+    end
+
+    
   end
 
 

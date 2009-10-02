@@ -1,6 +1,7 @@
 module Rogaru
   class World
     class Actor < Mobile
+      include Rogaru::Utility
       attr_accessor :color
       
       def initialize(space, x, y, z, w, h, mass = 1, impulse = INFINITY, vx = 0, vy = 0)
@@ -29,7 +30,8 @@ module Rogaru
         @vy = 0
         return self
       end
-
+      
+      
       def follow_simple(goal, time)
         distance = distance_to_goal(goal)
         # Give up following if too far or too close
@@ -40,24 +42,29 @@ module Rogaru
           return halt()
         end
         
+        lim     = @max_speed / time
         xdist   = (goal.x - self.x).to_i
         ydist   = (goal.y - self.y).to_i
-           
-        deltax  = self.vx + (ydist / time)
-        deltay  = self.vy + (xdist / time)
+        clamp(xdist, -lim, lim)
+        clamp(ydist, -lim, lim)
+        deltax  = (ydist / time)
+        deltay  = (xdist / time)
         # Distance to go.
-        deltax  = @max_speed if self.vx + deltax > @max_speed 
-        deltay  = @max_speed if self.vy + deltay > @max_speed
-        deltax  = -@max_speed if self.vx + deltax < -@max_speed 
-        deltay  = -@max_speed if self.vy + deltay < -@max_speed 
-        # Clamp speed to max speed.
-        deltax  = 0  if deltay.abs > deltax.abs && xdist.abs < 3 
-        deltay  = 0  if deltay.abs < deltax.abs && ydist.abs < 3
+        #XXX: How to avoid jitter?
+        # if deltay.abs > deltax.abs
+          # deltax  = 0
+        # elsif deltay.abs < deltax.abs
+          # deltay  = 0
+        # else           
+        # end  
+        # deltax  = 0  if deltay.abs > deltax.abs && xdist.abs < 3 
+        # deltay  = 0  if deltay.abs < deltax.abs && ydist.abs < 3
         # Limit minimum speed if distance on axis is small to avoid jitter. 
-         
         
-        self.vx   += deltax
-        self.vy   += deltay
+        #self.vx   += deltax
+        #self.vy   += deltay
+        #self.clamp_speed
+        
         self.apply_force(deltax, deltay)
       end
 
