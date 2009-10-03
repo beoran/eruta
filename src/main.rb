@@ -21,10 +21,10 @@ include Rogaru
 
 
 class Eruta
-
+      
 START_MAP = 'map07_test.xml'
 # START_MAP = 'map07_test.tmx'
-# The TMX loader is curretly a LOT slower than the normal XML one, 
+# The TMX loader is currently a LOT slower than the normal XML one, 
 # probably because of the inefficient layout of the TMX file.  
 
 
