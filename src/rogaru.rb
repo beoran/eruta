@@ -7,10 +7,13 @@ require 'sdl'
 
 
 module Rogaru
-  autoload :Fairy   , 'rogaru/fairy'
-  autoload :Image   , 'rogaru/image'
+  autoload :Fairy   , 'rogaru/fairy'  
+  autoload :Image   , 'rogaru/image'  
   autoload :Screen  , 'rogaru/screen'
   autoload :Space   , 'rogaru/space'
+  autoload :Sprite  , 'rogaru/sprite'
+  autoload :Stardust, 'rogaru/stardust'
+  
   autoload :Tilemap , 'rogaru/tilemap'
   autoload :UI      , 'rogaru/ui'
   autoload :Utility , 'rogaru/utility'
