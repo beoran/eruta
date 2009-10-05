@@ -99,6 +99,10 @@ def main(fullscreen = false)
   puts("OK!")
   sprite          = sprites[:fake]
   sprite.visible  = true
+  sprite.direction= :south
+  sprite.pose     = :stand
+  p sprite
+  p sprite.drawing
   clock     = Rogaru::Clock.new()  
   screen.fill([ 0xff, 00, 00]);
   start     = Time.now()
@@ -285,18 +289,20 @@ def main(fullscreen = false)
       end
     end
     ffact = 25.0
-    pplayer.vx = player.vx 
-    pplayer.vy = player.vy    
+    # pplayer.vx = player.vx 
+    # pplayer.vy = player.vy    
+    sprite.x        = pplayer.x - camera.x 
+    sprite.y        = pplayer.y - camera.y - 32
+    sprite.z        = pplayer.z
+    sprite.visible  = true 
+    sprite.pose     = :stand  
+
     # pplayer.apply_impulse(player.vx, player.vy)
     pplayer.apply_force(player.vx, player.vy)
     #pplayer.shape.surface_v = CP::Vec2.new(player.vx * 1000, player.vy * 1000)
     fr = clock.framerate
     world.update(1.0)
-    # A constant value for world.update is much bettter for Chipmunk.
-    sprite.x   = pplayer.x - camera.x 
-    sprite.y   = pplayer.y - camera.y
-    sprite.visible = true 
-    sprite.pose= :stand  
+    # A constant value for world.update is much better for Chipmunk.
     
     # Though, here the program should skip updates occasionally if FPS > 60
     # And should also skip drawing to screen if FPS is < 60 (or 30)

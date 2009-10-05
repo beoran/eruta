@@ -84,7 +84,7 @@ module Rogaru
         for filename in fileaid 
           fullname    = File.join(folder, filename)
           res = load_filename(fullname)
-          puts "Loading #{fullname}: #{res ? 'OK': 'FAIL'}"
+          #puts "Loading #{fullname}: #{res ? 'OK': 'FAIL'}"
         end        
       end
 
@@ -104,20 +104,20 @@ module Rogaru
         part     = aid[1]
         size     = aid[2]
         unless name && part
-          warn NAME_WARNING 
+          # warn NAME_WARNING 
           return sprite         
         end
         # Size is optional, assumed to be 64 high by 32 wide
         if size
           said    = size.split('x')
           unless said[0] && said[1]
-            warn NAME_WARNING
+            # warn NAME_WARNING
             return sprite
           end
           wide    = said[0].to_i
           high    = said[1].to_i
           unless high > 0 && wide > 0
-            warn NAME_WARNING
+            # warn NAME_WARNING
             return false          
           end
         else #use default size values

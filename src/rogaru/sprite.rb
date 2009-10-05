@@ -29,6 +29,8 @@ module Rogaru
       # If no pose for a given directory is available, it's :any counterpart 
       # will be used.
       attr_reader :direction
+      # 
+      attr_reader :frames
       
       # Creates a new direction
       def initialize(kind = :stand, direction = :any, frames = [], times = [])
@@ -48,7 +50,7 @@ module Rogaru
       # Draws this pose on the given bitmap or screebn, at the given position
       def draw_at(screen, x, y)
         frame       = @frames.at(@active)
-        screen.put_bitmap(frame, x, y)
+        screen.put_bitmap(x, y, frame)
       end
       
       # Rewinds this part's animation
@@ -100,6 +102,7 @@ module Rogaru
       attr_reader   :pose
       # Is this part visible or not
       attr_accessor :visible
+      attr_reader   :poses
       
       # Updates the absolute X coorinates. Should be called whenever 
       # the sprite's X position, or this part's relative X position changes
@@ -211,23 +214,23 @@ module Rogaru
         #return unless @visible 
         # pose MUST have been set. No time here for checking or other niceties!        
         @pose.draw_at(screen, self.x, self.y)
-        puts "Drew part #{@kind} at #{@x} #{@y}"
       end
       
     end
     
     
     # Drawing locations of the sprite
-    attr_accessor :x
+    attr_reader   :x
     attr_reader   :y
     attr_reader   :z
     # The direction the sprite is currently facing 
     attr_reader   :direction 
     # The current pose the sprite is taking
-    attr_accessor :pose
+    attr_reader   :pose
     attr_reader   :name
     # Is this sprite visible or not
     attr_accessor :visible
+    attr_reader   :drawing
 
  
     # Creates a new sprite in the given list, with the given name and locations
@@ -241,12 +244,28 @@ module Rogaru
       @drawing        = []
       # Parts in a hash by kind      
       @parts          = {}        
-      @facing         = :south
+      @direction      = :south
       @pose           = :stand
       # Sprites are not visible by default.
       @visible        = false
     end  
     
+    # Set direction of this sprite
+    def direction=(dir)
+      @direction = dir
+      for part in @drawing
+        part.update_pose() 
+      end       
+    end
+    
+    # Set pose of this sprite
+    def pose=(pose)
+      @pose = pose
+      for part in @drawing
+        part.update_pose() 
+      end 
+    end  
+
     # draws this sprite at it's current location, on the given screen
     def draw(screen)
       # draw all parts of the sprite in order, from back to front
@@ -268,8 +287,7 @@ module Rogaru
     end
 
     # Adds a part to this sprite, and return it
-    def add_part(part)
-      p 'added part', part 
+    def add_part(part)       
       @parts[part.kind]  = part
       @drawing          << part
       @drawing.sort_by { |p| p.z }
@@ -278,22 +296,38 @@ module Rogaru
     
     # Adds a new part to this sprite and returns it
     def new_part(kind, rx, ry, rz)
-      part = Part.new(self, kind, rx, ry, rz)
+      part = Part.new(self, kind, rx, ry, rz)      
+      return add_part(part)
     end
     
     # Changes the Z value and the layer this sprite is in
     # The list this sprite is in must be set to do this
     def z=(new_z)
       old_z = self.z
-      @z    = new_z
+      @z    = new_z.to_i
       @list.on_z_change(self, old_z, new_z)
+      for part in @drawing do
+        part.update_z
+      end  
     end  
     
     def y=(new_y)
       old_y = self.y
-      @y    = new_y
+      @y    = new_y.to_i
       @list.on_y_change(self, old_y, new_y)
+      for part in @drawing do
+        part.update_y
+      end
     end  
+    
+    def x=(new_x)
+      @x    = new_x.to_i
+      for part in @drawing do
+        part.update_x
+      end
+    end  
+      
+      
     
     # Sorting values for different parts
     PART_Z         = { } 
@@ -324,11 +358,14 @@ module Rogaru
       yy      = 0
       part_z  = PART_Z[:any][partsym] || 0
       part    = self.new_part(partname, 0, 0, part_z)
-      surface = Sisa::Surface.load(filename)
-      # Every file has a single part (or lauer) of the sprite in it, in which 
+      p filename
+      surface = Sisa::Surface.load_alpha(filename)
+      # Load the filename, including the alpha channel.
+      # XXX: normal load won't work somehow! Why?
+      # Every file has a single part (or layer) of the sprite in it, in which 
       # there are many poses for many directions do 
       for direction in DIRECTIONS 
-        yy        = DIRECTION_Y[direction] * high
+        # yy        = DIRECTION_Y[direction] * high
         pindex    = 0         
         # Load every pose
         #TODO: perhaps handle empty poses somehow?
@@ -338,10 +375,10 @@ module Rogaru
           time    = []
           #Load frame by frame
           for index in (0...fcount) 
-            xx      = pindex * wide
-            frame   = surface.copy_rectangle(xx, yy, wide, high)
+            # xx      = pindex * wide
+            sloframe= surface.copy_rectangle(xx, yy, wide, high)
             # Conversion to screen format to speed up rendering 
-            frame   = frame.to_display_alpha()
+            frame   = sloframe.to_display_alpha()
             frames << frame
             time   << POSE_TIME[posename]
             # On to the next frame

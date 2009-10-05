@@ -3,6 +3,7 @@
 # Partially based on mixins. 
 
 
+# Load the SISA that we need
 SISA_USE_SDL = true
 if SISA_USE_SDL
   require 'sdl'
@@ -17,6 +18,14 @@ elsif SISA_USE_GOSU
   require 'sisa/sisa_gosu'
   Sisa = Sisa_GOSU
 end
+
+# Now extend sisa with portable functions
+module Sisa  
+# Creates a new Sisa::Color instance
+  def self.color(*args)
+    Sisa::Color.new(*args)
+  end
+end  
 
 
 
