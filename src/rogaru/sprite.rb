@@ -1,9 +1,19 @@
-module Rogaru
-  
+module Rogaru  
   # A sprite
   class Sprite
-    # Defauilt time for animation steps
+    autoload :List, 'rogaru/sprite/list'  
+    
+    # Default time for animation steps
     DEFAULT_TIME = 1.0
+    
+    # Available directions
+    DIRECTIONS  = [:north, :east, :south, :west, :any]
+    SPRITE_DIR  = File.join('..','share','image','sprite')
+    # Default sprite directory.  XXX: use Settings to load this.
+    # Generally useful poses
+    POSES       = [ :stand, :walk, :run, :strike, :pain, :kneel, :sleep ]
+    # Generally useful parts
+    PARTS       = [ :body, :head, :hair, :hat, :torso, :legs, :feet, :left, :right, :extra]
     
     # A pose is a certain action or position that a Part of a sprite 
     # can perform. For example, the head can look down, up, etc,
@@ -44,7 +54,7 @@ module Rogaru
       # Rewinds this part's animation
       def rewind
         @active     = 0
-        @remaining  = times[0] ||= DEFAULT_TIME
+        @remaining  = @times[0] ||= DEFAULT_TIME
       end  
         
       # Advances this part's  animation by one frame
@@ -70,7 +80,7 @@ module Rogaru
     # with other parts to build a sprite. It can be animated, and 
     # change depending on the direction of the sprite, and
     # contain different Poses
-    def Part
+    class Part
       # What kind of Part it is
       attr_reader :kind
       # x, y and z values of Parts are absolute, however you can use 
@@ -129,7 +139,11 @@ module Rogaru
         @rx         = rx
         @ry         = ry
         @rz         = rz
-        @poses      = { :north => {}, :east => {}, :south => {}, :west=>{}, :any={}}
+        # Storage for the poses per direction.
+        @poses      = {} 
+        for dir in DIRECTIONS do
+          @poses[dir] = {}
+        end  
         @pose       = nil # Currently active pose
         @visible    = true
         update_xyz
@@ -194,65 +208,13 @@ module Rogaru
       # Draw this part's active pose to the screen
       def draw(screen)
         # Do nothing if not visible
-        return unless @visible 
+        #return unless @visible 
         # pose MUST have been set. No time here for checking or other niceties!        
         @pose.draw_at(screen, self.x, self.y)
+        puts "Drew part #{@kind} at #{@x} #{@y}"
       end
       
     end
-    
-    # List of sprites
-    class List
-      #Creates a new empty sprite list
-      def initialize
-        # All known sprites, ordered by name
-        @sprites   = {}        
-        # Sprites ordered in drawing layers
-        @layers    = []
-      end
-      
-      
-      # Sorts the layer for this sprite by it's y values
-      def sort_layer(sprite)
-        @layers[sprite.z].sort_by {|s| s.y }
-      end  
-      
-      # Puts a sprite into a layer
-      def add_sprite_in_layer(sprite)
-        @layers[sprite.z]   ||= []
-        @layers[sprite.z]    << sprite
-        sort_layer(sprite)
-      end  
-            
-      # Adds a sprite to this list
-      def add_sprite(sprite)
-        @sprites[sprite.name] = sprite
-        add_sprite_in_layer(sprite)
-      end
-      
-      def new_sprite(name, x, y)          
-      end
-      
-      # *Must* be called whenever the sprite's Z value changes,
-      # to ensure the sprite ends up in the right layer
-      def on_z_change(sprite, old_z, new_z)
-        return false if new_z == old_z
-        @layers[old_z].delete(sprite)
-        add_sprite_in_layer(sprite)
-        return true
-      end
-      
-      # *Must* be called whenever the sprite's Y value changes,
-      # to ensure the sprite is drawn correctly      
-      def on_y_change(sprite, old_y, new_y)
-        return false if new_y == old_y
-        sort_layer(sprite)
-        return true
-      end
-      
-      
-    end
-
     
     
     # Drawing locations of the sprite
@@ -281,15 +243,16 @@ module Rogaru
       @parts          = {}        
       @facing         = :south
       @pose           = :stand
+      # Sprites are not visible by default.
+      @visible        = false
     end  
     
     # draws this sprite at it's current location, on the given screen
     def draw(screen)
       # draw all parts of the sprite in order, from back to front
-      for index in (0..@drawing.size) 
-        part = @drawing[index]
+      for part in @drawing 
         part.draw(screen)
-      end
+      end      
     end
     
     # Should be called whenever time passes, to animate the sprite      
@@ -306,6 +269,7 @@ module Rogaru
 
     # Adds a part to this sprite, and return it
     def add_part(part)
+      p 'added part', part 
       @parts[part.kind]  = part
       @drawing          << part
       @drawing.sort_by { |p| p.z }
@@ -331,9 +295,63 @@ module Rogaru
       @list.on_y_change(self, old_y, new_y)
     end  
     
+    # Sorting values for different parts
+    PART_Z         = { } 
+    PART_Z[:north] = { body: 0 , head: 1 , hair: 2 , hat: 3 , torso: 4, legs: 5, feet: 6 ,  left:  7, right:  8, extra: 9 }
+    PART_Z[:east]  = { body: 0 , head: 1 , hair: 2 , hat: 3 , torso: 4, legs: 5, feet: 6 ,  left: -1, right:  8, extra: 9 }    
+    PART_Z[:south] = { body: 0 , head: 1 , hair: 2 , hat: 3 , torso: 4, legs: 5, feet: 6 ,  left:  7, right:  8, extra: 9 }
+    PART_Z[:west]  = { body: 0 , head: 1 , hair: 2 , hat: 3 , torso: 4, legs: 5, feet: 6 ,  left:  7, right: -1, extra: 9 }
+    PART_Z[:any]   = { body: 0 , head: 1 , hair: 2 , hat: 3 , torso: 4, legs: 5, feet: 6 ,  left:  7, right:  8, extra: 9 }
+    # How many frames there are in a pose
+    POSE_COUNT     = { stand: 1, walk: 2 , run: 2, strike: 2, pain: 1, kneel: 1, sleep: 1 } 
+    # Direction offset multipliers
+    DIRECTION_Y    = { south: 0,  north: 1, east: 2, west: 3 , any: 4  }   
+    POSE_TIME      = { stand:   DEFAULT_TIME, 
+                       walk:    DEFAULT_TIME, 
+                       run:     DEFAULT_TIME * 2, 
+                       strike:  DEFAULT_TIME / 2.0, 
+                       pain:    DEFAULT_TIME, 
+                       kneel:   DEFAULT_TIME, 
+                       sleep:   DEFAULT_TIME  }
     
-    
-    
+ 
+    # Loads the poses of a sprite in a .png image file to a sprite
+    # The sprite frames belong to the given parname and have the 
+    # given height and width
+    def load_poses(filename, partname, wide, high)
+      partsym = partname.to_sym
+      xx      = 0
+      yy      = 0
+      part_z  = PART_Z[:any][partsym] || 0
+      part    = self.new_part(partname, 0, 0, part_z)
+      surface = Sisa::Surface.load(filename)
+      # Every file has a single part (or lauer) of the sprite in it, in which 
+      # there are many poses for many directions do 
+      for direction in DIRECTIONS 
+        yy        = DIRECTION_Y[direction] * high
+        pindex    = 0         
+        # Load every pose
+        #TODO: perhaps handle empty poses somehow?
+        for posename in POSES 
+          fcount  = POSE_COUNT[posename]
+          frames  = []
+          time    = []
+          #Load frame by frame
+          for index in (0...fcount) 
+            xx      = pindex * wide
+            frame   = surface.copy_rectangle(xx, yy, wide, high)
+            # Conversion to screen format to speed up rendering 
+            frame   = frame.to_display_alpha()
+            frames << frame
+            time   << POSE_TIME[posename]
+            # On to the next frame
+            pindex += 1
+          end           
+          # Finally add a new pose with the given frames, times, name and direction
+          part.new_pose(posename, direction, frames, time)          
+        end
+      end
+    end
   end
 end
 

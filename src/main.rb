@@ -94,7 +94,12 @@ def main(fullscreen = false)
   map       = Tilemap::Map.load_from(START_MAP)
   # Map load seems quite slow... have to optimize it.
   puts("OK!")
-  clock     = Rogaru::Clock.new()
+  printf("Loading sprites... ")
+  sprites   = Rogaru::Sprite::List.load
+  puts("OK!")
+  sprite          = sprites[:fake]
+  sprite.visible  = true
+  clock     = Rogaru::Clock.new()  
   screen.fill([ 0xff, 00, 00]);
   start     = Time.now()
   times     = 1000
@@ -192,8 +197,9 @@ def main(fullscreen = false)
     if (i % 500) == 0 then
       mem_count, mem_size = *Utility.used_memory
     end
-    #screen.fill([0,191,0])  
-    map.draw_auto(screen)
+    #screen.fill([0,191,0])
+    map.draw_with_sprites(screen, sprites)
+    # map.draw_auto(screen)
     status = "#{speed} #{map.x} #{map.y} #{(clock.framerate).round} #{mem_count}\
     #{pplayer.z} #{camera.x} #{camera.y}"
     statusdisp.text = status    
@@ -286,7 +292,12 @@ def main(fullscreen = false)
     #pplayer.shape.surface_v = CP::Vec2.new(player.vx * 1000, player.vy * 1000)
     fr = clock.framerate
     world.update(1.0)
-    # A cunstant value for world.update is much bettter for Chipmunk.
+    # A constant value for world.update is much bettter for Chipmunk.
+    sprite.x   = pplayer.x - camera.x 
+    sprite.y   = pplayer.y - camera.y
+    sprite.visible = true 
+    sprite.pose= :stand  
+    
     # Though, here the program should skip updates occasionally if FPS > 60
     # And should also skip drawing to screen if FPS is < 60 (or 30)
     

@@ -102,6 +102,16 @@ class Rogaru::Tilemap::Map
     self.draw(screen, @x, @y)
   end
   
+  def draw_with_sprites(screen, sprites)
+    self.draw_background(screen)
+    index = 0
+    @layers.each do |layer|  
+      layer.draw(screen, @x, @y)
+      sprites.draw_layer(screen, index)
+      index += 1
+    end
+  end
+  
   attr_accessor :vx
   attr_accessor :vy
   attr_reader :x
