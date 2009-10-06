@@ -360,23 +360,25 @@ module Rogaru
       part    = self.new_part(partname, 0, 0, part_z)
       p filename
       surface = Sisa::Surface.load_alpha(filename)
-      # Load the filename, including the alpha channel.
-      # XXX: normal load won't work somehow! Why?
+      # We need to do load_alpha because it converts the indexed files to
+      # 32 bits screen format.
       # Every file has a single part (or layer) of the sprite in it, in which 
       # there are many poses for many directions do 
       for direction in DIRECTIONS 
-        # yy        = DIRECTION_Y[direction] * high
+        yy        = DIRECTION_Y[direction] * high
         pindex    = 0         
         # Load every pose
-        #TODO: perhaps handle empty poses somehow?
+        # TODO: perhaps handle empty poses somehow?
         for posename in POSES 
           fcount  = POSE_COUNT[posename]
           frames  = []
           time    = []
           #Load frame by frame
           for index in (0...fcount) 
-            # xx      = pindex * wide
+            xx      = pindex * wide
             sloframe= surface.copy_rectangle(xx, yy, wide, high)
+            # Does RLE acceleration help any? Difficult to say for one sprite...
+            #sloframe.set_color_key(SDL::RLEACCEL, sloframe.map_rgba(0,0,0,SDL::ALPHA_TRANSPARENT))            
             # Conversion to screen format to speed up rendering 
             frame   = sloframe.to_display_alpha()
             frames << frame
