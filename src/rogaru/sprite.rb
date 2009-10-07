@@ -11,9 +11,20 @@ module Rogaru
     SPRITE_DIR  = File.join('..','share','image','sprite')
     # Default sprite directory.  XXX: use Settings to load this.
     # Generally useful poses
-    POSES       = [ :stand, :walk, :run, :strike, :pain, :kneel, :sleep ]
+    # POSES       = [ :stand, :walk, :run, :strike, :pain, :kneel, :sleep ]
+    # 11 positions in order of importance
+    POSES = [ :stand, :walk,  :down, :pain, :attack, :cast, 
+              :push , :kneel, :jump, :run , :emote  ]
+    # Some poses are special:  
+    POSES_SPECIAL = { :stand => :static, :down => :static, :emote => :anydir }
+    EMOTE_POSES  = [ :emote ] 
     # Generally useful parts
     PARTS       = [ :body, :head, :hair, :hat, :torso, :legs, :feet, :left, :right, :extra]
+    # Pose to choose when the other one isn't available
+    POSE_ALTERATIVE = { :stand => :hide , :walk => :stand , :down => :hide, 
+                        :pain => :walk  , :attack => :walk, :cast => :attack,
+                        :push => :walk  , :kneel => :stand, :jump => :walk,
+                        :run  => :walk  , :emote => :stand }
     
     # A pose is a certain action or position that a Part of a sprite 
     # can perform. For example, the head can look down, up, etc,
@@ -387,7 +398,7 @@ module Rogaru
             pindex += 1
           end           
           # Finally add a new pose with the given frames, times, name and direction
-          part.new_pose(posename, direction, frames, time)          
+          part.new_pose(posename, direction, frames, time)
         end
       end
     end
