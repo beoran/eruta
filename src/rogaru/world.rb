@@ -1,17 +1,22 @@
+# encoding: utf-8
 # World models the physical world contained within a map.
 # Note on use of layers: layers are used in pairs. Layer 0 is everything that 
-# should appear under actors/player's feet, layer 1 is everything the player/actor 
-# may interact with (even though it may als obe underfoot!), suchas walls, stairs, or zones.
+# should appear under actors/player's feet, layer 1 is everything the
+# player/actor may interact with (even though it may also be underfoot!), 
+# such as walls, stairs, or zones.
 # Layer 2 and 3 are used similarly, but are always above layer 0 and 1.   
-# Note on stairs: stairs are created by overlaying a stair up on level 1 over a background on level 0,
-# and a stair down on level 3 with a background on level 2.   
+# Note on stairs: stairs are created by overlaying a stair up on level 1 
+# over a background on level 0, and a stair down on level 3 with a 
+# background on level 2.   
  
 require 'chipmunk'
    
 
 module Rogaru
 
-  # World models the pysical aspects of the game world, using Chipmunk
+  # World models the pysical aspects of the game world, 
+  # currenly using Chipmunk
+  
   class World
     VECTOR_ZERO = vec2(0, 0)
     INFINITY    = 1.0 / 0.0
