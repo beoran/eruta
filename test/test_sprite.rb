@@ -9,7 +9,7 @@ module Test
 
     
     def setup
-      open_screen
+      super
       @sprites          = Rogaru::Sprite::List.load
       @sprite           = @sprites[:fake]
       @sprite.visible   = true 
@@ -18,10 +18,6 @@ module Test
       @sprite.z         = 1
       @sprite.pose      = :stand
       @sprite.direction = :south      
-    end
-    
-    def teardown
-      SDL.quit()
     end
     
     def test_part
@@ -58,13 +54,12 @@ module Test
       
       part =  @sprite.drawing[0]
       
-      300.times do
+      frames, time, fps = draw_wait do
         wipe_screen
         for layer in 0..3 do 
           @sprites.draw_layer(@screen, layer)
         end  
-        # part.pose.draw_at(@screen, 0, 0)
-        @screen.flip
+        # part.pose.draw_at(@screen, 0, 0)        
       end
       assert_drawn(20,50)
       

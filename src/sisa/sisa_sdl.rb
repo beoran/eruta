@@ -104,6 +104,13 @@ module Sisa_SDL
     SDL.init(sys) unless self.init?(sys)
   end
   
+  def self.init_all()
+    SDL.init(SDL::INIT_EVERYTHING) 
+    at_exit do
+      SDL.quit
+    end  
+  end
+  
   
   def self.load_alpha(filename)
     return SDL::Surface.load_alpha(filename)

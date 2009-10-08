@@ -17,9 +17,9 @@ module Rogaru
               :push , :kneel, :jump, :run , :emote  ]
     # Some poses are special:  
     POSES_SPECIAL = { :stand => :static, :down => :static, :emote => :anydir }
-    EMOTE_POSES  = [ :emote ] 
+    EMOTE_POSES   = [ :emote ] 
     # Generally useful parts
-    PARTS       = [ :body, :head, :hair, :hat, :torso, :legs, :feet, :left, :right, :extra]
+    PARTS         = [ :body, :head, :hair, :hat, :torso, :legs, :feet, :left, :right, :extra]
     # Pose to choose when the other one isn't available
     POSE_ALTERATIVE = { :stand => :hide , :walk => :stand , :down => :hide, 
                         :pain => :walk  , :attack => :walk, :cast => :attack,
@@ -61,7 +61,7 @@ module Rogaru
       # Draws this pose on the given bitmap or screebn, at the given position
       def draw_at(screen, x, y)
         frame       = @frames.at(@active)
-        screen.put_bitmap(x, y, frame)
+        screen.put_bitmap(x, y, frame) if frame
       end
       
       # Rewinds this part's animation
@@ -381,7 +381,7 @@ module Rogaru
         # Load every pose
         # TODO: perhaps handle empty poses somehow?
         for posename in POSES 
-          fcount  = POSE_COUNT[posename]
+          fcount  = POSE_COUNT[posename] || 0
           frames  = []
           time    = []
           #Load frame by frame
