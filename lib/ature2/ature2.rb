@@ -2,14 +2,64 @@
 
 require 'curses'
 
-class Being
-end
- 
-class Item
-end
-
 class Place
 end
+
+class Position
+  # Place this position is in
+  attr_accessor :place
+  # X coordinate in grid values
+  attr_accessor :x
+  # Y coordinate in grid values
+  attr_accessor :y
+  
+  def initialize(place, x, y)
+    self.x      = x
+    self.y      = y
+    self.place  = place
+  end
+end
+
+# A stat is a numerical value that describes a Being or Item
+class Stat
+  attr_reader   :name
+  attr_reader   :comment
+  attr_accessor :now
+  attr_accessor :max
+  
+  def initialize(name, comment = nil, max = nil, now = nil)
+    @name     = name.to_sym 
+    @max      = max         ; @now = now ; @now ||= @max 
+    @comment  = comment || name.to_s.capitalize
+  end
+      
+end
+
+class Entity
+  attr_accessor :position 
+  
+  def new_stat(name, comment = nil, max = nil, now = nil)
+    stat              = Stat.new(name, comment, max, now)  
+    @stats[stat.name] = stat
+    return stat
+  end
+  
+  def initialize
+    @stats    = {}
+    @position = Position.new(nil, nil, nil)
+  end  
+end
+
+class Being < Entity
+  
+  
+end
+ 
+class Item < Entity
+  attr_accessor :owner  
+  attr_accessor :position
+end
+
 
 class World
 end
@@ -31,10 +81,7 @@ class Image
   end
   
   def draw(window, x, y)
-    window.color  = self.color
-    window.bright = self.bright
-    window.reverse= self.reverse
-    window.draw(text, x, y)
+    window.draw(text, x, y, self.color, self.bright, self.reverse)
   end  
 end
 
@@ -59,10 +106,21 @@ class Console
     @bright   = false
   end
   
-  COLOR_LOOKUP =  { :black => COLOR_BLACK, :green => COLOR_GREEN, 
-                    :red   => COLOR_RED  , :cyan => COLOR_CYAN, 
-                    :white => COLOR_WHITE, :magenta => COLOR_MAGENTA, 
-                    :blue  => COLOR_BLUE , :yellow => COLOR_YELLOW }
+  BLACK    = 1
+  GREEN    = 2
+  RED      = 3
+  CYAN     = 4
+  WHITE    = 5
+  MAGENTA  = 6
+  BLUE     = 7
+  YELLOW   = 8
+   
+  
+  
+  COLOR_LOOKUP =  { :black => BLACK, :green => GREEN, 
+                    :red   => RED  , :cyan => CYAN, 
+                    :white => WHITE, :magenta => MAGENTA, 
+                    :blue  => BLUE , :yellow => YELLOW }
 
   # Sets the current console color
   def color=(colsym)
@@ -79,15 +137,17 @@ class Console
     if b != @bright
       @bright = b
       if @bright 
+        # @window.attron(A_)
         @window.attron(A_BOLD)
       else
+        # @window.attroff(A_)
         @window.attroff(A_BOLD)
       end  
     end
   end
   
   def reverse=(r)
-    if i != @reverse
+    if r != @reverse
       @reverse = r
       if @reverse 
         @window.attron(A_REVERSE)
@@ -119,23 +179,25 @@ class Console
   
   # Opense the main screen and returns it
   def self.init_screen
-    @key2sym= nil 
-    cscreen = Curses.init_screen
+    @key2sym      = nil 
+    cscreen       = Curses.init_screen
     if Curses.has_colors?    
       Curses.start_color
-      Curses.init_pair(COLOR_BLACK  , COLOR_BLACK, COLOR_BLACK)
-      Curses.init_pair(COLOR_GREEN  , COLOR_GREEN, COLOR_BLACK)
-      Curses.init_pair(COLOR_RED    , COLOR_RED, COLOR_BLACK)
-      Curses.init_pair(COLOR_CYAN   , COLOR_CYAN, COLOR_BLACK)
-      Curses.init_pair(COLOR_WHITE  , COLOR_WHITE, COLOR_BLACK)
-      Curses.init_pair(COLOR_MAGENTA, COLOR_MAGENTA, COLOR_BLACK)
-      Curses.init_pair(COLOR_BLUE   , COLOR_BLUE, COLOR_BLACK)
-      Curses.init_pair(COLOR_YELLOW , COLOR_YELLOW, COLOR_BLACK)      
+      background  = COLOR_BLACK
+      Curses.init_pair(BLACK  , COLOR_BLACK   , background)
+      Curses.init_pair(GREEN  , COLOR_GREEN   , background)
+      Curses.init_pair(RED    , COLOR_RED     , background)
+      Curses.init_pair(CYAN   , COLOR_CYAN    , background)
+      Curses.init_pair(WHITE  , COLOR_WHITE   , background)
+      Curses.init_pair(MAGENTA, COLOR_MAGENTA , background)
+      Curses.init_pair(BLUE   , COLOR_BLUE    , background)
+      Curses.init_pair(YELLOW , COLOR_YELLOW  , background)
     end
     Curses.raw
     Curses.noecho
     Curses.curs_set(0)
     cscreen.keypad(true)
+    # cscreen.timeout = 1000 timeout for nonblockig IO
     return self.new_from_curses(cscreen)
   end
   
@@ -184,15 +246,18 @@ class Console
   end
   
   # Draws text at the given place in this console/window
-  def draw(text, x, y)
+  def draw(text, x, y, col = nil, bri = nil, rev = nil)
     xy(x,y)
+    self.color  = col if col
+    self.bright = bri unless bri.nil?
+    self.reverse= rev unless rev.nil?
     self << text
   end
   
   # Draw the text, centered in the middle this console /window
-  def draw_center(text, y)
+  def draw_center(text, y, col = nil, bri = false, rev = false)
     x = (self.w / 2) - text.size
-    self.draw(text, x, y) 
+    self.draw(text, x, y, col, bri, rev) 
   end
   
   
@@ -222,49 +287,39 @@ end
 
 
 def test
-  # p Curses.methods.sort - Object.methods
   @screen = Console.init_screen
   @screen.refresh
-  # Color pairs definitions
-  # @screen.methods.sort - Object.methods
-
-  # screen = Curses.init_color
-  # p @screen
+  @border_win = Console.new(0, @screen.h - 6, @screen.w, 6)  
   
-  # p @screen.methods.sort - Object.methods
-  # p Curses.can_change_color?
-  # screen = Curses.
-  # p Curses.can_change_color?
-  # h, w, top, left
-  @border_win = Console.new(0, @screen.h - 6, @screen.w, 6)
-  @border_win.box("|","*")
-  p @border_win.methods - Object.methods
   # @border_win.gotoxy(20,0)
+  @border_win.box
   @border_win.draw_center("Messages", 0)
   @border_win.refresh
   @mess_win = Console.new(1, @screen.h - 5, @screen.w - 2, 4)   
   @mess_win.scrollok(true)
   @mess_win << "start"
-  10.times do  
   @mess_win << (@border_win.methods - Object.methods).join(', ')
-  end
-  
-  10.times do
-    @mess_win.scroll_by(1)
-    @mess_win.refresh
-    ch = @screen.getch
-  end
   # @screen.refresh
-  # sleep 3 
-  @screen.color = :yellow  
-  @screen.xy(10, 70)
+  # sleep 3
+  x = 2
+  y = 2 
+  for color, value in Console::COLOR_LOOKUP do 
+    @screen.draw("# ", x, y, color, false, false)
+    @screen.draw("# ", x + 2, y, color, true, false)
+    @screen.draw("# ", x + 4, y, color, false, true)
+    @screen.draw("# ", x + 8, y, color, true, true)
+    y+=1
+  end
+    
   @screen << "#{@screen.w} #{@screen.h}"
+  wall_image = Image.new('#', :yellow, true, false)
+  wall_image.draw(@screen, 15, 15)
+  @screen.refresh
+   
   ch = @screen.getch
-  st = @screen.gets
   Console.close_screen
-  # (@screen.methods.sort - Object.methods).join(' ')
   p ch
-  p st
+  # (@screen.methods.sort - Object.methods).join(' ')
 end
 
 
