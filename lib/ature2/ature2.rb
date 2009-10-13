@@ -3,9 +3,260 @@
 INSTALL_DIR = '.'
 $LOAD_PATH << "#{INSTALL_DIR}/src"
 require 'console'
+require 'matrix'
+
+# RNG helper functions
+module Dice
+
+  # Random number between twoo values
+  def self.random(min, max)
+    rand(max - min) + min 
+  end
+  
+  # Throws the given amount of dice with the given amount of sides
+  def throw(amount = 3, sides = 6, offset = -1)
+    total = 0 
+    amount.times { total += (rand(sides) + offset) }
+    return total
+  end
+
+end
+
+# Normal helper functions
+module Aid
+  def self.clamp(val, min, max)
+    return min if val < min 
+    return max if val > max 
+    return val
+  end
+end
+
+
+# Image determines how anything is displayed
+class Image
+  
+  # Colors, same as the 16 official CSS colors
+  COLORS = [ :aqua, :black, :blue, :fuchsia, 
+            :gray, :green, :lime, :maroon, 
+            :navy, :olive, :purple, :red, 
+            :silver, :teal, :white, :yellow] 
+  
+  attr_reader :text
+  attr_reader :color
+  attr_reader :bright
+  attr_reader :reverse
+  
+  def initialize(txt = '.', col = :white, rev = false)
+    @text   = txt
+    @color  = col
+    @reverse= rev
+  end
+  
+  def draw(window, x, y)
+    window.draw(text, x, y, self.color, self.reverse)
+  end  
+end
+
+class Tile
+  attr_reader :image
+  attr_reader :solid
+  
+  def initialize(text, solid = false, comment = '', color = :white, reverse = false)
+    @image = Image.new(text, color, reverse)
+    @solid = solid
+    @comment = comment
+  end
+  
+  def draw(screen, x, y)
+    @image.draw(screen, x, y) 
+  end
+  
+  Wall      = new('#', true , "wall"    , :gray)
+  Mountain  = new('^', true , "mountain", :white)
+  Pillar    = new('I', true , "pillar"  , :white)
+  Tree      = new('T', true , "tree"    , :green)
+  Altar     = new('8', true , "altar"   , :white)
+  Floor     = new('0', false, "floor"   , :gray)
+  Grass     = new('.', false, "grass"   , :green)
+  Hedge     = new(';', false, "hedge"   , :green)
+  River     = new('~', false, "river"   , :blue)
+  Hill      = new('^', false, "hill"    , :maroon)
+  Sea       = new('O', false, "sea"     , :navy)
+   
+end
+
+# Generates places. Generic parent class.
+class Generator
+
+  def initialize(place)
+    @place = place
+  end
+  
+  # Generates ranndom hotspots for generation of mountains,
+  # caves, etc 
+  def make_hotspots(min, max, edge = 0.125)
+    # Between 3 and 8 "hotspots"
+    hotspot_count = Dice.random(min, max)
+    hotspot       = []
+    # Bias towards the middle of the map
+    perc          = edge
+    min_spot_x    = (@place.w * perc).round
+    max_spot_x    = (@place.w * (1 - (perc))).round
+    min_spot_y    = (@place.h * perc).round
+    max_spot_y    = (@place.h * (1 - (perc))).round
+    # Generate hotspots
+    hotspot_count.times do
+      x = Dice.random(min_spot_x, max_spot_x)
+      y = Dice.random(min_spot_y, max_spot_y)
+      hotspot << [x, y]
+    end 
+    return hotspot
+  end
+  
+  # Retuns the list of the 8 points around X and Y, as array of arrays
+  # with the given delta ranges
+  def around(x, y, delta_x = 1, delta_y = 1)
+    res   =   []
+    for dx in ((-delta_x)..delta_x)
+      for dy in ((-delta_y)..delta_y)
+        newx = x + dx
+        newy = y + dy
+        # Exclude the point itself
+        unless (newx == x) && (newy == y) 
+          res   <<  [newx, newy]
+        end  
+      end
+    end 
+    return res
+  end
+  
+  # stub that generates a plain grass field
+  def generate
+    for x in (0...place.w) 
+      for y in (0...place.h)
+        @place.put(x, y, Tile::Grass)
+      end
+    end
+  end
+  
+end
+
+class Generator
+  class Worldmap < Generator
+    
+    def make_mountain(spot, height = 15)      
+      x, y    = spot
+      return if x < 0 || x >= @place.w
+      return if y < 0 || y >= @place.h
+      return if @field[y][x] > 0 
+      # we already visited this point 
+      # height      ||= 
+      h             = height
+      @field[y][x] += h  # - 2 + rand(4) # This changes the "swampiness"
+      other   = self.around(x, y)
+      h      -= 1
+      if h > 0
+        # Recursively make mountains
+        for point in other do
+          make_mountain(point, h)
+        end
+      end
+    end
+      
+    def generate
+      @field = Array.new(@place.h) { Array.new(@place.w) }
+      # height field
+      
+      # Set all to sea first 
+      for x in (0...@place.w) 
+        for y in (0...@place.h)
+          @field[y][x] = 0
+        end
+      end
+      # Create mountain ranges, calculate height field
+      max_spots = 1 + ((@place.w * @place.h)**0.55).round 
+      min_spots = 1 + (max_spots / 10)
+      hotspots  = self.make_hotspots(min_spots, max_spots)
+      for spot in hotspots 
+        # Dice.random(1, 15)
+        make_mountain(spot, 15)
+      end  
+      # decide on mountains based on height field
+      for x in (0...@place.w)
+        for y in (0...@place.h)
+          rh = @field[y][x] 
+          if rh > 10
+            @place.put(x, y, Tile::Mountain)
+          elsif rh > 5
+            @place.put(x, y, Tile::Hill)
+          elsif rh > 0 
+            @place.put(x, y, Tile::Grass)
+          else  
+            @place.put(x, y, Tile::Sea) 
+          end
+          # Ensure the edge is all sea tiles
+          if x == 0 || x == (@place.w - 1)
+            @place.put(x, y, Tile::Sea)
+          end
+          if y == 0 || y == (@place.h - 1)
+            @place.put(x, y, Tile::Sea)
+          end
+        end  
+      end
+    end  
+  end
+end  
+
+
 
 class Place
+  attr_reader :name
+  attr_reader :w
+  attr_reader :h
+  attr_reader :field
+  
+  def initialize(name, w = 50, h = 20, options = {})
+    @name   = name
+    @w      = w
+    @h      = h
+    @field  = Array.new(@h) { Array.new(@w) }
+    for x in (0...@w) 
+      for y in (0...@h)
+        self.put(x, y, Tile::Grass)
+      end
+    end  
+  end
+  
+  def []=(x, y, tile)
+    return @field[y][x] = tile
+  end
+  
+  def put(x, y, tile)
+    self[x, y] = tile
+  end
+  
+  def [](x, y)
+    row = @field[y]
+    return nil unless row
+    return row[x]
+  end
+  
+  def draw(screen, x, y, w, h)
+    xstart = x
+    ystart = y
+    xstop  = xstart + w - 1
+    ystop  = ystart + h - 1
+    for yy in (ystart..ystop)
+      for xx in (xstart..xstop)
+        tile = self[xx, yy] 
+        next unless tile
+        tile.draw(screen, xx - xstart, yy - ystart)
+      end
+    end
+  end
 end
+
+
 
 class Position
   # Place this position is in
@@ -53,8 +304,6 @@ class Entity
 end
 
 class Being < Entity
-  
-  
 end
  
 class Item < Entity
@@ -64,32 +313,33 @@ end
 
 
 class World
-end
-
-
-# Image determines how anything is displayed
-class Image
-  COLORS = [ :black, :green, :red, :cyan, :white, :magenta, :blue, :yellow ]
+  attr_reader :beings
+  attr_reader :places
   
-  attr_reader :text
-  attr_reader :color
-  attr_reader :bright
-  attr_reader :reverse
-  
-  def initialize(txt = '.', col = :white, bri = false, rev = false)
-    @text   = txt
-    @color  = col
-    @bright = bri
-    @reverse= rev
+  def initialize()
+    @places = {}
+    @beings = []
   end
   
-  def draw(window, x, y)
-    window.draw(text, x, y, self.color, self.bright, self.reverse)
-  end  
+  def add_place(place)
+    @places[place.name.to_sym] = place
+    return place 
+  end
+  
+  def new_place(name, w, h, options = {})
+    place = Place.new(name, w, h, options)
+    return self.add_place(place)
+  end
+  
 end
+
+
 
 
 class UI
+  
+  attr_reader :mapview
+  attr_reader :status
   
   def initialize
     # screen
@@ -97,14 +347,17 @@ class UI
     # message window
     @messages = Console.new(10, @screen.h - 5, @screen.w - 11, 4)
     @messages.scrollok(true)
+    @msgbuf   = []
     # Status window
-    @stats    = Console.new(0, 0, 10, @screen.h)
-    @map      = Console.new(10, 0, @screen.w - 11, @screen.h - 5)
+    @status   = Console.new(0, 0, 10, @screen.h)
+    @mapview  = Console.new(10, 0, @screen.w - 11, @screen.h - 5)
   end
    
+  # Adds a message to the message window and buffer 
   def <<(message, color = :white)
-    @messages.color = color
-    @messages << message    
+    @messages.color  = color
+    @messages       << "#{message} "
+    @msgbuf         << [message, color]
   end
   
   # Waits for a key press and returns it.
@@ -114,10 +367,18 @@ class UI
     return res
   end
   
+  # Asks a simple question that requres a one-key answer and returns the answer
+  def ask(question)
+    self << "\n#{question} "
+    self.draw
+    answer = wait_key
+    return answer
+  end  
+  
   def draw
     @screen.refresh
     @messages.refresh
-    @stats.refresh
+    @status.refresh
   end
 end
 
@@ -145,15 +406,107 @@ class Game
   end
 
   def initialize
-    @ui     = UI.new
-    @state  = :welcome
-    action(:quit    , 'Q', 27)
-    action(:actions , :F5)
+    @world    = World.new
+    @worldmap = @world.new_place('World', 200, 200)
+    wmgen = Generator::Worldmap.new(@worldmap)
+    wmgen.generate
+    @ui       = UI.new
+    @state    = :play
+    @map_x    = 0
+    @map_y    = 0
+    @map      = @worldmap   
+    action(:quit      , 'Q'     , 27  )
+    action(:actions   , :F5           )
+    action(:north     , :UP     , '8' )
+    action(:northeast , :PPAGE  , '9' )
+    action(:east      , :RIGHT  , '6' )
+    action(:southeast , :NPAGE  , '3' )
+    action(:south     , :DOWN   , '2' )
+    action(:southwest , :END    , '1' )
+    action(:west      , :LEFT   , '4' )
+    action(:northwest , :HOME   , '7' )
+    action(:wait      , ' '     , '5' )
+    action(:items     , 'i'           )
+    action(:cast      , 'c'           )
+    action(:wield     , 'w'           )
+    action(:save      , 'S'           )
+    action(:help      , :F1     , '?' )
+    action(:debug     , :F2     , 'D' )    
+  end
+  
+  def action_debug
+    @ui << @world.inspect
+  end
+  
+  def scroll_map(by_x, by_y)
+    @map_x += by_x
+    @map_y += by_y
+    @map_x  = Aid.clamp(@map_x, 0, @map.w - @ui.mapview.w)
+    @map_y  = Aid.clamp(@map_y, 0, @map.h - @ui.mapview.h)
+    @ui.status.draw("(#@map_x,#@map_y)", 0, 0)
+  end
+  
+  def action_north
+    scroll_map(0, -1)
+  end
+
+  def action_east
+    scroll_map(1, 0)
+  end
+  
+  def action_northeast
+   scroll_map(1, -1)
+  end
+  
+  def action_southeast
+    scroll_map(1, 1)
+  end
+  
+  def action_south
+    scroll_map(0, 1)
+  end
+  
+  def action_southwest
+    scroll_map(-1, 1)
+  end
+  
+  def action_west
+    scroll_map(-1, 0)
+  end
+  
+  def action_northwest
+    scroll_map(-1, -1)
+  end
+  
+  def action_wait
+  end
+  
+  def action_cast
+  end
+  
+  def action_items
+  end
+  
+  def action_wield
+  end  
+  
+  def action_help
+    @ui << "Not much help available. You can press Q or ESC to quit."
+  end  
+
+  def action_save
   end
   
   def action_quit()
+#     result = @ui.ask("Quit without saving (y/n)?")
+#     # Don't quit unless answer was yes
+#     unless ['y', 'Y'].member?(result)
+#       @ui << " OK"
+#       return false
+#     end
     @ui     << "Quiting Ature!"
     @state = :done
+    return true 
   end
   
   def action_actions
@@ -168,9 +521,15 @@ class Game
     @state  = :play 
   end
   
+  def draw_play    
+    @map.draw(@ui.mapview, @map_x, @map_y, @ui.mapview.w, @ui.mapview.h)
+    @ui.draw
+    @ui.mapview.refresh
+  end
+  
   def state_play
     while @state && @state != :done 
-      @ui.draw
+      draw_play
       key = @ui.wait_key
       perform_action(key)
     end

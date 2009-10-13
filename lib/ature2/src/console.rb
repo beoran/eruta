@@ -29,19 +29,40 @@ class Console
   BLUE     = 7
   YELLOW   = 8
    
+  # Colors, same as the 16 official CSS colors
+  COLORS = [ :aqua, :black, :blue, :fuchsia, 
+            :gray, :green, :lime, :maroon, 
+            :navy, :olive, :purple, :red, 
+            :silver, :teal, :white, :yellow] 
   
+  # Looks up color symbol to real color pair
+  COLOR_LOOKUP =  { :aqua   => CYAN   , :black    => BLACK,
+                    :blue   => BLUE   , :fuchsia  => MAGENTA,
+                    :gray   => BLACK  , :green    => GREEN, 
+                    :lime   => GREEN  , :maroon   => RED,
+                    :navy   => BLUE   , :olive    => YELLOW,
+                    :purple => MAGENTA, :red      => RED,
+                    :silver => WHITE  , :teal     => CYAN,
+                    :white => WHITE   , :yellow   => YELLOW }
+                    
+  # contains the brightness of all colors
+  BRIGHT_LOOKUP = { :aqua   => false  , :black    => false,
+                    :blue   => true   , :fuchsia  => true,
+                    :gray   => true   , :green    => false, 
+                    :lime   => true   , :maroon   => false,
+                    :navy   => false  , :olive    => false,
+                    :purple => false  , :red      => true,
+                    :silver => false  , :teal     => false,
+                    :white  => true   , :yellow   => true }
   
-  COLOR_LOOKUP =  { :black => BLACK, :green   => GREEN, 
-                    :red   => RED  , :cyan    => CYAN, 
-                    :white => WHITE, :magenta => MAGENTA, 
-                    :blue  => BLUE , :yellow  => YELLOW }
-
   # Sets the current console color
   def color=(colsym)
     col      = COLOR_LOOKUP[colsym.to_sym] || colsym.to_i
-    if col  != @color
+    bright   = BRIGHT_LOOKUP[colsym]
+    if (col != @color) || (bright != @bright)
       @color = col
       if @colorok
+        self.bright = bright
         @window.color_set(@color)
       end
     end
@@ -160,18 +181,17 @@ class Console
   end
   
   # Draws text at the given place in this console/window
-  def draw(text, x, y, col = nil, bri = nil, rev = nil)
+  def draw(text, x, y, col = nil, rev = nil)
     xy(x,y)
     self.color  = col if col
-    self.bright = bri unless bri.nil?
     self.reverse= rev unless rev.nil?
     self << text
   end
   
   # Draw the text, centered in the middle this console /window
-  def draw_center(text, y, col = nil, bri = false, rev = false)
+  def draw_center(text, y, col = nil, rev = false)
     x = (self.w / 2) - text.size
-    self.draw(text, x, y, col, bri, rev) 
+    self.draw(text, x, y, col, rev) 
   end
   
   
@@ -216,11 +236,9 @@ def test
   # sleep 3
   x = 2
   y = 2 
-  for color, value in Console::COLOR_LOOKUP do 
-    @screen.draw("# ", x, y, color, false, false)
-    @screen.draw("# ", x + 2, y, color, true, false)
-    @screen.draw("# ", x + 4, y, color, false, true)
-    @screen.draw("# ", x + 8, y, color, true, true)
+  for color in Console::COLORS do 
+    @screen.draw("# ", x, y, color,false)
+    @screen.draw("# ", x + 2, y, color, true)
     y+=1
   end
     
