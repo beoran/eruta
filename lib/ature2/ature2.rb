@@ -184,14 +184,15 @@ class Generator
       # decide on mountains based on height field
       for x in (0...@place.w)
         for y in (0...@place.h)
-          rh = @field[y][x] 
-          if rh > 10
+          rh = @field[y][x]
+          case rh 
+            when (10..100)
             @place.put(x, y, Tile::Mountain)
-          elsif rh > 5
+            when (5..9)
             @place.put(x, y, Tile::Hill)
-          elsif rh > 0 
+            when (1..4) 
             @place.put(x, y, Tile::Grass)
-          else  
+            else  
             @place.put(x, y, Tile::Sea) 
           end
           # Ensure the edge is all sea tiles
