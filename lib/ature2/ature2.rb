@@ -1,9 +1,263 @@
 # encoding: utf-8
 
-require 'curses'
+INSTALL_DIR = '.'
+$LOAD_PATH << "#{INSTALL_DIR}/src"
+require 'console'
+require 'matrix'
+
+# RNG helper functions
+module Dice
+
+  # Random number between twoo values
+  def self.random(min, max)
+    rand(max - min) + min 
+  end
+  
+  # Throws the given amount of dice with the given amount of sides
+  def throw(amount = 3, sides = 6, offset = -1)
+    total = 0 
+    amount.times { total += (rand(sides) + offset) }
+    return total
+  end
+
+end
+
+# Normal helper functions
+module Aid
+  def self.clamp(val, min, max)
+    return min if val < min 
+    return max if val > max 
+    return val
+  end
+end
+
+
+# Image determines how anything is displayed
+class Image
+  
+  # Colors, same as the 16 official CSS colors
+  COLORS = [ :aqua, :black, :blue, :fuchsia, 
+            :gray, :green, :lime, :maroon, 
+            :navy, :olive, :purple, :red, 
+            :silver, :teal, :white, :yellow] 
+  
+  attr_reader :text
+  attr_reader :color
+  attr_reader :bright
+  attr_reader :reverse
+  
+  def initialize(txt = '.', col = :white, rev = false)
+    @text   = txt
+    @color  = col
+    @reverse= rev
+  end
+  
+  def draw(window, x, y)
+    window.draw(text, x, y, self.color, self.reverse)
+  end  
+end
+
+class Tile
+  attr_reader :image
+  attr_reader :solid
+  
+  def initialize(text, solid = false, comment = '', color = :white, reverse = false)
+    @image = Image.new(text, color, reverse)
+    @solid = solid
+    @comment = comment
+  end
+  
+  def draw(screen, x, y)
+    @image.draw(screen, x, y) 
+  end
+  
+  Wall      = new('#', true , "wall"    , :gray)
+  Mountain  = new('^', true , "mountain", :white)
+  Pillar    = new('I', true , "pillar"  , :white)
+  Tree      = new('T', true , "tree"    , :green)
+  Altar     = new('8', true , "altar"   , :white)
+  Floor     = new('0', false, "floor"   , :gray)
+  Grass     = new('.', false, "grass"   , :green)
+  Hedge     = new(';', false, "hedge"   , :green)
+  River     = new('~', false, "river"   , :blue)
+  Hill      = new('^', false, "hill"    , :maroon)
+  Sea       = new('O', false, "sea"     , :navy)
+   
+end
+
+# Generates places. Generic parent class.
+class Generator
+
+  def initialize(place)
+    @place = place
+  end
+  
+  # Generates ranndom hotspots for generation of mountains,
+  # caves, etc 
+  def make_hotspots(min, max, edge = 0.125)
+    # Between 3 and 8 "hotspots"
+    hotspot_count = Dice.random(min, max)
+    hotspot       = []
+    # Bias towards the middle of the map
+    perc          = edge
+    min_spot_x    = (@place.w * perc).round
+    max_spot_x    = (@place.w * (1 - (perc))).round
+    min_spot_y    = (@place.h * perc).round
+    max_spot_y    = (@place.h * (1 - (perc))).round
+    # Generate hotspots
+    hotspot_count.times do
+      x = Dice.random(min_spot_x, max_spot_x)
+      y = Dice.random(min_spot_y, max_spot_y)
+      hotspot << [x, y]
+    end 
+    return hotspot
+  end
+  
+  # Retuns the list of the 8 points around X and Y, as array of arrays
+  # with the given delta ranges
+  def around(x, y, delta_x = 1, delta_y = 1)
+    res   =   []
+    for dx in ((-delta_x)..delta_x)
+      for dy in ((-delta_y)..delta_y)
+        newx = x + dx
+        newy = y + dy
+        # Exclude the point itself
+        unless (newx == x) && (newy == y) 
+          res   <<  [newx, newy]
+        end  
+      end
+    end 
+    return res
+  end
+  
+  # stub that generates a plain grass field
+  def generate
+    for x in (0...place.w) 
+      for y in (0...place.h)
+        @place.put(x, y, Tile::Grass)
+      end
+    end
+  end
+  
+end
+
+class Generator
+  class Worldmap < Generator
+    
+    def make_mountain(spot, height = 15)      
+      x, y    = spot
+      return if x < 0 || x >= @place.w
+      return if y < 0 || y >= @place.h
+      return if @field[y][x] > 0 
+      # we already visited this point 
+      # height      ||= 
+      h             = height
+      @field[y][x] += h  # - 2 + rand(4) # This changes the "swampiness"
+      other   = self.around(x, y)
+      h      -= 1
+      if h > 0
+        # Recursively make mountains
+        for point in other do
+          make_mountain(point, h)
+        end
+      end
+    end
+      
+    def generate
+      @field = Array.new(@place.h) { Array.new(@place.w) }
+      # height field
+      
+      # Set all to sea first 
+      for x in (0...@place.w) 
+        for y in (0...@place.h)
+          @field[y][x] = 0
+        end
+      end
+      # Create mountain ranges, calculate height field
+      max_spots = 1 + ((@place.w * @place.h)**0.55).round 
+      min_spots = 1 + (max_spots / 10)
+      hotspots  = self.make_hotspots(min_spots, max_spots)
+      for spot in hotspots 
+        # Dice.random(1, 15)
+        make_mountain(spot, 15)
+      end  
+      # decide on mountains based on height field
+      for x in (0...@place.w)
+        for y in (0...@place.h)
+          rh = @field[y][x]
+          case rh 
+            when (10..100)
+            @place.put(x, y, Tile::Mountain)
+            when (5..9)
+            @place.put(x, y, Tile::Hill)
+            when (1..4) 
+            @place.put(x, y, Tile::Grass)
+            else  
+            @place.put(x, y, Tile::Sea) 
+          end
+          # Ensure the edge is all sea tiles
+          if x == 0 || x == (@place.w - 1)
+            @place.put(x, y, Tile::Sea)
+          end
+          if y == 0 || y == (@place.h - 1)
+            @place.put(x, y, Tile::Sea)
+          end
+        end  
+      end
+    end  
+  end
+end  
+
+
 
 class Place
+  attr_reader :name
+  attr_reader :w
+  attr_reader :h
+  attr_reader :field
+  
+  def initialize(name, w = 50, h = 20, options = {})
+    @name   = name
+    @w      = w
+    @h      = h
+    @field  = Array.new(@h) { Array.new(@w) }
+    for x in (0...@w) 
+      for y in (0...@h)
+        self.put(x, y, Tile::Grass)
+      end
+    end  
+  end
+  
+  def []=(x, y, tile)
+    return @field[y][x] = tile
+  end
+  
+  def put(x, y, tile)
+    self[x, y] = tile
+  end
+  
+  def [](x, y)
+    row = @field[y]
+    return nil unless row
+    return row[x]
+  end
+  
+  def draw(screen, x, y, w, h)
+    xstart = x
+    ystart = y
+    xstop  = xstart + w - 1
+    ystop  = ystart + h - 1
+    for yy in (ystart..ystop)
+      for xx in (xstart..xstop)
+        tile = self[xx, yy] 
+        next unless tile
+        tile.draw(screen, xx - xstart, yy - ystart)
+      end
+    end
+  end
 end
+
+
 
 class Position
   # Place this position is in
@@ -51,8 +305,6 @@ class Entity
 end
 
 class Being < Entity
-  
-  
 end
  
 class Item < Entity
@@ -62,268 +314,249 @@ end
 
 
 class World
-end
-
-# Image determines how anything is displayed
-class Image
-  COLORS = [ :black, :green, :red, :cyan, :white, :magenta, :blue, :yellow ]
+  attr_reader :beings
+  attr_reader :places
   
-  attr_reader :text
-  attr_reader :color
-  attr_reader :bright
-  attr_reader :reverse
-  
-  def initialize(txt = '.', col = :white, bri = false, rev = false)
-    @text   = txt
-    @color  = col
-    @bright = bri
-    @reverse= rev
+  def initialize()
+    @places = {}
+    @beings = []
   end
   
-  def draw(window, x, y)
-    window.draw(text, x, y, self.color, self.bright, self.reverse)
-  end  
+  def add_place(place)
+    @places[place.name.to_sym] = place
+    return place 
+  end
+  
+  def new_place(name, w, h, options = {})
+    place = Place.new(name, w, h, options)
+    return self.add_place(place)
+  end
+  
 end
 
 
-include Curses
 
-# Wrapper around Curses and it's windows 
-class Console
-  include Curses
+
+class UI
   
-  # Opens a new Console window 
-  def initialize(x, y, w, h)
-    cwin = Window.new(h, w, y, x)
-    initialize_from_curses(cwin)
+  attr_reader :mapview
+  attr_reader :status
+  
+  def initialize
+    # screen
+    @screen   = Console.init_screen
+    # message window
+    @messages = Console.new(10, @screen.h - 5, @screen.w - 11, 4)
+    @messages.scrollok(true)
+    @msgbuf   = []
+    # Status window
+    @status   = Console.new(0, 0, 10, @screen.h)
+    @mapview  = Console.new(10, 0, @screen.w - 11, @screen.h - 5)
   end
-  
-  def initialize_from_curses(cwin)
-    @window   = cwin
-    @colorok  = Curses.has_colors?
-    @color    = COLOR_WHITE
-    @invert   = false
-    @bright   = false
-  end
-  
-  BLACK    = 1
-  GREEN    = 2
-  RED      = 3
-  CYAN     = 4
-  WHITE    = 5
-  MAGENTA  = 6
-  BLUE     = 7
-  YELLOW   = 8
    
-  
-  
-  COLOR_LOOKUP =  { :black => BLACK, :green => GREEN, 
-                    :red   => RED  , :cyan => CYAN, 
-                    :white => WHITE, :magenta => MAGENTA, 
-                    :blue  => BLUE , :yellow => YELLOW }
-
-  # Sets the current console color
-  def color=(colsym)
-    col      = COLOR_LOOKUP[colsym.to_sym] || colsym.to_i
-    if col  != @color
-      @color = col
-      if @colorok
-        @window.color_set(@color)
-      end
-    end
+  # Adds a message to the message window and buffer 
+  def <<(message, color = :white)
+    @messages.color  = color
+    @messages       << "#{message} "
+    @msgbuf         << [message, color]
   end
   
-  def bright=(b)
-    if b != @bright
-      @bright = b
-      if @bright 
-        # @window.attron(A_)
-        @window.attron(A_BOLD)
-      else
-        # @window.attroff(A_)
-        @window.attroff(A_BOLD)
-      end  
-    end
-  end
-  
-  def reverse=(r)
-    if r != @reverse
-      @reverse = r
-      if @reverse 
-        @window.attron(A_REVERSE)
-      else
-        @window.attroff(A_REVERSE)
-      end  
-    end
-  end
-  
-  
-  
-  def self.new_from_curses(cwin)
-    window = self.allocate
-    window.initialize_from_curses(cwin)
-    return window
-  end
-  
-  def self.key2sym(key)
-    unless @key2sym
-      @key2sym          = {}
-      Curses.constants.select{|k| k =~ /\AKEY_/ }.each do |k|
-        val             = Curses.const_get(k)
-        sym             = k.to_s.gsub(/\AKEY_/,'').to_sym
-        @key2sym[val]   = sym
-      end
-    end
-    return @key2sym[key] || key
-  end
-  
-  # Opense the main screen and returns it
-  def self.init_screen
-    @key2sym      = nil 
-    cscreen       = Curses.init_screen
-    if Curses.has_colors?    
-      Curses.start_color
-      background  = COLOR_BLACK
-      Curses.init_pair(BLACK  , COLOR_BLACK   , background)
-      Curses.init_pair(GREEN  , COLOR_GREEN   , background)
-      Curses.init_pair(RED    , COLOR_RED     , background)
-      Curses.init_pair(CYAN   , COLOR_CYAN    , background)
-      Curses.init_pair(WHITE  , COLOR_WHITE   , background)
-      Curses.init_pair(MAGENTA, COLOR_MAGENTA , background)
-      Curses.init_pair(BLUE   , COLOR_BLUE    , background)
-      Curses.init_pair(YELLOW , COLOR_YELLOW  , background)
-    end
-    Curses.raw
-    Curses.noecho
-    Curses.curs_set(0)
-    cscreen.keypad(true)
-    # cscreen.timeout = 1000 timeout for nonblockig IO
-    return self.new_from_curses(cscreen)
-  end
-  
-  def self.close_screen
-    Curses.close_screen
-  end
-  
-  def refresh
-    @window.refresh
-  end
-  
-  def w
-    return @window.maxx
-  end
-  
-  def h
-    return @window.maxy
-  end
-  
-  def <<(str)
-    @window << str 
-  end
-  
-  def xy(x, y)
-    @window.setpos(y,x)
-  end
-  
-  def box(op1 = 0, op2 =0)
-    @window.box(op1, op2)
-  end
-  
-  def scrollok(s)
-    @window.scrollok(s)
-  end
-  
-  def scroll()
-    @window.scroll()
-  end
-  
-  def move(x, y)
-    @window.move(y, x)
-  end
-  
-  def scroll_by(delta)
-    @window.scrl(delta)
-  end
-  
-  # Draws text at the given place in this console/window
-  def draw(text, x, y, col = nil, bri = nil, rev = nil)
-    xy(x,y)
-    self.color  = col if col
-    self.bright = bri unless bri.nil?
-    self.reverse= rev unless rev.nil?
-    self << text
-  end
-  
-  # Draw the text, centered in the middle this console /window
-  def draw_center(text, y, col = nil, bri = false, rev = false)
-    x = (self.w / 2) - text.size
-    self.draw(text, x, y, col, bri, rev) 
-  end
-  
-  
-  def sym2key(sym)
-    key = "KEY_#{sym.upcase}".to_sym
-    return Curses.const_get(key)
-  end
-  
-  # Gets one key from the interface. Does not echo.
-  def getch()
-    return self.class.key2sym(@window.getch)
-  end
-  
-  # Gets one line of text from the interface
-  def gets(echo = true, cursor = true)
-    Curses.curs_set(1) if cursor
-    Curses.echo if echo 
-    res = @window.getstr
-    Curses.noecho if echo
-    Curses.curs_set(0) if cursor
+  # Waits for a key press and returns it.
+  def wait_key()
+    res = nil
+    res = @screen.getch until res
     return res
   end
   
-end
-
-
-
-
-def test
-  @screen = Console.init_screen
-  @screen.refresh
-  @border_win = Console.new(0, @screen.h - 6, @screen.w, 6)  
+  # Asks a simple question that requres a one-key answer and returns the answer
+  def ask(question)
+    self << "\n#{question} "
+    self.draw
+    answer = wait_key
+    return answer
+  end  
   
-  # @border_win.gotoxy(20,0)
-  @border_win.box
-  @border_win.draw_center("Messages", 0)
-  @border_win.refresh
-  @mess_win = Console.new(1, @screen.h - 5, @screen.w - 2, 4)   
-  @mess_win.scrollok(true)
-  @mess_win << "start"
-  @mess_win << (@border_win.methods - Object.methods).join(', ')
-  # @screen.refresh
-  # sleep 3
-  x = 2
-  y = 2 
-  for color, value in Console::COLOR_LOOKUP do 
-    @screen.draw("# ", x, y, color, false, false)
-    @screen.draw("# ", x + 2, y, color, true, false)
-    @screen.draw("# ", x + 4, y, color, false, true)
-    @screen.draw("# ", x + 8, y, color, true, true)
-    y+=1
+  def draw
+    @screen.refresh
+    @messages.refresh
+    @status.refresh
   end
-    
-  @screen << "#{@screen.w} #{@screen.h}"
-  wall_image = Image.new('#', :yellow, true, false)
-  wall_image.draw(@screen, 15, 15)
-  @screen.refresh
-   
-  ch = @screen.getch
-  Console.close_screen
-  p ch
-  # (@screen.methods.sort - Object.methods).join(' ')
 end
 
 
-test
+
+
+class Game
+
+  def action(name, *key)
+    @actions ||= {}
+    if key.respond_to? :each
+      key.each { |k| @actions[k] = name.to_sym } 
+    else
+      @actions[key] = name.to_sym
+    end 
+  end 
+  
+  def perform_action(key)
+    action = @actions[key]
+    if (!action)
+      @ui << "\nNo action defined for key: #{key} #{key.class}"
+      return false 
+    end
+    return self.send("action_#{action}")
+  end
+
+  def initialize
+    @world    = World.new
+    @worldmap = @world.new_place('World', 200, 200)
+    wmgen = Generator::Worldmap.new(@worldmap)
+    wmgen.generate
+    @ui       = UI.new
+    @state    = :play
+    @map_x    = 0
+    @map_y    = 0
+    @map      = @worldmap   
+    action(:quit      , 'Q'     , 27  )
+    action(:actions   , :F5           )
+    action(:north     , :UP     , '8' )
+    action(:northeast , :PPAGE  , '9' )
+    action(:east      , :RIGHT  , '6' )
+    action(:southeast , :NPAGE  , '3' )
+    action(:south     , :DOWN   , '2' )
+    action(:southwest , :END    , '1' )
+    action(:west      , :LEFT   , '4' )
+    action(:northwest , :HOME   , '7' )
+    action(:wait      , ' '     , '5' )
+    action(:items     , 'i'           )
+    action(:cast      , 'c'           )
+    action(:wield     , 'w'           )
+    action(:save      , 'S'           )
+    action(:help      , :F1     , '?' )
+    action(:debug     , :F2     , 'D' )    
+  end
+  
+  def action_debug
+    @ui << @world.inspect
+  end
+  
+  def scroll_map(by_x, by_y)
+    @map_x += by_x
+    @map_y += by_y
+    @map_x  = Aid.clamp(@map_x, 0, @map.w - @ui.mapview.w)
+    @map_y  = Aid.clamp(@map_y, 0, @map.h - @ui.mapview.h)
+    @ui.status.draw("(#@map_x,#@map_y)", 0, 0)
+  end
+  
+  def action_north
+    scroll_map(0, -1)
+  end
+
+  def action_east
+    scroll_map(1, 0)
+  end
+  
+  def action_northeast
+   scroll_map(1, -1)
+  end
+  
+  def action_southeast
+    scroll_map(1, 1)
+  end
+  
+  def action_south
+    scroll_map(0, 1)
+  end
+  
+  def action_southwest
+    scroll_map(-1, 1)
+  end
+  
+  def action_west
+    scroll_map(-1, 0)
+  end
+  
+  def action_northwest
+    scroll_map(-1, -1)
+  end
+  
+  def action_wait
+  end
+  
+  def action_cast
+  end
+  
+  def action_items
+  end
+  
+  def action_wield
+  end  
+  
+  def action_help
+    @ui << "Not much help available. You can press Q or ESC to quit."
+  end  
+
+  def action_save
+  end
+  
+  def action_quit()
+#     result = @ui.ask("Quit without saving (y/n)?")
+#     # Don't quit unless answer was yes
+#     unless ['y', 'Y'].member?(result)
+#       @ui << " OK"
+#       return false
+#     end
+    @ui     << "Quiting Ature!"
+    @state = :done
+    return true 
+  end
+  
+  def action_actions
+    @ui << "\nKnown actions: #{@actions.inspect}"
+  end
+  
+  
+  def state_welcome
+    @ui     << "Welcome to Ature!"
+    @ui.draw
+    @ui.wait_key
+    @state  = :play 
+  end
+  
+  def draw_play    
+    @map.draw(@ui.mapview, @map_x, @map_y, @ui.mapview.w, @ui.mapview.h)
+    @ui.draw
+    @ui.mapview.refresh
+  end
+  
+  def state_play
+    while @state && @state != :done 
+      draw_play
+      key = @ui.wait_key
+      perform_action(key)
+    end
+  end
+  
+  def main
+    while @state && @state != :done
+      self.send("state_#@state")
+    end  
+  end
+  
+  def self.main
+    game = Game.new
+    game.main
+  end
+  
+  
+end
+
+
+Game.main
+
+
+
+
+
 
 =begin
 
