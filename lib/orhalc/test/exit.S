@@ -29,7 +29,9 @@ str_end:
 .equiv _sys_read  , 3
 .equiv _sys_write , 4
 .equiv _sys_open  , 5
-.equiv _sys_close , 6
+.equiv _sys_close , 6 
+.equiv _sys_brk   , 45
+
 
 .macro sys_call
   int   $0x80
@@ -70,6 +72,10 @@ str_end:
   sys_call_1 $_sys_exit, \return
 .endm
 
+.macro sys_brk delta
+  sys_call_1 $_sys_brk, \delta
+.endm
+
 # We use a Forth-like return stack, and a separate parameter stack
 # NEXT jumps to (returns to) the next function to call 
 .macro NEXT
@@ -87,7 +93,14 @@ str_end:
   lea 4(%ebp),%ebp
 .endm
 
-
+# Usses a system call to allocate a block of memory with the given size. 
+# New address is in %eax. Clobbers %ebx, and anything involved in the syscall.
+.macro const_alloc size
+  sys_brk $0
+  addl    \size, %eax
+  movl    %eax , %ebx
+  sys_brk  %ebx
+.endm   
 
 _multret:
   pop %eax  
@@ -97,9 +110,11 @@ _multret:
   ret
 
 _start:
- sys_write $_STDOUT, $str, $str_size
- call _multret
- pop %eax
- pop %eax
- sys_exit %eax
+  movl        $64, %eax  
+  const_alloc %eax
+  sys_write   $_STDOUT, $str, $str_size
+  call        _multret
+  pop         %eax
+  pop         %eax
+  sys_exit    %eax
  
