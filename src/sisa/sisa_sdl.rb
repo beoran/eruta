@@ -113,8 +113,13 @@ module Sisa_SDL
   
   
   def self.load_alpha(filename)
-    return SDL::Surface.load_alpha(filename)
+    return Sisa::Surface.load_alpha(filename)
   end
+  
+  def self.load_solid(filename)
+    return Sisa::Surface.load_solid(filename)
+  end
+
   
 end
 

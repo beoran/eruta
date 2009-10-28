@@ -1,6 +1,16 @@
+Orhalcla
+
 Orhalc
 
-Orhals is a compiler or the Orhalcium programming language. 
-The Orhalcium language tries to be as close to Ruby as possible, 
-whilst still remaining compilable. This means that some Ruby 
+Orhalc is a compiler or the Orhalcla programming language.
+ORHAlcla is a Compilable LAnguage 
+The Orhalcla language tries to be as close to Ruby as possible, 
+whilst still remaining fully compilable without needing an 
+extensive runtime to support it. This means that some Ruby 
 semantics will only be supported at compile time, not at run time.
+
+
+
+
+
+

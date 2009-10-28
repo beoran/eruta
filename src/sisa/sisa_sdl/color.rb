@@ -24,7 +24,8 @@ module Sisa_SDL
         @r        = r_in
         @g        = g_in
         @b        = b_in
-        @a        = a_in
+        #  Alpha is opaque by default
+        @a        = a_in || ALPHA_OPAQUE 
       end  
     end
     
@@ -69,6 +70,12 @@ module Sisa_SDL
              self.g == other.g && 
              self.b == other.b && 
              self.a == other.a 
+    end
+    
+    # Returns true if the color is 100% opaque.
+    def opaque?
+      return true if @a.nil?
+      return @a == ALPHA_OPAQUE
     end
     
     TRANSPARENT       = Color.new(255, 0, 255, SDL::ALPHA_TRANSPARENT)

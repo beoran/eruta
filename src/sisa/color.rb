@@ -71,6 +71,12 @@ module Sisa
              self.a == other.a 
     end
     
+    # Returns true if the color is 100% opaque.
+    def opaque?
+      return true if @a.nil?
+      return @a == ALPHA_OPAQUE
+    end
+    
     TRANSPARENT       = Color.new(255, 0, 255, SDL::ALPHA_TRANSPARENT)
     ALPHA_TRANSPARENT = SDL::ALPHA_TRANSPARENT
     ALPHA_OPAQUE      = SDL::ALPHA_OPAQUE
