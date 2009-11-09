@@ -10,6 +10,11 @@ union OR_ALL_PTR_;
 struct OR_RUNTIME_;
 typedef struct OR_RUNTIME_ OR_RUNTIME;
 typedef union OR_ALL_PTR_ OR_ALL_PTR;
+typedef union OR_VALUE_ OR_VALUE;
+
+/* Machine word. */
+typedef int OR_WORD;
+
 
 typedef void * OR_DATA_PTR;
 typedef OR_DATA_PTR (*OR_FUNC_PTR)(OR_RUNTIME * rt, int argc, OR_ALL_PTR * args);
@@ -19,6 +24,13 @@ union OR_ALL_PTR_ {
   OR_FUNC_PTR func;
 };
 
+
+union OR_VALUE_ {
+  OR_DATA_PTR   data;
+  OR_FUNC_PTR   func;
+  OR_WORD       inte;
+  double        doub; 
+};
 
 struct OR_RUNTIME_ {
   int           tag;
@@ -94,10 +106,15 @@ void * hello (OR_RUNTIME * rt, int argc, OR_ALL_PTR * args) {
 }
 
 
-int main(int argc, char * argv[]) {  
+int main(int argc, char * argv[]) {
+  double f1, f2, f3;
+  f1 = 2.3;
+  f2 = 3.4;
+  f3 = f2 + f1;  
   OR_RUNTIME runtime;
   or_runtime_init(&runtime);
   or_runtime_pushnext(&runtime, hello);
   or_runtime_run(&runtime, 0, NULL);
+  printf("%d %d %lf\n", sizeof(int), sizeof(OR_VALUE), f3);
   return 0;
 }

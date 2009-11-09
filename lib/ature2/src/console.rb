@@ -63,7 +63,12 @@ class Console
       @color = col
       if @colorok
         self.bright = bright
-        @window.color_set(@color)
+        # if @window.respond_to? :color_set
+        # @window.color_set(@color)
+        # Set colors via attron, since tha tworks better on Windows and maybe other platforms
+        
+        pair = Curses.color_pair(@color)
+        @window.attron(pair)        
       end
     end
   end
