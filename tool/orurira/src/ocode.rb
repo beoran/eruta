@@ -10,127 +10,66 @@
 #
 
 =begin  
-  In what follows CPU means the real back end CPU, and OCPU means the 
+  In what follows CPU means the real back end CPU on which the OCODE is run 
+  after it has been translated to that CPU's machine code. The OCPU means the 
   virtual "CPU" the OCODE is generated for.
-
-  The OCPU has 4 general purpose registers that may be of different sizes depending on the CPU the OCODE is translated to. The size of the registers of the OCPU is called a machine word or mword. Allowed sizes for the machine word are 1, 2, 4, 8, (2**n) bytes. Most instructions of the OCPU handle registers of machine word size only. 
   
-  The OCPU has 4 general purpose registers. The four general purpose registers are named :r1, :r2, :r3 and :r4. 
+  The OCPU supports 3 general kinds of data: integers, addresses, and
+  floating point. 
+
+  The OCPU has several general purpose registers which have the same size as the 
+  of the natural register size of the CPU. In C parlance, this is sizeof(int).
+  THis means, the general purpose registers may be of different sizes 
+  depending on the CPU the OCODE is translated to. A value that has the same size 
+  of the registers of the OCPU is called a machine word or mword. Allowed sizes 
+  for the machine word are 1, 2, 4, 8, ... , (2**n) bytes. A byte is normally 8 
+  bits long. Most instructions of  the OCPU handle registers of machine word 
+  size only. 
+  
+  The OCPU has at least 2 general purpose registers, again, depending on the 
+  CPU. The registers are named :r<n> where n increases from 0 to
+  The two guaranteed general purpose registers are named :r0 and :r1
   
   Furthermore there are several special purpose OCPU registers which 
-  may or may not be  identical to general purpose registers in the CPU:
+  may or may not be  identical to certain general purpose registers in the CPU:
   
-  :rhigh : rhigh is the high register. 
+  :high  : HIGH is the high register. 
            It is used for multiplication and division.
-  :rlow  : rlow is the low register. 
+  :low   : LOW is the low register. 
            It is used for multiplication and division.
   :sp    : SP is the stack pointer.
   :ip    : IP is the instruction pointer.  
-  :rcreturn : rcreturn is the C return register. 
-              It's the register that C uses one the CPU
+  :creturn : creturn is the C return register. It's the register that 
+             C compilers use on the CPU 
 
-  On the OCPU, all addresses are supposed to fit inside a machine word.  
+  On the OCPU, all addresses, both those of data and those of executable 
+  routines are supposed to fit inside a machine word. Memory is byte addressable, 
+  however, memory access for machine word based instructions must be aligned on 
+  machine word boundaries.
 
-  Furthermore, the OCPU may support floating point math. The 
-  OCPU  has 4 floating point registers which have a size that are 
-  64 bits wide.
-        
-        
+  Floating point values have a size of at least 32 bits, but are generally of 
+  the largest precision supported, whith the limitation that the size of the 
+  floating point values must be an integer multiple of the size of the machine 
+  word. In C parlance, this is sizeof(double).
+ 
+  The OCPU supports or emulates floating point math. The OCPU  has at least 2 
+  floating point registers which are named :f<n> <here n starts at 0. 
+  The name oft he two guaranteed floating point registers is f0 and f1 
   
-  As an extension, a few instructions that handle bytes
-  
-  All instructions of the OCPU
-  handle  
-
-
-Floating Point Instructions
-
-The MIPS has a floating point coprocessor (numbered 1) that operates on single precision (32-bit) and double precision (64-bit) floating point numbers. This coprocessor has its own registers, which are numbered $f0-$f31. Because these registers are only 32-bits wide, two of them are required to hold doubles. To simplify matters, floating point operations only use even-numbered registers--including instructions that operate on single floats.
-
-Values are moved in or out of these registers a word (32-bits) at a time by lwc1, swc1, mtc1, and mfc1 instructions described above or by the l.s, l.d, s.s, and s.d pseudoinstructions described below. The flag set by floating point comparison operations is read by the CPU with its bc1t and bc1f instructions.
-
-In all instructions below, FRdest, FRsrc1, FRsrc2, and FRsrc are floating point registers (e.g., $f2).
-
-
-abs.d FRdest, FRsrcFloating Point Absolute Value Double
-abs.s FRdest, FRsrcFloating Point Absolute Value Single
-Compute the absolute value of the floating float double (single) in register FRsrc and put it in register FRdest.
-
-
-add.d FRdest, FRsrc1, FRsrc2Floating Point Addition Double
-add.s FRdest, FRsrc1, FRsrc2Floating Point Addition Single
-Compute the sum of the floating float doubles (singles) in registers FRsrc1 and FRsrc2 and put it in register FRdest.
-
-
-c.eq.d FRsrc1, FRsrc2Compare Equal Double
-c.eq.s FRsrc1, FRsrc2Compare Equal Single
-Compare the floating point double in register FRsrc1 against the one in FRsrc2 and set the floating point condition flag true if they are equal.
-
-
-c.le.d FRsrc1, FRsrc2Compare Less Than Equal Double
-c.le.s FRsrc1, FRsrc2Compare Less Than Equal Single
-Compare the floating point double in register FRsrc1 against the one in FRsrc2 and set the floating point condition flag true if the first is less than or equal to the second.
-
-
-c.lt.d FRsrc1, FRsrc2Compare Less Than Double
-c.lt.s FRsrc1, FRsrc2Compare Less Than Single
-Compare the floating point double in register FRsrc1 against the one in FRsrc2 and set the condition flag true if the first is less than the second.
-
-
-cvt.d.s FRdest, FRsrcConvert Single to Double
-cvt.d.w FRdest, FRsrcConvert Integer to Double
-Convert the single precision floating point number or integer in register FRsrc to a double precision number and put it in register FRdest.
-
-
-cvt.s.d FRdest, FRsrcConvert Double to Single
-cvt.s.w FRdest, FRsrcConvert Integer to Single
-Convert the double precision floating point number or integer in register FRsrc to a single precision number and put it in register FRdest.
-
-
-cvt.w.d FRdest, FRsrcConvert Double to Integer
-cvt.w.s FRdest, FRsrcConvert Single to Integer
-Convert the double or single precision floating point number in register FRsrc to an integer and put it in register FRdest.
-
-
-div.d FRdest, FRsrc1, FRsrc2Floating Point Divide Double
-div.s FRdest, FRsrc1, FRsrc2Floating Point Divide Single
-Compute the quotient of the floating float doubles (singles) in registers FRsrc1 and FRsrc2 and put it in register FRdest.
-
-
-l.d FRdest, addressLoad Floating Point Double ${}^{\dagger}$
-l.s FRdest, addressLoad Floating Point Single ${}^{\dagger}$
-Load the floating float double (single) at address into register FRdest.
-
-
-mov.d FRdest, FRsrcMove Floating Point Double
-mov.s FRdest, FRsrcMove Floating Point Single
-Move the floating float double (single) from register FRsrc to register FRdest.
-
-
-mul.d FRdest, FRsrc1, FRsrc2Floating Point Multiply Double
-mul.s FRdest, FRsrc1, FRsrc2Floating Point Multiply Single
-Compute the product of the floating float doubles (singles) in registers FRsrc1 and FRsrc2 and put it in register FRdest.
-
-
-neg.d FRdest, FRsrcNegate Double
-neg.s FRdest, FRsrcNegate Single
-Negate the floating point double (single) in register FRsrc and put it in register FRdest.
-
-
-s.d FRdest, addressStore Floating Point Double ${}^{\dagger}$
-s.s FRdest, addressStore Floating Point Single ${}^{\dagger}$
-Store the floating float double (single) in register FRdest at address.
-
-
-sub.d FRdest, FRsrc1, FRsrc2Floating Point Subtract Double
-sub.s FRdest, FRsrc1, FRsrc2Floating Point Subtract Single
-Compute the difference of the floating float doubles (singles) in registers FRsrc1 and FRsrc2 and put it in register FRdest. 
-
-
-
-
-
-
+ABSF  # Compute the absolute value of the floating point value
+ADDF  # Floating Point Addition
+EQF   # Compare the floating point values for equality 
+LEF   # Compare floating point values for less than or equal 
+LTF   # Compare floating point values for less than
+CIF   # Convert floating point value to integer
+DIVF  # Compute the quotient of the floating point values
+LF    # Load floating point value from memory
+MOVF  # Move floating point value between floating point registers
+MULF  # Multiply floating point values 
+NEGF  # Negate the floating point double value
+SF    # Store the floating float value to memory
+SUBF  # Substract floating point values
+FSTR  # Moves the :fflags register to the designated :rfflag register
 
 =end
 
@@ -154,55 +93,55 @@ end
 
 
 
-ADDI # Add immediate (with overflow)
+ADDI  # Add immediate (with overflow)
 ADDIU # Add immediate unsigned (no overflow)
-ADDU # Add unsigned (no overflow)
-AND # Bitwise and
-ANDI # Bitwise and immediate
+ADDU  # Add unsigned (no overflow)
+AND   # Bitwise and
+ANDI  # Bitwise and immediate
 
-BEQ # Branch on equal
-BGEZ # Branch on greater than or equal to zero
+BEQ   # Branch on equal
+BGEZ  # Branch on greater than or equal to zero
 BGEZAL # Branch on greater than or equal to zero and link
-BGTZ # Branch on greater than zero
-BLEZ # Branch on less than or equal to zero
+BGTZ  # Branch on greater than zero
+BLEZ  # Branch on less than or equal to zero
 
-BLTZ # Branch on less than zero
+BLTZ  # Branch on less than zero
 BLTZAL # Branch on less than zero and link
-BNE # Branch on not equal
-DIV # Divide
-DIVU # Divide unsigned
+BNE   # Branch on not equal
+DIV   # Divide
+DIVU  # Divide unsigned
 
-J # Jump
-JAL # Jump and link
-JR # Jump register
-LB # Load byte
-LUI # Load upper immediate
+J     # Jump
+JAL   # Jump and link
+JR    # Jump register
+LB    # Load byte
+LUI   # Load upper immediate
 
-LW # Load word
-MFHI # Move from HI
-MFLO # Move from LO
-MULT # Multiply
+LW    # Load word
+MFHI  # Move from HI
+MFLO  # Move from LO
+MULT  # Multiply
 MULTU # Multiply unsigned
 
-NOOP # no operation
-OR # Bitwise or
-ORI # Bitwise or immediate
-SB # Store byte
-SLL # Shift left logical
+NOOP  # no operation
+OR    # Bitwise or
+ORI   # Bitwise or immediate
+SB    # Store byte
+SLL   # Shift left logical
 
-SLLV # Shift left logical variable
-SLT # Set on less than (signed)
-SLTI # Set on less than immediate (signed)
+SLLV  # Shift left logical variable
+SLT   # Set on less than (signed)
+SLTI  # Set on less than immediate (signed)
 SLTIU # Set on less than immediate unsigned
-SLTU # Set on less than unsigned
+SLTU  # Set on less than unsigned
 
-SRA # Shift right arithmetic
-SRL # Shift right logical
-SRLV # Shift right logical variable
-SUB # Subtract
-SUBU # Subtract unsigned
+SRA   # Shift right arithmetic
+SRL   # Shift right logical
+SRLV  # Shift right logical variable
+SUB   # Subtract
+SUBU  # Subtract unsigned
 
-SW # Store word
+SW    # Store word
 SYSCALL # System call
-XOR # Bitwise exclusive or
-XORI # Bitwise exclusive or immediate
+XOR   # Bitwise exclusive or
+XORI  # Bitwise exclusive or immediate
