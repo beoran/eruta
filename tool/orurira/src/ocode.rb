@@ -1,5 +1,5 @@
 #
-#
+# Orurira. 
 #
 #
 
@@ -30,12 +30,12 @@
   Integer values that are of different size of the machine word are described 
   as i<amount of bits> i8, i16, i32, i64, i128, i256, i512, i1024. Alternative 
   names for these are respectively byte (B), short (S), medium (M), large (L), 
-  huge (H), gigantic (G), enormous (E), and astronomical (A). I hope we'll never need the last two, though. ^_^    
+  huge (H), gigantic (G), enormous (E), and astronomical (A). I hope we'll never need the last two, though. ^_^
   
-  The OCPU has at least 4 general purpose registers, again, depending on the 
-  CPU. Unlike MIPS architecture, there is no zero register. The general 
-  purpose are named :r<n> where n increases from 1 to <amount_of_registers>  
-  The 4 guaranteed general purpose registers are named :r1, :r2, r3, r4
+  The OCPU has at least 4 general purpose registers, again, depending on the
+  CPU. Unlike MIPS architecture, there is no zero register. The general
+  purpose are named :r<n> where n increases from 1 to <amount_of_registers>
+  The 4 guaranteed general purpose registers are named :r1, :r2, :r3, :r4
   
   Furthermore there are several special purpose OCPU registers which 
   may or may not be  identical to certain general purpose registers in the CPU:
@@ -66,9 +66,9 @@
  
   Conceptually, floating point is performed by coprocessor number 1.
  
-  The OCPU supports or emulates floating point math. The OCPU  has at least 2 
+  The OCPU supports or emulates floating point math. The OCPU  has at least 4 
   floating point registers which are named :f<n> <here n starts at 1. 
-  The name of the two guaranteed floating point registers is :f1 and :f2
+  The name of the guaranteed floating point registers is :f1, :f2, :f3, :f4
    
   The OCPU supports the following instructions. Instructions normally have 3 operands. Unlike real MIPS, OCPU immediate operands can be of the full mword 
   size. Generally operands are in the order dest, src1, src2.
@@ -292,80 +292,97 @@ class Ocode
   
   # Substract unsigned without overflow
   def subru(dest, src1, src2)
-    code(:sub, dest, src1, src2)
+    code(:subu, dest, src1, src2)
   end
   
   
   # Logical Instructions
   # Bitwise And Registers    
   def andr(dest, src1, src2)
+    code(:and, dest, src1, src2)
   end
   
   # Bitwise And Immediate
   def andi(dest, src1, src2)
+    code(:andi, dest, src1, src2)
   end
   
   # Bitwise Nor Registers 
   def norr(dest, src1, src2)
+    code(:nor, dest, src1, src2)
   end
   
   # Bitwise Or Registers 
   def orr(dest, src1, src2)
+    code(:or, dest, src1, src2)  
   end
   
   # Bitwise Or Immediate 
   def ori(dest, src1, src2)
+    code(:ori, dest, src1, src2)
   end
   
   # Bitwise xor Registers  
   def xorr(dest, src1, src2)
+    code(:xor, dest, src1, src2)
   end
     
   # Bitwise xor Immediate  
   def xori(dest, src1, src2)
+    code(:xori, dest, src1, src2)
   end
   
   # Bit Shifting Instructions
   # Shift left logical registers
   def sllr(dest1, src1, src2)
+    code(:ssl, dest, src1, src2)
   end
    
   # Shift left logical immediate
   def slli(dest1, src1, immediate)
+    code(:ssli, dest, src1, immediate)
   end
   
   # Shift right arithmetic registers
   def srar(dest1, src1, src2)
+    code(:srar, dest, src1, src2)
   end
   
   # Shift right arithmetic immediate
   def srai(dest1, src1, immediate)
+    code(:srai, dest, src1, immediate)
   end
   
   # Shift right logical registers
   def srlr(dest1, src1, src2)
+    code(:srlr, dest, src1, src2)
   end
   
   # Shift right logical immediate
   def srli(dest1, src1, immediate)
+    code(:srli, dest, src1, immediate)
   end
   
   # Comparison Instructions
   
   # Set if Less Than
   def sltr(dest1, src1, src2)
+    code(:slt, dest, src1, src2)
   end
   
   # Set if Less Than immediate
   def slti(dest1, src1, src2)
+    code(:slti, dest, src1, src2)
   end
   
   # Set if Less Than unsigned
   def sltur(dest1, src1, src2)
+    code(:sltu, dest, src1, src2)
   end
   
   # Set if Less Than immediate unsigned
   def sltiu(dest1, src1, src2)
+    code(:sltiu, dest, src1, src2)
   end
   
   
@@ -377,14 +394,17 @@ class Ocode
 
   # Branch on Coprocessor flag False
   def bcf(coprocessor, label)
+    code(:bcf, coprocessor, label)
   end
   
   # Branch on Coprocessor flag true
   def bct(coprocessor, label)
+    code(:bcf, coprocessor, label)
   end
   
   # Branch on Equal to an Immediate
   def beqi(src1, immediate, label)
+    code(:beqi, coprocessor, label)
   end
   
   # Branch on Greater than or Equal to Zero
@@ -565,7 +585,7 @@ class Ocode
   def rfe()
   end
 
-  # System call
+  # Generic system call
   def system()
   end
   
@@ -585,6 +605,7 @@ class Ocode
   # Pseudo Instructions
   # Defines a label for the B*, J and JAL instructions to jump to
   def lbl(label)
+    asm(label.to_s + ':')
   end
   
   # Short hand functions, for covenience.
@@ -696,10 +717,135 @@ class Ocode
   # Shorthand: Store the floating float value to memory
   def sf(dest, offset, address)
   end
+  
+  
+  # Specific system calls 
+  def sys_exit
+  end
+  
+  def sys_fork
+  end
+  
+  def sys_read
+  end
+  
+  def sys_write
+  end
+  
+  def sys_open
+  end
+  
+  def sys_close
+  end
+  
+  # Allocates memory  
+  def sys_alloc
+  end
+  
+  # Implementations for linux 
+  module Linux
+    STDOUT      = 1
+    STDIN       = 2
+    STDERR      = 3
+    SYS_EXIT    = 1
+    SYS_FORK    = 2
+    SYS_READ    = 3
+    SYS_WRITE   = 4
+    SYS_OPEN    = 5
+    SYS_CLOSE   = 6
+    SYS_BRK     = 45 
+
+    def sys_call_raw
+      asm(:int, 0x80)
+    end
+     
+    # Generic linux syscall with up to 3 arguments 
+    def sys_call_arg(fun, *args)
+      map   = [ :ebx, :ecx, :edx ]
+      stop  = args.size
+      stop  = 3 if stop > 3
+      for i in (0...stop) do
+        dst = map[i]
+        src = args[i] 
+        asm(:movl, src, dst)
+      end 
+      sys_call_raw 
+    end
+    
+    def sys_write(fileno, str_address, str_size) 
+      sys_call_arg(SYS_WRITE, fileno, str, str_size)
+    end
+    
+    def sys_exit(retval)
+      sys_call_arg(SYS_EXIT, retval)
+    end
+      
+    def sys_brk(delta)
+      sys_call_arg(SYS_BRK, delta)
+    end
+    
+    def sys_alloc(size)
+      sys_brk(0) 
+      asm(:addl, size, :eax)
+      asm(:movl, :eax, :ebx)
+      sys_brk(:ebx)  
+    end
+      
+  end
+  
+  include Linux
     
   
 
 end
 
+=begin
+# how to use mmap: ...
+
+..section .data
+..comm mmap_, 24
+
+..section .text
+..globl _start
+_start:
+#mmap_ is a struct which holds parameters for mmap kernel call
+movl $0, mmap_ # I don't have preferences, just need memory somewhere
+movl $64, mmap_+4 # length of requested memory
+movl $3, mmap_+8 # read, write, PROT_WRITE | PROT_READ, 0x02, 0x01
+
+# error left in to demonstrate "error handler" :)
+movl $0x20, mmap_+12 # map anonymously
+
+# movl $0x21, mmap_+12 # map anonymously | MAP_SHARED
+# thanks, Chuck!
+
+movl $-1, mmap_+16 # fd, -1 for portability
+movl $0, mmap_+20 # offset is ignored
+
+movl $90, %eax # mmap number of syscall
+lea mmap_, %ebx #loading address of struct to %ebx
+int $0x80 # syscall
+cmpl $0xFFFFF000, %eax
+ja error
+
+movl %eax, %edx # probably result of syscall is in %eax
+movl $0, (%edx) #testing memory we got... this falls in segfault
+
+xorl %eax, %eax # claim no error
+
+exit:
+movl %eax, %ebx #code
+movl $1, %eax #exit
+int $0x80
+
+# fancy error handler
+error:
+negl %eax
+jmp exit
+=end
+if $0 == __FILE__
+  Oruria
+
+end
 
 
