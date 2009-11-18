@@ -49,6 +49,7 @@
   :link  : Link register, where (return) addresses are stored.  
   :creturn : creturn is the C return register. It's the register that 
              C compilers use on the CPU 
+  :s0 .. :sn : the registers that syscall needs to be filled in to           
 
   On the OCPU, all addresses, both those of data and those of executable 
   routines are supposed to fit inside a machine word. Memory is byte 
@@ -200,35 +201,47 @@
 
 
 class Ocode
+  autoload :Linux   , 'ocode/linux'
+  autoload :X86     , 'ocode/x86'
 
-  def initialize
+  attr_reader :cpu
+  attr_reader :os
+
+  def initialize(cpuclass = X86, osclass = Linux)
     @ocode        = []
-    @asm          = [] 
-    # Register translations for x86 
-    @regs         = { :r1 => :eax , :r2 => :ebx, :r3 => :ecx , :r3 => :edx  }
-    @regs[:high]  = :edx
-    @regs[:low]   = :ecx
-    @regs[:sp]    = :esp
-    @regs[:ip]    = :eip
-    @regs[:fp]    = :esi
-    # Size of the machine word
-    @wordsize     = 4
+    @cpu          = cpuclass.new
+    @os           = osclass.new
   end
   
   # Adds and instruction to the o-code being generated. Retunrns the 
   # address of the o-code added. 
   def code(*args)
-    addr    = @ocode.size * @wordsize 
+    addr    = @ocode.size
     @ocode << args
     return addr
   end
   
-  # adds a line of assembly to the output of the ocode
-  def asm(*args)
-    addr    = @asm.size * @wordsize
-    @asm << args
-    return addr
+  def to_s
+    buf = ''
+    for op in @ocode
+      o    = op.dup
+      buf << o.shift
+      if o.size > 0
+        buf << ' '
+        buf << o.join(', ')
+      end
+      buf << "\n"
+    end
+    return buf
   end
+  
+  def to_cpu
+    for o in @ocode
+      @cpu.send(*o)
+    end    
+  end
+  
+
   
   def immediate?(src)
     return src.is_a? Fixnum
@@ -409,203 +422,267 @@ class Ocode
   
   # Branch on Greater than or Equal to Zero
   def bgez(src1, label)
+    code(:bgez, src1, label)
   end
   
   # Branch on Greater than or Equal to Zero and Link
   def bgezal(src1, label)
+    code(:bgezal, src1, label)
   end
   
   # Branch on Less than or Equal to Zero
   def blez(src1, label)
+    code(:blez, src1, label)
   end
   
   # Branch on Less thanZero
   def bltz(src1, label)
+    code(:bltz, src1, label)
   end
   
   # Branch on Less than Zero And Link
   def bltzal(src1, label)
+    code(:bltzal, src1, label)
   end
   
   # Branch on Not Equal to an Immediate
   def bnei(src1, immediate, label)
+    code(:bnei, src1, label)
   end
   
   # Jump Unconditionally
   def jmp(label)
+    code(:jmp, label)
   end 
   
   # Jump And Link
   def jal(label)  
+    code(:jal, label)
   end
   
   # Jump Register
   def jr(src1) 
+    code(:jr, src1)
   end
   
   # Jump Register And Link
   def jral(src1) 
+    code(:jral, src1, label)
   end
-  
-  
+    
   # Load and Store instructions
   # Addresses are defined by a constant offset in offset, from
   # an addres in register.
   
   # Load Byte
   def lb(dest, offset, address)
+    code(:lb , dest  , offset, address)
   end
    
   # Load Byte Unsigned
   def lbu(dest, offset, address)
+    code(:lbu , dest  , offset, address)
   end
   
   # Load Immediate (word)
-  def li(dest, offset, address)
+  def li(dest, immediate)
+    code(:li , dest  , immediate)
   end
   
   # Load Short
   def ls(dest, offset, address)
+    code(:ls , dest  , offset, address)
   end  
   
   # Load Short Unsigned
   def lsu(dest, offset, address)
+    code(:lsu , dest  , offset, address)
   end
    
   # Load Medium
   def lm(dest, offset, address)
+    code(:lm , dest   , offset, address)
   end  
   
   # Load Medium Unsigned
   def lmu(dest, offset, address)
+    code(:lmu , dest  , offset, address)
   end
   
   # Load Word
   def lw(dest, offset, address)
+    code(:lw , dest  , offset, address)
   end
   
   # Load Word to named Coprocessor register
-  def lwc(coprocessor_dest, offset, address)
+  def lwc(coprocessor_dest       , offset, address)
+    code(:lwc , coprocessor_dest , offset, address)
   end
   
   # Store Byte
-  def sb(dest, offset, address)
+  def sb(src1, offset, address)
+    code(:sb , src1  , offset, address)
   end
   
   # Store Short
-  def ss(dest, offset, address)
+  def ss(src1, offset, address)
+    code(:ss , src1  , offset, address)
   end
       
-  # Store Medium
-  def sm(dest, offset, address)
+  # Store Medium (32 bits)
+  def sm(src1, offset, address)
+    code(:sm , src1  , offset, address)
   end
   
   # Store Word
-  def sw(dest, offset, address)
+  def sw(src1, offset, address)
+    code(:sw , src1  , offset, address)
   end
   
   # Store Word from Coprocessor
-  def swc(coprocessor_dest, offset, address)
+  def swc(coprocessor_src1      , offset, address)
+    code(:swc , coprocessor_src1, offset, address)
   end
   
   # Data Movement Instructions
   
   # Move From Coprocessor register
   def mfc(dest, src1, coprocessor = 1) 
+    code(:mfc , dest, src1, coprocessor)
   end
   
   # Move From :High
   def mfhi(dest)
+    code(:mfhi, dest)
   end
   
   # Move From :Low
   def mflo(dest)
+    code(:mflo, dest) 
   end
   
   # Move to Coprocessor register
   def mtc(dest, src1, coprocessor = 1) 
+    code(:mtc , dest, src1, coprocessor)
   end
   
   # Move to :High
   def mthi(src1)
+    code(:mthi, src1)
   end
   
   # Move to :Low
   def mtlo(src1)
+    code(:mtlo, src1)
   end
     
   # Floating point coprocessor 
   # Compute the absolute value of the floating point value
   def absf(dest, src1)
+    code(:absf, dest, src1)
   end
   
   # Floating Point Addition
   def addf(dest, src1, src2)
+    code(:addf, dest, src1, src2)
   end
   
   # Compare the floating point values for equality. Sets the coprocessor's flag.
   def eqf(src1, src2)
+    code(:eqf, src1, src2)
   end
   
   # Compare floating point values for less than or equal
   def lef(src1, src2)  
+    code(:lef, src1, src2)
   end
   
   # Compare floating point values for less than
   def ltf(src1, src2)
+    code(:ltf, src1, src2)
   end
       
   # Convert floating point value to integer (truncating it)
   def cif(dest, src1)
+    code(:cif, dest, src1)
   end 
   
   # Compute the quotient of the floating point values
   def divf(dest, src1, src2) 
+    code(:divf, dest, src1, src2)
   end
   
   # Move floating point value between floating point registers
   def movf(dest, src1)
+    code(:movf, dest, src1)
   end
   
   # Multiply floating point values
   def mulf(dest, src1, src2)
+    code(:mulf, dest, src1, src2)
   end
   
   # Negate the floating point double value
   def negf(dest, src1)
+    code(:negf, dest, src1)
   end
-
   
   # Substract floating point values  
   def subf(dest, src1, src2)
+    code(:subf, dest, src1, src2)
   end
   
   # Exception and Trap Instructions
   # Restore From Exception
   def rfe()
+    code(:rfe)
   end
 
   # Generic system call
-  def system()
+  def syscall()
+    code(:syscall)
   end
   
   # Break. Raises an exception.
-  def brk()
+  def brk(imediate=1)
+    code(:brk, immediate)
   end
   
   # No operation.  
   def nop
-  end  
+    code(:nop)
+  end
+  
+  # End of instructions that CPU must provide 
   
   # C Language Interface XXX: needs to be worked out. 
   def callc() # Call C Function.
+    code(:callc)
   end
    
   
   # Pseudo Instructions
   # Defines a label for the B*, J and JAL instructions to jump to
-  def lbl(label)
-    asm(label.to_s + ':')
+  # The label is global by defult, pass :local as second param 
+  # for a local label 
+  def lbl(label, kind = :global)
+    kind ||= global
+    code(:lbl, label, kind)
+  end
+  
+  # Define data. Data is assembled into this address
+  # Switch to data mode first with data, then switch back to program text mode 
+  # with text
+  def dd(data)
+    code(:dd, data)
+  end
+  
+  def data
+    code(:data)
+  end
+  
+  def text
+    code(:text)
   end
   
   # Short hand functions, for covenience.
@@ -742,60 +819,7 @@ class Ocode
   def sys_alloc
   end
   
-  # Implementations for linux 
-  module Linux
-    STDOUT      = 1
-    STDIN       = 2
-    STDERR      = 3
-    SYS_EXIT    = 1
-    SYS_FORK    = 2
-    SYS_READ    = 3
-    SYS_WRITE   = 4
-    SYS_OPEN    = 5
-    SYS_CLOSE   = 6
-    SYS_BRK     = 45 
-
-    def sys_call_raw
-      asm(:int, 0x80)
-    end
-     
-    # Generic linux syscall with up to 3 arguments 
-    def sys_call_arg(fun, *args)
-      map   = [ :ebx, :ecx, :edx ]
-      stop  = args.size
-      stop  = 3 if stop > 3
-      for i in (0...stop) do
-        dst = map[i]
-        src = args[i] 
-        asm(:movl, src, dst)
-      end 
-      sys_call_raw 
-    end
-    
-    def sys_write(fileno, str_address, str_size) 
-      sys_call_arg(SYS_WRITE, fileno, str, str_size)
-    end
-    
-    def sys_exit(retval)
-      sys_call_arg(SYS_EXIT, retval)
-    end
-      
-    def sys_brk(delta)
-      sys_call_arg(SYS_BRK, delta)
-    end
-    
-    def sys_alloc(size)
-      sys_brk(0) 
-      asm(:addl, size, :eax)
-      asm(:movl, :eax, :ebx)
-      sys_brk(:ebx)  
-    end
-      
-  end
-  
-  include Linux
-    
-  
+ 
 
 end
 
@@ -844,7 +868,40 @@ negl %eax
 jmp exit
 =end
 if $0 == __FILE__
-  Oruria
+  o = Ocode.new
+  SYS_EXIT  = 1
+  SYS_WRITE = 4
+  STDOUT    = 1
+  o.data
+  o.lbl(:_str, :local)
+  s = 'Hello Orurira!\n'
+  o.dd(s)
+  o.text
+  o.lbl(:_start)  
+  o.li(:s0, SYS_WRITE)
+  o.li(:s1, STDOUT)
+  o.li(:s2, :$_str)
+  o.li(:s3, s.size)
+  o.syscall  
+  o.li(:s0, SYS_EXIT)
+  o.li(:s1, 0)
+  o.syscall
+  
+  
+  puts o.to_s
+  o.to_cpu
+  puts o.cpu.to_s
+  OUTNAME = "ocode_test.s"
+  OBJNAME = "ocode_test.o"
+  EXENAME = "ocode_test"
+  fout    = File.open(OUTNAME, "w+")
+  fout.write(o.cpu.to_s)
+  fout.close
+  system("as -g #{OUTNAME} -o #{OBJNAME}")
+  system("ld #{OBJNAME} -o #{EXENAME}")
+  system("./#{EXENAME}")
+  
+  
 
 end
 
