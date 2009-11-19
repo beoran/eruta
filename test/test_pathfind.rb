@@ -284,7 +284,7 @@ end
 
 module Test
   class Pathfind < Test::Common
-    INPUT_FILE          = 'test_root_bw.png'
+    INPUT_FILE          = 'test_root_bw4.png'
     STEP_SIZE           = 1
     
     def setup
@@ -292,10 +292,10 @@ module Test
       open_screen(1280, 1024, false)
       open_queue
       @image            = Sisa::Surface.load_solid(INPUT_FILE)
-      @start            = [ 47, 2 ]   #  
-      @goal             = [ 99, 470 ] # 
-      @start      =             [  55, 3   ]
-      @goal = [ 132, 541 ]
+      @start            = [ 132 / 2, 6 / 2 ]   #  
+      @goal             = [ 369 / 2 - 1, 1689 / 2 - 1] # 
+      # @start      =             [  55, 3   ]
+      # @goal = [ 132, 541 ]
       @start_color      = @image.get_point(*@start)      
       @goal_color       = @image.get_point(*@goal)
       @finder           = PF::Finder.new(@image, STEP_SIZE)

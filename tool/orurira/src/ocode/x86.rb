@@ -32,6 +32,13 @@ class Ocode
   
   def immediate?(part)
     return part.to_int if part.respond_to?(:to_int)
+    return nil
+  end
+  
+  # Raw assembly is a string
+  def raw?(part)
+    return part.to_str if part.respond_to?(:to_str)
+    return nil
   end
   
   def part_to_asm(part)
@@ -42,8 +49,13 @@ class Ocode
     imm = immediate?(part)
     if imm
       return "$#{imm}"
-    end  
-    # if we get here, it should be a label or a string, so stringify it as is
+    end      
+    raw = raw?(part)
+    if raw
+      return raw
+    end
+    # if we get here, it should be a label
+    # for this backend, labels should be translated 
     return part.to_s    
   end
   

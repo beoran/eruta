@@ -74,7 +74,7 @@
   lea 4(%ebp),%ebp
 .endm
 
-# Usses a system call to allocate a block of memory with the given size. 
+# Uses a system call to allocate a block of memory with the given size. 
 # New address is in %eax. Clobbers %ebx, and anything involved in the syscall.
 .macro const_alloc size
   sys_brk $0
@@ -83,6 +83,10 @@
   sys_brk  %ebx
 .endm   
 
+.macro make_string name, string
+  \name:  
+  .ascii \string  
+.endm
 
 
 
