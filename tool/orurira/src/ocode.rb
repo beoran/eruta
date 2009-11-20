@@ -4,24 +4,52 @@
 #
 
 =begin
-  Orurira generates intermediate level code, called OCODE for a virtual sort-of-RISC-like, MIPS-inspired machine, the OCPU. OCODE is then translated 
-  into real assembly code for the target CPU and OS. The Ocode class generates 
-  this ocode  at with the given instructions. Currently, it only generates 
-  x86 assembly from Linux OS.
-  
-  In what follows CPU means the real back end CPU on which the OCODE is run 
-  after it has been translated to that CPU's machine code. The OCPU means the 
-  virtual "CPU" the OCODE is generated for.
-  
-  The OCPU supports 3 general kinds of data: integers, addresses, and
-  floating point.
-   
-  The OCPU has a main processor for integer values, and one or more 
-  coprocessors. Every coprocessor has a flag register that cannot be read
-  firectly, but which can be branched on by using BCT or BCF instructions.  
+  The 3 main goals of goals of the Orurira compler are Flexibility, Simplicity, Speed, in that order of importance. 
 
-  The OCPU main processor has several general purpose registers which have the 
-  same size as the of the natural register size of the CPU. In C parlance, this 
+  Orurira generates intermediate level vitual asssembly code, called OCODE. 
+  This ocode targets a virtual sort-of-RISC-like, MIPS and Gnu Lightening 
+  inspired machine, the OCPU. OCODE is then translated into real assembly code 
+  for the target CPU and OS. The Ocode class generates this ocode with the 
+  given instructions. Currently, it only generates x86 assembly from Linux OS.
+  
+  In what follows CPU means the real back end CPU on which the translated real assembly is to be run after the ocode has been translated to it. The OCPU 
+  means the virtual "CPU" the OCODE is generated for.
+  
+  The OCPU supports 4 general kinds of data: integers, data addresses, 
+  function addresses, and floating point numbers.
+   
+  The OCPU has a main processor that can work with integers and both kinds of addresses, and one or more coprocessors. Every coprocessor has a flag 
+  register that cannot be read directly, but which can be branched on by using 
+  BCT or BCF instructions.  
+
+  The OCPU main processor has registers that are large enough to contain the 
+  largest posssible data address and function address, and the natural size of 
+  the CPU's registers, whichever is larger. A register or memory location that 
+  is large enough to contain these   
+  
+  In C parlance, 
+   
+  typedef void *     or_data_ptr ; 
+  typedef or_data_ptr (*or_func_ptr)(or_data_ptr) ;        
+  union or_cell_ {    
+    or_data_ptr data;
+    or_func_ptr func;
+    int         num;
+  };
+  typedef union or_cell_ or_cell;
+
+  
+  On many popular contemporary CPU's, the size of these three is the same. 
+  However, on some big iron or embedded systems, the size of the two kinds of addresses may differ. Or the size of addresses may be bigger than the natural register size. In the name of simplicity, the OCPU abstracts away these differences, even when it leads to much slower performance.
+  
+   
+   
+  
+  has several general purpose registers which have the 
+  same size as the of the natural register size of the CPU. C parlance, this
+  is  
+  
+   
   is sizeof(int). This means, the general purpose registers may be of different sizes depending on the CPU the OCODE is translated to. A value that has the 
   same sizeof the registers of the OCPU is called a machine word or mword, abbreviated as W. 
   Allowed sizes for the machine word are 1, 2, 4, 8, ... , (2**n) bytes. A byte 
@@ -184,6 +212,26 @@
   NEGF  # Negate the floating point double value
   SF    # Store the floating float value to memory
   SUBF  # Substract floating point values
+  
+  
+  The layout of low level objects in memory, be it on the stack or on the heap, 
+  is inspired by EBML, where the size and ID are however encoded as a single 
+  cell, contrary to the variable-length integer strategy of EBML.
+  
+  CELL    = OCPU_WORD
+  OBJECT  = ELEMENT*
+  ELEMENT = ID SIZE DATA
+  ID      = CELL
+  SIZE    = CELL
+  DATA    = VALUE / ELEMENT *
+  VALUE   = INT / UINT / FLOAT / STRING / BINARY / DATA_ADDRESS / REL_ADDRESS / FUNC_ADDRESS / EXTRA
+  INT     = CELL
+  UINT    = CELL
+  STRING  = CELL{(SIZE/SIZE_OF_CELL)-1} 0_FILLED_CELL
+  BINARY  = CELL{(SIZE/SIZE_OF_CELL)}
+  EXTRA   = CELL{(SIZE/SIZE_OF_CELL)}
+
+   
 
   References used for writing this doc: 
   
