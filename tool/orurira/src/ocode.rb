@@ -4,7 +4,141 @@
 #
 
 =begin
-  The 3 main goals of goals of the Orurira compler are Flexibility, Simplicity, Speed, in that order of importance. 
+  Orurira stands for Orurira is a Ruby Rike Ranguage. Sorry for that joke. ^_^
+  The goal of this project is to create a specification of, and a compiler for compiler for a lanuage that is as close to Ruby as possible, limited only by 
+  the imperative that everything i nthe language can compile down to real 
+  machine code, without the use of any VM.  The main of goals of the Orurira 
+  compiler will be Flexibility, Simplicity, Speed, Compatibility with Ruby, 
+  in that order of importance.
+  
+  Orurira, as a language, will be 100% compatible with Ruby's syntax, without 
+  any extensions or emissions to it. However, differences in semantics as well 
+  as in in functionality will be deemed  acceptable if compilation of these 
+  features is difficult. For example, "eval"-like constructs will not be 
+  supported initially. 
+  
+  When writing a compiler for a high level language, the problem is that many 
+  low level primitives need to be implemented to support the high level 
+  constructs. In other Ruby implementations, these primitives are are 
+  implemented in C, C++, Java, or  assembly, but that is unsatifactory for many reasons. On the other hand, it's conceptually difficult to let Ruby generate 
+  the primitives it needs for itself. 
+  
+  The Ruby to C project is a very useful idea, but still, it is limited in that 
+  it compiles Ruby down to C. This means that you're still bound to the C 
+  calling conventions, and limited to C's capabilities. That's why I think 
+  trying to write primitives for Ruby in a C environment is much like trying 
+  to push a square peg in a round hole. It's never a nice fit.
+  
+  For all these reasons, Orurira as a language, will suport two different modes,
+  or dialects if you like. The first dialect is simply the "Ruby" dialect, 
+  where the second one is the low level "Alox" dialect.
+  
+  In the Ruby dialect the semantics of Ruby will be followed as closely as is technically feasible.  The Ruby dialect is enabled by default. For it's support, it uses primitives  that must have been defined in Alox mode.   
+  
+  The second dialect in Orurira will be the Alox language mode. (Alox stands for
+  ALuminum OXide, of which rubies are made. Sorry for this joke, again. ^_^) 
+  In the Alox dialect, the syntax is still that of Ruby, but the semantics are
+  signicficantly different. Alox is, in a way, a domain specific language that 
+  can be used to generate primitivesf for the Ruby mode. But it would be more 
+  fair to say that Alox is intended is a dialect of Ruby which is generally 
+  useful for low level programming.
+  
+  Alox language mode is started by writing "alox true", or just Alox by 
+  itself at the beginning of a source file. It's turned off again by saying 
+  alox false. You can also do alox do ... end.
+  
+  Alox has the following differences in semantics with Ruby:
+   
+  * Alox is a statically typed language with type inference. 
+  * Contrary to Ruby, Alox is an imperative language. 
+  * Modules are only name spaces, and nothing else. They're not mix-ins. 
+  * Constants cannot be looked up or caclulated dynamically. They do support
+    integer expressions. Also some simple string or symbol expressions are 
+    allowed.
+  * A def foo(a, b) ... ; outside a class of module generates a real low level
+    primitive function.
+  * Outside of defs, if, case, while and other control structs are only 
+    supported for macro-like features.
+  * Types are inferred from the parameters of the functions if you give them
+    default values. Otherwise, it's inferred from assignments. You can also 
+    define the type of a variable foo by saying "type :foo, Typename".
+  * Several built-in types are supported.
+  * Alox::Byte is usually 8 bits wide, however on some unusual platforms, a 
+    byte may be defined as 6,7, or even 9 bits wide.
+  * Alox::I<n> : where n is 1, 2, 3, 4, 8: an integer that takes up exactly 
+    n bytes in the CPU's memory.
+  * Alox::Int is an Alox::I of of platform-specific guaranteed 
+    to be the fastest integer usable on this platform that could be used to also contain a data address. All literal integers in  Alox mode are of this type 
+    by default, unless if they are too big to fit. In the latter case, see Alox::I<n>.
+  * Alox::U<n>. Unsigned integer types.
+  * Alox::Size. Unsigned integer large enough to contain an address, also large
+    enough for a maximal size offset(hence the name). Alox::Uint is a synonym.
+  * Alox::Float. A floating point of double precision. Size is platform-specific
+    It guarantees at least 64 bits of precision. All literal floats are of that type.
+  * Alox::Boolean for true, false. Booleans may be set to nil, which is the same 
+    as setting them to false.
+  * Strings are supported, but only as constant, literal byte strings. 
+    More capable strings must be implemented in Alox itself (like strlib in C).  
+  * Alox::Address is an address of a low level functuion, stacla, array or 
+    string. The value nil is always an address. It may also be set to nil.
+  * Arrays are supported, but only homogenous arrays of Alox::Byte, Alox:I<n>,        Alox::Int, Alox::U<n>, Alox::Size or Alox::UInt, Alox::Float, Alox::Address.
+    Arrays can be resized dynamically, which will be compiled to heap memory allocation if needed. An arrays is of the type array of Alox::Int by 
+    default. Generic arrays are not directly supported.
+  * Nil is special: Setting an (unsigned) integer value to nil sets it to a 
+    platform  dependant value (perhaps 0). Floats are set to NAN. Booleans 
+    to false. Addresses to the special NOWHERE address.
+  * Address and Int can be connverted to each other without loss of data. 
+    Arrays of Address and Int are compatible with each other.
+  * Symbols are only supported in special constructs. Otherwise, they are 
+    compiled as byte strings. This limitation is imposed so symbols can 
+    be implemented in Alox itself. 
+  * Ranges are compiled to static arrays of Int with 2 members.
+  * Regexes are compiled as byte strings.
+  * When included inside a module, a def is only prefixed with that module's 
+    name space.
+  * Integers, floats and booleans are always passed by value. Others are 
+    normally passed by address. 
+  * Classes are compiled down to "static classes", r Stacla for short. A stacla 
+    acts a bit like structs in C, or records in Pascal, but a are bit more 
+    powerful. Methods of the class are translated to statically called functions that take a of the class's type as it's first (hidden) argument.        
+  * All @instance_variables of the class must be defined before use with 
+    field declarations like these: field :foo, <default value> 
+    or field :foo, Typename. 
+  * Inheritance is possibe, but statical. If you say class Foo < Bar, 
+    all fiels of Bar are included in Foo in such a way that calling calling
+    any method of Bar on any instances of Foo will work. When using inheritance,
+    the class Foo will use all methods of Bar that have not been overridden.
+    constructors, like initialize, must be called automatically. Super works, 
+    but again, only statically looks up the method to use at compile time.
+  * Staclass suports inlining of their members. If you use an address as a 
+    member, that adddress is merely a reference. However, arrays or other 
+    staclas may be "inlined" into another staclass, so the resulting stacla 
+    isa contiguous block of memory. Inline arrays are supported. An inline 
+    array may either be statical, or, if it is dynamical, depend on the value 
+    of another member of the stacla. (XXX: explain this better after 
+    implementing it).  
+  * All operators that are also available in C, work like they do in C.   
+  * You can include assembly in a special format.
+  * There are special constructs for system calls.
+  * There are special constructs for interfacing with C, to be defined later 
+    (FFI or Ruby/DL like???)
+      
+  Design of the compiler: 
+  
+  The compiler will perform several passes. 
+  1) The parser and lexer is, for now at least, the exellent ruby_parser gem of 
+  Zenspider.  The s-expressions generated are preprocessed, and then sent to 
+  the right compiler for each dialect (Ruby or Alox).   
+  2) The compiler then processes the syntax tree to a more specific semantic 
+  tree for it's own semantics.
+  3) The semantic tree from either dialect is compiled to virtual assembly, 
+     and to an information file. The information file a bit like Pascal's 
+     module file. It registers information about the compiled unit
+  4) The virtual assembly is translated to real assembly, and then to object 
+     code.
+  5) If needed, linking is performed.
+        
+  Ocode, the Virtual Assembly:      
 
   Orurira generates intermediate level vitual asssembly code, called OCODE. 
   This ocode targets a virtual sort-of-RISC-like, MIPS and Gnu Lightening 
@@ -40,23 +174,14 @@
 
   
   On many popular contemporary CPU's, the size of these three is the same. 
-  However, on some big iron or embedded systems, the size of the two kinds of addresses may differ. Or the size of addresses may be bigger than the natural register size. In the name of simplicity, the OCPU abstracts away these differences, even when it leads to much slower performance.
-  
-   
-   
-  
-  has several general purpose registers which have the 
-  same size as the of the natural register size of the CPU. C parlance, this
-  is  
-  
-   
-  is sizeof(int). This means, the general purpose registers may be of different sizes depending on the CPU the OCODE is translated to. A value that has the 
-  same sizeof the registers of the OCPU is called a machine word or mword, abbreviated as W. 
+  However, on some big iron or embedded systems, the size of the two kinds of addresses may differ. Or the size of addresses may be bigger than the natural register size. In the name of simplicity, the OCPU abstracts away these differences, even when it leads to much slower performance. This means, the general purpose registers may be of different sizes depending on the CPU the OCODE is translated to. A value that has the  same sizeof the registers of the OCPU is called a machine word or mword, abbreviated as W. 
   Allowed sizes for the machine word are 1, 2, 4, 8, ... , (2**n) bytes. A byte 
-  is normally 8 bits long. Most instructions of the OCPU handle registers of machine word size only.  
+  is normally 8 bits long, a  lthough uit may also be 9 or 7 or 6 on some 
+  strange architectures. Most instructions of the OCPU handle registers of 
+  machine word size only.  
   
   Integer values that are of different size of the machine word are described 
-  as i<amount of bits> i8, i16, i32, i64, i128, i256, i512, i1024. Alternative 
+  as i<amount of bytes> i1, i2, i4, i8, i16, i32, i64, i128. Alternative 
   names for these are respectively byte (B), short (S), medium (M), large (L), 
   huge (H), gigantic (G), enormous (E), and astronomical (A). I hope we'll never need the last two, though. ^_^
   
