@@ -5,6 +5,7 @@
    to be of the same size, due to some platforms  */
 typedef void *     or_data_ptr ;
 typedef or_data_ptr (*or_func_ptr)(or_data_ptr) ; 
+typedef double or_float;
 
 union or_all_ptr_;
 typedef union or_all_ptr_ or_all_ptr; 

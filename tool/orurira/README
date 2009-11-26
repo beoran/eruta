@@ -75,26 +75,34 @@
     define the type of a variable foo by saying "type :foo, Typename".
   * Several built-in types are supported.
   * Alox::Byte is usually 8 bits wide, however on some unusual platforms, a 
-    byte may be defined as 6,7, or even 9 bits wide.
-  * Alox::I<n> : where n is 1, 2, 3, 4, 8: an integer that takes up exactly 
-    n bytes in the CPU's memory.
-  * Alox::Int is an Alox::I of of platform-specific guaranteed 
-    to be the fastest integer usable on this platform that could be used to also contain a data address. All literal integers in  Alox mode are of this type 
-    by default, unless if they are too big to fit. In the latter case, see Alox::I<n>.
-  * Alox::U<n>. Unsigned integer types.
-  * Alox::Size. Unsigned integer large enough to contain an address, also large
-    enough for a maximal size offset(hence the name). Alox::Uint is a synonym.
-  * Alox::Float. A floating point of double precision. Size is platform-specific
-    It guarantees at least 64 bits of precision. All literal floats are of that type.
-  * Alox::Boolean for true, false. Booleans may be set to nil, which is the same 
-    as setting them to false.
+    byte may be defined as 6, 7, or 9 bits wide.
+  * Alox::Integer is a signed integer of platform-specific amount of bytes wide,  
+    guaranteed to be the fastest integer usable on this platform. This mean it 
+    will be 32 bits or 4 bytes on an 32 bit platform an 64 bits on a 64 bit 
+    platform. All literal integers in  Alox mode are of this type  by default.
+  * Alox::Unsigned. Unsigned integer of the same bit width as Int. Useful for 
+    sizes and offsetts from addresses.
+  * Alox::Float. A floating point of double precision. Size in memory is   
+    platform-specific. However, it's size must be an integer multiple of 
+    Integer. It guarantees at least 64 bits of precision. All literal floats 
+    are of that type.
+  * Alox::Boolean for true, false. Booleans (wastefully) have the same bit 
+    width as Integers.
   * Strings are supported, but only as constant, literal byte strings. 
     More capable strings must be implemented in Alox itself (like strlib in C).  
-  * Alox::Address is an address of a low level functuion, stacla, array or 
+  * Alox::Address is an address of a low level function, Record, Array or 
     string. The value nil is always an address. It may also be set to nil.
-  * Arrays are supported, but only homogenous arrays of Alox::Byte, Alox:I<n>,
-    Alox::Int, Alox::U<n>, Alox::Size or Alox::UInt, Alox::Float, Alox::Address.
-    Arrays can be resized dynamically, which will be compiled to heap memory
+  * Alox::Cell: a cell is a multiple use value that is wide enough to contain 
+    either an Address, a Boolean, an Integer, or an Unsigned. Floats are exempt
+    here on purpose becausethey tend to have a larger size in memory than 
+    Integer or Address classes. 
+  * Except for Alox::Byte, there will be in first instance no integer sizes 
+    smaller than the Integer, that is the machine word size. These can be 
+    emulated by working with Alox::Bytes.            
+  * Arrays are supported, but only homogenous arrays of Alox::Byte, 
+    Alox::Integer, Alox::Unsigned, Alox::Float, Alox::Address.
+  * Arrays know about their own size.    
+  * Arrays can be resized dynamically, which will be compiled to heap memory
     allocation if needed. An arrays is of the type array of Alox::Int by 
     default. Generic arrays are not directly supported.
   * Nil is special: Setting an (unsigned) integer value to nil sets it to a 
@@ -116,7 +124,8 @@
   * Records can be defined with Foo = record do ... end . A record acts a bit 
     like structs in C, but a are bit more powerful. Methods of the class are
     translated to statically called functions that take an instance of the 
-    record's type as it's first (hidden) argument.        
+    record's type as it's first (hidden) argument. Records can ony have 
+    Cells or Floats as their members.        
   * All @instance_variables of the class must be defined before use with 
     field declarations like these: field :foo, <default value> 
     or field :foo, Typename. 
@@ -133,16 +142,76 @@
     array may either be statical, or, if it is dynamical, depend on the value 
     of another member of the stacla. (XXX: explain this better after     
     implementing it).      
-  * All operators that are also available in C, work like they do in C.
+  * All binary operators that are also available in C, work essentially like 
+    they do in C.
   * Blocks are compiled down to anonymous (randomly named, local) functions.
   * Lexically scoped variables are passed separately as a hidden closure 
     argument. For example foo = 10  baz = quux.frotz { |fie| fie + foo } 
     will produce  _block_123(self, closure, fie, fai).    
-  * You can include assembly in a special format.
-  * There are special constructs for system calls.
+  * Inline assembly is supported. asm("")... or asm do ... end.  
+  * System calls and not part of the language but can be implemented though 
+    Alox and inline assembly.  
   * There are special constructs for interfacing with C, to be defined later 
-    (FFI or Ruby/DL like???)
-      
+    (FFI or Ruby/DL like???). For now imlemented in Alox.
+    
+  More on Records and Arrays
+  --------------------------
+  
+  In C arrays are staticallly sized. To get dynamic arrays, you need to 
+  simulate them with malloc() and pointers. If you think about it, it's very 
+  clumsy, because when you are using dynamic arrays, this requires you to keep 
+  track of the current size of the array somewhere else. It also means that 
+  embebing a dynamic array in a C struct will result in two noncontiguous 
+  memory blocks having to be allocated (tricks apart) because the compiler 
+  has no way to see how to lay out the struct in a dynamic way.  
+  
+  Sure, sometimes you could use a static buffer, however, this is rarely a good 
+  idea.
+  
+  That's why, in Alox, dynamic arrays have their size, or mor precisely, their 
+  space built in.  
+  
+  If you think about it, a record, (or struct in c) is in essence a kind of 
+  heterogenous array, which indexes by name in stead of by value.
+    
+  In the following diagram [] is a Cell (CPU-determined, yet constant size),
+  so it can contain a Integer. On this particular achitecture, a Float is 2 
+  times the size of an Integer.
+   
+  Record | Type of Field  | Example Value | Address offset | Array of Cell Similarity  
+  size   | Unsigned       | [10]          | 0              | a[0]
+  average| Float          | [float value..| 1              | a[1]
+         |                | ..in 2 Cells] | 2              | a[2]
+  space  | Unsigned       | [2]           | 3              | a[3] 
+  buffer | Address        | [0xabcdef10 ] | 4              | a[4]
+         
+  The main compication in the C language is that the C compiler can change the 
+  exact layout of the struct in memory behind your back, usually though padding.  
+  This means that some space is unusable for you, and also that the layout becomes 
+  needlessly complicated. The abstraction is leaky. By only allowing elements 
+  of the CPU's native size (or multiples thereof). Embedding Records in each 
+  other, becomes much easier.
+   
+  record :Foo do
+    integer   :i
+    float     :f
+  end
+   
+  record :Quux do
+    float     :q
+    unsigned  :s
+  end 
+  
+  
+  record Bar < Foo do
+    Quux             :other
+  end
+  
+  -> results in a layout of Quux: 
+  [i:] [:f, 0] [:f, 1] [:q] [:s]
+  
+  
+  
   Design of the compiler
   ====================== 
   
@@ -152,21 +221,23 @@
   the right compiler for each dialect (Ruby or Alox).   
   2) The compiler then processes the syntax tree to a more specific semantic 
   tree for it's own semantics.
-  3) The semantic tree from either dialect is compiled to virtual assembly, 
-     and to an information file. The information file a bit like Pascal's 
-     module file. It registers information about the compiled unit
-  4) The virtual assembly is translated to real assembly, and then to object 
-     code.
+  3) The semantic tree from either dialect is compiled immediately to real 
+     assembly, though a code generation class. This code generation class 
+     supports several high level constructs, so it can be easily retargeted, 
+     but also allows the insertion of raw assembly, so OS-specific features 
+     can be implemented in the language itself. The information file a bit like
+     Pascal's module files. It registers information about the compiled unit,
+     that speeds up separate compilation and assists in linking.
+  4) The assembly isassembled by an external assembler. I'm targeting GNU AS
+     and AT&T syntax at first, but this could be retargeted easily later.
   5) If needed, linking is performed.
   
   
   Plan for implementation:
-  ========================
-  
+  ========================  
   1) Implement Alox mode, starting with the semantic interpretation.
   2) Compile Alox mode semantics to i386 assembly for Linux OS.
   3) Implement basic classes for Ruby in Alox.
-  4) Replace direct assembler with virtual assembler.
   5) Implement Ruby mode semantic interpretation.
     
     
@@ -207,15 +278,28 @@
   
   -- Nietzsche.
   
+  Oh human! Pay attention!
+  What says the deep midnight?
+  I slept, I slept
+  From a deep dream I awakened
+  The world is deep,
+  Deeper than the day thought
+  Deep is your pain, 
+  Joy even deeper than sorrow
+  Pain says : Disappear!
+  But all joy wants eternity
+  wants deep, deep eternity. 
+  
+  
   Oh mens! Let op!
   Wat zegt de diepe middernacht?
   Ik sliep, ik sliep,
   Uit een diepe droom ben ik ontwaakt 
   De wereld is diep
   en dieper dan de dag dacht.
-  Diep is jullie pijn,   
+  Diep is jullie leed,   
   Vreugde, dieper noch dan smart
-  Pijn zegt: verga!
+  Leed zegt: verga!
   Maar vreugde wil eeuwigheid,
   wil diepe, diepe eeuwigheid!
   
@@ -224,12 +308,26 @@
   Neta, neta
   Fukai yume kara samasita
   Sekkai ha fukai, 
-  Hi no kangae yori fukai
-  Kimi no kanashisa mo fukai 
-  Yorokobi ha kurushimi yori fukai
-  kanashisa ha nakunatte to iu
-  demo subete no yorokobi ha eien 
+  Hi no shikou yori fukai
+  Kurushimi ha fukaki aru ga 
+  Yorokobi ha hiai yori fukai
+  kanashisa ha nakunatte to iu ga
+  demo subete no yorokobi ha eigou wo motomeru
+  fukai fukai eigoo wo motomeru! 
    
+  人間よ! ご注意よ!が
+  深い真夜中は何を言うか?
+ 「寝た。寝た。
+  深い夢から覚ました。
+  世界は深い、
+  日の思考より深い。
+  苦しみは深くあるが、
+  喜びは悲哀より深い。
+  苦しみは「消えろ!」を言うが、 
+  すべての喜びは永劫を求める。
+  深い深い永劫を求める!」
+  -- フリードリヒ・ニーチェ
+  
    
    
    
