@@ -20,6 +20,8 @@ class Console
     @bright   = false
   end
   
+  
+  # Color constant numbers
   BLACK    = 1
   GREEN    = 2
   RED      = 3
@@ -45,7 +47,7 @@ class Console
                     :silver => WHITE  , :teal     => CYAN,
                     :white => WHITE   , :yellow   => YELLOW }
                     
-  # contains the brightness of all colors
+  # Contains the brightness of all colors
   BRIGHT_LOOKUP = { :aqua   => false  , :black    => false,
                     :blue   => true   , :fuchsia  => true,
                     :gray   => true   , :green    => false, 
@@ -65,10 +67,10 @@ class Console
         self.bright = bright
         # if @window.respond_to? :color_set
         # @window.color_set(@color)
-        # Set colors via attron, since tha tworks better on Windows and maybe other platforms
-        
+        # Set colors via attron, since thatworks better on 
+        # Windows and maybe other platforms that don't have colot_set
         pair = Curses.color_pair(@color)
-        @window.attron(pair)        
+        @window.attron(pair)
       end
     end
   end
