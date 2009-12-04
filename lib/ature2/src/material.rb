@@ -3,6 +3,12 @@
 require 'named'
 
 class Material < Named
+
+  # numet is NUmen MATerial
+  MATERIALS = {
+    :cloth, :bone, :wood, :polymer, :crystal, :steel, :titanium, 
+    :ceramic, :carbide, :diamond, :nanofiber, :numat 
+  }
   
   # Agregation states
   STATES = { :solid, :liquid, :gas, :plasma }
