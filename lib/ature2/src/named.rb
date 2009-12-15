@@ -5,16 +5,16 @@
 # to a symbol, replacing spaces by underscores
 class Named
   attr_reader   :name
-  attr_reader   :details
+  attr_reader   :detail
   
   
-  def initialize(name, details="")
+  def initialize(name, detail="")
     @name     = name
-    @detail   = details
+    @detail   = detail
   end
   
   def to_sym
-    return @name.gsub(' ', '_').to_sym
+    return @name.gsub(' ', '_').downcase.to_sym
   end
 
 
