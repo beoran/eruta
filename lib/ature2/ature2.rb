@@ -285,7 +285,7 @@ class Stat < Named
     @max      = max         ; @now = now ; @now ||= @max 
     @comment  = comment || name.to_s.capitalize
   end
-      
+   
 end
 
 # An entity is something that has physiycal presence and is movable or mobile.
@@ -303,6 +303,11 @@ class Entity < Named
     @stats    = {}
     @position = Position.new(nil, nil, nil)
   end 
+  
+  def self.stat(name, comment, max)
+    @stats ||= []
+    @stats <<  Stat.new(name, comment, max) 
+  end
   
   # Returns the Stat of this entity with the given name, 
   # or nil if no such Stat exists for this entity
