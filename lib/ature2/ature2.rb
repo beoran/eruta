@@ -305,8 +305,10 @@ class Entity < Named
   end 
   
   def self.stat(name, comment, max)
-    @stats ||= []
-    @stats <<  Stat.new(name, comment, max) 
+    @stats            ||= []
+    stat                = Stat.new(name, comment, max, now)  
+    @stats[stat.to_sym] = stat
+    return stat
   end
   
   # Returns the Stat of this entity with the given name, 
