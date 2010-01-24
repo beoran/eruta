@@ -4,6 +4,7 @@ INSTALL_DIR = '.'
 $LOAD_PATH << "#{INSTALL_DIR}/src"
 require 'console'
 require 'matrix'
+require 'named'
 
 # RNG helper functions
 module Dice
@@ -274,41 +275,77 @@ class Position
   end
 end
 
-# A stat is a numerical value that describes a Being or Item
-class Stat
-  attr_reader   :name
-  attr_reader   :comment
+# A stat is a numerical value that describes a Being or Item.
+class Stat < Named
   attr_accessor :now
   attr_accessor :max
   
   def initialize(name, comment = nil, max = nil, now = nil)
-    @name     = name.to_sym 
+    super(name, comment) 
     @max      = max         ; @now = now ; @now ||= @max 
     @comment  = comment || name.to_s.capitalize
   end
-      
+   
 end
 
-class Entity
+# An entity is something that has physiycal presence and is movable or mobile.
+class Entity < Named
   attr_accessor :position 
   
   def new_stat(name, comment = nil, max = nil, now = nil)
-    stat              = Stat.new(name, comment, max, now)  
-    @stats[stat.name] = stat
+    stat                = Stat.new(name, comment, max, now)  
+    @stats[stat.to_sym] = stat
     return stat
   end
   
-  def initialize
+  def initialize(name, detail="")
+    super(name, detail)
     @stats    = {}
     @position = Position.new(nil, nil, nil)
-  end  
+  end 
+  
+  def self.stat(name, comment, max)
+    @stats            ||= []
+    stat                = Stat.new(name, comment, max, now)  
+    @stats[stat.to_sym] = stat
+    return stat
+  end
+  
+  # Returns the Stat of this entity with the given name, 
+  # or nil if no such Stat exists for this entity
+  def [](statname)
+    statkey = statname.downcase.gsub(' ', '_').to_sym
+    return  @stats[statkey]
+  end
+  
+  def stat_set_now(stat, value)
+    return self[stat].now = value
+  end
+  
+  def stat_get_now(stat)
+    return self[stat].now  
+  end
+  
+  def stat_set_max(stat, value)
+    return self[stat].max = value
+  end
+  
+  def stat_get_max(stat)
+    return self[stat].max  
+  end
+  
+  
+  
 end
 
+# A being is an entity that can actively influence it's surroundings
+# and that may be mobile 
 class Being < Entity
 end
  
+# An item is an entity that   
 class Item < Entity
-  attr_accessor :owner  
+  attr_accessor :owner
   attr_accessor :position
 end
 

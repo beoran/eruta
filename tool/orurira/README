@@ -1,0 +1,334 @@
+
+  +---------+
+  | ORURIRA |
+  +---------+
+    
+  Introduction
+  ============
+  
+  Orurira stands for Orurira is a Ruby Rike Ranguage. Sorry for that joke. ^_^
+  The goal of this project is to create a specification of, and a compiler for compiler for a lanuage that is as close to Ruby as possible, limited only by 
+  the imperative that everything in the language can compile down to real 
+  machine code, without the use of any VM.  The main of goals of the Orurira 
+  compiler will be Flexibility, Simplicity, Speed and Compatibility with Ruby.
+  
+  Orurira, as a language, will be 100% compatible with Ruby's syntax, without 
+  any extensions or emissions to it. However, differences in semantics as well 
+  as in in functionality will be deemed acceptable if compilation of these 
+  features is difficult. For example, "eval"-like constructs will not be 
+  supported initially. 
+  
+  The rest of this README is more a explanatory and planning document than the 
+  current state of things. I hope the kind reader will bear with me.
+  
+  
+  How Orurira will implement Ruby
+  =============================== 
+  
+  When writing a compiler for a high level language, the problem is that many 
+  low level primitives need to be implemented to support the high level 
+  constructs. In other Ruby implementations, these primitives are are 
+  implemented in C, C++, Java, or  assembly, but that is unsatifactory for many reasons. On the other hand, it's conceptually difficult to let Ruby generate 
+  the primitives it needs for itself. 
+  
+  The Ruby to C project is a very useful idea, but still, it is limited in that 
+  it compiles Ruby down to C. This means that you're still bound to the C 
+  calling conventions, and limited to C's capabilities. That's why I think 
+  trying to write primitives for Ruby in a C environment is much like trying 
+  to push a square peg in a round hole. It's never a nice fit.
+  
+  For all these reasons, Orurira as a language, will suport two different modes,
+  or dialects if you like. The first dialect is simply the "Ruby" dialect, 
+  where the second one is the low level "Alox" dialect.
+  
+  In the Ruby dialect the semantics of Ruby will be followed as closely as is technically feasible.  The Ruby dialect is enabled by default. For it's support, it uses primitives  that must have been defined in Alox mode.   
+  
+  The second dialect in Orurira will be the Alox language mode. (Alox stands for
+  ALuminum OXide, of which rubies are made. Sorry for this joke, again. ^_^) 
+  In the Alox dialect, the syntax is still that of Ruby, but the semantics are
+  signicficantly different. Alox is, in a way, a domain specific language that 
+  can be used to generate primitivesf for the Ruby mode. But it would be more 
+  fair to say that Alox is intended is a dialect of Ruby which is generally 
+  useful for low level programming.
+  
+  Alox
+  ====
+  
+  Alox language mode is started by writing "alox true", or just Alox by 
+  itself at the beginning of a source file. It's turned off again by saying 
+  alox false. You can also do alox do ... end.
+  
+  Alox has the following differences in semantics with Ruby:
+   
+  * Alox is a statically typed language with type inference. 
+  * Contrary to Ruby, Alox is an imperative language.    
+  * Constants cannot be looked up or caclulated dynamically. They do support
+    integer expressions. Also some simple string or symbol expressions are 
+    allowed. And they are also used for defining records and namespaces.
+  * Namespaces are supported like this :Foo = namespace do ... end.   
+  * A def foo(a, b) ... ; outside a class of module generates a real low level
+    primitive function.
+  * Outside of defs, if, case, while and other control structs are only 
+    supported for macro-like features.
+  * Types are inferred from the parameters of the functions if you give them
+    default values. Otherwise, it's inferred from assignments. You can also 
+    define the type of a variable foo by saying "type :foo, Typename".
+  * Several built-in types are supported.
+  * Alox::Byte is usually 8 bits wide, however on some unusual platforms, a 
+    byte may be defined as 6, 7, or 9 bits wide.
+  * Alox::Integer is a signed integer of platform-specific amount of bytes wide,  
+    guaranteed to be the fastest integer usable on this platform. This mean it 
+    will be 32 bits or 4 bytes on an 32 bit platform an 64 bits on a 64 bit 
+    platform. All literal integers in  Alox mode are of this type  by default.
+  * Alox::Unsigned. Unsigned integer of the same bit width as Int. Useful for 
+    sizes and offsetts from addresses.
+  * Alox::Float. A floating point of double precision. Size in memory is   
+    platform-specific. However, it's size must be an integer multiple of 
+    Integer. It guarantees at least 64 bits of precision. All literal floats 
+    are of that type.
+  * Alox::Boolean for true, false. Booleans (wastefully) have the same bit 
+    width as Integers.
+  * Strings are supported, but only as constant, literal byte strings. 
+    More capable strings must be implemented in Alox itself (like strlib in C).  
+  * Alox::Address is an address of a low level function, Record, Array or 
+    string. The value nil is always an address. It may also be set to nil.
+  * Alox::Cell: a cell is a multiple use value that is wide enough to contain 
+    either an Address, a Boolean, an Integer, or an Unsigned. Floats are exempt
+    here on purpose becausethey tend to have a larger size in memory than 
+    Integer or Address classes. 
+  * Except for Alox::Byte, there will be in first instance no integer sizes 
+    smaller than the Integer, that is the machine word size. These can be 
+    emulated by working with Alox::Bytes.            
+  * Arrays are supported, but only homogenous arrays of Alox::Byte, 
+    Alox::Integer, Alox::Unsigned, Alox::Float, Alox::Address.
+  * Arrays know about their own size.    
+  * Arrays can be resized dynamically, which will be compiled to heap memory
+    allocation if needed. An arrays is of the type array of Alox::Int by 
+    default. Generic arrays are not directly supported.
+  * Nil is special: Setting an (unsigned) integer value to nil sets it to a 
+    platform  dependant value (perhaps 0). Floats are set to NAN. Booleans 
+    to false. Addresses to the special NOWHERE address.
+  * Address and Int can be connverted to each other without loss of data. 
+    Arrays of Address and Int are compatible with each other.
+  * Symbols are only supported in special constructs. Otherwise, they are 
+    compiled as byte strings. This limitation is imposed so symbols can 
+    be implemented in Alox itself. 
+  * Ranges are compiled to static arrays of Int with 2 members.
+  * Regexes are compiled as byte strings.
+  * When included inside a module, a def is only prefixed with that module's 
+    name space.
+  * Integers, floats and booleans are always passed by value. Others are 
+    normally passed by address. 
+  * Classes and Modules are not supported (since they will be implemented in 
+    Alox). 
+  * Records can be defined with Foo = record do ... end . A record acts a bit 
+    like structs in C, but a are bit more powerful. Methods of the class are
+    translated to statically called functions that take an instance of the 
+    record's type as it's first (hidden) argument. Records can ony have 
+    Cells or Floats as their members.        
+  * All @instance_variables of the class must be defined before use with 
+    field declarations like these: field :foo, <default value> 
+    or field :foo, Typename. 
+  * Inheritance is possibe, but statical. If you say Foo = record Bar do .. end, 
+    all fields of Bar are included in Foo in such a way that calling calling
+    any method of Bar on any instances of Foo will work. When using inheritance,
+    the class Foo will use all methods of Bar that have not been overridden.
+    constructors, like initialize, must be called automatically. Super works, 
+    but again, only statically looks up the method to use at compile time.
+  * Records suports inlining of their members. If you use an address as a 
+    member, that adddress is merely a reference. However, arrays or other 
+    records may be "inlined" into another staclass, so the resulting stacla 
+    isa contiguous block of memory. Inline arrays are supported. An inline 
+    array may either be statical, or, if it is dynamical, depend on the value 
+    of another member of the stacla. (XXX: explain this better after     
+    implementing it).      
+  * All binary operators that are also available in C, work essentially like 
+    they do in C.
+  * Blocks are compiled down to anonymous (randomly named, local) functions.
+  * Lexically scoped variables are passed separately as a hidden closure 
+    argument. For example foo = 10  baz = quux.frotz { |fie| fie + foo } 
+    will produce  _block_123(self, closure, fie, fai).    
+  * Inline assembly is supported. asm("")... or asm do ... end.  
+  * System calls and not part of the language but can be implemented though 
+    Alox and inline assembly.  
+  * There are special constructs for interfacing with C, to be defined later 
+    (FFI or Ruby/DL like???). For now imlemented in Alox.
+    
+  More on Records and Arrays
+  --------------------------
+  
+  In C arrays are staticallly sized. To get dynamic arrays, you need to 
+  simulate them with malloc() and pointers. If you think about it, it's very 
+  clumsy, because when you are using dynamic arrays, this requires you to keep 
+  track of the current size of the array somewhere else. It also means that 
+  embebing a dynamic array in a C struct will result in two noncontiguous 
+  memory blocks having to be allocated (tricks apart) because the compiler 
+  has no way to see how to lay out the struct in a dynamic way.  
+  
+  Sure, sometimes you could use a static buffer, however, this is rarely a good 
+  idea.
+  
+  That's why, in Alox, dynamic arrays have their size, or mor precisely, their 
+  space built in.  
+  
+  If you think about it, a record, (or struct in c) is in essence a kind of 
+  heterogenous array, which indexes by name in stead of by value.
+    
+  In the following diagram [] is a Cell (CPU-determined, yet constant size),
+  so it can contain a Integer. On this particular achitecture, a Float is 2 
+  times the size of an Integer.
+   
+  Record | Type of Field  | Example Value | Address offset | Array of Cell Similarity  
+  size   | Unsigned       | [10]          | 0              | a[0]
+  average| Float          | [float value..| 1              | a[1]
+         |                | ..in 2 Cells] | 2              | a[2]
+  space  | Unsigned       | [2]           | 3              | a[3] 
+  buffer | Address        | [0xabcdef10 ] | 4              | a[4]
+         
+  The main compication in the C language is that the C compiler can change the 
+  exact layout of the struct in memory behind your back, usually though padding.  
+  This means that some space is unusable for you, and also that the layout becomes 
+  needlessly complicated. The abstraction is leaky. By only allowing elements 
+  of the CPU's native size (or multiples thereof). Embedding Records in each 
+  other, becomes much easier.
+   
+  record :Foo do
+    integer   :i
+    float     :f
+  end
+   
+  record :Quux do
+    float     :q
+    unsigned  :s
+  end 
+  
+  
+  record Bar < Foo do
+    Quux             :other
+  end
+  
+  -> results in a layout of Quux: 
+  [i:] [:f, 0] [:f, 1] [:q] [:s]
+  
+  
+  
+  Design of the compiler
+  ====================== 
+  
+  The compiler will perform several passes. 
+  1) The parser and lexer is, for now at least, the exellent ruby_parser gem of 
+  Zenspider.  The s-expressions generated are preprocessed, and then sent to 
+  the right compiler for each dialect (Ruby or Alox).   
+  2) The compiler then processes the syntax tree to a more specific semantic 
+  tree for it's own semantics.
+  3) The semantic tree from either dialect is compiled immediately to real 
+     assembly, though a code generation class. This code generation class 
+     supports several high level constructs, so it can be easily retargeted, 
+     but also allows the insertion of raw assembly, so OS-specific features 
+     can be implemented in the language itself. The information file a bit like
+     Pascal's module files. It registers information about the compiled unit,
+     that speeds up separate compilation and assists in linking.
+  4) The assembly isassembled by an external assembler. I'm targeting GNU AS
+     and AT&T syntax at first, but this could be retargeted easily later.
+  5) If needed, linking is performed.
+  
+  
+  Plan for implementation:
+  ========================  
+  1) Implement Alox mode, starting with the semantic interpretation.
+  2) Compile Alox mode semantics to i386 assembly for Linux OS.
+  3) Implement basic classes for Ruby in Alox.
+  5) Implement Ruby mode semantic interpretation.
+    
+    
+
+  Copyright and Licence
+  =====================
+  
+  Orurira is Copyright (C) 2009 Beoran beoran@rubyforge.org
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>
+  
+  
+  Motto
+  =====
+
+  Oh Mensch! Gieb Acht!
+  Was spricht die tiefe Mitternacht?
+  "Ich schlief, ich schlief -,
+  Aus tiefem Traum bin ich erwacht: -
+  Die Welt ist tief,
+  Und tiefer als der Tag gedacht.
+  Tief ist ihr Weh -,
+  Lust - tiefer noch als Herzeleid:
+  Weh spricht: Vergeh!
+  Doch alle Lust will Ewigkeit
+  will tiefe, tiefe Ewigkeit!"
+  
+  -- Nietzsche.
+  
+  Oh human! Pay attention!
+  What says the deep midnight?
+  I slept, I slept
+  From a deep dream I awakened
+  The world is deep,
+  Deeper than the day thought
+  Deep is your pain, 
+  Joy even deeper than sorrow
+  Pain says : Disappear!
+  But all joy wants eternity
+  wants deep, deep eternity. 
+  
+  
+  Oh mens! Let op!
+  Wat zegt de diepe middernacht?
+  Ik sliep, ik sliep,
+  Uit een diepe droom ben ik ontwaakt 
+  De wereld is diep
+  en dieper dan de dag dacht.
+  Diep is jullie leed,   
+  Vreugde, dieper noch dan smart
+  Leed zegt: verga!
+  Maar vreugde wil eeuwigheid,
+  wil diepe, diepe eeuwigheid!
+  
+  Ningen yo! Ki wo tsukete!
+  Fukai mayounaka ha nani wo itte?
+  Neta, neta
+  Fukai yume kara samasita
+  Sekkai ha fukai, 
+  Hi no shikou yori fukai
+  Kurushimi ha fukaki aru ga 
+  Yorokobi ha hiai yori fukai
+  kanashisa ha nakunatte to iu ga
+  demo subete no yorokobi ha eigou wo motomeru
+  fukai fukai eigoo wo motomeru! 
+   
+  人間よ! ご注意よ!が
+  深い真夜中は何を言うか?
+ 「寝た。寝た。
+  深い夢から覚ました。
+  世界は深い、
+  日の思考より深い。
+  苦しみは深くあるが、
+  喜びは悲哀より深い。
+  苦しみは「消えろ!」を言うが、 
+  すべての喜びは永劫を求める。
+  深い深い永劫を求める!」
+  -- フリードリヒ・ニーチェ
+  
+   
+   
+   
+   
