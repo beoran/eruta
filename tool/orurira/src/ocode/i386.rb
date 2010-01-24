@@ -1,6 +1,7 @@
 class Ocode
-  class X86
-  # We use AT&T syntax for the order. However, the % and $, etc prefixes are
+  class I386
+  # The asm is ordered acooridng to use AT&T syntax for the order. 
+  # However, the % and $, etc prefixes are
   # generated automatically
   
   def initialize
@@ -77,11 +78,11 @@ class Ocode
   end
   
   def data
-    asm(".section .data\n")
+    asm(".data\n")
   end
   
   def text
-    asm(".section .text\n")
+    asm(".text\n")
   end
   
   # adds a line of assembly to the output of the ocode

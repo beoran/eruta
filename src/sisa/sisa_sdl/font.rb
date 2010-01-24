@@ -162,7 +162,8 @@ module Sisa_SDL
     # Beautifully (but slowly) draws the given UTF-8 string to the target 
     # bitmap with the given coordinates in the given color.    
     def draw_blended(target, x, y, text, color)
-      @handle.draw_blended_utf8(target, text, x, y, *color)
+      r, b, g, a = *color
+      @handle.draw_blended_utf8(target, text, x, y, r, g, b)
     end
     
     # Returns the sizes of the text when written in this font. 

@@ -202,12 +202,12 @@
 
 class Ocode
   autoload :Linux   , 'ocode/linux'
-  autoload :X86     , 'ocode/x86'
+  autoload :I386    , 'ocode/i386'
 
   attr_reader :cpu
   attr_reader :os
 
-  def initialize(cpuclass = X86, osclass = Linux)
+  def initialize(cpuclass = I386, osclass = Linux)
     @ocode        = []
     @cpu          = cpuclass.new
     @os           = osclass.new
