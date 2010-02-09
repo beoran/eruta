@@ -439,30 +439,30 @@ module Zori
     alias :close? :closed?
     
     #
-    ## Low level Vivibility and actovity setters
+    ## Low level Visibility and activity setters
     #
     # Enables this widget only, and does nothing else
     def enable!
       @active = true 
     end
     
-    # Disables this widget only, and does nothing else
+    # Disables this widget only, and does nothing else.
     def disable!
       @active = false
     end
     
-    # Hides this widget only, and does nothing else
+    # Hides this widget only, and does nothing else.
     def hide!
       @hidden = true
     end
     
-    # Unhides this widget only, and does nothing else
+    # Unhides this widget only, and does nothing else.
     def unhide!
       @hidden = false
     end
     
-    # Closes the widget, and notifies the parent to clean up
-    # This hides the widget first
+    # Closes the widget, and notifies the parent to clean up.
+    # This hides the widget first.
     def close
       self.hide
       @closed = true      
@@ -542,11 +542,11 @@ module Zori
     def draw_border(target)
     end
     
-    # Override this
+    # Override this, as it draws the widget itself.
     def draw(target)      
     end
     
-    # Draws the children
+    # Draws the children. Ususally you don't need to override this.
     def draw_children(target)
       for child in self.ordered_children do
         child.draw_all(target)
@@ -561,7 +561,7 @@ module Zori
     
     # Calls draw and then draw_children. 
     # Usually, you don't need to override this.
-    # It also takkes care of not drawing the widget if it's hidden or closed
+    # It also takes care of not drawing the widget if it's hidden or closed.
     def draw_all(target=nil)
       return if self.hidden?
       target ||= @hanao.screen

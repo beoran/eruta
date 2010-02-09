@@ -93,19 +93,22 @@ module Helper
     
     # Default setup opens the screen in @screen
     def setup(fullscreen = false)
+      @fullscreen = fullscreen    
       Sisa.init_all
       # SDL.init(SDL::INIT_EVERYTHING)
       # open_screen(1280, 1024, true)
       # @1280 x 1024
-      open_screen(640, 480, fullscreen)
+      open_screen(640, 480, @fullscreen)
       open_queue
       Sisa::Joystick.open_all()
     end
     
     # Default teardown stops SDL
     def teardown
-      # Return to previous resolution.
-      open_screen(1280, 1024, true)
+      # Return to previous resolution if needed.
+      if @fullscreen
+        open_screen(1280, 1024, true)
+      end 
       SDL.quit()
     end
     

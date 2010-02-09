@@ -12,12 +12,12 @@ describe Zori::Ring, "gui object" do
   end
   
   after(:all) do
-    teardown
+    teardown    
   end
   
-#   it "Can be contructed" do
-#     ring = Zori::Ring.new(@zori, {:foo => :bar})
-#   end
-
+   it "Can be contructed" do
+     ring = Zori::Ring.new(@zori, {:foo => :bar})
+     ring.should_not be_nil
+   end
 
 end

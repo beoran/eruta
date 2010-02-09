@@ -81,7 +81,7 @@ module Zori
     
     def load_background(back)
       if back.is_a? String        
-        @bgimage    = Hanao.load_image('background', back) rescue nil;
+        @bgimage    = Hanao.load_image('ui', 'background', back) rescue nil;
       else  
         @bgimage  = back
       end  

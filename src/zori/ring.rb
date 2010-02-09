@@ -66,8 +66,10 @@ module Zori
     # Sets up the ring menu. 
     # The coordinates +cx+ and +cy+ are on-screen coordinates for the center 
     # of the menu. The +block+ is called when an item in menu is selected.    
-    def initialize(cx, cy, &block)
+    def initialize(cx = nil, cy = nil, &block)
       super(&block)
+      cx          ||= @hanao.w / 2
+      cy          ||= @hanao.h / 2
       @radius       = 50 # Small radius for ring with less items
       @items        = []
       @active_item  = nil
@@ -81,7 +83,7 @@ module Zori
       @motion       = :none 
       @status       = Zori::Dialog::Status.new("")
       self         << @status
-      @cursor_bitmap= Zori::Hanao.load_image('cursor', 'square.png')
+      @cursor_bitmap= Zori::Hanao.load_image('ui', 'cursor', 'square.png')      
       @subring      = nil # Currently active sub-ring, if any      
       @parentring   = nil # Currently active parent ring, if any
     end

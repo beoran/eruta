@@ -41,9 +41,8 @@ module Zori
     end
     
     def self.load_image(*names)
-      fname = File.join(self.image_dir, *names)
-      p fname
-      return Sisa::Surface.load_alpha()
+      fname = Fimyfi.join(self.image_dir, *names)
+      return Sisa::Surface.load_alpha(fname)
     end  
     
     # Class that models the mouse state and constants
@@ -204,7 +203,7 @@ module Zori
       attr_accessor :active
       
       def make_joystick_cursor
-        return Sisa::Surface.load_alpha(File.join(IMAGE_DIR, 'cursor', 'joystick_0.png'))        
+        return Hanao.load_image('ui', 'cursor', 'joystick_0.png')
 #         cursor = Sisa::Surface.make(16, 16)
 #         col    = Sisa::Color::Black
 #         cursor.put_line(0 , 16,  0, 32, col)
@@ -277,7 +276,7 @@ module Zori
       @keyboard       = Keyboard.new()
       @lastrep        = nil      
       @joysticks      = [ Joystick.new ] 
-      @focuscursor    = Sisa::Surface.load_alpha(File.join(IMAGE_DIR, 'cursor', 'joystick_0.png'))
+      @focuscursor    = Hanao.load_image('ui', 'cursor', 'joystick_0.png')
       # Cursor for focusing             
       # Set up handlers by name, from constants  
       for name, klass in Sisa::Event.list do
@@ -516,7 +515,7 @@ module Zori
     end
     
     # Called when the mouse button is released
-    # Opening up a dialog in the fron somehow prevents the click being 
+    # XXX: Opening up a dialog in the front somehow prevents the click being 
     # unset correctly  
     def on_mousebuttonup(event)      
       if Mouse.is_scroll?(event.button)
@@ -534,9 +533,9 @@ module Zori
         widget.on_click(event.x, event.y, event.button)       
       end
       @pressed        = nil
-      # Nothing is pressed now.
+      # Nothing is pressed now since button went up.
       @mouse.clicked  = @pressed
-      # Let the mouse know about it 
+      # Let the mouse know about the widget it clicked on 
             
 
       # @hovered.each   { |widget| widget.on_mouse_up(event.x, event.y, event.button) }            

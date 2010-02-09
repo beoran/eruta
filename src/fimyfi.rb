@@ -104,7 +104,7 @@ module Fimyfi
       puts try
       if File.exist?(try)
         @confname = try
-        @confdir  = File.dirname(try)
+        @confdir  = self.expand_path(File.dirname(try))
         return self.dir
       end
     end
