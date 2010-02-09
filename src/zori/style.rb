@@ -52,8 +52,8 @@ module Zori
     attr_reader   :margin
     attr_reader   :padding
     attr_accessor :alignment
-    
-    DEFAULT_FONTNAME        = 'dejavuserif' # 
+    # 'dejavuserif'
+    DEFAULT_FONTNAME        = 'DejaVuLGCSans-ExtraLight' # 
     DEFAULT_MARGIN          = 4
     DEFAULT_PADDING         = 4
     DEFAULT_ALIGNMENT       = :left  
@@ -144,6 +144,7 @@ module Zori
      
     # Draws a border with the correct style settings 
     def draw_border(target, widget)
+      return if @bgimage # BGimage overrides borders
       x , y , w , h = * widget.dimensions
       x += 1 ; y += 1 ; w -= 2 ; h -= 2       
       target.put_rectangle(x, y, w, h,  @colors.border)
@@ -170,6 +171,7 @@ module Zori
     
     # Draws the background color for this widget on the target  
     def draw_background_color(target, widget)
+      return if @bgimage
       return unless self.colors.background
       target.fill_rectangle(widget.x, widget.y, widget.w, widget.h, self.colors.background)      
     end
@@ -177,9 +179,13 @@ module Zori
     # Draws the background image for this widget on the target
     def draw_background_image(target, widget)
       return unless @bgimage
-      xscale = widget.w.to_f / ( @bgimage.w.to_f + 1)
-      yscale = widget.h.to_f / ( @bgimage.h.to_f + 1) 
-      @bgimage.rotozoom_blit(target, widget.x, widget.y, xscale, yscale)
+#       xscale = widget.w.to_f / ( @bgimage.w.to_f + 1)
+#       yscale = widget.h.to_f / ( @bgimage.h.to_f + 1) 
+      corner_w = (widget.w / 8).to_i + 4
+      corner_h = (widget.h / 8).to_i + 4
+      @bgimage.scale_9(target, widget.x, widget.y, widget.w, widget.h, 
+                       corner_w, corner_h)
+#       @bgimage.rotozoom_blit(target, widget.x, widget.y, xscale, yscale)
     end
     
     # Draws the background (image or color) for this widget

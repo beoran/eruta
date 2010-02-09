@@ -32,14 +32,14 @@
 # parent widget and it's contents and/or child widgets  
 #
 # When automatically arranging widgets, the margin of a widget determines how 
-# closely that widget may be packed to other widgets that are on the same level.    
+# closely that widget may be packed to other widgets that are on the same level.
 # 
 # The work in Zori is divided between Hanao and Widget. The Hanao class 
 # handles everything that depends on and/or may influence several widgets at 
 # once, such as event dispatching but also setting the focus, determining which 
 # widget is being hovered, or dragged, etc. The latter fuctions change the state 
 # of several widgets, so they are handled on the level of the system.
-# The Widget class and it's child classes handle the individual state and 
+# The Widget class and it's child classes handle the individual state and
 # actions of the various widgets individually.
 #
 
@@ -219,12 +219,12 @@ if $0 == __FILE__
   ui.main                 << widget
   ui.style.font.antialias = :blended
   # Zori::Dialog.textsplash('This will disappear in a few seconds')
-  answer = Zori::Dialog.ask('What do you say?')
-  p answer
+  # answer = Zori::Dialog.ask('What do you say?')
+  # p answer
   
   until ui.done do
     progress.advance
-    screen.fill(Sisa::Color::Navy)
+    screen.fill(Sisa::Color.new(128,128,255))
     ui.update
     ui.draw
     screen.flip

@@ -73,6 +73,16 @@ record RSized do
   end  
 end
 
+This diagram illustrates the instatances, class hierarchy and association of 
+eigenclasses after executing the following Ruby program: 
+
+class Foo; end
+class Bar < Foo; end
+foo1 = Foo.new
+bar1 = Bar.new
+bar2 = Bar.new
+class << bar2; end
+
 record RString < RSized do
   inline_array :buffer, :Byte, :size
 end

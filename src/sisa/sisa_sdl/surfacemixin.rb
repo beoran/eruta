@@ -354,8 +354,100 @@ module Sisa_SDL
       cx              ||= 0
       cy              ||= 0
       @rotozoom_flags ||= 0 # SDL::Surface::TRANSFORM_TMAP # , 0 # SDL::TRANSFORM_TMAP
-      SDL::Surface.transform_blit(self, target, angle, xscale, yscale, cx, cy, xx, yy, @rotozoom_flags)    
+      SDL::Surface.transform_blit(self, target, angle, xscale, yscale, cx, cy, xx, yy, @rotozoom_flags)
     end 
+    
+    # Draws a scaled fragment rectangle from self (rectangle starts at 
+    # copy_x, copy_y and is  copy_w by copy_h in size )    
+    # and blits its scaled to target at xx and yy
+    def scale_blit(target, xx, yy, copy_x, copy_y, copy_w, copy_h, new_w, new_h) 
+      # Need to do to_display alpha to be sure alpha in self is correctly 
+      # blitted as transparent
+      mrect  = self.to_display_alpha.copy_rect(copy_x, copy_y, copy_w, copy_h)
+      # Need a fudge factor here because transform_blit still makes 
+      # black lines appear for large images. And transform_draw doesn't work 
+      # either, because it doesn't clip to the screen edges correctly.
+      ffx    = (new_w > 180 ? 1 : 0)
+      ffy    = (new_h > 180 ? 1 : 0)        
+      xscale = (new_w.to_f + ffx) / mrect.w.to_f
+      yscale = (new_h.to_f + ffy) / mrect.h.to_f
+      # Set scale to 1 if close to 1
+      # xscale = 1 if (xscale - 1.0).abs < 0.1
+      # yscale = 1 if (yscale - 1.0).abs < 0.1
+      # Transform_blit is messy and creates black pixels at it's edges...
+      # Need to set this clip rectangles as otherwise transform_blit overflows
+      # and creates a black edge.
+      mrect.set_clip_rect(0, 0, copy_w, copy_h)
+      target.set_clip_rect(xx, yy, new_w, new_h) 
+      SDL::Surface.transform_blit(mrect, target, 0, xscale, yscale, 
+      0, 0, xx, yy, SDL::Surface::TRANSFORM_SAFE)
+      # Use SDL::Surface::TRANSFORM_TMAP somehow???
+      target.set_clip_rect(0, 0, target.w, target.h) 
+      mrect.destroy
+    end
+     
+    # Blits to target a according to a 9 part scaling alorithm. 
+    # This splits the bitmap in 9 parts, 
+    # keeping the 4 corners unscaled, but scaling the 4 edges and the center  
+    # according to the desired size. The 4 corners should be rectangles of
+    # identical size corner_w by corner_h in the original image.
+    # new_w and new_h are the new dimensions the new image should have. 
+    # This is useful for GUI backgrounds.
+    def scale_9(target, xx, yy, new_w, new_h, corner_w = 16, corner_h = nil)
+      corner_h  ||= corner_w      
+      center_old_w= self.w - (corner_w * 2) 
+      center_old_h= self.h - (corner_h * 2)
+      center_new_w= new_w  - (corner_w * 2) 
+      center_new_h= new_h  - (corner_h * 2) 
+      # First blit the four border strips  
+      # Top strip
+      self.scale_blit(target, xx + corner_w, yy      , corner_w    , 0, 
+                      center_old_w, corner_h, center_new_w , corner_h)
+      # Bottom strip
+      self.scale_blit(target  , xx + corner_w, yy + corner_h + center_new_h,
+                      corner_w, corner_h + center_old_h, 
+                      center_old_w, corner_h, center_new_w, corner_h)
+      # Left strip
+       self.scale_blit(target  , xx , yy + corner_h,
+                      0, corner_h, corner_w, center_old_h,  
+                      corner_w, center_new_h)
+
+      # Right strip
+       self.scale_blit(target  , xx + corner_w + center_new_w, yy + corner_h,
+                       corner_w + center_old_w, corner_h, corner_w, center_old_h,  corner_w, center_new_h)                       
+  
+      # Now, blit the four corners
+            
+      # Top left to top left
+      srcy        = srcx   = 0
+      tary        = yy
+      tarx        = xx
+      self.blit_rectangle(target, tarx, tary, srcx, srcy, corner_w, corner_h)
+      # Top right to top right
+      srcx        = self.w - corner_w 
+      tarx        = xx + new_w  - corner_w      
+      self.blit_rectangle(target, tarx, tary, srcx, srcy, corner_w, corner_h)
+      # Bottom left to bottom left
+      srcx        = 0      
+      srcy        = self.h - corner_h
+      tarx        = xx
+      tary        = yy + new_h  - corner_h       
+      self.blit_rectangle(target, tarx, tary, srcx, srcy, corner_w, corner_h)
+      # Bottom right to bottom right
+      srcx        = self.w - corner_w
+      tarx        = xx + new_w  - corner_w
+      self.blit_rectangle(target, tarx, tary, srcx, srcy, corner_w, corner_h)
+      
+    # Next, blit the middle rectangle of self scaled to the new dimensions
+    # XXX? Must it be made a bit bigger ythat it should for library reasons?
+      self.scale_blit(target, xx + corner_w , yy + corner_h ,
+                      corner_w, corner_h, center_old_w, center_old_h, 
+                      center_new_w, center_new_h)
+                
+
+   end      
+       
+    
     
     # Gets the R, G, B and A values of the point at the given coordinates,
     # or nil if out of bounds
