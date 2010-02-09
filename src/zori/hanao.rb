@@ -36,8 +36,14 @@ module Zori
     # Structure for Drag Info
     DragInfo        = Struct.new(:button, :widget, :when)
     
+    def self.image_dir
+      return Fimyfi.image_dir
+    end
+    
     def self.load_image(*names)
-      return Sisa::Surface.load_alpha(File.join(IMAGE_DIR, *names))
+      fname = File.join(self.image_dir, *names)
+      p fname
+      return Sisa::Surface.load_alpha()
     end  
     
     # Class that models the mouse state and constants

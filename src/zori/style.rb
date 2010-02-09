@@ -52,8 +52,8 @@ module Zori
     attr_reader   :margin
     attr_reader   :padding
     attr_accessor :alignment
-    # 'dejavuserif'
-    DEFAULT_FONTNAME        = 'DejaVuLGCSans-ExtraLight' # 
+    # 
+    DEFAULT_FONTNAME        = 'dejavuserif' # 'DejaVuLGCSans-ExtraLight' # 
     DEFAULT_MARGIN          = 4
     DEFAULT_PADDING         = 4
     DEFAULT_ALIGNMENT       = :left  

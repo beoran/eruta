@@ -1,4 +1,5 @@
 require 'helper'
+require 'zori'
 
 
 describe Zori, "gui library" do
@@ -17,7 +18,6 @@ describe Zori, "gui library" do
     # p Sisa::Joystick.methods.sort - Object.methods
     ui     = Zori.open(@screen, @queue)
     ui.should_not be_nil
-
   end
 
 

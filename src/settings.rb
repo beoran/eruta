@@ -5,7 +5,7 @@ class Settings
   include Singleton
   
   def find_settings_file
-    tries = []    
+    tries = []
     # First try based upon this file's location.
     tries << @main.dirname.parent.join("share/#{@program}.conf")
     # Try based upon the main file's location in a different way.
@@ -22,9 +22,8 @@ class Settings
     tries << Filename.getwd.join('share/#{@program}.conf') 
     # Try from the current directory. 
     tries << Filename.getwd.join('#{@program}.conf') 
-    # Try one up from the current in a different way. 
-    
-    # Now tru all of these locations in order
+    # Try one up from the current in a different way.     
+    # Now try all of these locations in order
     for try in tries do
       
       puts try

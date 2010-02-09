@@ -1,5 +1,6 @@
 require 'pathname'
 require 'forwardable'
+require 'fimyfi'
 
 module Sisa_SDL
 
@@ -14,32 +15,32 @@ module Sisa_SDL
     # Whether this font should be displayed antialiased or not. True by default.    
     
     def self.font_dir
-      return Pathname.new(File.join( '..', 'share', 'font'))
-    end    
+      return Pathname.new(Fimyfi.font_dir)
+    end
 
     # Look for a font file that contains a font with this or a similarname
     def self.filename_for(name)
       try =  self.font_dir + "#{name}.ttf"
-      puts  "Trying to load font file #{try} for font #{name}"
+      # puts  "Trying to load font file #{try} for font #{name}"
       return try if try.exist?
       try =  self.font_dir + "#{name.upcase}.TTF"
-      puts  "Trying to load font file #{try} for font #{name}"      
+      # puts  "Trying to load font file #{try} for font #{name}"      
       return try if try.exist?
       # First try in our own data directory
       
       # If that fails, try to load the font from the ones installed on the system 
       Font.font_files.each do | systemfont | 
         sysfontfile = Pathname.new(systemfont)
-        p sysfontfile
+        # p sysfontfile
         # If we find one sufficiently similar, retrn this one.  
         if sysfontfile.basename.to_s.downcase == "#{name.downcase}.ttf"
           try = sysfontfile
-          puts  "Trying to load font file #{try} for font #{name}"
+          # puts  "Trying to load font file #{try} for font #{name}"
           return try if try.exist?
         end  
       end
 
-      raise "Could not find font in font directory or system font directory!"
+      raise "Could not find font #{name} in font directory #{self.font_dir}\nor system font directory!"
       return nil # Can't happen.
     end
 
