@@ -70,6 +70,8 @@ module Zori
   autoload :Hanao       , 'zori/hanao'
   autoload :Text        , 'zori/text'
   autoload :Widget      , 'zori/widget'
+  autoload :Shortcut    , 'zori/shortcut'
+  autoload :Mapeditor   , 'zori/mapeditor'
   
   def self.open(screen, queue) 
     return Zori::Hanao.new(screen, queue)
