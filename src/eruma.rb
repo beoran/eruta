@@ -1,5 +1,5 @@
-#!/bin/env ruby
-# Copyright Bjorn De Meyer 2007, 2008. 
+#!/bin/env ruby1.9
+# Copyright Bjorn De Meyer 2007-2010. 
 # Can be used freely under the zlib license.
 #
 
@@ -19,13 +19,13 @@
 BEGIN { $:.unshift(File.dirname(__FILE__)); }
 # Include this script's directory in Ruby's search path.
 
-require 'rubygems'
 require 'sdl'
 require 'sisa'
 require 'rogaru/ui'
 require 'rogaru'
 require 'zori'
 require 'settings'
+
 include Rogaru
 
 
@@ -34,41 +34,15 @@ END { SDL.quit() }
 
 class Eruma
   
-  class Queue
-    def initialize
-      @posted = []
-      SDL::Event.enable_unicode
-    end
-    def each
-      @posted.each do |event|
-        yield event
-      end  
-      @posted = []
-      event = self.poll
-      while event do
-        yield event
-        event = self.poll
-      end        
-    end
-    
-    def poll
-      event = SDL::Event.poll
-      return event
-    end
-        
-    def post(event)
-      @posted << event
-    end
-  end  
-  
 
   def screen_make(wide, high, fullscreen, doublebuf = true) 
     return Sisa::Screen.make!(wide, high, fullscreen)
   end 
 
   def event_setup()
-    SDL.init(SDL::INIT_VIDEO | SDL::INIT_AUDIO | SDL::INIT_TIMER )
-    queue = Queue.new
+    Sisa.init_all
+    # SDL.init(Sisa::INIT_VIDEO | Sisa::INIT_AUDIO | Sisa::INIT_TIMER )
+    queue = Sisa::Event.queue
   end
   
   # A class that allows the camera to focus on the mouse.
@@ -245,7 +219,7 @@ class Eruma
       begin 
         map = Tilemap::Map.load_from(filename)
       rescue
-        gui.alert("Could not load map from {filename}: " + $!.to_s)
+        gui.alert("Could not load map from #{filename}: " + $!.to_s)
         puts $!.to_s
         puts $!.backtrace
         return false
@@ -284,95 +258,95 @@ class Eruma
       gui.draw(screen)
       screen.flip()
       queue.each do | event | 
-        if(event.is_a? SDL::Event::Quit) then         
+        if(event.is_a? Sisa::Event::Quit) then         
           done = Zori::Dialog.yesno('Quit without saving?')
-        elsif (event.is_a? SDL::Event::KeyDown) then 
-          if event.sym == SDL::Key::L
+        elsif (event.is_a? Sisa::Event::KeyDown) then 
+          if event.sym == Sisa::Key::L
             puts "Map new layer: #{map.tw}, #{map.th}"
             map.new_layer(map.tw, map.th) 
           end
           # Add new Layer.
-          edit_select.copy(map, edit_layer) if event.sym == SDL::Key::C
+          edit_select.copy(map, edit_layer) if event.sym == Sisa::Key::C
           # Copy selection.
-          edit_select.paste(map, edit_x, edit_y, edit_layer) if event.sym == SDL::Key::P
+          edit_select.paste(map, edit_x, edit_y, edit_layer) if event.sym == Sisa::Key::P
           # Paste selection.
-          edit_tile = map.get(edit_x, edit_y, edit_layer) if event.sym == SDL::Key::F5
+          edit_tile = map.get(edit_x, edit_y, edit_layer) if event.sym == Sisa::Key::F5
           # Set the active tile to the one currently under the mouse pointer
-          done = true if event.sym == SDL::Key::F10
+          done = true if event.sym == Sisa::Key::F10
           # Exit with save.
-          if event.sym == SDL::Key::ESCAPE
+          if event.sym == Sisa::Key::ESCAPE
             done = Zori::Dialog.yesno('Quit without saving?')
           end  
           # Exit without save.
 
-          edit_bg = (not edit_bg) if event.sym == SDL::Key::B
+          edit_bg = (not edit_bg) if event.sym == Sisa::Key::B
           # Toggle drawing of simple bright pink background
 
           # Toggle full screen
-          if event.sym == SDL::Key::F12
+          if event.sym == Sisa::Key::F12
             fullscreen  = !fullscreen
             screen      = screen_make(640, 480, fullscreen, true)
             # gui         = Zori.open(screen, queue)
           end
 
-          if event.sym == SDL::Key::W
+          if event.sym == Sisa::Key::W
             tile_i = map.get(edit_x, edit_y, edit_layer)
             tile = map.get_tileset_tile(tile_i)
             tile.walk = (not tile.walk)  unless tile.nil?
           end
           # Toggle walkability of tile under cursor and all similar tiles
-          if event.sym == SDL::Key::S
+          if event.sym == Sisa::Key::S
             tile_i = map.get(edit_x, edit_y, edit_layer)
             tile = map.get_tileset_tile(tile_i)
             tile.swim = (not tile.swim)  unless tile.nil?
           end
           # Toggle swimmable property of tile
-          if event.sym == SDL::Key::J
+          if event.sym == Sisa::Key::J
             tile_i = map.get(edit_x, edit_y, edit_layer)
             tile = map.get_tileset_tile(tile_i)
             tile.jump = (not tile.jump)  unless tile.nil?
           end
           # Toggle jump property of tile
-          if event.sym == SDL::Key::U
+          if event.sym == Sisa::Key::U
             tile_i = map.get(edit_x, edit_y, edit_layer)
             tile = map.get_tileset_tile(tile_i)
             tile.up = (not tile.up)  unless tile.nil?
           end
           # Toggle Up property of tile
-          if event.sym == SDL::Key::D
+          if event.sym == Sisa::Key::D
             tile_i = map.get(edit_x, edit_y, edit_layer)
             tile = map.get_tileset_tile(tile_i)
             tile.down = (not tile.down)  unless tile.nil?
           end
           # Toggle Down property of tile
-          if event.sym == SDL::Key::O
+          if event.sym == Sisa::Key::O
             tile_i = map.get(edit_x, edit_y, edit_layer)
             tile = map.get_tileset_tile(tile_i)
             tile.pain = (not tile.pain)  unless tile.nil?
           end
           # Toggle Ouch property of tile, that is pain
-          if event.sym == SDL::Key::E
+          if event.sym == Sisa::Key::E
             tile_i = map.get(edit_x, edit_y, edit_layer)
             tile = map.get_tileset_tile(tile_i)
             tile.ledge = (not tile.ledge) unless tile.nil?
           end
           # Toggle Edge/Ledge property of tile
-           speed += 5 if event.sym == SDL::Key::KP_MULTIPLY and speed < 100
+           speed += 5 if event.sym == Sisa::Key::KP_MULTIPLY and speed < 100
           # Speed of scrolling up
-           speed -= 5 if event.sym == SDL::Key::KP_DIVIDE and speed > 5
+           speed -= 5 if event.sym == Sisa::Key::KP_DIVIDE and speed > 5
           # Speed of scrolling down
-          edit_layer += 1 if event.sym == SDL::Key::KP_PLUS and edit_layer  < (map.layer_count-1)
+          edit_layer += 1 if event.sym == Sisa::Key::KP_PLUS and edit_layer  < (map.layer_count-1)
           # Up to next layer
-          edit_layer -= 1 if event.sym == SDL::Key::KP_MINUS and edit_layer > 0
+          edit_layer -= 1 if event.sym == Sisa::Key::KP_MINUS and edit_layer > 0
           # Down to previous layer
-          if event.sym == SDL::Key::F2  or event.sym == SDL::Key::F10 then
+          if event.sym == Sisa::Key::F2  or event.sym == Sisa::Key::F10 then
           # Save map
             Zori::Dialog.textsplash("Saving to #{filename}...", 1.0)
             screen.flip()
             map.save_to(filename)
             Zori::Dialog.textsplash("Saved to #{filename}", 2.0)
           end
-        elsif (event.is_a? SDL::Event::MouseButtonDown) then 
+        elsif (event.is_a? Sisa::Event::MouseButtonDown) then 
           # Handle mouse button roll up.
           if event.button == 5 and edit_tile < map.tileset.last_index
             edit_tile  =  map.tileset.next_index(edit_tile)
@@ -401,8 +375,8 @@ class Eruma
               edit_select.clear!  # remove selection
             end
           end
-        elsif (event.is_a? SDL::Event::MouseButtonUp) then 
-        elsif(event.is_a? SDL::Event::MouseMotion) then 
+        elsif (event.is_a? Sisa::Event::MouseButtonUp) then 
+        elsif(event.is_a? Sisa::Event::MouseMotion) then 
           mouse_x = event.x
           mouse_y = event.y          
           edit_x  = map.screen_to_tile_x(edit_layer, mouse_x)

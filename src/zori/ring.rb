@@ -91,7 +91,7 @@ module Zori
     # Adds a new item to this ring menu
     # It has a +name+, a +text+ to display, and and optional 
     # +icon+ and a +subring+ attached to it
-    # Returns the Slacks::Ring::Item added
+    # Returns the item added
     def item(name, text, icon = nil, subring = nil)
       item          = Item.new(name,text,icon,subring)
       item.x        = @cx
@@ -133,29 +133,28 @@ module Zori
       end
     end
     
+    # Draws the cursor
+    def draw_cursor(display)    
+      if @cursor_bitmap
+        xx = @cx  
+        yy = @cy - @radius
+        display.put_bitmap(xx, yy, @cursor_bitmap)
+      else 
+        display.put_line(@cx, @cy - radius, 40, - radius, [255,255,0] )
+        display.put_line(@cx, @cy - radius + 40 , 40, - radius + 40, [255,255,0] )
+      end  
+    end
     
     # Draws this ring menu to the display
     def draw(display)
       @status.draw(display) if @status
       return if @subring
-      
-#       if @subring
-#         return @subring.draw(display)
-#       end
-#        
-      # Items in the ring and the subring are drawn automatically by 
-      # draw_children of widget. 
+      draw_cursor(display)
+    end
     
-      # Finally draw target box
-      
-      if @cursor_bitmap
-        display.put_bitmap(@cx, @cy - @radius, @cursor_bitmap)
-      else 
-        display.put_line(@cx, @cy - radius, 40, - radius, [255,255,0] )
-        display.put_line(@cx, @cy - radius + 40 , 40, - radius + 40, [255,255,0] )
-      end  
-      
-      
+    def draw_after_children(target)
+      super(target)
+      draw_cursor(target)
     end
     
     protected
@@ -207,6 +206,13 @@ module Zori
       # Prevent eternal loops by not closing if already closed
     end
     
+    # Recursively hidesthis ring and all parent and side rings
+    def hide_all
+      self.hide
+      @parentring.hide_all if @parentring and !@parentring.hidden?
+      # Prevent eternal loops by not closing if already closed
+    end
+    
     
     # Handle key presses
     def on_key(key, modifier, string)
@@ -220,14 +226,14 @@ module Zori
             @subring            = @active_item.subring
             @subring.enter_subring(self)
             # Enter the submenu if any
-            # No need to hide ourselves since we froward drawing to subring also
+            # No need to hide ourselves since we forward drawing to subring also
           else
             @action.call(self, @active_item) if @action
-            self.close_all()
-            # Don't forget to close ourself and the parent ring(s)
+            self.hide_all()            
+            # Don't forget to hide ourself and the parent ring(s)
           end
           # Or call the given action block if enter is pressed.
-          # In this case, we canclose the ring menu          
+          # In this case, we canclose the ring menu
         when Sisa::Key::ESCAPE, Sisa::Key::KP_PLUS
           # self.hide
           # Hide this menu, but show the parent again if any
@@ -236,8 +242,8 @@ module Zori
             @parentring.return_from_subring
           else
             self.hide
-          end   
-        else         
+          end
+        else
           # Do nothing
       end 
       update

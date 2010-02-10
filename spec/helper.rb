@@ -13,8 +13,8 @@ module Helper
   
     # Opens the screen (should be done first)
     def open_screen(wide = 640, high = 480, fullscreen  = false)
-      @screen         = Sisa::Screen.make!(wide, high, fullscreen)
-      @screen.caption  = 'Sisa Test'
+      @screen           = Sisa::Screen.make!(wide, high, fullscreen)
+      @screen.caption   = 'Sisa Spec'
       return @screen
     end
     

@@ -3,8 +3,8 @@
 # Partially based on mixins. 
 
 
-# Load the SISA that we need
-SISA_USE_SDL = true
+# Load the SISA that we need, default the SDL one.
+SISA_USE_SDL ||= true
 if SISA_USE_SDL
   require 'sdl'
   require 'sisa/sisa_sdl'

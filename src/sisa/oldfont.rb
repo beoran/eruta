@@ -21,10 +21,10 @@ module Sisa
     def self.filename_for(name)
       try =  self.font_dir + "#{name}.ttf"
       puts  "Trying to load font file #{try} for font #{name}"
-      return try if try.exist?
+      return try if File.exist?(try)
       try =  self.font_dir + "#{name.upcase}.TTF"
       puts  "Trying to load font file #{try} for font #{name}"      
-      return try if try.exist?
+      return try if File.exist?(try)
       # First try in our own data directory
       
       # If that fails, try to load the font from the ones installed on the system 

@@ -400,12 +400,12 @@ module Zori
     # Transforms the unicode code point to a utf-8 encoded text. In particular, 
     # it removes null characters that SDL produces, e.g. for dead keys.
     def cleanup_unicode(event)      
-      p "Unicode:", event.sym, event.unicode
+      # p "Unicode:", event.sym, event.unicode
       code    = event.unicode
       if code == 0
         text  = ''
       elsif SCANCODE_BUG_WORKAROUND && (code == 194 || code == 195) 
-      # XXX: ugly workaround for The 194/195 scancode bug on my Ubutu system.
+      # XXX: ugly workaround for the 194/195 scancode bug on my Ubutu system.
       # Works fine on Redhat, so, nothing much I can do.
       # Should complain to upstream... but most people don't do i17n aware GUI's 
       # in SDL, I guess :p

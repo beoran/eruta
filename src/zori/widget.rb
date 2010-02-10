@@ -538,13 +538,23 @@ module Zori
     end
     
     # You may also want to override this, in case your widget needs a border.
+    # Normally called by draw_after_children
     # Try self.put_border(target)
     def draw_border(target)
     end
     
     # Override this, as it draws the widget itself.
+    # This will be called before draw_children, so the children normally 
+    # draw over the parent widget 
     def draw(target)      
     end
+    
+    # You may override this if you need to draw something after your child 
+    # widgets are done drawing
+    def draw_after_children(target)
+      draw_border(target)
+    end
+    
     
     # Draws the children. Ususally you don't need to override this.
     def draw_children(target)
@@ -568,7 +578,7 @@ module Zori
       draw_background(target)
       draw(target)
       draw_children(target)
-      draw_border(target)
+      draw_after_children(target)
       # Debugging message
       # style.colors.text
       # @debugcolor ||= Sisa::Color.random_dark
@@ -682,7 +692,7 @@ module Zori
     # The sequence of events emitted on a key press shall be:
     # on_key_down, on_key (on_key, repeated many times), on_key_up
     def on_key(sym, mod, text = nil)
-      puts "Key: #{sym}, #{mod}, #{text}"
+      # puts "Key: #{sym}, #{mod}, #{text}"
     end
     
     # Called if the mouse is pressed somewhere

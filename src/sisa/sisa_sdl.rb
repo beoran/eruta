@@ -84,7 +84,7 @@ module Sisa_SDL
       @joysticks = [] 
       Sisa.init_once(SDL::INIT_JOYSTICK)
       num_joy = SDL::Joystick.num
-      printf("Found %d joystick:\n", num_joy)
+      # printf("Found %d joystick:\n", num_joy)
       num_joy.times do |i|
         puts SDL::Joystick.index_name(i)
         js = SDL::Joystick.open(i) unless SDL::Joystick.open?(i)

@@ -153,13 +153,3 @@ module Fimyfi
 
 
 end # module Fimyfi
-
-#
-#
-#
-#
-if __FILE__ == $0
-  Fimyfi.test_caller
-  p __FILE__
-  p File.expand_path(__FILE__)
-end
