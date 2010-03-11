@@ -27,6 +27,20 @@ module Zori
     REPEAT_SPEED  = 0.05 
     # Enable workaround for utf scancode bug on Ubuntu
     SCANCODE_BUG_WORKAROUND = true
+    # Maybe I'm handling the unicode wrong? Here'swhat the SDL docs say:
+    
+    
+#  mod stores the current state of the keyboard modifiers as explained in SDL_GetModState.
+# 
+# The unicode field is only used when UNICODE translation is enabled with SDL_EnableUNICODE. If unicode is non-zero then this is the UNICODE character corresponding to the keypress. If the high 9 bits of the character are 0, then this maps to the equivalent ASCII character:
+# 
+# char ch;
+# if ( (keysym.unicode & 0xFF80) == 0 ) {
+#   ch = keysym.unicode & 0x7F;
+# }
+# else {
+#   printf("An International Character.\n");
+# }
     
     
     # Structure for mouse button info
