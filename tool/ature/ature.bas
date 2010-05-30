@@ -5,7 +5,7 @@
   rem ' I'm using much more constants than Batari Basic supports normally.
   rem ' It's much easier to understand what's going on if I use constants galore.
   rem ' Note: I only use integer math, for speed.
-  rem ' To do: More ennemies, fill in map. Perhaps use underground areas as well.
+  rem ' To do: More enemies, fill in map. Perhaps use underground areas as well.
   rem ' To do: Set quest flags when killing bosses so they don't return.
   rem ' We use playfield colors, 32K and smart branching.
   set kernel_options pfcolors
@@ -87,7 +87,7 @@
   rem 'Normal start
   const room_start=49
   rem 'On the east side of the river
-  rem ' const room_start=23
+  rem 'const room_start=4
   
   const hero_start_x=75
   const hero_start_y=75
@@ -418,7 +418,7 @@ main_loop
   COLUP0 = skin
   temp1 = item_kind & item_kind_mask
   COLUP1 = item_colors[temp1]
-  rem 'Special effects
+  rem 'Special effects for the item (double or triple size, double or triple instances)
   if item_kind{7} goto special_effects_end 
   temp2 = monster_info[item_kind]
   if temp2{6} then NUSIZ1 = $07
@@ -476,7 +476,11 @@ reset_end
   rem 'Update sound timer, and set to silence if sound is done
   if sound_timer < 1 then goto sound_end
   sound_timer = sound_timer - 1
-  if sound_timer < 1 then AUDV1 = 0
+  if sound_timer > 1 then goto sound_end 
+    AUDV1 = 0
+    AUDC1 = 0
+    AUDF1 = 0
+    sound_timer = 0
 sound_end
   
   rem 'Collision between hero and monster/item or the monster's missile
@@ -499,7 +503,7 @@ monster_collide
   sound_timer=2
   AUDC1=6
   AUDF1=10
-  AUDV1=15  
+  AUDV1=14  
   
   rem 'Push back the hero, but only if the playfield is free behind her.
 
@@ -564,7 +568,7 @@ item_collide_end
 
   rem 'Collision between monster missile and field. 
   rem 'Or between sword and monster missile.  Remove missile.
-  rem 'Remove misile is monster is gone.
+  rem 'Remove misile if monster is gone.
   if item_kind > last_monster goto missile_remove 
   if collision(missile0, missile1)  then goto missile_remove
   if missile1x > field_right then goto missile_remove
@@ -600,7 +604,7 @@ missile_remove_end
   rem 'Make a deflected sound
   sound_timer=2
   AUDC1=12
-  AUDV1=15
+  AUDV1=14
   AUDF1=1
   goto slash_collide_end  
 monster_no_curse
@@ -1367,15 +1371,15 @@ end
   playfield:
   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   ...............................X
-  ..............X................X
-  ..XX.XX....XX.X.XX....XX.XX.XX.X 
-  ..XX.XX...X..XXX..X...XX.XX.XX.X
-  ...........XX.X.XX.............X
-  ..............X................X
-  ..XX.XX.XX.........XX.XX.XX.XX.X
-  ..XX.XX.XX.........XX.XX.XX.XX.X
+  ...............X...............X
+  ..XX........XX.X.XX........XX..X 
+  ..XX.......X..XXX..X.......XX..X
+  ............XX.X.XX............X
+  ...............X...............X
+  ..XX....XX...........XX....XX..X
+  ..XX....XX...........XX....XX..X  
   ...............................X
-  ...............................X
+  ...............................X  
 end
   goto room_draw_end
 r05
@@ -1625,12 +1629,12 @@ end
   ...............................X
   ...............................X
   ...............................X
-  ..XX.XX.XX.XX...XX.XX.XX.XX.XX.X 
-  ..XX.XX.XX.XX...XX.XX.XX.XX.XX.X
+  ..XX....XX...........XX....XX..X
+  ..XX....XX...........XX....XX..X
   ...............................X
   ...............................X
-  ..XX.XX.XX.XX...XX.XX.XX.XX.XX.X
-  ..XX.XX.XX.XX...XX.XX.XX.XX.XX.X
+  ..XX....XX...........XX....XX..X
+  ..XX....XX...........XX....XX..X
   ...............................X
   ...............................X
 end
@@ -1866,8 +1870,8 @@ end
   ....XXXXX.....XXXXXXXX.....XXXXX
   ....X...X.....X......X.....X...X 
   ....X...XXXXXXX......XXXXXXX...X
-  ....X............XX.............
-  ....X............XX.............
+  ....X...........................
+  ....X...........................
   ....X...XXXXXXXXXXXXXXXXXXXXXXXX
   ....X............XX.............
   ....X............XX.............
@@ -3397,7 +3401,7 @@ end
   data item_xlist
   hc, hc, 84, 37,109, 70, hc - 8, hc,
   hc, hc, hc, 37, hc, hc, hc, hc,
-  hc,113,113, 37, hc, hc, hc, hc,
+  hc,113,113, 37, hc + 12, hc, hc, hc,
   hc, hc, 63,113, hc,120, hc, hc,
   hc, 37, 90, 37, 53, 53, hc, hc,
   77, hc, hc,123, 66, hc, hc, 61,
@@ -3408,8 +3412,8 @@ end
   data item_ylist
   vc, vc, vc, 25, 70, 65, vc, vc,
   vc, vc, vc, vc, vc, vc, vc, vc + 4,
-  vc, vc, vc, vc, 73, vc, vc, vc + 8,
-  vc, vc, 70, vc, vc, vc, vc, vc - 16,
+  vc, vc, vc, vc, vc + 1, vc, vc, vc + 8,
+  vc, vc, 70, vc, vc + 8, vc, vc, vc - 16,
   vc, 29, 70, vc, 41, 41, vc, vc,
   33, vc, vc, vc, 70, 25, vc, vc,
   vc, 55, vc, 80, vc, vc, vc, vc,
@@ -4572,7 +4576,7 @@ intro_loop
   rem COLUP0 = rand
   rem REFP0 = 8
   drawscreen
-  if switchreset then return
+  if switchreset || joy0fire then return  
   goto intro_loop
 
   
