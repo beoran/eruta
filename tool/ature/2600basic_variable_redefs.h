@@ -1,18 +1,18 @@
 ; This file contains variable mapping and other information for the current project.
 
-music_data_length = .skipL01455-music_data 
+music_data_length = .skipL01459-music_data 
  
-item_ylist_length = .skipL01203-item_ylist 
+item_ylist_length = .skipL01207-item_ylist 
  
-item_xlist_length = .skipL01202-item_xlist 
+item_xlist_length = .skipL01206-item_xlist 
  
 vc = 49
  
 hc = 73
  
-item_hplist_length = .skipL01198-item_hplist 
+item_hplist_length = .skipL01202-item_hplist 
  
-room_items_length = .skipL01197-room_items 
+room_items_length = .skipL01201-room_items 
  
 PFcolors = 1
 bscode_length = 32

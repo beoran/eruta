@@ -1,5 +1,6 @@
 #!/bin/sh
-bB=/usr/local/share/batari
+#bB=/usr/local/share/batari
+bB=/home/bjorn/eruta/tool/ature
 echo "Starting build of $1"
 2600preprocess<$1 | 2600basic -i $bB>bB.asm
 if [ "$?" -ne "0" ]
