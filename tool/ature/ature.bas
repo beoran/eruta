@@ -1,64 +1,61 @@
   rem ' Ature Adventure
-  rem ' Copyright beoran@rubyforge.org 2009.
-  rem ' May be distributed under the Zlib License.
+  rem ' Copyright beoran@rubyforge.org 2009, 2010.
+  rem ' May be distributed under the Zlib License. No warranty, use at your own risk.
   rem ' You will need to modify Batari Basic from sources to compile this program
-  rem ' I'm using much more constants than Batari Basic supports normally.
+  rem ' You'll also need to pull it through a C preprocessor like cpp -P
+  rem ' Because I'm using much more constants than Batari Basic supports normally.
+  rem ' And I use the C preprocessor as a workaround to Batari Basic's 
+  rem ' bugs with regards to constant definition
   rem ' It's much easier to understand what's going on if I use constants galore.
   rem ' Note: I only use integer math, for speed.
-  rem ' To do: More ennemies, fill in map. Perhaps use underground areas as well.
-  rem ' To do: Set quest flags when killing bosses so they don't return.
+  rem ' To Do: Fix some weirdness in the color handling. 
+  rem ' To Do: Fix sound effects and music. 
+  rem ' To Do: Make the game bigger. Perhaps add a few more areas?
   rem ' We use playfield colors, 32K and smart branching.
   set kernel_options pfcolors
   set romsize 32k
   set smartbranching on
-  rem 'Cycle debugging
-  rem set debug cycles
-  rem set debug cyclescore
-  rem dim mincycles = z
-  rem mincycles=255
+  rem ' Cycle debugging
+  rem ' set debug cycles
+  rem ' set debug cyclescore
+  rem ' dim mincycles=z
+  
+  rem ' mincycles=255
 
   rem 'Constant definitions
-  rem 'Commonly used NTSC Colors
+  
   rem 'const pfres=12
-  rem 'const pfrowheight=6
+  rem 'const pfrowheight=8
+  
+  rem 'Commonly used NTSC Colors
   const black=0
   const gray=6
   const white=14
   const yellow=30
-  const ochre=16
+  
   const brown=32
   const orange=32
   const blue=144
   const skyblue=174
   const green=192
   const darkgreen=191
-  const riverblue=170
-  const seablue=144
-  const lightgreen=200
-  const red=64
-  const pink=78
-  const oldskin=30
-  const skin=254
-  const sand=230
+  const riverblue=170  
+  rem ' XXX: there is a bug in the ompiler (or my patches to it) 
+  rem ' some of my consants like the one below are translated in stead 
+  rem ' like a dim statement: eg  const turfy=218 -> dim   turfy=218
+  rem ' a workaround seem to be to reorder the constants a bit
+  rem ' or to remove a few of them, but this only bugs out other constants :p
+  rem ' so I replaced some constants by their values, and use the cpp 
+  rem ' preprocessor in stead.    
+#define SEABLUE 144
+  const seablue = 144
+  const red   = 64
+  const pink  = 78
+  const skin  = 254
+  const sand  = 230
+  const turfy = 218
+  rem ' const ochre=16
  
-
-  rem ' Note definitions and length const music_voice=12
-  const note_c4=30
-  const note_d4=27
-  const note_e4=24
-  const note_f4=23
-  const note_g4=20
-  const note_a4=18
-  const note_b4=16
-  const note_c5=15
-  const note_none=0 
-  const note_full=60
-  const note_half=30
-  const note_quarter=15
-  const note_fullrest=58
-  const note_halfrest=28
-  const note_quarterest=13
-  const note_ndot=2
 
   rem 'Playfield dimensions
   const field_left=17
@@ -71,6 +68,25 @@
   const field_bottom_enter=89
   const field_hcenter=61
   const field_vcenter=44
+  
+  rem ' Note definitions and length const music_voice=12
+  rem const note_c4=30
+  rem const note_d4=27
+  rem const note_e4=24
+  rem const note_f4=23
+  rem const note_g4=20
+  rem const note_a4=18
+  rem const note_b4=16
+  rem const note_c5=15
+  rem const note_none=0 
+  rem const note_full=60
+  rem const note_half=30
+  rem const note_quarter=15
+  rem const note_fullrest=58
+  rem const note_halfrest=28
+  rem const note_quarterest=13
+  rem const note_ndot=2
+
   
   rem ' An object will be positioned at 255 to hide it
   const nowhere=255
@@ -87,7 +103,7 @@
   rem 'Normal start
   const room_start=49
   rem 'On the east side of the river
-  rem ' const room_start=23
+  rem 'const room_start=4
   
   const hero_start_x=75
   const hero_start_y=75
@@ -145,6 +161,9 @@
   rem 'quest_flags{0} -> Defeated Leaf Boss 1
   rem 'quest_flags{1} -> Defeated Leaf Boss 2
   rem 'quest_flags{2} -> Defeated Leaf Boss 3
+  rem 'status bar color in Z, which si otherwise used for debugging
+  rem ' Can't sue changes top platfield row color somehow. :p
+  rem ' dim statusbarcolor=z
   
   const strike_cost=1
   const last_monster=32
@@ -377,7 +396,7 @@ end
 main_loop_start
   rem ' Set up initial values.
   COLUBK = black 
-  lifecolor=yellow
+  lifecolor=yellow  
   hero_room=room_start
   hero_x=hero_start_x
   hero_oldx=hero_start_x
@@ -408,7 +427,7 @@ main_loop_start
   missile1y=nowhere
   music_pointer=0
   music_timer=0
-  scorecolor=yellow
+  scorecolor=64
   item_hp=item_start_hp  
   gosub show_inventory
   gosub hero_draw_s
@@ -418,7 +437,7 @@ main_loop
   COLUP0 = skin
   temp1 = item_kind & item_kind_mask
   COLUP1 = item_colors[temp1]
-  rem 'Special effects
+  rem 'Special effects for the item (double or triple size, double or triple instances)
   if item_kind{7} goto special_effects_end 
   temp2 = monster_info[item_kind]
   if temp2{6} then NUSIZ1 = $07
@@ -476,7 +495,11 @@ reset_end
   rem 'Update sound timer, and set to silence if sound is done
   if sound_timer < 1 then goto sound_end
   sound_timer = sound_timer - 1
-  if sound_timer < 1 then AUDV1 = 0
+  if sound_timer > 1 then goto sound_end 
+    AUDV1 = 0
+    AUDC1 = 0
+    AUDF1 = 0
+    sound_timer = 0
 sound_end
   
   rem 'Collision between hero and monster/item or the monster's missile
@@ -499,7 +522,7 @@ monster_collide
   sound_timer=2
   AUDC1=6
   AUDF1=10
-  AUDV1=15  
+  AUDV1=14  
   
   rem 'Push back the hero, but only if the playfield is free behind her.
 
@@ -564,7 +587,7 @@ item_collide_end
 
   rem 'Collision between monster missile and field. 
   rem 'Or between sword and monster missile.  Remove missile.
-  rem 'Remove misile is monster is gone.
+  rem 'Remove misile if monster is gone.
   if item_kind > last_monster goto missile_remove 
   if collision(missile0, missile1)  then goto missile_remove
   if missile1x > field_right then goto missile_remove
@@ -600,7 +623,7 @@ missile_remove_end
   rem 'Make a deflected sound
   sound_timer=2
   AUDC1=12
-  AUDV1=15
+  AUDV1=14
   AUDF1=1
   goto slash_collide_end  
 monster_no_curse
@@ -647,7 +670,7 @@ monster_no_curse
   hero_mp = hero_level/16 + 1
   gosub set_mp_display
   hero_next = (hero_level / 2) + 1
-  COLUP0 = lightgreen
+  COLUP0 = turfy
   goto give_experience_end
 give_experience
   hero_next = hero_next - temp2
@@ -1367,19 +1390,19 @@ end
   playfield:
   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   ...............................X
-  ..............X................X
-  ..XX.XX....XX.X.XX....XX.XX.XX.X 
-  ..XX.XX...X..XXX..X...XX.XX.XX.X
-  ...........XX.X.XX.............X
-  ..............X................X
-  ..XX.XX.XX.........XX.XX.XX.XX.X
-  ..XX.XX.XX.........XX.XX.XX.XX.X
+  ...............X...............X
+  ..XX........XX.X.XX........XX..X 
+  ..XX.......X..XXX..X.......XX..X
+  ............XX.X.XX............X
+  ...............X...............X
+  ..XX....XX...........XX....XX..X
+  ..XX....XX...........XX....XX..X  
   ...............................X
-  ...............................X
+  ...............................X  
 end
   goto room_draw_end
 r05
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   green
@@ -1409,7 +1432,7 @@ end
 end
   goto room_draw_end
 r06
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   green
@@ -1439,7 +1462,7 @@ end
 end
   goto room_draw_end
 r07
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   darkgreen
   green
@@ -1576,7 +1599,7 @@ end
 end  
   goto room_draw_end
 r11
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   riverblue
   riverblue
@@ -1625,18 +1648,18 @@ end
   ...............................X
   ...............................X
   ...............................X
-  ..XX.XX.XX.XX...XX.XX.XX.XX.XX.X 
-  ..XX.XX.XX.XX...XX.XX.XX.XX.XX.X
+  ..XX....XX...........XX....XX..X
+  ..XX....XX...........XX....XX..X
   ...............................X
   ...............................X
-  ..XX.XX.XX.XX...XX.XX.XX.XX.XX.X
-  ..XX.XX.XX.XX...XX.XX.XX.XX.XX.X
+  ..XX....XX...........XX....XX..X
+  ..XX....XX...........XX....XX..X
   ...............................X
   ...............................X
 end
   goto room_draw_end
 r13
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   green
@@ -1666,7 +1689,7 @@ end
 end
   goto room_draw_end
 r14
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   green
@@ -1785,7 +1808,7 @@ end
 end
   goto room_draw_end
 r18
-  COLUBK = lightgreen
+  COLUBK = turfy
   pfcolors:
   red
   red
@@ -1866,8 +1889,8 @@ end
   ....XXXXX.....XXXXXXXX.....XXXXX
   ....X...X.....X......X.....X...X 
   ....X...XXXXXXX......XXXXXXX...X
-  ....X............XX.............
-  ....X............XX.............
+  ....X...........................
+  ....X...........................
   ....X...XXXXXXXXXXXXXXXXXXXXXXXX
   ....X............XX.............
   ....X............XX.............
@@ -1875,7 +1898,7 @@ end
 end
   goto room_draw_end
 r21
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   gray
@@ -1905,7 +1928,7 @@ end
 end
   goto room_draw_end
 r22
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   green
@@ -1935,7 +1958,7 @@ end
 end
   goto room_draw_end
 r23
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   green
@@ -2012,7 +2035,7 @@ end
 r24_end
   goto room_draw_end
 r25
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   red
   red
@@ -2042,7 +2065,7 @@ end
 end
   goto room_draw_end
 r26
-  COLUBK = lightgreen
+  COLUBK = turfy
   pfcolors:
   white
   white
@@ -2132,7 +2155,7 @@ end
 end
   goto room_draw_end
 r29
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   gray
@@ -2239,7 +2262,7 @@ end
   goto room_draw_end
 
 r32  
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   white
   white
@@ -2255,31 +2278,31 @@ r32
   white
 end  
   if quest_flags{2} then goto r32_open
-  playfield:
-  X......XXXXXXXXXXXXXXXXXX.....XX
-  X.....XXXXXXXXXXXXXXXXXXXX....XX
-  X....XXXXXXXXXXXXXXXXXXXXXX...XX
-  X...XXXXXXXXXXXXXXXXXXXXXXXX..XX
-  X..XXXXXXXXXXXXXXXXXXXXXXXXXX.XX
+  playfield: 
+  X.....XXXXXXXXXXXXXXXXXXX.....XX
+  X....XXXXXXXXXXXXXXXXXXXXX....XX
+  X...XXXXXXXXXXXXXXXXXXXXXXX...XX
+  X..XXXXXXXXXXXXXXXXXXXXXXXXX..XX
+  X.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  X..XX..XX..XX..XX..XX..XX..XX...
+  X..XX..XX..XX..XX..XX..XX..XX...
+  X..XX..XX..XX..XX..XX..XX..XX...
   X.XXXXXXXXXXXXXXXXXXXXXXXXXXXX..
-  X...XX..XX..XX....XX..XX..XX....
-  X...XX..XX..XX....XX..XX..XX....
-  X..XXXXXXXXXXXXXXXXXXXXXXXXXX...
   X...............................
   X...............................
 end
   goto room_draw_end bank2
 r32_open
   playfield:
-  X......XXXXXXX....XXXXXXX.....XX
-  X.....XXXXXXXX....XXXXXXXX....XX
-  X....XXXXXXXXX....XXXXXXXXX...XX
-  X...XXXXXXXXXX....XXXXXXXXXX..XX
-  X..XXXXXXXXXXX....XXXXXXXXXXX.XX
-  X.XXXXXXXXXXXX....XXXXXXXXXXXX..
-  X...XX..XX..XX....XX..XX..XX....
-  X...XX..XX..XX....XX..XX..XX....
-  X..XXXXXXXXXXX....XXXXXXXXXXX...
+  X.....XXXXXXXX....XXXXXXX.....XX
+  X....XXXXXXXXX....XXXXXXXX....XX
+  X...XXXXXXXXX......XXXXXXXX...XX
+  X..XXXXXXXXXX......XXXXXXXXX..XX
+  X.XXXXXXXXXXXX....XXXXXXXXXXXXXX
+  X..XX..XX..XX......XX..XX..XX...
+  X..XX..XX..XX......XX..XX..XX...
+  X..XX..XX..XX......XX..XX..XX...
+  X.XXXXXXXXXXX......XXXXXXXXXXX..
   X...............................
   X...............................
 end
@@ -2314,7 +2337,7 @@ end
 end
   goto room_draw_end bank2
 r34
-  COLUBK = lightgreen
+  COLUBK = turfy
   pfcolors:
   white
   white
@@ -2390,7 +2413,7 @@ r35_open
 end
   goto room_draw_end bank2
 r36
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   yellow
@@ -2420,7 +2443,7 @@ end
 end
   goto room_draw_end bank2  
 r37
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   yellow
@@ -2450,7 +2473,7 @@ end
 end
   goto room_draw_end bank2    
 r38
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   gray
   gray
@@ -2480,7 +2503,7 @@ end
 end
   goto room_draw_end bank2
 r39
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   green
   green
@@ -2548,7 +2571,7 @@ end
   
   
 r41
-  COLUBK = lightgreen
+  COLUBK = turfy
   pfcolors:
   green  
   green
@@ -2560,7 +2583,7 @@ r41
   green
   green
   brown
-  seablue
+  SEABLUE
   green
 end  
   playfield:
@@ -2578,7 +2601,7 @@ end
 end
   goto room_draw_end bank2
 r42
-  COLUBK = lightgreen
+  COLUBK = turfy
   pfcolors:
   green  
   green
@@ -2590,7 +2613,7 @@ r42
   green
   green
   brown
-  seablue
+  SEABLUE
   green
 end  
   playfield:
@@ -2614,14 +2637,14 @@ r43
   riverblue
   riverblue
   riverblue
-  seablue + 8
-  seablue + 8
-  seablue + 4
-  seablue + 4
-  seablue + 2
-  seablue + 2
-  seablue
-  seablue
+  SEABLUE + 8
+  SEABLUE + 8
+  SEABLUE + 4
+  SEABLUE + 4
+  SEABLUE + 2
+  SEABLUE + 2
+  SEABLUE
+  SEABLUE
 end  
   playfield:
   ..........XXXXXXXXXXXX..........
@@ -2649,8 +2672,8 @@ r44
   white
   white
   white
-  seablue
-  seablue
+  SEABLUE
+  SEABLUE
   red
 end  
   playfield:
@@ -2698,7 +2721,7 @@ end
 end 
  goto room_draw_end bank2
 r46
-  COLUBK=lightgreen
+  COLUBK=turfy
   pfcolors:
   gray
   gray
@@ -2761,7 +2784,7 @@ end
   
 
 r48
-  COLUBK = lightgreen
+  COLUBK = turfy
   pfcolors:
   brown
   brown
@@ -2792,7 +2815,7 @@ end
   goto room_draw_end bank2
 
 r49
-  COLUBK = lightgreen
+  COLUBK=turfy
   pfcolors:
   white
   white
@@ -2803,8 +2826,8 @@ r49
   white
   white
   white
-  red
-  red
+  green
+  green
   red
 end  
   playfield:
@@ -2820,23 +2843,24 @@ end
   ................................
   ................................
 end
+  COLUPF=red
   goto room_draw_end bank2
 
 r50
-  COLUBK = sand
+  COLUBK = sand + 0
   pfcolors:
   riverblue
   riverblue
   riverblue
   riverblue
-  seablue + 8
-  seablue + 8
-  seablue + 4
-  seablue + 4
-  seablue + 2
-  seablue + 2
-  seablue
-  seablue
+  SEABLUE + 8
+  SEABLUE + 7
+  SEABLUE + 6
+  SEABLUE + 5
+  SEABLUE + 4
+  SEABLUE + 3
+  SEABLUE
+  riverblue
 end  
   playfield:  
   ..............................XX
@@ -2855,7 +2879,7 @@ end
   goto room_draw_end bank2
 r51
   rem 'black ship top
-  COLUBK = seablue
+  COLUBK = SEABLUE + 2
   pfcolors:
   white
   white
@@ -2887,18 +2911,18 @@ end
 r52
   COLUBK = sand
   pfcolors:
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
 end  
   playfield:
   XX..............................
@@ -2924,10 +2948,10 @@ r53
   brown  
   brown
   brown
-  seablue
-  seablue
-  seablue
-  seablue
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
   green
 end  
   playfield:
@@ -2945,7 +2969,7 @@ end
 end
   goto room_draw_end bank2 
 r54
-  COLUBK = lightgreen
+  COLUBK = turfy
   pfcolors:
   gray
   gray
@@ -2957,7 +2981,7 @@ r54
   gray
   gray
   gray
-  seablue
+  SEABLUE
   gray  
 end
   if quest_flags{3} then goto r54_open  
@@ -3001,10 +3025,10 @@ r55
   white
   red
   red
-  seablue
-  seablue
-  seablue
-  seablue
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
 end
   if quest_flags{7} then goto r55_open
   playfield:
@@ -3040,18 +3064,18 @@ r56
   rem 'Shield on island
   COLUBK = sand
   pfcolors:
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue  
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE  
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
 end  
   if !quest_flags{6} then goto r56_closed
   playfield:
@@ -3095,10 +3119,10 @@ r57
   red
   red
   red
-  seablue
-  seablue
-  seablue
-  seablue
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
 end  
   playfield:
   ................................
@@ -3118,19 +3142,19 @@ end
 r58
   COLUBK = sand
   pfcolors:
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-end
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+end  
   if quest_flags{2} goto r58_open
   playfield:
   ................XXXXXXXXXXXXXXXX
@@ -3141,8 +3165,8 @@ end
   .............XXXXXXXXXXXXXXXXXXX
   ..........XXXXXXXXXXXXXXXXXXXXXX
   ........XXXXXXXXXXXXXXXXXXXXXXXX
-  ....XXXXXXXXXXXXXXXXXXXXXXXXXXXX
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  ....XXXXXXXXXXXXXXXXXXXXXXXX....
+  XXXXXXXXXXXXXXXXXXXXXXXXXXXXX...
   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 end
   goto room_draw_end bank2
@@ -3164,7 +3188,7 @@ end
 
 
 r59
-  COLUBK = seablue
+  COLUBK = SEABLUE + 1
   pfcolors:
   black
   black
@@ -3176,7 +3200,7 @@ r59
   black
   black
   black
-  seablue
+  SEABLUE
   black
 end
   rem 'black ship bottom, when switch3 isn't pressed
@@ -3216,18 +3240,18 @@ r60
   rem 'Boss 3, Kraken room.
   COLUBK = black
   pfcolors:
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
 end  
   playfield:
   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -3251,14 +3275,14 @@ r61
   riverblue
   riverblue
   riverblue
-  seablue + 8
-  seablue + 8
-  seablue + 4
-  seablue + 4
-  seablue + 2
-  seablue + 2
-  seablue
-  seablue
+  SEABLUE + 8
+  SEABLUE + 8
+  SEABLUE + 4
+  SEABLUE + 4
+  SEABLUE + 2
+  SEABLUE + 2
+  SEABLUE
+  SEABLUE
 end
   if !hero_items{5} then goto r61_closed
   playfield:
@@ -3294,18 +3318,18 @@ end
 r62
   COLUBK = sand
   pfcolors:
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
 end  
   playfield:
   ...............................X
@@ -3326,18 +3350,18 @@ end
 r63
   COLUBK = sand
   pfcolors:
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
-  seablue
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
+  SEABLUE
 end  
   playfield:
   XX.............................X
@@ -3397,7 +3421,7 @@ end
   data item_xlist
   hc, hc, 84, 37,109, 70, hc - 8, hc,
   hc, hc, hc, 37, hc, hc, hc, hc,
-  hc,113,113, 37, hc, hc, hc, hc,
+  hc,113,113, 37, hc + 12, hc, hc, hc,
   hc, hc, 63,113, hc,120, hc, hc,
   hc, 37, 90, 37, 53, 53, hc, hc,
   77, hc, hc,123, 66, hc, hc, 61,
@@ -3408,8 +3432,8 @@ end
   data item_ylist
   vc, vc, vc, 25, 70, 65, vc, vc,
   vc, vc, vc, vc, vc, vc, vc, vc + 4,
-  vc, vc, vc, vc, 73, vc, vc, vc + 8,
-  vc, vc, 70, vc, vc, vc, vc, vc - 16,
+  vc, vc, vc, vc, vc + 1, vc, vc, vc + 8,
+  vc, vc, 70, vc, vc + 8, vc, vc, vc - 16,
   vc, 29, 70, vc, 41, 41, vc, vc,
   33, vc, vc, vc, 70, 25, vc, vc,
   vc, 55, vc, 80, vc, vc, vc, vc,
@@ -4408,7 +4432,7 @@ reset_go_end
 
   COLUP0=white
   COLUP1=black  
-  rem 'Make monster look x3 size, to maitain bosss size and suggest something for non bosses.  
+  rem 'Make monster look x3 size, to maintain boss size and suggest something for non bosses.  
   NUSIZ1 = $07
 special_effects_go_end
     
@@ -4551,7 +4575,6 @@ intro_screen
   yellow - 8
   yellow - 10
   yellow - 12
-  yellow
 end
   playfield:
   ..X....XXXXX..X...X..XXX...XXXX.
@@ -4572,7 +4595,7 @@ intro_loop
   rem COLUP0 = rand
   rem REFP0 = 8
   drawscreen
-  if switchreset then return
+  if switchreset || joy0fire then return  
   goto intro_loop
 
   

@@ -1,7 +1,7 @@
 #!/bin/sh
-bB=/usr/local/share/batari
+bB=/home/bjmey/eruta/tool/ature
 echo "Starting build of $1"
-2600preprocess<$1 | 2600basic -i $bB>bB.asm
+cpp -P < $1 | 2600preprocess | 2600basic -i $bB>bB.asm
 if [ "$?" -ne "0" ]
  then
   echo "Compilation failed."

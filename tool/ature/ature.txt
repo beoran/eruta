@@ -13,19 +13,19 @@ spread throughout the galaxy.
 
 However, even this golden age of technology came to an end somehow. Contact with 
 the other worlds was lost. The advanced technology and the great cities were 
-abandoned, and mankind's numbers dwindles as they reverted to a more primitive 
+abandoned, and mankind's numbers dwindled as they reverted to a more primitive 
 lifestyle. 
  
 Yet, when it looked like mankind would was doomed to disappear, a mysterous 
-event turned the tide yet again. The Great Tree, sprang from the earth, 
+event turned the tide yet again. The Great Tree sprang from the earth, 
 bringing life and protection to all of mankind. It seeds spread thoughout 
 the continents, bringing forth the Twenty Lesser Trees.
 
 The Numen, the power that flowed from these trees gave mankind new, mysterious 
 abilities that allowed them to heal and recover themselves and the land. Still, 
 there are those who would abuse this power for their own selfish goals... 
-That is why, everywhere a tree appeared, Protectors where assigned to keep 
-the Trees safe. 
+That is why, everywhere a tree appeared, Protectors rose up to keep the Trees 
+safe. 
 
 The year is 2600 after the Sprouting of the Tree. In the land the land of Ature, 
 enclosed by impenetrable tall mountains, dense forests, and the sea, one of 
@@ -52,20 +52,25 @@ servants found out the location of the Numen Tree. As you were sleeping, she
 captured your beloved, went to the Tree, blocked it's access with a curse, 
 and started to drain the Tree's powers. 
 
-The results were disastrous. The curse on the Tree was so powerful, that the 
-people and animals of Ature were turned to stone. Only you, protected by the 
-Mysic Medallion were spared. Outraged at this, the Queen sent her servants, 
-now revealed to be nothing more than foul monsters, to hunt you down. 
- 
+The results were disastrous. The curse on the Tree was so powerful, that that 
+lay of the land of Ature itself was changed, and the people and animals were 
+turned to stone. Only you, protected by the Mysic Medallion were spared. 
+Outraged at this, the Queen sent her servants, now revealed to be nothing 
+more than foul monsters, to hunt you down. 
+
+These foul monsters can be defeated with your shord, but will be reborn 
+due to the curse, the  moment you leave the area they are patrolling.
 Fortunately, there are some places in Ature where Ikaza and her dark servants 
-cannot go, as they are protected by ancient blessings. However, the situation 
-is dire, Signe! Your beloved, friends and family have been petrified! Who knows 
-what more evil Ikaza will do with her new-found powers. You must find a way to 
-reach Ikaza and defeat her! 
+cannot go, as they are protected by ancient blessings. 
+
+However, the situation is dire, Signe! Your beloved was abducted. Your friends 
+and family have been petrified! Who knows what more evil Ikaza will do with 
+her new-found powers. You must find a way to reach Ikaza and defeat her! 
 
 You have heard rumours of the three leaves of the Tree, well hidden, which 
 together would allow to break any curse. It's also rumored that there is a 
-Numen Shield and a Nume Armour that can protect you from that dark power.
+Numen Shield and a Numen Armour that can protect you from that dark power.
+
 Furthermore, you did not recieve any education in the use of Numen's Mysterious 
 Powers. Perhaps you will find a Mystery Book along the way that teaches you 
 how to use these powers. However, will all that be enough to defeat Ikaza? 
@@ -77,16 +82,18 @@ How to Play
 To move Signe around, press the joystick in that direction. To swing her sword,
 press the joystick button. She can keep your sword sticking out by keeping the 
 joystick button pressed. Signe will automatically retract your sword when you 
-hit a monster. Sometimes, when you defeat a monster, it will drop an item. 
-To pick up an item, walk over it. But don't let Signe touch any monsters, 
-it will hurt her! 
+hit a monster. 
+
+Sometimes, when you defeat a monster, it will drop an item. To pick up an item, 
+walk over it. But don't let Signe touch any monsters, it will hurt her! If you 
+defeat a powerful ennemy the curse may weaken somewhat, and places that had 
+been changed by it may revert. Like this, the road ahead that was blocked before 
+may become opened to you. 
 
 On the bottom of the screen is your Life bar, in the left is your Numen bar. 
 When your life Bar is depleted, Signe will pass away! Every time Signe defeats 
 a monster, she becomes a bit more experienced. If you keep on building 
-experience like this, she will slowly become stronger. Sometimes, when 
-she defeats an ennemy, her Life will be recovered by the Numen released 
-from the ennemy.
+experience like this, she will slowly become stronger. 
 
 Someties, you will find strange devices that change when you hit them. These 
 are switches that open secret doors and reveal hidden pathways. If you can't 
@@ -97,7 +104,7 @@ visited before.
 To win the game, you must defeat Queen Ikaza and save your beloved. However, 
 the patch to Ikaza is blocked by a dark curse, that is immume to normal swords.
 You must collect three Numen Leaves to gain the power to break the curse. Until 
-that time, stay well away from it, it's touch is lethal!
+that time, stay well away from it, for it's touch is lethal!
 
 Once you find the Numen Shield, you will be immume against enemy projectiles. 
 The Numen Armour reduces damage by half. It is rumoured that there is a 
@@ -107,6 +114,6 @@ There are also rumours of Numen books that teach you mysterious powers.
 It is rumoured that tha Book of Life can fully recover you from the brink of 
 death as long as you have Numen. Furthermore, there is the legendary Book of 
 Striking... If you find it, you will need to switch the left difficulty switch 
-to A to activate it's mysterious powers.
+to A to activate it's mysterious powers, or back to B to disable it.
 
-Good look, and keep your wits with you!
+Good luck, and keep your wits about you!
