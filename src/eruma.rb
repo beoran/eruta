@@ -32,6 +32,8 @@ include Rogaru
 END { SDL.quit() }
 # Ensure return to normal resolution.
 
+
+
 class Eruma
   
 
