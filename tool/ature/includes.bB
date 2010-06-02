@@ -1,12 +1,10 @@
 2600basicheader.asm
-bB.asm
 std_kernel.asm
 startup.asm
 pf_drawing.asm
 pf_scrolling.asm
 std_routines.asm
 std_overscan.asm
-bB2.asm
+bB.asm
 score_graphics.asm
-banksw.asm
 2600basicfooter.asm
