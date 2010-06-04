@@ -3396,7 +3396,7 @@ end
   monster_cannon, monster_cannon, monster_mage, monster_lion,
   monster_scorpio, monster_slime, monster_bat, monster_snake  
   monster_archer, monster_knight, monster_spider, monster_mushroom
-  monster_flower, item_healhp , monster_slime, item_switch3, 
+  monster_flower, item_healhp, monster_slime, item_switch3, 
   monster_scorpio, monster_crab, item_none, monster_fish
   item_shield, monster_crab, monster_scorpio, item_none,
   monster_leaf3_boss, item_switch6, monster_crab, monster_strike_boss
@@ -4568,7 +4568,7 @@ reset_win_end
 
 intro_screen
   gosub music_restart
-  music_which=music_which_victory
+  music_which=music_which_intro
   COLUBK = black
   COLUPF = white
   pfcolors:
