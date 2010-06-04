@@ -305,8 +305,9 @@
   rem 'Timer and pointer for music and sound
   dim music_pointer=m
   dim music_timer=n
+  dim music_which=d
   dim sound_timer=p
-  rem 'Unused variables: a b c d
+  rem 'Unused variables: a b c
   
   rem 'Set back to 1 when not debugging.
   const hero_start_level=20
@@ -368,12 +369,10 @@ end
   rem VOLUME DOWN AND SET CHANNELS
   AUDV0=0
   AUDV1=0
-  AUDC0=music_instrument
+  AUDC0=music_instrument  
 
   rem INITIALIZE POINTERS AND TIMERS
-  music_pointer=0
-  music_timer=0
-
+  
   rem 'lives control
   lifecolor=black
   rem 'Lives are used for the MP
@@ -393,8 +392,9 @@ end
   gosub intro_screen bank5
   goto main_loop_start
 
-main_loop_start
+main_loop_start  
   rem ' Set up initial values.
+  gosub music_restart bank5
   COLUBK = black 
   lifecolor=yellow  
   hero_room=room_start
@@ -425,8 +425,6 @@ main_loop_start
   item_oldy=item_start_x
   missile1x=nowhere
   missile1y=nowhere
-  music_pointer=0
-  music_timer=0
   scorecolor=64
   item_hp=item_start_hp  
   gosub show_inventory
@@ -1201,7 +1199,7 @@ end
 
 
 
-
+#if 0 // we don't need this one 
 music_change_note 
   AUDF0 = music_data[music_pointer]
   AUDC0 = music_instrument
@@ -1211,6 +1209,7 @@ music_change_note
   music_pointer = music_pointer + 1
   if music_pointer > music_notes then music_pointer = 0
   return
+#endif
 
   bank 2
 
@@ -4344,11 +4343,17 @@ end
   goto item_draw_done
   
   bank 5
+  rem ' Bank 5 contains the game over, game win and game intro, screen
+  rem 'as well as a music playing routine for them.
+  
+  #define music_which_intro 0
+  #define music_which_gameover 1
+  #define music_which_victory 2
+
+  
 game_over
-  rem 'Silence
-  AUDC1=0
-  AUDF1=0
-  AUDV1=0
+  gosub music_restart
+  music_which=music_which_gameover
   COLUBK = red
   hero_x=70
   hero_y=80
@@ -4424,18 +4429,20 @@ game_over_loop
   hero_hp = hero_level + hero_base_hp
   hero_next = hero_level
   hero_mp = 0
+  rem ' Restart the game with stats somewhat reduced, 
+  gosub music_restart
   gosub set_mp_display bank1 
   gosub hero_draw_s bank1
   gosub room_draw bank2
   goto main_loop bank1
 reset_go_end
-
+  
   COLUP0=white
   COLUP1=black  
   rem 'Make monster look x3 size, to maintain boss size and suggest something for non bosses.  
   NUSIZ1 = $07
 special_effects_go_end
-    
+  gosub music_play  
   drawscreen
   goto game_over_loop
 
@@ -4448,10 +4455,8 @@ special_effects_go_end
 end
 
 game_win
-  rem 'Silence
-  AUDC1=0
-  AUDF1=0
-  AUDV1=0
+  gosub music_restart
+  music_which=music_which_victory
   COLUBK = white
   COLUPF = yellow
   item_x=80
@@ -4539,6 +4544,7 @@ game_win_loop
   COLUP1 = rand
   COLUP0 = rand
   REFP0 = 8
+  gosub music_play
   drawscreen
   rem 'Go back to house, but level up to 90 if not so already
   if !switchreset then goto reset_win_end
@@ -4561,6 +4567,8 @@ reset_win_end
 
 
 intro_screen
+  gosub music_restart
+  music_which=music_which_victory
   COLUBK = black
   COLUPF = white
   pfcolors:
@@ -4589,14 +4597,129 @@ end
   X..X.X....X..X.X..X.X..X.X..X...
   XXX..XXXX..XX..X..X.X..X.X..X...
 end
-intro_loop
-  COLUBK = black
+ COLUBK = black
+intro_loop  
   rem COLUP1 = rand
   rem COLUP0 = rand
   rem REFP0 = 8
+  gosub music_play
   drawscreen
   if switchreset || joy0fire then return  
   goto intro_loop
+
+
+
+  #define music_volume  4
+  #define note_rest  	0
+  #define music_voice 	4
+  #define music_voice_2	12
+  #define c4 	30
+  #define d4 	27  
+  #define e4 	24
+  #define f4 	23
+  #define g4 	20
+  #define a4 	18
+  #define b4 	16
+  #define c5 	15
+  #define rn  note_rest
+  #define n_1  240
+  #define n0   120
+  #define n1   60
+  #define n2   30
+  #define n3   20
+  #define n4   15
+  #define n6   10
+  #define n8    8
+  
+  
+  
+  
+  #define music_size_victory 48
+  
+  #define music_size_intro 56
+music_notes_intro_p  
+  data music_notes_intro
+  c5, n2, a4, n2, f4, n2, d4, n2, rn, n8
+  c5, n2, a4, n2, f4, n2, d4, n2, rn, n8 
+  c4, n2, f4, n2, g4, n2, d4, n2, rn, n8
+  c4, n2, f4, n2, g4, n2, d4, n2, rn, n8
+  a4, n0, f4, n0, d4, n0, rn, n0
+  f4, n0, a4, n0, c5, n0, rn, n0
+end
+
+  #define music_size_gameover 32
+music_notes_gameover_p
+  data music_notes_gameover  
+  g4, n0, b4, n0, a4, n0, rn, n0  
+  b4, n0, c5, n0, a4, n0, rn, n0
+  c5, n0, g4, n0, a4, n0, rn, n0
+  b4, n0, c5, n0, a4, n0, rn, n0
+end
+
+  #define music_size_victory 32
+music_notes_victory_p
+  data music_notes_victory 
+  c4, n2, e4, n2, g4, n2, c5, n2 
+  g4, n2, e4, n2, c4, n1, rn, n0
+  c4, n2, d4, n2, e4, n4, g4, n2
+  c5, n2, e4, n2, c4, n1, rn, n0
+end
+
+
+  data music_sizes
+  music_size_intro, music_size_gameover, music_size_victory
+end  
+
+
+  rem 'restarts the music  
+music_restart
+  music_timer=1
+  music_pointer=0
+  AUDV0=0
+  AUDV1=0
+  return
+
+music_play
+  rem ' Update music timer and change note if needed
+  rem ' If we get here, the timer is not 0 yet. 
+  rem ' Go on to the next note, and leave it at that   
+  if music_timer = 0 then goto music_do_note_change
+  goto music_no_note_change
+music_do_note_change  
+  gosub music_change_note
+music_no_note_change
+  music_timer = music_timer - 1
+  rem ' COLUBK = music_timer
+  return
+  
+music_change_note  
+  rem ' choose the not from the right music table
+  if music_which = music_which_intro then temp1 = music_notes_intro[music_pointer]
+  if music_which = music_which_gameover then temp1 = music_notes_gameover[music_pointer]
+  if music_which = music_which_victory then temp1 = music_notes_victory[music_pointer]
+  
+  AUDF0 = temp1
+  AUDF1 = temp1
+  AUDC0 = music_voice
+  AUDC1 = music_voice_2
+  if temp1 = note_rest then AUDV0 = 0 else AUDV0 = music_volume
+  if temp1 = note_rest then AUDV1 = 0 else AUDV1 = music_volume
+  music_pointer = music_pointer + 1  
+  rem ' Get right timig for note from right music
+  if music_which = music_which_intro then music_timer = music_notes_intro[music_pointer]
+  if music_which = music_which_gameover then music_timer = music_notes_gameover[music_pointer]
+  if music_which = music_which_victory then music_timer = music_notes_victory[music_pointer]
+  
+  
+  music_pointer = music_pointer + 1
+  temp3 = music_sizes[music_which]
+  if music_which = music_which_intro then temp3 = music_size_intro
+  if music_which = music_which_gameover then temp3 = music_size_gameover
+  if music_which = music_which_victory then temp3 = music_size_victory  
+  if music_pointer >= temp3 then music_pointer = 0
+
+  return
+
 
   
   bank 6
