@@ -1,28 +1,28 @@
 ; This file contains variable mapping and other information for the current project.
 
-music_data_length = .skipL01455-music_data 
+music_data_length = .skipL01473-music_data 
  
-item_ylist_length = .skipL01203-item_ylist 
+item_ylist_length = .skipL01221-item_ylist 
  
-item_xlist_length = .skipL01202-item_xlist 
+item_xlist_length = .skipL01220-item_xlist 
  
 vc = 49
  
 hc = 73
  
-item_hplist_length = .skipL01198-item_hplist 
+item_hplist_length = .skipL01216-item_hplist 
  
-room_items_length = .skipL01197-room_items 
+room_items_length = .skipL01215-room_items 
  
 PFcolors = 1
 bscode_length = 32
-monster_drops_length = .skipL0281-monster_drops 
+monster_drops_length = .skipL0294-monster_drops 
  
-monster_info_length = .skipL0279-monster_info 
+monster_info_length = .skipL0292-monster_info 
  
-item_damage_length = .skipL0276-item_damage 
+item_damage_length = .skipL0289-item_damage 
  
-item_colors_length = .skipL0272-item_colors 
+item_colors_length = .skipL0285-item_colors 
  
 hero_start_items = 
  
@@ -308,49 +308,15 @@ field_left_enter = 18
  
 field_left = 17
  
-note_ndot = 2
- 
-note_quarterest = 13
- 
-note_halfrest = 28
- 
-note_fullrest = 58
- 
-note_quarter = 15
- 
-note_half = 30
- 
-note_full = 60
- 
-note_none = 0
- 
-note_c5 = 15
- 
-note_b4 = 16
- 
-note_a4 = 18
- 
-note_g4 = 20
- 
-note_f4 = 23
- 
-note_e4 = 24
- 
-note_d4 = 27
- 
-note_c4 = 30
+turfy = 218
  
 sand = 230
  
 skin = 254
  
-oldskin = 30
- 
 pink = 78
  
 red = 64
- 
-lightgreen = 200
  
 seablue = 144
  
@@ -367,8 +333,6 @@ blue = 144
 orange = 32
  
 brown = 32
- 
-ochre = 16
  
 yellow = 30
  

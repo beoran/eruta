@@ -251,7 +251,7 @@ puts GL_MAX_TEXTURE_SIZE
 
 @objectsToDraw = PictureCollection.new
 pos = 0
-dirname = "/home/bjorn/eruta/share/image/tile"
+dirname = "/home/bjmey/eruta/share/image/tile"
 d = Dir.new(dirname)
 d.each do |path|
   if File.extname(path) == ".png"
