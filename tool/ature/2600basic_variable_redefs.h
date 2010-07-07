@@ -1,5 +1,6 @@
 ; This file contains variable mapping and other information for the current project.
 
+<<<<<<< HEAD
 music_data_length = .skipL01473-music_data 
  
 item_ylist_length = .skipL01221-item_ylist 
@@ -27,11 +28,19 @@ item_colors_length = .skipL0285-item_colors
 hero_start_items = 
  
 hero_start_level = 20
+=======
+musinum_notes_penta_length = .skipL030-musinum_notes_penta 
+ 
+musinum_notes_length = .skipL029-musinum_notes 
+ 
+music_last = z
+>>>>>>> 834128c02f53240b1f3c8fa0669a9ddce9c15069
  
 sound_timer = p
  
 music_timer = n
  
+<<<<<<< HEAD
 music_pointer = m
  
 music_notes = 69
@@ -341,8 +350,7 @@ white = 14
 gray = 6
  
 black = 0
+=======
+music_counter = m
+>>>>>>> 834128c02f53240b1f3c8fa0669a9ddce9c15069
  
-bs_mask = 7
-bankswitch = 32
-bankswitch_hotspot = $1FF4
-PFcolors = 1
