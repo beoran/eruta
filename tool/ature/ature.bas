@@ -102,6 +102,7 @@
   rem 'Initial values
   rem 'Normal start
   const room_start=49
+  rem '49
   rem 'On the east side of the river
   rem 'const room_start=4
   
@@ -319,7 +320,7 @@
   black, green, red,  blue,  black, green, red,  blue,
   black, green, red,  blue,  black, green, red,  blue,
   black, green, red,  blue,  black, green, red,  blue,
-  black, black, red,  red,  black, skin, red,  blue,
+  black, black, red,  red,  black, orange, red,  blue,
   black, green, red,  blue,  black, green, red,  blue,
   red  , green, red, green,  black, green, red,  blue,
   white, yellow, orange, black, green, red,  blue, white, 
@@ -523,12 +524,18 @@ monster_collide
   AUDV1=14  
   
   rem 'Push back the hero, but only if the playfield is free behind her.
+  rem 'Also don't push back if too close to the edge of the screen.
+  
 
   if !hero_flags{0} then goto hero_hit_north_end  
   temp1 = (hero_x + hero_half_wide - 17) / 4
   temp2 = (hero_y + 8 - 1) / 8
   if pfread(temp1, temp2) goto hero_hit_north_end
   hero_y = hero_y + 8
+  rem 'Still inside the screen?  
+  if hero_y < field_bottom then goto hero_hit_north_end
+  rem 'if we get here, we'd be pushed out of the screen. Prevent this.
+  hero_y = field_bottom_enter  
 hero_hit_north_end
 
   if !hero_flags{1} then goto hero_hit_east_end 
@@ -536,6 +543,10 @@ hero_hit_north_end
   temp2 = (hero_y - hero_half_high - 1) / 8 
   if pfread(temp1, temp2) goto hero_hit_east_end
   hero_x = hero_x - 8
+  rem 'Still inside the screen?  
+  if field_left < hero_x then goto hero_hit_east_end
+  rem 'if we get here, we'd be pushed out of the screen. Prevent this.
+  hero_x = field_left_enter  
 hero_hit_east_end
 
   if !hero_flags{2} then goto hero_hit_south_end  
@@ -543,6 +554,9 @@ hero_hit_east_end
   temp1 = (hero_x + hero_half_wide - 17) / 4
   temp2 = (hero_y - hero_high - 8 - 1) / 8
   hero_y = hero_y - 8
+  if hero_y > field_top then goto hero_hit_south_end
+  rem 'if we get here, we'd be pushed out of the screen. Prevent this.
+  hero_y = field_top_enter  
 hero_hit_south_end
 
   if !hero_flags{3} then goto hero_hit_west_end  
@@ -550,6 +564,10 @@ hero_hit_south_end
   temp2 = (hero_y - hero_half_high - 1) / 8
   if pfread(temp1, temp2) then goto hero_hit_west_end
   hero_x = hero_x + 8
+  rem 'Still inside the screen?  
+  if hero_x < field_right then goto hero_hit_west_end
+  rem 'if we get here, we'd be pushed out of the screen. Prevent this.
+  hero_x = field_right_enter  
 hero_hit_west_end
 
   temp1 = item_kind & item_kind_mask
@@ -2625,7 +2643,7 @@ end
   ....XXX............X............
   ....XXXX..........XXX...........
   ...XXXXX.........XXXXX..........
-  .....X.............X............
+  .....X.............X..........XX
   ..............................XX
 end
   goto room_draw_end bank2
@@ -4647,13 +4665,11 @@ music_notes_intro_p
   f4, n0, a4, n0, c5, n0, rn, n0
 end
 
-  #define music_size_gameover 32
+  #define music_size_gameover 20
 music_notes_gameover_p
   data music_notes_gameover  
-  g4, n0, b4, n0, a4, n0, rn, n0  
-  b4, n0, c5, n0, a4, n0, rn, n0
-  c5, n0, g4, n0, a4, n0, rn, n0
-  b4, n0, c5, n0, a4, n0, rn, n0
+  e4, n0, a4, n0, g4, n0, e4, n0, rn, n0  
+  a4, n0, b4, n0, g4, n0, a4, n0, rn, n0
 end
 
   #define music_size_victory 32
