@@ -15,7 +15,7 @@ palette = Palette.new
 palette << Rgb.new(255,0  ,0  )
 palette << Rgb.new(0  ,255,0  )
 palette << Rgb.new(0  ,0  ,255)
-paledit = Paledit.new
+paledit = Paledit.new(palette)
 imap    = Indexmap.new(40, 40, palette)
 imap.fill(1)
 app     = Tispred.new 

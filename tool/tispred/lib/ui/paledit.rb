@@ -55,13 +55,8 @@ class Paledit < Slide::Frame
     @colorpanel.layout= @colorlayout
     
     
-    @mainpanel.add      @editpanel
-    
-    
-    
-    
-    
-    self.add mainpanel
+    @mainpanel.add      @editpanel    
+    self.add @mainpanel
     
     # @chooser = Slide::Colorchooser.new
     # self.add @chooser
