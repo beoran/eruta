@@ -413,7 +413,7 @@ main_loop_start
   hero_flags = 0
   item_flags = 0
   game_timer = 0
-  item_kind=item_none
+  item_kind = item_none
   hero_items = hero_start_items
   rem 'Player starts facing south, able to attack
   hero_flags{2} = 1
@@ -4575,6 +4575,14 @@ game_win_loop
   if hero_level < 90 then hero_level = hero_level + 3
   hero_hp = hero_level * 2 + hero_base_hp
   hero_mp = hero_level / 16 + 1
+  rem 'If the player collected all items, give them a new game plus.
+  if hero_items <> 255 goto no_new_game_plus
+  if hero_level < 90 then hero_level = 90
+  rem 'Take away all items again, and reset the quest flags so the 
+  rem 'player can play again.  
+  quest_flags = 0
+  hero_items  = 0  
+no_new_game_plus  
   gosub music_restart
   gosub room_draw bank2
   gosub hero_draw_s bank1

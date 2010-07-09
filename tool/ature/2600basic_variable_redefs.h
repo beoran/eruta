@@ -1,12 +1,12 @@
 ; This file contains variable mapping and other information for the current project.
 
-music_sizes_length = .skipL01532-music_sizes 
+music_sizes_length = .skipL01539-music_sizes 
  
-music_notes_victory_length = .skipL01531-music_notes_victory 
+music_notes_victory_length = .skipL01538-music_notes_victory 
  
-music_notes_gameover_length = .skipL01530-music_notes_gameover 
+music_notes_gameover_length = .skipL01537-music_notes_gameover 
  
-music_notes_intro_length = .skipL01529-music_notes_intro 
+music_notes_intro_length = .skipL01536-music_notes_intro 
  
 music_data_length = .skipL01483-music_data 
  

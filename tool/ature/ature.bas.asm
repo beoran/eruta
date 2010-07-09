@@ -980,7 +980,7 @@ ret_point2
 
 	LDA #0
 	STA game_timer
-.L0329 ;  item_kind = item_none
+.L0329 ;  item_kind  =  item_none
 
 	LDA #item_none
 	STA item_kind
@@ -11187,13 +11187,15 @@ ret_point29
 
 	LDA #hero_start_x
 	STA hero_oldy
-.L01506 ;  if hero_level  <  90 then hero_level  =  90
+.L01506 ;  if hero_level  <  90 then hero_level  =  hero_level  +  3
 
 	LDA hero_level
 	CMP #90
      BCS .skipL01506
 .condpart206
-	LDA #90
+	LDA hero_level
+	CLC
+	ADC #3
 	STA hero_level
 .skipL01506
 .L01507 ;  hero_hp  =  hero_level  *  2  +  hero_base_hp
@@ -11215,11 +11217,48 @@ ret_point29
 	CLC
 	ADC #1
 	STA hero_mp
-.L01509 ;  gosub music_restart
+.L01509 ;  rem 'If the player collected all items, give them a new game plus.
+
+.L01510 ;  if hero_items  <>  255 goto no_new_game_plus
+
+	LDA hero_items
+	CMP #255
+ if ((* - .no_new_game_plus) < 127) && ((* - .no_new_game_plus) > -128)
+	BNE .no_new_game_plus
+ else
+	beq .16skipno_new_game_plus
+	jmp .no_new_game_plus
+.16skipno_new_game_plus
+ endif
+.L01511 ;  if hero_level  <  90 then hero_level  =  90
+
+	LDA hero_level
+	CMP #90
+     BCS .skipL01511
+.condpart207
+	LDA #90
+	STA hero_level
+.skipL01511
+.L01512 ;  rem 'Take away all items again, and reset the quest flags so the 
+
+.L01513 ;  rem 'player can play again.  
+
+.L01514 ;  quest_flags  =  0
+
+	LDA #0
+	STA quest_flags
+.L01515 ;  hero_items  =  0
+
+	LDA #0
+	STA hero_items
+.no_new_game_plus
+ ; no_new_game_plus
+
+.L01516 ;  gosub music_restart
 
  jsr .music_restart
 
-.L01510 ;  gosub room_draw bank2
+.L01517 ;  gosub room_draw bank2
 
  sta temp7
  lda #>(ret_point30-1)
@@ -11237,7 +11276,7 @@ ret_point29
  ldx #2
  jmp BS_jsr
 ret_point30
-.L01511 ;  gosub hero_draw_s bank1
+.L01518 ;  gosub hero_draw_s bank1
 
  sta temp7
  lda #>(ret_point31-1)
@@ -11255,7 +11294,7 @@ ret_point30
  ldx #1
  jmp BS_jsr
 ret_point31
-.L01512 ;  gosub room_draw bank2
+.L01519 ;  gosub room_draw bank2
 
  sta temp7
  lda #>(ret_point32-1)
@@ -11273,7 +11312,7 @@ ret_point31
  ldx #2
  jmp BS_jsr
 ret_point32
-.L01513 ;  goto main_loop bank1
+.L01520 ;  goto main_loop bank1
 
  sta temp7
  lda #>(.main_loop-1)
@@ -11289,30 +11328,30 @@ ret_point32
 .reset_win_end
  ; reset_win_end
 
-.L01514 ;  goto game_win_loop
+.L01521 ;  goto game_win_loop
 
  jmp .game_win_loop
 
 .intro_screen
  ; intro_screen
 
-.L01515 ;  gosub music_restart
+.L01522 ;  gosub music_restart
 
  jsr .music_restart
 
-.L01516 ;  music_which = 0
+.L01523 ;  music_which = 0
 
 	LDA #0
 	STA music_which
-.L01517 ;  COLUBK  =  black
+.L01524 ;  COLUBK  =  black
 
 	LDA black
 	STA COLUBK
-.L01518 ;  COLUPF  =  white
+.L01525 ;  COLUPF  =  white
 
 	LDA white
 	STA COLUPF
-.L01519 ;  pfcolors:
+.L01526 ;  pfcolors:
 
  lda # yellow
  sta COLUPF
@@ -11320,7 +11359,7 @@ ret_point32
  sta pfcolortable+1
  lda #<(pfcolorlabel1303-84)
  sta pfcolortable
-.L01520 ;  playfield:
+.L01527 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -11345,24 +11384,24 @@ pflabel75
 	sta playfield,x
 	dex
 	bpl pflabel75
-.L01521 ;  COLUBK  =  black
+.L01528 ;  COLUBK  =  black
 
 	LDA black
 	STA COLUBK
 .intro_loop
  ; intro_loop
 
-.L01522 ;  rem COLUP1 = rand
+.L01529 ;  rem COLUP1 = rand
 
-.L01523 ;  rem COLUP0 = rand
+.L01530 ;  rem COLUP0 = rand
 
-.L01524 ;  rem REFP0 = 8
+.L01531 ;  rem REFP0 = 8
 
-.L01525 ;  gosub music_play
+.L01532 ;  gosub music_play
 
  jsr .music_play
 
-.L01526 ;  drawscreen
+.L01533 ;  drawscreen
 
  sta temp7
  lda #>(ret_point33-1)
@@ -11380,18 +11419,18 @@ pflabel75
  ldx #8
  jmp BS_jsr
 ret_point33
-.L01527 ;  if switchreset  ||  joy0fire then return
+.L01534 ;  if switchreset  ||  joy0fire then return
 
  lda #1
  bit SWCHB
-	BNE .skipL01527
-.condpart207
- jmp .condpart208
-.skipL01527
+	BNE .skipL01534
+.condpart208
+ jmp .condpart209
+.skipL01534
  lda #$80
  bit INPT4
 	BNE .skip24OR
-.condpart208
+.condpart209
 	tsx
 	lda 2,x ; check return address
 	eor #(>*) ; vs. current PCH
@@ -11400,16 +11439,16 @@ ret_point33
 	JMP BS_return
 	RTS
 .skip24OR
-.L01528 ;  goto intro_loop
+.L01535 ;  goto intro_loop
 
  jmp .intro_loop
 
 .music_notes_intro_p
  ; music_notes_intro_p
 
-.L01529 ;  data music_notes_intro
+.L01536 ;  data music_notes_intro
 
-	JMP .skipL01529
+	JMP .skipL01536
 music_notes_intro
 	.byte   15, 30, 18, 30, 23, 30, 27, 30, 0, 8
 
@@ -11423,25 +11462,25 @@ music_notes_intro
 
 	.byte   23, 120, 18, 120, 15, 120, 0, 120
 
-.skipL01529
+.skipL01536
 .music_notes_gameover_p
  ; music_notes_gameover_p
 
-.L01530 ;  data music_notes_gameover
+.L01537 ;  data music_notes_gameover
 
-	JMP .skipL01530
+	JMP .skipL01537
 music_notes_gameover
 	.byte   24, 120, 18, 120, 20, 120, 24, 120, 0, 120
 
 	.byte   18, 120, 16, 120, 20, 120, 18, 120, 0, 120
 
-.skipL01530
+.skipL01537
 .music_notes_victory_p
  ; music_notes_victory_p
 
-.L01531 ;  data music_notes_victory
+.L01538 ;  data music_notes_victory
 
-	JMP .skipL01531
+	JMP .skipL01538
 music_notes_victory
 	.byte   30, 30, 24, 30, 20, 30, 15, 30
 
@@ -11451,36 +11490,36 @@ music_notes_victory
 
 	.byte   15, 30, 24, 30, 30, 60, 0, 120
 
-.skipL01531
-.L01532 ;  data music_sizes
+.skipL01538
+.L01539 ;  data music_sizes
 
-	JMP .skipL01532
+	JMP .skipL01539
 music_sizes
 	.byte   56, 20, 32
 
-.skipL01532
-.L01533 ;  rem 'restarts the music  
+.skipL01539
+.L01540 ;  rem 'restarts the music  
 
 .music_restart
  ; music_restart
 
-.L01534 ;  music_timer = 1
+.L01541 ;  music_timer = 1
 
 	LDA #1
 	STA music_timer
-.L01535 ;  music_pointer = 0
+.L01542 ;  music_pointer = 0
 
 	LDA #0
 	STA music_pointer
-.L01536 ;  AUDV0 = 0
+.L01543 ;  AUDV0 = 0
 
 	LDA #0
 	STA AUDV0
-.L01537 ;  AUDV1 = 0
+.L01544 ;  AUDV1 = 0
 
 	LDA #0
 	STA AUDV1
-.L01538 ;  return
+.L01545 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -11492,41 +11531,41 @@ music_sizes
 .music_play
  ; music_play
 
-.L01539 ;  rem ' Update music timer and change note if needed
+.L01546 ;  rem ' Update music timer and change note if needed
 
-.L01540 ;  rem ' If we get here, the timer is not 0 yet. 
+.L01547 ;  rem ' If we get here, the timer is not 0 yet. 
 
-.L01541 ;  rem ' Go on to the next note, and leave it at that   
+.L01548 ;  rem ' Go on to the next note, and leave it at that   
 
-.L01542 ;  if music_timer  =  0 then goto music_do_note_change
+.L01549 ;  if music_timer  =  0 then goto music_do_note_change
 
 	LDA music_timer
 	CMP #0
-     BNE .skipL01542
-.condpart209
+     BNE .skipL01549
+.condpart210
  jmp .music_do_note_change
 
-.skipL01542
-.L01543 ;  goto music_no_note_change
+.skipL01549
+.L01550 ;  goto music_no_note_change
 
  jmp .music_no_note_change
 
 .music_do_note_change
  ; music_do_note_change
 
-.L01544 ;  gosub music_change_note
+.L01551 ;  gosub music_change_note
 
  jsr .music_change_note
 
 .music_no_note_change
  ; music_no_note_change
 
-.L01545 ;  music_timer  =  music_timer  -  1
+.L01552 ;  music_timer  =  music_timer  -  1
 
 	DEC music_timer
-.L01546 ;  rem ' COLUBK = music_timer
+.L01553 ;  rem ' COLUBK = music_timer
 
-.L01547 ;  return
+.L01554 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -11538,160 +11577,160 @@ music_sizes
 .music_change_note
  ; music_change_note
 
-.L01548 ;  rem ' choose the not from the right music table
+.L01555 ;  rem ' choose the not from the right music table
 
-.L01549 ;  if music_which  =  0 then temp1  =  music_notes_intro[music_pointer]
+.L01556 ;  if music_which  =  0 then temp1  =  music_notes_intro[music_pointer]
 
 	LDA music_which
 	CMP #0
-     BNE .skipL01549
-.condpart210
+     BNE .skipL01556
+.condpart211
 	LDX music_pointer
 	LDA music_notes_intro,x
 	STA temp1
-.skipL01549
-.L01550 ;  if music_which  =  1 then temp1  =  music_notes_gameover[music_pointer]
+.skipL01556
+.L01557 ;  if music_which  =  1 then temp1  =  music_notes_gameover[music_pointer]
 
 	LDA music_which
 	CMP #1
-     BNE .skipL01550
-.condpart211
+     BNE .skipL01557
+.condpart212
 	LDX music_pointer
 	LDA music_notes_gameover,x
 	STA temp1
-.skipL01550
-.L01551 ;  if music_which  =  2 then temp1  =  music_notes_victory[music_pointer]
+.skipL01557
+.L01558 ;  if music_which  =  2 then temp1  =  music_notes_victory[music_pointer]
 
 	LDA music_which
 	CMP #2
-     BNE .skipL01551
-.condpart212
+     BNE .skipL01558
+.condpart213
 	LDX music_pointer
 	LDA music_notes_victory,x
 	STA temp1
-.skipL01551
-.L01552 ;  AUDF0  =  temp1
+.skipL01558
+.L01559 ;  AUDF0  =  temp1
 
 	LDA temp1
 	STA AUDF0
-.L01553 ;  AUDF1  =  temp1
+.L01560 ;  AUDF1  =  temp1
 
 	LDA temp1
 	STA AUDF1
-.L01554 ;  AUDC0  =  4
+.L01561 ;  AUDC0  =  4
 
 	LDA #4
 	STA AUDC0
-.L01555 ;  AUDC1  =  12
+.L01562 ;  AUDC1  =  12
 
 	LDA #12
 	STA AUDC1
-.L01556 ;  if temp1  =  0 then AUDV0  =  0 else AUDV0  =  4
+.L01563 ;  if temp1  =  0 then AUDV0  =  0 else AUDV0  =  4
 
 	LDA temp1
 	CMP #0
-     BNE .skipL01556
-.condpart213
+     BNE .skipL01563
+.condpart214
 	LDA #0
 	STA AUDV0
  jmp .skipelse5
-.skipL01556
+.skipL01563
 	LDA #4
 	STA AUDV0
 .skipelse5
-.L01557 ;  if temp1  =  0 then AUDV1  =  0 else AUDV1  =  4
+.L01564 ;  if temp1  =  0 then AUDV1  =  0 else AUDV1  =  4
 
 	LDA temp1
 	CMP #0
-     BNE .skipL01557
-.condpart214
+     BNE .skipL01564
+.condpart215
 	LDA #0
 	STA AUDV1
  jmp .skipelse6
-.skipL01557
+.skipL01564
 	LDA #4
 	STA AUDV1
 .skipelse6
-.L01558 ;  music_pointer  =  music_pointer  +  1
+.L01565 ;  music_pointer  =  music_pointer  +  1
 
 	INC music_pointer
-.L01559 ;  rem ' Get right timig for note from right music
+.L01566 ;  rem ' Get right timig for note from right music
 
-.L01560 ;  if music_which  =  0 then music_timer  =  music_notes_intro[music_pointer]
+.L01567 ;  if music_which  =  0 then music_timer  =  music_notes_intro[music_pointer]
 
 	LDA music_which
 	CMP #0
-     BNE .skipL01560
-.condpart215
+     BNE .skipL01567
+.condpart216
 	LDX music_pointer
 	LDA music_notes_intro,x
 	STA music_timer
-.skipL01560
-.L01561 ;  if music_which  =  1 then music_timer  =  music_notes_gameover[music_pointer]
+.skipL01567
+.L01568 ;  if music_which  =  1 then music_timer  =  music_notes_gameover[music_pointer]
 
 	LDA music_which
 	CMP #1
-     BNE .skipL01561
-.condpart216
+     BNE .skipL01568
+.condpart217
 	LDX music_pointer
 	LDA music_notes_gameover,x
 	STA music_timer
-.skipL01561
-.L01562 ;  if music_which  =  2 then music_timer  =  music_notes_victory[music_pointer]
+.skipL01568
+.L01569 ;  if music_which  =  2 then music_timer  =  music_notes_victory[music_pointer]
 
 	LDA music_which
 	CMP #2
-     BNE .skipL01562
-.condpart217
+     BNE .skipL01569
+.condpart218
 	LDX music_pointer
 	LDA music_notes_victory,x
 	STA music_timer
-.skipL01562
-.L01563 ;  music_pointer  =  music_pointer  +  1
+.skipL01569
+.L01570 ;  music_pointer  =  music_pointer  +  1
 
 	INC music_pointer
-.L01564 ;  temp3  =  music_sizes[music_which]
+.L01571 ;  temp3  =  music_sizes[music_which]
 
 	LDX music_which
 	LDA music_sizes,x
 	STA temp3
-.L01565 ;  if music_which  =  0 then temp3  =  56
+.L01572 ;  if music_which  =  0 then temp3  =  56
 
 	LDA music_which
 	CMP #0
-     BNE .skipL01565
-.condpart218
+     BNE .skipL01572
+.condpart219
 	LDA #56
 	STA temp3
-.skipL01565
-.L01566 ;  if music_which  =  1 then temp3  =  20
+.skipL01572
+.L01573 ;  if music_which  =  1 then temp3  =  20
 
 	LDA music_which
 	CMP #1
-     BNE .skipL01566
-.condpart219
+     BNE .skipL01573
+.condpart220
 	LDA #20
 	STA temp3
-.skipL01566
-.L01567 ;  if music_which  =  2 then temp3  =  32
+.skipL01573
+.L01574 ;  if music_which  =  2 then temp3  =  32
 
 	LDA music_which
 	CMP #2
-     BNE .skipL01567
-.condpart220
+     BNE .skipL01574
+.condpart221
 	LDA #32
 	STA temp3
-.skipL01567
-.L01568 ;  if music_pointer  >=  temp3 then music_pointer  =  0
+.skipL01574
+.L01575 ;  if music_pointer  >=  temp3 then music_pointer  =  0
 
 	LDA music_pointer
 	CMP temp3
-     BCC .skipL01568
-.condpart221
+     BCC .skipL01575
+.condpart222
 	LDA #0
 	STA music_pointer
-.skipL01568
-.L01569 ;  return
+.skipL01575
+.L01576 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -11700,7 +11739,7 @@ music_sizes
 	beq *+5 ; if equal, do normal return
 	JMP BS_return
 	RTS
-.L01570 ;  bank 6
+.L01577 ;  bank 6
 
  echo "    ",[(start_bank5 - *)]d , "bytes of ROM space left in bank 5")
  ORG $5FF4-bscode_length
@@ -11738,7 +11777,7 @@ start_bank5 ldx #$ff
  .word start_bank5
  ORG $6000
  RORG $B000
-.L01571 ;  bank 7
+.L01578 ;  bank 7
 
  echo "    ",[(start_bank6 - *)]d , "bytes of ROM space left in bank 6")
  ORG $6FF4-bscode_length
@@ -11776,7 +11815,7 @@ start_bank6 ldx #$ff
  .word start_bank6
  ORG $7000
  RORG $D000
-.L01572 ;  bank 8
+.L01579 ;  bank 8
 
  echo "    ",[(start_bank7 - *)]d , "bytes of ROM space left in bank 7")
  ORG $7FF4-bscode_length
@@ -13303,7 +13342,7 @@ scorepointerset
  rts
 ;bB.asm
 ; bB.asm file is split here
-.L01573 ;  inline 6lives_statusbar.asm
+.L01580 ;  inline 6lives_statusbar.asm
 
  include 6lives_statusbar.asm
 

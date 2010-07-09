@@ -1,5 +1,6 @@
 #!/usr/local/bin/ruby1.9
-
+# This is a Ruby script that generates a map in text format from the  
+# ature.bas sources.
 
 map       = []
 index     = nil
