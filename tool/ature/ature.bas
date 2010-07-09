@@ -4572,17 +4572,21 @@ game_win_loop
   hero_oldx=hero_start_x
   hero_y=hero_start_y
   hero_oldy=hero_start_x
-  if hero_level < 90 then hero_level = hero_level + 3
-  hero_hp = hero_level * 2 + hero_base_hp
-  hero_mp = hero_level / 16 + 1
   rem 'If the player collected all items, give them a new game plus.
   if hero_items <> 255 goto no_new_game_plus
   if hero_level < 90 then hero_level = 90
   rem 'Take away all items again, and reset the quest flags so the 
   rem 'player can play again.  
   quest_flags = 0
-  hero_items  = 0  
-no_new_game_plus  
+  hero_items  = 0
+  goto new_game_plus_end  
+no_new_game_plus
+  rem 'When no new game plus, just level up 3 levels
+  if hero_level < 90 then hero_level = hero_level + 3
+new_game_plus_end
+  rem 'In any case recalculate hp and mp.
+  hero_hp = hero_level * 2 + hero_base_hp
+  hero_mp = hero_level / 16 + 1  
   gosub music_restart
   gosub room_draw bank2
   gosub hero_draw_s bank1
