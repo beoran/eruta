@@ -20,353 +20,131 @@
    ORG $F000
  endif
 game
+.
+ ; 
+
+.
+ ; 
+
 .L00 ;  rem ' Ature Adventure
 
-.L01 ;  rem ' Copyright beoran@rubyforge.org 2009.
+.L01 ;  rem ' Copyright beoran@rubyforge.org 2009, 2010.
 
-.L02 ;  rem ' May be distributed under the Zlib License.
+.L02 ;  rem ' May be distributed under the Zlib License. No warranty, use at your own risk.
 
 .L03 ;  rem ' You will need to modify Batari Basic from sources to compile this program
 
-.L04 ;  rem ' I'm using much more constants than Batari Basic supports normally.
+.L04 ;  rem ' You'll also need to pull it through a C preprocessor like cpp -P
 
-.L05 ;  rem ' It's much easier to understand what's going on if I use constants galore.
+.L05 ;  rem ' Because I'm using much more constants than Batari Basic supports normally.
 
-.L06 ;  rem ' Note: I only use integer math, for speed.
+.L06 ;  rem ' And I use the C preprocessor as a workaround to Batari Basic's
 
-.L07 ;  rem ' To do: More enemies, fill in map. Perhaps use underground areas as well.
+.L07 ;  rem ' bugs with regards to constant definition
 
-.L08 ;  rem ' To do: Set quest flags when killing bosses so they don't return.
+.L08 ;  rem ' It's much easier to understand what's going on if I use constants galore.
 
-.L09 ;  rem ' We use playfield colors, 32K and smart branching.
+.L09 ;  rem ' Note: I only use integer math, for speed.
 
-.L010 ;  set kernel_options pfcolors
+.L010 ;  rem ' To Do: Fix some weirdness in the color handling. 
 
-.L011 ;  set romsize 32k
+.L011 ;  rem ' To Do: Fix sound effects and music. 
 
-.L012 ;  set smartbranching on
+.L012 ;  rem ' To Do: Make the game bigger. Perhaps add a few more areas?
 
-.L013 ;  rem 'Cycle debugging
+.L013 ;  rem ' We use playfield colors, 32K and smart branching.
 
-.L014 ;  rem set debug cycles
+.L014 ;  set kernel_options pfcolors
 
-.L015 ;  rem set debug cyclescore
+.L015 ;  set romsize 32k
 
-.L016 ;  rem dim mincycles = z
+.L016 ;  set smartbranching on
 
-.L017 ;  rem mincycles=255
+.L017 ;  rem ' Cycle debugging
 
-.
- ; 
+.L018 ;  rem ' set debug cycles
 
-.L018 ;  rem 'Constant definitions
+.L019 ;  rem ' set debug cyclescore
 
-.L019 ;  rem 'Commonly used NTSC Colors
-
-.L020 ;  rem 'const pfres=12
-
-.L021 ;  rem 'const pfrowheight=6
-
-.L022 ;  const black = 0
-
-.L023 ;  const gray = 6
-
-.L024 ;  const white = 14
-
-.L025 ;  const yellow = 30
-
-.L026 ;  const ochre = 16
-
-.L027 ;  const brown = 32
-
-.L028 ;  const orange = 32
-
-.L029 ;  const blue = 144
-
-.L030 ;  const skyblue = 174
-
-.L031 ;  const green = 192
-
-.L032 ;  const darkgreen = 191
-
-.L033 ;  const riverblue = 170
-
-.L034 ;  const seablue = 144
-
-.L035 ;  const lightgreen = 200
-
-.L036 ;  const red = 64
-
-.L037 ;  const pink = 78
-
-.L038 ;  const oldskin = 30
-
-.L039 ;  const skin = 254
-
-.L040 ;  const sand = 230
+.L020 ;  rem ' dim mincycles=z
 
 .
  ; 
 
-.
- ; 
-
-.L041 ;  rem ' Note definitions and length const music_voice=12
-
-.L042 ;  const note_c4 = 30
-
-.L043 ;  const note_d4 = 27
-
-.L044 ;  const note_e4 = 24
-
-.L045 ;  const note_f4 = 23
-
-.L046 ;  const note_g4 = 20
-
-.L047 ;  const note_a4 = 18
-
-.L048 ;  const note_b4 = 16
-
-.L049 ;  const note_c5 = 15
-
-.L050 ;  const note_none = 0
-
-.L051 ;  const note_full = 60
-
-.L052 ;  const note_half = 30
-
-.L053 ;  const note_quarter = 15
-
-.L054 ;  const note_fullrest = 58
-
-.L055 ;  const note_halfrest = 28
-
-.L056 ;  const note_quarterest = 13
-
-.L057 ;  const note_ndot = 2
+.L021 ;  rem ' mincycles=255
 
 .
  ; 
 
-.L058 ;  rem 'Playfield dimensions
-
-.L059 ;  const field_left = 17
-
-.L060 ;  const field_left_enter = 18
-
-.L061 ;  const field_right = $88
-
-.L062 ;  const field_right_enter = $87
-
-.L063 ;  const field_top = 10
-
-.L064 ;  const field_top_enter = 11
-
-.L065 ;  const field_bottom = 90
-
-.L066 ;  const field_bottom_enter = 89
-
-.L067 ;  const field_hcenter = 61
-
-.L068 ;  const field_vcenter = 44
+.L022 ;  rem 'Constant definitions
 
 .
  ; 
 
-.L069 ;  rem ' An object will be positioned at 255 to hide it
+.L023 ;  rem 'const pfres=12
 
-.L070 ;  const nowhere = 255
-
-.
- ; 
-
-.L071 ;  rem 'Timer ticks per second, 60 for NTSC
-
-.L072 ;  const ticks_per_second = 60
+.L024 ;  rem 'const pfrowheight=8
 
 .
  ; 
 
-.L073 ;  rem 'Score, split up in individual digits
+.L025 ;  rem 'Commonly used NTSC Colors
 
-.L074 ;  dim sc0 = score
+.L026 ;  const black = 0
 
-.L075 ;  dim sc1 = score + 1
+.L027 ;  const gray = 6
 
-.L076 ;  dim sc2 = score + 2
+.L028 ;  const white = 14
 
-.
- ; 
-
-.L077 ;  rem 'Initial values
-
-.L078 ;  rem 'Normal start
-
-.L079 ;  const room_start = 49
-
-.L080 ;  rem 'On the east side of the river
-
-.L081 ;  rem 'const room_start=4
+.L029 ;  const yellow = 30
 
 .
  ; 
 
-.L082 ;  const hero_start_x = 75
+.L030 ;  const brown = 32
 
-.L083 ;  const hero_start_y = 75
+.L031 ;  const orange = 32
 
-.L084 ;  const item_start_x = 60
+.L032 ;  const blue = 144
 
-.L085 ;  const item_start_y = 40
+.L033 ;  const skyblue = 174
 
-.L086 ;  const item_start_hp = 1
+.L034 ;  const green = 192
 
-.L087 ;  const hero_base_hp = 11
+.L035 ;  const darkgreen = 191
 
-.L088 ;  const hero_high = 8
+.L036 ;  const riverblue = 170
 
-.L089 ;  const hero_half_high = 4
+.L037 ;  rem ' XXX: there is a bug in the ompiler (or my patches to it) 
 
-.L090 ;  const hero_feet_high = 4
+.L038 ;  rem ' some of my consants like the one below are translated in stead 
 
-.L091 ;  const hero_wide = 8
+.L039 ;  rem ' like a dim statement: eg  const turfy=218 -> dim   turfy=218
 
-.L092 ;  const hero_half_wide = 4
+.L040 ;  rem ' a workaround seem to be to reorder the constants a bit
 
-.L093 ;  rem 'Hero's position, speed and room
+.L041 ;  rem ' or to remove a few of them, but this only bugs out other constants :p
 
-.L094 ;  dim hero_x = player0x
+.L042 ;  rem ' so I replaced some constants by their values, and use the cpp 
 
-.L095 ;  dim hero_y = player0y
-
-.
- ; 
-
-.L096 ;  dim hero_oldx = v
-
-.L097 ;  dim hero_oldy = w
-
-.L098 ;  rem 'Flags:
-
-.L099 ;  dim hero_flags = g
-
-.L0100 ;  rem 'hero_flags{0} -> facing north
-
-.L0101 ;  rem 'hero_flags{1} -> facing east
-
-.L0102 ;  rem 'hero_flags{2} -> facing south
-
-.L0103 ;  rem 'hero_flags{3} -> facing west
-
-.L0104 ;  rem 'hero_flags{4} -> set when attacking is allowed, blocked when not
-
-.L0105 ;  dim hero_items = q
-
-.L0106 ;  rem 'hero_items{0} -> Key Leaf 1
-
-.L0107 ;  rem 'hero_items{1} -> Key Leaf 2
-
-.L0108 ;  rem 'hero_items{2} -> Key Leaf 3
-
-.L0109 ;  rem 'hero_items{3} -> Numen Shield
-
-.L0110 ;  rem 'hero_items{4} -> Numen Armor 
-
-.L0111 ;  rem 'hero_items{5} -> Numen Sword
-
-.L0112 ;  rem 'hero_items{6} -> Heal Book
-
-.L0113 ;  rem 'hero_items{7} -> Strike Book
-
-.L0114 ;  dim hero_room = r
-
-.L0115 ;  dim hero_hp = statusbarlength
-
-.L0116 ;  dim hero_mp = o
-
-.L0117 ;  dim hero_next = k
-
-.L0118 ;  dim hero_level = l
-
-.L0119 ;  rem 'Quest flags contain important achievments of Signe.
-
-.L0120 ;  dim quest_flags = h
-
-.L0121 ;  rem 'quest_flags{0} -> Defeated Ikaza
-
-.L0122 ;  rem 'quest_flags{1} -> Flipped Switch 1
-
-.L0123 ;  rem 'quest_flags{2} -> Flipped Switch 2
-
-.L0124 ;  rem 'quest_flags{3} -> Flipped Switch 3
-
-.L0125 ;  rem 'quest_flags{4} -> Flipped Switch 4
-
-.L0126 ;  rem 'quest_flags{5} -> Flipped Switch 5
-
-.L0127 ;  rem 'quest_flags{6} -> Flipped Switch 6
-
-.L0128 ;  rem 'quest_flags{7} -> Flipped Switch 7
+.L043 ;  rem ' preprocessor in stead.    
 
 .
  ; 
 
-.L0129 ;  rem 'Other flags: Reserved for future extension
+.L044 ;  const seablue  =  144
 
-.L0130 ;  rem 'quest_flags{1} -> Defeated Armor Boss
+.L045 ;  const red  =  64
 
-.L0131 ;  rem 'quest_flags{2} -> Defeated Sword Boss 
+.L046 ;  const pink  =  78
 
-.L0132 ;  rem 'quest_flags{3} -> Defeated 
+.L047 ;  const skin  =  254
 
-.L0133 ;  rem 'quest_flags{0} -> Defeated Leaf Boss 1
+.L048 ;  const sand  =  230
 
-.L0134 ;  rem 'quest_flags{1} -> Defeated Leaf Boss 2
+.L049 ;  const turfy  =  218
 
-.L0135 ;  rem 'quest_flags{2} -> Defeated Leaf Boss 3
-
-.
- ; 
-
-.L0136 ;  const strike_cost = 1
-
-.L0137 ;  const last_monster = 32
-
-.
- ; 
-
-.L0138 ;  const hero_speed = 1
-
-.L0139 ;  const hero_speed_negative = # - 1
-
-.
- ; 
-
-.L0140 ;  rem item/monster position speed and kind
-
-.L0141 ;  dim item_x = player1x
-
-.L0142 ;  dim item_y = player1y
-
-.L0143 ;  dim item_kind = s
-
-.L0144 ;  dim item_hp = i
-
-.L0145 ;  dim item_oldx = t
-
-.L0146 ;  dim item_oldy = u
-
-.L0147 ;  rem 'Active item flags: 
-
-.L0148 ;  dim item_flags = f
-
-.L0149 ;  rem 'item_flags{0} -> Monster missile flies north
-
-.L0150 ;  rem 'item_flags{1} -> Monster missile flies east
-
-.L0151 ;  rem 'item_flags{2} -> Monster missile flies south
-
-.L0152 ;  rem 'item_flags{3} -> Monster missile flies west
+.L050 ;  rem ' const ochre=16
 
 .
  ; 
@@ -374,13 +152,64 @@ game
 .
  ; 
 
-.L0153 ;  rem 'Game timer. Controls animation. Keeps on ticking, by overflow.
+.L051 ;  rem 'Playfield dimensions
 
-.L0154 ;  dim game_timer = e
+.L052 ;  const field_left = 17
 
-.L0155 ;  const timer_loop = 128
+.L053 ;  const field_left_enter = 18
 
-.L0156 ;  const timer_second = 60
+.L054 ;  const field_right = $88
+
+.L055 ;  const field_right_enter = $87
+
+.L056 ;  const field_top = 10
+
+.L057 ;  const field_top_enter = 11
+
+.L058 ;  const field_bottom = 90
+
+.L059 ;  const field_bottom_enter = 89
+
+.L060 ;  const field_hcenter = 61
+
+.L061 ;  const field_vcenter = 44
+
+.
+ ; 
+
+.L062 ;  rem ' Note definitions and length const music_voice=12
+
+.L063 ;  rem const note_c4=30
+
+.L064 ;  rem const note_d4=27
+
+.L065 ;  rem const note_e4=24
+
+.L066 ;  rem const note_f4=23
+
+.L067 ;  rem const note_g4=20
+
+.L068 ;  rem const note_a4=18
+
+.L069 ;  rem const note_b4=16
+
+.L070 ;  rem const note_c5=15
+
+.L071 ;  rem const note_none=0
+
+.L072 ;  rem const note_full=60
+
+.L073 ;  rem const note_half=30
+
+.L074 ;  rem const note_quarter=15
+
+.L075 ;  rem const note_fullrest=58
+
+.L076 ;  rem const note_halfrest=28
+
+.L077 ;  rem const note_quarterest=13
+
+.L078 ;  rem const note_ndot=2
 
 .
  ; 
@@ -388,221 +217,208 @@ game
 .
  ; 
 
-.L0157 ;  rem 'Item and monster kinds. 
+.L079 ;  rem ' An object will be positioned at 255 to hide it
 
-.L0158 ;  rem 'Monster kind is divided as follows: the 6 bits record the looks 
-
-.L0159 ;  rem 'and the 'index' for data tables of the monster or item
-
-.L0160 ;  rem 'The high 2 bits are used for 2 flag variables: 
-
-.L0161 ;  rem 'If item_kind{7} is set it's an immobile item, otherwise, a monster
-
-.L0162 ;  rem '6 is yet to be determined
-
-.L0163 ;  const item_kind_mask = %00111111
-
-.L0164 ;  const is_item_mask = %10000000
-
-.L0165 ;  const item_none = %10000000
-
-.L0166 ;  const monster_slime = 1
-
-.L0167 ;  const monster_crab = 2
-
-.L0168 ;  const monster_bat = 3
-
-.L0169 ;  const monster_scorpio = 4
-
-.L0170 ;  rem 'The famous rabid rabbit ^_^
-
-.L0171 ;  const monster_rabid = 5
-
-.L0172 ;  const monster_spider = 6
-
-.L0173 ;  const monster_snake = 7
-
-.L0174 ;  const monster_fish = 8
-
-.L0175 ;  const monster_lion = 9
-
-.L0176 ;  const monster_wolf = 10
-
-.L0177 ;  const monster_grunt = 11
-
-.L0178 ;  const monster_archer = 12
-
-.L0179 ;  const monster_knight = 13
-
-.L0180 ;  const monster_cannon = 14
-
-.L0181 ;  const monster_zombie = 15
-
-.L0182 ;  const monster_skeleton = 16
-
-.L0183 ;  const monster_ghost = 17
-
-.L0184 ;  const monster_mage = 18
-
-.L0185 ;  const monster_flower = 19
-
-.L0186 ;  const monster_treant = 20
-
-.L0187 ;  const monster_mushroom = 21
-
-.L0188 ;  const monster_book = 22
-
-.L0189 ;  const monster_sword = 23
-
-.L0190 ;  rem 'Monster curse blocks the way in rooms. It's invulnerable,
-
-.L0191 ;  rem 'but can be removed by game events.
-
-.L0192 ;  const monster_curse = 24
-
-.L0193 ;  const monster_first_boss = 25
-
-.L0194 ;  const monster_leaf1_boss = 25
-
-.L0195 ;  const monster_leaf2_boss = 26
-
-.L0196 ;  const monster_leaf3_boss = 27
-
-.L0197 ;  const monster_armor_boss = 28
-
-.L0198 ;  rem 'Boss that guards the Numen Sword
-
-.L0199 ;  const monster_sword_boss = 29
-
-.L0200 ;  rem 'Boss that guards the Strike book
-
-.L0201 ;  const monster_strike_boss = 30
-
-.L0202 ;  const monster_ikaza = 31
+.L080 ;  const nowhere = 255
 
 .
  ; 
 
-.L0203 ;  const item_inventory_mask = 160
+.L081 ;  rem 'Timer ticks per second, 60 for NTSC
 
-.L0204 ;  const item_leaf1 = 160
-
-.L0205 ;  const item_leaf2 = 161
-
-.L0206 ;  const item_leaf3 = 162
-
-.L0207 ;  const item_armor = 163
-
-.L0208 ;  const item_shield = 164
-
-.L0209 ;  const item_sword = 165
-
-.L0210 ;  const item_bookheal = 166
-
-.L0211 ;  const item_bookstrike = 167
-
-.L0212 ;  const item_healhp = 168
-
-.L0213 ;  const item_healmp = 169
-
-.L0214 ;  const item_healallhp = 170
-
-.L0215 ;  const item_healallmp = 171
-
-.L0216 ;  const item_first_switch = 172
-
-.L0217 ;  const item_switch_on = 7
-
-.L0218 ;  const item_switch1 = 172
-
-.L0219 ;  const item_switch2 = 173
-
-.L0220 ;  const item_switch3 = 174
-
-.L0221 ;  const item_switch4 = 175
-
-.L0222 ;  const item_switch5 = 176
-
-.L0223 ;  const item_switch6 = 177
-
-.L0224 ;  const item_switch7 = 178
-
-.L0225 ;  const item_last_switch = 178
-
-.L0226 ;  const item_first_switch_on = 179
-
-.L0227 ;  const item_switch1_on = 179
-
-.L0228 ;  const item_switch2_on = 180
-
-.L0229 ;  const item_switch3_on = 181
-
-.L0230 ;  const item_switch4_on = 182
-
-.L0231 ;  const item_switch5_on = 183
-
-.L0232 ;  const item_switch6_on = 184
-
-.L0233 ;  const item_switch7_on = 185
-
-.L0234 ;  const item_last_switch_on = 182
-
-.L0235 ;  const item_victory = 191
-
-.L0236 ;  const monster_normal = 0
-
-.L0237 ;  rem 'Bit 0 in monster flags
-
-.L0238 ;  const monster_shoots = 1
-
-.L0239 ;  rem 'Bit 1 in monster flags
-
-.L0240 ;  const monster_randomwalk = 2
-
-.L0241 ;  rem 'Bit 2 in monster flags
-
-.L0242 ;  const monster_aggressive = 4
-
-.L0243 ;  rem 'Bit 3 in monster flags
-
-.L0244 ;  const monster_static = 8
-
-.L0245 ;  rem 'Bit 4 in monster flags
-
-.L0246 ;  const monster_alwaysdrop = 16
-
-.L0247 ;  rem 'Bit 5 in monster flags
-
-.L0248 ;  const monster_nowalls = 32
-
-.L0249 ;  rem 'Bit 6 in monster flags
-
-.L0250 ;  const monster_huge = 64
-
-.L0251 ;  rem 'Bit 7 in monster flags. Will triple if huge is also set
-
-.L0252 ;  rem 'Currently, double nor triple doesn't work well with the AI
-
-.L0253 ;  const monster_double = 128
-
-.L0254 ;  const monster_boss_info = monster_alwaysdrop  +  monster_shoots  +  monster_huge  +  monster_nowalls
-
-.L0255 ;  const monster_boss2_info = monster_alwaysdrop  +  monster_shoots  +  monster_huge  +  monster_nowalls
-
-.L0256 ;  const monster_boss3_info = monster_alwaysdrop  +  monster_shoots  +  monster_huge  +  monster_nowalls
-
-.L0257 ;  const monster_swordboss_info = monster_alwaysdrop  +  monster_aggressive  +  monster_nowalls
-
-.L0258 ;  const monster_cannon_info = monster_shoots  +  monster_static  +  monster_nowalls
+.L082 ;  const ticks_per_second = 60
 
 .
  ; 
 
-.L0259 ;  rem ' Music wave form to use.
+.L083 ;  rem 'Score, split up in individual digits
 
-.L0260 ;  const music_instrument = 12
+.L084 ;  dim sc0 = score
 
-.L0261 ;  const music_notes = 69
+.L085 ;  dim sc1 = score + 1
+
+.L086 ;  dim sc2 = score + 2
+
+.
+ ; 
+
+.L087 ;  rem 'Initial values
+
+.L088 ;  rem 'Normal start
+
+.L089 ;  const room_start = 49
+
+.L090 ;  rem '49
+
+.L091 ;  rem 'On the east side of the river
+
+.L092 ;  rem 'const room_start=4
+
+.
+ ; 
+
+.L093 ;  const hero_start_x = 75
+
+.L094 ;  const hero_start_y = 75
+
+.L095 ;  const item_start_x = 60
+
+.L096 ;  const item_start_y = 40
+
+.L097 ;  const item_start_hp = 1
+
+.L098 ;  const hero_base_hp = 11
+
+.L099 ;  const hero_high = 8
+
+.L0100 ;  const hero_half_high = 4
+
+.L0101 ;  const hero_feet_high = 4
+
+.L0102 ;  const hero_wide = 8
+
+.L0103 ;  const hero_half_wide = 4
+
+.L0104 ;  rem 'Hero's position, speed and room
+
+.L0105 ;  dim hero_x = player0x
+
+.L0106 ;  dim hero_y = player0y
+
+.
+ ; 
+
+.L0107 ;  dim hero_oldx = v
+
+.L0108 ;  dim hero_oldy = w
+
+.L0109 ;  rem 'Flags:
+
+.L0110 ;  dim hero_flags = g
+
+.L0111 ;  rem 'hero_flags{0} -> facing north
+
+.L0112 ;  rem 'hero_flags{1} -> facing east
+
+.L0113 ;  rem 'hero_flags{2} -> facing south
+
+.L0114 ;  rem 'hero_flags{3} -> facing west
+
+.L0115 ;  rem 'hero_flags{4} -> set when attacking is allowed, blocked when not
+
+.L0116 ;  dim hero_items = q
+
+.L0117 ;  rem 'hero_items{0} -> Key Leaf 1
+
+.L0118 ;  rem 'hero_items{1} -> Key Leaf 2
+
+.L0119 ;  rem 'hero_items{2} -> Key Leaf 3
+
+.L0120 ;  rem 'hero_items{3} -> Numen Shield
+
+.L0121 ;  rem 'hero_items{4} -> Numen Armor 
+
+.L0122 ;  rem 'hero_items{5} -> Numen Sword
+
+.L0123 ;  rem 'hero_items{6} -> Heal Book
+
+.L0124 ;  rem 'hero_items{7} -> Strike Book
+
+.L0125 ;  dim hero_room = r
+
+.L0126 ;  dim hero_hp = statusbarlength
+
+.L0127 ;  dim hero_mp = o
+
+.L0128 ;  dim hero_next = k
+
+.L0129 ;  dim hero_level = l
+
+.L0130 ;  rem 'Quest flags contain important achievments of Signe.
+
+.L0131 ;  dim quest_flags = h
+
+.L0132 ;  rem 'quest_flags{0} -> Defeated Ikaza
+
+.L0133 ;  rem 'quest_flags{1} -> Flipped Switch 1
+
+.L0134 ;  rem 'quest_flags{2} -> Flipped Switch 2
+
+.L0135 ;  rem 'quest_flags{3} -> Flipped Switch 3
+
+.L0136 ;  rem 'quest_flags{4} -> Flipped Switch 4
+
+.L0137 ;  rem 'quest_flags{5} -> Flipped Switch 5
+
+.L0138 ;  rem 'quest_flags{6} -> Flipped Switch 6
+
+.L0139 ;  rem 'quest_flags{7} -> Flipped Switch 7
+
+.
+ ; 
+
+.L0140 ;  rem 'Other flags: Reserved for future extension
+
+.L0141 ;  rem 'quest_flags{1} -> Defeated Armor Boss
+
+.L0142 ;  rem 'quest_flags{2} -> Defeated Sword Boss 
+
+.L0143 ;  rem 'quest_flags{3} -> Defeated 
+
+.L0144 ;  rem 'quest_flags{0} -> Defeated Leaf Boss 1
+
+.L0145 ;  rem 'quest_flags{1} -> Defeated Leaf Boss 2
+
+.L0146 ;  rem 'quest_flags{2} -> Defeated Leaf Boss 3
+
+.L0147 ;  rem 'status bar color in Z, which si otherwise used for debugging
+
+.L0148 ;  rem ' Can't sue changes top platfield row color somehow. :p
+
+.L0149 ;  rem ' dim statusbarcolor=z
+
+.
+ ; 
+
+.L0150 ;  const strike_cost = 1
+
+.L0151 ;  const last_monster = 32
+
+.
+ ; 
+
+.L0152 ;  const hero_speed = 1
+
+.L0153 ;  const hero_speed_negative = # - 1
+
+.
+ ; 
+
+.L0154 ;  rem item/monster position speed and kind
+
+.L0155 ;  dim item_x = player1x
+
+.L0156 ;  dim item_y = player1y
+
+.L0157 ;  dim item_kind = s
+
+.L0158 ;  dim item_hp = i
+
+.L0159 ;  dim item_oldx = t
+
+.L0160 ;  dim item_oldy = u
+
+.L0161 ;  rem 'Active item flags: 
+
+.L0162 ;  dim item_flags = f
+
+.L0163 ;  rem 'item_flags{0} -> Monster missile flies north
+
+.L0164 ;  rem 'item_flags{1} -> Monster missile flies east
+
+.L0165 ;  rem 'item_flags{2} -> Monster missile flies south
+
+.L0166 ;  rem 'item_flags{3} -> Monster missile flies west
 
 .
  ; 
@@ -610,96 +426,334 @@ game
 .
  ; 
 
-.
- ; 
+.L0167 ;  rem 'Game timer. Controls animation. Keeps on ticking, by overflow.
 
-.L0262 ;  rem 'Timer and pointer for music and sound
+.L0168 ;  dim game_timer = e
 
-.L0263 ;  dim music_pointer = m
+.L0169 ;  const timer_loop = 128
 
-.L0264 ;  dim music_timer = n
-
-.L0265 ;  dim sound_timer = p
-
-.L0266 ;  rem 'Unused variables: a b c d
+.L0170 ;  const timer_second = 60
 
 .
  ; 
 
-.L0267 ;  rem 'Set back to 1 when not debugging.
+.
+ ; 
 
-.L0268 ;  const hero_start_level = 20
+.L0171 ;  rem 'Item and monster kinds. 
 
-.L0269 ;  rem 'set back to 0 when not debugging
+.L0172 ;  rem 'Monster kind is divided as follows: the 6 bits record the looks 
 
-.L0270 ;  const hero_start_items = 
+.L0173 ;  rem 'and the 'index' for data tables of the monster or item
+
+.L0174 ;  rem 'The high 2 bits are used for 2 flag variables: 
+
+.L0175 ;  rem 'If item_kind{7} is set it's an immobile item, otherwise, a monster
+
+.L0176 ;  rem '6 is yet to be determined
+
+.L0177 ;  const item_kind_mask = %00111111
+
+.L0178 ;  const is_item_mask = %10000000
+
+.L0179 ;  const item_none = %10000000
+
+.L0180 ;  const monster_slime = 1
+
+.L0181 ;  const monster_crab = 2
+
+.L0182 ;  const monster_bat = 3
+
+.L0183 ;  const monster_scorpio = 4
+
+.L0184 ;  rem 'The famous rabid rabbit ^_^
+
+.L0185 ;  const monster_rabid = 5
+
+.L0186 ;  const monster_spider = 6
+
+.L0187 ;  const monster_snake = 7
+
+.L0188 ;  const monster_fish = 8
+
+.L0189 ;  const monster_lion = 9
+
+.L0190 ;  const monster_wolf = 10
+
+.L0191 ;  const monster_grunt = 11
+
+.L0192 ;  const monster_archer = 12
+
+.L0193 ;  const monster_knight = 13
+
+.L0194 ;  const monster_cannon = 14
+
+.L0195 ;  const monster_zombie = 15
+
+.L0196 ;  const monster_skeleton = 16
+
+.L0197 ;  const monster_ghost = 17
+
+.L0198 ;  const monster_mage = 18
+
+.L0199 ;  const monster_flower = 19
+
+.L0200 ;  const monster_treant = 20
+
+.L0201 ;  const monster_mushroom = 21
+
+.L0202 ;  const monster_book = 22
+
+.L0203 ;  const monster_sword = 23
+
+.L0204 ;  rem 'Monster curse blocks the way in rooms. It's invulnerable,
+
+.L0205 ;  rem 'but can be removed by game events.
+
+.L0206 ;  const monster_curse = 24
+
+.L0207 ;  const monster_first_boss = 25
+
+.L0208 ;  const monster_leaf1_boss = 25
+
+.L0209 ;  const monster_leaf2_boss = 26
+
+.L0210 ;  const monster_leaf3_boss = 27
+
+.L0211 ;  const monster_armor_boss = 28
+
+.L0212 ;  rem 'Boss that guards the Numen Sword
+
+.L0213 ;  const monster_sword_boss = 29
+
+.L0214 ;  rem 'Boss that guards the Strike book
+
+.L0215 ;  const monster_strike_boss = 30
+
+.L0216 ;  const monster_ikaza = 31
 
 .
  ; 
 
-.L0271 ;  rem ' Colors to use for the item display 
+.L0217 ;  const item_inventory_mask = 160
 
-.L0272 ;  data item_colors
+.L0218 ;  const item_leaf1 = 160
 
-	JMP .skipL0272
+.L0219 ;  const item_leaf2 = 161
+
+.L0220 ;  const item_leaf3 = 162
+
+.L0221 ;  const item_armor = 163
+
+.L0222 ;  const item_shield = 164
+
+.L0223 ;  const item_sword = 165
+
+.L0224 ;  const item_bookheal = 166
+
+.L0225 ;  const item_bookstrike = 167
+
+.L0226 ;  const item_healhp = 168
+
+.L0227 ;  const item_healmp = 169
+
+.L0228 ;  const item_healallhp = 170
+
+.L0229 ;  const item_healallmp = 171
+
+.L0230 ;  const item_first_switch = 172
+
+.L0231 ;  const item_switch_on = 7
+
+.L0232 ;  const item_switch1 = 172
+
+.L0233 ;  const item_switch2 = 173
+
+.L0234 ;  const item_switch3 = 174
+
+.L0235 ;  const item_switch4 = 175
+
+.L0236 ;  const item_switch5 = 176
+
+.L0237 ;  const item_switch6 = 177
+
+.L0238 ;  const item_switch7 = 178
+
+.L0239 ;  const item_last_switch = 178
+
+.L0240 ;  const item_first_switch_on = 179
+
+.L0241 ;  const item_switch1_on = 179
+
+.L0242 ;  const item_switch2_on = 180
+
+.L0243 ;  const item_switch3_on = 181
+
+.L0244 ;  const item_switch4_on = 182
+
+.L0245 ;  const item_switch5_on = 183
+
+.L0246 ;  const item_switch6_on = 184
+
+.L0247 ;  const item_switch7_on = 185
+
+.L0248 ;  const item_last_switch_on = 182
+
+.L0249 ;  const item_victory = 191
+
+.L0250 ;  const monster_normal = 0
+
+.L0251 ;  rem 'Bit 0 in monster flags
+
+.L0252 ;  const monster_shoots = 1
+
+.L0253 ;  rem 'Bit 1 in monster flags
+
+.L0254 ;  const monster_randomwalk = 2
+
+.L0255 ;  rem 'Bit 2 in monster flags
+
+.L0256 ;  const monster_aggressive = 4
+
+.L0257 ;  rem 'Bit 3 in monster flags
+
+.L0258 ;  const monster_static = 8
+
+.L0259 ;  rem 'Bit 4 in monster flags
+
+.L0260 ;  const monster_alwaysdrop = 16
+
+.L0261 ;  rem 'Bit 5 in monster flags
+
+.L0262 ;  const monster_nowalls = 32
+
+.L0263 ;  rem 'Bit 6 in monster flags
+
+.L0264 ;  const monster_huge = 64
+
+.L0265 ;  rem 'Bit 7 in monster flags. Will triple if huge is also set
+
+.L0266 ;  rem 'Currently, double nor triple doesn't work well with the AI
+
+.L0267 ;  const monster_double = 128
+
+.L0268 ;  const monster_boss_info = monster_alwaysdrop  +  monster_shoots  +  monster_huge  +  monster_nowalls
+
+.L0269 ;  const monster_boss2_info = monster_alwaysdrop  +  monster_shoots  +  monster_huge  +  monster_nowalls
+
+.L0270 ;  const monster_boss3_info = monster_alwaysdrop  +  monster_shoots  +  monster_huge  +  monster_nowalls
+
+.L0271 ;  const monster_swordboss_info = monster_alwaysdrop  +  monster_aggressive  +  monster_nowalls
+
+.L0272 ;  const monster_cannon_info = monster_shoots  +  monster_static  +  monster_nowalls
+
+.
+ ; 
+
+.L0273 ;  rem ' Music wave form to use.
+
+.L0274 ;  const music_instrument = 12
+
+.L0275 ;  const music_notes = 69
+
+.
+ ; 
+
+.
+ ; 
+
+.
+ ; 
+
+.L0276 ;  rem 'Timer and pointer for music and sound
+
+.L0277 ;  dim music_pointer = m
+
+.L0278 ;  dim music_timer = n
+
+.L0279 ;  dim music_which = d
+
+.L0280 ;  dim sound_timer = p
+
+.L0281 ;  rem 'Unused variables: a b c
+
+.
+ ; 
+
+.L0282 ;  rem 'Set back to 1 when not debugging.
+
+.L0283 ;  const hero_start_level = 20
+
+.L0284 ;  rem 'set back to 0 when not debugging
+
+.L0285 ;  const hero_start_items = 
+
+.
+ ; 
+
+.L0286 ;  rem ' Colors to use for the item display 
+
+.L0287 ;  data item_colors
+
+	JMP .skipL0287
 item_colors
-	.byte   black, green, red,  blue,  black, green, red,  blue 
+	.byte   black, green, red, blue, black, green, red, blue 
 
-	.byte   black, green, red,  blue,  black, green, red,  blue 
+	.byte   black, green, red, blue, black, green, red, blue 
 
-	.byte   black, green, red,  blue,  black, green, red,  blue 
+	.byte   black, green, red, blue, black, green, red, blue 
 
-	.byte   black, black, red,  red,  black, skin, red,  blue 
+	.byte   black, black, red, red, black, orange, red, blue 
 
-	.byte   black, green, red,  blue,  black, green, red,  blue 
+	.byte   black, green, red, blue, black, green, red, blue 
 
-	.byte   red  , green, red, green,  black, green, red,  blue 
+	.byte   red , green, red, green, black, green, red, blue 
 
-	.byte   white, yellow, orange, black, green, red,  blue, white  
+	.byte   white, yellow, orange, black, green, red, blue, white 
 
-	.byte   yellow, orange,  blue,  black, green, red,  blue, blue  
+	.byte   yellow, orange, blue, black, green, red, blue, blue 
 
-.skipL0272
+.skipL0287
 .
  ; 
 
-.L0273 ;  rem 'Damage modifier for the MONSTER/item. 0 means no damage
+.L0288 ;  rem 'Damage modifier for the MONSTER/item. 0 means no damage
 
-.L0274 ;  rem 'There is no monster nr 0, that's for item_none. 
+.L0289 ;  rem 'There is no monster nr 0, that's for item_none.
 
-.L0275 ;  rem 'The curse deals massive damage to be sure it works.
+.L0290 ;  rem 'The curse deals massive damage to be sure it works.
 
-.L0276 ;  data item_damage
+.L0291 ;  data item_damage
 
-	JMP .skipL0276
+	JMP .skipL0291
 item_damage
-	.byte    0,  1,  1,  1,  1,  2,  2,  2
+	.byte    0, 1, 1, 1, 1, 2, 2, 2
 
-	.byte    2,  4,  4,  4,  4,  6,  6,  6
+	.byte    2, 4, 4, 4, 4, 6, 6, 6
 
-	.byte   10, 16, 16,  1, 16,  4, 16, 16
+	.byte   10, 16, 16, 1, 16, 4, 16, 16
 
 	.byte  128, 20, 22, 24, 48, 48, 48, 64
 
-	.byte    0,  0,  0,  0,  0,  0,  0,  0
+	.byte    0, 0, 0, 0, 0, 0, 0, 0
 
-	.byte    0,  0,  0,  0,  0,  0,  0,  0
+	.byte    0, 0, 0, 0, 0, 0, 0, 0
 
-	.byte    0,  0,  0,  0,  0,  0,  0,  0
+	.byte    0, 0, 0, 0, 0, 0, 0, 0
 
-	.byte    0,  0,  0,  0,  0,  0,  0,  0
+	.byte    0, 0, 0, 0, 0, 0, 0, 0
 
-.skipL0276
+.skipL0291
 .
  ; 
 
-.L0277 ;  rem ' 
+.L0292 ;  rem ' 
 
-.L0278 ;  rem ' Monster information, bitflags (monster 0 doesn't exist, but is in this list!)
+.L0293 ;  rem ' Monster information, bitflags (monster 0 doesn't exist, but is in this list!)
 
-.L0279 ;  data monster_info
+.L0294 ;  data monster_info
 
-	JMP .skipL0279
+	JMP .skipL0294
 monster_info
 	.byte   monster_normal, monster_normal, monster_nowalls+monster_shoots, monster_nowalls
 
@@ -707,7 +761,7 @@ monster_info
 
 	.byte   monster_shoots + monster_nowalls, monster_normal, monster_normal, monster_normal
 
-	.byte   monster_shoots, monster_aggressive,  monster_cannon_info, monster_randomwalk
+	.byte   monster_shoots, monster_aggressive, monster_cannon_info, monster_randomwalk
 
 	.byte   monster_normal, monster_nowalls, monster_nowalls + monster_shoots, monster_cannon_info
 
@@ -717,15 +771,15 @@ monster_info
 
 	.byte   monster_boss_info, monster_swordboss_info, monster_boss_info, monster_aggressive + monster_shoots
 
-.skipL0279
+.skipL0294
 .
  ; 
 
-.L0280 ;  rem ' Items the monster drops, or for items, what item flag to set
+.L0295 ;  rem ' Items the monster drops, or for items, what item flag to set
 
-.L0281 ;  data monster_drops
+.L0296 ;  data monster_drops
 
-	JMP .skipL0281
+	JMP .skipL0296
 monster_drops
 	.byte   item_healhp, item_healhp, item_healhp, item_healmp 
 
@@ -737,75 +791,67 @@ monster_drops
 
 	.byte   monster_ghost, item_switch5, monster_book, item_healmp 
 
-	.byte   item_healallmp, item_healhp,  item_bookheal, item_sword 
+	.byte   item_healallmp, item_healhp, item_bookheal, item_sword 
 
 	.byte   item_healhp, item_leaf1, item_leaf2 , item_leaf3 
 
 	.byte   item_armor, monster_sword, item_bookstrike, item_healallhp 
 
-.skipL0281
+.skipL0296
 .
  ; 
 
 .
  ; 
 
-.L0282 ;  rem VOLUME DOWN AND SET CHANNELS
+.L0297 ;  rem VOLUME DOWN AND SET CHANNELS
 
-.L0283 ;  AUDV0 = 0
+.L0298 ;  AUDV0 = 0
 
 	LDA #0
 	STA AUDV0
-.L0284 ;  AUDV1 = 0
+.L0299 ;  AUDV1 = 0
 
 	LDA #0
 	STA AUDV1
-.L0285 ;  AUDC0 = music_instrument
+.L0300 ;  AUDC0 = music_instrument
 
 	LDA #music_instrument
 	STA AUDC0
 .
  ; 
 
-.L0286 ;  rem INITIALIZE POINTERS AND TIMERS
+.L0301 ;  rem INITIALIZE POINTERS AND TIMERS
 
-.L0287 ;  music_pointer = 0
-
-	LDA #0
-	STA music_pointer
-.L0288 ;  music_timer = 0
-
-	LDA #0
-	STA music_timer
 .
  ; 
 
-.L0289 ;  rem 'lives control
+.L0302 ;  rem 'lives control
 
-.L0290 ;  lifecolor = black
+.L0303 ;  lifecolor = black
 
 	LDA black
 	STA lifecolor
-.L0291 ;  rem 'Lives are used for the MP
+.L0304 ;  rem 'Lives are used for the MP
 
-.L0292 ;  lives = 32
+.L0305 ;  lives = 32
 
 	LDA #32
 	STA lives
-.L0293 ;  lives:
+.L0306 ;  lives:
 
-	LDA #<lives__L0293
+	LDA #<lives__L0306
 	STA lifepointer
 	LDA lifepointer+1
 	AND #$E0
-	ORA #(>lives__L0293)&($1F)
+	ORA #(>lives__L0306)&($1F)
 	STA lifepointer+1
 .
  ; 
 
-.L0294 ;  rem 'Go to intro screen, but not now while we are debugging.
+.L0307 ;  rem 'Go to intro screen, but not now while we are debugging.
 
-.L0295 ;  gosub intro_screen bank5
+.L0308 ;  gosub intro_screen bank5
 
  sta temp7
  lda #>(ret_point1-1)
@@ -823,7 +869,7 @@ monster_drops
  ldx #5
  jmp BS_jsr
 ret_point1
-.L0296 ;  goto main_loop_start
+.L0309 ;  goto main_loop_start
 
  jmp .main_loop_start
 
@@ -833,45 +879,63 @@ ret_point1
 .main_loop_start
  ; main_loop_start
 
-.L0297 ;  rem ' Set up initial values.
+.L0310 ;  rem ' Set up initial values.
 
-.L0298 ;  COLUBK  =  black
+.L0311 ;  gosub music_restart bank5
+
+ sta temp7
+ lda #>(ret_point2-1)
+ pha
+ lda #<(ret_point2-1)
+ pha
+ lda #>(.music_restart-1)
+ pha
+ lda #<(.music_restart-1)
+ pha
+ lda temp7
+ pha
+ txa
+ pha
+ ldx #5
+ jmp BS_jsr
+ret_point2
+.L0312 ;  COLUBK  =  black
 
 	LDA black
 	STA COLUBK
-.L0299 ;  lifecolor = yellow
+.L0313 ;  lifecolor = yellow
 
 	LDA yellow
 	STA lifecolor
-.L0300 ;  hero_room = room_start
+.L0314 ;  hero_room = room_start
 
 	LDA #room_start
 	STA hero_room
-.L0301 ;  hero_x = hero_start_x
+.L0315 ;  hero_x = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_x
-.L0302 ;  hero_oldx = hero_start_x
+.L0316 ;  hero_oldx = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_oldx
-.L0303 ;  hero_y = hero_start_y
+.L0317 ;  hero_y = hero_start_y
 
 	LDA #hero_start_y
 	STA hero_y
-.L0304 ;  hero_oldy = hero_start_x
+.L0318 ;  hero_oldy = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_oldy
-.L0305 ;  quest_flags = 0
+.L0319 ;  quest_flags = 0
 
 	LDA #0
 	STA quest_flags
-.L0306 ;  hero_level = hero_start_level
+.L0320 ;  hero_level = hero_start_level
 
 	LDA #hero_start_level
 	STA hero_level
-.L0307 ;  hero_next =  ( hero_level  /  2 )   +  1
+.L0321 ;  hero_next =  ( hero_level  /  2 )   +  1
 
 ; complex statement detected
 	LDA hero_level
@@ -879,7 +943,7 @@ ret_point1
 	CLC
 	ADC #1
 	STA hero_next
-.L0308 ;  hero_hp = hero_level * 2 + hero_base_hp
+.L0322 ;  hero_hp = hero_level * 2 + hero_base_hp
 
 ; complex statement detected
 	LDA hero_level
@@ -887,9 +951,9 @@ ret_point1
 	CLC
 	ADC #hero_base_hp
 	STA hero_hp
-.L0309 ;  rem 'MP is between 1 and 6
+.L0323 ;  rem 'MP is between 1 and 6
 
-.L0310 ;  hero_mp = hero_level / 16  +  1
+.L0324 ;  hero_mp = hero_level / 16  +  1
 
 ; complex statement detected
 	LDA hero_level
@@ -900,100 +964,92 @@ ret_point1
 	CLC
 	ADC #1
 	STA hero_mp
-.L0311 ;  gosub set_mp_display
+.L0325 ;  gosub set_mp_display
 
  jsr .set_mp_display
 
-.L0312 ;  hero_flags  =  0
+.L0326 ;  hero_flags  =  0
 
 	LDA #0
 	STA hero_flags
-.L0313 ;  item_flags  =  0
+.L0327 ;  item_flags  =  0
 
 	LDA #0
 	STA item_flags
-.L0314 ;  game_timer  =  0
+.L0328 ;  game_timer  =  0
 
 	LDA #0
 	STA game_timer
-.L0315 ;  item_kind = item_none
+.L0329 ;  item_kind = item_none
 
 	LDA #item_none
 	STA item_kind
-.L0316 ;  hero_items  =  hero_start_items
+.L0330 ;  hero_items  =  hero_start_items
 
 	LDA #hero_start_items
 	STA hero_items
-.L0317 ;  rem 'Player starts facing south, able to attack
+.L0331 ;  rem 'Player starts facing south, able to attack
 
-.L0318 ;  hero_flags{2}  =  1
+.L0332 ;  hero_flags{2}  =  1
 
 	LDA hero_flags
 	ORA #4
 	STA hero_flags
-.L0319 ;  hero_flags{4}  =  1
+.L0333 ;  hero_flags{4}  =  1
 
 	LDA hero_flags
 	ORA #16
 	STA hero_flags
-.L0320 ;  rem player0x=75
+.L0334 ;  rem player0x=75
 
-.L0321 ;  rem player0y=75
+.L0335 ;  rem player0y=75
 
-.L0322 ;  item_x = item_start_x
+.L0336 ;  item_x = item_start_x
 
 	LDA #item_start_x
 	STA item_x
-.L0323 ;  item_oldx = item_start_x
+.L0337 ;  item_oldx = item_start_x
 
 	LDA #item_start_x
 	STA item_oldx
-.L0324 ;  item_y = item_start_y
+.L0338 ;  item_y = item_start_y
 
 	LDA #item_start_y
 	STA item_y
-.L0325 ;  item_oldy = item_start_x
+.L0339 ;  item_oldy = item_start_x
 
 	LDA #item_start_x
 	STA item_oldy
-.L0326 ;  missile1x = nowhere
+.L0340 ;  missile1x = nowhere
 
 	LDA #nowhere
 	STA missile1x
-.L0327 ;  missile1y = nowhere
+.L0341 ;  missile1y = nowhere
 
 	LDA #nowhere
 	STA missile1y
-.L0328 ;  music_pointer = 0
+.L0342 ;  scorecolor = 64
 
-	LDA #0
-	STA music_pointer
-.L0329 ;  music_timer = 0
-
-	LDA #0
-	STA music_timer
-.L0330 ;  scorecolor = yellow
-
-	LDA yellow
+	LDA #64
 	STA scorecolor
-.L0331 ;  item_hp = item_start_hp
+.L0343 ;  item_hp = item_start_hp
 
 	LDA #item_start_hp
 	STA item_hp
-.L0332 ;  gosub show_inventory
+.L0344 ;  gosub show_inventory
 
  jsr .show_inventory
 
-.L0333 ;  gosub hero_draw_s
+.L0345 ;  gosub hero_draw_s
 
  jsr .hero_draw_s
 
-.L0334 ;  gosub room_draw bank2
+.L0346 ;  gosub room_draw bank2
 
  sta temp7
- lda #>(ret_point2-1)
+ lda #>(ret_point3-1)
  pha
- lda #<(ret_point2-1)
+ lda #<(ret_point3-1)
  pha
  lda #>(.room_draw-1)
  pha
@@ -1005,13 +1061,13 @@ ret_point1
  pha
  ldx #2
  jmp BS_jsr
-ret_point2
-.L0335 ;  drawscreen
+ret_point3
+.L0347 ;  drawscreen
 
  sta temp7
- lda #>(ret_point3-1)
+ lda #>(ret_point4-1)
  pha
- lda #<(ret_point3-1)
+ lda #<(ret_point4-1)
  pha
  lda #>(drawscreen-1)
  pha
@@ -1023,27 +1079,27 @@ ret_point2
  pha
  ldx #8
  jmp BS_jsr
-ret_point3
+ret_point4
 .main_loop
  ; main_loop
 
-.L0336 ;  COLUP0  =  skin
+.L0348 ;  COLUP0  =  skin
 
 	LDA #skin
 	STA COLUP0
-.L0337 ;  temp1  =  item_kind  &  item_kind_mask
+.L0349 ;  temp1  =  item_kind  &  item_kind_mask
 
 	LDA item_kind
 	AND #item_kind_mask
 	STA temp1
-.L0338 ;  COLUP1  =  item_colors[temp1]
+.L0350 ;  COLUP1  =  item_colors[temp1]
 
 	LDX temp1
 	LDA item_colors,x
 	STA COLUP1
-.L0339 ;  rem 'Special effects for the item (double or triple size, double or triple instances)
+.L0351 ;  rem 'Special effects for the item (double or triple size, double or triple instances)
 
-.L0340 ;  if item_kind{7} goto special_effects_end
+.L0352 ;  if item_kind{7} goto special_effects_end
 
 	BIT item_kind
  if ((* - .special_effects_end) < 127) && ((* - .special_effects_end) > -128)
@@ -1053,31 +1109,31 @@ ret_point3
 	jmp .special_effects_end
 .0skipspecial_effects_end
  endif
-.L0341 ;  temp2  =  monster_info[item_kind]
+.L0353 ;  temp2  =  monster_info[item_kind]
 
 	LDX item_kind
 	LDA monster_info,x
 	STA temp2
-.L0342 ;  if temp2{6} then NUSIZ1  =  $07
+.L0354 ;  if temp2{6} then NUSIZ1  =  $07
 
 	BIT temp2
-	BVC .skipL0342
+	BVC .skipL0354
 .condpart0
 	LDA #$07
 	STA NUSIZ1
-.skipL0342
-.L0343 ;  if temp2{7} then NUSIZ1  =  $02
+.skipL0354
+.L0355 ;  if temp2{7} then NUSIZ1  =  $02
 
 	BIT temp2
-	BPL .skipL0343
+	BPL .skipL0355
 .condpart1
 	LDA #$02
 	STA NUSIZ1
-.skipL0343
-.L0344 ;  if temp2{7}  &&  temp2{7} then NUSIZ1  = $06
+.skipL0355
+.L0356 ;  if temp2{7}  &&  temp2{7} then NUSIZ1  = $06
 
 	BIT temp2
-	BPL .skipL0344
+	BPL .skipL0356
 .condpart2
 	BIT temp2
 	BPL .skip2then
@@ -1085,11 +1141,11 @@ ret_point3
 	LDA #$06
 	STA NUSIZ1
 .skip2then
-.skipL0344
+.skipL0356
 .special_effects_end
  ; special_effects_end
 
-.L0345 ;  PF0 = $00
+.L0357 ;  PF0 = $00
 
 	LDA #$00
 	STA PF0
@@ -1099,23 +1155,23 @@ ret_point3
 .
  ; 
 
-.L0346 ;  rem 'Collisions with the walls. For now, we use push-back collision 
+.L0358 ;  rem 'Collisions with the walls. For now, we use push-back collision 
 
-.L0347 ;  rem 'for the monsters, and preventive collision detection for the player. 
+.L0359 ;  rem 'for the monsters, and preventive collision detection for the player. 
 
-.L0348 ;  rem 'This is inconsistent, but push-back is easier to manage with regards to 
+.L0360 ;  rem 'This is inconsistent, but push-back is easier to manage with regards to 
 
-.L0349 ;  rem 'and matters less for AI, so I'll leave it at that for now.
+.L0361 ;  rem 'and matters less for AI, so I'll leave it at that for now.
 
-.L0350 ;  if !collision(player0,playfield) then goto herofield_collide_end
+.L0362 ;  if !collision(player0,playfield) then goto herofield_collide_end
 
 	BIT CXP0FB
-	BMI .skipL0350
+	BMI .skipL0362
 .condpart4
  jmp .herofield_collide_end
 
-.skipL0350
-.L0351 ;  rem 'Could do something here ??? Some overlap is OK, IMO
+.skipL0362
+.L0363 ;  rem 'Could do something here ??? Some overlap is OK, IMO
 
 .herofield_collide_end
  ; herofield_collide_end
@@ -1123,42 +1179,42 @@ ret_point3
 .
  ; 
 
-.L0352 ;  rem 'Collisions with the walls
+.L0364 ;  rem 'Collisions with the walls
 
-.L0353 ;  rem 'For the item
+.L0365 ;  rem 'For the item
 
-.L0354 ;  if !collision(player1,playfield) then goto itemfield_collide_end
+.L0366 ;  if !collision(player1,playfield) then goto itemfield_collide_end
 
 	BIT CXP1FB
-	BMI .skipL0354
+	BMI .skipL0366
 .condpart5
  jmp .itemfield_collide_end
 
-.skipL0354
-.L0355 ;  temp2  =  monster_info[item_kind]
+.skipL0366
+.L0367 ;  temp2  =  monster_info[item_kind]
 
 	LDX item_kind
 	LDA monster_info,x
 	STA temp2
-.L0356 ;  rem 'Some monsters ignore walls
+.L0368 ;  rem 'Some monsters ignore walls
 
-.L0357 ;  if temp2{5} then goto itemfield_collide_end
+.L0369 ;  if temp2{5} then goto itemfield_collide_end
 
 	LDA temp2
 	AND #32
-	BEQ .skipL0357
+	BEQ .skipL0369
 .condpart6
  jmp .itemfield_collide_end
 
-.skipL0357
+.skipL0369
 .
  ; 
 
-.L0358 ;  if item_y  =  item_oldy  &&  item_x  =  item_oldx then goto itemfield_collide_still
+.L0370 ;  if item_y  =  item_oldy  &&  item_x  =  item_oldx then goto itemfield_collide_still
 
 	LDA item_y
 	CMP item_oldy
-     BNE .skipL0358
+     BNE .skipL0370
 .condpart7
 	LDA item_x
 	CMP item_oldx
@@ -1167,25 +1223,25 @@ ret_point3
  jmp .itemfield_collide_still
 
 .skip7then
-.skipL0358
-.L0359 ;  item_y  =  item_oldy
+.skipL0370
+.L0371 ;  item_y  =  item_oldy
 
 	LDA item_oldy
 	STA item_y
-.L0360 ;  item_x  =  item_oldx
+.L0372 ;  item_x  =  item_oldx
 
 	LDA item_oldx
 	STA item_x
-.L0361 ;  goto itemfield_collide_end
+.L0373 ;  goto itemfield_collide_end
 
  jmp .itemfield_collide_end
 
 .itemfield_collide_still
  ; itemfield_collide_still
 
-.L0362 ;  rem if item_y < field_vcenter then item_y  = item_oldy - 1 else item_y  = item_oldy + 1
+.L0374 ;  rem if item_y < field_vcenter then item_y = item_oldy - 1 else item_y = item_oldy + 1
 
-.L0363 ;  rem if item_x < field_hcenter then item_x  = item_oldx - 1 else item_x  = hero_oldx + 1
+.L0375 ;  rem if item_x < field_hcenter then item_x = item_oldx - 1 else item_x = hero_oldx + 1
 
 .itemfield_collide_end
  ; itemfield_collide_end
@@ -1196,23 +1252,23 @@ ret_point3
 .
  ; 
 
-.L0364 ;  rem 'Remember curent position which should be OK here, 
+.L0376 ;  rem 'Remember curent position which should be OK here, 
 
-.L0365 ;  rem 'and with that I mean not colliding with the walls. 
+.L0377 ;  rem 'and with that I mean not colliding with the walls. 
 
-.L0366 ;  hero_oldx  =  hero_x
+.L0378 ;  hero_oldx  =  hero_x
 
 	LDA hero_x
 	STA hero_oldx
-.L0367 ;  hero_oldy  =  hero_y
+.L0379 ;  hero_oldy  =  hero_y
 
 	LDA hero_y
 	STA hero_oldy
-.L0368 ;  item_oldx  =  item_x
+.L0380 ;  item_oldx  =  item_x
 
 	LDA item_x
 	STA item_oldx
-.L0369 ;  item_oldy  =  item_y
+.L0381 ;  item_oldy  =  item_y
 
 	LDA item_y
 	STA item_oldy
@@ -1222,43 +1278,43 @@ ret_point3
 .
  ; 
 
-.L0370 ;  rem 'Teleport to Sygne's home on reset button
+.L0382 ;  rem 'Teleport to Sygne's home on reset button
 
-.L0371 ;  if !switchreset then goto reset_end
+.L0383 ;  if !switchreset then goto reset_end
 
  lda #1
  bit SWCHB
-	BEQ .skipL0371
+	BEQ .skipL0383
 .condpart9
  jmp .reset_end
 
-.skipL0371
-.L0372 ;  hero_room = room_start
+.skipL0383
+.L0384 ;  hero_room = room_start
 
 	LDA #room_start
 	STA hero_room
-.L0373 ;  hero_x = hero_start_x
+.L0385 ;  hero_x = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_x
-.L0374 ;  hero_oldx = hero_start_x
+.L0386 ;  hero_oldx = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_oldx
-.L0375 ;  hero_y = hero_start_y
+.L0387 ;  hero_y = hero_start_y
 
 	LDA #hero_start_y
 	STA hero_y
-.L0376 ;  hero_oldy = hero_start_x
+.L0388 ;  hero_oldy = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_oldy
-.L0377 ;  gosub room_draw bank2
+.L0389 ;  gosub room_draw bank2
 
  sta temp7
- lda #>(ret_point4-1)
+ lda #>(ret_point5-1)
  pha
- lda #<(ret_point4-1)
+ lda #<(ret_point5-1)
  pha
  lda #>(.room_draw-1)
  pha
@@ -1270,54 +1326,54 @@ ret_point3
  pha
  ldx #2
  jmp BS_jsr
-ret_point4
+ret_point5
 .reset_end
  ; reset_end
 
 .
  ; 
 
-.L0378 ;  rem 'Update game timer, and let it overflow back to 0 .
+.L0390 ;  rem 'Update game timer, and let it overflow back to 0 .
 
-.L0379 ;  game_timer  =  game_timer  +  1
+.L0391 ;  game_timer  =  game_timer  +  1
 
 	INC game_timer
-.L0380 ;  rem 'Update sound timer, and set to silence if sound is done
+.L0392 ;  rem 'Update sound timer, and set to silence if sound is done
 
-.L0381 ;  if sound_timer  <  1 then goto sound_end
+.L0393 ;  if sound_timer  <  1 then goto sound_end
 
 	LDA sound_timer
 	CMP #1
-     BCS .skipL0381
+     BCS .skipL0393
 .condpart10
  jmp .sound_end
 
-.skipL0381
-.L0382 ;  sound_timer  =  sound_timer  -  1
+.skipL0393
+.L0394 ;  sound_timer  =  sound_timer  -  1
 
 	DEC sound_timer
-.L0383 ;  if sound_timer  >  1 then goto sound_end
+.L0395 ;  if sound_timer  >  1 then goto sound_end
 
 	LDA #1
 	CMP sound_timer
-     BCS .skipL0383
+     BCS .skipL0395
 .condpart11
  jmp .sound_end
 
-.skipL0383
-.L0384 ;  AUDV1  =  0
+.skipL0395
+.L0396 ;  AUDV1  =  0
 
 	LDA #0
 	STA AUDV1
-.L0385 ;  AUDC1  =  0
+.L0397 ;  AUDC1  =  0
 
 	LDA #0
 	STA AUDC1
-.L0386 ;  AUDF1  =  0
+.L0398 ;  AUDF1  =  0
 
 	LDA #0
 	STA AUDF1
-.L0387 ;  sound_timer  =  0
+.L0399 ;  sound_timer  =  0
 
 	LDA #0
 	STA sound_timer
@@ -1327,109 +1383,114 @@ ret_point4
 .
  ; 
 
-.L0388 ;  rem 'Collision between hero and monster/item or the monster's missile
+.L0400 ;  rem 'Collision between hero and monster/item or the monster's missile
 
-.L0389 ;  if !collision(player0,missile1) then goto no_missile_collide
+.L0401 ;  if !collision(player0,missile1) then goto no_missile_collide
 
 	BIT CXM1P
-	BMI .skipL0389
+	BMI .skipL0401
 .condpart12
  jmp .no_missile_collide
 
-.skipL0389
-.L0390 ;  rem 'Ennemy missile hit player, remove it
+.skipL0401
+.L0402 ;  rem 'Ennemy missile hit player, remove it
 
-.L0391 ;  missile1y  =  nowhere
+.L0403 ;  missile1y  =  nowhere
 
 	LDA #nowhere
 	STA missile1y
-.L0392 ;  missile1x  =  nowhere
+.L0404 ;  missile1x  =  nowhere
 
 	LDA #nowhere
 	STA missile1x
-.L0393 ;  item_flags =  0
+.L0405 ;  item_flags =  0
 
 	LDA #0
 	STA item_flags
-.L0394 ;  rem ' If the player doesn't have a shield, jump to monster collide
+.L0406 ;  rem ' If the player doesn't have a shield, jump to monster collide
 
-.L0395 ;  rem 'Otherwise ignore the projectile and remove it  
+.L0407 ;  rem 'Otherwise ignore the projectile and remove it  
 
-.L0396 ;  if !hero_items{3} then goto monster_collide
+.L0408 ;  if !hero_items{3} then goto monster_collide
 
 	LDA hero_items
 	AND #8
-	BNE .skipL0396
+	BNE .skipL0408
 .condpart13
  jmp .monster_collide
 
-.skipL0396
+.skipL0408
 .no_missile_collide
  ; no_missile_collide
 
-.L0397 ;  if !collision(player0,player1) then goto item_collide_end
+.L0409 ;  if !collision(player0,player1) then goto item_collide_end
 
 	BIT CXPPMM
-	BMI .skipL0397
+	BMI .skipL0409
 .condpart14
  jmp .item_collide_end
 
-.skipL0397
-.L0398 ;  rem 'Distinguish between item or monster collide
+.skipL0409
+.L0410 ;  rem 'Distinguish between item or monster collide
 
-.L0399 ;  if item_kind{7} then goto item_collide
+.L0411 ;  if item_kind{7} then goto item_collide
 
 	BIT item_kind
-	BPL .skipL0399
+	BPL .skipL0411
 .condpart15
  jmp .item_collide
 
-.skipL0399
-.L0400 ;  rem 'Collision with monster or monster missile
+.skipL0411
+.L0412 ;  rem 'Collision with monster or monster missile
 
 .monster_collide
  ; monster_collide
 
-.L0401 ;  COLUP0  =  red
+.L0413 ;  COLUP0  =  red
 
-	LDA #red
+	LDA red
 	STA COLUP0
-.L0402 ;  rem 'Make a hit sound
+.L0414 ;  rem 'Make a hit sound
 
-.L0403 ;  sound_timer = 2
+.L0415 ;  sound_timer = 2
 
 	LDA #2
 	STA sound_timer
-.L0404 ;  AUDC1 = 6
+.L0416 ;  AUDC1 = 6
 
 	LDA #6
 	STA AUDC1
-.L0405 ;  AUDF1 = 10
+.L0417 ;  AUDF1 = 10
 
 	LDA #10
 	STA AUDF1
-.L0406 ;  AUDV1 = 14
+.L0418 ;  AUDV1 = 14
 
 	LDA #14
 	STA AUDV1
 .
  ; 
 
-.L0407 ;  rem 'Push back the hero, but only if the playfield is free behind her.
+.L0419 ;  rem 'Push back the hero, but only if the playfield is free behind her.
+
+.L0420 ;  rem 'Also don't push back if too close to the edge of the screen.
 
 .
  ; 
 
-.L0408 ;  if !hero_flags{0} then goto hero_hit_north_end
+.
+ ; 
+
+.L0421 ;  if !hero_flags{0} then goto hero_hit_north_end
 
 	LDA hero_flags
 	LSR
-	BCS .skipL0408
+	BCS .skipL0421
 .condpart16
  jmp .hero_hit_north_end
 
-.skipL0408
-.L0409 ;  temp1  =   ( hero_x  +  hero_half_wide  -  17 )   /  4
+.skipL0421
+.L0422 ;  temp1  =   ( hero_x  +  hero_half_wide  -  17 )   /  4
 
 ; complex statement detected
 	LDA hero_x
@@ -1440,7 +1501,7 @@ ret_point4
 	lsr
 	lsr
 	STA temp1
-.L0410 ;  temp2  =   ( hero_y  +  8  -  1 )   /  8
+.L0423 ;  temp2  =   ( hero_y  +  8  -  1 )   /  8
 
 ; complex statement detected
 	LDA hero_y
@@ -1452,78 +1513,7 @@ ret_point4
 	lsr
 	lsr
 	STA temp2
-.L0411 ;  if pfread ( temp1 ,  temp2 )  goto hero_hit_north_end
-
-	LDA temp1
-	LDY temp2
- sta temp7
- lda #>(ret_point5-1)
- pha
- lda #<(ret_point5-1)
- pha
- lda #>(pfread-1)
- pha
- lda #<(pfread-1)
- pha
- lda temp7
- pha
- txa
- pha
- ldx #8
- jmp BS_jsr
-ret_point5
- if ((* - .hero_hit_north_end) < 127) && ((* - .hero_hit_north_end) > -128)
-	BEQ .hero_hit_north_end
- else
-	bne .1skiphero_hit_north_end
-	jmp .hero_hit_north_end
-.1skiphero_hit_north_end
- endif
-.L0412 ;  hero_y  =  hero_y  +  8
-
-	LDA hero_y
-	CLC
-	ADC #8
-	STA hero_y
-.hero_hit_north_end
- ; hero_hit_north_end
-
-.
- ; 
-
-.L0413 ;  if !hero_flags{1} then goto hero_hit_east_end
-
-	LDA hero_flags
-	AND #2
-	BNE .skipL0413
-.condpart17
- jmp .hero_hit_east_end
-
-.skipL0413
-.L0414 ;  temp1  =   ( hero_x  -  8  -  17 )   /  4
-
-; complex statement detected
-	LDA hero_x
-	SEC
-	SBC #8
-	SEC
-	SBC #17
-	lsr
-	lsr
-	STA temp1
-.L0415 ;  temp2  =   ( hero_y  -  hero_half_high  -  1 )   /  8
-
-; complex statement detected
-	LDA hero_y
-	SEC
-	SBC #hero_half_high
-	SEC
-	SBC #1
-	lsr
-	lsr
-	lsr
-	STA temp2
-.L0416 ;  if pfread ( temp1 ,  temp2 )  goto hero_hit_east_end
+.L0424 ;  if pfread ( temp1 ,  temp2 )  goto hero_hit_north_end
 
 	LDA temp1
 	LDY temp2
@@ -1543,35 +1533,75 @@ ret_point5
  ldx #8
  jmp BS_jsr
 ret_point6
- if ((* - .hero_hit_east_end) < 127) && ((* - .hero_hit_east_end) > -128)
-	BEQ .hero_hit_east_end
+ if ((* - .hero_hit_north_end) < 127) && ((* - .hero_hit_north_end) > -128)
+	BEQ .hero_hit_north_end
  else
-	bne .2skiphero_hit_east_end
-	jmp .hero_hit_east_end
-.2skiphero_hit_east_end
+	bne .1skiphero_hit_north_end
+	jmp .hero_hit_north_end
+.1skiphero_hit_north_end
  endif
-.L0417 ;  hero_x  =  hero_x  -  8
+.L0425 ;  hero_y  =  hero_y  +  8
 
-	LDA hero_x
-	SEC
-	SBC #8
-	STA hero_x
-.hero_hit_east_end
- ; hero_hit_east_end
+	LDA hero_y
+	CLC
+	ADC #8
+	STA hero_y
+.L0426 ;  rem 'Still inside the screen?  
+
+.L0427 ;  if hero_y  <  field_bottom then goto hero_hit_north_end
+
+	LDA hero_y
+	CMP #field_bottom
+     BCS .skipL0427
+.condpart17
+ jmp .hero_hit_north_end
+
+.skipL0427
+.L0428 ;  rem 'if we get here, we'd be pushed out of the screen. Prevent this.
+
+.L0429 ;  hero_y  =  field_bottom_enter
+
+	LDA #field_bottom_enter
+	STA hero_y
+.hero_hit_north_end
+ ; hero_hit_north_end
 
 .
  ; 
 
-.L0418 ;  if !hero_flags{2} then goto hero_hit_south_end
+.L0430 ;  if !hero_flags{1} then goto hero_hit_east_end
 
 	LDA hero_flags
-	AND #4
-	BNE .skipL0418
+	AND #2
+	BNE .skipL0430
 .condpart18
- jmp .hero_hit_south_end
+ jmp .hero_hit_east_end
 
-.skipL0418
-.L0419 ;  if pfread ( temp1 ,  temp2 )  then goto hero_hit_south_end
+.skipL0430
+.L0431 ;  temp1  =   ( hero_x  -  8  -  17 )   /  4
+
+; complex statement detected
+	LDA hero_x
+	SEC
+	SBC #8
+	SEC
+	SBC #17
+	lsr
+	lsr
+	STA temp1
+.L0432 ;  temp2  =   ( hero_y  -  hero_half_high  -  1 )   /  8
+
+; complex statement detected
+	LDA hero_y
+	SEC
+	SBC #hero_half_high
+	SEC
+	SBC #1
+	lsr
+	lsr
+	lsr
+	STA temp2
+.L0433 ;  if pfread ( temp1 ,  temp2 )  goto hero_hit_east_end
 
 	LDA temp1
 	LDY temp2
@@ -1591,83 +1621,52 @@ ret_point6
  ldx #8
  jmp BS_jsr
 ret_point7
-	BNE .skipL0419
-.condpart19
- jmp .hero_hit_south_end
+ if ((* - .hero_hit_east_end) < 127) && ((* - .hero_hit_east_end) > -128)
+	BEQ .hero_hit_east_end
+ else
+	bne .2skiphero_hit_east_end
+	jmp .hero_hit_east_end
+.2skiphero_hit_east_end
+ endif
+.L0434 ;  hero_x  =  hero_x  -  8
 
-.skipL0419
-.L0420 ;  temp1  =   ( hero_x  +  hero_half_wide  -  17 )   /  4
-
-; complex statement detected
 	LDA hero_x
-	CLC
-	ADC #hero_half_wide
-	SEC
-	SBC #17
-	lsr
-	lsr
-	STA temp1
-.L0421 ;  temp2  =   ( hero_y  -  hero_high  -  8  -  1 )   /  8
-
-; complex statement detected
-	LDA hero_y
-	SEC
-	SBC #hero_high
 	SEC
 	SBC #8
-	SEC
-	SBC #1
-	lsr
-	lsr
-	lsr
-	STA temp2
-.L0422 ;  hero_y  =  hero_y  -  8
+	STA hero_x
+.L0435 ;  rem 'Still inside the screen?  
 
-	LDA hero_y
-	SEC
-	SBC #8
-	STA hero_y
-.hero_hit_south_end
- ; hero_hit_south_end
+.L0436 ;  if field_left  <  hero_x then goto hero_hit_east_end
+
+	LDA #field_left
+	CMP hero_x
+     BCS .skipL0436
+.condpart19
+ jmp .hero_hit_east_end
+
+.skipL0436
+.L0437 ;  rem 'if we get here, we'd be pushed out of the screen. Prevent this.
+
+.L0438 ;  hero_x  =  field_left_enter
+
+	LDA #field_left_enter
+	STA hero_x
+.hero_hit_east_end
+ ; hero_hit_east_end
 
 .
  ; 
 
-.L0423 ;  if !hero_flags{3} then goto hero_hit_west_end
+.L0439 ;  if !hero_flags{2} then goto hero_hit_south_end
 
 	LDA hero_flags
-	AND #8
-	BNE .skipL0423
+	AND #4
+	BNE .skipL0439
 .condpart20
- jmp .hero_hit_west_end
+ jmp .hero_hit_south_end
 
-.skipL0423
-.L0424 ;  temp1  =   ( hero_x  +  hero_wide  +  8  -  17 )   /  4
-
-; complex statement detected
-	LDA hero_x
-	CLC
-	ADC #hero_wide
-	CLC
-	ADC #8
-	SEC
-	SBC #17
-	lsr
-	lsr
-	STA temp1
-.L0425 ;  temp2  =   ( hero_y  -  hero_half_high  -  1 )   /  8
-
-; complex statement detected
-	LDA hero_y
-	SEC
-	SBC #hero_half_high
-	SEC
-	SBC #1
-	lsr
-	lsr
-	lsr
-	STA temp2
-.L0426 ;  if pfread ( temp1 ,  temp2 )  then goto hero_hit_west_end
+.skipL0439
+.L0440 ;  if pfread ( temp1 ,  temp2 )  then goto hero_hit_south_end
 
 	LDA temp1
 	LDY temp2
@@ -1687,16 +1686,144 @@ ret_point7
  ldx #8
  jmp BS_jsr
 ret_point8
-	BNE .skipL0426
+	BNE .skipL0440
 .condpart21
+ jmp .hero_hit_south_end
+
+.skipL0440
+.L0441 ;  temp1  =   ( hero_x  +  hero_half_wide  -  17 )   /  4
+
+; complex statement detected
+	LDA hero_x
+	CLC
+	ADC #hero_half_wide
+	SEC
+	SBC #17
+	lsr
+	lsr
+	STA temp1
+.L0442 ;  temp2  =   ( hero_y  -  hero_high  -  8  -  1 )   /  8
+
+; complex statement detected
+	LDA hero_y
+	SEC
+	SBC #hero_high
+	SEC
+	SBC #8
+	SEC
+	SBC #1
+	lsr
+	lsr
+	lsr
+	STA temp2
+.L0443 ;  hero_y  =  hero_y  -  8
+
+	LDA hero_y
+	SEC
+	SBC #8
+	STA hero_y
+.L0444 ;  if hero_y  >  field_top then goto hero_hit_south_end
+
+	LDA #field_top
+	CMP hero_y
+     BCS .skipL0444
+.condpart22
+ jmp .hero_hit_south_end
+
+.skipL0444
+.L0445 ;  rem 'if we get here, we'd be pushed out of the screen. Prevent this.
+
+.L0446 ;  hero_y  =  field_top_enter
+
+	LDA #field_top_enter
+	STA hero_y
+.hero_hit_south_end
+ ; hero_hit_south_end
+
+.
+ ; 
+
+.L0447 ;  if !hero_flags{3} then goto hero_hit_west_end
+
+	LDA hero_flags
+	AND #8
+	BNE .skipL0447
+.condpart23
  jmp .hero_hit_west_end
 
-.skipL0426
-.L0427 ;  hero_x  =  hero_x  +  8
+.skipL0447
+.L0448 ;  temp1  =   ( hero_x  +  hero_wide  +  8  -  17 )   /  4
+
+; complex statement detected
+	LDA hero_x
+	CLC
+	ADC #hero_wide
+	CLC
+	ADC #8
+	SEC
+	SBC #17
+	lsr
+	lsr
+	STA temp1
+.L0449 ;  temp2  =   ( hero_y  -  hero_half_high  -  1 )   /  8
+
+; complex statement detected
+	LDA hero_y
+	SEC
+	SBC #hero_half_high
+	SEC
+	SBC #1
+	lsr
+	lsr
+	lsr
+	STA temp2
+.L0450 ;  if pfread ( temp1 ,  temp2 )  then goto hero_hit_west_end
+
+	LDA temp1
+	LDY temp2
+ sta temp7
+ lda #>(ret_point9-1)
+ pha
+ lda #<(ret_point9-1)
+ pha
+ lda #>(pfread-1)
+ pha
+ lda #<(pfread-1)
+ pha
+ lda temp7
+ pha
+ txa
+ pha
+ ldx #8
+ jmp BS_jsr
+ret_point9
+	BNE .skipL0450
+.condpart24
+ jmp .hero_hit_west_end
+
+.skipL0450
+.L0451 ;  hero_x  =  hero_x  +  8
 
 	LDA hero_x
 	CLC
 	ADC #8
+	STA hero_x
+.L0452 ;  rem 'Still inside the screen?  
+
+.L0453 ;  if hero_x  <  field_right then goto hero_hit_west_end
+
+	LDA hero_x
+	CMP #field_right
+     BCS .skipL0453
+.condpart25
+ jmp .hero_hit_west_end
+
+.skipL0453
+.L0454 ;  rem 'if we get here, we'd be pushed out of the screen. Prevent this.
+
+.L0455 ;  hero_x  =  field_right_enter
+
+	LDA #field_right_enter
 	STA hero_x
 .hero_hit_west_end
  ; hero_hit_west_end
@@ -1704,64 +1831,64 @@ ret_point8
 .
  ; 
 
-.L0428 ;  temp1  =  item_kind  &  item_kind_mask
+.L0456 ;  temp1  =  item_kind  &  item_kind_mask
 
 	LDA item_kind
 	AND #item_kind_mask
 	STA temp1
-.L0429 ;  temp1  =  item_damage[temp1]
+.L0457 ;  temp1  =  item_damage[temp1]
 
 	LDX temp1
 	LDA item_damage,x
 	STA temp1
-.L0430 ;  rem 'Halve damage if hero has the armor 
+.L0458 ;  rem 'Halve damage if hero has the armor 
 
-.L0431 ;  if hero_items{4} then temp1  =  temp1  /  2
+.L0459 ;  if hero_items{4} then temp1  =  temp1  /  2
 
 	LDA hero_items
 	AND #16
-	BEQ .skipL0431
-.condpart22
+	BEQ .skipL0459
+.condpart26
 	LDA temp1
 	lsr
 	STA temp1
-.skipL0431
+.skipL0459
 .
  ; 
 
-.L0432 ;  rem 'Game over if damage is higher than health
+.L0460 ;  rem 'Game over if damage is higher than health
 
-.L0433 ;  if temp1  <  hero_hp then goto do_damage
+.L0461 ;  if temp1  <  hero_hp then goto do_damage
 
 	LDA temp1
 	CMP hero_hp
-     BCS .skipL0433
-.condpart23
+     BCS .skipL0461
+.condpart27
  jmp .do_damage
 
-.skipL0433
-.L0434 ;  rem 'But escape by the skin of the teeth if Signe has the healing book and 
+.skipL0461
+.L0462 ;  rem 'But escape by the skin of the teeth if Signe has the healing book and 
 
-.L0435 ;  rem 'Numen to use it.
+.L0463 ;  rem 'Numen to use it.
 
-.L0436 ;  if hero_items{6}  &&  hero_mp  >  0 then goto use_heal_spell
+.L0464 ;  if hero_items{6}  &&  hero_mp  >  0 then goto use_heal_spell
 
 	BIT hero_items
-	BVC .skipL0436
-.condpart24
+	BVC .skipL0464
+.condpart28
 	LDA #0
 	CMP hero_mp
-     BCS .skip24then
-.condpart25
+     BCS .skip28then
+.condpart29
  jmp .use_heal_spell
 
-.skip24then
-.skipL0436
-.L0437 ;  hero_hp  =  0
+.skip28then
+.skipL0464
+.L0465 ;  hero_hp  =  0
 
 	LDA #0
 	STA hero_hp
-.L0438 ;  goto game_over bank5
+.L0466 ;  goto game_over bank5
 
  sta temp7
  lda #>(.game_over-1)
@@ -1777,18 +1904,18 @@ ret_point8
 .use_heal_spell
  ; use_heal_spell
 
-.L0439 ;  COLUP0  =  green
+.L0467 ;  COLUP0  =  green
 
-	LDA #green
+	LDA green
 	STA COLUP0
-.L0440 ;  hero_mp  =  hero_mp  -  1
+.L0468 ;  hero_mp  =  hero_mp  -  1
 
 	DEC hero_mp
-.L0441 ;  gosub set_mp_display
+.L0469 ;  gosub set_mp_display
 
  jsr .set_mp_display
 
-.L0442 ;  hero_hp  =  hero_level  *  2  +  hero_base_hp
+.L0470 ;  hero_hp  =  hero_level  *  2  +  hero_base_hp
 
 ; complex statement detected
 	LDA hero_level
@@ -1796,58 +1923,58 @@ ret_point8
 	CLC
 	ADC #hero_base_hp
 	STA hero_hp
-.L0443 ;  goto item_collide_end
+.L0471 ;  goto item_collide_end
 
  jmp .item_collide_end
 
 .do_damage
  ; do_damage
 
-.L0444 ;  hero_hp  =  hero_hp  -  temp1
+.L0472 ;  hero_hp  =  hero_hp  -  temp1
 
 	LDA hero_hp
 	SEC
 	SBC temp1
 	STA hero_hp
-.L0445 ;  goto item_collide_end
+.L0473 ;  goto item_collide_end
 
  jmp .item_collide_end
 
 .item_collide
  ; item_collide
 
-.L0446 ;  rem 'If colliding with an item, pick it up if it is not a switch.
+.L0474 ;  rem 'If colliding with an item, pick it up if it is not a switch.
 
-.L0447 ;  if item_kind  <  item_switch1 then goto item_do_collide
+.L0475 ;  if item_kind  <  item_switch1 then goto item_do_collide
 
 	LDA item_kind
 	CMP #item_switch1
-     BCS .skipL0447
-.condpart26
+     BCS .skipL0475
+.condpart30
  jmp .item_do_collide
 
-.skipL0447
-.L0448 ;  if item_kind  >  item_switch7_on then goto item_do_collide
+.skipL0475
+.L0476 ;  if item_kind  >  item_switch7_on then goto item_do_collide
 
 	LDA #item_switch7_on
 	CMP item_kind
-     BCS .skipL0448
-.condpart27
+     BCS .skipL0476
+.condpart31
  jmp .item_do_collide
 
-.skipL0448
-.L0449 ;  goto item_collide_end
+.skipL0476
+.L0477 ;  goto item_collide_end
 
  jmp .item_collide_end
 
 .item_do_collide
  ; item_do_collide
 
-.L0450 ;  gosub item_pickup
+.L0478 ;  gosub item_pickup
 
  jsr .item_pickup
 
-.L0451 ;  gosub show_inventory
+.L0479 ;  gosub show_inventory
 
  jsr .show_inventory
 
@@ -1857,13 +1984,13 @@ ret_point8
 .
  ; 
 
-.L0452 ;  rem 'Collision between monster missile and field. 
+.L0480 ;  rem 'Collision between monster missile and field. 
 
-.L0453 ;  rem 'Or between sword and monster missile.  Remove missile.
+.L0481 ;  rem 'Or between sword and monster missile.  Remove missile.
 
-.L0454 ;  rem 'Remove misile if monster is gone.
+.L0482 ;  rem 'Remove misile if monster is gone.
 
-.L0455 ;  if item_kind  >  last_monster goto missile_remove
+.L0483 ;  if item_kind  >  last_monster goto missile_remove
 
 	LDA #last_monster
 	CMP item_kind
@@ -1874,90 +2001,90 @@ ret_point8
 	jmp .missile_remove
 .3skipmissile_remove
  endif
-.L0456 ;  if collision(missile0,missile1) then goto missile_remove
+.L0484 ;  if collision(missile0,missile1) then goto missile_remove
 
 	BIT CXPPMM
-	BVC .skipL0456
-.condpart28
- jmp .missile_remove
-
-.skipL0456
-.L0457 ;  if missile1x  >  field_right then goto missile_remove
-
-	LDA #field_right
-	CMP missile1x
-     BCS .skipL0457
-.condpart29
- jmp .missile_remove
-
-.skipL0457
-.L0458 ;  if missile1x  <  field_left then goto missile_remove
-
-	LDA missile1x
-	CMP #field_left
-     BCS .skipL0458
-.condpart30
- jmp .missile_remove
-
-.skipL0458
-.L0459 ;  if missile1y  <  field_top then goto missile_remove
-
-	LDA missile1y
-	CMP #field_top
-     BCS .skipL0459
-.condpart31
- jmp .missile_remove
-
-.skipL0459
-.L0460 ;  if missile1y  >  field_bottom then goto missile_remove
-
-	LDA #field_bottom
-	CMP missile1y
-     BCS .skipL0460
+	BVC .skipL0484
 .condpart32
  jmp .missile_remove
 
-.skipL0460
-.L0461 ;  if !collision(missile1,playfield) then goto missile_remove_end
+.skipL0484
+.L0485 ;  if missile1x  >  field_right then goto missile_remove
+
+	LDA #field_right
+	CMP missile1x
+     BCS .skipL0485
+.condpart33
+ jmp .missile_remove
+
+.skipL0485
+.L0486 ;  if missile1x  <  field_left then goto missile_remove
+
+	LDA missile1x
+	CMP #field_left
+     BCS .skipL0486
+.condpart34
+ jmp .missile_remove
+
+.skipL0486
+.L0487 ;  if missile1y  <  field_top then goto missile_remove
+
+	LDA missile1y
+	CMP #field_top
+     BCS .skipL0487
+.condpart35
+ jmp .missile_remove
+
+.skipL0487
+.L0488 ;  if missile1y  >  field_bottom then goto missile_remove
+
+	LDA #field_bottom
+	CMP missile1y
+     BCS .skipL0488
+.condpart36
+ jmp .missile_remove
+
+.skipL0488
+.L0489 ;  if !collision(missile1,playfield) then goto missile_remove_end
 
 	BIT CXM1FB
-	BMI .skipL0461
-.condpart33
+	BMI .skipL0489
+.condpart37
  jmp .missile_remove_end
 
-.skipL0461
-.L0462 ;  rem 'Don't remove the misile even when coliding with the playfield if the 
+.skipL0489
+.L0490 ;  rem 'Don't remove the misile even when coliding with the playfield if the
 
-.L0463 ;  rem 'monster ignores the walls.
+.L0491 ;  rem 'monster ignores the walls.
 
-.L0464 ;  temp2  =  monster_info[item_kind]
+.L0492 ;  temp2  =  monster_info[item_kind]
 
 	LDX item_kind
 	LDA monster_info,x
 	STA temp2
-.L0465 ;  rem 'temp2 = temp2 & monster_nowalls
+.L0493 ;  rem 'temp2 = temp2 & monster_nowalls
 
-.L0466 ;  if temp2{5} then goto missile_remove_end
+.L0494 ;  if temp2{5} then goto missile_remove_end
 
 	LDA temp2
 	AND #32
-	BEQ .skipL0466
-.condpart34
+	BEQ .skipL0494
+.condpart38
  jmp .missile_remove_end
 
-.skipL0466
+.skipL0494
 .missile_remove
  ; missile_remove
 
-.L0467 ;  missile1y  =  nowhere
+.L0495 ;  missile1y  =  nowhere
 
 	LDA #nowhere
 	STA missile1y
-.L0468 ;  missile1x  =  nowhere
+.L0496 ;  missile1x  =  nowhere
 
 	LDA #nowhere
 	STA missile1x
-.L0469 ;  item_flags =  0
+.L0497 ;  item_flags =  0
 
 	LDA #0
 	STA item_flags
@@ -1967,299 +2094,299 @@ ret_point8
 .
  ; 
 
-.L0470 ;  rem 'Collision between monster and hero's attack
+.L0498 ;  rem 'Collision between monster and hero's attack
 
-.L0471 ;  if !collision(player1,missile0) then goto slash_collide_end
+.L0499 ;  if !collision(player1,missile0) then goto slash_collide_end
 
 	BIT CXM0P
-	BMI .skipL0471
-.condpart35
+	BMI .skipL0499
+.condpart39
  jmp .slash_collide_end
 
-.skipL0471
-.L0472 ;  rem 'Distinguish between item or monster collide
+.skipL0499
+.L0500 ;  rem 'Distinguish between item or monster collide
 
-.L0473 ;  if item_kind{7} then goto slash_item_collide
+.L0501 ;  if item_kind{7} then goto slash_item_collide
 
 	BIT item_kind
-	BPL .skipL0473
-.condpart36
+	BPL .skipL0501
+.condpart40
  jmp .slash_item_collide
 
-.skipL0473
+.skipL0501
 .
  ; 
 
-.L0474 ;  rem 'The curse monster cannot be harmed normally. 
+.L0502 ;  rem 'The curse monster cannot be harmed normally. 
 
-.L0475 ;  rem 'It can be harmed if Signe has the three leaves, or the Numen Sword. 
+.L0503 ;  rem 'It can be harmed if Signe has the three leaves, or the Numen Sword. 
 
-.L0476 ;  rem 'Do the special handling here.
+.L0504 ;  rem 'Do the special handling here.
 
-.L0477 ;  if item_kind  <>  monster_curse then goto monster_no_curse
+.L0505 ;  if item_kind  <>  monster_curse then goto monster_no_curse
 
 	LDA item_kind
 	CMP #monster_curse
-     BEQ .skipL0477
-.condpart37
- jmp .monster_no_curse
-
-.skipL0477
-.L0478 ;  rem 'Signe has the sword? The curse can be damaged.
-
-.L0479 ;  if hero_items{5} then goto monster_no_curse
-
-	LDA hero_items
-	AND #32
-	BEQ .skipL0479
-.condpart38
- jmp .monster_no_curse
-
-.skipL0479
-.L0480 ;  rem 'Signe has the three leaves? The curse can be damaged. 
-
-.L0481 ;  if hero_items{0}  &&  hero_items{1}  &&  hero_items{2} then goto monster_no_curse
-
-	LDA hero_items
-	LSR
-	BCC .skipL0481
-.condpart39
-	LDA hero_items
-	AND #2
-	BEQ .skip39then
-.condpart40
-	LDA hero_items
-	AND #4
-	BEQ .skip40then
+     BEQ .skipL0505
 .condpart41
  jmp .monster_no_curse
 
-.skip40then
-.skip39then
-.skipL0481
-.L0482 ;  rem 'If we get here, Signe's unable to do any damage.
+.skipL0505
+.L0506 ;  rem 'Signe has the sword? The curse can be damaged.
 
-.L0483 ;  rem 'Make a deflected sound
+.L0507 ;  if hero_items{5} then goto monster_no_curse
 
-.L0484 ;  sound_timer = 2
+	LDA hero_items
+	AND #32
+	BEQ .skipL0507
+.condpart42
+ jmp .monster_no_curse
+
+.skipL0507
+.L0508 ;  rem 'Signe has the three leaves? The curse can be damaged. 
+
+.L0509 ;  if hero_items{0}  &&  hero_items{1}  &&  hero_items{2} then goto monster_no_curse
+
+	LDA hero_items
+	LSR
+	BCC .skipL0509
+.condpart43
+	LDA hero_items
+	AND #2
+	BEQ .skip43then
+.condpart44
+	LDA hero_items
+	AND #4
+	BEQ .skip44then
+.condpart45
+ jmp .monster_no_curse
+
+.skip44then
+.skip43then
+.skipL0509
+.L0510 ;  rem 'If we get here, Signe's unable to do any damage.
+
+.L0511 ;  rem 'Make a deflected sound
+
+.L0512 ;  sound_timer = 2
 
 	LDA #2
 	STA sound_timer
-.L0485 ;  AUDC1 = 12
+.L0513 ;  AUDC1 = 12
 
 	LDA #12
 	STA AUDC1
-.L0486 ;  AUDV1 = 14
+.L0514 ;  AUDV1 = 14
 
 	LDA #14
 	STA AUDV1
-.L0487 ;  AUDF1 = 1
+.L0515 ;  AUDF1 = 1
 
 	LDA #1
 	STA AUDF1
-.L0488 ;  goto slash_collide_end
+.L0516 ;  goto slash_collide_end
 
  jmp .slash_collide_end
 
 .monster_no_curse
  ; monster_no_curse
 
-.L0489 ;  rem 'Make a hit sound once
+.L0517 ;  rem 'Make a hit sound once
 
-.L0490 ;  sound_timer = 1
+.L0518 ;  sound_timer = 1
 
 	LDA #1
 	STA sound_timer
-.L0491 ;  AUDC1 = 8
+.L0519 ;  AUDC1 = 8
 
 	LDA #8
 	STA AUDC1
-.L0492 ;  AUDF1 = 2
+.L0520 ;  AUDF1 = 2
 
 	LDA #2
 	STA AUDF1
-.L0493 ;  AUDV1 = 8
+.L0521 ;  AUDV1 = 8
 
 	LDA #8
 	STA AUDV1
-.L0494 ;  hero_flags{4}  =  0
+.L0522 ;  hero_flags{4}  =  0
 
 	LDA hero_flags
 	AND #239
 	STA hero_flags
-.L0495 ;  rem COLUP1 = red
+.L0523 ;  rem COLUP1 = red
 
-.L0496 ;  rem 'Push back monster
+.L0524 ;  rem 'Push back monster
 
-.L0497 ;  if hero_flags{0} then item_y  =  item_y  -  4
+.L0525 ;  if hero_flags{0} then item_y  =  item_y  -  4
 
 	LDA hero_flags
 	LSR
-	BCC .skipL0497
-.condpart42
+	BCC .skipL0525
+.condpart46
 	LDA item_y
 	SEC
 	SBC #4
 	STA item_y
-.skipL0497
-.L0498 ;  if hero_flags{1} then item_x  =  item_x  +  4
+.skipL0525
+.L0526 ;  if hero_flags{1} then item_x  =  item_x  +  4
 
 	LDA hero_flags
 	AND #2
-	BEQ .skipL0498
-.condpart43
+	BEQ .skipL0526
+.condpart47
 	LDA item_x
 	CLC
 	ADC #4
 	STA item_x
-.skipL0498
-.L0499 ;  if hero_flags{2} then item_y  =  item_y  +  4
+.skipL0526
+.L0527 ;  if hero_flags{2} then item_y  =  item_y  +  4
 
 	LDA hero_flags
 	AND #4
-	BEQ .skipL0499
-.condpart44
+	BEQ .skipL0527
+.condpart48
 	LDA item_y
 	CLC
 	ADC #4
 	STA item_y
-.skipL0499
-.L0500 ;  if hero_flags{3} then item_x  =  item_x  -  4
+.skipL0527
+.L0528 ;  if hero_flags{3} then item_x  =  item_x  -  4
 
 	LDA hero_flags
 	AND #8
-	BEQ .skipL0500
-.condpart45
+	BEQ .skipL0528
+.condpart49
 	LDA item_x
 	SEC
 	SBC #4
 	STA item_x
-.skipL0500
-.L0501 ;  rem 'Damage is level / 2 + 1
+.skipL0528
+.L0529 ;  rem 'Damage is level / 2 + 1
 
-.L0502 ;  temp1  =   ( hero_level  /  2 ) 
+.L0530 ;  temp1  =   ( hero_level  /  2 ) 
 
 ; complex statement detected
 	LDA hero_level
 	lsr
 	STA temp1
-.L0503 ;  temp1  =  temp1  +  1
+.L0531 ;  temp1  =  temp1  +  1
 
 	INC temp1
-.L0504 ;  rem 'Double damage with the Numen Sword
+.L0532 ;  rem 'Double damage with the Numen Sword
 
-.L0505 ;  if hero_items{5} then temp1  =  temp1  *  2
+.L0533 ;  if hero_items{5} then temp1  =  temp1  *  2
 
 	LDA hero_items
 	AND #32
-	BEQ .skipL0505
-.condpart46
+	BEQ .skipL0533
+.condpart50
 	LDA temp1
 	asl
 	STA temp1
-.skipL0505
-.L0506 ;  rem 'Prevent damage overflow
+.skipL0533
+.L0534 ;  rem 'Prevent damage overflow
 
-.L0507 ;  if temp1  <  0 then temp1  =  0  -  temp1
+.L0535 ;  if temp1  <  0 then temp1  =  0  -  temp1
 
 	LDA temp1
 	CMP #0
-     BCS .skipL0507
-.condpart47
+     BCS .skipL0535
+.condpart51
 	LDA #0
 	SEC
 	SBC temp1
 	STA temp1
-.skipL0507
-.L0508 ;  if temp1  <  item_hp then goto item_survived
+.skipL0535
+.L0536 ;  if temp1  <  item_hp then goto item_survived
 
 	LDA temp1
 	CMP item_hp
-     BCS .skipL0508
-.condpart48
+     BCS .skipL0536
+.condpart52
  jmp .item_survived
 
-.skipL0508
-.L0509 ;  rem 'Item / monster killed or destroyed
+.skipL0536
+.L0537 ;  rem 'Item / monster killed or destroyed
 
-.L0510 ;  if item_kind  =  monster_ikaza then quest_flags{0}  =  1
+.L0538 ;  if item_kind  =  monster_ikaza then quest_flags{0}  =  1
 
 	LDA item_kind
 	CMP #monster_ikaza
-     BNE .skipL0510
-.condpart49
+     BNE .skipL0538
+.condpart53
 	LDA quest_flags
 	ORA #1
 	STA quest_flags
-.skipL0510
-.L0511 ;  rem 'Make sure Ikaza cannot come back
+.skipL0538
+.L0539 ;  rem 'Make sure Ikaza cannot come back
 
-.L0512 ;  rem 'Give experience and level up if needed
+.L0540 ;  rem 'Give experience and level up if needed
 
-.L0513 ;  rem 'Experience received is danger level of the monster 
+.L0541 ;  rem 'Experience received is danger level of the monster 
 
-.L0514 ;  temp2  =  item_damage[item_kind]
+.L0542 ;  temp2  =  item_damage[item_kind]
 
 	LDX item_kind
 	LDA item_damage,x
 	STA temp2
-.L0515 ;  rem 'No experience for killing the curse, as it's a sitting duck.
+.L0543 ;  rem 'No experience for killing the curse, as it's a sitting duck.
 
-.L0516 ;  if item_kind  =  monster_curse then goto give_experience_end
+.L0544 ;  if item_kind  =  monster_curse then goto give_experience_end
 
 	LDA item_kind
 	CMP #monster_curse
-     BNE .skipL0516
-.condpart50
+     BNE .skipL0544
+.condpart54
  jmp .give_experience_end
 
-.skipL0516
-.L0517 ;  if temp2  <  hero_next then goto give_experience
+.skipL0544
+.L0545 ;  if temp2  <  hero_next then goto give_experience
 
 	LDA temp2
 	CMP hero_next
-     BCS .skipL0517
-.condpart51
+     BCS .skipL0545
+.condpart55
  jmp .give_experience
 
-.skipL0517
-.L0518 ;  rem 'Level up, but not more than 99
+.skipL0545
+.L0546 ;  rem 'Level up, but not more than 99
 
-.L0519 ;  if hero_level  >  98 then goto give_experience_end
+.L0547 ;  if hero_level  >  98 then goto give_experience_end
 
 	LDA #98
 	CMP hero_level
-     BCS .skipL0519
-.condpart52
+     BCS .skipL0547
+.condpart56
  jmp .give_experience_end
 
-.skipL0519
-.L0520 ;  rem 'Level up sound
+.skipL0547
+.L0548 ;  rem 'Level up sound
 
-.L0521 ;  COLUP0 = blue
+.L0549 ;  COLUP0 = blue
 
 	LDA blue
 	STA COLUP0
-.L0522 ;  AUDV1 = 8
+.L0550 ;  AUDV1 = 8
 
 	LDA #8
 	STA AUDV1
-.L0523 ;  AUDF1 = 24
+.L0551 ;  AUDF1 = 24
 
 	LDA #24
 	STA AUDF1
-.L0524 ;  AUDC1 = 12
+.L0552 ;  AUDC1 = 12
 
 	LDA #12
 	STA AUDC1
-.L0525 ;  sound_timer = 8
+.L0553 ;  sound_timer = 8
 
 	LDA #8
 	STA sound_timer
-.L0526 ;  hero_level  =  hero_level  +  1
+.L0554 ;  hero_level  =  hero_level  +  1
 
 	INC hero_level
-.L0527 ;  hero_hp  =  hero_level  *  2  +  hero_base_hp
+.L0555 ;  hero_hp  =  hero_level  *  2  +  hero_base_hp
 
 ; complex statement detected
 	LDA hero_level
@@ -2267,9 +2394,9 @@ ret_point8
 	CLC
 	ADC #hero_base_hp
 	STA hero_hp
-.L0528 ;  rem 'Actually, this is buggy for levels above 80
+.L0556 ;  rem 'Actually, this is buggy for levels above 80
 
-.L0529 ;  hero_mp  =  hero_level / 16  +  1
+.L0557 ;  hero_mp  =  hero_level / 16  +  1
 
 ; complex statement detected
 	LDA hero_level
@@ -2280,11 +2407,11 @@ ret_point8
 	CLC
 	ADC #1
 	STA hero_mp
-.L0530 ;  gosub set_mp_display
+.L0558 ;  gosub set_mp_display
 
  jsr .set_mp_display
 
-.L0531 ;  hero_next  =   ( hero_level  /  2 )   +  1
+.L0559 ;  hero_next  =   ( hero_level  /  2 )   +  1
 
 ; complex statement detected
 	LDA hero_level
@@ -2292,18 +2419,18 @@ ret_point8
 	CLC
 	ADC #1
 	STA hero_next
-.L0532 ;  COLUP0  =  lightgreen
+.L0560 ;  COLUP0  =  turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUP0
-.L0533 ;  goto give_experience_end
+.L0561 ;  goto give_experience_end
 
  jmp .give_experience_end
 
 .give_experience
  ; give_experience
 
-.L0534 ;  hero_next  =  hero_next  -  temp2
+.L0562 ;  hero_next  =  hero_next  -  temp2
 
 	LDA hero_next
 	SEC
@@ -2312,305 +2439,71 @@ ret_point8
 .give_experience_end
  ; give_experience_end
 
-.L0535 ;  rem 'Drop an item, perhaps
+.L0563 ;  rem 'Drop an item, perhaps
 
-.L0536 ;  temp6  =  monster_info[item_kind]
+.L0564 ;  temp6  =  monster_info[item_kind]
 
 	LDX item_kind
 	LDA monster_info,x
 	STA temp6
-.L0537 ;  rem 'Bit 4: monster always drops item 
+.L0565 ;  rem 'Bit 4: monster always drops item 
 
-.L0538 ;  if temp6{4} then goto drop_item
+.L0566 ;  if temp6{4} then goto drop_item
 
 	LDA temp6
 	AND #16
-	BEQ .skipL0538
-.condpart53
+	BEQ .skipL0566
+.condpart57
  jmp .drop_item
 
-.skipL0538
-.L0539 ;  if rand  >  128 then goto drop_item
+.skipL0566
+.L0567 ;  if rand  >  128 then goto drop_item
 
 	LDA #128
 	CMP rand
-     BCS .skipL0539
-.condpart54
+     BCS .skipL0567
+.condpart58
  jmp .drop_item
 
-.skipL0539
-.L0540 ;  rem 'Drop occasional, not always, depeding on monster flags
+.skipL0567
+.L0568 ;  rem 'Drop occasional, not always, depeding on monster flags
 
 .drop_no_item
  ; drop_no_item
 
-.L0541 ;  item_kind  =  item_none
+.L0569 ;  item_kind  =  item_none
 
 	LDA #item_none
 	STA item_kind
-.L0542 ;  item_hp  =  0
+.L0570 ;  item_hp  =  0
 
 	LDA #0
 	STA item_hp
-.L0543 ;  item_x  =  nowhere
+.L0571 ;  item_x  =  nowhere
 
 	LDA #nowhere
 	STA item_x
-.L0544 ;  item_y  =  nowhere
+.L0572 ;  item_y  =  nowhere
 
 	LDA #nowhere
 	STA item_y
-.L0545 ;  goto drop_item_done
+.L0573 ;  goto drop_item_done
 
  jmp .drop_item_done
 
 .drop_item
  ; drop_item
 
-.L0546 ;  temp2  =  monster_drops[item_kind]
+.L0574 ;  temp2  =  monster_drops[item_kind]
 
 	LDX item_kind
 	LDA monster_drops,x
 	STA temp2
-.L0547 ;  item_kind  =  temp2
+.L0575 ;  item_kind  =  temp2
 
 	LDA temp2
 	STA item_kind
-.L0548 ;  gosub item_setup_kind bank4
-
- sta temp7
- lda #>(ret_point9-1)
- pha
- lda #<(ret_point9-1)
- pha
- lda #>(.item_setup_kind-1)
- pha
- lda #<(.item_setup_kind-1)
- pha
- lda temp7
- pha
- txa
- pha
- ldx #4
- jmp BS_jsr
-ret_point9
-.drop_item_done
- ; drop_item_done
-
-.L0549 ;  goto slash_collide_end
-
- jmp .slash_collide_end
-
-.item_survived
- ; item_survived
-
-.L0550 ;  item_hp  =  item_hp  -  temp1
-
-	LDA item_hp
-	SEC
-	SBC temp1
-	STA item_hp
-.L0551 ;  rem 'Push item around
-
-.L0552 ;  if hero_flags{0} then item_y  =  item_y  -  4
-
-	LDA hero_flags
-	LSR
-	BCC .skipL0552
-.condpart55
-	LDA item_y
-	SEC
-	SBC #4
-	STA item_y
-.skipL0552
-.L0553 ;  if hero_flags{1} then item_x  =  item_x  +  4
-
-	LDA hero_flags
-	AND #2
-	BEQ .skipL0553
-.condpart56
-	LDA item_x
-	CLC
-	ADC #4
-	STA item_x
-.skipL0553
-.L0554 ;  if hero_flags{2} then item_y  =  item_y  +  4
-
-	LDA hero_flags
-	AND #4
-	BEQ .skipL0554
-.condpart57
-	LDA item_y
-	CLC
-	ADC #4
-	STA item_y
-.skipL0554
-.L0555 ;  if hero_flags{3} then item_x  =  item_x  -  4
-
-	LDA hero_flags
-	AND #8
-	BEQ .skipL0555
-.condpart58
-	LDA item_x
-	SEC
-	SBC #4
-	STA item_x
-.skipL0555
-.L0556 ;  goto slash_collide_end
-
- jmp .slash_collide_end
-
-.slash_item_collide
- ; slash_item_collide
-
-.L0557 ;  rem 'Make a hit sound once
-
-.L0558 ;  sound_timer = 1
-
-	LDA #1
-	STA sound_timer
-.L0559 ;  AUDC1 = 8
-
-	LDA #8
-	STA AUDC1
-.L0560 ;  AUDF1 = 2
-
-	LDA #2
-	STA AUDF1
-.L0561 ;  AUDV1 = 8
-
-	LDA #8
-	STA AUDV1
-.L0562 ;  if item_kind  <  item_switch1 then goto slash_item_pickup
-
-	LDA item_kind
-	CMP #item_switch1
-     BCS .skipL0562
-.condpart59
- jmp .slash_item_pickup
-
-.skipL0562
-.L0563 ;  if item_kind  >  item_switch7_on then goto slash_item_pickup
-
-	LDA #item_switch7_on
-	CMP item_kind
-     BCS .skipL0563
-.condpart60
- jmp .slash_item_pickup
-
-.skipL0563
-.L0564 ;  rem 'If colliding with an item that's not a switch, pick it up.
-
-.L0565 ;  rem 'Otherwise it's a switch that's hit.  
-
-.L0566 ;  goto hit_switch
-
- jmp .hit_switch
-
-.slash_item_pickup
- ; slash_item_pickup
-
-.L0567 ;  gosub item_pickup
-
- jsr .item_pickup
-
-.L0568 ;  gosub show_inventory
-
- jsr .show_inventory
-
-.L0569 ;  goto slash_collide_end
-
- jmp .slash_collide_end
-
-.hit_switch
- ; hit_switch
-
-.L0570 ;  rem 'Do nothing with the already triggered switches. 
-
-.L0571 ;  rem '(Turn them off again, perhaps?)
-
-.L0572 ;  if item_kind  >  item_switch7 then goto slash_collide_end
-
-	LDA #item_switch7
-	CMP item_kind
-     BCS .skipL0572
-.condpart61
- jmp .slash_collide_end
-
-.skipL0572
-.L0573 ;  rem 'Handle hitting of the switch: set the quest flag and change the display.
-
-.L0574 ;  if item_kind  =  item_switch1 then quest_flags{1}  =  1
-
-	LDA item_kind
-	CMP #item_switch1
-     BNE .skipL0574
-.condpart62
-	LDA quest_flags
-	ORA #2
-	STA quest_flags
-.skipL0574
-.L0575 ;  if item_kind  =  item_switch2 then quest_flags{2}  =  1
-
-	LDA item_kind
-	CMP #item_switch2
-     BNE .skipL0575
-.condpart63
-	LDA quest_flags
-	ORA #4
-	STA quest_flags
-.skipL0575
-.L0576 ;  if item_kind  =  item_switch3 then quest_flags{3}  =  1
-
-	LDA item_kind
-	CMP #item_switch3
-     BNE .skipL0576
-.condpart64
-	LDA quest_flags
-	ORA #8
-	STA quest_flags
-.skipL0576
-.L0577 ;  if item_kind  =  item_switch4 then quest_flags{4}  =  1
-
-	LDA item_kind
-	CMP #item_switch4
-     BNE .skipL0577
-.condpart65
-	LDA quest_flags
-	ORA #16
-	STA quest_flags
-.skipL0577
-.L0578 ;  if item_kind  =  item_switch5 then quest_flags{5}  =  1
-
-	LDA item_kind
-	CMP #item_switch5
-     BNE .skipL0578
-.condpart66
-	LDA quest_flags
-	ORA #32
-	STA quest_flags
-.skipL0578
-.L0579 ;  if item_kind  =  item_switch6 then quest_flags{6}  =  1
-
-	LDA item_kind
-	CMP #item_switch6
-     BNE .skipL0579
-.condpart67
-	LDA quest_flags
-	ORA #64
-	STA quest_flags
-.skipL0579
-.L0580 ;  if item_kind  =  item_switch7 then quest_flags{7}  =  1
-
-	LDA item_kind
-	CMP #item_switch7
-     BNE .skipL0580
-.condpart68
-	LDA quest_flags
-	ORA #128
-	STA quest_flags
-.skipL0580
-.L0581 ;  gosub item_setup_kind bank4
+.L0576 ;  gosub item_setup_kind bank4
 
  sta temp7
  lda #>(ret_point10-1)
@@ -2628,6 +2521,240 @@ ret_point9
  ldx #4
  jmp BS_jsr
 ret_point10
+.drop_item_done
+ ; drop_item_done
+
+.L0577 ;  goto slash_collide_end
+
+ jmp .slash_collide_end
+
+.item_survived
+ ; item_survived
+
+.L0578 ;  item_hp  =  item_hp  -  temp1
+
+	LDA item_hp
+	SEC
+	SBC temp1
+	STA item_hp
+.L0579 ;  rem 'Push item around
+
+.L0580 ;  if hero_flags{0} then item_y  =  item_y  -  4
+
+	LDA hero_flags
+	LSR
+	BCC .skipL0580
+.condpart59
+	LDA item_y
+	SEC
+	SBC #4
+	STA item_y
+.skipL0580
+.L0581 ;  if hero_flags{1} then item_x  =  item_x  +  4
+
+	LDA hero_flags
+	AND #2
+	BEQ .skipL0581
+.condpart60
+	LDA item_x
+	CLC
+	ADC #4
+	STA item_x
+.skipL0581
+.L0582 ;  if hero_flags{2} then item_y  =  item_y  +  4
+
+	LDA hero_flags
+	AND #4
+	BEQ .skipL0582
+.condpart61
+	LDA item_y
+	CLC
+	ADC #4
+	STA item_y
+.skipL0582
+.L0583 ;  if hero_flags{3} then item_x  =  item_x  -  4
+
+	LDA hero_flags
+	AND #8
+	BEQ .skipL0583
+.condpart62
+	LDA item_x
+	SEC
+	SBC #4
+	STA item_x
+.skipL0583
+.L0584 ;  goto slash_collide_end
+
+ jmp .slash_collide_end
+
+.slash_item_collide
+ ; slash_item_collide
+
+.L0585 ;  rem 'Make a hit sound once
+
+.L0586 ;  sound_timer = 1
+
+	LDA #1
+	STA sound_timer
+.L0587 ;  AUDC1 = 8
+
+	LDA #8
+	STA AUDC1
+.L0588 ;  AUDF1 = 2
+
+	LDA #2
+	STA AUDF1
+.L0589 ;  AUDV1 = 8
+
+	LDA #8
+	STA AUDV1
+.L0590 ;  if item_kind  <  item_switch1 then goto slash_item_pickup
+
+	LDA item_kind
+	CMP #item_switch1
+     BCS .skipL0590
+.condpart63
+ jmp .slash_item_pickup
+
+.skipL0590
+.L0591 ;  if item_kind  >  item_switch7_on then goto slash_item_pickup
+
+	LDA #item_switch7_on
+	CMP item_kind
+     BCS .skipL0591
+.condpart64
+ jmp .slash_item_pickup
+
+.skipL0591
+.L0592 ;  rem 'If colliding with an item that's not a switch, pick it up.
+
+.L0593 ;  rem 'Otherwise it's a switch that's hit.  
+
+.L0594 ;  goto hit_switch
+
+ jmp .hit_switch
+
+.slash_item_pickup
+ ; slash_item_pickup
+
+.L0595 ;  gosub item_pickup
+
+ jsr .item_pickup
+
+.L0596 ;  gosub show_inventory
+
+ jsr .show_inventory
+
+.L0597 ;  goto slash_collide_end
+
+ jmp .slash_collide_end
+
+.hit_switch
+ ; hit_switch
+
+.L0598 ;  rem 'Do nothing with the already triggered switches. 
+
+.L0599 ;  rem '(Turn them off again, perhaps?)
+
+.L0600 ;  if item_kind  >  item_switch7 then goto slash_collide_end
+
+	LDA #item_switch7
+	CMP item_kind
+     BCS .skipL0600
+.condpart65
+ jmp .slash_collide_end
+
+.skipL0600
+.L0601 ;  rem 'Handle hitting of the switch: set the quest flag and change the display.
+
+.L0602 ;  if item_kind  =  item_switch1 then quest_flags{1}  =  1
+
+	LDA item_kind
+	CMP #item_switch1
+     BNE .skipL0602
+.condpart66
+	LDA quest_flags
+	ORA #2
+	STA quest_flags
+.skipL0602
+.L0603 ;  if item_kind  =  item_switch2 then quest_flags{2}  =  1
+
+	LDA item_kind
+	CMP #item_switch2
+     BNE .skipL0603
+.condpart67
+	LDA quest_flags
+	ORA #4
+	STA quest_flags
+.skipL0603
+.L0604 ;  if item_kind  =  item_switch3 then quest_flags{3}  =  1
+
+	LDA item_kind
+	CMP #item_switch3
+     BNE .skipL0604
+.condpart68
+	LDA quest_flags
+	ORA #8
+	STA quest_flags
+.skipL0604
+.L0605 ;  if item_kind  =  item_switch4 then quest_flags{4}  =  1
+
+	LDA item_kind
+	CMP #item_switch4
+     BNE .skipL0605
+.condpart69
+	LDA quest_flags
+	ORA #16
+	STA quest_flags
+.skipL0605
+.L0606 ;  if item_kind  =  item_switch5 then quest_flags{5}  =  1
+
+	LDA item_kind
+	CMP #item_switch5
+     BNE .skipL0606
+.condpart70
+	LDA quest_flags
+	ORA #32
+	STA quest_flags
+.skipL0606
+.L0607 ;  if item_kind  =  item_switch6 then quest_flags{6}  =  1
+
+	LDA item_kind
+	CMP #item_switch6
+     BNE .skipL0607
+.condpart71
+	LDA quest_flags
+	ORA #64
+	STA quest_flags
+.skipL0607
+.L0608 ;  if item_kind  =  item_switch7 then quest_flags{7}  =  1
+
+	LDA item_kind
+	CMP #item_switch7
+     BNE .skipL0608
+.condpart72
+	LDA quest_flags
+	ORA #128
+	STA quest_flags
+.skipL0608
+.L0609 ;  gosub item_setup_kind bank4
+
+ sta temp7
+ lda #>(ret_point11-1)
+ pha
+ lda #<(ret_point11-1)
+ pha
+ lda #>(.item_setup_kind-1)
+ pha
+ lda #<(.item_setup_kind-1)
+ pha
+ lda temp7
+ pha
+ txa
+ pha
+ ldx #4
+ jmp BS_jsr
+ret_point11
 .slash_collide_end
  ; slash_collide_end
 
@@ -2640,104 +2767,104 @@ ret_point10
 .
  ; 
 
-.L0582 ;  rem 'Player action though button
+.L0610 ;  rem 'Player action though button
 
-.L0583 ;  if !joy0fire then goto hero_action_done
+.L0611 ;  if !joy0fire then goto hero_action_done
 
  lda #$80
  bit INPT4
-	BEQ .skipL0583
-.condpart69
+	BEQ .skipL0611
+.condpart73
  jmp .hero_action_done
 
-.skipL0583
-.L0584 ;  rem 'Skip all this if action is blocked.
+.skipL0611
+.L0612 ;  rem 'Skip all this if action is blocked.
 
-.L0585 ;  if !hero_flags{4} then goto hero_action_blocked
+.L0613 ;  if !hero_flags{4} then goto hero_action_blocked
 
 	LDA hero_flags
 	AND #16
-	BNE .skipL0585
-.condpart70
+	BNE .skipL0613
+.condpart74
  jmp .hero_action_blocked
 
-.skipL0585
-.L0586 ;  if !hero_items{7} then goto hero_act_nostrike
+.skipL0613
+.L0614 ;  if !hero_items{7} then goto hero_act_nostrike
 
 	BIT hero_items
-	BMI .skipL0586
-.condpart71
+	BMI .skipL0614
+.condpart75
  jmp .hero_act_nostrike
 
-.skipL0586
-.L0587 ;  if hero_mp  <  strike_cost then goto hero_act_nostrike
+.skipL0614
+.L0615 ;  if hero_mp  <  strike_cost then goto hero_act_nostrike
 
 	LDA hero_mp
 	CMP #strike_cost
-     BCS .skipL0587
-.condpart72
+     BCS .skipL0615
+.condpart76
  jmp .hero_act_nostrike
 
-.skipL0587
-.L0588 ;  rem ' The b switch controls whether the book of striking is in use or not.
+.skipL0615
+.L0616 ;  rem ' The b switch controls whether the book of striking is in use or not.
 
-.L0589 ;  if switchleftb then goto hero_act_nostrike
+.L0617 ;  if switchleftb then goto hero_act_nostrike
 
  lda #$40
  bit SWCHB
-	BNE .skipL0589
-.condpart73
+	BNE .skipL0617
+.condpart77
  jmp .hero_act_nostrike
 
-.skipL0589
-.L0590 ;  if item_kind  <  last_monster then goto hero_act_strike
+.skipL0617
+.L0618 ;  if item_kind  <  last_monster then goto hero_act_strike
 
 	LDA item_kind
 	CMP #last_monster
-     BCS .skipL0590
-.condpart74
+     BCS .skipL0618
+.condpart78
  jmp .hero_act_strike
 
-.skipL0590
-.L0591 ;  if item_kind  >=  item_switch1  &&  item_kind  <=  item_switch7 then goto hero_act_strike
+.skipL0618
+.L0619 ;  if item_kind  >=  item_switch1  &&  item_kind  <=  item_switch7 then goto hero_act_strike
 
 	LDA item_kind
 	CMP #item_switch1
-     BCC .skipL0591
-.condpart75
+     BCC .skipL0619
+.condpart79
 	LDA #item_switch7
 	CMP item_kind
-     BCC .skip75then
-.condpart76
+     BCC .skip79then
+.condpart80
  jmp .hero_act_strike
 
-.skip75then
-.skipL0591
+.skip79then
+.skipL0619
 .hero_act_nostrike
  ; hero_act_nostrike
 
-.L0592 ;  temp1  =  hero_flags  &  %00001111
+.L0620 ;  temp1  =  hero_flags  &  %00001111
 
 	LDA hero_flags
 	AND #%00001111
 	STA temp1
-.L0593 ;  rem 'Use this to jump to the right attack action.
+.L0621 ;  rem 'Use this to jump to the right attack action.
 
-.L0594 ;  rem '          0     1=north 2=east 3=ne   4=south  5=n+s(emu onlu)  6=se 7=nse 
+.L0622 ;  rem '          0     1=north 2=east 3=ne   4=south  5=n+s(emu onlu)  6=se 7=nse 
 
-.L0595 ;  rem ' 8 = west
+.L0623 ;  rem ' 8 = west
 
-.L0596 ;  rem ' 9 10 11 12 13 14 15(all sides, emu only)    
+.L0624 ;  rem ' 9 10 11 12 13 14 15(all sides, emu only)    
 
-.L0597 ;  on temp1 goto had hero_act_n hero_act_e hero_act_n hero_act_s hero_act_s hero_act_n hero_act_n hero_act_w hero_act_n hero_act_w hero_act_s had had had
+.L0625 ;  on temp1 goto had hero_act_n hero_act_e hero_act_n hero_act_s hero_act_s hero_act_n hero_act_n hero_act_w hero_act_n hero_act_w hero_act_s had had had
 
 	LDX temp1
-	LDA .L0597jumptablehi,x
+	LDA .L0625jumptablehi,x
 	PHA
-	LDA .L0597jumptablelo,x
+	LDA .L0625jumptablelo,x
 	PHA
 	RTS
-.L0597jumptablehi
+.L0625jumptablehi
 	.byte >(.had-1)
 	.byte >(.hero_act_n-1)
 	.byte >(.hero_act_e-1)
@@ -2753,7 +2880,7 @@ ret_point10
 	.byte >(.had-1)
 	.byte >(.had-1)
 	.byte >(.had-1)
-.L0597jumptablelo
+.L0625jumptablelo
 	.byte <(.had-1)
 	.byte <(.hero_act_n-1)
 	.byte <(.hero_act_e-1)
@@ -2772,150 +2899,150 @@ ret_point10
 .hero_act_n
  ; hero_act_n
 
-.L0598 ;  missile0x = hero_x  +  4
+.L0626 ;  missile0x = hero_x  +  4
 
 	LDA hero_x
 	CLC
 	ADC #4
 	STA missile0x
-.L0599 ;  missile0y = hero_y  -  14
+.L0627 ;  missile0y = hero_y  -  14
 
 	LDA hero_y
 	SEC
 	SBC #14
 	STA missile0y
-.L0600 ;  missile0height = 8
+.L0628 ;  missile0height = 8
 
 	LDA #8
 	STA missile0height
-.L0601 ;  NUSIZ0 = $00
+.L0629 ;  NUSIZ0 = $00
 
 	LDA #$00
 	STA NUSIZ0
-.L0602 ;  goto hero_action_end
+.L0630 ;  goto hero_action_end
 
  jmp .hero_action_end
 
 .hero_act_e
  ; hero_act_e
 
-.L0603 ;  missile0x = hero_x  +  9
+.L0631 ;  missile0x = hero_x  +  9
 
 	LDA hero_x
 	CLC
 	ADC #9
 	STA missile0x
-.L0604 ;  missile0y = hero_y  -  4
+.L0632 ;  missile0y = hero_y  -  4
 
 	LDA hero_y
 	SEC
 	SBC #4
 	STA missile0y
-.L0605 ;  missile0height = 0
+.L0633 ;  missile0height = 0
 
 	LDA #0
 	STA missile0height
-.L0606 ;  NUSIZ0 = $30
+.L0634 ;  NUSIZ0 = $30
 
 	LDA #$30
 	STA NUSIZ0
-.L0607 ;  goto hero_action_end
+.L0635 ;  goto hero_action_end
 
  jmp .hero_action_end
 
 .hero_act_s
  ; hero_act_s
 
-.L0608 ;  missile0x = hero_x  +  4
+.L0636 ;  missile0x = hero_x  +  4
 
 	LDA hero_x
 	CLC
 	ADC #4
 	STA missile0x
-.L0609 ;  missile0y = hero_y  +  8
+.L0637 ;  missile0y = hero_y  +  8
 
 	LDA hero_y
 	CLC
 	ADC #8
 	STA missile0y
-.L0610 ;  missile0height = 8
+.L0638 ;  missile0height = 8
 
 	LDA #8
 	STA missile0height
-.L0611 ;  NUSIZ0 = $00
+.L0639 ;  NUSIZ0 = $00
 
 	LDA #$00
 	STA NUSIZ0
-.L0612 ;  goto hero_action_end
+.L0640 ;  goto hero_action_end
 
  jmp .hero_action_end
 
 .hero_act_w
  ; hero_act_w
 
-.L0613 ;  missile0x = hero_x  -  7
+.L0641 ;  missile0x = hero_x  -  7
 
 	LDA hero_x
 	SEC
 	SBC #7
 	STA missile0x
-.L0614 ;  missile0y = hero_y  -  4
+.L0642 ;  missile0y = hero_y  -  4
 
 	LDA hero_y
 	SEC
 	SBC #4
 	STA missile0y
-.L0615 ;  missile0height = 0
+.L0643 ;  missile0height = 0
 
 	LDA #0
 	STA missile0height
-.L0616 ;  NUSIZ0 = $30
+.L0644 ;  NUSIZ0 = $30
 
 	LDA #$30
 	STA NUSIZ0
-.L0617 ;  goto hero_action_end
+.L0645 ;  goto hero_action_end
 
  jmp .hero_action_end
 
-.L0618 ;  rem NUSIZ0=$00
+.L0646 ;  rem NUSIZ0=$00
 
 .hero_act_strike
  ; hero_act_strike
 
-.L0619 ;  hero_mp  =  hero_mp  -  strike_cost
+.L0647 ;  hero_mp  =  hero_mp  -  strike_cost
 
 	LDA hero_mp
 	SEC
 	SBC #strike_cost
 	STA hero_mp
-.L0620 ;  gosub set_mp_display
+.L0648 ;  gosub set_mp_display
 
  jsr .set_mp_display
 
-.L0621 ;  rem 'Strike will hit the ennemy wherever it is. A guaranteed hit I'd say ^_^
+.L0649 ;  rem 'Strike will hit the ennemy wherever it is. A guaranteed hit I'd say ^_^
 
-.L0622 ;  missile0x = item_x
+.L0650 ;  missile0x = item_x
 
 	LDA item_x
 	STA missile0x
-.L0623 ;  missile0y = item_y
+.L0651 ;  missile0y = item_y
 
 	LDA item_y
 	STA missile0y
-.L0624 ;  missile0height = 8
+.L0652 ;  missile0height = 8
 
 	LDA #8
 	STA missile0height
-.L0625 ;  NUSIZ0 = $30
+.L0653 ;  NUSIZ0 = $30
 
 	LDA #$30
 	STA NUSIZ0
-.L0626 ;  COLUP0 = rand
+.L0654 ;  COLUP0 = rand
 
  sta temp7
- lda #>(ret_point11-1)
+ lda #>(ret_point12-1)
  pha
- lda #<(ret_point11-1)
+ lda #<(ret_point12-1)
  pha
  lda #>(randomize-1)
  pha
@@ -2927,13 +3054,13 @@ ret_point10
  pha
  ldx #8
  jmp BS_jsr
-ret_point11
+ret_point12
 	STA COLUP0
-.L0627 ;  COLUP1 = red
+.L0655 ;  COLUP1 = red
 
-	LDA #red
+	LDA red
 	STA COLUP1
-.L0628 ;  goto hero_action_end
+.L0656 ;  goto hero_action_end
 
  jmp .hero_action_end
 
@@ -2943,23 +3070,23 @@ ret_point11
 .hero_action_done
  ; hero_action_done
 
-.L0629 ;  hero_flags{4}  =  1
+.L0657 ;  hero_flags{4}  =  1
 
 	LDA hero_flags
 	ORA #16
 	STA hero_flags
-.L0630 ;  rem 'Allow attacks again
+.L0658 ;  rem 'Allow attacks again
 
 .hero_action_blocked
  ; hero_action_blocked
 
-.L0631 ;  rem 'If the action is blocked or released, hide the missile
+.L0659 ;  rem 'If the action is blocked or released, hide the missile
 
-.L0632 ;  missile0x  =  nowhere
+.L0660 ;  missile0x  =  nowhere
 
 	LDA #nowhere
 	STA missile0x
-.L0633 ;  missile0y  =  nowhere
+.L0661 ;  missile0y  =  nowhere
 
 	LDA #nowhere
 	STA missile0y
@@ -2969,35 +3096,35 @@ ret_point11
 .
  ; 
 
-.L0634 ;  rem 'Deterimine hero's motion and direction from the joystick
+.L0662 ;  rem 'Deterimine hero's motion and direction from the joystick
 
-.L0635 ;  rem 'In NESW order  
+.L0663 ;  rem 'In NESW order  
 
-.L0636 ;  rem ' hero_flags = (hero_flags / 16) * 16 preserves the higher nibble (I hope)
+.L0664 ;  rem ' hero_flags = (hero_flags / 16) * 16 preserves the higher nibble (I hope)
 
-.L0637 ;  rem '
+.L0665 ;  rem '
 
-.L0638 ;  rem 'For the player collision detection, we calculate the playfield position 
+.L0666 ;  rem 'For the player collision detection, we calculate the playfield position 
 
-.L0639 ;  rem 'at any of the four points around the feet of the player, and check if 
+.L0667 ;  rem 'at any of the four points around the feet of the player, and check if 
 
-.L0640 ;  rem 'if anything is there with pfread, and prevent motion if it is so.  
+.L0668 ;  rem 'if anything is there with pfread, and prevent motion if it is so.  
 
-.L0641 ;  rem ' Note that we do allow Signe to turn her facing even when she cannot move.
+.L0669 ;  rem ' Note that we do allow Signe to turn her facing even when she cannot move.
 
 .
  ; 
 
-.L0642 ;  if !joy0up then goto joy0up_end
+.L0670 ;  if !joy0up then goto joy0up_end
 
  lda #$10
  bit SWCHA
-	BEQ .skipL0642
-.condpart77
+	BEQ .skipL0670
+.condpart81
  jmp .joy0up_end
 
-.skipL0642
-.L0643 ;  hero_flags  =   ( hero_flags  /  16 )   *  16
+.skipL0670
+.L0671 ;  hero_flags  =   ( hero_flags  /  16 )   *  16
 
 ; complex statement detected
 	LDA hero_flags
@@ -3010,14 +3137,14 @@ ret_point11
 	asl
 	asl
 	STA hero_flags
-.L0644 ;  hero_flags{0}  =  1
+.L0672 ;  hero_flags{0}  =  1
 
 	LDA hero_flags
 	ORA #1
 	STA hero_flags
-.L0645 ;  rem 'Check top middle point 
+.L0673 ;  rem 'Check top middle point 
 
-.L0646 ;  temp1  =   ( hero_x  +  hero_half_wide  -  17 )   /  4
+.L0674 ;  temp1  =   ( hero_x  +  hero_half_wide  -  17 )   /  4
 
 ; complex statement detected
 	LDA hero_x
@@ -3028,7 +3155,7 @@ ret_point11
 	lsr
 	lsr
 	STA temp1
-.L0647 ;  temp2  =   ( hero_y  -  hero_high  -  1  -  1 )   /  8
+.L0675 ;  temp2  =   ( hero_y  -  hero_high  -  1  -  1 )   /  8
 
 ; complex statement detected
 	LDA hero_y
@@ -3042,94 +3169,7 @@ ret_point11
 	lsr
 	lsr
 	STA temp2
-.L0648 ;  if pfread ( temp1 ,  temp2 )  goto joy0up_end
-
-	LDA temp1
-	LDY temp2
- sta temp7
- lda #>(ret_point12-1)
- pha
- lda #<(ret_point12-1)
- pha
- lda #>(pfread-1)
- pha
- lda #<(pfread-1)
- pha
- lda temp7
- pha
- txa
- pha
- ldx #8
- jmp BS_jsr
-ret_point12
- if ((* - .joy0up_end) < 127) && ((* - .joy0up_end) > -128)
-	BEQ .joy0up_end
- else
-	bne .4skipjoy0up_end
-	jmp .joy0up_end
-.4skipjoy0up_end
- endif
-.L0649 ;  hero_y  =  hero_y  -  1
-
-	DEC hero_y
-.joy0up_end
- ; joy0up_end
-
-.L0650 ;  if !joy0right then goto joy0right_end
-
- lda #$80
- bit SWCHA
-	BEQ .skipL0650
-.condpart78
- jmp .joy0right_end
-
-.skipL0650
-.L0651 ;  hero_flags  =   ( hero_flags  /  16 )   *  16
-
-; complex statement detected
-	LDA hero_flags
-	lsr
-	lsr
-	lsr
-	lsr
-	asl
-	asl
-	asl
-	asl
-	STA hero_flags
-.L0652 ;  hero_flags{1}  =  1
-
-	LDA hero_flags
-	ORA #2
-	STA hero_flags
-.L0653 ;  temp1  =   ( hero_x  +  hero_wide  +  1  -  17 )   /  4
-
-; complex statement detected
-	LDA hero_x
-	CLC
-	ADC #hero_wide
-	CLC
-	ADC #1
-	SEC
-	SBC #17
-	lsr
-	lsr
-	STA temp1
-.L0654 ;  temp2  =   ( hero_y  -  hero_half_high  -  1 )   /  8
-
-; complex statement detected
-	LDA hero_y
-	SEC
-	SBC #hero_half_high
-	SEC
-	SBC #1
-	lsr
-	lsr
-	lsr
-	STA temp2
-.L0655 ;  rem 'Prevent motion if something is there
-
-.L0656 ;  if pfread ( temp1 ,  temp2 )  goto joy0right_end
+.L0676 ;  if pfread ( temp1 ,  temp2 )  goto joy0up_end
 
 	LDA temp1
 	LDY temp2
@@ -3149,29 +3189,29 @@ ret_point12
  ldx #8
  jmp BS_jsr
 ret_point13
- if ((* - .joy0right_end) < 127) && ((* - .joy0right_end) > -128)
-	BEQ .joy0right_end
+ if ((* - .joy0up_end) < 127) && ((* - .joy0up_end) > -128)
+	BEQ .joy0up_end
  else
-	bne .5skipjoy0right_end
-	jmp .joy0right_end
-.5skipjoy0right_end
+	bne .4skipjoy0up_end
+	jmp .joy0up_end
+.4skipjoy0up_end
  endif
-.L0657 ;  hero_x  =  hero_x  +  1
+.L0677 ;  hero_y  =  hero_y  -  1
 
-	INC hero_x
-.joy0right_end
- ; joy0right_end
+	DEC hero_y
+.joy0up_end
+ ; joy0up_end
 
-.L0658 ;  if !joy0down then goto joy0down_end
+.L0678 ;  if !joy0right then goto joy0right_end
 
- lda #$20
+ lda #$80
  bit SWCHA
-	BEQ .skipL0658
-.condpart79
- jmp .joy0down_end
+	BEQ .skipL0678
+.condpart82
+ jmp .joy0right_end
 
-.skipL0658
-.L0659 ;  hero_flags  =   ( hero_flags  /  16 )   *  16
+.skipL0678
+.L0679 ;  hero_flags  =   ( hero_flags  /  16 )   *  16
 
 ; complex statement detected
 	LDA hero_flags
@@ -3184,37 +3224,39 @@ ret_point13
 	asl
 	asl
 	STA hero_flags
-.L0660 ;  hero_flags{2}  =  1
+.L0680 ;  hero_flags{1}  =  1
 
 	LDA hero_flags
-	ORA #4
+	ORA #2
 	STA hero_flags
-.L0661 ;  temp1  =   ( hero_x  +  hero_half_wide  -  17 )   /  4
+.L0681 ;  temp1  =   ( hero_x  +  hero_wide  +  1  -  17 )   /  4
 
 ; complex statement detected
 	LDA hero_x
 	CLC
-	ADC #hero_half_wide
+	ADC #hero_wide
+	CLC
+	ADC #1
 	SEC
 	SBC #17
 	lsr
 	lsr
 	STA temp1
-.L0662 ;  temp2  =   ( hero_y  +  1  -  1 )   /  8
+.L0682 ;  temp2  =   ( hero_y  -  hero_half_high  -  1 )   /  8
 
 ; complex statement detected
 	LDA hero_y
-	CLC
-	ADC #1
+	SEC
+	SBC #hero_half_high
 	SEC
 	SBC #1
 	lsr
 	lsr
 	lsr
 	STA temp2
-.L0663 ;  rem 'Check bottom middle point. don't move if it's blocked by the playfield.
+.L0683 ;  rem 'Prevent motion if something is there
 
-.L0664 ;  if pfread ( temp1 ,  temp2 )  then goto joy0down_end
+.L0684 ;  if pfread ( temp1 ,  temp2 )  goto joy0right_end
 
 	LDA temp1
 	LDY temp2
@@ -3234,27 +3276,29 @@ ret_point13
  ldx #8
  jmp BS_jsr
 ret_point14
-	BNE .skipL0664
-.condpart80
+ if ((* - .joy0right_end) < 127) && ((* - .joy0right_end) > -128)
+	BEQ .joy0right_end
+ else
+	bne .5skipjoy0right_end
+	jmp .joy0right_end
+.5skipjoy0right_end
+ endif
+.L0685 ;  hero_x  =  hero_x  +  1
+
+	INC hero_x
+.joy0right_end
+ ; joy0right_end
+
+.L0686 ;  if !joy0down then goto joy0down_end
+
+ lda #$20
+ bit SWCHA
+	BEQ .skipL0686
+.condpart83
  jmp .joy0down_end
 
-.skipL0664
-.L0665 ;  hero_y  =  hero_y  +  1
-
-	INC hero_y
-.joy0down_end
- ; joy0down_end
-
-.L0666 ;  if !joy0left then goto joy0left_end
-
- lda #$40
- bit SWCHA
-	BEQ .skipL0666
-.condpart81
- jmp .joy0left_end
-
-.skipL0666
-.L0667 ;  hero_flags  =   ( hero_flags  /  16 )   *  16
+.skipL0686
+.L0687 ;  hero_flags  =   ( hero_flags  /  16 )   *  16
 
 ; complex statement detected
 	LDA hero_flags
@@ -3267,37 +3311,37 @@ ret_point14
 	asl
 	asl
 	STA hero_flags
-.L0668 ;  hero_flags{3}  =  1
+.L0688 ;  hero_flags{2}  =  1
 
 	LDA hero_flags
-	ORA #8
+	ORA #4
 	STA hero_flags
-.L0669 ;  temp1  =   ( hero_x  -  1  -  17 )   /  4
+.L0689 ;  temp1  =   ( hero_x  +  hero_half_wide  -  17 )   /  4
 
 ; complex statement detected
 	LDA hero_x
-	SEC
-	SBC #1
+	CLC
+	ADC #hero_half_wide
 	SEC
 	SBC #17
 	lsr
 	lsr
 	STA temp1
-.L0670 ;  temp2  =   ( hero_y  -  hero_half_high  -  1 )   /  8
+.L0690 ;  temp2  =   ( hero_y  +  1  -  1 )   /  8
 
 ; complex statement detected
 	LDA hero_y
-	SEC
-	SBC #hero_half_high
+	CLC
+	ADC #1
 	SEC
 	SBC #1
 	lsr
 	lsr
 	lsr
 	STA temp2
-.L0671 ;  rem 'Check point to the west of the feet 
+.L0691 ;  rem 'Check bottom middle point. don't move if it's blocked by the playfield.
 
-.L0672 ;  if pfread ( temp1 ,  temp2 )  goto joy0left_end
+.L0692 ;  if pfread ( temp1 ,  temp2 )  then goto joy0down_end
 
 	LDA temp1
 	LDY temp2
@@ -3317,6 +3361,89 @@ ret_point14
  ldx #8
  jmp BS_jsr
 ret_point15
+	BNE .skipL0692
+.condpart84
+ jmp .joy0down_end
+
+.skipL0692
+.L0693 ;  hero_y  =  hero_y  +  1
+
+	INC hero_y
+.joy0down_end
+ ; joy0down_end
+
+.L0694 ;  if !joy0left then goto joy0left_end
+
+ lda #$40
+ bit SWCHA
+	BEQ .skipL0694
+.condpart85
+ jmp .joy0left_end
+
+.skipL0694
+.L0695 ;  hero_flags  =   ( hero_flags  /  16 )   *  16
+
+; complex statement detected
+	LDA hero_flags
+	lsr
+	lsr
+	lsr
+	lsr
+	asl
+	asl
+	asl
+	asl
+	STA hero_flags
+.L0696 ;  hero_flags{3}  =  1
+
+	LDA hero_flags
+	ORA #8
+	STA hero_flags
+.L0697 ;  temp1  =   ( hero_x  -  1  -  17 )   /  4
+
+; complex statement detected
+	LDA hero_x
+	SEC
+	SBC #1
+	SEC
+	SBC #17
+	lsr
+	lsr
+	STA temp1
+.L0698 ;  temp2  =   ( hero_y  -  hero_half_high  -  1 )   /  8
+
+; complex statement detected
+	LDA hero_y
+	SEC
+	SBC #hero_half_high
+	SEC
+	SBC #1
+	lsr
+	lsr
+	lsr
+	STA temp2
+.L0699 ;  rem 'Check point to the west of the feet 
+
+.L0700 ;  if pfread ( temp1 ,  temp2 )  goto joy0left_end
+
+	LDA temp1
+	LDY temp2
+ sta temp7
+ lda #>(ret_point16-1)
+ pha
+ lda #<(ret_point16-1)
+ pha
+ lda #>(pfread-1)
+ pha
+ lda #<(pfread-1)
+ pha
+ lda temp7
+ pha
+ txa
+ pha
+ ldx #8
+ jmp BS_jsr
+ret_point16
  if ((* - .joy0left_end) < 127) && ((* - .joy0left_end) > -128)
 	BEQ .joy0left_end
  else
@@ -3324,7 +3451,7 @@ ret_point15
 	jmp .joy0left_end
 .6skipjoy0left_end
  endif
-.L0673 ;  hero_x  =  hero_x  -  1
+.L0701 ;  hero_x  =  hero_x  -  1
 
 	DEC hero_x
 .joy0left_end
@@ -3333,93 +3460,93 @@ ret_point15
 .
  ; 
 
-.L0674 ;  rem 'Monster "AI":
+.L0702 ;  rem 'Monster "AI":
 
-.L0675 ;  rem 'Animate missile if it has been launched
+.L0703 ;  rem 'Animate missile if it has been launched
 
-.L0676 ;  if missile1y  =  nowhere then goto missile_move_end
+.L0704 ;  if missile1y  =  nowhere then goto missile_move_end
 
 	LDA missile1y
 	CMP #nowhere
-     BNE .skipL0676
-.condpart82
+     BNE .skipL0704
+.condpart86
  jmp .missile_move_end
 
-.skipL0676
-.L0677 ;  if item_flags{3} then missile1x  =  missile1x  -  2  :  goto missile_move_end
+.skipL0704
+.L0705 ;  if item_flags{3} then missile1x  =  missile1x  -  2  :  goto missile_move_end
 
 	LDA item_flags
 	AND #8
-	BEQ .skipL0677
-.condpart83
+	BEQ .skipL0705
+.condpart87
 	LDA missile1x
 	SEC
 	SBC #2
 	STA missile1x
  jmp .missile_move_end
 
-.skipL0677
-.L0678 ;  if item_flags{0} then missile1y  =  missile1y  -  2  :  goto missile_move_end
+.skipL0705
+.L0706 ;  if item_flags{0} then missile1y  =  missile1y  -  2  :  goto missile_move_end
 
 	LDA item_flags
 	LSR
-	BCC .skipL0678
-.condpart84
+	BCC .skipL0706
+.condpart88
 	LDA missile1y
 	SEC
 	SBC #2
 	STA missile1y
  jmp .missile_move_end
 
-.skipL0678
-.L0679 ;  if item_flags{1} then missile1x  =  missile1x  +  2  :  goto missile_move_end
+.skipL0706
+.L0707 ;  if item_flags{1} then missile1x  =  missile1x  +  2  :  goto missile_move_end
 
 	LDA item_flags
 	AND #2
-	BEQ .skipL0679
-.condpart85
+	BEQ .skipL0707
+.condpart89
 	LDA missile1x
 	CLC
 	ADC #2
 	STA missile1x
  jmp .missile_move_end
 
-.skipL0679
-.L0680 ;  if item_flags{2} then missile1y  =  missile1y  +  2  :  goto missile_move_end
+.skipL0707
+.L0708 ;  if item_flags{2} then missile1y  =  missile1y  +  2  :  goto missile_move_end
 
 	LDA item_flags
 	AND #4
-	BEQ .skipL0680
-.condpart86
+	BEQ .skipL0708
+.condpart90
 	LDA missile1y
 	CLC
 	ADC #2
 	STA missile1y
  jmp .missile_move_end
 
-.skipL0680
+.skipL0708
 .missile_move_end
  ; missile_move_end
 
 .
  ; 
 
-.L0681 ;  rem 'Move the item if it's a mobile (id lower than 128)
+.L0709 ;  rem 'Move the item if it's a mobile (id lower than 128)
 
-.L0682 ;  if item_kind{7} then goto item_move_end
+.L0710 ;  if item_kind{7} then goto item_move_end
 
 	BIT item_kind
-	BPL .skipL0682
-.condpart87
+	BPL .skipL0710
+.condpart91
  jmp .item_move_end
 
-.skipL0682
-.L0683 ;  temp1  =  rand
+.skipL0710
+.L0711 ;  temp1  =  rand
 
  sta temp7
- lda #>(ret_point16-1)
+ lda #>(ret_point17-1)
  pha
- lda #<(ret_point16-1)
+ lda #<(ret_point17-1)
  pha
  lda #>(randomize-1)
  pha
@@ -3431,177 +3558,177 @@ ret_point15
  pha
  ldx #8
  jmp BS_jsr
-ret_point16
+ret_point17
 	STA temp1
-.L0684 ;  rem ' Shoot a missile sometimes...
+.L0712 ;  rem ' Shoot a missile sometimes...
 
-.L0685 ;  temp6  =  monster_info[item_kind]
+.L0713 ;  temp6  =  monster_info[item_kind]
 
 	LDX item_kind
 	LDA monster_info,x
 	STA temp6
-.L0686 ;  rem 'But not if the monster cannot shoot (bit 0)
+.L0714 ;  rem 'But not if the monster cannot shoot (bit 0)
 
-.L0687 ;  if !temp6{0} then goto activate_missile_end
+.L0715 ;  if !temp6{0} then goto activate_missile_end
 
 	LDA temp6
 	LSR
-	BCS .skipL0687
-.condpart88
- jmp .activate_missile_end
-
-.skipL0687
-.L0688 ;  if !game_timer{4} then goto activate_missile_end
-
-	LDA game_timer
-	AND #16
-	BNE .skipL0688
-.condpart89
- jmp .activate_missile_end
-
-.skipL0688
-.L0689 ;  if !game_timer{7} then goto activate_missile_end
-
-	BIT game_timer
-	BMI .skipL0689
-.condpart90
- jmp .activate_missile_end
-
-.skipL0689
-.L0690 ;  if !temp1{0} then goto activate_missile_end
-
-	LDA temp1
-	LSR
-	BCS .skipL0690
-.condpart91
- jmp .activate_missile_end
-
-.skipL0690
-.L0691 ;  if missile1y  <>  nowhere then goto activate_missile_end
-
-	LDA missile1y
-	CMP #nowhere
-     BEQ .skipL0691
+	BCS .skipL0715
 .condpart92
  jmp .activate_missile_end
 
-.skipL0691
-.L0692 ;  rem 'Make a shot sound
+.skipL0715
+.L0716 ;  if !game_timer{4} then goto activate_missile_end
 
-.L0693 ;  sound_timer = 2
+	LDA game_timer
+	AND #16
+	BNE .skipL0716
+.condpart93
+ jmp .activate_missile_end
+
+.skipL0716
+.L0717 ;  if !game_timer{7} then goto activate_missile_end
+
+	BIT game_timer
+	BMI .skipL0717
+.condpart94
+ jmp .activate_missile_end
+
+.skipL0717
+.L0718 ;  if !temp1{0} then goto activate_missile_end
+
+	LDA temp1
+	LSR
+	BCS .skipL0718
+.condpart95
+ jmp .activate_missile_end
+
+.skipL0718
+.L0719 ;  if missile1y  <>  nowhere then goto activate_missile_end
+
+	LDA missile1y
+	CMP #nowhere
+     BEQ .skipL0719
+.condpart96
+ jmp .activate_missile_end
+
+.skipL0719
+.L0720 ;  rem 'Make a shot sound
+
+.L0721 ;  sound_timer = 2
 
 	LDA #2
 	STA sound_timer
-.L0694 ;  AUDC1 = 14
+.L0722 ;  AUDC1 = 14
 
 	LDA #14
 	STA AUDC1
-.L0695 ;  AUDV1 = 8
+.L0723 ;  AUDV1 = 8
 
 	LDA #8
 	STA AUDV1
-.L0696 ;  AUDF1 = 20
+.L0724 ;  AUDF1 = 20
 
 	LDA #20
 	STA AUDF1
-.L0697 ;  rem 'Place the missile  
+.L0725 ;  rem 'Place the missile  
 
-.L0698 ;  missile1x  =  item_x  +  4
+.L0726 ;  missile1x  =  item_x  +  4
 
 	LDA item_x
 	CLC
 	ADC #4
 	STA missile1x
-.L0699 ;  missile1y  =  item_y  -  4
+.L0727 ;  missile1y  =  item_y  -  4
 
 	LDA item_y
 	SEC
 	SBC #4
 	STA missile1y
-.L0700 ;  temp4  =  item_x  +  8
+.L0728 ;  temp4  =  item_x  +  8
 
 	LDA item_x
 	CLC
 	ADC #8
 	STA temp4
-.L0701 ;  if hero_x  >  temp4 then item_flags{1}  =  1
+.L0729 ;  if hero_x  >  temp4 then item_flags{1}  =  1
 
 	LDA temp4
 	CMP hero_x
-     BCS .skipL0701
-.condpart93
+     BCS .skipL0729
+.condpart97
 	LDA item_flags
 	ORA #2
 	STA item_flags
-.skipL0701
-.L0702 ;  temp4  =  item_x  -  8
+.skipL0729
+.L0730 ;  temp4  =  item_x  -  8
 
 	LDA item_x
 	SEC
 	SBC #8
 	STA temp4
-.L0703 ;  if hero_x  <  temp4 then item_flags{3}  =  1
+.L0731 ;  if hero_x  <  temp4 then item_flags{3}  =  1
 
 	LDA hero_x
 	CMP temp4
-     BCS .skipL0703
-.condpart94
+     BCS .skipL0731
+.condpart98
 	LDA item_flags
 	ORA #8
 	STA item_flags
-.skipL0703
-.L0704 ;  if hero_y  >  item_y then item_flags{2}  =  1
+.skipL0731
+.L0732 ;  if hero_y  >  item_y then item_flags{2}  =  1
 
 	LDA item_y
 	CMP hero_y
-     BCS .skipL0704
-.condpart95
+     BCS .skipL0732
+.condpart99
 	LDA item_flags
 	ORA #4
 	STA item_flags
-.skipL0704
-.L0705 ;  if hero_y  <  item_y then item_flags{0}  =  1
+.skipL0732
+.L0733 ;  if hero_y  <  item_y then item_flags{0}  =  1
 
 	LDA hero_y
 	CMP item_y
-     BCS .skipL0705
-.condpart96
+     BCS .skipL0733
+.condpart100
 	LDA item_flags
 	ORA #1
 	STA item_flags
-.skipL0705
-.L0706 ;  missile1height = 4
+.skipL0733
+.L0734 ;  missile1height = 4
 
 	LDA #4
 	STA missile1height
 .activate_missile_end
  ; activate_missile_end
 
-.L0707 ;  rem 'Agressive chasing if aggressive flag is set 
+.L0735 ;  rem 'Agressive chasing if aggressive flag is set 
 
-.L0708 ;  if temp6{2} then goto monster_chase
+.L0736 ;  if temp6{2} then goto monster_chase
 
 	LDA temp6
 	AND #4
-	BEQ .skipL0708
-.condpart97
+	BEQ .skipL0736
+.condpart101
  jmp .monster_chase
 
-.skipL0708
-.L0709 ;  rem 'Don't move if monster is static 
+.skipL0736
+.L0737 ;  rem 'Don't move if monster is static
 
-.L0710 ;  if temp6{3} then goto item_move_end
+.L0738 ;  if temp6{3} then goto item_move_end
 
 	LDA temp6
 	AND #8
-	BEQ .skipL0710
-.condpart98
+	BEQ .skipL0738
+.condpart102
  jmp .item_move_end
 
-.skipL0710
-.L0711 ;  rem 'Only move half the time
+.skipL0738
+.L0739 ;  rem 'Only move half the time
 
-.L0712 ;  if game_timer{2} goto item_move_end
+.L0740 ;  if game_timer{2} goto item_move_end
 
 	LDA game_timer
 	AND #4
@@ -3615,224 +3742,179 @@ ret_point16
 .
  ; 
 
-.L0713 ;  rem 'Only move if the 4th and 5th bit are not set
+.L0741 ;  rem 'Only move if the 4th and 5th bit are not set
 
-.L0714 ;  if temp1{1} then goto item_move_end
+.L0742 ;  if temp1{1} then goto item_move_end
 
 	LDA temp1
 	AND #2
-	BEQ .skipL0714
-.condpart99
- jmp .item_move_end
-
-.skipL0714
-.L0715 ;  rem 'Random walking monsters don't give chase
-
-.L0716 ;  if temp6{1} then goto monster_random_walk
-
-	LDA temp6
-	AND #2
-	BEQ .skipL0716
-.condpart100
- jmp .monster_random_walk
-
-.skipL0716
-.monster_chase
- ; monster_chase
-
-.L0717 ;  if hero_x  >  item_x then item_x  =  item_x  +  1 else item_x  =  item_x  -  1
-
-	LDA item_x
-	CMP hero_x
-     BCS .skipL0717
-.condpart101
-	INC item_x
- jmp .skipelse0
-.skipL0717
-	DEC item_x
-.skipelse0
-.L0718 ;  if hero_y  >  item_y then item_y  =  item_y  +  1 else item_y  =  item_y  -  1
-
-	LDA item_y
-	CMP hero_y
-     BCS .skipL0718
-.condpart102
-	INC item_y
- jmp .skipelse1
-.skipL0718
-	DEC item_y
-.skipelse1
-.L0719 ;  if temp6{2} then goto item_move_end
-
-	LDA temp6
-	AND #4
-	BEQ .skipL0719
+	BEQ .skipL0742
 .condpart103
  jmp .item_move_end
 
-.skipL0719
-.L0720 ;  rem 'Aggressive ennemies don't random walk
+.skipL0742
+.L0743 ;  rem 'Random walking monsters don't give chase
+
+.L0744 ;  if temp6{1} then goto monster_random_walk
+
+	LDA temp6
+	AND #2
+	BEQ .skipL0744
+.condpart104
+ jmp .monster_random_walk
+
+.skipL0744
+.monster_chase
+ ; monster_chase
+
+.L0745 ;  if hero_x  >  item_x then item_x  =  item_x  +  1 else item_x  =  item_x  -  1
+
+	LDA item_x
+	CMP hero_x
+     BCS .skipL0745
+.condpart105
+	INC item_x
+ jmp .skipelse0
+.skipL0745
+	DEC item_x
+.skipelse0
+.L0746 ;  if hero_y  >  item_y then item_y  =  item_y  +  1 else item_y  =  item_y  -  1
+
+	LDA item_y
+	CMP hero_y
+     BCS .skipL0746
+.condpart106
+	INC item_y
+ jmp .skipelse1
+.skipL0746
+	DEC item_y
+.skipelse1
+.L0747 ;  if temp6{2} then goto item_move_end
+
+	LDA temp6
+	AND #4
+	BEQ .skipL0747
+.condpart107
+ jmp .item_move_end
+
+.skipL0747
+.L0748 ;  rem 'Aggressive ennemies don't random walk
 
 .monster_random_walk
  ; monster_random_walk
 
-.L0721 ;  rem 'Use bits of random number for random walk.
+.L0749 ;  rem 'Use bits of random number for random walk.
 
-.L0722 ;  if temp1{0} then item_y  =  item_y  -  1
+.L0750 ;  if temp1{0} then item_y  =  item_y  -  1
 
 	LDA temp1
 	LSR
-	BCC .skipL0722
-.condpart104
+	BCC .skipL0750
+.condpart108
 	DEC item_y
-.skipL0722
-.L0723 ;  if temp1{4} then item_x  =  item_x  -  1
+.skipL0750
+.L0751 ;  if temp1{4} then item_x  =  item_x  -  1
 
 	LDA temp1
 	AND #16
-	BEQ .skipL0723
-.condpart105
+	BEQ .skipL0751
+.condpart109
 	DEC item_x
-.skipL0723
-.L0724 ;  if temp1{0}  ||  temp1{4} then goto item_move_end
+.skipL0751
+.L0752 ;  if temp1{0}  ||  temp1{4} then goto item_move_end
 
 	LDA temp1
 	LSR
-	BCC .skipL0724
-.condpart106
- jmp .condpart107
-.skipL0724
+	BCC .skipL0752
+.condpart110
+ jmp .condpart111
+.skipL0752
 	LDA temp1
 	AND #16
 	BEQ .skip6OR
-.condpart107
+.condpart111
  jmp .item_move_end
 
 .skip6OR
-.L0725 ;  if temp1{2} then item_y  =  item_y  +  1
+.L0753 ;  if temp1{2} then item_y  =  item_y  +  1
 
 	LDA temp1
 	AND #4
-	BEQ .skipL0725
-.condpart108
+	BEQ .skipL0753
+.condpart112
 	INC item_y
-.skipL0725
-.L0726 ;  if temp1{6} then item_x  =  item_x  +  1
+.skipL0753
+.L0754 ;  if temp1{6} then item_x  =  item_x  +  1
 
 	BIT temp1
-	BVC .skipL0726
-.condpart109
+	BVC .skipL0754
+.condpart113
 	INC item_x
-.skipL0726
+.skipL0754
 .item_move_end
  ; item_move_end
 
 .
  ; 
 
-.L0727 ;  rem 'Activate missile if needed
+.L0755 ;  rem 'Activate missile if needed
 
 .
  ; 
 
-.L0728 ;  rem 'Debug by showing flags in score field
+.L0756 ;  rem 'Debug by showing flags in score field
 
-.L0729 ;  rem sc0 = hero_flags
+.L0757 ;  rem sc0 = hero_flags
 
-.L0730 ;  rem temp2 = monster_info[item_kind]
+.L0758 ;  rem temp2 = monster_info[item_kind]
 
-.L0731 ;  rem sc1 = temp2
+.L0759 ;  rem sc1 = temp2
 
-.L0732 ;  rem sc2 = hero_room
-
-.
- ; 
-
-.L0733 ;  rem 'Music, disabled for now.
-
-.L0734 ;  rem 'Is it time to update the note? 
-
-.L0735 ;  rem if music_timer = 0 then gosub music_change_note
-
-.L0736 ;  rem music_timer = music_timer - 1
+.L0760 ;  rem sc2 = hero_room
 
 .
  ; 
 
+.L0761 ;  rem 'Music, disabled for now.
+
+.L0762 ;  rem 'Is it time to update the note? 
+
+.L0763 ;  rem if music_timer = 0 then gosub music_change_note
+
+.L0764 ;  rem music_timer = music_timer - 1
+
+.
+ ; 
+
 .
  ; 
 
 .
  ; 
 
-.L0737 ;  rem 'Collision op hero with edge of field, transfer to other field.
+.L0765 ;  rem 'Collision op hero with edge of field, transfer to other field.
 
-.L0738 ;  if field_left  <  hero_x then goto exit_left_done
+.L0766 ;  if field_left  <  hero_x then goto exit_left_done
 
 	LDA #field_left
 	CMP hero_x
-     BCS .skipL0738
-.condpart110
+     BCS .skipL0766
+.condpart114
  jmp .exit_left_done
 
-.skipL0738
-.L0739 ;  hero_x  =  field_right_enter
+.skipL0766
+.L0767 ;  hero_x  =  field_right_enter
 
 	LDA #field_right_enter
 	STA hero_x
-.L0740 ;  hero_oldx  =  field_right
+.L0768 ;  hero_oldx  =  field_right
 
 	LDA #field_right
 	STA hero_oldx
-.L0741 ;  hero_room  =  hero_room  -  1
+.L0769 ;  hero_room  =  hero_room  -  1
 
 	DEC hero_room
-.L0742 ;  gosub room_draw bank2
-
- sta temp7
- lda #>(ret_point17-1)
- pha
- lda #<(ret_point17-1)
- pha
- lda #>(.room_draw-1)
- pha
- lda #<(.room_draw-1)
- pha
- lda temp7
- pha
- txa
- pha
- ldx #2
- jmp BS_jsr
-ret_point17
-.L0743 ;  goto exit_done
-
- jmp .exit_done
-
-.exit_left_done
- ; exit_left_done
-
-.L0744 ;  if hero_x  <  field_right then goto exit_right_done
-
-	LDA hero_x
-	CMP #field_right
-     BCS .skipL0744
-.condpart111
- jmp .exit_right_done
-
-.skipL0744
-.L0745 ;  hero_x  =  field_left_enter
-
-	LDA #field_left_enter
-	STA hero_x
-.L0746 ;  hero_oldx  =  field_left
-
-	LDA #field_left
-	STA hero_oldx
-.L0747 ;  hero_room  =  hero_room  +  1
-
-	INC hero_room
-.L0748 ;  gosub room_draw bank2
+.L0770 ;  gosub room_draw bank2
 
  sta temp7
  lda #>(ret_point18-1)
@@ -3850,37 +3932,34 @@ ret_point17
  ldx #2
  jmp BS_jsr
 ret_point18
-.L0749 ;  goto exit_done
+.L0771 ;  goto exit_done
 
  jmp .exit_done
 
-.exit_right_done
- ; exit_right_done
+.exit_left_done
+ ; exit_left_done
 
-.L0750 ;  if hero_y  >  field_top then goto exit_top_done
+.L0772 ;  if hero_x  <  field_right then goto exit_right_done
 
-	LDA #field_top
-	CMP hero_y
-     BCS .skipL0750
-.condpart112
- jmp .exit_top_done
+	LDA hero_x
+	CMP #field_right
+     BCS .skipL0772
+.condpart115
+ jmp .exit_right_done
 
-.skipL0750
-.L0751 ;  hero_y  =  field_bottom_enter
+.skipL0772
+.L0773 ;  hero_x  =  field_left_enter
 
-	LDA #field_bottom_enter
-	STA hero_y
-.L0752 ;  hero_oldy  =  field_bottom
+	LDA #field_left_enter
+	STA hero_x
+.L0774 ;  hero_oldx  =  field_left
 
-	LDA #field_bottom
-	STA hero_oldy
-.L0753 ;  hero_room  =  hero_room  -  8
+	LDA #field_left
+	STA hero_oldx
+.L0775 ;  hero_room  =  hero_room  +  1
 
-	LDA hero_room
-	SEC
-	SBC #8
-	STA hero_room
-.L0754 ;  gosub room_draw bank2
+	INC hero_room
+.L0776 ;  gosub room_draw bank2
 
  sta temp7
  lda #>(ret_point19-1)
@@ -3898,37 +3977,37 @@ ret_point18
  ldx #2
  jmp BS_jsr
 ret_point19
-.L0755 ;  goto exit_done
+.L0777 ;  goto exit_done
 
  jmp .exit_done
 
-.exit_top_done
- ; exit_top_done
+.exit_right_done
+ ; exit_right_done
 
-.L0756 ;  if hero_y  <  field_bottom then goto exit_bottom_done
-
-	LDA hero_y
-	CMP #field_bottom
-     BCS .skipL0756
-.condpart113
- jmp .exit_bottom_done
-
-.skipL0756
-.L0757 ;  hero_y  =  field_top_enter
-
-	LDA #field_top_enter
-	STA hero_y
-.L0758 ;  hero_oldy  =  field_top
+.L0778 ;  if hero_y  >  field_top then goto exit_top_done
 
 	LDA #field_top
+	CMP hero_y
+     BCS .skipL0778
+.condpart116
+ jmp .exit_top_done
+
+.skipL0778
+.L0779 ;  hero_y  =  field_bottom_enter
+
+	LDA #field_bottom_enter
+	STA hero_y
+.L0780 ;  hero_oldy  =  field_bottom
+
+	LDA #field_bottom
 	STA hero_oldy
-.L0759 ;  hero_room  =  hero_room  +  8
+.L0781 ;  hero_room  =  hero_room  -  8
 
 	LDA hero_room
-	CLC
-	ADC #8
+	SEC
+	SBC #8
 	STA hero_room
-.L0760 ;  gosub room_draw bank2
+.L0782 ;  gosub room_draw bank2
 
  sta temp7
  lda #>(ret_point20-1)
@@ -3946,7 +4025,55 @@ ret_point19
  ldx #2
  jmp BS_jsr
 ret_point20
-.L0761 ;  goto exit_done
+.L0783 ;  goto exit_done
+
+ jmp .exit_done
+
+.exit_top_done
+ ; exit_top_done
+
+.L0784 ;  if hero_y  <  field_bottom then goto exit_bottom_done
+
+	LDA hero_y
+	CMP #field_bottom
+     BCS .skipL0784
+.condpart117
+ jmp .exit_bottom_done
+
+.skipL0784
+.L0785 ;  hero_y  =  field_top_enter
+
+	LDA #field_top_enter
+	STA hero_y
+.L0786 ;  hero_oldy  =  field_top
+
+	LDA #field_top
+	STA hero_oldy
+.L0787 ;  hero_room  =  hero_room  +  8
+
+	LDA hero_room
+	CLC
+	ADC #8
+	STA hero_room
+.L0788 ;  gosub room_draw bank2
+
+ sta temp7
+ lda #>(ret_point21-1)
+ pha
+ lda #<(ret_point21-1)
+ pha
+ lda #>(.room_draw-1)
+ pha
+ lda #<(.room_draw-1)
+ pha
+ lda temp7
+ pha
+ txa
+ pha
+ ldx #2
+ jmp BS_jsr
+ret_point21
+.L0789 ;  goto exit_done
 
  jmp .exit_done
 
@@ -3959,53 +4086,53 @@ ret_point20
 .
  ; 
 
-.L0762 ;  rem 'Collision of item with edge of field, bounce back.
+.L0790 ;  rem 'Collision of item with edge of field, bounce back.
 
-.L0763 ;  if item_x  <  field_left then item_x = field_left_enter
+.L0791 ;  if item_x  <  field_left then item_x = field_left_enter
 
 	LDA item_x
 	CMP #field_left
-     BCS .skipL0763
-.condpart114
+     BCS .skipL0791
+.condpart118
 	LDA #field_left_enter
 	STA item_x
-.skipL0763
-.L0764 ;  if item_x  >  field_right then item_x = field_right_enter
+.skipL0791
+.L0792 ;  if item_x  >  field_right then item_x = field_right_enter
 
 	LDA #field_right
 	CMP item_x
-     BCS .skipL0764
-.condpart115
+     BCS .skipL0792
+.condpart119
 	LDA #field_right_enter
 	STA item_x
-.skipL0764
-.L0765 ;  if item_y  <  field_top then item_y = field_top_enter
+.skipL0792
+.L0793 ;  if item_y  <  field_top then item_y = field_top_enter
 
 	LDA item_y
 	CMP #field_top
-     BCS .skipL0765
-.condpart116
+     BCS .skipL0793
+.condpart120
 	LDA #field_top_enter
 	STA item_y
-.skipL0765
-.L0766 ;  if item_y  >  field_bottom then item_x = field_bottom_enter
+.skipL0793
+.L0794 ;  if item_y  >  field_bottom then item_x = field_bottom_enter
 
 	LDA #field_bottom
 	CMP item_y
-     BCS .skipL0766
-.condpart117
+     BCS .skipL0794
+.condpart121
 	LDA #field_bottom_enter
 	STA item_x
-.skipL0766
+.skipL0794
 .
  ; 
 
 .
  ; 
 
-.L0767 ;  rem 'Draw acting player in position 2
+.L0795 ;  rem 'Draw acting player in position 2
 
-.L0768 ;  if joy0fire goto player_animate_2
+.L0796 ;  if joy0fire goto player_animate_2
 
  lda #$80
  bit INPT4
@@ -4016,133 +4143,133 @@ ret_point20
 	jmp .player_animate_2
 .8skipplayer_animate_2
  endif
-.L0769 ;  rem 'Draw non moving player not animated
+.L0797 ;  rem 'Draw non moving player not animated
 
-.L0770 ;  if hero_x  =  hero_oldx  &&  hero_y  =  hero_oldy then goto player_animate_1
+.L0798 ;  if hero_x  =  hero_oldx  &&  hero_y  =  hero_oldy then goto player_animate_1
 
 	LDA hero_x
 	CMP hero_oldx
-     BNE .skipL0770
-.condpart118
+     BNE .skipL0798
+.condpart122
 	LDA hero_y
 	CMP hero_oldy
-     BNE .skip118then
-.condpart119
+     BNE .skip122then
+.condpart123
  jmp .player_animate_1
 
-.skip118then
-.skipL0770
-.L0771 ;  rem 'Draw and animate player every so many ticks
+.skip122then
+.skipL0798
+.L0799 ;  rem 'Draw and animate player every so many ticks
 
-.L0772 ;  if !game_timer{4} then goto player_animate_2
+.L0800 ;  if !game_timer{4} then goto player_animate_2
 
 	LDA game_timer
 	AND #16
-	BNE .skipL0772
-.condpart120
+	BNE .skipL0800
+.condpart124
  jmp .player_animate_2
 
-.skipL0772
+.skipL0800
 .player_animate_1
  ; player_animate_1
 
-.L0773 ;  if hero_flags{0} then gosub hero_draw_n
+.L0801 ;  if hero_flags{0} then gosub hero_draw_n
 
 	LDA hero_flags
 	LSR
-	BCC .skipL0773
-.condpart121
+	BCC .skipL0801
+.condpart125
  jsr .hero_draw_n
 
-.skipL0773
-.L0774 ;  if hero_flags{1} then gosub hero_draw_e
+.skipL0801
+.L0802 ;  if hero_flags{1} then gosub hero_draw_e
 
 	LDA hero_flags
 	AND #2
-	BEQ .skipL0774
-.condpart122
+	BEQ .skipL0802
+.condpart126
  jsr .hero_draw_e
 
-.skipL0774
-.L0775 ;  if hero_flags{2} then gosub hero_draw_s
+.skipL0802
+.L0803 ;  if hero_flags{2} then gosub hero_draw_s
 
 	LDA hero_flags
 	AND #4
-	BEQ .skipL0775
-.condpart123
+	BEQ .skipL0803
+.condpart127
  jsr .hero_draw_s
 
-.skipL0775
-.L0776 ;  if hero_flags{3} then gosub hero_draw_w
+.skipL0803
+.L0804 ;  if hero_flags{3} then gosub hero_draw_w
 
 	LDA hero_flags
 	AND #8
-	BEQ .skipL0776
-.condpart124
+	BEQ .skipL0804
+.condpart128
  jsr .hero_draw_w
 
-.skipL0776
-.L0777 ;  goto player_animate_end
+.skipL0804
+.L0805 ;  goto player_animate_end
 
  jmp .player_animate_end
 
 .player_animate_2
  ; player_animate_2
 
-.L0778 ;  if hero_flags{0} then gosub hero_draw_n2
+.L0806 ;  if hero_flags{0} then gosub hero_draw_n2
 
 	LDA hero_flags
 	LSR
-	BCC .skipL0778
-.condpart125
+	BCC .skipL0806
+.condpart129
  jsr .hero_draw_n2
 
-.skipL0778
-.L0779 ;  if hero_flags{1} then gosub hero_draw_e2
+.skipL0806
+.L0807 ;  if hero_flags{1} then gosub hero_draw_e2
 
 	LDA hero_flags
 	AND #2
-	BEQ .skipL0779
-.condpart126
+	BEQ .skipL0807
+.condpart130
  jsr .hero_draw_e2
 
-.skipL0779
-.L0780 ;  if hero_flags{2} then gosub hero_draw_s2
+.skipL0807
+.L0808 ;  if hero_flags{2} then gosub hero_draw_s2
 
 	LDA hero_flags
 	AND #4
-	BEQ .skipL0780
-.condpart127
+	BEQ .skipL0808
+.condpart131
  jsr .hero_draw_s2
 
-.skipL0780
-.L0781 ;  if hero_flags{3} then gosub hero_draw_w2
+.skipL0808
+.L0809 ;  if hero_flags{3} then gosub hero_draw_w2
 
 	LDA hero_flags
 	AND #8
-	BEQ .skipL0781
-.condpart128
+	BEQ .skipL0809
+.condpart132
  jsr .hero_draw_w2
 
-.skipL0781
+.skipL0809
 .player_animate_end
  ; player_animate_end
 
 .
  ; 
 
-.L0782 ;  rem 'Reflect sprite if moving west, otherwise, don't 
+.L0810 ;  rem 'Reflect sprite if moving west, otherwise, don't
 
-.L0783 ;  if hero_flags{3} then REFP0  =  8 else REFP0  =  0
+.L0811 ;  if hero_flags{3} then REFP0  =  8 else REFP0  =  0
 
 	LDA hero_flags
 	AND #8
-	BEQ .skipL0783
-.condpart129
+	BEQ .skipL0811
+.condpart133
 	LDA #8
 	STA REFP0
  jmp .skipelse2
-.skipL0783
+.skipL0811
 	LDA #0
 	STA REFP0
 .skipelse2
@@ -4155,14 +4282,14 @@ ret_point20
 .
  ; 
 
-.L0784 ;  rem draw screen
+.L0812 ;  rem draw screen
 
-.L0785 ;  drawscreen
+.L0813 ;  drawscreen
 
  sta temp7
- lda #>(ret_point21-1)
+ lda #>(ret_point22-1)
  pha
- lda #<(ret_point21-1)
+ lda #<(ret_point22-1)
  pha
  lda #>(drawscreen-1)
  pha
@@ -4174,27 +4301,27 @@ ret_point20
  pha
  ldx #8
  jmp BS_jsr
-ret_point21
+ret_point22
 .
  ; 
 
-.L0786 ;  rem And continue main loop
+.L0814 ;  rem And continue main loop
 
-.L0787 ;  goto main_loop
+.L0815 ;  goto main_loop
 
  jmp .main_loop
 
 .
  ; 
 
-.L0788 ;  rem 'Vblank sub. Do something useful in here...
+.L0816 ;  rem 'Vblank sub. Do something useful in here...
 
 .vblank
  ; vblank
 
-.L0789 ;  rem 'Do something here...
+.L0817 ;  rem 'Do something here...
 
-.L0790 ;  return
+.L0818 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4206,12 +4333,12 @@ ret_point21
 .
  ; 
 
-.L0791 ;  rem 'Gosub that correctly displays MP
+.L0819 ;  rem 'Gosub that correctly displays MP
 
 .set_mp_display
  ; set_mp_display
 
-.L0792 ;  lives = hero_mp  *  32
+.L0820 ;  lives = hero_mp  *  32
 
 	LDA hero_mp
 	asl
@@ -4220,15 +4347,15 @@ ret_point21
 	asl
 	asl
 	STA lives
-.L0793 ;  lives:
+.L0821 ;  lives:
 
-	LDA #<lives__L0793
+	LDA #<lives__L0821
 	STA lifepointer
 	LDA lifepointer+1
 	AND #$E0
-	ORA #(>lives__L0793)&($1F)
+	ORA #(>lives__L0821)&($1F)
 	STA lifepointer+1
-.L0794 ;  return
+.L0822 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4243,118 +4370,118 @@ ret_point21
 .
  ; 
 
-.L0795 ;  rem 'Display inventory ggosub
+.L0823 ;  rem 'Display inventory ggosub
 
 .show_inventory
  ; show_inventory
 
-.L0796 ;  sc0  =  0
+.L0824 ;  sc0  =  0
 
 	LDA #0
 	STA sc0
-.L0797 ;  sc1  =  0
+.L0825 ;  sc1  =  0
 
 	LDA #0
 	STA sc1
-.L0798 ;  sc2  =  0
+.L0826 ;  sc2  =  0
 
 	LDA #0
 	STA sc2
-.L0799 ;  rem 'Add up score to display Numen Leaves
+.L0827 ;  rem 'Add up score to display Numen Leaves
 
-.L0800 ;  if hero_items{0} then sc0  =  sc0  +  16
+.L0828 ;  if hero_items{0} then sc0  =  sc0  +  16
 
 	LDA hero_items
 	LSR
-	BCC .skipL0800
-.condpart130
+	BCC .skipL0828
+.condpart134
 	LDA sc0
 	CLC
 	ADC #16
 	STA sc0
-.skipL0800
-.L0801 ;  if hero_items{1} then sc0  =  sc0  +  16
+.skipL0828
+.L0829 ;  if hero_items{1} then sc0  =  sc0  +  16
 
 	LDA hero_items
 	AND #2
-	BEQ .skipL0801
-.condpart131
+	BEQ .skipL0829
+.condpart135
 	LDA sc0
 	CLC
 	ADC #16
 	STA sc0
-.skipL0801
-.L0802 ;  if hero_items{2} then sc0  =  sc0  +  16
+.skipL0829
+.L0830 ;  if hero_items{2} then sc0  =  sc0  +  16
 
 	LDA hero_items
 	AND #4
-	BEQ .skipL0802
-.condpart132
+	BEQ .skipL0830
+.condpart136
 	LDA sc0
 	CLC
 	ADC #16
 	STA sc0
-.skipL0802
-.L0803 ;  rem 'Display shield if we have it
+.skipL0830
+.L0831 ;  rem 'Display shield if we have it
 
-.L0804 ;  if hero_items{3} then sc0  =  sc0  +  4
+.L0832 ;  if hero_items{3} then sc0  =  sc0  +  4
 
 	LDA hero_items
 	AND #8
-	BEQ .skipL0804
-.condpart133
+	BEQ .skipL0832
+.condpart137
 	LDA sc0
 	CLC
 	ADC #4
 	STA sc0
-.skipL0804
-.L0805 ;  rem 'Display Armor
+.skipL0832
+.L0833 ;  rem 'Display Armor
 
-.L0806 ;  if hero_items{4} then sc1  =  sc1  +  80
+.L0834 ;  if hero_items{4} then sc1  =  sc1  +  80
 
 	LDA hero_items
 	AND #16
-	BEQ .skipL0806
-.condpart134
+	BEQ .skipL0834
+.condpart138
 	LDA sc1
 	CLC
 	ADC #80
 	STA sc1
-.skipL0806
-.L0807 ;  rem 'Display Sword
+.skipL0834
+.L0835 ;  rem 'Display Sword
 
-.L0808 ;  if hero_items{5} then sc1  =  sc1  +  6
+.L0836 ;  if hero_items{5} then sc1  =  sc1  +  6
 
 	LDA hero_items
 	AND #32
-	BEQ .skipL0808
-.condpart135
+	BEQ .skipL0836
+.condpart139
 	LDA sc1
 	CLC
 	ADC #6
 	STA sc1
-.skipL0808
-.L0809 ;  if hero_items{6} then sc2  =  sc2  +  112
+.skipL0836
+.L0837 ;  if hero_items{6} then sc2  =  sc2  +  112
 
 	BIT hero_items
-	BVC .skipL0809
-.condpart136
+	BVC .skipL0837
+.condpart140
 	LDA sc2
 	CLC
 	ADC #112
 	STA sc2
-.skipL0809
-.L0810 ;  if hero_items{7} then sc2  =  sc2  +  8
+.skipL0837
+.L0838 ;  if hero_items{7} then sc2  =  sc2  +  8
 
 	BIT hero_items
-	BPL .skipL0810
-.condpart137
+	BPL .skipL0838
+.condpart141
 	LDA sc2
 	CLC
 	ADC #8
 	STA sc2
-.skipL0810
-.L0811 ;  return
+.skipL0838
+.L0839 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4369,39 +4496,39 @@ ret_point21
 .
  ; 
 
-.L0812 ;  rem 'Item Pickup gosub
+.L0840 ;  rem 'Item Pickup gosub
 
 .item_pickup
  ; item_pickup
 
-.L0813 ;  rem 'All sorts of item pickup effects, should be in a gosub, I guess
+.L0841 ;  rem 'All sorts of item pickup effects, should be in a gosub, I guess
 
-.L0814 ;  rem 'Win game if finding victory item
+.L0842 ;  rem 'Win game if finding victory item
 
-.L0815 ;  rem 'Make a pickup sound
+.L0843 ;  rem 'Make a pickup sound
 
-.L0816 ;  sound_timer = 2
+.L0844 ;  sound_timer = 2
 
 	LDA #2
 	STA sound_timer
-.L0817 ;  AUDC1 = 12
+.L0845 ;  AUDC1 = 12
 
 	LDA #12
 	STA AUDC1
-.L0818 ;  AUDV1 = 8
+.L0846 ;  AUDV1 = 8
 
 	LDA #8
 	STA AUDV1
-.L0819 ;  AUDF1 = 2
+.L0847 ;  AUDF1 = 2
 
 	LDA #2
 	STA AUDF1
-.L0820 ;  if item_kind  =  item_victory then goto game_win bank5
+.L0848 ;  if item_kind  =  item_victory then goto game_win bank5
 
 	LDA item_kind
 	CMP #item_victory
-     BNE .skipL0820
-.condpart138
+     BNE .skipL0848
+.condpart142
  sta temp7
  lda #>(.game_win-1)
  pha
@@ -4413,103 +4540,103 @@ ret_point21
  pha
  ldx #5
  jmp BS_jsr
-.skipL0820
-.L0821 ;  if item_kind  =  item_leaf1 then hero_items{0}  =  1
+.skipL0848
+.L0849 ;  if item_kind  =  item_leaf1 then hero_items{0}  =  1
 
 	LDA item_kind
 	CMP #item_leaf1
-     BNE .skipL0821
-.condpart139
+     BNE .skipL0849
+.condpart143
 	LDA hero_items
 	ORA #1
 	STA hero_items
-.skipL0821
-.L0822 ;  if item_kind  =  item_leaf2 then hero_items{1}  =  1
+.skipL0849
+.L0850 ;  if item_kind  =  item_leaf2 then hero_items{1}  =  1
 
 	LDA item_kind
 	CMP #item_leaf2
-     BNE .skipL0822
-.condpart140
+     BNE .skipL0850
+.condpart144
 	LDA hero_items
 	ORA #2
 	STA hero_items
-.skipL0822
-.L0823 ;  if item_kind  =  item_leaf3 then hero_items{2}  =  1
+.skipL0850
+.L0851 ;  if item_kind  =  item_leaf3 then hero_items{2}  =  1
 
 	LDA item_kind
 	CMP #item_leaf3
-     BNE .skipL0823
-.condpart141
+     BNE .skipL0851
+.condpart145
 	LDA hero_items
 	ORA #4
 	STA hero_items
-.skipL0823
-.L0824 ;  if item_kind  =  item_shield then hero_items{3}  =  1
+.skipL0851
+.L0852 ;  if item_kind  =  item_shield then hero_items{3}  =  1
 
 	LDA item_kind
 	CMP #item_shield
-     BNE .skipL0824
-.condpart142
+     BNE .skipL0852
+.condpart146
 	LDA hero_items
 	ORA #8
 	STA hero_items
-.skipL0824
-.L0825 ;  if item_kind  =  item_armor then hero_items{4}  =  1
+.skipL0852
+.L0853 ;  if item_kind  =  item_armor then hero_items{4}  =  1
 
 	LDA item_kind
 	CMP #item_armor
-     BNE .skipL0825
-.condpart143
+     BNE .skipL0853
+.condpart147
 	LDA hero_items
 	ORA #16
 	STA hero_items
-.skipL0825
-.L0826 ;  if item_kind  =  item_sword then hero_items{5}  =  1
+.skipL0853
+.L0854 ;  if item_kind  =  item_sword then hero_items{5}  =  1
 
 	LDA item_kind
 	CMP #item_sword
-     BNE .skipL0826
-.condpart144
+     BNE .skipL0854
+.condpart148
 	LDA hero_items
 	ORA #32
 	STA hero_items
-.skipL0826
-.L0827 ;  if item_kind  =  item_bookheal then hero_items{6}  =  1
+.skipL0854
+.L0855 ;  if item_kind  =  item_bookheal then hero_items{6}  =  1
 
 	LDA item_kind
 	CMP #item_bookheal
-     BNE .skipL0827
-.condpart145
+     BNE .skipL0855
+.condpart149
 	LDA hero_items
 	ORA #64
 	STA hero_items
-.skipL0827
-.L0828 ;  if item_kind  =  item_bookstrike then hero_items{7}  =  1
+.skipL0855
+.L0856 ;  if item_kind  =  item_bookstrike then hero_items{7}  =  1
 
 	LDA item_kind
 	CMP #item_bookstrike
-     BNE .skipL0828
-.condpart146
+     BNE .skipL0856
+.condpart150
 	LDA hero_items
 	ORA #128
 	STA hero_items
-.skipL0828
-.L0829 ;  if item_kind  <>  item_healhp then goto no_healhp
+.skipL0856
+.L0857 ;  if item_kind  <>  item_healhp then goto no_healhp
 
 	LDA item_kind
 	CMP #item_healhp
-     BEQ .skipL0829
-.condpart147
+     BEQ .skipL0857
+.condpart151
  jmp .no_healhp
 
-.skipL0829
-.L0830 ;  hero_hp  =  hero_hp  +  8
+.skipL0857
+.L0858 ;  hero_hp  =  hero_hp  +  8
 
 	LDA hero_hp
 	CLC
 	ADC #8
 	STA hero_hp
-.L0831 ;  temp2  =  hero_level  *  2  +  hero_base_hp
+.L0859 ;  temp2  =  hero_level  *  2  +  hero_base_hp
 
 ; complex statement detected
 	LDA hero_level
@@ -4517,31 +4644,31 @@ ret_point21
 	CLC
 	ADC #hero_base_hp
 	STA temp2
-.L0832 ;  if hero_hp  >  temp2 then hero_hp  =  temp2
+.L0860 ;  if hero_hp  >  temp2 then hero_hp  =  temp2
 
 	LDA temp2
 	CMP hero_hp
-     BCS .skipL0832
-.condpart148
+     BCS .skipL0860
+.condpart152
 	LDA temp2
 	STA hero_hp
-.skipL0832
+.skipL0860
 .no_healhp
  ; no_healhp
 
-.L0833 ;  if item_kind  <>  item_healmp then goto no_healmp
+.L0861 ;  if item_kind  <>  item_healmp then goto no_healmp
 
 	LDA item_kind
 	CMP #item_healmp
-     BEQ .skipL0833
-.condpart149
+     BEQ .skipL0861
+.condpart153
  jmp .no_healmp
 
-.skipL0833
-.L0834 ;  hero_mp  =  hero_mp  +  1
+.skipL0861
+.L0862 ;  hero_mp  =  hero_mp  +  1
 
 	INC hero_mp
-.L0835 ;  temp2  =  hero_level  /  16  +  1
+.L0863 ;  temp2  =  hero_level  /  16  +  1
 
 ; complex statement detected
 	LDA hero_level
@@ -4552,32 +4679,32 @@ ret_point21
 	CLC
 	ADC #1
 	STA temp2
-.L0836 ;  if hero_mp  >  temp2 then hero_mp  =  temp2
+.L0864 ;  if hero_mp  >  temp2 then hero_mp  =  temp2
 
 	LDA temp2
 	CMP hero_mp
-     BCS .skipL0836
-.condpart150
+     BCS .skipL0864
+.condpart154
 	LDA temp2
 	STA hero_mp
-.skipL0836
-.L0837 ;  gosub set_mp_display
+.skipL0864
+.L0865 ;  gosub set_mp_display
 
  jsr .set_mp_display
 
 .no_healmp
  ; no_healmp
 
-.L0838 ;  if item_kind  <>  item_healallhp then goto no_healallhp
+.L0866 ;  if item_kind  <>  item_healallhp then goto no_healallhp
 
 	LDA item_kind
 	CMP #item_healallhp
-     BEQ .skipL0838
-.condpart151
+     BEQ .skipL0866
+.condpart155
  jmp .no_healallhp
 
-.skipL0838
-.L0839 ;  hero_hp  =  hero_level  *  2  +  hero_base_hp
+.skipL0866
+.L0867 ;  hero_hp  =  hero_level  *  2  +  hero_base_hp
 
 ; complex statement detected
 	LDA hero_level
@@ -4588,18 +4715,18 @@ ret_point21
 .no_healallhp
  ; no_healallhp
 
-.L0840 ;  if item_kind  <>  item_healallmp then goto no_healallmp
+.L0868 ;  if item_kind  <>  item_healallmp then goto no_healallmp
 
 	LDA item_kind
 	CMP #item_healallmp
-     BEQ .skipL0840
-.condpart152
+     BEQ .skipL0868
+.condpart156
  jmp .no_healallmp
 
-.skipL0840
-.L0841 ;  rem 'Actually, this is buggy for levels above 80
+.skipL0868
+.L0869 ;  rem 'Actually, this is buggy for levels above 80
 
-.L0842 ;  hero_mp  =  hero_level / 16  +  1
+.L0870 ;  hero_mp  =  hero_level / 16  +  1
 
 ; complex statement detected
 	LDA hero_level
@@ -4610,37 +4737,37 @@ ret_point21
 	CLC
 	ADC #1
 	STA hero_mp
-.L0843 ;  gosub set_mp_display
+.L0871 ;  gosub set_mp_display
 
  jsr .set_mp_display
 
 .no_healallmp
  ; no_healallmp
 
-.L0844 ;  rem " All done with item effects 
+.L0872 ;  rem " All done with item effects 
 
 .
  ; 
 
-.L0845 ;  rem ' Remove item
+.L0873 ;  rem ' Remove item
 
-.L0846 ;  item_kind  =  item_none
+.L0874 ;  item_kind  =  item_none
 
 	LDA #item_none
 	STA item_kind
-.L0847 ;  item_hp  =  0
+.L0875 ;  item_hp  =  0
 
 	LDA #0
 	STA item_hp
-.L0848 ;  item_x  =  nowhere
+.L0876 ;  item_x  =  nowhere
 
 	LDA #nowhere
 	STA item_x
-.L0849 ;  item_y  =  nowhere
+.L0877 ;  item_y  =  nowhere
 
 	LDA #nowhere
 	STA item_y
-.L0850 ;  return
+.L0878 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4658,21 +4785,21 @@ ret_point21
 .hero_draw_n
  ; hero_draw_n
 
-.L0851 ;  REFP0 = 0
+.L0879 ;  REFP0 = 0
 
 	LDA #0
 	STA REFP0
-.L0852 ;  player0:
+.L0880 ;  player0:
 
-	LDA #<playerL0852_0
+	LDA #<playerL0880_0
 
 	STA player0pointerlo
-	LDA #>playerL0852_0
+	LDA #>playerL0880_0
 
 	STA player0pointerhi
 	LDA #13
 	STA player0height
-.L0853 ;  return
+.L0881 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4687,21 +4814,21 @@ ret_point21
 .hero_draw_s
  ; hero_draw_s
 
-.L0854 ;  REFP0 = 0
+.L0882 ;  REFP0 = 0
 
 	LDA #0
 	STA REFP0
-.L0855 ;  player0:
+.L0883 ;  player0:
 
-	LDA #<playerL0855_0
+	LDA #<playerL0883_0
 
 	STA player0pointerlo
-	LDA #>playerL0855_0
+	LDA #>playerL0883_0
 
 	STA player0pointerhi
 	LDA #13
 	STA player0height
-.L0856 ;  return
+.L0884 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4716,35 +4843,35 @@ ret_point21
 .hero_draw_w
  ; hero_draw_w
 
-.L0857 ;  REFP0 = 8
+.L0885 ;  REFP0 = 8
 
 	LDA #8
 	STA REFP0
-.L0858 ;  goto hero_draw_e_start
+.L0886 ;  goto hero_draw_e_start
 
  jmp .hero_draw_e_start
 
 .hero_draw_e
  ; hero_draw_e
 
-.L0859 ;  REFP0 = 0
+.L0887 ;  REFP0 = 0
 
 	LDA #0
 	STA REFP0
 .hero_draw_e_start
  ; hero_draw_e_start
 
-.L0860 ;  player0:
+.L0888 ;  player0:
 
-	LDA #<playerL0860_0
+	LDA #<playerL0888_0
 
 	STA player0pointerlo
-	LDA #>playerL0860_0
+	LDA #>playerL0888_0
 
 	STA player0pointerhi
 	LDA #13
 	STA player0height
-.L0861 ;  return
+.L0889 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4759,21 +4886,21 @@ ret_point21
 .hero_draw_n2
  ; hero_draw_n2
 
-.L0862 ;  REFP0 = 0
+.L0890 ;  REFP0 = 0
 
 	LDA #0
 	STA REFP0
-.L0863 ;  player0:
+.L0891 ;  player0:
 
-	LDA #<playerL0863_0
+	LDA #<playerL0891_0
 
 	STA player0pointerlo
-	LDA #>playerL0863_0
+	LDA #>playerL0891_0
 
 	STA player0pointerhi
 	LDA #14
 	STA player0height
-.L0864 ;  return
+.L0892 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4788,21 +4915,21 @@ ret_point21
 .hero_draw_s2
  ; hero_draw_s2
 
-.L0865 ;  REFP0 = 0
+.L0893 ;  REFP0 = 0
 
 	LDA #0
 	STA REFP0
-.L0866 ;  player0:
+.L0894 ;  player0:
 
-	LDA #<playerL0866_0
+	LDA #<playerL0894_0
 
 	STA player0pointerlo
-	LDA #>playerL0866_0
+	LDA #>playerL0894_0
 
 	STA player0pointerhi
 	LDA #14
 	STA player0height
-.L0867 ;  return
+.L0895 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4817,35 +4944,35 @@ ret_point21
 .hero_draw_w2
  ; hero_draw_w2
 
-.L0868 ;  REFP0 = 8
+.L0896 ;  REFP0 = 8
 
 	LDA #8
 	STA REFP0
-.L0869 ;  goto hero_draw_e2_start
+.L0897 ;  goto hero_draw_e2_start
 
  jmp .hero_draw_e2_start
 
 .hero_draw_e2
  ; hero_draw_e2
 
-.L0870 ;  REFP0 = 0
+.L0898 ;  REFP0 = 0
 
 	LDA #0
 	STA REFP0
 .hero_draw_e2_start
  ; hero_draw_e2_start
 
-.L0871 ;  player0:
+.L0899 ;  player0:
 
-	LDA #<playerL0871_0
+	LDA #<playerL0899_0
 
 	STA player0pointerlo
-	LDA #>playerL0871_0
+	LDA #>playerL0899_0
 
 	STA player0pointerhi
 	LDA #13
 	STA player0height
-.L0872 ;  return
+.L0900 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -4854,80 +4981,7 @@ ret_point21
 	beq *+5 ; if equal, do normal return
 	JMP BS_return
 	RTS
-.
- ; 
-
-.
- ; 
-
-.
- ; 
-
-.
- ; 
-
-.
- ; 
-
-.music_change_note
- ; music_change_note
-
-.L0873 ;  AUDF0  =  music_data[music_pointer]
-
-	LDX music_pointer
-	LDA music_data,x
-	STA AUDF0
-.L0874 ;   AUDC0 = music_instrument
-
-	LDA #music_instrument
-	STA AUDC0
-.L0875 ;   if music_data[music_pointer] = $FF then AUDV0 = 0 else AUDV0 = 8
-
-	LDX music_pointer
-	LDA music_data,x
-	CMP #$FF
-     BNE .skipL0875
-.condpart153
-	LDA #0
-	STA AUDV0
- jmp .skipelse3
-.skipL0875
-	LDA #8
-	STA AUDV0
-.skipelse3
-.L0876 ;   music_pointer = music_pointer + 1  
-
-	INC music_pointer
-.L0877 ;   music_timer = music_data[music_pointer]
-
-	LDX music_pointer
-	LDA music_data,x
-	STA music_timer
-.L0878 ;   music_pointer = music_pointer + 1
-
-	INC music_pointer
-.L0879 ;   if music_pointer > music_notes then music_pointer = 0
-
-	LDA #music_notes
-	CMP music_pointer
-     BCS .skipL0879
-.condpart154
-	LDA #0
-	STA music_pointer
-.skipL0879
-.L0880 ;   return
-
-	tsx
-	lda 2,x ; check return address
-	eor #(>*) ; vs. current PCH
-	and #$E0 ;  mask off all but top 3 bits
-	beq *+5 ; if equal, do normal return
-	JMP BS_return
-	RTS
-.
- ; 
-
-.L0881 ;   bank 2
+.L0901 ;  bank 2
 
  echo "    ",[(start_bank1 - *)]d , "bytes of ROM space left in bank 1")
  ORG $1FF4-bscode_length
@@ -4965,34 +5019,28 @@ start_bank1 ldx #$ff
  .word start_bank1
  ORG $2000
  RORG $3000
-.
- ; 
-
-.L0882 ;   set kernel_options pfcolors
-
-.
- ; 
+.L0902 ;  set kernel_options pfcolors
 
 .room_draw
  ; room_draw
 
-.L0883 ;   rem 'Reset the monster missile and item flags
+.L0903 ;  rem 'Reset the monster missile and item flags
 
-.L0884 ;   missile1x = nowhere
+.L0904 ;  missile1x  =  nowhere
 
 	LDA #nowhere
 	STA missile1x
-.L0885 ;   missile1y = nowhere
+.L0905 ;  missile1y  =  nowhere
 
 	LDA #nowhere
 	STA missile1y
-.L0886 ;   item_flags = 0
+.L0906 ;  item_flags  =  0
 
 	LDA #0
 	STA item_flags
-.L0887 ;   rem 'Set up item and draw it
+.L0907 ;  rem 'Set up item and draw it
 
-.L0888 ;   goto item_setup bank4
+.L0908 ;  goto item_setup bank4
 
  sta temp7
  lda #>(.item_setup-1)
@@ -5008,10 +5056,7 @@ start_bank1 ldx #$ff
 .item_setup_done
  ; item_setup_done
 
-.
- ; 
-
-.L0889 ;   if hero_room > 39 goto room_draw_40_local
+.L0909 ;  if hero_room  >  39 goto room_draw_40_local
 
 	LDA #39
 	CMP hero_room
@@ -5022,7 +5067,7 @@ start_bank1 ldx #$ff
 	jmp .room_draw_40_local
 .9skiproom_draw_40_local
  endif
-.L0890 ;   if hero_room > 63 goto room_draw_64
+.L0910 ;  if hero_room  >  63 goto room_draw_64
 
 	LDA #63
 	CMP hero_room
@@ -5033,18 +5078,15 @@ start_bank1 ldx #$ff
 	jmp .room_draw_64
 .10skiproom_draw_64
  endif
-.
- ; 
-
-.L0891 ;   on hero_room goto r00 r01 r02 r03 r04 r05 r06 r07 r08 r09 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31 r32 r33 r34 r35 r36  r37 r38 r39 r40
+.L0911 ;  on hero_room goto r00 r01 r02 r03 r04 r05 r06 r07 r08 r09 r10 r11 r12 r13 r14 r15 r16 r17 r18 r19 r20 r21 r22 r23 r24 r25 r26 r27 r28 r29 r30 r31 r32 r33 r34 r35 r36 r37 r38 r39 r40
 
 	LDX hero_room
-	LDA .L0891jumptablehi,x
+	LDA .L0911jumptablehi,x
 	PHA
-	LDA .L0891jumptablelo,x
+	LDA .L0911jumptablelo,x
 	PHA
 	RTS
-.L0891jumptablehi
+.L0911jumptablehi
 	.byte >(.r00-1)
 	.byte >(.r01-1)
 	.byte >(.r02-1)
@@ -5086,7 +5128,7 @@ start_bank1 ldx #$ff
 	.byte >(.r38-1)
 	.byte >(.r39-1)
 	.byte >(.r40-1)
-.L0891jumptablelo
+.L0911jumptablelo
 	.byte <(.r00-1)
 	.byte <(.r01-1)
 	.byte <(.r02-1)
@@ -5128,17 +5170,14 @@ start_bank1 ldx #$ff
 	.byte <(.r38-1)
 	.byte <(.r39-1)
 	.byte <(.r40-1)
-.L0892 ;   rem r41 r42 r43 r44 r45 r46 r47 r48 r49 r50
+.L0912 ;  rem r41 r42 r43 r44 r45 r46 r47 r48 r49 r50
 
-.L0893 ;   rem r51 r52 r53 r54 r55 r56 r57 r58 r59 r60 r61 r62 r63 r64
-
-.
- ; 
+.L0913 ;  rem r51 r52 r53 r54 r55 r56 r57 r58 r59 r60 r61 r62 r63 r64
 
 .room_draw_40_local
  ; room_draw_40_local
 
-.L0894 ;   goto room_draw_40 bank3
+.L0914 ;  goto room_draw_40 bank3
 
  sta temp7
  lda #>(.room_draw_40-1)
@@ -5151,63 +5190,51 @@ start_bank1 ldx #$ff
  pha
  ldx #3
  jmp BS_jsr
-.
- ; 
-
 .room_draw_64
  ; room_draw_64
 
-.L0895 ;   rem 'If we get here, the room number s not valid. Go to room room_start (49)
+.L0915 ;  rem 'If we get here, the room number s not valid. Go to room room_start (49)
 
-.L0896 ;   hero_room = room_start
+.L0916 ;  hero_room  =  room_start
 
 	LDA #room_start
 	STA hero_room
-.L0897 ;   goto r00
+.L0917 ;  goto r00
 
  jmp .r00
 
-.
- ; 
+.L0918 ;  rem r64
 
-.L0898 ;   rem r64
-
-.L0899 ;   rem r65 r66 r67 r68 r69 r70 r71 r72 r73 r74 r75 r76 r77 r78 r79 r80 r81 r82 r83 r84 r85 r86 r87 r88 r89 r90 r91 r92 r93 r94 r95 r96 r97 r98 r99 r100
+.L0919 ;  rem r65 r66 r67 r68 r69 r70 r71 r72 r73 r74 r75 r76 r77 r78 r79 r80 r81 r82 r83 r84 r85 r86 r87 r88 r89 r90 r91 r92 r93 r94 r95 r96 r97 r98 r99 r100
 
 .room_draw_end
  ; room_draw_end
 
-.L0900 ;   rem 'Clear bottom scrolling playfield row, so collision detection works properly
+.L0920 ;  rem 'Clear bottom scrolling playfield row, so collision detection works properly
 
-.L0901 ;   var44 = 0
+.L0921 ;  var44  =  0
 
 	LDA #0
 	STA var44
-.L0902 ;   var45 = 0
+.L0922 ;  var45  =  0
 
 	LDA #0
 	STA var45
-.L0903 ;   var46 = 0
+.L0923 ;  var46  =  0
 
 	LDA #0
 	STA var46
-.L0904 ;   var47 = 0
+.L0924 ;  var47  =  0
 
 	LDA #0
 	STA var47
-.L0905 ;   return otherbank
+.L0925 ;  return otherbank
 
 	JMP BS_return
-.
- ; 
-
-.
- ; 
-
 .r00
  ; r00
 
-.L0906 ;  pfcolors:
+.L0926 ;  pfcolors:
 
  lda # skyblue
  sta COLUPF
@@ -5215,7 +5242,7 @@ start_bank1 ldx #$ff
  sta pfcolortable+1
  lda #<(pfcolorlabel139-84)
  sta pfcolortable
-.L0907 ;  playfield:
+.L0927 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5240,27 +5267,27 @@ pflabel0
 	sta playfield,x
 	dex
 	bpl pflabel0
-.L0908 ;  goto room_draw_end
+.L0928 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r01
  ; r01
 
-.L0909 ;  if quest_flags{1} then COLUBK = gray else COLUBK = black
+.L0929 ;  if quest_flags{1} then COLUBK = gray else COLUBK = black
 
 	LDA quest_flags
 	AND #2
-	BEQ .skipL0909
-.condpart155
+	BEQ .skipL0929
+.condpart157
 	LDA gray
 	STA COLUBK
- jmp .skipelse4
-.skipL0909
+ jmp .skipelse3
+.skipL0929
 	LDA black
 	STA COLUBK
-.skipelse4
-.L0910 ;  pfcolors:
+.skipelse3
+.L0930 ;  pfcolors:
 
  lda # black
  sta COLUPF
@@ -5268,7 +5295,7 @@ pflabel0
  sta pfcolortable+1
  lda #<(pfcolorlabel139-83)
  sta pfcolortable
-.L0911 ;  playfield:
+.L0931 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5293,27 +5320,27 @@ pflabel1
 	sta playfield,x
 	dex
 	bpl pflabel1
-.L0912 ;  goto room_draw_end
+.L0932 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r02
  ; r02
 
-.L0913 ;  if quest_flags{1} then COLUBK = gray else COLUBK = black
+.L0933 ;  if quest_flags{1} then COLUBK = gray else COLUBK = black
 
 	LDA quest_flags
 	AND #2
-	BEQ .skipL0913
-.condpart156
+	BEQ .skipL0933
+.condpart158
 	LDA gray
 	STA COLUBK
- jmp .skipelse5
-.skipL0913
+ jmp .skipelse4
+.skipL0933
 	LDA black
 	STA COLUBK
-.skipelse5
-.L0914 ;  pfcolors:
+.skipelse4
+.L0934 ;  pfcolors:
 
  lda # black
  sta COLUPF
@@ -5321,7 +5348,7 @@ pflabel1
  sta pfcolortable+1
  lda #<(pfcolorlabel139-82)
  sta pfcolortable
-.L0915 ;  playfield:
+.L0935 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5346,18 +5373,18 @@ pflabel2
 	sta playfield,x
 	dex
 	bpl pflabel2
-.L0916 ;  goto room_draw_end
+.L0936 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r03
  ; r03
 
-.L0917 ;  COLUBK  =  sand
+.L0937 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L0918 ;  pfcolors:
+.L0938 ;  pfcolors:
 
  lda # brown
  sta COLUPF
@@ -5365,7 +5392,7 @@ pflabel2
  sta pfcolortable+1
  lda #<(pfcolorlabel139-81)
  sta pfcolortable
-.L0919 ;  playfield:
+.L0939 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5390,18 +5417,18 @@ pflabel3
 	sta playfield,x
 	dex
 	bpl pflabel3
-.L0920 ;  goto room_draw_end
+.L0940 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r04
  ; r04
 
-.L0921 ;  COLUBK = gray
+.L0941 ;  COLUBK = gray
 
 	LDA gray
 	STA COLUBK
-.L0922 ;  pfcolors:
+.L0942 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -5409,7 +5436,7 @@ pflabel3
  sta pfcolortable+1
  lda #<(pfcolorlabel156-84)
  sta pfcolortable
-.L0923 ;  playfield:
+.L0943 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5434,18 +5461,18 @@ pflabel4
 	sta playfield,x
 	dex
 	bpl pflabel4
-.L0924 ;  goto room_draw_end
+.L0944 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r05
  ; r05
 
-.L0925 ;  COLUBK = lightgreen
+.L0945 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L0926 ;  pfcolors:
+.L0946 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -5453,7 +5480,7 @@ pflabel4
  sta pfcolortable+1
  lda #<(pfcolorlabel156-83)
  sta pfcolortable
-.L0927 ;  playfield:
+.L0947 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5478,18 +5505,18 @@ pflabel5
 	sta playfield,x
 	dex
 	bpl pflabel5
-.L0928 ;  goto room_draw_end
+.L0948 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r06
  ; r06
 
-.L0929 ;  COLUBK = lightgreen
+.L0949 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L0930 ;  pfcolors:
+.L0950 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -5497,7 +5524,7 @@ pflabel5
  sta pfcolortable+1
  lda #<(pfcolorlabel156-82)
  sta pfcolortable
-.L0931 ;  playfield:
+.L0951 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5522,18 +5549,18 @@ pflabel6
 	sta playfield,x
 	dex
 	bpl pflabel6
-.L0932 ;  goto room_draw_end
+.L0952 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r07
  ; r07
 
-.L0933 ;  COLUBK = lightgreen
+.L0953 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L0934 ;  pfcolors:
+.L0954 ;  pfcolors:
 
  lda # darkgreen
  sta COLUPF
@@ -5541,7 +5568,7 @@ pflabel6
  sta pfcolortable+1
  lda #<(pfcolorlabel156-81)
  sta pfcolortable
-.L0935 ;  playfield:
+.L0955 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5566,18 +5593,18 @@ pflabel7
 	sta playfield,x
 	dex
 	bpl pflabel7
-.L0936 ;  goto room_draw_end
+.L0956 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r08
  ; r08
 
-.L0937 ;  COLUBK = brown
+.L0957 ;  COLUBK = brown
 
 	LDA brown
 	STA COLUBK
-.L0938 ;  pfcolors:
+.L0958 ;  pfcolors:
 
  lda # red
  sta COLUPF
@@ -5585,7 +5612,7 @@ pflabel7
  sta pfcolortable+1
  lda #<(pfcolorlabel173-84)
  sta pfcolortable
-.L0939 ;  if quest_flags{3} goto r08_open
+.L0959 ;  if quest_flags{3} goto r08_open
 
 	LDA quest_flags
 	AND #8
@@ -5596,7 +5623,7 @@ pflabel7
 	jmp .r08_open
 .11skipr08_open
  endif
-.L0940 ;  playfield:
+.L0960 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5621,14 +5648,14 @@ pflabel8
 	sta playfield,x
 	dex
 	bpl pflabel8
-.L0941 ;  goto r08_end
+.L0961 ;  goto r08_end
 
  jmp .r08_end
 
 .r08_open
  ; r08_open
 
-.L0942 ;  playfield:
+.L0962 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5656,18 +5683,18 @@ pflabel9
 .r08_end
  ; r08_end
 
-.L0943 ;  goto room_draw_end
+.L0963 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r09
  ; r09
 
-.L0944 ;  COLUBK = sand
+.L0964 ;  COLUBK = sand
 
 	LDA #sand
 	STA COLUBK
-.L0945 ;  pfcolors:
+.L0965 ;  pfcolors:
 
  lda # black
  sta COLUPF
@@ -5675,7 +5702,7 @@ pflabel9
  sta pfcolortable+1
  lda #<(pfcolorlabel173-83)
  sta pfcolortable
-.L0946 ;  playfield:
+.L0966 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5700,18 +5727,18 @@ pflabel10
 	sta playfield,x
 	dex
 	bpl pflabel10
-.L0947 ;  goto room_draw_end
+.L0967 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r10
  ; r10
 
-.L0948 ;  COLUBK = sand
+.L0968 ;  COLUBK = sand
 
 	LDA #sand
 	STA COLUBK
-.L0949 ;  pfcolors:
+.L0969 ;  pfcolors:
 
  lda # black
  sta COLUPF
@@ -5719,7 +5746,7 @@ pflabel10
  sta pfcolortable+1
  lda #<(pfcolorlabel173-82)
  sta pfcolortable
-.L0950 ;  playfield:
+.L0970 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5744,18 +5771,18 @@ pflabel11
 	sta playfield,x
 	dex
 	bpl pflabel11
-.L0951 ;  goto room_draw_end
+.L0971 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r11
  ; r11
 
-.L0952 ;  COLUBK = lightgreen
+.L0972 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L0953 ;  pfcolors:
+.L0973 ;  pfcolors:
 
  lda # riverblue
  sta COLUPF
@@ -5763,7 +5790,7 @@ pflabel11
  sta pfcolortable+1
  lda #<(pfcolorlabel173-81)
  sta pfcolortable
-.L0954 ;  playfield:
+.L0974 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5788,18 +5815,18 @@ pflabel12
 	sta playfield,x
 	dex
 	bpl pflabel12
-.L0955 ;  goto room_draw_end
+.L0975 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r12
  ; r12
 
-.L0956 ;  COLUBK = gray
+.L0976 ;  COLUBK = gray
 
 	LDA gray
 	STA COLUBK
-.L0957 ;  pfcolors:
+.L0977 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -5807,7 +5834,7 @@ pflabel12
  sta pfcolortable+1
  lda #<(pfcolorlabel190-84)
  sta pfcolortable
-.L0958 ;  playfield:
+.L0978 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5832,18 +5859,18 @@ pflabel13
 	sta playfield,x
 	dex
 	bpl pflabel13
-.L0959 ;  goto room_draw_end
+.L0979 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r13
  ; r13
 
-.L0960 ;  COLUBK = lightgreen
+.L0980 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L0961 ;  pfcolors:
+.L0981 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -5851,7 +5878,7 @@ pflabel13
  sta pfcolortable+1
  lda #<(pfcolorlabel190-83)
  sta pfcolortable
-.L0962 ;  playfield:
+.L0982 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5876,18 +5903,18 @@ pflabel14
 	sta playfield,x
 	dex
 	bpl pflabel14
-.L0963 ;  goto room_draw_end
+.L0983 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r14
  ; r14
 
-.L0964 ;  COLUBK = lightgreen
+.L0984 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L0965 ;  pfcolors:
+.L0985 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -5895,7 +5922,7 @@ pflabel14
  sta pfcolortable+1
  lda #<(pfcolorlabel190-82)
  sta pfcolortable
-.L0966 ;  playfield:
+.L0986 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5920,14 +5947,14 @@ pflabel15
 	sta playfield,x
 	dex
 	bpl pflabel15
-.L0967 ;  goto room_draw_end
+.L0987 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r15
  ; r15
 
-.L0968 ;  pfcolors:
+.L0988 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -5935,7 +5962,7 @@ pflabel15
  sta pfcolortable+1
  lda #<(pfcolorlabel190-81)
  sta pfcolortable
-.L0969 ;  playfield:
+.L0989 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -5960,18 +5987,18 @@ pflabel16
 	sta playfield,x
 	dex
 	bpl pflabel16
-.L0970 ;  goto room_draw_end
+.L0990 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r16
  ; r16
 
-.L0971 ;  COLUBK = yellow
+.L0991 ;  COLUBK = yellow
 
 	LDA yellow
 	STA COLUBK
-.L0972 ;  pfcolors:
+.L0992 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -5979,7 +6006,7 @@ pflabel16
  sta pfcolortable+1
  lda #<(pfcolorlabel207-84)
  sta pfcolortable
-.L0973 ;  playfield:
+.L0993 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6004,18 +6031,18 @@ pflabel17
 	sta playfield,x
 	dex
 	bpl pflabel17
-.L0974 ;  goto room_draw_end
+.L0994 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r17
  ; r17
 
-.L0975 ;  COLUBK = sand
+.L0995 ;  COLUBK = sand
 
 	LDA #sand
 	STA COLUBK
-.L0976 ;  pfcolors:
+.L0996 ;  pfcolors:
 
  lda # brown
  sta COLUPF
@@ -6023,7 +6050,7 @@ pflabel17
  sta pfcolortable+1
  lda #<(pfcolorlabel207-83)
  sta pfcolortable
-.L0977 ;  playfield:
+.L0997 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6048,18 +6075,18 @@ pflabel18
 	sta playfield,x
 	dex
 	bpl pflabel18
-.L0978 ;  goto room_draw_end
+.L0998 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r18
  ; r18
 
-.L0979 ;  COLUBK  =  lightgreen
+.L0999 ;  COLUBK  =  turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L0980 ;  pfcolors:
+.L01000 ;  pfcolors:
 
  lda # red
  sta COLUPF
@@ -6067,7 +6094,7 @@ pflabel18
  sta pfcolortable+1
  lda #<(pfcolorlabel207-82)
  sta pfcolortable
-.L0981 ;  playfield:
+.L01001 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6092,18 +6119,18 @@ pflabel19
 	sta playfield,x
 	dex
 	bpl pflabel19
-.L0982 ;  goto room_draw_end
+.L01002 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r19
  ; r19
 
-.L0983 ;  COLUBK = sand
+.L01003 ;  COLUBK = sand
 
 	LDA #sand
 	STA COLUBK
-.L0984 ;  pfcolors:
+.L01004 ;  pfcolors:
 
  lda # riverblue
  sta COLUPF
@@ -6111,7 +6138,7 @@ pflabel19
  sta pfcolortable+1
  lda #<(pfcolorlabel207-81)
  sta pfcolortable
-.L0985 ;  playfield:
+.L01005 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6136,18 +6163,18 @@ pflabel20
 	sta playfield,x
 	dex
 	bpl pflabel20
-.L0986 ;  goto room_draw_end
+.L01006 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r20
  ; r20
 
-.L0987 ;  COLUBK = sand
+.L01007 ;  COLUBK = sand
 
 	LDA #sand
 	STA COLUBK
-.L0988 ;  pfcolors:
+.L01008 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -6155,7 +6182,7 @@ pflabel20
  sta pfcolortable+1
  lda #<(pfcolorlabel224-84)
  sta pfcolortable
-.L0989 ;  playfield:
+.L01009 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6180,18 +6207,18 @@ pflabel21
 	sta playfield,x
 	dex
 	bpl pflabel21
-.L0990 ;  goto room_draw_end
+.L01010 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r21
  ; r21
 
-.L0991 ;  COLUBK = lightgreen
+.L01011 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L0992 ;  pfcolors:
+.L01012 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -6199,7 +6226,7 @@ pflabel21
  sta pfcolortable+1
  lda #<(pfcolorlabel224-83)
  sta pfcolortable
-.L0993 ;  playfield:
+.L01013 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6224,18 +6251,18 @@ pflabel22
 	sta playfield,x
 	dex
 	bpl pflabel22
-.L0994 ;  goto room_draw_end
+.L01014 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r22
  ; r22
 
-.L0995 ;  COLUBK = lightgreen
+.L01015 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L0996 ;  pfcolors:
+.L01016 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -6243,7 +6270,7 @@ pflabel22
  sta pfcolortable+1
  lda #<(pfcolorlabel224-82)
  sta pfcolortable
-.L0997 ;  playfield:
+.L01017 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6268,18 +6295,18 @@ pflabel23
 	sta playfield,x
 	dex
 	bpl pflabel23
-.L0998 ;  goto room_draw_end
+.L01018 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r23
  ; r23
 
-.L0999 ;  COLUBK = lightgreen
+.L01019 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01000 ;  pfcolors:
+.L01020 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -6287,7 +6314,7 @@ pflabel23
  sta pfcolortable+1
  lda #<(pfcolorlabel224-81)
  sta pfcolortable
-.L01001 ;  playfield:
+.L01021 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6312,18 +6339,18 @@ pflabel24
 	sta playfield,x
 	dex
 	bpl pflabel24
-.L01002 ;  goto room_draw_end
+.L01022 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r24
  ; r24
 
-.L01003 ;  COLUBK = yellow
+.L01023 ;  COLUBK = yellow
 
 	LDA yellow
 	STA COLUBK
-.L01004 ;  pfcolors:
+.L01024 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -6331,16 +6358,16 @@ pflabel24
  sta pfcolortable+1
  lda #<(pfcolorlabel241-84)
  sta pfcolortable
-.L01005 ;  if quest_flags{5} then goto r24_open
+.L01025 ;  if quest_flags{5} then goto r24_open
 
 	LDA quest_flags
 	AND #32
-	BEQ .skipL01005
-.condpart157
+	BEQ .skipL01025
+.condpart159
  jmp .r24_open
 
-.skipL01005
-.L01006 ;  playfield:
+.skipL01025
+.L01026 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6365,14 +6392,14 @@ pflabel25
 	sta playfield,x
 	dex
 	bpl pflabel25
-.L01007 ;  goto r24_end
+.L01027 ;  goto r24_end
 
  jmp .r24_end
 
 .r24_open
  ; r24_open
 
-.L01008 ;  playfield:
+.L01028 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6400,18 +6427,18 @@ pflabel26
 .r24_end
  ; r24_end
 
-.L01009 ;  goto room_draw_end
+.L01029 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r25
  ; r25
 
-.L01010 ;  COLUBK = lightgreen
+.L01030 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01011 ;  pfcolors:
+.L01031 ;  pfcolors:
 
  lda # red
  sta COLUPF
@@ -6419,7 +6446,7 @@ pflabel26
  sta pfcolortable+1
  lda #<(pfcolorlabel241-83)
  sta pfcolortable
-.L01012 ;  playfield:
+.L01032 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6444,18 +6471,18 @@ pflabel27
 	sta playfield,x
 	dex
 	bpl pflabel27
-.L01013 ;  goto room_draw_end
+.L01033 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r26
  ; r26
 
-.L01014 ;  COLUBK  =  lightgreen
+.L01034 ;  COLUBK  =  turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01015 ;  pfcolors:
+.L01035 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -6463,7 +6490,7 @@ pflabel27
  sta pfcolortable+1
  lda #<(pfcolorlabel241-82)
  sta pfcolortable
-.L01016 ;  playfield:
+.L01036 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6488,18 +6515,18 @@ pflabel28
 	sta playfield,x
 	dex
 	bpl pflabel28
-.L01017 ;  goto room_draw_end
+.L01037 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r27
  ; r27
 
-.L01018 ;  COLUBK = sand
+.L01038 ;  COLUBK = sand
 
 	LDA #sand
 	STA COLUBK
-.L01019 ;  pfcolors:
+.L01039 ;  pfcolors:
 
  lda # riverblue
  sta COLUPF
@@ -6507,7 +6534,7 @@ pflabel28
  sta pfcolortable+1
  lda #<(pfcolorlabel241-81)
  sta pfcolortable
-.L01020 ;  playfield:
+.L01040 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6532,18 +6559,18 @@ pflabel29
 	sta playfield,x
 	dex
 	bpl pflabel29
-.L01021 ;  goto room_draw_end
+.L01041 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r28
  ; r28
 
-.L01022 ;  COLUBK = sand
+.L01042 ;  COLUBK = sand
 
 	LDA #sand
 	STA COLUBK
-.L01023 ;  pfcolors:
+.L01043 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -6551,7 +6578,7 @@ pflabel29
  sta pfcolortable+1
  lda #<(pfcolorlabel258-84)
  sta pfcolortable
-.L01024 ;  playfield:
+.L01044 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6576,18 +6603,18 @@ pflabel30
 	sta playfield,x
 	dex
 	bpl pflabel30
-.L01025 ;  goto room_draw_end
+.L01045 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r29
  ; r29
 
-.L01026 ;  COLUBK = lightgreen
+.L01046 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01027 ;  pfcolors:
+.L01047 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -6595,24 +6622,24 @@ pflabel30
  sta pfcolortable+1
  lda #<(pfcolorlabel258-83)
  sta pfcolortable
-.L01028 ;  if quest_flags{6} then goto r29_open
+.L01048 ;  if quest_flags{6} then goto r29_open
 
 	BIT quest_flags
-	BVC .skipL01028
-.condpart158
+	BVC .skipL01048
+.condpart160
  jmp .r29_open
 
-.skipL01028
-.L01029 ;  if item_flags{3} then goto r29_open
+.skipL01048
+.L01049 ;  if item_flags{3} then goto r29_open
 
 	LDA item_flags
 	AND #8
-	BEQ .skipL01029
-.condpart159
+	BEQ .skipL01049
+.condpart161
  jmp .r29_open
 
-.skipL01029
-.L01030 ;  playfield:
+.skipL01049
+.L01050 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6637,14 +6664,14 @@ pflabel31
 	sta playfield,x
 	dex
 	bpl pflabel31
-.L01031 ;  goto room_draw_end
+.L01051 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r29_open
  ; r29_open
 
-.L01032 ;  playfield:
+.L01052 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6669,22 +6696,22 @@ pflabel32
 	sta playfield,x
 	dex
 	bpl pflabel32
-.L01033 ;  goto room_draw_end
+.L01053 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r30
  ; r30
 
-.L01034 ;  pfcolors:
+.L01054 ;  pfcolors:
 
- lda # green 
+ lda # green
  sta COLUPF
  lda #>(pfcolorlabel258-82)
  sta pfcolortable+1
  lda #<(pfcolorlabel258-82)
  sta pfcolortable
-.L01035 ;  playfield:
+.L01055 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6710,14 +6737,14 @@ pflabel33
 	sta playfield,x
 	dex
 	bpl pflabel33
-.L01036 ;  goto room_draw_end
+.L01056 ;  goto room_draw_end
 
  jmp .room_draw_end
 
 .r31
  ; r31
 
-.L01037 ;  pfcolors:
+.L01057 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -6725,7 +6752,7 @@ pflabel33
  sta pfcolortable+1
  lda #<(pfcolorlabel258-81)
  sta pfcolortable
-.L01038 ;  playfield:
+.L01058 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6750,21 +6777,18 @@ pflabel34
 	sta playfield,x
 	dex
 	bpl pflabel34
-.L01039 ;  goto room_draw_end
+.L01059 ;  goto room_draw_end
 
  jmp .room_draw_end
-
-.
- ; 
 
 .r32
  ; r32
 
-.L01040 ;  COLUBK = lightgreen
+.L01060 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01041 ;  pfcolors:
+.L01061 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -6772,16 +6796,16 @@ pflabel34
  sta pfcolortable+1
  lda #<(pfcolorlabel275-84)
  sta pfcolortable
-.L01042 ;  if quest_flags{2} then goto r32_open
+.L01062 ;  if quest_flags{2} then goto r32_open
 
 	LDA quest_flags
 	AND #4
-	BEQ .skipL01042
-.condpart160
+	BEQ .skipL01062
+.condpart162
  jmp .r32_open
 
-.skipL01042
-.L01043 ;  playfield:
+.skipL01062
+.L01063 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6790,15 +6814,15 @@ pflabel34
   endif
 	jmp pflabel35
 PF_data35
-	.byte %10000001, %11111111, %11111111, %11000001
-	.byte %10000011, %11111111, %11111111, %11000011
-	.byte %10000111, %11111111, %11111111, %11000111
-	.byte %10001111, %11111111, %11111111, %11001111
-	.byte %10011111, %11111111, %11111111, %11011111
+	.byte %10000011, %11111111, %11111111, %11000001
+	.byte %10000111, %11111111, %11111111, %11000011
+	.byte %10001111, %11111111, %11111111, %11000111
+	.byte %10011111, %11111111, %11111111, %11001111
+	.byte %10111111, %11111111, %11111111, %11111111
+	.byte %10011001, %10011001, %10011001, %00011001
+	.byte %10011001, %10011001, %10011001, %00011001
+	.byte %10011001, %10011001, %10011001, %00011001
 	.byte %10111111, %11111111, %11111111, %00111111
-	.byte %10001100, %00110011, %00110011, %00001100
-	.byte %10001100, %00110011, %00110011, %00001100
-	.byte %10011111, %11111111, %11111111, %00011111
 	.byte %10000000, %00000000, %00000000, %00000000
 	.byte %10000000, %00000000, %00000000, %00000000
 pflabel35
@@ -6806,7 +6830,7 @@ pflabel35
 	sta playfield,x
 	dex
 	bpl pflabel35
-.L01044 ;  goto room_draw_end bank2
+.L01064 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -6822,7 +6846,7 @@ pflabel35
 .r32_open
  ; r32_open
 
-.L01045 ;  playfield:
+.L01065 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6831,15 +6855,15 @@ pflabel35
   endif
 	jmp pflabel36
 PF_data36
-	.byte %10000001, %00111111, %00111111, %11000001
-	.byte %10000011, %00111111, %00111111, %11000011
-	.byte %10000111, %00111111, %00111111, %11000111
-	.byte %10001111, %00111111, %00111111, %11001111
-	.byte %10011111, %00111111, %00111111, %11011111
-	.byte %10111111, %00111111, %00111111, %00111111
-	.byte %10001100, %00110011, %00110011, %00001100
-	.byte %10001100, %00110011, %00110011, %00001100
-	.byte %10011111, %00111111, %00111111, %00011111
+	.byte %10000011, %00111111, %00111111, %11000001
+	.byte %10000111, %00111111, %00111111, %11000011
+	.byte %10001111, %00011111, %00011111, %11000111
+	.byte %10011111, %00011111, %00011111, %11001111
+	.byte %10111111, %00111111, %00111111, %11111111
+	.byte %10011001, %00011001, %00011001, %00011001
+	.byte %10011001, %00011001, %00011001, %00011001
+	.byte %10011001, %00011001, %00011001, %00011001
+	.byte %10111111, %00011111, %00011111, %00111111
 	.byte %10000000, %00000000, %00000000, %00000000
 	.byte %10000000, %00000000, %00000000, %00000000
 pflabel36
@@ -6847,7 +6871,7 @@ pflabel36
 	sta playfield,x
 	dex
 	bpl pflabel36
-.L01046 ;  goto room_draw_end bank2
+.L01066 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -6863,7 +6887,7 @@ pflabel36
 .r33
  ; r33
 
-.L01047 ;  pfcolors:
+.L01067 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -6871,7 +6895,7 @@ pflabel36
  sta pfcolortable+1
  lda #<(pfcolorlabel275-83)
  sta pfcolortable
-.L01048 ;  playfield:
+.L01068 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6896,7 +6920,7 @@ pflabel37
 	sta playfield,x
 	dex
 	bpl pflabel37
-.L01049 ;  goto room_draw_end bank2
+.L01069 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -6912,11 +6936,11 @@ pflabel37
 .r34
  ; r34
 
-.L01050 ;  COLUBK  =  lightgreen
+.L01070 ;  COLUBK  =  turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01051 ;  pfcolors:
+.L01071 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -6924,7 +6948,7 @@ pflabel37
  sta pfcolortable+1
  lda #<(pfcolorlabel275-82)
  sta pfcolortable
-.L01052 ;  playfield:
+.L01072 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -6949,7 +6973,7 @@ pflabel38
 	sta playfield,x
 	dex
 	bpl pflabel38
-.L01053 ;  goto room_draw_end bank2
+.L01073 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -6965,11 +6989,11 @@ pflabel38
 .r35
  ; r35
 
-.L01054 ;  COLUBK = sand
+.L01074 ;  COLUBK = sand
 
 	LDA #sand
 	STA COLUBK
-.L01055 ;  pfcolors:
+.L01075 ;  pfcolors:
 
  lda # riverblue
  sta COLUPF
@@ -6977,16 +7001,16 @@ pflabel38
  sta pfcolortable+1
  lda #<(pfcolorlabel275-81)
  sta pfcolortable
-.L01056 ;  if quest_flags{4} then goto r35_open
+.L01076 ;  if quest_flags{4} then goto r35_open
 
 	LDA quest_flags
 	AND #16
-	BEQ .skipL01056
-.condpart161
+	BEQ .skipL01076
+.condpart163
  jmp .r35_open
 
-.skipL01056
-.L01057 ;  playfield:
+.skipL01076
+.L01077 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7011,7 +7035,7 @@ pflabel39
 	sta playfield,x
 	dex
 	bpl pflabel39
-.L01058 ;  goto room_draw_end bank2
+.L01078 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7027,7 +7051,7 @@ pflabel39
 .r35_open
  ; r35_open
 
-.L01059 ;  playfield:
+.L01079 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7052,7 +7076,7 @@ pflabel40
 	sta playfield,x
 	dex
 	bpl pflabel40
-.L01060 ;  goto room_draw_end bank2
+.L01080 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7068,11 +7092,11 @@ pflabel40
 .r36
  ; r36
 
-.L01061 ;  COLUBK = lightgreen
+.L01081 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01062 ;  pfcolors:
+.L01082 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -7080,7 +7104,7 @@ pflabel40
  sta pfcolortable+1
  lda #<(pfcolorlabel292-84)
  sta pfcolortable
-.L01063 ;  playfield:
+.L01083 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7105,7 +7129,7 @@ pflabel41
 	sta playfield,x
 	dex
 	bpl pflabel41
-.L01064 ;  goto room_draw_end bank2
+.L01084 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7121,11 +7145,11 @@ pflabel41
 .r37
  ; r37
 
-.L01065 ;  COLUBK = lightgreen
+.L01085 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01066 ;  pfcolors:
+.L01086 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -7133,7 +7157,7 @@ pflabel41
  sta pfcolortable+1
  lda #<(pfcolorlabel292-83)
  sta pfcolortable
-.L01067 ;  playfield:
+.L01087 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7158,7 +7182,7 @@ pflabel42
 	sta playfield,x
 	dex
 	bpl pflabel42
-.L01068 ;  goto room_draw_end bank2
+.L01088 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7174,11 +7198,11 @@ pflabel42
 .r38
  ; r38
 
-.L01069 ;  COLUBK = lightgreen
+.L01089 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01070 ;  pfcolors:
+.L01090 ;  pfcolors:
 
  lda # gray
  sta COLUPF
@@ -7186,7 +7210,7 @@ pflabel42
  sta pfcolortable+1
  lda #<(pfcolorlabel292-82)
  sta pfcolortable
-.L01071 ;  playfield:
+.L01091 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7211,7 +7235,7 @@ pflabel43
 	sta playfield,x
 	dex
 	bpl pflabel43
-.L01072 ;  goto room_draw_end bank2
+.L01092 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7227,11 +7251,11 @@ pflabel43
 .r39
  ; r39
 
-.L01073 ;  COLUBK = lightgreen
+.L01093 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01074 ;  pfcolors:
+.L01094 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -7239,7 +7263,7 @@ pflabel43
  sta pfcolortable+1
  lda #<(pfcolorlabel292-81)
  sta pfcolortable
-.L01075 ;  playfield:
+.L01095 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7264,7 +7288,7 @@ pflabel44
 	sta playfield,x
 	dex
 	bpl pflabel44
-.L01076 ;  goto room_draw_end bank2
+.L01096 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7277,10 +7301,7 @@ pflabel44
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
-.L01077 ;  bank 3
+.L01097 ;  bank 3
 
  echo "    ",[(start_bank2 - *)]d , "bytes of ROM space left in bank 2")
  ORG $2FF4-bscode_length
@@ -7318,27 +7339,24 @@ start_bank2 ldx #$ff
  .word start_bank2
  ORG $3000
  RORG $5000
-.
- ; 
-
 .room_draw_40
  ; room_draw_40
 
-.L01078 ;  temp1 = hero_room - 40
+.L01098 ;  temp1 = hero_room - 40
 
 	LDA hero_room
 	SEC
 	SBC #40
 	STA temp1
-.L01079 ;  on temp1 goto r40 r41 r42 r43 r44 r45 r46 r47 r48 r49 r50 r51 r52 r53 r54 r55 r56 r57 r58 r59 r60 r61 r62 r63
+.L01099 ;  on temp1 goto r40 r41 r42 r43 r44 r45 r46 r47 r48 r49 r50 r51 r52 r53 r54 r55 r56 r57 r58 r59 r60 r61 r62 r63
 
 	LDX temp1
-	LDA .L01079jumptablehi,x
+	LDA .L01099jumptablehi,x
 	PHA
-	LDA .L01079jumptablelo,x
+	LDA .L01099jumptablelo,x
 	PHA
 	RTS
-.L01079jumptablehi
+.L01099jumptablehi
 	.byte >(.r40-1)
 	.byte >(.r41-1)
 	.byte >(.r42-1)
@@ -7363,7 +7381,7 @@ start_bank2 ldx #$ff
 	.byte >(.r61-1)
 	.byte >(.r62-1)
 	.byte >(.r63-1)
-.L01079jumptablelo
+.L01099jumptablelo
 	.byte <(.r40-1)
 	.byte <(.r41-1)
 	.byte <(.r42-1)
@@ -7388,7 +7406,7 @@ start_bank2 ldx #$ff
 	.byte <(.r61-1)
 	.byte <(.r62-1)
 	.byte <(.r63-1)
-.L01080 ;  goto room_draw_end bank2
+.L01100 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7401,13 +7419,10 @@ start_bank2 ldx #$ff
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
 .r40
  ; r40
 
-.L01081 ;  pfcolors:
+.L01101 ;  pfcolors:
 
  lda # brown
  sta COLUPF
@@ -7415,7 +7430,7 @@ start_bank2 ldx #$ff
  sta pfcolortable+1
  lda #<(pfcolorlabel309-84)
  sta pfcolortable
-.L01082 ;  playfield:
+.L01102 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7440,7 +7455,7 @@ pflabel45
 	sta playfield,x
 	dex
 	bpl pflabel45
-.L01083 ;  goto room_draw_end bank2
+.L01103 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7453,28 +7468,22 @@ pflabel45
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
-.
- ; 
-
 .r41
  ; r41
 
-.L01084 ;  COLUBK  =  lightgreen
+.L01104 ;  COLUBK  =  turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01085 ;  pfcolors:
+.L01105 ;  pfcolors:
 
- lda # green 
+ lda # green
  sta COLUPF
  lda #>(pfcolorlabel309-83)
  sta pfcolortable+1
  lda #<(pfcolorlabel309-83)
  sta pfcolortable
-.L01086 ;  playfield:
+.L01106 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7499,7 +7508,7 @@ pflabel46
 	sta playfield,x
 	dex
 	bpl pflabel46
-.L01087 ;  goto room_draw_end bank2
+.L01107 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7515,19 +7524,19 @@ pflabel46
 .r42
  ; r42
 
-.L01088 ;  COLUBK  =  lightgreen
+.L01108 ;  COLUBK  =  turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01089 ;  pfcolors:
+.L01109 ;  pfcolors:
 
- lda # green 
+ lda # green
  sta COLUPF
  lda #>(pfcolorlabel309-82)
  sta pfcolortable+1
  lda #<(pfcolorlabel309-82)
  sta pfcolortable
-.L01090 ;  playfield:
+.L01110 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7545,14 +7554,14 @@ PF_data47
 	.byte %00001110, %00000000, %00010000, %00000000
 	.byte %00001111, %00000000, %00111000, %00000000
 	.byte %00011111, %00000000, %01111100, %00000000
-	.byte %00000100, %00000000, %00010000, %00000000
+	.byte %00000100, %00000000, %00010000, %11000000
 	.byte %00000000, %00000000, %00000000, %11000000
 pflabel47
 	lda PF_data47,x
 	sta playfield,x
 	dex
 	bpl pflabel47
-.L01091 ;  goto room_draw_end bank2
+.L01111 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7568,11 +7577,11 @@ pflabel47
 .r43
  ; r43
 
-.L01092 ;  COLUBK  =  sand
+.L01112 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01093 ;  pfcolors:
+.L01113 ;  pfcolors:
 
  lda # riverblue
  sta COLUPF
@@ -7580,7 +7589,7 @@ pflabel47
  sta pfcolortable+1
  lda #<(pfcolorlabel309-81)
  sta pfcolortable
-.L01094 ;  playfield:
+.L01114 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7605,7 +7614,7 @@ pflabel48
 	sta playfield,x
 	dex
 	bpl pflabel48
-.L01095 ;  goto room_draw_end bank2
+.L01115 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7621,11 +7630,11 @@ pflabel48
 .r44
  ; r44
 
-.L01096 ;  COLUBK = sand
+.L01116 ;  COLUBK = sand
 
 	LDA #sand
 	STA COLUBK
-.L01097 ;  pfcolors:
+.L01117 ;  pfcolors:
 
  lda # red
  sta COLUPF
@@ -7633,7 +7642,7 @@ pflabel48
  sta pfcolortable+1
  lda #<(pfcolorlabel326-84)
  sta pfcolortable
-.L01098 ;  playfield:
+.L01118 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7658,7 +7667,7 @@ pflabel49
 	sta playfield,x
 	dex
 	bpl pflabel49
-.L01099 ;  goto room_draw_end bank2
+.L01119 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7674,11 +7683,11 @@ pflabel49
 .r45
  ; r45
 
-.L01100 ;  COLUBK  =  sand
+.L01120 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01101 ;  pfcolors:
+.L01121 ;  pfcolors:
 
  lda # brown
  sta COLUPF
@@ -7686,7 +7695,7 @@ pflabel49
  sta pfcolortable+1
  lda #<(pfcolorlabel326-83)
  sta pfcolortable
-.L01102 ;  playfield:
+.L01122 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7711,7 +7720,7 @@ pflabel50
 	sta playfield,x
 	dex
 	bpl pflabel50
-.L01103 ;  goto room_draw_end bank2
+.L01123 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7727,11 +7736,11 @@ pflabel50
 .r46
  ; r46
 
-.L01104 ;  COLUBK = lightgreen
+.L01124 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01105 ;  pfcolors:
+.L01125 ;  pfcolors:
 
  lda # gray
  sta COLUPF
@@ -7739,7 +7748,7 @@ pflabel50
  sta pfcolortable+1
  lda #<(pfcolorlabel326-82)
  sta pfcolortable
-.L01106 ;  playfield:
+.L01126 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7765,7 +7774,7 @@ pflabel51
 	sta playfield,x
 	dex
 	bpl pflabel51
-.L01107 ;  goto room_draw_end bank2
+.L01127 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7781,7 +7790,7 @@ pflabel51
 .r47
  ; r47
 
-.L01108 ;  pfcolors:
+.L01128 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -7789,7 +7798,7 @@ pflabel51
  sta pfcolortable+1
  lda #<(pfcolorlabel326-81)
  sta pfcolortable
-.L01109 ;  playfield:
+.L01129 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7814,7 +7823,7 @@ pflabel52
 	sta playfield,x
 	dex
 	bpl pflabel52
-.L01110 ;  goto room_draw_end bank2
+.L01130 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7827,23 +7836,14 @@ pflabel52
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
-.
- ; 
-
-.
- ; 
-
 .r48
  ; r48
 
-.L01111 ;  COLUBK  =  lightgreen
+.L01131 ;  COLUBK  =  turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01112 ;  pfcolors:
+.L01132 ;  pfcolors:
 
  lda # brown
  sta COLUPF
@@ -7851,7 +7851,7 @@ pflabel52
  sta pfcolortable+1
  lda #<(pfcolorlabel343-84)
  sta pfcolortable
-.L01113 ;  playfield:
+.L01133 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7876,7 +7876,7 @@ pflabel53
 	sta playfield,x
 	dex
 	bpl pflabel53
-.L01114 ;  goto room_draw_end bank2
+.L01134 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7889,17 +7889,14 @@ pflabel53
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
 .r49
  ; r49
 
-.L01115 ;  COLUBK  =  lightgreen
+.L01135 ;  COLUBK = turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01116 ;  pfcolors:
+.L01136 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -7907,7 +7904,7 @@ pflabel53
  sta pfcolortable+1
  lda #<(pfcolorlabel343-83)
  sta pfcolortable
-.L01117 ;  playfield:
+.L01137 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7932,7 +7929,11 @@ pflabel54
 	sta playfield,x
 	dex
 	bpl pflabel54
-.L01118 ;  goto room_draw_end bank2
+.L01138 ;  COLUPF = red
+
+	LDA red
+	STA COLUPF
+.L01139 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -7945,17 +7946,16 @@ pflabel54
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
 .r50
  ; r50
 
-.L01119 ;  COLUBK  =  sand
+.L01140 ;  COLUBK  =  sand  +  0
 
 	LDA #sand
+	CLC
+	ADC #0
 	STA COLUBK
-.L01120 ;  pfcolors:
+.L01141 ;  pfcolors:
 
  lda # riverblue
  sta COLUPF
@@ -7963,7 +7963,7 @@ pflabel54
  sta pfcolortable+1
  lda #<(pfcolorlabel343-82)
  sta pfcolortable
-.L01121 ;  playfield:
+.L01142 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -7989,7 +7989,7 @@ pflabel55
 	sta playfield,x
 	dex
 	bpl pflabel55
-.L01122 ;  goto room_draw_end bank2
+.L01143 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8005,13 +8005,15 @@ pflabel55
 .r51
  ; r51
 
-.L01123 ;  rem 'black ship top
+.L01144 ;  rem 'black ship top
 
-.L01124 ;  COLUBK  =  seablue
+.L01145 ;  COLUBK  =  144  +  2
 
-	LDA #seablue
+	LDA #144
+	CLC
+	ADC #2
 	STA COLUBK
-.L01125 ;  pfcolors:
+.L01146 ;  pfcolors:
 
  lda # white
  sta COLUPF
@@ -8019,7 +8021,7 @@ pflabel55
  sta pfcolortable+1
  lda #<(pfcolorlabel343-81)
  sta pfcolortable
-.L01126 ;  playfield:
+.L01147 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8044,7 +8046,7 @@ pflabel56
 	sta playfield,x
 	dex
 	bpl pflabel56
-.L01127 ;  goto room_draw_end bank2
+.L01148 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8060,19 +8062,19 @@ pflabel56
 .r52
  ; r52
 
-.L01128 ;  COLUBK  =  sand
+.L01149 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01129 ;  pfcolors:
+.L01150 ;  pfcolors:
 
- lda # seablue
+ lda # 144
  sta COLUPF
  lda #>(pfcolorlabel360-84)
  sta pfcolortable+1
  lda #<(pfcolorlabel360-84)
  sta pfcolortable
-.L01130 ;  playfield:
+.L01151 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8097,7 +8099,7 @@ pflabel57
 	sta playfield,x
 	dex
 	bpl pflabel57
-.L01131 ;  goto room_draw_end bank2
+.L01152 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8113,11 +8115,11 @@ pflabel57
 .r53
  ; r53
 
-.L01132 ;  COLUBK  =  sand
+.L01153 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01133 ;  pfcolors:
+.L01154 ;  pfcolors:
 
  lda # green
  sta COLUPF
@@ -8125,7 +8127,7 @@ pflabel57
  sta pfcolortable+1
  lda #<(pfcolorlabel360-83)
  sta pfcolortable
-.L01134 ;  playfield:
+.L01155 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8150,7 +8152,7 @@ pflabel58
 	sta playfield,x
 	dex
 	bpl pflabel58
-.L01135 ;  goto room_draw_end bank2
+.L01156 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8166,11 +8168,11 @@ pflabel58
 .r54
  ; r54
 
-.L01136 ;  COLUBK  =  lightgreen
+.L01157 ;  COLUBK  =  turfy
 
-	LDA #lightgreen
+	LDA #turfy
 	STA COLUBK
-.L01137 ;  pfcolors:
+.L01158 ;  pfcolors:
 
  lda # gray
  sta COLUPF
@@ -8178,16 +8180,16 @@ pflabel58
  sta pfcolortable+1
  lda #<(pfcolorlabel360-82)
  sta pfcolortable
-.L01138 ;  if quest_flags{3} then goto r54_open
+.L01159 ;  if quest_flags{3} then goto r54_open
 
 	LDA quest_flags
 	AND #8
-	BEQ .skipL01138
-.condpart162
+	BEQ .skipL01159
+.condpart164
  jmp .r54_open
 
-.skipL01138
-.L01139 ;  playfield:
+.skipL01159
+.L01160 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8212,7 +8214,7 @@ pflabel59
 	sta playfield,x
 	dex
 	bpl pflabel59
-.L01140 ;  goto room_draw_end bank2
+.L01161 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8228,7 +8230,7 @@ pflabel59
 .r54_open
  ; r54_open
 
-.L01141 ;  playfield:
+.L01162 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8253,7 +8255,7 @@ pflabel60
 	sta playfield,x
 	dex
 	bpl pflabel60
-.L01142 ;  goto room_draw_end bank2
+.L01163 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8269,11 +8271,11 @@ pflabel60
 .r55
  ; r55
 
-.L01143 ;  COLUBK  =  sand
+.L01164 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01144 ;  pfcolors:
+.L01165 ;  pfcolors:
 
  lda # red
  sta COLUPF
@@ -8281,15 +8283,15 @@ pflabel60
  sta pfcolortable+1
  lda #<(pfcolorlabel360-81)
  sta pfcolortable
-.L01145 ;  if quest_flags{7} then goto r55_open
+.L01166 ;  if quest_flags{7} then goto r55_open
 
 	BIT quest_flags
-	BPL .skipL01145
-.condpart163
+	BPL .skipL01166
+.condpart165
  jmp .r55_open
 
-.skipL01145
-.L01146 ;  playfield:
+.skipL01166
+.L01167 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8314,7 +8316,7 @@ pflabel61
 	sta playfield,x
 	dex
 	bpl pflabel61
-.L01147 ;  goto room_draw_end bank2
+.L01168 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8330,7 +8332,7 @@ pflabel61
 .r55_open
  ; r55_open
 
-.L01148 ;  playfield:
+.L01169 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8355,7 +8357,7 @@ pflabel62
 	sta playfield,x
 	dex
 	bpl pflabel62
-.L01149 ;  goto room_draw_end bank2
+.L01170 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8371,29 +8373,29 @@ pflabel62
 .r56
  ; r56
 
-.L01150 ;  rem 'Shield on island
+.L01171 ;  rem 'Shield on island
 
-.L01151 ;  COLUBK  =  sand
+.L01172 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01152 ;  pfcolors:
+.L01173 ;  pfcolors:
 
- lda # seablue
+ lda # 144
  sta COLUPF
  lda #>(pfcolorlabel377-84)
  sta pfcolortable+1
  lda #<(pfcolorlabel377-84)
  sta pfcolortable
-.L01153 ;  if !quest_flags{6} then goto r56_closed
+.L01174 ;  if !quest_flags{6} then goto r56_closed
 
 	BIT quest_flags
-	BVS .skipL01153
-.condpart164
+	BVS .skipL01174
+.condpart166
  jmp .r56_closed
 
-.skipL01153
-.L01154 ;  playfield:
+.skipL01174
+.L01175 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8418,7 +8420,7 @@ pflabel63
 	sta playfield,x
 	dex
 	bpl pflabel63
-.L01155 ;  goto room_draw_end bank2
+.L01176 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8434,7 +8436,7 @@ pflabel63
 .r56_closed
  ; r56_closed
 
-.L01156 ;  playfield:
+.L01177 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8462,7 +8464,7 @@ pflabel64
 .r56_end
  ; r56_end
 
-.L01157 ;  goto room_draw_end bank2
+.L01178 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8478,11 +8480,11 @@ pflabel64
 .r57
  ; r57
 
-.L01158 ;  COLUBK  =  sand
+.L01179 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01159 ;  pfcolors:
+.L01180 ;  pfcolors:
 
  lda # red
  sta COLUPF
@@ -8490,7 +8492,7 @@ pflabel64
  sta pfcolortable+1
  lda #<(pfcolorlabel377-83)
  sta pfcolortable
-.L01160 ;  playfield:
+.L01181 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8515,7 +8517,7 @@ pflabel65
 	sta playfield,x
 	dex
 	bpl pflabel65
-.L01161 ;  goto room_draw_end bank2
+.L01182 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8528,25 +8530,22 @@ pflabel65
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
 .r58
  ; r58
 
-.L01162 ;  COLUBK  =  sand
+.L01183 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01163 ;  pfcolors:
+.L01184 ;  pfcolors:
 
- lda # seablue
+ lda # 144
  sta COLUPF
  lda #>(pfcolorlabel377-82)
  sta pfcolortable+1
  lda #<(pfcolorlabel377-82)
  sta pfcolortable
-.L01164 ;  if quest_flags{2} goto r58_open
+.L01185 ;  if quest_flags{2} goto r58_open
 
 	LDA quest_flags
 	AND #4
@@ -8557,7 +8556,7 @@ pflabel65
 	jmp .r58_open
 .12skipr58_open
  endif
-.L01165 ;  playfield:
+.L01186 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8574,15 +8573,15 @@ PF_data66
 	.byte %00000000, %11100000, %11111111, %11111111
 	.byte %00000000, %11111100, %11111111, %11111111
 	.byte %00000000, %11111111, %11111111, %11111111
-	.byte %00001111, %11111111, %11111111, %11111111
-	.byte %11111111, %11111111, %11111111, %11111111
+	.byte %00001111, %11111111, %11111111, %00001111
+	.byte %11111111, %11111111, %11111111, %00011111
 	.byte %11111111, %11111111, %11111111, %11111111
 pflabel66
 	lda PF_data66,x
 	sta playfield,x
 	dex
 	bpl pflabel66
-.L01166 ;  goto room_draw_end bank2
+.L01187 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8598,7 +8597,7 @@ pflabel66
 .r58_open
  ; r58_open
 
-.L01167 ;  playfield:
+.L01188 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8623,7 +8622,7 @@ pflabel67
 	sta playfield,x
 	dex
 	bpl pflabel67
-.L01168 ;  goto room_draw_end bank2
+.L01189 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8636,20 +8635,16 @@ pflabel67
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
-.
- ; 
-
 .r59
  ; r59
 
-.L01169 ;  COLUBK  =  seablue
+.L01190 ;  COLUBK  =  144  +  1
 
-	LDA #seablue
+	LDA #144
+	CLC
+	ADC #1
 	STA COLUBK
-.L01170 ;  pfcolors:
+.L01191 ;  pfcolors:
 
  lda # black
  sta COLUPF
@@ -8657,9 +8652,9 @@ pflabel67
  sta pfcolortable+1
  lda #<(pfcolorlabel377-81)
  sta pfcolortable
-.L01171 ;  rem 'black ship bottom, when switch3 isn't pressed
+.L01192 ;  rem 'black ship bottom, when switch3 isn't pressed
 
-.L01172 ;  if quest_flags{3} goto black_ship_open
+.L01193 ;  if quest_flags{3} goto black_ship_open
 
 	LDA quest_flags
 	AND #8
@@ -8670,7 +8665,7 @@ pflabel67
 	jmp .black_ship_open
 .13skipblack_ship_open
  endif
-.L01173 ;  playfield:
+.L01194 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8695,14 +8690,14 @@ pflabel68
 	sta playfield,x
 	dex
 	bpl pflabel68
-.L01174 ;  goto black_ship_end
+.L01195 ;  goto black_ship_end
 
  jmp .black_ship_end
 
 .black_ship_open
  ; black_ship_open
 
-.L01175 ;  playfield:
+.L01196 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8730,7 +8725,7 @@ pflabel69
 .black_ship_end
  ; black_ship_end
 
-.L01176 ;  goto room_draw_end bank2
+.L01197 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8743,27 +8738,24 @@ pflabel69
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
 .r60
  ; r60
 
-.L01177 ;  rem 'Boss 3, Kraken room.
+.L01198 ;  rem 'Boss 3, Kraken room.
 
-.L01178 ;  COLUBK  =  black
+.L01199 ;  COLUBK  =  black
 
 	LDA black
 	STA COLUBK
-.L01179 ;  pfcolors:
+.L01200 ;  pfcolors:
 
- lda # seablue
+ lda # 144
  sta COLUPF
  lda #>(pfcolorlabel394-84)
  sta pfcolortable+1
  lda #<(pfcolorlabel394-84)
  sta pfcolortable
-.L01180 ;  playfield:
+.L01201 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8788,7 +8780,7 @@ pflabel70
 	sta playfield,x
 	dex
 	bpl pflabel70
-.L01181 ;  goto room_draw_end bank2
+.L01202 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8801,17 +8793,14 @@ pflabel70
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
 .r61
  ; r61
 
-.L01182 ;  COLUBK  =  sand
+.L01203 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01183 ;  pfcolors:
+.L01204 ;  pfcolors:
 
  lda # riverblue
  sta COLUPF
@@ -8819,16 +8808,16 @@ pflabel70
  sta pfcolortable+1
  lda #<(pfcolorlabel394-83)
  sta pfcolortable
-.L01184 ;  if !hero_items{5} then goto r61_closed
+.L01205 ;  if !hero_items{5} then goto r61_closed
 
 	LDA hero_items
 	AND #32
-	BNE .skipL01184
-.condpart165
+	BNE .skipL01205
+.condpart167
  jmp .r61_closed
 
-.skipL01184
-.L01185 ;  playfield:
+.skipL01205
+.L01206 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8853,7 +8842,7 @@ pflabel71
 	sta playfield,x
 	dex
 	bpl pflabel71
-.L01186 ;  goto room_draw_end bank2
+.L01207 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8869,7 +8858,7 @@ pflabel71
 .r61_closed
  ; r61_closed
 
-.L01187 ;  playfield:
+.L01208 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8894,7 +8883,7 @@ pflabel72
 	sta playfield,x
 	dex
 	bpl pflabel72
-.L01188 ;  goto room_draw_end bank2
+.L01209 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8907,25 +8896,22 @@ pflabel72
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
 .r62
  ; r62
 
-.L01189 ;  COLUBK  =  sand
+.L01210 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01190 ;  pfcolors:
+.L01211 ;  pfcolors:
 
- lda # seablue
+ lda # 144
  sta COLUPF
  lda #>(pfcolorlabel394-82)
  sta pfcolortable+1
  lda #<(pfcolorlabel394-82)
  sta pfcolortable
-.L01191 ;  playfield:
+.L01212 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -8950,7 +8936,7 @@ pflabel73
 	sta playfield,x
 	dex
 	bpl pflabel73
-.L01192 ;  goto room_draw_end bank2
+.L01213 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -8963,28 +8949,22 @@ pflabel73
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
-.
- ; 
-
 .r63
  ; r63
 
-.L01193 ;  COLUBK  =  sand
+.L01214 ;  COLUBK  =  sand
 
 	LDA #sand
 	STA COLUBK
-.L01194 ;  pfcolors:
+.L01215 ;  pfcolors:
 
- lda # seablue
+ lda # 144
  sta COLUPF
  lda #>(pfcolorlabel394-81)
  sta pfcolortable+1
  lda #<(pfcolorlabel394-81)
  sta pfcolortable
-.L01195 ;  playfield:
+.L01216 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -9009,7 +8989,7 @@ pflabel74
 	sta playfield,x
 	dex
 	bpl pflabel74
-.L01196 ;  goto room_draw_end bank2
+.L01217 ;  goto room_draw_end bank2
 
  sta temp7
  lda #>(.room_draw_end-1)
@@ -9022,16 +9002,7 @@ pflabel74
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
-.
- ; 
-
-.
- ; 
-
-.L01197 ;  bank 4
+.L01218 ;  bank 4
 
  echo "    ",[(start_bank3 - *)]d , "bytes of ROM space left in bank 3")
  ORG $3FF4-bscode_length
@@ -9069,15 +9040,15 @@ start_bank3 ldx #$ff
  .word start_bank3
  ORG $4000
  RORG $7000
-.L01198 ;  rem 'Item sprites as well as initial data for item and sprites are in bank 4
+.L01219 ;  rem 'Item sprites as well as initial data for item and sprites are in bank 4
 
-.L01199 ;  rem 'Items/monsters/mobiles in any given room
+.L01220 ;  rem 'Items/monsters/mobiles in any given room
 
-.L01200 ;  rem '8 items per line means it corresponds with map layout
+.L01221 ;  rem '8 items per line means it corresponds with map layout
 
-.L01201 ;  data room_items
+.L01222 ;  data room_items
 
-	JMP .skipL01201
+	JMP .skipL01222
 room_items
 	.byte   monster_leaf2_boss, monster_leaf1_boss, monster_bat, item_switch4
 
@@ -9095,15 +9066,15 @@ room_items
 
 	.byte   monster_archer, monster_grunt, monster_lion, monster_snake
 
-	.byte   item_none, monster_mushroom, monster_grunt, monster_fish  
+	.byte   item_none, monster_mushroom, monster_grunt, monster_fish 
 
 	.byte   monster_cannon, monster_cannon, monster_mage, monster_lion 
 
-	.byte   monster_scorpio, monster_slime, monster_bat, monster_snake  
+	.byte   monster_scorpio, monster_slime, monster_bat, monster_snake
 
 	.byte   monster_archer, monster_knight, monster_spider, monster_mushroom
 
-	.byte   monster_flower, item_healhp , monster_slime, item_switch3  
+	.byte   monster_flower, item_healhp, monster_slime, item_switch3 
 
 	.byte   monster_scorpio, monster_crab, item_none, monster_fish
 
@@ -9111,46 +9082,37 @@ room_items
 
 	.byte   monster_leaf3_boss, item_switch6, monster_crab, monster_strike_boss
 
-.skipL01201
-.
- ; 
+.skipL01222
+.L01223 ;  data item_hplist
 
-.L01202 ;  data item_hplist
-
-	JMP .skipL01202
+	JMP .skipL01223
 item_hplist
-	.byte     4,  4,  8,  8,  8, 16, 16, 16, 16, 32, 32, 32, 32, 64, 32, 32
+	.byte     4, 4, 8, 8, 8, 16, 16, 16, 16, 32, 32, 32, 32, 64, 32, 32
 
-	.byte    64, 80,100,  4, 64, 32, 64, 64, 64, 80, 80, 80, 80,100,100,120
+	.byte    64, 80,100, 4, 64, 32, 64, 64, 64, 80, 80, 80, 80,100,100,120
 
-	.byte   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4
+	.byte   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
 
-	.byte   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4
+	.byte   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
 
-	.byte   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4
+	.byte   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
 
-	.byte   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4
+	.byte   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
 
-	.byte   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4
+	.byte   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
 
-	.byte   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4
+	.byte   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
 
-.skipL01202
-.
- ; 
+.skipL01223
+.L01224 ;  rem 'Shorthand for the center of screen positions.
 
-.L01203 ;  rem 'Shorthand for the center of screen positions.
+.L01225 ;  const hc = 73
 
-.L01204 ;  const hc = 73
+.L01226 ;  const vc = 49
 
-.L01205 ;  const vc = 49
+.L01227 ;  data item_xlist
 
-.
- ; 
-
-.L01206 ;  data item_xlist
-
-	JMP .skipL01206
+	JMP .skipL01227
 item_xlist
 	.byte   hc, hc, 84, 37,109, 70, hc - 8, hc 
 
@@ -9168,13 +9130,10 @@ item_xlist
 
 	.byte   37, hc, 37, 37, hc, 37, hc, hc 
 
-.skipL01206
-.
- ; 
+.skipL01227
+.L01228 ;  data item_ylist
 
-.L01207 ;  data item_ylist
-
-	JMP .skipL01207
+	JMP .skipL01228
 item_ylist
 	.byte   vc, vc, vc, 25, 70, 65, vc, vc 
 
@@ -9192,26 +9151,20 @@ item_ylist
 
 	.byte   73, vc, vc, vc, vc, 73, vc, vc 
 
-.skipL01207
-.
- ; 
-
-.
- ; 
-
+.skipL01228
 .item_setup
  ; item_setup
 
-.L01208 ;  item_kind  =  room_items[hero_room]
+.L01229 ;  item_kind  =  room_items[hero_room]
 
 	LDX hero_room
 	LDA room_items,x
 	STA item_kind
-.L01209 ;  gosub item_setup_kind
+.L01230 ;  gosub item_setup_kind
 
  jsr .item_setup_kind
 
-.L01210 ;  goto item_setup_done bank2
+.L01231 ;  goto item_setup_done bank2
 
  sta temp7
  lda #>(.item_setup_done-1)
@@ -9224,62 +9177,43 @@ item_ylist
  pha
  ldx #2
  jmp BS_jsr
-.
- ; 
-
-.L01211 ;  rem 'You must set item_kind before gosubbing to this one  
+.L01232 ;  rem 'You must set item_kind before gosubbing to this one  
 
 .item_setup_kind
  ; item_setup_kind
 
-.L01212 ;  rem 'Initialize item/mobile, and it's position, HP and speed 
+.L01233 ;  rem 'Initialize item/mobile, and it's position, HP and speed
 
-.L01213 ;  rem 'First, handle switches
+.L01234 ;  rem 'First, handle switches
 
-.L01214 ;  if item_kind  <  item_switch1 then goto item_switch_end
+.L01235 ;  if item_kind  <  item_switch1 then goto item_switch_end
 
 	LDA item_kind
 	CMP #item_switch1
-     BCS .skipL01214
-.condpart166
+     BCS .skipL01235
+.condpart168
  jmp .item_switch_end
 
-.skipL01214
-.L01215 ;  if item_kind  >  item_switch7 then goto item_switch_end
+.skipL01235
+.L01236 ;  if item_kind  >  item_switch7 then goto item_switch_end
 
 	LDA #item_switch7
 	CMP item_kind
-     BCS .skipL01215
-.condpart167
+     BCS .skipL01236
+.condpart169
  jmp .item_switch_end
 
-.skipL01215
-.L01216 ;  rem 'set switch to on if needed
+.skipL01236
+.L01237 ;  rem 'set switch to on if needed
 
-.L01217 ;  if quest_flags{1}  &&  item_kind  =  item_switch1 then item_kind  =  item_kind  +  item_switch_on
+.L01238 ;  if quest_flags{1}  &&  item_kind  =  item_switch1 then item_kind  =  item_kind  +  item_switch_on
 
 	LDA quest_flags
 	AND #2
-	BEQ .skipL01217
-.condpart168
-	LDA item_kind
-	CMP #item_switch1
-     BNE .skip168then
-.condpart169
-	LDA item_kind
-	CLC
-	ADC #item_switch_on
-	STA item_kind
-.skip168then
-.skipL01217
-.L01218 ;  if quest_flags{2}  &&  item_kind  =  item_switch2 then item_kind  =  item_kind  +  item_switch_on
-
-	LDA quest_flags
-	AND #4
-	BEQ .skipL01218
+	BEQ .skipL01238
 .condpart170
 	LDA item_kind
-	CMP #item_switch2
+	CMP #item_switch1
      BNE .skip170then
 .condpart171
 	LDA item_kind
@@ -9287,15 +9221,15 @@ item_ylist
 	ADC #item_switch_on
 	STA item_kind
 .skip170then
-.skipL01218
-.L01219 ;  if quest_flags{3}  &&  item_kind  =  item_switch3 then item_kind  =  item_kind  +  item_switch_on
+.skipL01238
+.L01239 ;  if quest_flags{2}  &&  item_kind  =  item_switch2 then item_kind  =  item_kind  +  item_switch_on
 
 	LDA quest_flags
-	AND #8
-	BEQ .skipL01219
+	AND #4
+	BEQ .skipL01239
 .condpart172
 	LDA item_kind
-	CMP #item_switch3
+	CMP #item_switch2
      BNE .skip172then
 .condpart173
 	LDA item_kind
@@ -9303,15 +9237,15 @@ item_ylist
 	ADC #item_switch_on
 	STA item_kind
 .skip172then
-.skipL01219
-.L01220 ;  if quest_flags{4}  &&  item_kind  =  item_switch4 then item_kind  =  item_kind  +  item_switch_on
+.skipL01239
+.L01240 ;  if quest_flags{3}  &&  item_kind  =  item_switch3 then item_kind  =  item_kind  +  item_switch_on
 
 	LDA quest_flags
-	AND #16
-	BEQ .skipL01220
+	AND #8
+	BEQ .skipL01240
 .condpart174
 	LDA item_kind
-	CMP #item_switch4
+	CMP #item_switch3
      BNE .skip174then
 .condpart175
 	LDA item_kind
@@ -9319,15 +9253,15 @@ item_ylist
 	ADC #item_switch_on
 	STA item_kind
 .skip174then
-.skipL01220
-.L01221 ;  if quest_flags{5}  &&  item_kind  =  item_switch5 then item_kind  =  item_kind  +  item_switch_on
+.skipL01240
+.L01241 ;  if quest_flags{4}  &&  item_kind  =  item_switch4 then item_kind  =  item_kind  +  item_switch_on
 
 	LDA quest_flags
-	AND #32
-	BEQ .skipL01221
+	AND #16
+	BEQ .skipL01241
 .condpart176
 	LDA item_kind
-	CMP #item_switch5
+	CMP #item_switch4
      BNE .skip176then
 .condpart177
 	LDA item_kind
@@ -9335,14 +9269,15 @@ item_ylist
 	ADC #item_switch_on
 	STA item_kind
 .skip176then
-.skipL01221
-.L01222 ;  if quest_flags{6}  &&  item_kind  =  item_switch6 then item_kind  =  item_kind  +  item_switch_on
+.skipL01241
+.L01242 ;  if quest_flags{5}  &&  item_kind  =  item_switch5 then item_kind  =  item_kind  +  item_switch_on
 
-	BIT quest_flags
-	BVC .skipL01222
+	LDA quest_flags
+	AND #32
+	BEQ .skipL01242
 .condpart178
 	LDA item_kind
-	CMP #item_switch6
+	CMP #item_switch5
      BNE .skip178then
 .condpart179
 	LDA item_kind
@@ -9350,14 +9285,14 @@ item_ylist
 	ADC #item_switch_on
 	STA item_kind
 .skip178then
-.skipL01222
-.L01223 ;  if quest_flags{7}  &&  item_kind  =  item_switch7 then item_kind  =  item_kind  +  item_switch_on
+.skipL01242
+.L01243 ;  if quest_flags{6}  &&  item_kind  =  item_switch6 then item_kind  =  item_kind  +  item_switch_on
 
 	BIT quest_flags
-	BPL .skipL01223
+	BVC .skipL01243
 .condpart180
 	LDA item_kind
-	CMP #item_switch7
+	CMP #item_switch6
      BNE .skip180then
 .condpart181
 	LDA item_kind
@@ -9365,192 +9300,201 @@ item_ylist
 	ADC #item_switch_on
 	STA item_kind
 .skip180then
-.skipL01223
+.skipL01243
+.L01244 ;  if quest_flags{7}  &&  item_kind  =  item_switch7 then item_kind  =  item_kind  +  item_switch_on
+
+	BIT quest_flags
+	BPL .skipL01244
+.condpart182
+	LDA item_kind
+	CMP #item_switch7
+     BNE .skip182then
+.condpart183
+	LDA item_kind
+	CLC
+	ADC #item_switch_on
+	STA item_kind
+.skip182then
+.skipL01244
 .item_switch_end
  ; item_switch_end
 
-.L01224 ;  rem 'Next, handle bosses that may already be dead.
+.L01245 ;  rem 'Next, handle bosses that may already be dead.
 
-.L01225 ;  rem 'Ikaza
+.L01246 ;  rem 'Ikaza
 
-.L01226 ;  if item_kind  <  monster_leaf1_boss then goto item_boss_end
+.L01247 ;  if item_kind  <  monster_leaf1_boss then goto item_boss_end
 
 	LDA item_kind
 	CMP #monster_leaf1_boss
-     BCS .skipL01226
-.condpart182
+     BCS .skipL01247
+.condpart184
  jmp .item_boss_end
 
-.skipL01226
-.L01227 ;  if item_kind  >  monster_ikaza then goto item_boss_end
+.skipL01247
+.L01248 ;  if item_kind  >  monster_ikaza then goto item_boss_end
 
 	LDA #monster_ikaza
 	CMP item_kind
-     BCS .skipL01227
-.condpart183
+     BCS .skipL01248
+.condpart185
  jmp .item_boss_end
 
-.skipL01227
-.L01228 ;  if quest_flags{0}  &&  item_kind  =  monster_ikaza then item_kind  =  item_none
+.skipL01248
+.L01249 ;  if quest_flags{0}  &&  item_kind  =  monster_ikaza then item_kind  =  item_none
 
 	LDA quest_flags
 	LSR
-	BCC .skipL01228
-.condpart184
-	LDA item_kind
-	CMP #monster_ikaza
-     BNE .skip184then
-.condpart185
-	LDA #item_none
-	STA item_kind
-.skip184then
-.skipL01228
-.L01229 ;  rem 'Leaf 1 dropped by boss 1
-
-.L01230 ;  if hero_items{0}  &&  item_kind  =  monster_leaf1_boss then item_kind  =  item_none
-
-	LDA hero_items
-	LSR
-	BCC .skipL01230
+	BCC .skipL01249
 .condpart186
 	LDA item_kind
-	CMP #monster_leaf1_boss
+	CMP #monster_ikaza
      BNE .skip186then
 .condpart187
 	LDA #item_none
 	STA item_kind
 .skip186then
-.skipL01230
-.L01231 ;  rem 'Leaf 2 dropped by boss 2
+.skipL01249
+.L01250 ;  rem 'Leaf 1 dropped by boss 1
 
-.L01232 ;  if hero_items{1}  &&  item_kind  =  monster_leaf2_boss then item_kind  =  item_none
+.L01251 ;  if hero_items{0}  &&  item_kind  =  monster_leaf1_boss then item_kind  =  item_none
 
 	LDA hero_items
-	AND #2
-	BEQ .skipL01232
+	LSR
+	BCC .skipL01251
 .condpart188
 	LDA item_kind
-	CMP #monster_leaf2_boss
+	CMP #monster_leaf1_boss
      BNE .skip188then
 .condpart189
 	LDA #item_none
 	STA item_kind
 .skip188then
-.skipL01232
-.L01233 ;  rem 'Leaf 3 dropped by boss 3
+.skipL01251
+.L01252 ;  rem 'Leaf 2 dropped by boss 2
 
-.L01234 ;  if hero_items{2}  &&  item_kind  =  monster_leaf3_boss then item_kind  =  item_none
+.L01253 ;  if hero_items{1}  &&  item_kind  =  monster_leaf2_boss then item_kind  =  item_none
 
 	LDA hero_items
-	AND #4
-	BEQ .skipL01234
+	AND #2
+	BEQ .skipL01253
 .condpart190
 	LDA item_kind
-	CMP #monster_leaf3_boss
+	CMP #monster_leaf2_boss
      BNE .skip190then
 .condpart191
 	LDA #item_none
 	STA item_kind
 .skip190then
-.skipL01234
-.L01235 ;  rem 'Armor Dropped by armor boss
+.skipL01253
+.L01254 ;  rem 'Leaf 3 dropped by boss 3
 
-.L01236 ;  if hero_items{4}  &&  item_kind  =  monster_armor_boss then item_kind  =  item_none
+.L01255 ;  if hero_items{2}  &&  item_kind  =  monster_leaf3_boss then item_kind  =  item_none
 
 	LDA hero_items
-	AND #16
-	BEQ .skipL01236
+	AND #4
+	BEQ .skipL01255
 .condpart192
 	LDA item_kind
-	CMP #monster_armor_boss
+	CMP #monster_leaf3_boss
      BNE .skip192then
 .condpart193
 	LDA #item_none
 	STA item_kind
 .skip192then
-.skipL01236
-.L01237 ;  rem 'Sword dropped by sword boss
+.skipL01255
+.L01256 ;  rem 'Armor Dropped by armor boss
 
-.L01238 ;  if hero_items{5}  &&  item_kind  =  monster_sword_boss then item_kind  =  item_none
+.L01257 ;  if hero_items{4}  &&  item_kind  =  monster_armor_boss then item_kind  =  item_none
 
 	LDA hero_items
-	AND #32
-	BEQ .skipL01238
+	AND #16
+	BEQ .skipL01257
 .condpart194
 	LDA item_kind
-	CMP #monster_sword_boss
+	CMP #monster_armor_boss
      BNE .skip194then
 .condpart195
 	LDA #item_none
 	STA item_kind
 .skip194then
-.skipL01238
-.L01239 ;  rem 'Strike book dropped by strike book boss
+.skipL01257
+.L01258 ;  rem 'Sword dropped by sword boss
 
-.L01240 ;  if hero_items{7}  &&  item_kind  =  monster_strike_boss then item_kind  =  item_none
+.L01259 ;  if hero_items{5}  &&  item_kind  =  monster_sword_boss then item_kind  =  item_none
 
-	BIT hero_items
-	BPL .skipL01240
+	LDA hero_items
+	AND #32
+	BEQ .skipL01259
 .condpart196
 	LDA item_kind
-	CMP #monster_strike_boss
+	CMP #monster_sword_boss
      BNE .skip196then
 .condpart197
 	LDA #item_none
 	STA item_kind
 .skip196then
-.skipL01240
-.L01241 ;  rem 'Heal book and shield are not dropped by a boss, but just found
+.skipL01259
+.L01260 ;  rem 'Strike book dropped by strike book boss
 
-.item_boss_end
- ; item_boss_end
+.L01261 ;  if hero_items{7}  &&  item_kind  =  monster_strike_boss then item_kind  =  item_none
 
-.L01242 ;  rem 'Finally handle the case of the shield and the heal book that should drop only once
-
-.L01243 ;  if hero_items{3}  &&  item_kind  =  item_shield then item_kind  =  item_none
-
-	LDA hero_items
-	AND #8
-	BEQ .skipL01243
+	BIT hero_items
+	BPL .skipL01261
 .condpart198
 	LDA item_kind
-	CMP #item_shield
+	CMP #monster_strike_boss
      BNE .skip198then
 .condpart199
 	LDA #item_none
 	STA item_kind
 .skip198then
-.skipL01243
-.L01244 ;  if hero_items{6}  &&  item_kind  =  item_bookheal then item_kind  =  item_none
+.skipL01261
+.L01262 ;  rem 'Heal book and shield are not dropped by a boss, but just found
 
-	BIT hero_items
-	BVC .skipL01244
+.item_boss_end
+ ; item_boss_end
+
+.L01263 ;  rem 'Finally handle the case of the shield and the heal book that should drop only once
+
+.L01264 ;  if hero_items{3}  &&  item_kind  =  item_shield then item_kind  =  item_none
+
+	LDA hero_items
+	AND #8
+	BEQ .skipL01264
 .condpart200
 	LDA item_kind
-	CMP #item_bookheal
+	CMP #item_shield
      BNE .skip200then
 .condpart201
 	LDA #item_none
 	STA item_kind
 .skip200then
-.skipL01244
-.
- ; 
+.skipL01264
+.L01265 ;  if hero_items{6}  &&  item_kind  =  item_bookheal then item_kind  =  item_none
 
-.L01245 ;  temp1  =  item_kind_mask  &  item_kind
+	BIT hero_items
+	BVC .skipL01265
+.condpart202
+	LDA item_kind
+	CMP #item_bookheal
+     BNE .skip202then
+.condpart203
+	LDA #item_none
+	STA item_kind
+.skip202then
+.skipL01265
+.L01266 ;  temp1  =  item_kind_mask  &  item_kind
 
 	LDA #item_kind_mask
 	AND item_kind
 	STA temp1
-.L01246 ;  item_hp  =  item_hplist[temp1]
+.L01267 ;  item_hp  =  item_hplist[temp1]
 
 	LDX temp1
 	LDA item_hplist,x
 	STA item_hp
-.
- ; 
-
-.L01247 ;  if temp1  >  31 goto item_draw_32
+.L01268 ;  if temp1  >  31 goto item_draw_32
 
 	LDA #31
 	CMP temp1
@@ -9561,15 +9505,15 @@ item_ylist
 	jmp .item_draw_32
 .14skipitem_draw_32
  endif
-.L01248 ;  on temp1 goto i00 i01 i02 i03 i04 i05 i06 i07 i08 i09 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20 i21 i22 i23 i24 i25 i26 i27 i28 i29 i30 i31
+.L01269 ;  on temp1 goto i00 i01 i02 i03 i04 i05 i06 i07 i08 i09 i10 i11 i12 i13 i14 i15 i16 i17 i18 i19 i20 i21 i22 i23 i24 i25 i26 i27 i28 i29 i30 i31
 
 	LDX temp1
-	LDA .L01248jumptablehi,x
+	LDA .L01269jumptablehi,x
 	PHA
-	LDA .L01248jumptablelo,x
+	LDA .L01269jumptablelo,x
 	PHA
 	RTS
-.L01248jumptablehi
+.L01269jumptablehi
 	.byte >(.i00-1)
 	.byte >(.i01-1)
 	.byte >(.i02-1)
@@ -9602,7 +9546,7 @@ item_ylist
 	.byte >(.i29-1)
 	.byte >(.i30-1)
 	.byte >(.i31-1)
-.L01248jumptablelo
+.L01269jumptablelo
 	.byte <(.i00-1)
 	.byte <(.i01-1)
 	.byte <(.i02-1)
@@ -9635,28 +9579,28 @@ item_ylist
 	.byte <(.i29-1)
 	.byte <(.i30-1)
 	.byte <(.i31-1)
-.L01249 ;  goto item_draw_done
+.L01270 ;  goto item_draw_done
 
  jmp .item_draw_done
 
 .item_draw_32
  ; item_draw_32
 
-.L01250 ;  temp1  =  temp1  -  32
+.L01271 ;  temp1  =  temp1  -  32
 
 	LDA temp1
 	SEC
 	SBC #32
 	STA temp1
-.L01251 ;  on temp1 goto i32 i33 i34 i35 i36 i37 i38 i39 i40 i41 i42 i43 i44 i45 i46 i47 i48 i49 i50 i51 i52 i53 i54 i55 i56 i57 i58 i59 i60 i61 i62 i63
+.L01272 ;  on temp1 goto i32 i33 i34 i35 i36 i37 i38 i39 i40 i41 i42 i43 i44 i45 i46 i47 i48 i49 i50 i51 i52 i53 i54 i55 i56 i57 i58 i59 i60 i61 i62 i63
 
 	LDX temp1
-	LDA .L01251jumptablehi,x
+	LDA .L01272jumptablehi,x
 	PHA
-	LDA .L01251jumptablelo,x
+	LDA .L01272jumptablelo,x
 	PHA
 	RTS
-.L01251jumptablehi
+.L01272jumptablehi
 	.byte >(.i32-1)
 	.byte >(.i33-1)
 	.byte >(.i34-1)
@@ -9689,7 +9633,7 @@ item_ylist
 	.byte >(.i61-1)
 	.byte >(.i62-1)
 	.byte >(.i63-1)
-.L01251jumptablelo
+.L01272jumptablelo
 	.byte <(.i32-1)
 	.byte <(.i33-1)
 	.byte <(.i34-1)
@@ -9725,10 +9669,7 @@ item_ylist
 .item_draw_done
  ; item_draw_done
 
-.
- ; 
-
-.L01252 ;  if item_kind  <>  item_none goto item_not_none
+.L01273 ;  if item_kind  <>  item_none goto item_not_none
 
 	LDA item_kind
 	CMP #item_none
@@ -9739,23 +9680,23 @@ item_ylist
 	jmp .item_not_none
 .15skipitem_not_none
  endif
-.L01253 ;  item_x  =  nowhere
+.L01274 ;  item_x  =  nowhere
 
 	LDA #nowhere
 	STA item_x
-.L01254 ;  item_oldx  =  nowhere
+.L01275 ;  item_oldx  =  nowhere
 
 	LDA #nowhere
 	STA item_oldx
-.L01255 ;  item_y  =  nowhere
+.L01276 ;  item_y  =  nowhere
 
 	LDA #nowhere
 	STA item_y
-.L01256 ;  item_oldy  =  nowhere
+.L01277 ;  item_oldy  =  nowhere
 
 	LDA #nowhere
 	STA item_oldy
-.L01257 ;  return
+.L01278 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -9767,31 +9708,31 @@ item_ylist
 .item_not_none
  ; item_not_none
 
-.L01258 ;  rem temp1 = item_kind & item_kind_mask
+.L01279 ;  rem temp1 = item_kind & item_kind_mask
 
-.L01259 ;  rem 'look up location in table.
+.L01280 ;  rem 'look up location in table.
 
-.L01260 ;  item_oldx  =  item_xlist[hero_room]
+.L01281 ;  item_oldx  =  item_xlist[hero_room]
 
 	LDX hero_room
 	LDA item_xlist,x
 	STA item_oldx
-.L01261 ;  item_x  =  item_xlist[hero_room]
+.L01282 ;  item_x  =  item_xlist[hero_room]
 
 	LDX hero_room
 	LDA item_xlist,x
 	STA item_x
-.L01262 ;  item_oldy  =  item_ylist[hero_room]
+.L01283 ;  item_oldy  =  item_ylist[hero_room]
 
 	LDX hero_room
 	LDA item_ylist,x
 	STA item_oldy
-.L01263 ;  item_y  =  item_ylist[hero_room]
+.L01284 ;  item_y  =  item_ylist[hero_room]
 
 	LDX hero_room
 	LDA item_ylist,x
 	STA item_y
-.L01264 ;  return
+.L01285 ;  return
 
 	tsx
 	lda 2,x ; check return address
@@ -9800,198 +9741,34 @@ item_ylist
 	beq *+5 ; if equal, do normal return
 	JMP BS_return
 	RTS
-.
- ; 
-
-.
- ; 
-
-.
- ; 
-
-.
- ; 
-
 .i00
  ; i00
 
-.L01265 ;  COLUP1 = black
+.L01286 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01266 ;  player1:
+.L01287 ;  player1:
 
-	LDA #<playerL01266_1
+	LDA #<playerL01287_1
 
 	STA player1pointerlo
-	LDA #>playerL01266_1
+	LDA #>playerL01287_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01267 ;  goto item_draw_done
+.L01288 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i01
  ; i01
 
-.L01268 ;  COLUP1 = black
+.L01289 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01269 ;  player1:
-
-	LDA #<playerL01269_1
-
-	STA player1pointerlo
-	LDA #>playerL01269_1
-
-	STA player1pointerhi
-	LDA #5
-	STA player1height
-.L01270 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.
- ; 
-
-.i02
- ; i02
-
-.L01271 ;  COLUP1 = red
-
-	LDA #red
-	STA COLUP1
-.L01272 ;  player1:
-
-	LDA #<playerL01272_1
-
-	STA player1pointerlo
-	LDA #>playerL01272_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01273 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.
- ; 
-
-.
- ; 
-
-.i03
- ; i03
-
-.L01274 ;  rem 'bat.xpm
-
-.L01275 ;  player1:
-
-	LDA #<playerL01275_1
-
-	STA player1pointerlo
-	LDA #>playerL01275_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01276 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.
- ; 
-
-.i04
- ; i04
-
-.L01277 ;  rem 'scorpio.xpm
-
-.L01278 ;  player1:
-
-	LDA #<playerL01278_1
-
-	STA player1pointerlo
-	LDA #>playerL01278_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01279 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.
- ; 
-
-.i05
- ; i05
-
-.L01280 ;  COLUP1 = black
-
-	LDA black
-	STA COLUP1
-.L01281 ;  rem 'rabid.xpm
-
-.L01282 ;  player1:
-
-	LDA #<playerL01282_1
-
-	STA player1pointerlo
-	LDA #>playerL01282_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01283 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.
- ; 
-
-.i06
- ; i06
-
-.L01284 ;  COLUP1 = black
-
-	LDA black
-	STA COLUP1
-.L01285 ;  rem 'spider.xpm
-
-.L01286 ;  player1:
-
-	LDA #<playerL01286_1
-
-	STA player1pointerlo
-	LDA #>playerL01286_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01287 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.
- ; 
-
-.i07
- ; i07
-
-.L01288 ;  COLUP1 = black
-
-	LDA black
-	STA COLUP1
-.L01289 ;  rem 'snake.xpm
-
 .L01290 ;  player1:
 
 	LDA #<playerL01290_1
@@ -10000,636 +9777,689 @@ item_ylist
 	LDA #>playerL01290_1
 
 	STA player1pointerhi
-	LDA #8
+	LDA #5
 	STA player1height
 .L01291 ;  goto item_draw_done
 
  jmp .item_draw_done
 
-.
- ; 
+.i02
+ ; i02
+
+.L01292 ;  COLUP1 = red
+
+	LDA red
+	STA COLUP1
+.L01293 ;  player1:
+
+	LDA #<playerL01293_1
+
+	STA player1pointerlo
+	LDA #>playerL01293_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01294 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i03
+ ; i03
+
+.L01295 ;  rem 'bat.xpm
+
+.L01296 ;  player1:
+
+	LDA #<playerL01296_1
+
+	STA player1pointerlo
+	LDA #>playerL01296_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01297 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i04
+ ; i04
+
+.L01298 ;  rem 'scorpio.xpm
+
+.L01299 ;  player1:
+
+	LDA #<playerL01299_1
+
+	STA player1pointerlo
+	LDA #>playerL01299_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01300 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i05
+ ; i05
+
+.L01301 ;  COLUP1 = black
+
+	LDA black
+	STA COLUP1
+.L01302 ;  rem 'rabid.xpm
+
+.L01303 ;  player1:
+
+	LDA #<playerL01303_1
+
+	STA player1pointerlo
+	LDA #>playerL01303_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01304 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i06
+ ; i06
+
+.L01305 ;  COLUP1 = black
+
+	LDA black
+	STA COLUP1
+.L01306 ;  rem 'spider.xpm
+
+.L01307 ;  player1:
+
+	LDA #<playerL01307_1
+
+	STA player1pointerlo
+	LDA #>playerL01307_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01308 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i07
+ ; i07
+
+.L01309 ;  COLUP1 = black
+
+	LDA black
+	STA COLUP1
+.L01310 ;  rem 'snake.xpm
+
+.L01311 ;  player1:
+
+	LDA #<playerL01311_1
+
+	STA player1pointerlo
+	LDA #>playerL01311_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01312 ;  goto item_draw_done
+
+ jmp .item_draw_done
 
 .i08
  ; i08
 
-.L01292 ;  COLUP1 = black
+.L01313 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01293 ;  rem 'fish.xpm
+.L01314 ;  rem 'fish.xpm
 
-.L01294 ;  player1:
+.L01315 ;  player1:
 
-	LDA #<playerL01294_1
+	LDA #<playerL01315_1
 
 	STA player1pointerlo
-	LDA #>playerL01294_1
+	LDA #>playerL01315_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01295 ;  goto item_draw_done
+.L01316 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i09
  ; i09
 
-.L01296 ;  COLUP1 = black
+.L01317 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01297 ;  rem 'lion.xpm
+.L01318 ;  rem 'lion.xpm
 
-.L01298 ;  player1:
+.L01319 ;  player1:
 
-	LDA #<playerL01298_1
+	LDA #<playerL01319_1
 
 	STA player1pointerlo
-	LDA #>playerL01298_1
+	LDA #>playerL01319_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01299 ;  goto item_draw_done
+.L01320 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i10
  ; i10
 
-.L01300 ;  COLUP1 = black
+.L01321 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01301 ;  rem 'wolf.xpm
+.L01322 ;  rem 'wolf.xpm
 
-.L01302 ;  player1:
+.L01323 ;  player1:
 
-	LDA #<playerL01302_1
+	LDA #<playerL01323_1
 
 	STA player1pointerlo
-	LDA #>playerL01302_1
+	LDA #>playerL01323_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01303 ;  goto item_draw_done
+.L01324 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i11
  ; i11
 
-.L01304 ;  COLUP1 = black
+.L01325 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01305 ;  rem 'captain.xpm, used for monster_grunt. (captain and grunt were doubles)
+.L01326 ;  rem 'captain.xpm, used for monster_grunt. (captain and grunt were doubles)
 
-.L01306 ;  player1:
+.L01327 ;  player1:
 
-	LDA #<playerL01306_1
+	LDA #<playerL01327_1
 
 	STA player1pointerlo
-	LDA #>playerL01306_1
+	LDA #>playerL01327_1
 
 	STA player1pointerhi
 	LDA #16
 	STA player1height
-.L01307 ;  goto item_draw_done
+.L01328 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i12
  ; i12
 
-.L01308 ;  COLUP1 = black
+.L01329 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01309 ;  rem 'archer.xpm
+.L01330 ;  rem 'archer.xpm
 
-.L01310 ;  player1:
+.L01331 ;  player1:
 
-	LDA #<playerL01310_1
+	LDA #<playerL01331_1
 
 	STA player1pointerlo
-	LDA #>playerL01310_1
+	LDA #>playerL01331_1
 
 	STA player1pointerhi
 	LDA #16
 	STA player1height
-.L01311 ;  goto item_draw_done
+.L01332 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i13
  ; i13
 
-.L01312 ;  COLUP1 = black
+.L01333 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01313 ;  rem 'knight.xpm
+.L01334 ;  rem 'knight.xpm
 
-.L01314 ;  player1:
+.L01335 ;  player1:
 
-	LDA #<playerL01314_1
+	LDA #<playerL01335_1
 
 	STA player1pointerlo
-	LDA #>playerL01314_1
+	LDA #>playerL01335_1
 
 	STA player1pointerhi
 	LDA #16
 	STA player1height
-.L01315 ;  goto item_draw_done
+.L01336 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i14
  ; i14
 
-.L01316 ;  COLUP1 = black
+.L01337 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01317 ;  rem 'cannon.xpm
+.L01338 ;  rem 'cannon.xpm
 
-.L01318 ;  player1:
+.L01339 ;  player1:
 
-	LDA #<playerL01318_1
+	LDA #<playerL01339_1
 
 	STA player1pointerlo
-	LDA #>playerL01318_1
+	LDA #>playerL01339_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01319 ;  goto item_draw_done
+.L01340 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i15
  ; i15
 
-.L01320 ;  COLUP1 = black
+.L01341 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01321 ;  rem 'zombie.xpm
+.L01342 ;  rem 'zombie.xpm
 
-.L01322 ;  player1:
+.L01343 ;  player1:
 
-	LDA #<playerL01322_1
+	LDA #<playerL01343_1
 
 	STA player1pointerlo
-	LDA #>playerL01322_1
+	LDA #>playerL01343_1
 
 	STA player1pointerhi
 	LDA #16
 	STA player1height
-.L01323 ;  goto item_draw_done
+.L01344 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i16
  ; i16
 
-.L01324 ;  COLUP1 = black
+.L01345 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01325 ;  rem 'skeleton.xpm
+.L01346 ;  rem 'skeleton.xpm
 
-.L01326 ;  player1:
+.L01347 ;  player1:
 
-	LDA #<playerL01326_1
+	LDA #<playerL01347_1
 
 	STA player1pointerlo
-	LDA #>playerL01326_1
+	LDA #>playerL01347_1
 
 	STA player1pointerhi
 	LDA #16
 	STA player1height
-.L01327 ;  goto item_draw_done
+.L01348 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i17
  ; i17
 
-.L01328 ;  COLUP1 = black
+.L01349 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01329 ;  rem 'ghost.xpm
+.L01350 ;  rem 'ghost.xpm
 
-.L01330 ;  player1:
+.L01351 ;  player1:
 
-	LDA #<playerL01330_1
+	LDA #<playerL01351_1
 
 	STA player1pointerlo
-	LDA #>playerL01330_1
+	LDA #>playerL01351_1
 
 	STA player1pointerhi
 	LDA #16
 	STA player1height
-.L01331 ;  goto item_draw_done
+.L01352 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i18
  ; i18
 
-.L01332 ;  COLUP1 = black
+.L01353 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01333 ;  rem 'bitmap/mage.xpm
+.L01354 ;  rem 'bitmap/mage.xpm
 
-.L01334 ;  player1:
+.L01355 ;  player1:
 
-	LDA #<playerL01334_1
+	LDA #<playerL01355_1
 
 	STA player1pointerlo
-	LDA #>playerL01334_1
+	LDA #>playerL01355_1
 
 	STA player1pointerhi
 	LDA #16
 	STA player1height
-.L01335 ;  goto item_draw_done
+.L01356 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i19
  ; i19
 
-.L01336 ;  COLUP1 = black
+.L01357 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01337 ;  rem 'flower.xpm
+.L01358 ;  rem 'flower.xpm
 
-.L01338 ;  player1:
+.L01359 ;  player1:
 
-	LDA #<playerL01338_1
+	LDA #<playerL01359_1
 
 	STA player1pointerlo
-	LDA #>playerL01338_1
+	LDA #>playerL01359_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01339 ;  goto item_draw_done
+.L01360 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i20
  ; i20
 
-.L01340 ;  COLUP1 = black
+.L01361 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01341 ;  rem 'treant.xpm
+.L01362 ;  rem 'treant.xpm
 
-.L01342 ;  player1:
+.L01363 ;  player1:
 
-	LDA #<playerL01342_1
+	LDA #<playerL01363_1
 
 	STA player1pointerlo
-	LDA #>playerL01342_1
+	LDA #>playerL01363_1
 
 	STA player1pointerhi
 	LDA #16
 	STA player1height
-.L01343 ;  goto item_draw_done
+.L01364 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i21
  ; i21
 
-.L01344 ;  COLUP1 = black
+.L01365 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01345 ;  rem 'muschroom.xpm
+.L01366 ;  rem 'muschroom.xpm
 
-.L01346 ;  player1:
+.L01367 ;  player1:
 
-	LDA #<playerL01346_1
+	LDA #<playerL01367_1
 
 	STA player1pointerlo
-	LDA #>playerL01346_1
+	LDA #>playerL01367_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01347 ;  goto item_draw_done
+.L01368 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i22
  ; i22
 
-.L01348 ;  COLUP1 = black
+.L01369 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01349 ;  rem 'book.xpm
+.L01370 ;  rem 'book.xpm
 
-.L01350 ;  player1:
+.L01371 ;  player1:
 
-	LDA #<playerL01350_1
+	LDA #<playerL01371_1
 
 	STA player1pointerlo
-	LDA #>playerL01350_1
+	LDA #>playerL01371_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01351 ;  goto item_draw_done
+.L01372 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i23
  ; i23
 
-.L01352 ;  COLUP1 = black
+.L01373 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01353 ;  rem 'sword.xpm. It's a fake Numen Sword that hurts the one who touches it.
+.L01374 ;  rem 'sword.xpm. It's a fake Numen Sword that hurts the one who touches it.
 
-.L01354 ;  player1:
+.L01375 ;  player1:
 
-	LDA #<playerL01354_1
+	LDA #<playerL01375_1
 
 	STA player1pointerlo
-	LDA #>playerL01354_1
+	LDA #>playerL01375_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01355 ;  goto item_draw_done
+.L01376 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i24
  ; i24
 
-.L01356 ;  COLUP1 = black
+.L01377 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01357 ;  rem 'Curse, entrance blocking item
+.L01378 ;  rem 'Curse, entrance blocking item
 
-.L01358 ;  player1:
+.L01379 ;  player1:
 
-	LDA #<playerL01358_1
+	LDA #<playerL01379_1
 
 	STA player1pointerlo
-	LDA #>playerL01358_1
+	LDA #>playerL01379_1
 
 	STA player1pointerhi
 	LDA #24
 	STA player1height
-.L01359 ;  goto item_draw_done
+.L01380 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i25
  ; i25
 
-.L01360 ;  COLUP1 = black
+.L01381 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01361 ;  rem 'boss1.xpm
+.L01382 ;  rem 'boss1.xpm
 
-.L01362 ;  player1:
+.L01383 ;  player1:
 
-	LDA #<playerL01362_1
+	LDA #<playerL01383_1
 
 	STA player1pointerlo
-	LDA #>playerL01362_1
+	LDA #>playerL01383_1
 
 	STA player1pointerhi
 	LDA #24
 	STA player1height
-.L01363 ;  goto item_draw_done
+.L01384 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i26
  ; i26
 
-.L01364 ;  COLUP1 = black
+.L01385 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01365 ;  rem 'boss2.xpm
+.L01386 ;  rem 'boss2.xpm
 
-.L01366 ;  player1:
+.L01387 ;  player1:
 
-	LDA #<playerL01366_1
+	LDA #<playerL01387_1
 
 	STA player1pointerlo
-	LDA #>playerL01366_1
+	LDA #>playerL01387_1
 
 	STA player1pointerhi
 	LDA #24
 	STA player1height
-.L01367 ;  goto item_draw_done
+.L01388 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i27
  ; i27
 
-.L01368 ;  COLUP1 = black
+.L01389 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01369 ;  rem 'boss3.xpm
+.L01390 ;  rem 'boss3.xpm
 
-.L01370 ;  player1:
+.L01391 ;  player1:
 
-	LDA #<playerL01370_1
+	LDA #<playerL01391_1
 
 	STA player1pointerlo
-	LDA #>playerL01370_1
+	LDA #>playerL01391_1
 
 	STA player1pointerhi
 	LDA #24
 	STA player1height
-.L01371 ;  goto item_draw_done
+.L01392 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i28
  ; i28
 
-.L01372 ;  COLUP1 = black
+.L01393 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01373 ;  rem 'armorboss.xpm
+.L01394 ;  rem 'armorboss.xpm
 
-.L01374 ;  player1:
+.L01395 ;  player1:
 
-	LDA #<playerL01374_1
+	LDA #<playerL01395_1
 
 	STA player1pointerlo
-	LDA #>playerL01374_1
+	LDA #>playerL01395_1
 
 	STA player1pointerhi
 	LDA #24
 	STA player1height
-.L01375 ;  goto item_draw_done
+.L01396 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i29
  ; i29
 
-.L01376 ;  COLUP1 = black
+.L01397 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01377 ;  rem 'Sword boss is a player frame 
+.L01398 ;  rem 'Sword boss is a player frame 
 
-.L01378 ;  player1:  
+.L01399 ;  player1:
 
-	LDA #<playerL01378_1
+	LDA #<playerL01399_1
 
 	STA player1pointerlo
-	LDA #>playerL01378_1
+	LDA #>playerL01399_1
 
 	STA player1pointerhi
 	LDA #13
 	STA player1height
-.L01379 ;  goto item_draw_done
+.L01400 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i30
  ; i30
 
-.L01380 ;  COLUP1 = black
+.L01401 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01381 ;  rem 'Strike boss is a one point sprite which is difficult to hit
+.L01402 ;  rem 'Strike boss is a one point sprite which is difficult to hit
 
-.L01382 ;  player1:
+.L01403 ;  player1:
 
-	LDA #<playerL01382_1
+	LDA #<playerL01403_1
 
 	STA player1pointerlo
-	LDA #>playerL01382_1
+	LDA #>playerL01403_1
 
 	STA player1pointerhi
 	LDA #1
 	STA player1height
-.L01383 ;  goto item_draw_done
+.L01404 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i31
  ; i31
 
-.L01384 ;  rem 'ikaza.xpm
+.L01405 ;  rem 'ikaza.xpm
 
-.L01385 ;  rem 'ikaza.xpm
+.L01406 ;  rem 'ikaza.xpm
 
-.L01386 ;  player1:
+.L01407 ;  player1:
 
-	LDA #<playerL01386_1
+	LDA #<playerL01407_1
 
 	STA player1pointerlo
-	LDA #>playerL01386_1
+	LDA #>playerL01407_1
 
 	STA player1pointerhi
 	LDA #16
 	STA player1height
-.L01387 ;  goto item_draw_done
+.L01408 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i32
  ; i32
@@ -10640,140 +10470,7 @@ item_ylist
 .i34
  ; i34
 
-.L01388 ;  rem 'leaf.xpm
-
-.L01389 ;  player1:
-
-	LDA #<playerL01389_1
-
-	STA player1pointerlo
-	LDA #>playerL01389_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01390 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.i35
- ; i35
-
-.L01391 ;  rem 'armor.xpm
-
-.L01392 ;  player1:
-
-	LDA #<playerL01392_1
-
-	STA player1pointerlo
-	LDA #>playerL01392_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01393 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.i36
- ; i36
-
-.L01394 ;  rem 'shield.xpm
-
-.L01395 ;  player1:
-
-	LDA #<playerL01395_1
-
-	STA player1pointerlo
-	LDA #>playerL01395_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01396 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.i37
- ; i37
-
-.L01397 ;  rem 'sword.xpm
-
-.L01398 ;  player1:
-
-	LDA #<playerL01398_1
-
-	STA player1pointerlo
-	LDA #>playerL01398_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01399 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.i38
- ; i38
-
-.L01400 ;  rem 'healbook.xpm
-
-.L01401 ;  player1:
-
-	LDA #<playerL01401_1
-
-	STA player1pointerlo
-	LDA #>playerL01401_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01402 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.i39
- ; i39
-
-.L01403 ;  rem 'strikebook.xpm
-
-.L01404 ;  player1:
-
-	LDA #<playerL01404_1
-
-	STA player1pointerlo
-	LDA #>playerL01404_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01405 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.i40
- ; i40
-
-.L01406 ;  rem 'healhp.xpm
-
-.L01407 ;  player1:
-
-	LDA #<playerL01407_1
-
-	STA player1pointerlo
-	LDA #>playerL01407_1
-
-	STA player1pointerhi
-	LDA #8
-	STA player1height
-.L01408 ;  goto item_draw_done
-
- jmp .item_draw_done
-
-.i41
- ; i41
-
-.L01409 ;  rem 'healmp.xpm
+.L01409 ;  rem 'leaf.xpm
 
 .L01410 ;  player1:
 
@@ -10789,10 +10486,10 @@ item_ylist
 
  jmp .item_draw_done
 
-.i42
- ; i42
+.i35
+ ; i35
 
-.L01412 ;  rem 'healallhp.xpm
+.L01412 ;  rem 'armor.xpm
 
 .L01413 ;  player1:
 
@@ -10808,10 +10505,10 @@ item_ylist
 
  jmp .item_draw_done
 
-.i43
- ; i43
+.i36
+ ; i36
 
-.L01415 ;  rem 'healallmp.xpm
+.L01415 ;  rem 'shield.xpm
 
 .L01416 ;  player1:
 
@@ -10824,6 +10521,139 @@ item_ylist
 	LDA #8
 	STA player1height
 .L01417 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i37
+ ; i37
+
+.L01418 ;  rem 'sword.xpm
+
+.L01419 ;  player1:
+
+	LDA #<playerL01419_1
+
+	STA player1pointerlo
+	LDA #>playerL01419_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01420 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i38
+ ; i38
+
+.L01421 ;  rem 'healbook.xpm
+
+.L01422 ;  player1:
+
+	LDA #<playerL01422_1
+
+	STA player1pointerlo
+	LDA #>playerL01422_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01423 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i39
+ ; i39
+
+.L01424 ;  rem 'strikebook.xpm
+
+.L01425 ;  player1:
+
+	LDA #<playerL01425_1
+
+	STA player1pointerlo
+	LDA #>playerL01425_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01426 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i40
+ ; i40
+
+.L01427 ;  rem 'healhp.xpm
+
+.L01428 ;  player1:
+
+	LDA #<playerL01428_1
+
+	STA player1pointerlo
+	LDA #>playerL01428_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01429 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i41
+ ; i41
+
+.L01430 ;  rem 'healmp.xpm
+
+.L01431 ;  player1:
+
+	LDA #<playerL01431_1
+
+	STA player1pointerlo
+	LDA #>playerL01431_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01432 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i42
+ ; i42
+
+.L01433 ;  rem 'healallhp.xpm
+
+.L01434 ;  player1:
+
+	LDA #<playerL01434_1
+
+	STA player1pointerlo
+	LDA #>playerL01434_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01435 ;  goto item_draw_done
+
+ jmp .item_draw_done
+
+.i43
+ ; i43
+
+.L01436 ;  rem 'healallmp.xpm
+
+.L01437 ;  player1:
+
+	LDA #<playerL01437_1
+
+	STA player1pointerlo
+	LDA #>playerL01437_1
+
+	STA player1pointerhi
+	LDA #8
+	STA player1height
+.L01438 ;  goto item_draw_done
 
  jmp .item_draw_done
 
@@ -10848,19 +10678,19 @@ item_ylist
 .i50
  ; i50
 
-.L01418 ;  rem 'bitmap/switch.xpm
+.L01439 ;  rem 'bitmap/switch.xpm
 
-.L01419 ;  player1:
+.L01440 ;  player1:
 
-	LDA #<playerL01419_1
+	LDA #<playerL01440_1
 
 	STA player1pointerlo
-	LDA #>playerL01419_1
+	LDA #>playerL01440_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01420 ;  goto item_draw_done
+.L01441 ;  goto item_draw_done
 
  jmp .item_draw_done
 
@@ -10885,19 +10715,19 @@ item_ylist
 .i57
  ; i57
 
-.L01421 ;  rem 'bitmap/switch_on.xpm
+.L01442 ;  rem 'bitmap/switch_on.xpm
 
-.L01422 ;  player1:
+.L01443 ;  player1:
 
-	LDA #<playerL01422_1
+	LDA #<playerL01443_1
 
 	STA player1pointerlo
-	LDA #>playerL01422_1
+	LDA #>playerL01443_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01423 ;  goto item_draw_done
+.L01444 ;  goto item_draw_done
 
  jmp .item_draw_done
 
@@ -10916,52 +10746,46 @@ item_ylist
 .i62
  ; i62
 
-.L01424 ;  COLUP1 = black
+.L01445 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01425 ;  player1:
+.L01446 ;  player1:
 
-	LDA #<playerL01425_1
+	LDA #<playerL01446_1
 
 	STA player1pointerlo
-	LDA #>playerL01425_1
+	LDA #>playerL01446_1
 
 	STA player1pointerhi
 	LDA #8
 	STA player1height
-.L01426 ;  goto item_draw_done
+.L01447 ;  goto item_draw_done
 
  jmp .item_draw_done
-
-.
- ; 
 
 .i63
  ; i63
 
-.L01427 ;  COLUP1 = pink
+.L01448 ;  COLUP1 = pink
 
-	LDA #pink
+	LDA pink
 	STA COLUP1
-.L01428 ;  player1:
+.L01449 ;  player1:
 
-	LDA #<playerL01428_1
+	LDA #<playerL01449_1
 
 	STA player1pointerlo
-	LDA #>playerL01428_1
+	LDA #>playerL01449_1
 
 	STA player1pointerhi
 	LDA #13
 	STA player1height
-.L01429 ;  goto item_draw_done
+.L01450 ;  goto item_draw_done
 
  jmp .item_draw_done
 
-.
- ; 
-
-.L01430 ;  bank 5
+.L01451 ;  bank 5
 
  echo "    ",[(start_bank4 - *)]d , "bytes of ROM space left in bank 4")
  ORG $4FF4-bscode_length
@@ -10999,41 +10823,39 @@ start_bank4 ldx #$ff
  .word start_bank4
  ORG $5000
  RORG $9000
+.L01452 ;  rem ' Bank 5 contains the game over, game win and game intro, screen
+
+.L01453 ;  rem 'as well as a music playing routine for them.
+
 .game_over
  ; game_over
 
-.L01431 ;  rem 'Silence
+.L01454 ;  gosub music_restart
 
-.L01432 ;  AUDC1 = 0
+ jsr .music_restart
 
-	LDA #0
-	STA AUDC1
-.L01433 ;  AUDF1 = 0
+.L01455 ;  music_which = 1
 
-	LDA #0
-	STA AUDF1
-.L01434 ;  AUDV1 = 0
+	LDA #1
+	STA music_which
+.L01456 ;  COLUBK  =  red
 
-	LDA #0
-	STA AUDV1
-.L01435 ;  COLUBK  =  red
-
-	LDA #red
+	LDA red
 	STA COLUBK
-.L01436 ;  hero_x = 70
+.L01457 ;  hero_x = 70
 
 	LDA #70
 	STA hero_x
-.L01437 ;  hero_y = 80
+.L01458 ;  hero_y = 80
 
 	LDA #80
 	STA hero_y
-.L01438 ;  player0:
+.L01459 ;  player0:
 
-	LDA #<playerL01438_0
+	LDA #<playerL01459_0
 
 	STA player0pointerlo
-	LDA #>playerL01438_0
+	LDA #>playerL01459_0
 
 	STA player0pointerhi
 	LDA #59
@@ -11041,57 +10863,63 @@ start_bank4 ldx #$ff
 .game_over_loop
  ; game_over_loop
 
-.L01439 ;  rem 'Teleport to Sygne's home on reset button, with some losses
+.L01460 ;  rem 'Teleport to Sygne's home on reset button, with some losses
 
-.L01440 ;  if !switchreset then goto reset_go_end
+.L01461 ;  if !switchreset then goto reset_go_end
 
  lda #1
  bit SWCHB
-	BEQ .skipL01440
-.condpart202
+	BEQ .skipL01461
+.condpart204
  jmp .reset_go_end
 
-.skipL01440
-.L01441 ;  hero_room = room_start
+.skipL01461
+.L01462 ;  hero_room = room_start
 
 	LDA #room_start
 	STA hero_room
-.L01442 ;  hero_x = hero_start_x
+.L01463 ;  hero_x = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_x
-.L01443 ;  hero_oldx = hero_start_x
+.L01464 ;  hero_oldx = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_oldx
-.L01444 ;  hero_y = hero_start_y
+.L01465 ;  hero_y = hero_start_y
 
 	LDA #hero_start_y
 	STA hero_y
-.L01445 ;  hero_oldy = hero_start_x
+.L01466 ;  hero_oldy = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_oldy
-.L01446 ;  hero_hp  =  hero_level  +  hero_base_hp
+.L01467 ;  hero_hp  =  hero_level  +  hero_base_hp
 
 	LDA hero_level
 	CLC
 	ADC #hero_base_hp
 	STA hero_hp
-.L01447 ;  hero_next  =  hero_level
+.L01468 ;  hero_next  =  hero_level
 
 	LDA hero_level
 	STA hero_next
-.L01448 ;  hero_mp  =  0
+.L01469 ;  hero_mp  =  0
 
 	LDA #0
 	STA hero_mp
-.L01449 ;  gosub set_mp_display bank1
+.L01470 ;  rem ' Restart the game with stats somewhat reduced, 
+
+.L01471 ;  gosub music_restart
+
+ jsr .music_restart
+
+.L01472 ;  gosub set_mp_display bank1
 
  sta temp7
- lda #>(ret_point22-1)
+ lda #>(ret_point23-1)
  pha
- lda #<(ret_point22-1)
+ lda #<(ret_point23-1)
  pha
  lda #>(.set_mp_display-1)
  pha
@@ -11103,13 +10931,13 @@ start_bank4 ldx #$ff
  pha
  ldx #1
  jmp BS_jsr
-ret_point22
-.L01450 ;  gosub hero_draw_s bank1
+ret_point23
+.L01473 ;  gosub hero_draw_s bank1
 
  sta temp7
- lda #>(ret_point23-1)
+ lda #>(ret_point24-1)
  pha
- lda #<(ret_point23-1)
+ lda #<(ret_point24-1)
  pha
  lda #>(.hero_draw_s-1)
  pha
@@ -11121,13 +10949,13 @@ ret_point22
  pha
  ldx #1
  jmp BS_jsr
-ret_point23
-.L01451 ;  gosub room_draw bank2
+ret_point24
+.L01474 ;  gosub room_draw bank2
 
  sta temp7
- lda #>(ret_point24-1)
+ lda #>(ret_point25-1)
  pha
- lda #<(ret_point24-1)
+ lda #<(ret_point25-1)
  pha
  lda #>(.room_draw-1)
  pha
@@ -11139,8 +10967,8 @@ ret_point23
  pha
  ldx #2
  jmp BS_jsr
-ret_point24
-.L01452 ;  goto main_loop bank1
+ret_point25
+.L01475 ;  goto main_loop bank1
 
  sta temp7
  lda #>(.main_loop-1)
@@ -11156,35 +10984,33 @@ ret_point24
 .reset_go_end
  ; reset_go_end
 
-.
- ; 
-
-.L01453 ;  COLUP0 = white
+.L01476 ;  COLUP0 = white
 
 	LDA white
 	STA COLUP0
-.L01454 ;  COLUP1 = black
+.L01477 ;  COLUP1 = black
 
 	LDA black
 	STA COLUP1
-.L01455 ;  rem 'Make monster look x3 size, to maitain bosss size and suggest something for non bosses.  
+.L01478 ;  rem 'Make monster look x3 size, to maintain boss size and suggest something for non bosses.  
 
-.L01456 ;  NUSIZ1  =  $07
+.L01479 ;  NUSIZ1  =  $07
 
 	LDA #$07
 	STA NUSIZ1
 .special_effects_go_end
  ; special_effects_go_end
 
-.
- ; 
+.L01480 ;  gosub music_play
 
-.L01457 ;  drawscreen
+ jsr .music_play
+
+.L01481 ;  drawscreen
 
  sta temp7
- lda #>(ret_point25-1)
+ lda #>(ret_point26-1)
  pha
- lda #<(ret_point25-1)
+ lda #<(ret_point26-1)
  pha
  lda #>(drawscreen-1)
  pha
@@ -11196,20 +11022,14 @@ ret_point24
  pha
  ldx #8
  jmp BS_jsr
-ret_point25
-.L01458 ;  goto game_over_loop
+ret_point26
+.L01482 ;  goto game_over_loop
 
  jmp .game_over_loop
 
-.
- ; 
+.L01483 ;  data music_data
 
-.
- ; 
-
-.L01459 ;  data music_data
-
-	JMP .skipL01459
+	JMP .skipL01483
 music_data
 	.byte   24,30,27,30,30,30,27,30,24,28,-1,2,24,28,-1,2,24,60
 
@@ -11219,91 +11039,60 @@ music_data
 
 	.byte   24,30,27,28,-1,2,27,30,24,30,27,30,30,120
 
-.skipL01459
-.
- ; 
-
+.skipL01483
 .game_win
  ; game_win
 
-.L01460 ;  rem 'Silence
+.L01484 ;  gosub music_restart
 
-.L01461 ;  AUDC1 = 0
+ jsr .music_restart
 
-	LDA #0
-	STA AUDC1
-.L01462 ;  AUDF1 = 0
+.L01485 ;  music_which = 2
 
-	LDA #0
-	STA AUDF1
-.L01463 ;  AUDV1 = 0
-
-	LDA #0
-	STA AUDV1
-.L01464 ;  COLUBK  =  white
+	LDA #2
+	STA music_which
+.L01486 ;  COLUBK  =  white
 
 	LDA white
 	STA COLUBK
-.L01465 ;  COLUPF  =  yellow
+.L01487 ;  COLUPF  =  yellow
 
 	LDA yellow
 	STA COLUPF
-.L01466 ;  item_x = 80
+.L01488 ;  item_x = 80
 
 	LDA #80
 	STA item_x
-.L01467 ;  item_y = 80
+.L01489 ;  item_y = 80
 
 	LDA #80
 	STA item_y
-.L01468 ;  hero_x = 84
+.L01490 ;  hero_x = 84
 
 	LDA #84
 	STA hero_x
-.L01469 ;  hero_y = 80
+.L01491 ;  hero_y = 80
 
 	LDA #80
 	STA hero_y
-.L01470 ;  player1:
+.L01492 ;  player1:
 
-	LDA #<playerL01470_1
+	LDA #<playerL01492_1
 
 	STA player1pointerlo
-	LDA #>playerL01470_1
+	LDA #>playerL01492_1
 
 	STA player1pointerhi
 	LDA #73
 	STA player1height
-.
- ; 
-
 .game_win_loop
  ; game_win_loop
 
-.L01471 ;  COLUBK  =  white
+.L01493 ;  COLUBK  =  white
 
 	LDA white
 	STA COLUBK
-.L01472 ;  COLUP1  =  rand
-
- sta temp7
- lda #>(ret_point26-1)
- pha
- lda #<(ret_point26-1)
- pha
- lda #>(randomize-1)
- pha
- lda #<(randomize-1)
- pha
- lda temp7
- pha
- txa
- pha
- ldx #8
- jmp BS_jsr
-ret_point26
-	STA COLUP1
-.L01473 ;  COLUP0  =  rand
+.L01494 ;  COLUP1  =  rand
 
  sta temp7
  lda #>(ret_point27-1)
@@ -11321,17 +11110,40 @@ ret_point26
  ldx #8
  jmp BS_jsr
 ret_point27
-	STA COLUP0
-.L01474 ;  REFP0  =  8
-
-	LDA #8
-	STA REFP0
-.L01475 ;  drawscreen
+	STA COLUP1
+.L01495 ;  COLUP0  =  rand
 
  sta temp7
  lda #>(ret_point28-1)
  pha
  lda #<(ret_point28-1)
+ pha
+ lda #>(randomize-1)
+ pha
+ lda #<(randomize-1)
+ pha
+ lda temp7
+ pha
+ txa
+ pha
+ ldx #8
+ jmp BS_jsr
+ret_point28
+	STA COLUP0
+.L01496 ;  REFP0  =  8
+
+	LDA #8
+	STA REFP0
+.L01497 ;  gosub music_play
+
+ jsr .music_play
+
+.L01498 ;  drawscreen
+
+ sta temp7
+ lda #>(ret_point29-1)
+ pha
+ lda #<(ret_point29-1)
  pha
  lda #>(drawscreen-1)
  pha
@@ -11343,48 +11155,48 @@ ret_point27
  pha
  ldx #8
  jmp BS_jsr
-ret_point28
-.L01476 ;  rem 'Go back to house, but level up to 90 if not so already
+ret_point29
+.L01499 ;  rem 'Go back to house, but level up to 90 if not so already
 
-.L01477 ;  if !switchreset then goto reset_win_end
+.L01500 ;  if !switchreset then goto reset_win_end
 
  lda #1
  bit SWCHB
-	BEQ .skipL01477
-.condpart203
+	BEQ .skipL01500
+.condpart205
  jmp .reset_win_end
 
-.skipL01477
-.L01478 ;  hero_room = room_start
+.skipL01500
+.L01501 ;  hero_room = room_start
 
 	LDA #room_start
 	STA hero_room
-.L01479 ;  hero_x = hero_start_x
+.L01502 ;  hero_x = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_x
-.L01480 ;  hero_oldx = hero_start_x
+.L01503 ;  hero_oldx = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_oldx
-.L01481 ;  hero_y = hero_start_y
+.L01504 ;  hero_y = hero_start_y
 
 	LDA #hero_start_y
 	STA hero_y
-.L01482 ;  hero_oldy = hero_start_x
+.L01505 ;  hero_oldy = hero_start_x
 
 	LDA #hero_start_x
 	STA hero_oldy
-.L01483 ;  if hero_level  <  90 then hero_level  =  90
+.L01506 ;  if hero_level  <  90 then hero_level  =  90
 
 	LDA hero_level
 	CMP #90
-     BCS .skipL01483
-.condpart204
+     BCS .skipL01506
+.condpart206
 	LDA #90
 	STA hero_level
-.skipL01483
-.L01484 ;  hero_hp  =  hero_level  *  2  +  hero_base_hp
+.skipL01506
+.L01507 ;  hero_hp  =  hero_level  *  2  +  hero_base_hp
 
 ; complex statement detected
 	LDA hero_level
@@ -11392,7 +11204,7 @@ ret_point28
 	CLC
 	ADC #hero_base_hp
 	STA hero_hp
-.L01485 ;  hero_mp  =  hero_level  /  16  +  1
+.L01508 ;  hero_mp  =  hero_level  /  16  +  1
 
 ; complex statement detected
 	LDA hero_level
@@ -11403,12 +11215,16 @@ ret_point28
 	CLC
 	ADC #1
 	STA hero_mp
-.L01486 ;  gosub room_draw bank2
+.L01509 ;  gosub music_restart
+
+ jsr .music_restart
+
+.L01510 ;  gosub room_draw bank2
 
  sta temp7
- lda #>(ret_point29-1)
+ lda #>(ret_point30-1)
  pha
- lda #<(ret_point29-1)
+ lda #<(ret_point30-1)
  pha
  lda #>(.room_draw-1)
  pha
@@ -11420,13 +11236,13 @@ ret_point28
  pha
  ldx #2
  jmp BS_jsr
-ret_point29
-.L01487 ;  gosub hero_draw_s bank1
+ret_point30
+.L01511 ;  gosub hero_draw_s bank1
 
  sta temp7
- lda #>(ret_point30-1)
+ lda #>(ret_point31-1)
  pha
- lda #<(ret_point30-1)
+ lda #<(ret_point31-1)
  pha
  lda #>(.hero_draw_s-1)
  pha
@@ -11438,13 +11254,13 @@ ret_point29
  pha
  ldx #1
  jmp BS_jsr
-ret_point30
-.L01488 ;  gosub room_draw bank2
+ret_point31
+.L01512 ;  gosub room_draw bank2
 
  sta temp7
- lda #>(ret_point31-1)
+ lda #>(ret_point32-1)
  pha
- lda #<(ret_point31-1)
+ lda #<(ret_point32-1)
  pha
  lda #>(.room_draw-1)
  pha
@@ -11456,8 +11272,8 @@ ret_point30
  pha
  ldx #2
  jmp BS_jsr
-ret_point31
-.L01489 ;  goto main_loop bank1
+ret_point32
+.L01513 ;  goto main_loop bank1
 
  sta temp7
  lda #>(.main_loop-1)
@@ -11473,34 +11289,30 @@ ret_point31
 .reset_win_end
  ; reset_win_end
 
-.
- ; 
-
-.
- ; 
-
-.L01490 ;  goto game_win_loop
+.L01514 ;  goto game_win_loop
 
  jmp .game_win_loop
-
-.
- ; 
-
-.
- ; 
 
 .intro_screen
  ; intro_screen
 
-.L01491 ;  COLUBK  =  black
+.L01515 ;  gosub music_restart
+
+ jsr .music_restart
+
+.L01516 ;  music_which = 0
+
+	LDA #0
+	STA music_which
+.L01517 ;  COLUBK  =  black
 
 	LDA black
 	STA COLUBK
-.L01492 ;  COLUPF  =  white
+.L01518 ;  COLUPF  =  white
 
 	LDA white
 	STA COLUPF
-.L01493 ;  pfcolors:
+.L01519 ;  pfcolors:
 
  lda # yellow
  sta COLUPF
@@ -11508,7 +11320,7 @@ ret_point31
  sta pfcolortable+1
  lda #<(pfcolorlabel1303-84)
  sta pfcolortable
-.L01494 ;  playfield:
+.L01520 ;  playfield:
 
   ifconst pfres
     ldx #4*pfres-1
@@ -11533,25 +11345,29 @@ pflabel75
 	sta playfield,x
 	dex
 	bpl pflabel75
-.intro_loop
- ; intro_loop
-
-.L01495 ;  COLUBK  =  black
+.L01521 ;  COLUBK  =  black
 
 	LDA black
 	STA COLUBK
-.L01496 ;  rem COLUP1 = rand
+.intro_loop
+ ; intro_loop
 
-.L01497 ;  rem COLUP0 = rand
+.L01522 ;  rem COLUP1 = rand
 
-.L01498 ;  rem REFP0 = 8
+.L01523 ;  rem COLUP0 = rand
 
-.L01499 ;  drawscreen
+.L01524 ;  rem REFP0 = 8
+
+.L01525 ;  gosub music_play
+
+ jsr .music_play
+
+.L01526 ;  drawscreen
 
  sta temp7
- lda #>(ret_point32-1)
+ lda #>(ret_point33-1)
  pha
- lda #<(ret_point32-1)
+ lda #<(ret_point33-1)
  pha
  lda #>(drawscreen-1)
  pha
@@ -11563,19 +11379,19 @@ pflabel75
  pha
  ldx #8
  jmp BS_jsr
-ret_point32
-.L01500 ;  if switchreset  ||  joy0fire then return
+ret_point33
+.L01527 ;  if switchreset  ||  joy0fire then return
 
  lda #1
  bit SWCHB
-	BNE .skipL01500
-.condpart205
- jmp .condpart206
-.skipL01500
+	BNE .skipL01527
+.condpart207
+ jmp .condpart208
+.skipL01527
  lda #$80
  bit INPT4
 	BNE .skip24OR
-.condpart206
+.condpart208
 	tsx
 	lda 2,x ; check return address
 	eor #(>*) ; vs. current PCH
@@ -11584,17 +11400,307 @@ ret_point32
 	JMP BS_return
 	RTS
 .skip24OR
-.L01501 ;  goto intro_loop
+.L01528 ;  goto intro_loop
 
  jmp .intro_loop
 
-.
- ; 
+.music_notes_intro_p
+ ; music_notes_intro_p
 
-.
- ; 
+.L01529 ;  data music_notes_intro
 
-.L01502 ;  bank 6
+	JMP .skipL01529
+music_notes_intro
+	.byte   15, 30, 18, 30, 23, 30, 27, 30, 0, 8
+
+	.byte   15, 30, 18, 30, 23, 30, 27, 30, 0, 8
+
+	.byte   30, 30, 23, 30, 20, 30, 27, 30, 0, 8
+
+	.byte   30, 30, 23, 30, 20, 30, 27, 30, 0, 8
+
+	.byte   18, 120, 23, 120, 27, 120, 0, 120
+
+	.byte   23, 120, 18, 120, 15, 120, 0, 120
+
+.skipL01529
+.music_notes_gameover_p
+ ; music_notes_gameover_p
+
+.L01530 ;  data music_notes_gameover
+
+	JMP .skipL01530
+music_notes_gameover
+	.byte   24, 120, 18, 120, 20, 120, 24, 120, 0, 120
+
+	.byte   18, 120, 16, 120, 20, 120, 18, 120, 0, 120
+
+.skipL01530
+.music_notes_victory_p
+ ; music_notes_victory_p
+
+.L01531 ;  data music_notes_victory
+
+	JMP .skipL01531
+music_notes_victory
+	.byte   30, 30, 24, 30, 20, 30, 15, 30
+
+	.byte   20, 30, 24, 30, 30, 60, 0, 120
+
+	.byte   30, 30, 27, 30, 24, 15, 20, 30
+
+	.byte   15, 30, 24, 30, 30, 60, 0, 120
+
+.skipL01531
+.L01532 ;  data music_sizes
+
+	JMP .skipL01532
+music_sizes
+	.byte   56, 20, 32
+
+.skipL01532
+.L01533 ;  rem 'restarts the music  
+
+.music_restart
+ ; music_restart
+
+.L01534 ;  music_timer = 1
+
+	LDA #1
+	STA music_timer
+.L01535 ;  music_pointer = 0
+
+	LDA #0
+	STA music_pointer
+.L01536 ;  AUDV0 = 0
+
+	LDA #0
+	STA AUDV0
+.L01537 ;  AUDV1 = 0
+
+	LDA #0
+	STA AUDV1
+.L01538 ;  return
+
+	tsx
+	lda 2,x ; check return address
+	eor #(>*) ; vs. current PCH
+	and #$E0 ;  mask off all but top 3 bits
+	beq *+5 ; if equal, do normal return
+	JMP BS_return
+	RTS
+.music_play
+ ; music_play
+
+.L01539 ;  rem ' Update music timer and change note if needed
+
+.L01540 ;  rem ' If we get here, the timer is not 0 yet. 
+
+.L01541 ;  rem ' Go on to the next note, and leave it at that   
+
+.L01542 ;  if music_timer  =  0 then goto music_do_note_change
+
+	LDA music_timer
+	CMP #0
+     BNE .skipL01542
+.condpart209
+ jmp .music_do_note_change
+
+.skipL01542
+.L01543 ;  goto music_no_note_change
+
+ jmp .music_no_note_change
+
+.music_do_note_change
+ ; music_do_note_change
+
+.L01544 ;  gosub music_change_note
+
+ jsr .music_change_note
+
+.music_no_note_change
+ ; music_no_note_change
+
+.L01545 ;  music_timer  =  music_timer  -  1
+
+	DEC music_timer
+.L01546 ;  rem ' COLUBK = music_timer
+
+.L01547 ;  return
+
+	tsx
+	lda 2,x ; check return address
+	eor #(>*) ; vs. current PCH
+	and #$E0 ;  mask off all but top 3 bits
+	beq *+5 ; if equal, do normal return
+	JMP BS_return
+	RTS
+.music_change_note
+ ; music_change_note
+
+.L01548 ;  rem ' choose the not from the right music table
+
+.L01549 ;  if music_which  =  0 then temp1  =  music_notes_intro[music_pointer]
+
+	LDA music_which
+	CMP #0
+     BNE .skipL01549
+.condpart210
+	LDX music_pointer
+	LDA music_notes_intro,x
+	STA temp1
+.skipL01549
+.L01550 ;  if music_which  =  1 then temp1  =  music_notes_gameover[music_pointer]
+
+	LDA music_which
+	CMP #1
+     BNE .skipL01550
+.condpart211
+	LDX music_pointer
+	LDA music_notes_gameover,x
+	STA temp1
+.skipL01550
+.L01551 ;  if music_which  =  2 then temp1  =  music_notes_victory[music_pointer]
+
+	LDA music_which
+	CMP #2
+     BNE .skipL01551
+.condpart212
+	LDX music_pointer
+	LDA music_notes_victory,x
+	STA temp1
+.skipL01551
+.L01552 ;  AUDF0  =  temp1
+
+	LDA temp1
+	STA AUDF0
+.L01553 ;  AUDF1  =  temp1
+
+	LDA temp1
+	STA AUDF1
+.L01554 ;  AUDC0  =  4
+
+	LDA #4
+	STA AUDC0
+.L01555 ;  AUDC1  =  12
+
+	LDA #12
+	STA AUDC1
+.L01556 ;  if temp1  =  0 then AUDV0  =  0 else AUDV0  =  4
+
+	LDA temp1
+	CMP #0
+     BNE .skipL01556
+.condpart213
+	LDA #0
+	STA AUDV0
+ jmp .skipelse5
+.skipL01556
+	LDA #4
+	STA AUDV0
+.skipelse5
+.L01557 ;  if temp1  =  0 then AUDV1  =  0 else AUDV1  =  4
+
+	LDA temp1
+	CMP #0
+     BNE .skipL01557
+.condpart214
+	LDA #0
+	STA AUDV1
+ jmp .skipelse6
+.skipL01557
+	LDA #4
+	STA AUDV1
+.skipelse6
+.L01558 ;  music_pointer  =  music_pointer  +  1
+
+	INC music_pointer
+.L01559 ;  rem ' Get right timig for note from right music
+
+.L01560 ;  if music_which  =  0 then music_timer  =  music_notes_intro[music_pointer]
+
+	LDA music_which
+	CMP #0
+     BNE .skipL01560
+.condpart215
+	LDX music_pointer
+	LDA music_notes_intro,x
+	STA music_timer
+.skipL01560
+.L01561 ;  if music_which  =  1 then music_timer  =  music_notes_gameover[music_pointer]
+
+	LDA music_which
+	CMP #1
+     BNE .skipL01561
+.condpart216
+	LDX music_pointer
+	LDA music_notes_gameover,x
+	STA music_timer
+.skipL01561
+.L01562 ;  if music_which  =  2 then music_timer  =  music_notes_victory[music_pointer]
+
+	LDA music_which
+	CMP #2
+     BNE .skipL01562
+.condpart217
+	LDX music_pointer
+	LDA music_notes_victory,x
+	STA music_timer
+.skipL01562
+.L01563 ;  music_pointer  =  music_pointer  +  1
+
+	INC music_pointer
+.L01564 ;  temp3  =  music_sizes[music_which]
+
+	LDX music_which
+	LDA music_sizes,x
+	STA temp3
+.L01565 ;  if music_which  =  0 then temp3  =  56
+
+	LDA music_which
+	CMP #0
+     BNE .skipL01565
+.condpart218
+	LDA #56
+	STA temp3
+.skipL01565
+.L01566 ;  if music_which  =  1 then temp3  =  20
+
+	LDA music_which
+	CMP #1
+     BNE .skipL01566
+.condpart219
+	LDA #20
+	STA temp3
+.skipL01566
+.L01567 ;  if music_which  =  2 then temp3  =  32
+
+	LDA music_which
+	CMP #2
+     BNE .skipL01567
+.condpart220
+	LDA #32
+	STA temp3
+.skipL01567
+.L01568 ;  if music_pointer  >=  temp3 then music_pointer  =  0
+
+	LDA music_pointer
+	CMP temp3
+     BCC .skipL01568
+.condpart221
+	LDA #0
+	STA music_pointer
+.skipL01568
+.L01569 ;  return
+
+	tsx
+	lda 2,x ; check return address
+	eor #(>*) ; vs. current PCH
+	and #$E0 ;  mask off all but top 3 bits
+	beq *+5 ; if equal, do normal return
+	JMP BS_return
+	RTS
+.L01570 ;  bank 6
 
  echo "    ",[(start_bank5 - *)]d , "bytes of ROM space left in bank 5")
  ORG $5FF4-bscode_length
@@ -11632,10 +11738,7 @@ start_bank5 ldx #$ff
  .word start_bank5
  ORG $6000
  RORG $B000
-.
- ; 
-
-.L01503 ;  bank 7
+.L01571 ;  bank 7
 
  echo "    ",[(start_bank6 - *)]d , "bytes of ROM space left in bank 6")
  ORG $6FF4-bscode_length
@@ -11673,10 +11776,7 @@ start_bank6 ldx #$ff
  .word start_bank6
  ORG $7000
  RORG $D000
-.
- ; 
-
-.L01504 ;  bank 8
+.L01572 ;  bank 8
 
  echo "    ",[(start_bank7 - *)]d , "bytes of ROM space left in bank 7")
  ORG $7FF4-bscode_length
@@ -13203,34 +13303,16 @@ scorepointerset
  rts
 ;bB.asm
 ; bB.asm file is split here
-.
- ; 
-
-.L01505 ;  inline 6lives_statusbar.asm
+.L01573 ;  inline 6lives_statusbar.asm
 
  include 6lives_statusbar.asm
-
-.
- ; 
-
-.
- ; 
-
-.
- ; 
-
-.
- ; 
-
-.
- ; 
 
  if (<*) > (<(*+8))
 	repeat ($100-<*)
 	.byte 0
 	repend
 	endif
-lives__L0293
+lives__L0306
 	.byte   %00010000
 	.byte   %00010000
 	.byte   %01010100
@@ -13244,7 +13326,7 @@ lives__L0293
 	.byte 0
 	repend
 	endif
-lives__L0793
+lives__L0821
 	.byte   %00010000
 	.byte   %00010000
 	.byte   %01010100
@@ -13258,7 +13340,7 @@ lives__L0793
 	.byte 0
 	repend
 	endif
-playerL0852_0
+playerL0880_0
 
 	.byte 0
 	.byte   %01101100
@@ -13279,7 +13361,7 @@ playerL0852_0
 	.byte 0
 	repend
 	endif
-playerL0855_0
+playerL0883_0
 
 	.byte 0
 	.byte   %01101100
@@ -13294,13 +13376,13 @@ playerL0855_0
 	.byte   %11010110
 	.byte   %11111110
 	.byte   %01111100
-	.byte   %00111000  
+	.byte   %00111000
  if (<*) > (<(*+14))
 	repeat ($100-<*)
 	.byte 0
 	repend
 	endif
-playerL0860_0
+playerL0888_0
 
 	.byte 0
 	.byte   %00011100
@@ -13321,7 +13403,7 @@ playerL0860_0
 	.byte 0
 	repend
 	endif
-playerL0863_0
+playerL0891_0
 
 	.byte 0
 	.byte   %01100000
@@ -13343,7 +13425,7 @@ playerL0863_0
 	.byte 0
 	repend
 	endif
-playerL0866_0
+playerL0894_0
 
 	.byte 0
 	.byte   %01100000
@@ -13359,13 +13441,13 @@ playerL0866_0
 	.byte   %11010110
 	.byte   %11111110
 	.byte   %01111100
-	.byte   %00111000  
+	.byte   %00111000
  if (<*) > (<(*+14))
 	repeat ($100-<*)
 	.byte 0
 	repend
 	endif
-playerL0871_0
+playerL0899_0
 
 	.byte 0
 	.byte   %11000011
@@ -13420,7 +13502,7 @@ pfcolorlabel156
  .byte  white, brown, green, green
  .byte  white, brown, green, green
  .byte  white, brown, green, green
- .byte  white, green, green , green 
+ .byte  white, green, green, green
  if (<*) > 206
 	align 256
 	endif
@@ -13499,7 +13581,7 @@ pfcolorlabel224
  .byte  gray, gray, green, green
  .byte  gray, gray, brown, green
  .byte  gray, gray, green, green
- .byte  gray , gray , green, green
+ .byte  gray, gray, green, green
  .byte  green, green, green, green
  if (<*) > 206
 	align 256
@@ -13533,13 +13615,13 @@ pfcolorlabel258
  .byte  gray, gray, green, green
  .byte  gray, gray, green, green
  .byte  gray, gray, green, green
- .byte  gray, gray, brown , green
+ .byte  gray, gray, brown, green
  .byte  gray, gray, green, green
  .byte  gray, gray, green, green
  .byte  gray, gray, green, brown
  .byte  gray, gray, green, brown
  .byte  gray, gray, brown, brown
- .byte  gray , gray , green, green
+ .byte  gray, gray, green, green
  .byte  green, green, green, green
  if (<*) > 206
 	align 256
@@ -13593,14 +13675,14 @@ pfcolorlabel309
  .byte  brown, green, green, riverblue
  .byte  brown, green, green, riverblue
  .byte  brown, green, green, riverblue
- .byte  brown, brown , brown , seablue + 8
- .byte  brown, green, green, seablue + 8
- .byte  brown, green, green, seablue + 4
- .byte  brown, green, green, seablue + 4
- .byte  brown, green, green, seablue + 2
- .byte  brown, brown, brown, seablue + 2
- .byte  brown, seablue, seablue, seablue
- .byte  brown, green, green, seablue
+ .byte  brown, brown, brown, 144 + 8
+ .byte  brown, green, green, 144 + 8
+ .byte  brown, green, green, 144 + 4
+ .byte  brown, green, green, 144 + 4
+ .byte  brown, green, green, 144 + 2
+ .byte  brown, brown, brown, 144 + 2
+ .byte  brown, 144, 144, 144
+ .byte  brown, green, green, 144
  if (<*) > 206
 	align 256
 	endif
@@ -13616,11 +13698,11 @@ pfcolorlabel326
  .byte  white, green, gray, green
  .byte  white, green, gray, green
  .byte  white, brown, gray, green
- .byte  white, brown , gray, green
  .byte  white, brown, gray, green
- .byte  seablue, brown, gray, green
- .byte  seablue, brown, gray, green
- .byte  red, green, gray , green
+ .byte  white, brown, gray, green
+ .byte  144, brown, gray, green
+ .byte  144, brown, gray, green
+ .byte  red, green, gray, green
  if (<*) > 206
 	align 256
 	endif
@@ -13633,14 +13715,14 @@ pfcolorlabel343
  .byte  brown, white, riverblue, white
  .byte  brown, red + 8, riverblue, white
  .byte  brown, red + 6, riverblue, white
- .byte  brown, red + 4, seablue + 8, white
- .byte  brown, white, seablue + 8, white
- .byte  brown, white, seablue + 4, black
- .byte  brown, white, seablue + 4, black
- .byte  brown, white, seablue + 2, black
- .byte  brown, red, seablue + 2, black
- .byte  brown, red, seablue, black
- .byte  brown, red, seablue, black
+ .byte  brown, red + 4, 144 + 8, white
+ .byte  brown, white, 144 + 7, white
+ .byte  brown, white, 144 + 6, black
+ .byte  brown, white, 144 + 5, black
+ .byte  brown, white, 144 + 4, black
+ .byte  brown, green, 144 + 3, black
+ .byte  brown, green, 144, black
+ .byte  brown, red, riverblue, black
  if (<*) > 206
 	align 256
 	endif
@@ -13650,17 +13732,17 @@ pfcolorlabel343
 	repend
 	endif
 pfcolorlabel360
- .byte  seablue, green, gray, red
- .byte  seablue, green, gray, white
- .byte  seablue, brown, gray, white
- .byte  seablue, brown , gray, white
- .byte  seablue, brown, gray, white
- .byte  seablue, brown, gray, red
- .byte  seablue, seablue, gray, red
- .byte  seablue, seablue, gray, seablue
- .byte  seablue, seablue, gray, seablue
- .byte  seablue, seablue, seablue, seablue
- .byte  seablue, green, gray , seablue
+ .byte  144, green, gray, red
+ .byte  144, green, gray, white
+ .byte  144, brown, gray, white
+ .byte  144, brown, gray, white
+ .byte  144, brown, gray, white
+ .byte  144, brown, gray, red
+ .byte  144, 144, gray, red
+ .byte  144, 144, gray, 144
+ .byte  144, 144, gray, 144
+ .byte  144, 144, 144, 144
+ .byte  144, green, gray, 144
  if (<*) > 206
 	align 256
 	endif
@@ -13670,17 +13752,17 @@ pfcolorlabel360
 	repend
 	endif
 pfcolorlabel377
- .byte  seablue, red, seablue, black
- .byte  seablue, red, seablue, black
- .byte  seablue, red, seablue, black
- .byte  seablue, red, seablue, black
- .byte  seablue , red, seablue, black
- .byte  seablue, red, seablue, black 
- .byte  seablue, red, seablue, black
- .byte  seablue, seablue, seablue, black
- .byte  seablue, seablue, seablue, black
- .byte  seablue, seablue, seablue, seablue
- .byte  seablue, seablue, seablue, black
+ .byte  144, red, 144, black
+ .byte  144, red, 144, black
+ .byte  144, red, 144, black
+ .byte  144, red, 144, black
+ .byte  144, red, 144, black
+ .byte  144, red, 144, black
+ .byte  144, red, 144, black
+ .byte  144, 144, 144, black
+ .byte  144, 144, 144, black
+ .byte  144, 144, 144, 144
+ .byte  144, 144, 144, black
  if (<*) > 206
 	align 256
 	endif
@@ -13690,23 +13772,23 @@ pfcolorlabel377
 	repend
 	endif
 pfcolorlabel394
- .byte  seablue, riverblue, seablue, seablue
- .byte  seablue, riverblue, seablue, seablue
- .byte  seablue, riverblue, seablue, seablue
- .byte  seablue, seablue + 8, seablue, seablue
- .byte  seablue, seablue + 8, seablue, seablue
- .byte  seablue, seablue + 4, seablue, seablue
- .byte  seablue, seablue + 4, seablue, seablue
- .byte  seablue, seablue + 2, seablue, seablue
- .byte  seablue, seablue + 2, seablue, seablue
- .byte  seablue, seablue, seablue, seablue
- .byte  seablue, seablue, seablue, seablue
+ .byte  144, riverblue, 144, 144
+ .byte  144, riverblue, 144, 144
+ .byte  144, riverblue, 144, 144
+ .byte  144, 144 + 8, 144, 144
+ .byte  144, 144 + 8, 144, 144
+ .byte  144, 144 + 4, 144, 144
+ .byte  144, 144 + 4, 144, 144
+ .byte  144, 144 + 2, 144, 144
+ .byte  144, 144 + 2, 144, 144
+ .byte  144, 144, 144, 144
+ .byte  144, 144, 144, 144
  if (<*) > (<(*+9))
 	repeat ($100-<*)
 	.byte 0
 	repend
 	endif
-playerL01266_1
+playerL01287_1
 
 	.byte 0
 	.byte   %10000001
@@ -13722,7 +13804,7 @@ playerL01266_1
 	.byte 0
 	repend
 	endif
-playerL01269_1
+playerL01290_1
 
 	.byte 0
 	.byte   %01111100
@@ -13735,7 +13817,7 @@ playerL01269_1
 	.byte 0
 	repend
 	endif
-playerL01272_1
+playerL01293_1
 
 	.byte 0
 	.byte   %00100100
@@ -13751,7 +13833,7 @@ playerL01272_1
 	.byte 0
 	repend
 	endif
-playerL01275_1
+playerL01296_1
 
 	.byte 0
 	.byte   %01000010
@@ -13767,7 +13849,7 @@ playerL01275_1
 	.byte 0
 	repend
 	endif
-playerL01278_1
+playerL01299_1
 
 	.byte 0
 	.byte   %00101000
@@ -13783,7 +13865,7 @@ playerL01278_1
 	.byte 0
 	repend
 	endif
-playerL01282_1
+playerL01303_1
 
 	.byte 0
 	.byte   %00011000
@@ -13799,7 +13881,7 @@ playerL01282_1
 	.byte 0
 	repend
 	endif
-playerL01286_1
+playerL01307_1
 
 	.byte 0
 	.byte   %10100101
@@ -13815,7 +13897,7 @@ playerL01286_1
 	.byte 0
 	repend
 	endif
-playerL01290_1
+playerL01311_1
 
 	.byte 0
 	.byte   %00111110
@@ -13831,7 +13913,7 @@ playerL01290_1
 	.byte 0
 	repend
 	endif
-playerL01294_1
+playerL01315_1
 
 	.byte 0
 	.byte   %10001100
@@ -13847,7 +13929,7 @@ playerL01294_1
 	.byte 0
 	repend
 	endif
-playerL01298_1
+playerL01319_1
 
 	.byte 0
 	.byte   %11011011
@@ -13863,7 +13945,7 @@ playerL01298_1
 	.byte 0
 	repend
 	endif
-playerL01302_1
+playerL01323_1
 
 	.byte 0
 	.byte   %10100101
@@ -13879,7 +13961,7 @@ playerL01302_1
 	.byte 0
 	repend
 	endif
-playerL01306_1
+playerL01327_1
 
 	.byte 0
 	.byte   %01101100
@@ -13903,7 +13985,7 @@ playerL01306_1
 	.byte 0
 	repend
 	endif
-playerL01310_1
+playerL01331_1
 
 	.byte 0
 	.byte   %01101100
@@ -13927,7 +14009,7 @@ playerL01310_1
 	.byte 0
 	repend
 	endif
-playerL01314_1
+playerL01335_1
 
 	.byte 0
 	.byte   %01101100
@@ -13951,7 +14033,7 @@ playerL01314_1
 	.byte 0
 	repend
 	endif
-playerL01318_1
+playerL01339_1
 
 	.byte 0
 	.byte   %00011100
@@ -13967,7 +14049,7 @@ playerL01318_1
 	.byte 0
 	repend
 	endif
-playerL01322_1
+playerL01343_1
 
 	.byte 0
 	.byte   %00101100
@@ -13991,7 +14073,7 @@ playerL01322_1
 	.byte 0
 	repend
 	endif
-playerL01326_1
+playerL01347_1
 
 	.byte 0
 	.byte   %01101100
@@ -14015,7 +14097,7 @@ playerL01326_1
 	.byte 0
 	repend
 	endif
-playerL01330_1
+playerL01351_1
 
 	.byte 0
 	.byte   %10101010
@@ -14039,7 +14121,7 @@ playerL01330_1
 	.byte 0
 	repend
 	endif
-playerL01334_1
+playerL01355_1
 
 	.byte 0
 	.byte   %00101001
@@ -14063,7 +14145,7 @@ playerL01334_1
 	.byte 0
 	repend
 	endif
-playerL01338_1
+playerL01359_1
 
 	.byte 0
 	.byte   %00010000
@@ -14079,7 +14161,7 @@ playerL01338_1
 	.byte 0
 	repend
 	endif
-playerL01342_1
+playerL01363_1
 
 	.byte 0
 	.byte   %10101010
@@ -14103,7 +14185,7 @@ playerL01342_1
 	.byte 0
 	repend
 	endif
-playerL01346_1
+playerL01367_1
 
 	.byte 0
 	.byte   %01111110
@@ -14119,7 +14201,7 @@ playerL01346_1
 	.byte 0
 	repend
 	endif
-playerL01350_1
+playerL01371_1
 
 	.byte 0
 	.byte   %11111111
@@ -14135,7 +14217,7 @@ playerL01350_1
 	.byte 0
 	repend
 	endif
-playerL01354_1
+playerL01375_1
 
 	.byte 0
 	.byte   %10010000
@@ -14151,7 +14233,7 @@ playerL01354_1
 	.byte 0
 	repend
 	endif
-playerL01358_1
+playerL01379_1
 
 	.byte 0
 	.byte   %00111100
@@ -14162,7 +14244,7 @@ playerL01358_1
 	.byte   %11111111
 	.byte   %11111111
 	.byte   %11111111
-	.byte   %11111111  
+	.byte   %11111111
 	.byte   %11000111
 	.byte   %11000111
 	.byte   %11111111
@@ -14183,7 +14265,7 @@ playerL01358_1
 	.byte 0
 	repend
 	endif
-playerL01362_1
+playerL01383_1
 
 	.byte 0
 	.byte   %01000100
@@ -14215,7 +14297,7 @@ playerL01362_1
 	.byte 0
 	repend
 	endif
-playerL01366_1
+playerL01387_1
 
 	.byte 0
 	.byte   %01011010
@@ -14247,7 +14329,7 @@ playerL01366_1
 	.byte 0
 	repend
 	endif
-playerL01370_1
+playerL01391_1
 
 	.byte 0
 	.byte   %10100101
@@ -14279,7 +14361,7 @@ playerL01370_1
 	.byte 0
 	repend
 	endif
-playerL01374_1
+playerL01395_1
 
 	.byte 0
 	.byte   %00011000
@@ -14311,7 +14393,7 @@ playerL01374_1
 	.byte 0
 	repend
 	endif
-playerL01378_1
+playerL01399_1
 
 	.byte 0
 	.byte   %01101100
@@ -14326,13 +14408,13 @@ playerL01378_1
 	.byte   %11010110
 	.byte   %11111110
 	.byte   %01111100
-	.byte   %00111000  
+	.byte   %00111000
  if (<*) > (<(*+2))
 	repeat ($100-<*)
 	.byte 0
 	repend
 	endif
-playerL01382_1
+playerL01403_1
 
 	.byte 0
 	.byte   %00010000
@@ -14341,7 +14423,7 @@ playerL01382_1
 	.byte 0
 	repend
 	endif
-playerL01386_1
+playerL01407_1
 
 	.byte 0
 	.byte   %00101000
@@ -14365,7 +14447,7 @@ playerL01386_1
 	.byte 0
 	repend
 	endif
-playerL01389_1
+playerL01410_1
 
 	.byte 0
 	.byte   %00000000
@@ -14381,7 +14463,7 @@ playerL01389_1
 	.byte 0
 	repend
 	endif
-playerL01392_1
+playerL01413_1
 
 	.byte 0
 	.byte   %01111110
@@ -14397,7 +14479,7 @@ playerL01392_1
 	.byte 0
 	repend
 	endif
-playerL01395_1
+playerL01416_1
 
 	.byte 0
 	.byte   %00010000
@@ -14413,7 +14495,7 @@ playerL01395_1
 	.byte 0
 	repend
 	endif
-playerL01398_1
+playerL01419_1
 
 	.byte 0
 	.byte   %10010000
@@ -14429,7 +14511,7 @@ playerL01398_1
 	.byte 0
 	repend
 	endif
-playerL01401_1
+playerL01422_1
 
 	.byte 0
 	.byte   %11111110
@@ -14445,7 +14527,7 @@ playerL01401_1
 	.byte 0
 	repend
 	endif
-playerL01404_1
+playerL01425_1
 
 	.byte 0
 	.byte   %11111110
@@ -14461,7 +14543,7 @@ playerL01404_1
 	.byte 0
 	repend
 	endif
-playerL01407_1
+playerL01428_1
 
 	.byte 0
 	.byte   %00000000
@@ -14477,7 +14559,7 @@ playerL01407_1
 	.byte 0
 	repend
 	endif
-playerL01410_1
+playerL01431_1
 
 	.byte 0
 	.byte   %00000000
@@ -14493,7 +14575,7 @@ playerL01410_1
 	.byte 0
 	repend
 	endif
-playerL01413_1
+playerL01434_1
 
 	.byte 0
 	.byte   %00000000
@@ -14509,7 +14591,7 @@ playerL01413_1
 	.byte 0
 	repend
 	endif
-playerL01416_1
+playerL01437_1
 
 	.byte 0
 	.byte   %00000000
@@ -14525,7 +14607,7 @@ playerL01416_1
 	.byte 0
 	repend
 	endif
-playerL01419_1
+playerL01440_1
 
 	.byte 0
 	.byte   %00000000
@@ -14541,7 +14623,7 @@ playerL01419_1
 	.byte 0
 	repend
 	endif
-playerL01422_1
+playerL01443_1
 
 	.byte 0
 	.byte   %00000000
@@ -14557,7 +14639,7 @@ playerL01422_1
 	.byte 0
 	repend
 	endif
-playerL01425_1
+playerL01446_1
 
 	.byte 0
 	.byte   %10000001
@@ -14573,7 +14655,7 @@ playerL01425_1
 	.byte 0
 	repend
 	endif
-playerL01428_1
+playerL01449_1
 
 	.byte 0
 	.byte   %00011100
@@ -14594,7 +14676,7 @@ playerL01428_1
 	.byte 0
 	repend
 	endif
-playerL01438_0
+playerL01459_0
 
 	.byte 0
 	.byte   %1000001
@@ -14634,7 +14716,7 @@ playerL01438_0
 	.byte   %1000000
 	.byte   %1111111
 	.byte   %1000000
-	.byte   %1111111  
+	.byte   %1111111
 	.byte   %0000000
 	.byte   %1000001
 	.byte   %1000001
@@ -14661,7 +14743,7 @@ playerL01438_0
 	.byte 0
 	repend
 	endif
-playerL01470_1
+playerL01492_1
 
 	.byte 0
 	.byte   %00011100
@@ -14747,16 +14829,15 @@ playerL01470_1
 	endif
 pfcolorlabel1303
  .byte  yellow - 2,0,0,0
- .byte  yellow - 4 ,0,0,0
+ .byte  yellow - 4,0,0,0
  .byte  yellow - 8,0,0,0
  .byte  yellow - 10,0,0,0
  .byte  yellow - 12,0,0,0
  .byte  yellow - 2,0,0,0
- .byte  yellow - 4 ,0,0,0
+ .byte  yellow - 4,0,0,0
  .byte  yellow - 8,0,0,0
  .byte  yellow - 10,0,0,0
  .byte  yellow - 12,0,0,0
- .byte  yellow,0,0,0
        echo "    ",[(scoretable - *)]d , "bytes of ROM space left in bank 8")
  
  

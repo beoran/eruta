@@ -1,46 +1,47 @@
 ; This file contains variable mapping and other information for the current project.
 
-<<<<<<< HEAD
-music_data_length = .skipL01473-music_data 
+music_sizes_length = .skipL01532-music_sizes 
  
-item_ylist_length = .skipL01221-item_ylist 
+music_notes_victory_length = .skipL01531-music_notes_victory 
  
-item_xlist_length = .skipL01220-item_xlist 
+music_notes_gameover_length = .skipL01530-music_notes_gameover 
+ 
+music_notes_intro_length = .skipL01529-music_notes_intro 
+ 
+music_data_length = .skipL01483-music_data 
+ 
+item_ylist_length = .skipL01228-item_ylist 
+ 
+item_xlist_length = .skipL01227-item_xlist 
  
 vc = 49
  
 hc = 73
  
-item_hplist_length = .skipL01216-item_hplist 
+item_hplist_length = .skipL01223-item_hplist 
  
-room_items_length = .skipL01215-room_items 
+room_items_length = .skipL01222-room_items 
  
 PFcolors = 1
 bscode_length = 32
-monster_drops_length = .skipL0294-monster_drops 
+monster_drops_length = .skipL0296-monster_drops 
  
-monster_info_length = .skipL0292-monster_info 
+monster_info_length = .skipL0294-monster_info 
  
-item_damage_length = .skipL0289-item_damage 
+item_damage_length = .skipL0291-item_damage 
  
-item_colors_length = .skipL0285-item_colors 
+item_colors_length = .skipL0287-item_colors 
  
 hero_start_items = 
  
 hero_start_level = 20
-=======
-musinum_notes_penta_length = .skipL030-musinum_notes_penta 
- 
-musinum_notes_length = .skipL029-musinum_notes 
- 
-music_last = z
->>>>>>> 834128c02f53240b1f3c8fa0669a9ddce9c15069
  
 sound_timer = p
  
+music_which = d
+ 
 music_timer = n
  
-<<<<<<< HEAD
 music_pointer = m
  
 music_notes = 69
@@ -350,7 +351,8 @@ white = 14
 gray = 6
  
 black = 0
-=======
-music_counter = m
->>>>>>> 834128c02f53240b1f3c8fa0669a9ddce9c15069
  
+bs_mask = 7
+bankswitch = 32
+bankswitch_hotspot = $1FF4
+PFcolors = 1

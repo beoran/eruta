@@ -4566,14 +4566,16 @@ game_win_loop
   drawscreen
   rem 'Go back to house, but level up to 90 if not so already
   if !switchreset then goto reset_win_end
+  
   hero_room=room_start
   hero_x=hero_start_x
   hero_oldx=hero_start_x
   hero_y=hero_start_y
   hero_oldy=hero_start_x
-  if hero_level < 90 then hero_level = 90
+  if hero_level < 90 then hero_level = hero_level + 3
   hero_hp = hero_level * 2 + hero_base_hp
   hero_mp = hero_level / 16 + 1
+  gosub music_restart
   gosub room_draw bank2
   gosub hero_draw_s bank1
   gosub room_draw bank2
