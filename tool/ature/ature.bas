@@ -94,11 +94,7 @@
   rem 'Timer ticks per second, 60 for NTSC
   const ticks_per_second=60
   
-  rem 'Score, split up in individual digits
-  dim sc0=score
-  dim sc1=score+1
-  dim sc2=score+2
-
+  
   rem 'Initial values
   rem 'Normal start
   const room_start=49
@@ -117,9 +113,16 @@
   const hero_feet_high=4
   const hero_wide=8
   const hero_half_wide=4
+  
   rem 'Hero's position, speed and room
   dim hero_x=player0x 
   dim hero_y=player0y
+  
+  rem 'Score, split up in individual digits
+  dim sc0=score
+  dim sc1=score+1
+  dim sc2=score+2
+
 
   dim hero_oldx=v
   dim hero_oldy=w
@@ -140,7 +143,8 @@
   rem 'hero_items{6} -> Heal Book
   rem 'hero_items{7} -> Strike Book
   dim hero_room=r
-  dim hero_hp=statusbarlength
+  dim hero_hp=j 
+  rem ' statusbarlength
   dim hero_mp=o
   dim hero_next=k
   dim hero_level=l
@@ -173,6 +177,7 @@
   const hero_speed_negative=#-1
 
   rem item/monster position speed and kind
+  
   dim item_x=player1x
   dim item_y=player1y
   dim item_kind=s
@@ -185,10 +190,19 @@
   rem 'item_flags{1} -> Monster missile flies east
   rem 'item_flags{2} -> Monster missile flies south
   rem 'item_flags{3} -> Monster missile flies west
- 
-  
   rem 'Game timer. Controls animation. Keeps on ticking, by overflow.
-  dim game_timer=e
+  dim game_timer=e  
+  rem 'Timer and pointer for music and sound
+  dim music_pointer=m
+  dim music_timer=n
+  dim music_which=d
+  dim sound_timer=p
+  rem 'Used variables: d e f g h i k l m n o p q r s t u v w
+  rem 'Used in alpha order:    
+  rem 'Unused variables: a b c j x y z
+
+  
+  
   const timer_loop=128
   const timer_second=60
 
@@ -301,14 +315,6 @@
   const music_instrument=12
   const music_notes=69
   
-
-
-  rem 'Timer and pointer for music and sound
-  dim music_pointer=m
-  dim music_timer=n
-  dim music_which=d
-  dim sound_timer=p
-  rem 'Unused variables: a b c
   
   rem 'Set back to 1 when not debugging.
   const hero_start_level=20
@@ -406,9 +412,9 @@ main_loop_start
   quest_flags=0
   hero_level=hero_start_level
   hero_next=(hero_level / 2) + 1
-  hero_hp=hero_level*2+hero_base_hp
+  hero_hp=(hero_level * 2) + hero_base_hp
   rem 'MP is between 1 and 6
-  hero_mp=hero_level/16 + 1
+  hero_mp=(hero_level / 16) + 1
   gosub set_mp_display
   hero_flags = 0
   item_flags = 0
@@ -433,6 +439,8 @@ main_loop_start
   gosub room_draw bank2
   drawscreen
 main_loop  
+  rem ' set status bar length from hero hp
+  statusbarlength = hero_hp
   COLUP0 = skin
   temp1 = item_kind & item_kind_mask
   COLUP1 = item_colors[temp1]
@@ -586,7 +594,7 @@ use_heal_spell
   COLUP0 = green
   hero_mp = hero_mp - 1
   gosub set_mp_display
-  hero_hp = hero_level * 2 + hero_base_hp
+  hero_hp = (hero_level * 2) + hero_base_hp
   goto item_collide_end
 do_damage  
   hero_hp = hero_hp - temp1
@@ -681,9 +689,8 @@ monster_no_curse
   AUDC1=12
   sound_timer=8
   hero_level = hero_level + 1
-  hero_hp = hero_level * 2 + hero_base_hp
-  rem 'Actually, this is buggy for levels above 80
-  hero_mp = hero_level/16 + 1
+  hero_hp = (hero_level * 2) + hero_base_hp
+  hero_mp = (hero_level / 16) + 1
   gosub set_mp_display
   hero_next = (hero_level / 2) + 1
   COLUP0 = turfy
@@ -1063,21 +1070,20 @@ item_pickup
   if item_kind = item_bookstrike then hero_items{7} = 1  
   if item_kind <> item_healhp then goto no_healhp
     hero_hp = hero_hp + 8
-    temp2   = hero_level * 2 + hero_base_hp
+    temp2   = (hero_level * 2) + hero_base_hp
     if hero_hp > temp2 then hero_hp = temp2   
 no_healhp
   if item_kind <> item_healmp then goto no_healmp
   hero_mp = hero_mp + 1    
-  temp2   = hero_level / 16 + 1  
+  temp2   = (hero_level / 16) + 1  
   if hero_mp > temp2 then hero_mp = temp2
   gosub set_mp_display
 no_healmp
   if item_kind <> item_healallhp then goto no_healallhp
-  hero_hp = hero_level * 2 + hero_base_hp
+  hero_hp = (hero_level * 2) + hero_base_hp
 no_healallhp
   if item_kind <> item_healallmp then goto no_healallmp
-  rem 'Actually, this is buggy for levels above 80
-  hero_mp = hero_level/16 + 1  
+  hero_mp = (hero_level / 16) + 1  
   gosub set_mp_display
 no_healallmp
   rem " All done with item effects 
@@ -1217,7 +1223,7 @@ end
 
 
 
-#if 0 // we don't need this one 
+#if 0 /* we don't need this one */ 
 music_change_note 
   AUDF0 = music_data[music_pointer]
   AUDC0 = music_instrument
@@ -4370,8 +4376,10 @@ end
 
   
 game_over
-  gosub music_restart
+  gosub music_restart    
   music_which=music_which_gameover
+  rem ' set status bar length from hero hp
+  statusbarlength = hero_hp
   COLUBK = red
   hero_x=70
   hero_y=80
@@ -4582,11 +4590,12 @@ game_win_loop
   goto new_game_plus_end  
 no_new_game_plus
   rem 'When no new game plus, just level up 3 levels
-  if hero_level < 90 then hero_level = hero_level + 3
+  if hero_level > 89 goto new_game_plus_end 
+  hero_level = hero_level + 3
 new_game_plus_end
   rem 'In any case recalculate hp and mp.
-  hero_hp = hero_level * 2 + hero_base_hp
-  hero_mp = hero_level / 16 + 1  
+  hero_hp = (hero_level * 2) + hero_base_hp
+  hero_mp = (hero_level / 16) + 1  
   gosub music_restart
   gosub room_draw bank2
   gosub hero_draw_s bank1

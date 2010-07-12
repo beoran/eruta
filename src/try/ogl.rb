@@ -487,7 +487,8 @@ end # module OGL
 if __FILE__ == $0 # Built-in testing
     require 'time' # It's gonna take time, a whole lot of precious time... :)
     
-    OGL.init(640, 480, 32, SDL::HWSURFACE | SDL::FULLSCREEN )
+    OGL.init(640, 480, 32, 0 )
+    # SDL::HWSURFACE | SDL::FULLSCREEN
     sur1    = SDL::Surface.load('../../share/image/tile/tile_grass32.png')
     sur2    = SDL::Surface.load('../../share/image/tile/tile_ugly_cloud_al32.png')
     tex1    = OGL.from_surface(sur1)
@@ -496,7 +497,7 @@ if __FILE__ == $0 # Built-in testing
     p tex2
 
     done    = false
-    levels  = [tex1, tex1, tex1, tex2, tex2]
+    levels  = [tex2, tex1, tex1, tex2, tex2]
     start   = Time.now()
     frames  = 0
   
@@ -510,7 +511,7 @@ if __FILE__ == $0 # Built-in testing
             done = true if event.sym == SDL::Key::ESCAPE
           end
         end
-      (0..3).step(1) do |z|
+      (0..0).step(1) do |z|
         (0..640).step(32) do |x|
           (0..480).step(32) do |y|
             OGL.fastblit(levels[z], x, y)

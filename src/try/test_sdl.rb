@@ -192,8 +192,8 @@ end
 SDL.init(SDL::INIT_VIDEO)
 # SDL.setGLAttr(SDL::GL_DOUBLEBUFFER,1)
 # SDL::FULLSCREEN|
-@screen = SDL.setVideoMode(640, 480, 0, SDL::FULLSCREEN|SDL::HWSURFACE | SDL::DOUBLEBUF|SDL::ANYFORMAT)
-
+@screen = SDL.setVideoMode(640, 480, 32, 0)
+# SDL::HWSURFACE | SDL::DOUBLEBUF| SDL::ANYFORMAT | SDL::FULLSCREEN 
 # init_gl_window(640, 480)
 
 # puts GL_MAX_TEXTURE_SIZE
@@ -207,7 +207,7 @@ frames  =   0
 
 sur1    = SDL::Surface.load('../../share/image/tile/tile_grass32.png')
 sur2    = SDL::Surface.load('../../share/image/tile/tile_ugly_cloud_al32.png')
-tex1    = sur1.display_format
+tex1    = sur1.display_format_alpha
 tex2    = sur2.display_format_alpha
 
     done    = false
@@ -225,7 +225,8 @@ tex2    = sur2.display_format_alpha
             done = true if event.sym == SDL::Key::ESCAPE
           end
         end
-      (0..3).step(1) do |z|
+      z = 0   
+    #  (0..3).step(1) do |z|
         (0..640).step(32) do |x|
           (0..480).step(32) do |y|
             aid = levels[z]
@@ -233,7 +234,7 @@ tex2    = sur2.display_format_alpha
             SDL::Surface.blit(aid, 0,0,0,0, @screen, x, y)
           end
         end
-      end
+   #   end
       @screen.flip
       frames += 1
     end

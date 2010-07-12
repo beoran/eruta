@@ -1,48 +1,40 @@
 ; This file contains variable mapping and other information for the current project.
 
-music_sizes_length = .skipL01542-music_sizes 
+music_sizes_length = .skipL01546-music_sizes 
  
-music_notes_victory_length = .skipL01541-music_notes_victory 
+music_notes_victory_length = .skipL01545-music_notes_victory 
  
-music_notes_gameover_length = .skipL01540-music_notes_gameover 
+music_notes_gameover_length = .skipL01544-music_notes_gameover 
  
-music_notes_intro_length = .skipL01539-music_notes_intro 
+music_notes_intro_length = .skipL01543-music_notes_intro 
  
-music_data_length = .skipL01483-music_data 
+music_data_length = .skipL01486-music_data 
  
-item_ylist_length = .skipL01228-item_ylist 
+item_ylist_length = .skipL01231-item_ylist 
  
-item_xlist_length = .skipL01227-item_xlist 
+item_xlist_length = .skipL01230-item_xlist 
  
 vc = 49
  
 hc = 73
  
-item_hplist_length = .skipL01223-item_hplist 
+item_hplist_length = .skipL01226-item_hplist 
  
-room_items_length = .skipL01222-room_items 
+room_items_length = .skipL01225-room_items 
  
 PFcolors = 1
 bscode_length = 32
-monster_drops_length = .skipL0296-monster_drops 
+monster_drops_length = .skipL0299-monster_drops 
  
-monster_info_length = .skipL0294-monster_info 
+monster_info_length = .skipL0297-monster_info 
  
-item_damage_length = .skipL0291-item_damage 
+item_damage_length = .skipL0294-item_damage 
  
-item_colors_length = .skipL0287-item_colors 
+item_colors_length = .skipL0290-item_colors 
  
 hero_start_items = 
  
 hero_start_level = 20
- 
-sound_timer = p
- 
-music_which = d
- 
-music_timer = n
- 
-music_pointer = m
  
 music_notes = 69
  
@@ -216,6 +208,14 @@ timer_second = 60
  
 timer_loop = 128
  
+sound_timer = p
+ 
+music_which = d
+ 
+music_timer = n
+ 
+music_pointer = m
+ 
 game_timer = e
  
 item_flags = f
@@ -248,7 +248,7 @@ hero_next = k
  
 hero_mp = o
  
-hero_hp = statusbarlength
+hero_hp = j
  
 hero_room = r
  
@@ -259,6 +259,12 @@ hero_flags = g
 hero_oldy = w
  
 hero_oldx = v
+ 
+sc2 = score + 2
+ 
+sc1 = score + 1
+ 
+sc0 = score
  
 hero_y = player0y
  
@@ -287,12 +293,6 @@ hero_start_y = 75
 hero_start_x = 75
  
 room_start = 49
- 
-sc2 = score + 2
- 
-sc1 = score + 1
- 
-sc0 = score
  
 ticks_per_second = 60
  
