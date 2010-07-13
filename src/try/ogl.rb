@@ -172,7 +172,7 @@ module OGL
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
-    glPushAttrib( GL_DEPTH_BUFFER_BIT | GL_LIGHTING_BIT );
+    # glPushAttrib( GL_DEPTH_BUFFER_BIT | GL_LIGHTING_BIT );
     glDisable( GL_DEPTH_TEST );  
     glDisable( GL_LIGHTING ); 
     glDisable( GL_DITHER );

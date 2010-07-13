@@ -1,0 +1,16 @@
+Gari is a simple, fast, cross platform game library, written in plain C.
+For now, it uses SDL as a backend, but that might change later to use more low-level back-ends. It's goals are: 
+
+* Targeted to make writing 2D games as easy as possible.
+* A simple API, that hides the details as much as possible.
+* Fast, giving good performance everywhere possible.
+* Cross platform. Enough said.
+* Complete. All you need to write games, but nothing more.
+* Release under Zlib license (or similar permissive).
+ 
+
+
+
+
+
+

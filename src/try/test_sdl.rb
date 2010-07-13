@@ -239,7 +239,7 @@ tex2    = sur2.display_format_alpha
       frames += 1
     end
 
-
+@screen.flip
 stop  = Time.now()
 delta = stop - start
 fps   = frames.to_f / delta.to_f
