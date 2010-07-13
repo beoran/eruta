@@ -16,6 +16,17 @@ int gari_image_h(GariImage * img) {
   return (gari_image_surface(img))->h;
 }
 
+void gari_surface_lock(SDL_Surface * surface) {
+  if (!SDL_MUSTLOCK(surface)) { return ;  }
+  SDL_LockSurface(surface);  
+}
+
+void gari_surface_unlock(SDL_Surface * surface) {
+  if (!SDL_MUSTLOCK(surface)) { return ;  }
+  SDL_UnlockSurface(surface);  
+}
+
+
 // Returns nonzero if the pixel is outside the image boundaries
 // and may /not/ be drawn to or read from using the PutPixelXXX
 // GetPixelXXX and BlendPixelXXX series of functions.
@@ -64,7 +75,8 @@ typedef char * GariPtr;
 // Does no checks for validity of x and y and does no clipping!
 uint8_t * gari_surface_pixelptr8(SDL_Surface * surface, int x, int y) {
   GariPtr pixels = surface->pixels; 
-  size_t offset = y * surface->pitch  + x;      
+  size_t offset = (((size_t)y) * surface->pitch)  + (((size_t)x));
+  
   return (uint8_t *)(pixels + offset);
 }
 
@@ -73,7 +85,7 @@ uint8_t * gari_surface_pixelptr8(SDL_Surface * surface, int x, int y) {
 // Does no checks for validity of x and y and does no clipping!
 uint16_t * gari_surface_pixelptr16(SDL_Surface * surface, int x, int y) {
   GariPtr pixels = surface->pixels; 
-  size_t offset = y * surface->pitch  + x<<1;
+  size_t offset  = (((size_t)y) * surface->pitch)  + (((size_t)x) << 1);
   return (uint16_t *)(pixels + offset);
 }
 
@@ -82,7 +94,7 @@ uint16_t * gari_surface_pixelptr16(SDL_Surface * surface, int x, int y) {
 // Does no checks for validity of x and y and does no clipping!
 uint32_t * gari_surface_pixelptr32(SDL_Surface * surface, int x, int y) {
   GariPtr pixels = surface->pixels; 
-  size_t offset = y * surface->pitch  + x<<2;
+  size_t offset = (((size_t)y) * surface->pitch)  + (((size_t)x) << 2);
   return (uint32_t *)(pixels + offset);
 }
 
@@ -105,7 +117,7 @@ PixelPtr gari_surface_pixelptr24(SDL_Surface * surface, int x, int y) {
   SDL_PixelFormat *format = surface->format;
   GariPtr ptrbase = NULL;
   GariPtr pixels  = surface->pixels;
-  size_t offset   = y*surface->pitch + x*3;
+  size_t offset   = (((size_t)y) * surface->pitch)  + (((size_t)x) * 3);
   /* format          = surface->format; */
   ptrbase         = pixels + offset;
   res.rptr        = (uint8_t*)(ptrbase + (format->Rshift >> 3));  
@@ -348,9 +360,9 @@ void gari_image_putpixel(GariImage *img, int x, int y, GariColor color) {
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return ; }
   if(gari_image_pixeloutside(img, x, y)) { return ; }   
-  SDL_LockSurface(s);
+  gari_surface_lock(s);
   gari_surface_rppbpp(s, x, y , color);  
-  SDL_UnlockSurface(s); 
+  gari_surface_unlock(s);
 }
 
 /*

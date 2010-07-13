@@ -101,7 +101,7 @@ GariScreen * gari_screen_make(GariGame * game, int wide, int high, int fullscree
 
 /** Updates the game screen, FPS, etc. */
 GariGame * gari_game_update(GariGame * game) {
-  SDL_Flip(game->screen);
+  SDL_Flip((SDL_Surface *)game->screen);
   game->frames++;
 }
 
