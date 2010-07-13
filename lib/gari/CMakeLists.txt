@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
-set(CMAKE_BUILT_TYPE Debug)
+# set(CMAKE_BUILT_TYPE Debug)
+set(CMAKE_C_FLAGS "-Wall -g -pg -O")
 
 # Find SDL
 find_package(SDL REQUIRED)

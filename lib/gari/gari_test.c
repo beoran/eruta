@@ -28,7 +28,7 @@ TEST_FUNC(game) {
   }
   gari_game_update(game);
   
-  sleep(3);
+  //sleep(3);
   
   gari_game_free(game);
   

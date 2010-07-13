@@ -46,12 +46,12 @@ int gari_image_pixelclip(GariImage * image, int x, int y) {
   int minx, miny, maxx, maxy;
   SDL_Rect cliprect;
   SDL_GetClipRect(gari_image_surface(image), &cliprect);  
-  minx     = cliprect.x;
-  miny     = cliprect.y;
+  //minx     = cliprect.x;
+  //miny     = cliprect.y;
   maxx     = cliprect.x + cliprect.w;
   maxy     = cliprect.y + cliprect.h;
-  if (x < minx)   { return TRUE; }
-  if (y < miny)   { return TRUE; }
+  if (x < cliprect.x)   { return TRUE; }
+  if (y < cliprect.y)   { return TRUE; }
   if (x >= maxx)  { return TRUE; }
   if (y >= maxy)  { return TRUE; }
   return FALSE;
