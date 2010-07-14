@@ -21,14 +21,14 @@ TEST_FUNC(game) {
 
   for (i = 0 ; i < 640; i++) { 
     for (j = 0 ; j < 480; j++) {
-      gari_image_putpixel(sim, i, j, 1234567890);
-      // gari_game_update(game);
+        gari_image_putpixel(sim, i, j, 1234567890);
+        // gari_game_update(game);
+      }
     }
-  }    
   }
   gari_game_update(game);
   
-  //sleep(3);
+  sleep(3);
   
   gari_game_free(game);
   

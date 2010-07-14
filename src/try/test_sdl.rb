@@ -207,7 +207,7 @@ frames  =   0
 
 sur1    = SDL::Surface.load('../../share/image/tile/tile_grass32.png')
 sur2    = SDL::Surface.load('../../share/image/tile/tile_ugly_cloud_al32.png')
-tex1    = sur1.display_format_alpha
+tex1    = sur1.display_format
 tex2    = sur2.display_format_alpha
 
     done    = false
@@ -226,16 +226,16 @@ tex2    = sur2.display_format_alpha
           end
         end
       z = 0   
-    #  (0..3).step(1) do |z|
+#      (0..3).step(1) do |z|
         (0..640).step(32) do |x|
           (0..480).step(32) do |y|
             aid = levels[z]
             # .transform(levels[z].format.map_rgba(0,0,0,SDL::ALPHA_TRANSPARENT), frames,1,1,0)
             SDL::Surface.blit(aid, 0,0,0,0, @screen, x, y)
           end
-        end
-   #   end
-      @screen.flip
+#        end
+      end
+#      @screen.flip
       frames += 1
     end
 

@@ -14,6 +14,8 @@
 #define gari_free free
 #endif 
 
+#define gari_allocate(TYPENAME) gari_malloc(sizeof(TYPENAME))
+
 
 /** Default color depth to open the creen with. Normally 32.  */
 #ifndef GARI_DEFAULT_DEPTH 
@@ -29,7 +31,9 @@
 #define TRUE (!(FALSE))
 #endif
 
-
+/** Common alpha values */
+#define GARI_ALPHA_OPAQUE      255
+#define GARI_ALPHA_TRANSLUCENT 0
 
 
 struct GariSound_; 
@@ -38,8 +42,12 @@ typedef struct GariSound_ GariSound;
 struct GariMusic_; 
 typedef struct GariMusic_ GariMusic;
 
-/* Colors. Colors are models as simple uint32_t types. */
+/* Colors. Colors are models as simple uint32_t types.    */
 typedef uint32_t GariColor;
+
+/* RBGA values that model colors in an RGBA color space.  */
+struct GariRGBA_;
+typedef struct GariRGBA_ GariRGBA;
 
 /* Alpha Levels. Alpha Levels are models as simple uint8_t types. */
 typedef uint8_t GariAlpha;
@@ -62,23 +70,8 @@ struct GariDraw_;
 typedef struct GariDraw_ GariDraw;
 
 /* Drawing callback function. */
-typedef int GariDrawFunction(GariImage * image, GariDraw * data); 
+typedef int GariDrawFunction(GariDraw * data, int px, int py); 
 
-/* Drawing information */
-struct GariDraw_ {
-  int                 x, y;
-  GariDrawFunction *  draw;
-  GariColor           color;
-  GariAlpha           alpha;
-};
-
-/* Constructs drawing information */
-GariDraw * gari_drawdata_init(
-                              GariDraw * data, 
-                              GariDrawFunction * func, 
-                              GariColor color,
-                              GariAlpha alpha
-                             ); 
 
 /** 
 * Initializes Gari Game and returns it. Must be done before anything else. 
@@ -118,20 +111,46 @@ int gari_image_free(GariImage * image);
 /* Image loading functions. */
 GariImage * gari_image_loadraw(char * filename);
 
-/* Game is neeeded so the screen can be seen to optimize and load the image. */
+/** Game is neeeded so the screen can be seen to optimize 
+the image automatically on loading. */
 GariImage * gari_image_load(GariGame * game, char * filename);
 
-/* Optimizes the image for drawing to the screen. */
+/** How to optimize the image for drawing to the screen. */
 enum  { 
   GariImageOptimizeSolid      = 0,
   GariImageOptimizeColorkey   = 1,
   GariImageOptimizeAlpha      = 2
 };
 
+/** Optimizes the image for drawing to the screen. */
 int gari_image_optimize(GariImage * image, int mode, GariColor colorkey);
+
+/** Returns the width of the image. */
+int gari_image_w(GariImage * img);
+ 
+/** Returns the height of the image. */
+int gari_image_h(GariImage * img);
 
 
 /* Drawing functions */
+
+/* Drawing context, used for abstracting certain drawing functions.*/
+struct GariDraw_ {    
+  GariImage        *  image; // image we're drawing to. 
+  GariDrawFunction *  draw;  // Drawing function to use.
+  GariColor           color; // Color to draw with.
+  GariAlpha           alpha; // alpha value to be used n drawing
+  void *              other; // other user-defined data.
+};
+
+/* Constructs drawing information */
+GariDraw * gari_drawdata_init(
+                              GariDraw          * data,
+                              GariImage         * image,
+                              GariDrawFunction  * func,
+                              GariColor color,
+                              GariAlpha alpha
+                             ); 
 
 /** Fills the image wth the given color. */
 void gari_image_fill(GariImage * image,  GariColor color);
@@ -139,24 +158,24 @@ void gari_image_fill(GariImage * image,  GariColor color);
 /**/
 void gari_image_putpixel(GariImage * image, int x, int y, GariColor color);
 
-int gari_image_doline(GariImage * image, GariDraw * data);  
-int gari_image_line(GariImage * image, int x, int y, 
+void gari_draw_doline(GariDraw * draw, int x1, int y1, int w, int h);  
+void gari_image_line(GariImage * image, int x1, int y1, 
                     int w, int h, GariColor color);
 
-int gari_image_docircle(GariImage * image, GariDraw * data);  
-int gari_image_circle(GariImage * image, int x, int y, 
+void gari_image_docircle(GariDraw * data, int x, int y, int d);  
+void gari_image_circle(GariImage * image, int x, int y, 
                       int w, int h, GariColor color);
 
-int gari_image_dodisk(GariImage * image, GariDraw * data);  
-int gari_image_disk(GariImage * image, int x, int y, 
+void gari_image_dodisk(GariDraw * data);  
+void gari_image_disk(GariImage * image, int x, int y, 
                       int w, int h, GariColor color);
 
-int gari_image_dobox(GariImage * image, GariDraw * data); 
-int gari_image_box(GariImage * image, int x, int y, 
+void gari_image_dobox(GariDraw * data); 
+void gari_image_box(GariImage * image, int x, int y, 
                       int w, int h, GariColor color);
 
-int gari_image_doslab(GariImage * image, GariDraw * data);
-int gari_image_slab(GariImage * image, int x, int y, 
+void gari_image_doslab(GariDraw * data);
+void gari_image_slab(GariImage * image, int x, int y, 
                       int w, int h, GariColor color);
 
 
@@ -172,6 +191,54 @@ int gari_image_copy(GariImage * dst, int dstx, int dsty, GariImage * src,
 int srcx, int srcy, int w, int h);
 
 
+/* Higher level functions and structs. */
+
+/** A camera models a 2D point of view over a tile map, etc. */
+struct GariCamera_; 
+typedef struct GariCamera_ GariCamera;
+
+/** A sprite is a fully aniated objectn that can be animated in different ways * depending on it's facing direction and actions.
+* For example, the sprite may have a walking action in 2 or 4 directions,
+* which each have a different animation.
+* A sprite may also be consisted of different parts or layers superimposed 
+* over each other, for example, a character holding a weapon, etc.  
+*/
+struct GariSprite_;
+typedef struct GariSprite_ GariSprite;
+
+/** An animation is a full cycle of an animation, 
+*   of which sprites are made up. 
+*/
+struct GariAnimation_;
+typedef struct GariAnimation;
+
+
+
+
+/** 
+ * A tile is a set of images that gets animated according to a 
+ * fixed pattern, and displayed as a single part of a layer in a map. 
+ */
+struct GariTile_; 
+typedef struct GariTile_ GariTile;
+
+/** A tileset is a set of tiles that are used by a tile map. */
+struct GariTileset_; 
+typedef struct GariTileset_ GariTileset;
+
+/** 
+* A layer is a single layer in a 2D game tile map.
+* A layer can consists of a background and/or tiles.
+*/
+struct GariLayer_; 
+typedef struct GariLayer_ GariLayer;
+
+/**
+* A map is the visual representation of the game's playfield, which 
+* consists of several layers and may contain several sprites.  
+*/
+struct GariMap_; 
+typedef struct GariMap_ GariMap;
 
 
 

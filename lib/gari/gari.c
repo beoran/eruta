@@ -4,18 +4,6 @@
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
 
-/* Constructs drawing information */
-GariDraw * gari_drawdata_init(
-                              GariDraw * data, 
-                              GariDrawFunction * func, 
-                              GariColor color,
-                              GariAlpha alpha
-                             ) {
-  data->draw  = func;
-  data->color = color;
-  data->alpha = alpha;
-  return data; 
-} 
 
 
 struct GariImage_ {
@@ -103,11 +91,13 @@ GariScreen * gari_screen_make(GariGame * game, int wide, int high, int fullscree
 GariGame * gari_game_update(GariGame * game) {
   SDL_Flip((SDL_Surface *)game->screen);
   game->frames++;
+  return game;
 }
 
 /** Sets the frames of the game back to 0.*/
 GariGame * gari_game_resetframes(GariGame * game) {  
   game->frames = 0;
+  return game;
 }
 
 /** Gets the total amount of frames displayed since the start of the game, 

@@ -72,9 +72,9 @@ int test_report(Test * test) {
 /** Tests if an assertion is true with variable arguments. */
 Test * test_assert_va(Test * test, int assert, char * fmt, va_list ap) {
   if(assert) { // if the assertion is true 
-    test_ok(test);
+    return test_ok(test);
   } else {
-    test_fail_va(test, fmt, ap);
+    return test_fail_va(test, fmt, ap);
   }
 }
 
