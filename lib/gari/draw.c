@@ -43,7 +43,7 @@ void gari_draw_doline(GariDraw * draw, int x1, int y1, int w, int h) {
 
   if (dx >= dy) {
     for (x = 0; x < dx; x++) {
-      draw->draw(draw, x, y);  
+      draw->draw(draw, px, py);  
       y += dy;
       if (y >= dx) {
         y -= dx;
@@ -53,7 +53,7 @@ void gari_draw_doline(GariDraw * draw, int x1, int y1, int w, int h) {
     }
   } else {
     for (y = 0 ; y < dy; y++) {
-      draw->draw(draw, x, y);
+      draw->draw(draw, px, py);
       x += dx;
       if (x >= dy) {
         x -= dy;
