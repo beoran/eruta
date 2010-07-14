@@ -192,8 +192,8 @@ end
 SDL.init(SDL::INIT_VIDEO)
 # SDL.setGLAttr(SDL::GL_DOUBLEBUFFER,1)
 # SDL::FULLSCREEN|
-@screen = SDL.setVideoMode(640, 480, 0, SDL::FULLSCREEN|SDL::HWSURFACE | SDL::DOUBLEBUF|SDL::ANYFORMAT)
-
+@screen = SDL.setVideoMode(640, 480, 32, 0)
+# SDL::HWSURFACE | SDL::DOUBLEBUF| SDL::ANYFORMAT | SDL::FULLSCREEN 
 # init_gl_window(640, 480)
 
 # puts GL_MAX_TEXTURE_SIZE
@@ -225,20 +225,21 @@ tex2    = sur2.display_format_alpha
             done = true if event.sym == SDL::Key::ESCAPE
           end
         end
-      (0..3).step(1) do |z|
+      z = 0   
+#      (0..3).step(1) do |z|
         (0..640).step(32) do |x|
           (0..480).step(32) do |y|
             aid = levels[z]
             # .transform(levels[z].format.map_rgba(0,0,0,SDL::ALPHA_TRANSPARENT), frames,1,1,0)
             SDL::Surface.blit(aid, 0,0,0,0, @screen, x, y)
           end
-        end
+#        end
       end
-      @screen.flip
+#      @screen.flip
       frames += 1
     end
 
-
+@screen.flip
 stop  = Time.now()
 delta = stop - start
 fps   = frames.to_f / delta.to_f

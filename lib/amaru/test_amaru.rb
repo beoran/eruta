@@ -12,7 +12,7 @@ module Amaru
 end    
 
 SDL.init(SDL::INIT_EVERYTHING)
-flags      = SDL::HWSURFACE | SDL::ANYFORMAT | SDL::DOUBLEBUF | SDL::FULLSCREEN
+flags      = SDL::FULLSCREEN
 wide       = 640
 high       = 480
 depth      = 32
@@ -41,7 +41,7 @@ puts layer.to_s
 green = screen.map_rgb(0,200,0) 
 # screen.set_clip_rect(0,0,100,100)
     
-repeat_start = 300        
+repeat_start = 1000        
 repeat       = repeat_start 
 start        = Time.now   
 while repeat > 0 do
