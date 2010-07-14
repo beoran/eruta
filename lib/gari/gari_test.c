@@ -27,7 +27,8 @@ TEST_FUNC(game) {
     }
   }
   gari_game_update(game);
-  
+  gari_image_line(sim, 0, 0, 640, 480, 987654);
+  gari_game_update(game);
   sleep(3);
   
   gari_game_free(game);

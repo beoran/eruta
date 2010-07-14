@@ -37,6 +37,16 @@ void gari_surface_unlock(SDL_Surface * surface) {
 }
 
 
+void gari_image_lock(GariImage * image) {
+  (void)GARI_SURFACE_LOCK(GARI_IMAGE_SURFACE(image));
+}
+
+void gari_image_unlock(GariImage * image) {
+  (void)GARI_SURFACE_UNLOCK(GARI_IMAGE_SURFACE(image));
+}
+
+
+
 // Returns nonzero if the pixel is outside the image boundaries
 // and may /not/ be drawn to or read from using the PutPixelXXX
 // GetPixelXXX and BlendPixelXXX series of functions.

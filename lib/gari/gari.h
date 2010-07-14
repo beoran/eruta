@@ -131,6 +131,12 @@ int gari_image_w(GariImage * img);
 /** Returns the height of the image. */
 int gari_image_h(GariImage * img);
 
+/** Locks image before drawing. Needed before any _nolock drawing function. */
+void gari_image_lock(GariImage * image); 
+/** Unlocks image after drawing. Needed after any _nolock drawing function. */
+void gari_image_unlock(GariImage * image); 
+
+
 
 /* Drawing functions */
 

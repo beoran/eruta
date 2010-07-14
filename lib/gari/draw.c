@@ -4,6 +4,7 @@
 #include "gari_intern.h"
 
 
+
 /* Constructs drawing information */
 GariDraw * gari_draw_init(
                               GariDraw          * draw,
@@ -71,9 +72,9 @@ void gari_draw_putpixel(GariDraw * draw, int px, int py) {
 void gari_image_line(GariImage * image, int x, int y, 
                     int w, int h, GariColor color) {
   GariDraw draw;
-  gari_drawdata_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
+  gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   gari_image_lock(image);
-  gari_image_doline(draw, x, y, w, h);
+  gari_draw_doline(&draw, x, y, w, h);
   gari_image_unlock(image);
 }
 
