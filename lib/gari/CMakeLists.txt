@@ -10,7 +10,8 @@ set(LIBS ${LIBS} ${SDL_LIBRARY})
 
 # set(LIBS ${LIBS} pthread m)
 # Real Time enabled C Utility Library
-add_library(gari STATIC gari.c pixel.c draw.c color.c)
+set(CFILES gari.c image.c pixel.c draw.c color.c tile.c sprite.c event.c)
+add_library(gari STATIC ${CFILES})
 target_link_libraries(gari ${LIBS})
 set(TEST_LIBS ${LIBS} gari) 
 add_executable(gari_test gari_test.c)

@@ -52,6 +52,10 @@ GariEvent gari_event_fromsdl(SDL_Event ev) {
       res.mod     = ev.key.keysym.mod;
       break;
       
+   case SDL_MOUSEMOTION:
+      res.kind    = GARI_EVENT_MOUSEMOVE;
+      break;   
+      
         
   }    
   return res;
@@ -74,10 +78,6 @@ GariEvent event_poll() {
 
 /*
 
-SDL_KEYDOWN/UP
-  
-
-SDL_KeyboardEvent
 
 SDL_MOUSEMOTION
   
