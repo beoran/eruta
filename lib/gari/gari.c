@@ -18,8 +18,12 @@ struct GariScreen_ {
 struct GariGame_ {
   GariScreen * screen;
   int          error;
-  char *       message;  
-  uint32_t     frames;
+  char *       message;
+  /* For FPS calculation. */  
+  uint32_t     frames;  
+  uint32_t     framestart;
+  uint32_t     framestop;
+  uint32_t     delta;
 };
 
 
@@ -40,6 +44,8 @@ GariGame * gari_game_init(GariGame * game) {
     game->error = 1;
     return NULL;
   }
+  // also enable unicode events.
+  SDL_EnableUNICODE(1);
   return game;
 } 
 
@@ -86,17 +92,23 @@ GariScreen * gari_screen_make(GariGame * game, int wide, int high, int fullscree
   return game->screen;
 }
 
-
-/** Updates the game screen, FPS, etc. */
-GariGame * gari_game_update(GariGame * game) {
-  SDL_Flip((SDL_Surface *)game->screen);
+/** Advances the frame counter of the game. */
+GariGame * gari_game_nextframe(GariGame * game) {
   game->frames++;
   return game;
 }
 
-/** Sets the frames of the game back to 0.*/
+/** Updates the game screen, FPS, etc. */
+GariGame * gari_game_update(GariGame * game) {
+  SDL_Flip((SDL_Surface *)game->screen);
+  gari_game_nextframe(game);
+  return game;
+}
+
+/** Sets the frames of the game back to 0 and starts the FPS counter.*/
 GariGame * gari_game_resetframes(GariGame * game) {  
   game->frames = 0;
+  gari_game_startfps(game);
   return game;
 }
 
@@ -104,6 +116,20 @@ GariGame * gari_game_resetframes(GariGame * game) {
    or since gari_game_resetframes was called. */
 uint32_t gari_game_frames(GariGame * game) {
   return game->frames;
+}
+
+/** Starts FPS counter. */
+GariGame * gari_game_startfps(GariGame * game) {
+  game->framestart = SDL_GetTicks();   
+  return game;
+}
+
+/** Retuns calculated fps after calling startfps . */
+double gari_game_fps(GariGame * game) {
+  uint32_t delta;
+  game->framestop   = SDL_GetTicks();
+  game->delta       = game->framestart - game->framestop;
+  return ((double)(game->frames) * 1000.0) / (double)(delta);
 }
 
 

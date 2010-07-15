@@ -17,6 +17,7 @@ GariGame * gari_game_init(GariGame * game);
 #define GARI_IMAGE_SURFACE(IMG) ((SDL_Surface*)(IMG))
 #define GARI_IMAGE_W(IMG)       (GARI_IMAGE_SURFACE(IMG)->w)
 #define GARI_IMAGE_H(IMG)       (GARI_IMAGE_SURFACE(IMG)->h)
+#define GARI_IMAGE_FORMAT(IMG)  (GARI_IMAGE_SURFACE(IMG)->format)
 #define GARI_SURFACE_LOCK(S)    (SDL_MUSTLOCK(S) && (SDL_LockSurface(S)))
 #define GARI_SURFACE_UNLOCK(S)  (SDL_MUSTLOCK(S) && (SDL_UnlockSurface(S), 0))
 #define GARI_IMAGE_PIXELOUTSIDE(IMG, X, Y)\
@@ -63,6 +64,14 @@ GariGame * gari_game_init(GariGame * game);
 #define GARI_SURFACE_PIXELPTR32(SURFACE, X, Y)       \
          ((uint32_t *)(GARI_TO_PTR(GARI_SURFACE_PIXELS(SURFACE)) +\
            GARI_XY_OFFSET(X, Y, 2, GARI_SURFACE_PITCH(SURFACE)) ))
+
+/* color mapping */
+
+#define GARI_IMAGE_RGB(IMG, R, G, B) \
+          (SDL_MapRGB(GARI_IMAGE_FORMAT(IMG), R, G, B)) 
+
+#define GARI_IMAGE_RGBA(IMG, R, G, B, A) \
+          (SDL_MapRGBA(GARI_IMAGE_FORMAT(img), R, G, B, A))
 
 
 SDL_Surface * gari_image_surface(GariImage * img);

@@ -91,6 +91,15 @@ GariGame * gari_game_resetframes(GariGame * game);
    or since gari_game_resetframes was called. */
 uint32_t gari_game_frames(GariGame * game);
 
+/** Advances the game's frame counter. */
+GariGame * gari_game_nextframe(GariGame * game);
+
+/** Starts FPS counter. gari_game_resetframes also calls this. */
+GariGame * gari_game_startfps(GariGame * game);
+
+/** Retuns calculated fps after calling startfps . */
+double gari_game_fps(GariGame * game);
+
 
 /** Opens the game main game screen or window. Must be done before using any image functions. */
 GariScreen * gari_screen_make(GariGame * game, int wide, int high, int fullscreen);
@@ -136,6 +145,12 @@ void gari_image_lock(GariImage * image);
 /** Unlocks image after drawing. Needed after any _nolock drawing function. */
 void gari_image_unlock(GariImage * image); 
 
+/** Converts a color espressed in rgb components to a GariColor. */
+GariColor gari_image_rgb(GariImage *img, uint8_t r, uint8_t g, uint8_t b);
+
+/** Converts a color espressed in rgba components to a GariColor. */
+GariColor gari_image_rgba(GariImage *img, 
+          uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 
 /* Drawing functions */
@@ -197,6 +212,18 @@ int gari_image_copy(GariImage * dst, int dstx, int dsty, GariImage * src,
 int srcx, int srcy, int w, int h);
 
 
+/* Input event handling. */
+
+struct GariEvent_;
+typedef struct GariEvent_ GariEvent;
+
+GariEvent gari_event_poll();
+GariEvent gari_event_push(GariEvent * event);
+
+
+
+
+
 /* Higher level functions and structs. */
 
 /** A camera models a 2D point of view over a tile map, etc. */
@@ -216,7 +243,7 @@ typedef struct GariSprite_ GariSprite;
 *   of which sprites are made up. 
 */
 struct GariAnimation_;
-typedef struct GariAnimation;
+typedef struct GariAnimation_ GariAnimation;
 
 
 
