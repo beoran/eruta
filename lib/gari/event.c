@@ -4,33 +4,30 @@
 #include "gari_intern.h"
 
 
-#define GARI_EVENT_NONE           0
-#define GARI_EVENT_ACTIVE         1
-#define GARI_EVENT_KEYDOWN        2
-#define GARI_EVENT_KEYUP          3
-#define GARI_EVENT_MOUSEPRESS     4
-#define GARI_EVENT_MOUSERELEASE   5
-#define GARI_EVENT_MOUSEMOVE      6
-#define GARI_EVENT_JOYMOVE        7
-#define GARI_EVENT_JOYPRESS       8
-#define GARI_EVENT_JOYRELEASE     9
-#define GARI_EVENT_VIDEORESIZE   10
-#define GARI_EVENT_VIDEOEXPOSE   11
-#define GARI_EVENT_QUIT          12 
-#define GARI_EVENT_USER          13 
-#define GARI_EVENT_SYSTEM        14 
-
-struct GariEvent_ {
-  uint8_t   kind;
-  uint8_t   gain;
-  uint16_t  key;
-  uint16_t  mod;
-  uint16_t  unicode; 
-};
 
 
-const GariEvent GARI_EMPTY_EVENT = {GARI_EVENT_NONE, 0};
+const GariEvent GARI_EMPTY_EVENT = {GARI_EVENT_NONE, 0, 0, 0, 0, 0, 0, 0, 0};
 
+
+/** Helps converting mouse button events. */
+GariEvent gari_event_mousebutton(SDL_Event ev, uint8_t kind) {  
+  GariEvent res = GARI_EMPTY_EVENT;
+  res.kind      = kind;
+  res.x         = ev.button.x;
+  res.y         = ev.button.y;
+  res.button    = ev.button.button;
+  res.which     = ev.button.which;
+  // Translate scrolls to proper scroll events
+  // In SDL 1.3, they will also be separate events.
+  if (ev.button.button == SDL_BUTTON_WHEELUP) {
+      res.kind  = GARI_EVENT_MOUSESCROLL;
+      res.value = -1;
+  } else if (ev.button.button == SDL_BUTTON_WHEELDOWN) {
+      res.kind  = GARI_EVENT_MOUSESCROLL;
+      res.value = 1;
+  }
+  return res;
+}
 
 GariEvent gari_event_fromsdl(SDL_Event ev) {
   GariEvent res = GARI_EMPTY_EVENT;
@@ -46,6 +43,7 @@ GariEvent gari_event_fromsdl(SDL_Event ev) {
       res.unicode = ( (ev.key.keysym.unicode & 0xFF80) ? 
                       ev.key.keysym.unicode : ev.key.keysym.unicode & 0x7F );
       break;
+      
     case SDL_KEYUP:   
       res.kind    = GARI_EVENT_KEYUP;
       res.key     = ev.key.keysym.sym;
@@ -54,23 +52,86 @@ GariEvent gari_event_fromsdl(SDL_Event ev) {
       
    case SDL_MOUSEMOTION:
       res.kind    = GARI_EVENT_MOUSEMOVE;
-      break;   
+      res.x       = ev.motion.x;
+      res.y       = ev.motion.y;      
+      res.xrel    = ev.motion.xrel;
+      res.yrel    = ev.motion.yrel;
+      res.button  = ev.motion.state;
+      res.which   = ev.motion.which;
+      break;
       
-        
-  }    
+   case SDL_MOUSEBUTTONDOWN:
+      res         = gari_event_mousebutton(ev, GARI_EVENT_MOUSEPRESS);
+      break;
+      
+   case SDL_MOUSEBUTTONUP:
+      res         = gari_event_mousebutton(ev, GARI_EVENT_MOUSERELEASE);
+      break;
+      
+   case SDL_JOYBUTTONDOWN:
+      res.kind    = GARI_EVENT_JOYPRESS;
+      res.which   = ev.jbutton.which;
+      res.button  = ev.jbutton.button;      
+      break;
+   
+   case SDL_JOYBUTTONUP:
+      res.kind    = GARI_EVENT_JOYRELEASE;
+      res.which   = ev.jbutton.which;
+      res.button  = ev.jbutton.button;      
+      break;
+      
+   case SDL_JOYAXISMOTION:
+      res.kind    = GARI_EVENT_JOYMOVE;
+      res.which   = ev.jaxis.which;
+      res.axis    = ev.jaxis.axis;
+      res.value   = ev.jaxis.value;
+      break;
+      
+   case SDL_VIDEORESIZE:
+     res.kind    = GARI_EVENT_RESIZE;
+     res.w       = ev.resize.w;
+     res.h       = ev.resize.h;
+     break;
+   
+   case SDL_VIDEOEXPOSE:
+     res.kind    = GARI_EVENT_EXPOSE;
+     break;
+     
+   case SDL_QUIT:
+     res.kind    = GARI_EVENT_QUIT;
+     break;
+  }
   return res;
 }
 
 
 
-
-GariEvent event_poll() {
+/** 
+* Gets an event from the event queue. Returns a special event with 
+* event.kind == GARI_EVENT_NONE if no events are on the queue. 
+*/
+GariEvent gari_event_poll() {
   SDL_Event      event;
   if (SDL_PollEvent(&event)) {
     return gari_event_fromsdl(event);
   } else {
     GariEvent result = GARI_EMPTY_EVENT; 
     return result;  
+  } 
+}
+
+/** Polls the event queue and copies it to the given event  addres, 
+* wich must be a valid address and not be null.
+* Return NULL if the eevnt queue was ampty, non-null if there was an event fetched. 
+*/
+GariEvent * gari_event_fetch(GariEvent * event) {
+  SDL_Event      sdlevent;
+  if (SDL_PollEvent(&sdlevent)) {
+    (*event) = gari_event_fromsdl(sdlevent);
+    return event;
+  } else {
+    (*event)  = GARI_EMPTY_EVENT; 
+    return NULL;  
   } 
 }
 

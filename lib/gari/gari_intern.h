@@ -1,3 +1,7 @@
+/*
+This file is for internal use by Gari library ONLY. Don't use anything
+you find in here outside of the library. 
+*/
 #ifndef _GARI_INTERN_H_
 #define _GARI_INTERN_H_
 
@@ -5,6 +9,19 @@
 #ifndef GARI_INTERN_ONLY
 #error This include file is only for used inside the Gari Library source files.
 #endif
+
+/* A few macros for memory allocation, so we can allow libgc later. */
+#ifndef gari_malloc
+#define gari_malloc malloc
+#endif 
+
+#ifndef gari_free
+#define gari_free free
+#endif 
+
+#define gari_allocate(TYPENAME) gari_malloc(sizeof(TYPENAME))
+
+
 
 /* Initializes a gari game. Externa lusers will use gari_game_make. */
 GariGame * gari_game_init(GariGame * game);

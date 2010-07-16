@@ -1,3 +1,22 @@
+/**
+* @mainpage Gari Game Library
+*
+* Gari is a simple, fast, cross platform game library targeted at 2D games,
+* written in plain C. For now, it uses SDL as a backend, but that might 
+* change later to use more low-level back-ends. It's goals are:
+*
+* 1) Targeted to make writing 2D games as easy as possible.
+* 2) A simple API, that hides the details as much as possible.
+* 3) Fast, giving good performance everywhere possible.
+* 4) Cross platform. Enough said.
+* 5) Complete. All you need to write games, but nothing more.
+* 6) Release under Zlib license (or similar permissive).
+* 7) Easy to embed in Ruby with bindings provided (later).
+* 
+* @file gari.h
+*
+*/
+
 #ifndef _GARI_H_
 #define _GARI_H_
 
@@ -5,24 +24,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-/* A few macros for memory allocation. Could allow libgc later. */
-#ifndef gari_malloc
-#define gari_malloc malloc
-#endif 
-
-#ifndef gari_free
-#define gari_free free
-#endif 
-
-#define gari_allocate(TYPENAME) gari_malloc(sizeof(TYPENAME))
-
 
 /** Default color depth to open the creen with. Normally 32.  */
 #ifndef GARI_DEFAULT_DEPTH 
 #define GARI_DEFAULT_DEPTH 32
 #endif
 
-/** Of course we need fake booleans :p. */
+/** Of course we need fake booleans if we don' talready have them :p. */
 #ifndef FALSE
 #define FALSE (0)
 #endif
@@ -42,22 +50,21 @@ typedef struct GariSound_ GariSound;
 struct GariMusic_; 
 typedef struct GariMusic_ GariMusic;
 
-/* Colors. Colors are models as simple uint32_t types.    */
+/** Colors. Colors are models as simple uint32_t types.    */
 typedef uint32_t GariColor;
 
-/* RBGA values that model colors in an RGBA color space.  */
+/** RBGA values that model colors in an RGBA color space.  */
 struct GariRGBA_;
 typedef struct GariRGBA_ GariRGBA;
 
-/* Alpha Levels. Alpha Levels are models as simple uint8_t types. */
+/** Alpha Levels. Alpha Levels are models as simple uint8_t types. */
 typedef uint8_t GariAlpha;
 
-/* struct GariColor_; 
-typedef struct GariColor_ GariColor; */
-
+/** Images. Images arevisuals that can be dwawn to. */
 struct GariImage_; 
 typedef struct GariImage_ GariImage;
 
+/** A screen or window. Not directly drawable. */
 struct GariScreen_; 
 typedef struct GariScreen_ GariScreen;
 
@@ -65,11 +72,11 @@ typedef struct GariScreen_ GariScreen;
 struct GariGame_; 
 typedef struct GariGame_ GariGame;
 
-/* Drawing information */
+/** Drawing information */
 struct GariDraw_; 
 typedef struct GariDraw_ GariDraw;
 
-/* Drawing callback function. */
+/** Drawing callback function. */
 typedef int GariDrawFunction(GariDraw * data, int px, int py); 
 
 
@@ -110,14 +117,14 @@ GariScreen * gari_game_screen(GariGame * game);
 /** Returns the drawable image for the screen. */
 GariImage * gari_screen_image(GariScreen * screen);
 
-/* Opens the game main game screen or window. 
+/** Opens the game main game screen or window. 
    Must be done before using any image functions. */   
 GariScreen * screen_init_depth(GariGame * game, int wide, int high, int fullscreen, int depth);   
 
-/* Disposes of an image. */
+/** Disposes of an image. */
 int gari_image_free(GariImage * image);
 
-/* Image loading functions. */
+/** Image loading functions. */
 GariImage * gari_image_loadraw(char * filename);
 
 /** Game is neeeded so the screen can be seen to optimize 
@@ -125,7 +132,7 @@ the image automatically on loading. */
 GariImage * gari_image_load(GariGame * game, char * filename);
 
 /** How to optimize the image for drawing to the screen. */
-enum  { 
+enum GariImageOptimize_ { 
   GariImageOptimizeSolid      = 0,
   GariImageOptimizeColorkey   = 1,
   GariImageOptimizeAlpha      = 2
@@ -214,13 +221,52 @@ int srcx, int srcy, int w, int h);
 
 /* Input event handling. */
 
+
+#define GARI_EVENT_NONE           0
+#define GARI_EVENT_ACTIVE         1
+#define GARI_EVENT_KEYDOWN        2
+#define GARI_EVENT_KEYUP          3
+#define GARI_EVENT_MOUSEPRESS     4
+#define GARI_EVENT_MOUSERELEASE   5
+#define GARI_EVENT_MOUSEMOVE      6
+#define GARI_EVENT_MOUSESCROLL    7
+#define GARI_EVENT_JOYMOVE        8
+#define GARI_EVENT_JOYPRESS       9
+#define GARI_EVENT_JOYRELEASE    10 
+#define GARI_EVENT_RESIZE        11
+#define GARI_EVENT_EXPOSE         12
+#define GARI_EVENT_QUIT          13 
+#define GARI_EVENT_USER          14 
+#define GARI_EVENT_SYSTEM        15
+
+
+/** The event structiure. It's not a union for ease of wrapping in other languages, though only some of the fields may contain useful data depending on the. event.kind field. */
+struct GariEvent_ {
+  uint8_t   kind;
+  uint8_t   gain;
+  uint16_t  key;
+  uint16_t  mod;
+  uint16_t  unicode; 
+  uint16_t  x, y, xrel, yrel, w, h;
+  uint16_t  button;
+  int16_t   value; 
+  uint8_t   which; 
+  uint8_t   axis;
+};
 struct GariEvent_;
 typedef struct GariEvent_ GariEvent;
 
+
+/** Gets an event from the event queue. Returns a special event with 
+event.kind == GARI_EVENT_NONE if no events are on the queue. 
+*/
 GariEvent gari_event_poll();
-GariEvent gari_event_push(GariEvent * event);
 
-
+/** Polls the event queue and copies it to the given event  addres, 
+* wich must be a valid address and not be null.
+* Return NULL if the eevnt queue was ampty, non-null if there was an event fetched. 
+*/
+GariEvent * gari_event_fetch(GariEvent * event);
 
 
 
