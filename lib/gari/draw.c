@@ -64,8 +64,23 @@ void gari_draw_doline(GariDraw * draw, int x1, int y1, int w, int h) {
   }
 }
 
+/* Clipping information. */ 
+struct GariClipInfo_ {
+  int x, y, w, h;
+  int draw; // set to false if whole area clipped.
+};
+typedef struct GariClipInfo_ GariClipInfo;
+ 
+
+GariClipInfo gari_image_clipline(GariImage * image, 
+  int x, int y, int w, int h) {
+  GariClipInfo clip = { x, y, w, h, TRUE };
+  return clip;
+}   
+
+
 void gari_draw_putpixel(GariDraw * draw, int px, int py) {
-  gari_image_putpixel_nolock(draw->image, px, py, draw->color);  
+  gari_image_putpixel_nolock(draw->image, px, py, draw->color);
 }
 
 
@@ -77,6 +92,23 @@ void gari_image_line(GariImage * image, int x, int y,
   gari_draw_doline(&draw, x, y, w, h);
   gari_image_unlock(image);
 }
+
+
+/** Draws a slab, that is, a filled rectange on the image. */
+void gari_image_slab( GariImage * image, int x, int y, int w, int h,  
+                      GariColor color) {
+  int stopx, stopy, xi, yi;
+  stopx = x + w;
+  stopy = y + h;
+  gari_image_lock(image);
+  for( yi = y ; yi < stopy ; yi++ ) {
+    fprintf(stderr, "%d %d %d %d\n", xi, yi, stopx, stopy);
+    for( xi = x ; xi < stopx ; xi++ ) {
+      gari_image_putpixel_nolock(image, xi, yi, color);
+    }
+  }   
+  gari_image_unlock(image);
+} 
 
 
 

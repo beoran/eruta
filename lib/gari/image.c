@@ -8,6 +8,12 @@ GariImage * gari_image_wrap(SDL_Surface * surface) {
   return (GariImage *)(surface);
 }
 
+void gari_image_free(GariImage * image) {
+  if (!image) {return;} 
+  SDL_FreeSurface(GARI_IMAGE_SURFACE(image));
+}
+
+
 GariColor gari_image_maprgb(GariImage *img, GariRGBA rgba) {
   return  gari_surface_maprgb(GARI_IMAGE_SURFACE(img), rgba);
 }
@@ -23,7 +29,7 @@ GariColor gari_image_rgba(GariImage *img,
 
 
 /** Optimizes the image for drawing to the screen. */
-int gari_image_optimize(GariImage * image, int mode, GariColor colorkey) {
+GariImage * gari_image_optimize(GariImage * image, int mode, GariColor colorkey) {
   SDL_Surface * surface;
   surface = gari_image_surface(image);
   switch (mode) {
@@ -39,6 +45,23 @@ int gari_image_optimize(GariImage * image, int mode, GariColor colorkey) {
   }
 
 }
+
+
+
+void gari_image_blit(GariImage * dst, int dstx, int dsty, GariImage * src) {
+  SDL_Surface *sdlsrc, *sdldst;
+  SDL_Rect    dstrect;
+  dstrect.x = dstx;
+  dstrect.y = dsty;
+  sdlsrc    = GARI_IMAGE_SURFACE(src);
+  sdldst    = GARI_IMAGE_SURFACE(dst);
+  SDL_BlitSurface(src, NULL, dst, &dstrect);  
+}
+
+
+
+
+
 
 
 

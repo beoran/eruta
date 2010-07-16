@@ -10,6 +10,9 @@ you find in here outside of the library.
 #error This include file is only for used inside the Gari Library source files.
 #endif
 
+
+#include "SDL_ttf.h"
+
 /* A few macros for memory allocation, so we can allow libgc later. */
 #ifndef gari_malloc
 #define gari_malloc malloc
@@ -19,8 +22,16 @@ you find in here outside of the library.
 #define gari_free free
 #endif 
 
-#define gari_allocate(TYPENAME) gari_malloc(sizeof(TYPENAME))
+#ifndef GARI_MALLOC
+#define GARI_MALLOC(SIZE) (malloc(SIZE))
+#endif 
 
+#ifndef GARI_FREE
+#define GARI_FREE(PTR) (free(PTR))
+#endif 
+
+#define gari_allocate(TYPENAME) gari_malloc(sizeof(TYPENAME))
+#define GARI_ALLOCATE(TYPENAME) GARI_MALLOC(sizeof(TYPENAME))
 
 
 /* Initializes a gari game. Externa lusers will use gari_game_make. */
@@ -110,5 +121,29 @@ GariColor gari_surface_maprgb(SDL_Surface * surface, GariRGBA rgba);
 
 
 
+// Puts a pixel with the given color at the given coordinates
+// Takes the clipping rectangle and surface bounds into consideration
+// Does no locking, so lock around it! Only for 8 bits surfaces. 
+void gari_image_putpixel8_nl(GariImage *img, int x, int y, GariColor color);
+
+// Puts a pixel with the given color at the given coordinates
+// Takes the clipping rectangle and surface bounds into consideration
+// Does no locking, so lock around it! Only for 16 bits surfaces. 
+void gari_image_putpixel16_nl(GariImage *img, int x, int y, GariColor color);
+
+// Puts a pixel with the given color at the given coordinates
+// Takes the clipping rectangle and surface bounds into consideration
+// Does no locking, so lock around it! Only for 24 bits surfaces. 
+void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariColor color);
+
+
+// Puts a pixel with the given color at the given coordinates
+// Takes the clipping rectangle and surface bounds into consideration
+// Does no locking, so lock around it! Only for 32 bits surfaces. 
+void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariColor color);
+
+
+// Wraps a SDL_Surface inside a GariImage.
+GariImage * gari_image_wrap(SDL_Surface * surface);
 
 #endif

@@ -344,6 +344,47 @@ void gari_surface_rbpbpp(SDL_Surface * surface, int x, int y,
 
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
+// Does no locking, so lock around it! Only for 8 bits surfaces. 
+void gari_image_putpixel8_nl(GariImage *img, int x, int y, GariColor color) {
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixelclip(img, x, y))    { return ; }
+  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  gari_surface_rpp8(s, x, y , color);
+}
+
+// Puts a pixel with the given color at the given coordinates
+// Takes the clipping rectangle and surface bounds into consideration
+// Does no locking, so lock around it! Only for 16 bits surfaces. 
+void gari_image_putpixel16_nl(GariImage *img, int x, int y, GariColor color) {
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixelclip(img, x, y))    { return ; }
+  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  gari_surface_rpp16(s, x, y , color);
+}
+
+// Puts a pixel with the given color at the given coordinates
+// Takes the clipping rectangle and surface bounds into consideration
+// Does no locking, so lock around it! Only for 24 bits surfaces. 
+void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariColor color) {
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixelclip(img, x, y))    { return ; }
+  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  gari_surface_rpp24(s, x, y , color);
+}
+
+
+// Puts a pixel with the given color at the given coordinates
+// Takes the clipping rectangle and surface bounds into consideration
+// Does no locking, so lock around it! Only for 32 bits surfaces. 
+void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariColor color) {
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixelclip(img, x, y))    { return ; }
+  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  gari_surface_rpp32(s, x, y , color);
+}
+
+// Puts a pixel with the given color at the given coordinates
+// Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it!
 // this is for use in line drawing, etc. 
 void gari_image_putpixel_nolock(GariImage *img, int x, int y, GariColor color) {
@@ -366,6 +407,8 @@ GariColor gari_image_getpixel_nolock(GariImage *img, int x, int y) {
   color = gari_surface_rgpbpp(s, x, y);  
   return color;
 }
+
+
 
 // Blends the color of a pixel from this surface, 
 // taking alpha into consideration. 

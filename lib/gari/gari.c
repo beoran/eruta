@@ -44,6 +44,11 @@ GariGame * gari_game_init(GariGame * game) {
     game->error = 1;
     return NULL;
   }
+  // also initialize TTF
+  if(TTF_Init()==-1) {
+    fprintf(stderr, "TTF_Init: %s\n", TTF_GetError());
+    return NULL;
+  }
   // also enable unicode events.
   SDL_EnableUNICODE(1);
   return game;
@@ -52,6 +57,7 @@ GariGame * gari_game_init(GariGame * game) {
 GariGame * gari_game_done(GariGame * game) {
   if (!game) { return NULL; } 
   game->screen = NULL;
+  TTF_Quit();
   SDL_Quit();
   return game;
 }
@@ -127,11 +133,18 @@ GariGame * gari_game_startfps(GariGame * game) {
 /** Retuns calculated fps after calling startfps . */
 double gari_game_fps(GariGame * game) {
   uint32_t delta;
+  double dd, df;
   game->framestop   = SDL_GetTicks();
-  game->delta       = game->framestart - game->framestop;
-  return ((double)(game->frames) * 1000.0) / (double)(delta);
+  game->delta       = game->framestop - game->framestart;
+  df                = (double)(game->frames);
+  dd                = (double)(game->delta);
+  return (1000.0 * df) / dd ;
 }
 
+void gari_game_report(GariGame * game)  {
+  double fps         = gari_game_fps(game);
+  fprintf(stderr, "FPS %d frames / %d ms: %lf fps.\n", game->frames, game->delta, fps);
+}
 
 /** Quickly fills the image or screen with the given color */
 void gari_image_fill(GariImage * image,  GariColor color) {

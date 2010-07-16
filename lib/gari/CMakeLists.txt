@@ -1,16 +1,28 @@
 cmake_minimum_required(VERSION 2.6)
 # set(CMAKE_BUILT_TYPE Debug)
-set(CMAKE_C_FLAGS "-Wall -g -pg -O")
+# below is for profiling.
+#set(CMAKE_C_FLAGS "-Wall -g -pg -O")
+set(CMAKE_C_FLAGS "-Wall -g -O")
 
 # Find SDL
+set(SDL_BUILDING_LIBRARY 1)
 find_package(SDL REQUIRED)
+find_package(SDL_image REQUIRED)
+find_package(SDL_mixer REQUIRED)
+find_package(SDL_ttf REQUIRED)
+# FindSDL
+# FindSDL_image
+# FindSDL_mixer
+# FindSDL_net
+# FindSDL_sound
+# FindSDL_ttf
 # Set include and lib dirs. 
-include_directories(${SDL_INCLUDE_DIR})
-set(LIBS ${LIBS} ${SDL_LIBRARY})
+include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR})
+set(LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY})
 
 # set(LIBS ${LIBS} pthread m)
 # Real Time enabled C Utility Library
-set(CFILES gari.c image.c pixel.c draw.c color.c tile.c sprite.c event.c)
+set(CFILES gari.c image.c font.c pixel.c draw.c color.c tile.c sprite.c event.c)
 add_library(gari STATIC ${CFILES})
 target_link_libraries(gari ${LIBS})
 set(TEST_LIBS ${LIBS} gari) 

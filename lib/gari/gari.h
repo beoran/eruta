@@ -12,6 +12,11 @@
 * 5) Complete. All you need to write games, but nothing more.
 * 6) Release under Zlib license (or similar permissive).
 * 7) Easy to embed in Ruby with bindings provided (later).
+*
+* A C compiler which supports some C99 fratures, particularly
+* stdint.h, and one line comments is needed to compile Gari.
+*
+* More details are documented in gari.h
 * 
 * @file gari.h
 *
@@ -104,8 +109,11 @@ GariGame * gari_game_nextframe(GariGame * game);
 /** Starts FPS counter. gari_game_resetframes also calls this. */
 GariGame * gari_game_startfps(GariGame * game);
 
-/** Retuns calculated fps after calling startfps . */
+/** Returns calculated fps after calling startfps . */
 double gari_game_fps(GariGame * game);
+
+/** Reports on the game's FPS on stderr.*/
+void gari_game_report(GariGame * game);
 
 
 /** Opens the game main game screen or window. Must be done before using any image functions. */
@@ -122,7 +130,7 @@ GariImage * gari_screen_image(GariScreen * screen);
 GariScreen * screen_init_depth(GariGame * game, int wide, int high, int fullscreen, int depth);   
 
 /** Disposes of an image. */
-int gari_image_free(GariImage * image);
+void gari_image_free(GariImage * image);
 
 /** Image loading functions. */
 GariImage * gari_image_loadraw(char * filename);
@@ -139,7 +147,7 @@ enum GariImageOptimize_ {
 };
 
 /** Optimizes the image for drawing to the screen. */
-int gari_image_optimize(GariImage * image, int mode, GariColor colorkey);
+GariImage * gari_image_optimize(GariImage * image, int mode, GariColor colorkey);
 
 /** Returns the width of the image. */
 int gari_image_w(GariImage * img);
@@ -203,6 +211,7 @@ void gari_image_box(GariImage * image, int x, int y,
                       int w, int h, GariColor color);
 
 void gari_image_doslab(GariDraw * data);
+                      
 void gari_image_slab(GariImage * image, int x, int y, 
                       int w, int h, GariColor color);
 
@@ -212,7 +221,7 @@ int gari_image_text(GariImage * dst, int x, int y,
                     char * utf8, GariColor color);
 
 /* Fast blit from image to image. */
-int gari_image_blit(GariImage * dst, int dstx, int dsty, GariImage * src);
+void gari_image_blit(GariImage * dst, int dstx, int dsty, GariImage * src);
 
 /* Copy part from image to image. */
 int gari_image_copy(GariImage * dst, int dstx, int dsty, GariImage * src,
@@ -269,6 +278,35 @@ GariEvent gari_event_poll();
 GariEvent * gari_event_fetch(GariEvent * event);
 
 
+/* Fonts and text rendering. */
+
+struct GariFont_;
+/** Opaque struct for font handling. */
+typedef struct GariFont_ GariFont;
+
+/** Ways to render the font. Default is GariFontSolid */
+enum GariFontMode_ {
+  GariFontSolid,
+  GariFontShaded,
+  GariFontBlended,
+};
+
+/** Loads one of the fonts in a font file. */
+GariFont * gari_font_loadindex(char * filename, int ptsize, long index);
+/** Loads the first font in a font file. */
+GariFont * gari_font_load(char * filename, int ptsize);
+
+/** Sets the drawing mode of the font. */
+GariFont * gati_font_mode(GariFont * font, int mode);
+
+/** Frees the memory allocated by the font. */
+void gari_font_free(GariFont *font); 
+
+/** Draws font with given colors. */
+void gari_font_drawrgba(GariImage * image, int x, int y, char * utf8, GariFont * font, GariRGBA fg, GariRGBA bg); 
+
+/** Draws font with given colors. */
+void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_b, uint8_t bg_a);
 
 /* Higher level functions and structs. */
 
