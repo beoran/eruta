@@ -94,6 +94,34 @@ void gari_image_line(GariImage * image, int x, int y,
 }
 
 
+/* Traces a horizontal line starting at x1, y1, of width w.
+   w must be greater than 0; 
+*/
+void gari_draw_dohline(GariDraw * draw, int x1, int y1, int w) {  
+  int px    = x1;
+  int py    = y1;
+  int stop  = x1 + w ;
+  int incr  = (w > 0 ? 1 : -1);
+  if (w <= 0) { return; }
+  for (px = x1; px < stop ; px++) {
+    draw->draw(draw, px, py);
+  }
+}
+
+/* Optimized case of drawline, draws horizontal lines only. */
+void gari_image_hline_nolock(GariImage * image, int x, int y, 
+                    int w, GariColor color) {
+  GariDraw draw;
+  gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
+  // Adjust for negative widths.
+  if (w < 0) {
+    w = -w;
+    x =  x - w;
+  } 
+  gari_draw_dohline(&draw, x, y, w);
+}
+
+
 /** Draws a slab, that is, a filled rectange on the image. */
 void gari_image_slab( GariImage * image, int x, int y, int w, int h,  
                       GariColor color) {
@@ -102,10 +130,7 @@ void gari_image_slab( GariImage * image, int x, int y, int w, int h,
   stopy = y + h;
   gari_image_lock(image);
   for( yi = y ; yi < stopy ; yi++ ) {
-    fprintf(stderr, "%d %d %d %d\n", xi, yi, stopx, stopy);
-    for( xi = x ; xi < stopx ; xi++ ) {
-      gari_image_putpixel_nolock(image, xi, yi, color);
-    }
+    gari_image_hline_nolock(image, x, y, w, color);    
   }   
   gari_image_unlock(image);
 } 
