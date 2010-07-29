@@ -17,8 +17,8 @@ find_package(SDL_ttf REQUIRED)
 # FindSDL_sound
 # FindSDL_ttf
 # Set include and lib dirs. 
-include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR})
-set(LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY})
+include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR})
+set(LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY} ${SDLIMAGE_LIBRARY})
 
 # set(LIBS ${LIBS} pthread m)
 # Real Time enabled C Utility Library

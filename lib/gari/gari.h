@@ -129,22 +129,43 @@ GariImage * gari_screen_image(GariScreen * screen);
    Must be done before using any image functions. */   
 GariScreen * screen_init_depth(GariGame * game, int wide, int high, int fullscreen, int depth);   
 
+/** Image mode, this deterines how to optimize the image for drawing to the screen, and whether the image has any transparency. */
+enum GariImageMode_ { 
+  GariImageSolid      = 0,
+  GariImageColorkey   = 1,
+  GariImageAlpha      = 2
+};
+
+/** Makes an empty gari image with given same bits per pixels (in depth), 
+    but supporting either alpha, or not, or a colorkey depending on mode.
+    The video mode must have been set and the screen must have been opened.
+    You must call gari_image_free when you're done with the generated 
+    GariImage. May return NULL on error.
+*/
+GariImage * gari_image_makedepth(int w, int h, int depth, 
+                                 int mode, GariColor colorkey);
+
+
+/** Makes an empty gari image with the same bits per pixels as the screen, 
+    but supporting either alpha, or not, or a colorkey depending on mode.
+    The video mode must have been set and the screen must have been opened.
+    You must call gari_image_free when you're done with the generated 
+    GariImage. May return NULL on error.
+*/
+GariImage * gari_image_make(int w, int h, int mode, GariColor colorkey);
+
 /** Disposes of an image. */
 void gari_image_free(GariImage * image);
 
 /** Image loading functions. */
+
+/** Loads the image from the named file. */
 GariImage * gari_image_loadraw(char * filename);
 
-/** Game is neeeded so the screen can be seen to optimize 
-the image automatically on loading. */
+/** Loads the image from the named file and tries to optimize it for display. */
 GariImage * gari_image_load(GariGame * game, char * filename);
 
-/** How to optimize the image for drawing to the screen. */
-enum GariImageOptimize_ { 
-  GariImageOptimizeSolid      = 0,
-  GariImageOptimizeColorkey   = 1,
-  GariImageOptimizeAlpha      = 2
-};
+
 
 /** Optimizes the image for drawing to the screen. */
 GariImage * gari_image_optimize(GariImage * image, int mode, GariColor colorkey);
@@ -209,7 +230,7 @@ void gari_image_disk(GariImage * image, int x, int y,
 void gari_image_dobox(GariDraw * data); 
 void gari_image_box(GariImage * image, int x, int y, 
                       int w, int h, GariColor color);
-
+                      
 void gari_image_doslab(GariDraw * data);
                       
 void gari_image_slab(GariImage * image, int x, int y, 

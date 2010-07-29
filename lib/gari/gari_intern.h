@@ -12,6 +12,7 @@ you find in here outside of the library.
 
 
 #include "SDL_ttf.h"
+#include "SDL_image.h"
 
 /* A few macros for memory allocation, so we can allow libgc later. */
 #ifndef gari_malloc
