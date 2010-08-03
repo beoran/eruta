@@ -79,8 +79,9 @@ GariClipInfo gari_image_clipline(GariImage * image,
 }   
 
 
-void gari_draw_putpixel(GariDraw * draw, int px, int py) {
+int gari_draw_putpixel(GariDraw * draw, int px, int py) {
   gari_image_putpixel_nolock(draw->image, px, py, draw->color);
+  return TRUE;
 }
 
 

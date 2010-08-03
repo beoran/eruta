@@ -33,10 +33,10 @@ TEST_FUNC(game) {
   tim     = gari_image_loadraw("../../share/image/tile_aqua.png");  
   TEST_NOTNULL(tim);
   
-  mim     = gari_image_makedepth(24, 48, 32, GariImageSolid, 0);
+  mim     = gari_image_makedepth(24, 48, 16, GariImageAlpha);
   TEST_NOTNULL(mim); 
-  gari_image_fill(mim, c2);
-  gari_image_box(mim, 10, 10, 10, 10, c4);
+  gari_image_box(mim,  0,  0, 24, 48, c4);
+  gari_image_box(mim, 10, 10, 10, 10, c2);
   oim     = gari_image_optimize(mim, GariImageAlpha, 0);
 
   gari_game_resetframes(game);

@@ -142,8 +142,15 @@ enum GariImageMode_ {
     You must call gari_image_free when you're done with the generated 
     GariImage. May return NULL on error.
 */
-GariImage * gari_image_makedepth(int w, int h, int depth, 
-                                 int mode, GariColor colorkey);
+
+
+/** Makes an empty gari image with given same bits per pixels (in depth), 
+    but supporting either alpha, or not, depending on mode.
+    The video mode must have been set and the screen must have been opened.
+    You must call gari_image_free when you're done with the generated 
+    GariImage. May return NULL on error.
+*/
+GariImage * gari_image_makedepth(int w, int h, int depth, int mode);
 
 
 /** Makes an empty gari image with the same bits per pixels as the screen, 
