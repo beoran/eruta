@@ -12,26 +12,32 @@ TEST_FUNC(game) {
   GariGame * game;
   GariScreen * screen;
   GariImage * sim;
-  GariImage * tim, * mim, * oim;
+  GariImage * tim, * mim, * oim, * bim;
   GariEvent ev;
   int i, j, rep, done;
-  GariColor c1, c2, c3, c4;
+  GariColor c1, c2, c3, c4, cg, pixel;
   game    = gari_game_make();
   TEST_NOTNULL(game);
   screen  = gari_screen_make(game, 640, 480, 0);
   TEST_NOTNULL(screen);
-  sim     = gari_screen_image(screen);
-  gari_image_fill(sim, 0);
-  c1      = gari_image_rgb(sim, 255, 255, 0);
-  c2      = gari_image_rgb(sim,   0,   0, 255);
-  c3      = gari_image_rgb(sim,   0, 255, 0);
-  c4      = gari_image_rgba(sim,  0,   0, 0, 0);  
+  sim     = gari_screen_image(screen);  
+  c1      = gari_image_rgb(sim,  255, 255, 0);
+  c2      = gari_image_rgb(sim,    0,   0, 255);
+  c3      = gari_image_rgb(sim,    0, 255, 0);
+  c4      = gari_image_rgba(sim,   0,   0, 0, 0);
+  cg      = gari_image_rgba(sim, 127, 127, 127, 127);
+  gari_image_slab(sim, 0, 0, 640, 480, c1);  
   font    = gari_font_load("../../share/font/liberationserif.ttf", 14);
   TEST_NOTNULL(font);
   gari_font_mode(font, GariFontBlended);
   
   tim     = gari_image_loadraw("../../share/image/tile_aqua.png");  
   TEST_NOTNULL(tim);
+  
+  bim     = gari_image_loadraw("../../share/image/ui/background/blue.png");
+  TEST_NOTNULL(bim);
+        
+  
   
   mim     = gari_image_makedepth(24, 48, 16, GariImageAlpha);
   TEST_NOTNULL(mim); 
@@ -48,12 +54,14 @@ TEST_FUNC(game) {
       if(done) break;
     }   
   
+    
     for (i = 0 ; i < 640; i++) { 
       for (j = 0 ; j < 480; j++) {
         gari_image_putpixel(sim, i, j, c1);
         // gari_game_nextframe(game);
       }
     }
+    
     gari_image_line(sim, 0, 0, 640, 480, c2);
     gari_image_putpixel(sim, 21, 181, c2);
     gari_image_slab(sim, -140, -140, 200, 200, c3);
@@ -63,7 +71,10 @@ TEST_FUNC(game) {
     gari_image_blit(sim, 300, 300, tim);
     gari_image_blit(sim, 350, 350, mim);
     gari_image_blit(sim, 380, 380, oim);
-    
+    gari_image_scaleblit(sim, 400, 100, 100, 100, bim, 
+                              0, 0, 32, 32);
+                              // gari_image_w(bim) , gari_image_h(bim));
+    gari_image_blendslab(sim, 1, 1, 200, 200, cg, 127);
     gari_game_nextframe(game);
     
     gari_game_update(game);

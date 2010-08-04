@@ -238,10 +238,17 @@ void gari_image_dobox(GariDraw * data);
 void gari_image_box(GariImage * image, int x, int y, 
                       int w, int h, GariColor color);
                       
+     
 void gari_image_doslab(GariDraw * data);
+
                       
+/** Draws a slab, which is a filled rectange, on the image. */                  
 void gari_image_slab(GariImage * image, int x, int y, 
                       int w, int h, GariColor color);
+
+/** Draws a blended slab, which is a filled rectange, on the image. */
+void gari_image_blendslab( GariImage * image, int x, int y, int w, int h,  
+                      GariColor color, GariAlpha alpha);
 
 
 /* Text drawing functions. Only support UTF-8. */
@@ -255,6 +262,15 @@ void gari_image_blit(GariImage * dst, int dstx, int dsty, GariImage * src);
 int gari_image_copy(GariImage * dst, int dstx, int dsty, GariImage * src,
 int srcx, int srcy, int w, int h);
 
+/** Blits (a part of) an image to another one, 
+    scaling it arbitrarily to the wanted size. Uses no 
+    interpolation nor smoothing. 
+*/
+void gari_image_scaleblit(GariImage * dst, int dstx, int dsty, 
+                                      int dsth, int dstw, 
+                                      GariImage * src,
+                                      int srcx, int srcy, 
+                                      int srch, int srcw);
 
 /* Input event handling. */
 

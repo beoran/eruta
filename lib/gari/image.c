@@ -18,6 +18,18 @@ GariColor gari_image_maprgb(GariImage *img, GariRGBA rgba) {
   return  gari_surface_maprgb(GARI_IMAGE_SURFACE(img), rgba);
 }
 
+GariColor gari_image_maprgba(GariImage *img, GariRGBA rgba) {
+  return  gari_surface_maprgba(GARI_IMAGE_SURFACE(img), rgba);
+}
+
+GariRGBA gari_image_getrgb(GariImage *img, GariColor color) {
+  return gari_surface_getrgb(GARI_IMAGE_SURFACE(img), color);
+}
+
+GariRGBA gari_image_getrgba(GariImage *img, GariColor color) {
+  return gari_surface_getrgba(GARI_IMAGE_SURFACE(img), color);
+}
+
 GariColor gari_image_rgb(GariImage *img, uint8_t r, uint8_t g, uint8_t b) {
   return SDL_MapRGB(GARI_IMAGE_FORMAT(img), r, g, b); 
 }
@@ -164,6 +176,19 @@ GariImage * gari_image_makedepth(int w, int h, int depth, int mode) {
 	    return gari_image_make32(w, h, mode);    
   }
 } 
+
+
+/** Transforms a GariColor from one kind of image to another. */
+GariColor gari_image_mapcolor(GariImage * dst, 
+                              GariImage * src, GariColor color) {
+  GariRGBA rgba;
+  if (GARI_IMAGE_FORMAT(dst)  == GARI_IMAGE_FORMAT(src)) {
+    return color; // no mappping if format identical.
+  } 
+  rgba = gari_image_getrgba(src, color);
+  return gari_image_maprgba(dst, rgba);
+}
+   
 
 
 

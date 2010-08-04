@@ -35,7 +35,7 @@ you find in here outside of the library.
 #define GARI_ALLOCATE(TYPENAME) GARI_MALLOC(sizeof(TYPENAME))
 
 
-/* Initializes a gari game. Externa lusers will use gari_game_make. */
+/* Initializes a gari game. External users will use gari_game_make. */
 GariGame * gari_game_init(GariGame * game);
 
 
@@ -47,6 +47,7 @@ GariGame * gari_game_init(GariGame * game);
 #define GARI_IMAGE_W(IMG)       (GARI_IMAGE_SURFACE(IMG)->w)
 #define GARI_IMAGE_H(IMG)       (GARI_IMAGE_SURFACE(IMG)->h)
 #define GARI_IMAGE_FORMAT(IMG)  (GARI_IMAGE_SURFACE(IMG)->format)
+#define GARI_IMAGE_DEPTH(IMG)   (GARI_IMAGE_FORMAT(IMG)->BitsPerPixel)
 #define GARI_SURFACE_LOCK(S)    (SDL_MUSTLOCK(S) && (SDL_LockSurface(S)))
 #define GARI_SURFACE_UNLOCK(S)  (SDL_MUSTLOCK(S) && (SDL_UnlockSurface(S), 0))
 #define GARI_IMAGE_PIXELOUTSIDE(IMG, X, Y)\
@@ -115,10 +116,17 @@ struct GariRGBA_ {
 };
 
 
-GariRGBA gari_surface_getrgb(SDL_Surface * surface, GariColor color); 
+GariRGBA gari_surface_getrgb(SDL_Surface * surface, GariColor color);
+
+GariRGBA gari_surface_getrgba(SDL_Surface * surface, GariColor color); 
+ 
 
 // maps the rgb components of a color to a color for this surface 
 GariColor gari_surface_maprgb(SDL_Surface * surface, GariRGBA rgba); 
+
+
+// maps the rgb components of a color to a color for this surface 
+GariColor gari_surface_maprgba(SDL_Surface * surface, GariRGBA rgba); 
 
 
 
@@ -146,5 +154,15 @@ void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariColor color);
 
 // Wraps a SDL_Surface inside a GariImage.
 GariImage * gari_image_wrap(SDL_Surface * surface);
+
+// Gets the color of a pixel from this surface 
+// Returns 0 if the pixel is outside of the clipping rectangle,
+// or outside of the bounds of the surface
+// Does no locking, so lock around it!
+GariColor gari_image_getpixel_nolock(GariImage *img, int x, int y);
+
+/** "Translates" a GariColor from one kind of image to another. */
+GariColor gari_image_mapcolor(GariImage * dst, 
+                              GariImage * src, GariColor color);
 
 #endif
