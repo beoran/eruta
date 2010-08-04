@@ -111,45 +111,45 @@ void gari_surface_lock(SDL_Surface * surface);
 void gari_surface_unlock(SDL_Surface * surface);
 
 // definition of RGBA
-struct GariRGBA_ {
+struct GariColor_ {
   uint8_t r, g, b, a;
 };
 
 
-GariRGBA gari_surface_getrgb(SDL_Surface * surface, GariColor color);
+GariColor gari_surface_getrgb(SDL_Surface * surface, GariDye color);
 
-GariRGBA gari_surface_getrgba(SDL_Surface * surface, GariColor color); 
+GariColor gari_surface_getrgba(SDL_Surface * surface, GariDye color); 
  
 
 // maps the rgb components of a color to a color for this surface 
-GariColor gari_surface_maprgb(SDL_Surface * surface, GariRGBA rgba); 
+GariDye gari_surface_maprgb(SDL_Surface * surface, GariColor rgba); 
 
 
 // maps the rgb components of a color to a color for this surface 
-GariColor gari_surface_maprgba(SDL_Surface * surface, GariRGBA rgba); 
+GariDye gari_surface_maprgba(SDL_Surface * surface, GariColor rgba); 
 
 
 
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it! Only for 8 bits surfaces. 
-void gari_image_putpixel8_nl(GariImage *img, int x, int y, GariColor color);
+void gari_image_putpixel8_nl(GariImage *img, int x, int y, GariDye color);
 
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it! Only for 16 bits surfaces. 
-void gari_image_putpixel16_nl(GariImage *img, int x, int y, GariColor color);
+void gari_image_putpixel16_nl(GariImage *img, int x, int y, GariDye color);
 
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it! Only for 24 bits surfaces. 
-void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariColor color);
+void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariDye color);
 
 
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it! Only for 32 bits surfaces. 
-void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariColor color);
+void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariDye color);
 
 
 // Wraps a SDL_Surface inside a GariImage.
@@ -159,10 +159,10 @@ GariImage * gari_image_wrap(SDL_Surface * surface);
 // Returns 0 if the pixel is outside of the clipping rectangle,
 // or outside of the bounds of the surface
 // Does no locking, so lock around it!
-GariColor gari_image_getpixel_nolock(GariImage *img, int x, int y);
+GariDye gari_image_getpixel_nolock(GariImage *img, int x, int y);
 
-/** "Translates" a GariColor from one kind of image to another. */
-GariColor gari_image_mapcolor(GariImage * dst, 
-                              GariImage * src, GariColor color);
+/** "Translates" a GariDye from one kind of image to another. */
+GariDye gari_image_mapcolor(GariImage * dst, 
+                              GariImage * src, GariDye color);
 
 #endif

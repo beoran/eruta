@@ -139,36 +139,36 @@ PixelPtr gari_surface_pixelptr24(SDL_Surface * surface, int x, int y) {
 // They also do not do /any/ clipping or checking on x and y, so be 
 // sure to check them with pixel_outsize.
 // Puts a pixel to a surface with BPP 8   
-void gari_surface_rpp8(SDL_Surface * surface, int x, int y, GariColor color) {
+void gari_surface_rpp8(SDL_Surface * surface, int x, int y, GariDye color) {
   uint8_t * ptr = gari_surface_pixelptr8(surface, x, y); 
   *ptr          = (uint8_t)(color);
 }
 
 // Puts a pixel to a surface with BPP 16
-void gari_surface_rpp16(SDL_Surface * surface, int x, int y, GariColor color) {
+void gari_surface_rpp16(SDL_Surface * surface, int x, int y, GariDye color) {
   uint16_t * ptr = gari_surface_pixelptr16(surface, x, y); 
   *ptr            = (uint16_t)(color);
 }
 
 // Puts a pixel to a surface with BPP 32
-void gari_surface_rpp32(SDL_Surface * surface, int x, int y, GariColor color) {
+void gari_surface_rpp32(SDL_Surface * surface, int x, int y, GariDye color) {
   uint32_t * ptr  = gari_surface_pixelptr32(surface, x, y); 
   *ptr            = (uint32_t)(color);
 }
 
 // Puts a pixel to a surface with BPP 24. Relatively slow!
-void gari_surface_rpp24(SDL_Surface * surface, int x, int y, GariColor color) {
+void gari_surface_rpp24(SDL_Surface * surface, int x, int y, GariDye color) {
   PixelPtr ptr    = gari_surface_pixelptr24(surface, x, y);
   SDL_PixelFormat *format = surface->format; 
-  *(ptr.rptr)     = (uint8_t)(color >> (GariColor)(format->Rshift));  
-  *(ptr.gptr)     = (uint8_t)(color >> (GariColor)(format->Gshift));
-  *(ptr.bptr)     = (uint8_t)(color >> (GariColor)(format->Bshift));
-  *(ptr.aptr)     = (uint8_t)(color >> (GariColor)(format->Ashift));  
+  *(ptr.rptr)     = (uint8_t)(color >> (GariDye)(format->Rshift));  
+  *(ptr.gptr)     = (uint8_t)(color >> (GariDye)(format->Gshift));
+  *(ptr.bptr)     = (uint8_t)(color >> (GariDye)(format->Bshift));
+  *(ptr.aptr)     = (uint8_t)(color >> (GariDye)(format->Ashift));  
 }
 
 // Puts a pixel depending on the BytesPerPixel of the target surface
 // format. Still doesn't check the x and y coordinates for validity. 
-void gari_surface_rppbpp(SDL_Surface * surface, int x, int y, GariColor color) {
+void gari_surface_rppbpp(SDL_Surface * surface, int x, int y, GariDye color) {
   switch (surface->format->BytesPerPixel) {
     case 1: gari_surface_rpp8(surface, x, y, color); break; 
     case 2: gari_surface_rpp16(surface, x, y, color); break;
@@ -180,26 +180,26 @@ void gari_surface_rppbpp(SDL_Surface * surface, int x, int y, GariColor color) {
 
 // getpixel primitives (RawGetPixel)
 // for 8 bit surfaces
-GariColor gari_surface_rgp8(SDL_Surface * surface, int x, int y) {
+GariDye gari_surface_rgp8(SDL_Surface * surface, int x, int y) {
   uint8_t * ptr = gari_surface_pixelptr8(surface, x, y); 
-  return (GariColor)(*ptr);
+  return (GariDye)(*ptr);
 }
 
-GariColor gari_surface_rgp16(SDL_Surface * surface, int x, int y) {
+GariDye gari_surface_rgp16(SDL_Surface * surface, int x, int y) {
   uint16_t * ptr = gari_surface_pixelptr16(surface, x, y); 
-  return (GariColor)(*ptr);
+  return (GariDye)(*ptr);
 }
 
-GariColor gari_surface_rgp32(SDL_Surface * surface, int x, int y) {
+GariDye gari_surface_rgp32(SDL_Surface * surface, int x, int y) {
   uint32_t * ptr = gari_surface_pixelptr32(surface, x, y); 
-  return (GariColor)(*ptr);
+  return (GariDye)(*ptr);
 }
 
 // Gets a pixel from a surface with BPP 24. Relatively slow!
-GariColor gari_surface_rgp24(SDL_Surface * surface, int x, int y) {
+GariDye gari_surface_rgp24(SDL_Surface * surface, int x, int y) {
   PixelPtr ptr    = gari_surface_pixelptr24(surface, x, y);
   SDL_PixelFormat *format = surface->format; 
-  GariColor color = 0;
+  GariDye color = 0;
   color   = (*ptr.rptr) << format->Rshift;
   color  |= (*ptr.gptr) << format->Gshift;
   color  |= (*ptr.bptr) << format->Bshift;
@@ -210,21 +210,21 @@ GariColor gari_surface_rgp24(SDL_Surface * surface, int x, int y) {
 
 // Puts a pixel depending on the BytesPerPixel of the target surface
 // format. Still doesn't check the x and y coordinates for validity. 
-GariColor gari_surface_rgpbpp(SDL_Surface * surface, int x, int y) {
+GariDye gari_surface_rgpbpp(SDL_Surface * surface, int x, int y) {
   switch (surface->format->BytesPerPixel) {
     case 1: return gari_surface_rgp8(surface , x, y); break; 
     case 2: return gari_surface_rgp16(surface, x, y); break;
     case 3: return gari_surface_rgp24(surface, x, y); break;
     case 4: return gari_surface_rgp32(surface, x, y); break;    
   }
-  return (GariColor)(0);
+  return (GariDye)(0);
 }
 
 // Helps blending two colors
-GariColor gari_help_blend(GariColor old, GariColor color,
-  GariColor rmask, GariColor gmask, GariColor bmask,
-  GariColor amask, GariAlpha alpha)  {
-  GariColor oldr, oldb,oldg, olda, colr, colb, colg, cola, r, b, g , a;
+GariDye gari_help_blend(GariDye old, GariDye color,
+  GariDye rmask, GariDye gmask, GariDye bmask,
+  GariDye amask, GariAlpha alpha)  {
+  GariDye oldr, oldb,oldg, olda, colr, colb, colg, cola, r, b, g , a;
   oldr = old & rmask;
   oldg = old & gmask;
   oldb = old & bmask;
@@ -257,15 +257,15 @@ uint8_t gari_blend_component(uint8_t oldc, uint8_t newc, GariAlpha alpha)  {
 // Blends a pixel with the one already there to a surface with BPP 8
 // taking into account the value of alpha
 void gari_surface_rbp8(SDL_Surface * surface, int x, int y, 
-                       GariColor color, GariAlpha alpha) {    
+                       GariDye color, GariAlpha alpha) {    
   GariPtr   ptr   = gari_surface_pixelptr8(surface, x, y);
-  GariColor oldcol= (uint32_t)(*ptr);
-  GariRGBA  old   = gari_surface_getrgb(surface, oldcol);
+  GariDye oldcol= (uint32_t)(*ptr);
+  GariColor  old   = gari_surface_getrgb(surface, oldcol);
   // Messing with the palette would probably be faster, 
   // but it's cleaner to do it like this.
-  GariRGBA col    = gari_surface_getrgb(surface, color);
-  GariRGBA nec;
-  GariColor newcol;
+  GariColor col    = gari_surface_getrgb(surface, color);
+  GariColor nec;
+  GariDye newcol;
   nec.r   = gari_blend_component(old.r, col.r, alpha);
   nec.g   = gari_blend_component(old.g, col.g, alpha);
   nec.b   = gari_blend_component(old.b, col.b, alpha);
@@ -277,11 +277,11 @@ void gari_surface_rbp8(SDL_Surface * surface, int x, int y,
 // Blends a pixel a pixel from a surface with BPP 24, taking into
 // consideration the value of alpha. Relatively slow!
 void gari_surface_rbp24(SDL_Surface * surface, int x, int y, 
-                       GariColor color, GariAlpha alpha) {
+                       GariDye color, GariAlpha alpha) {
   SDL_PixelFormat * format = surface->format;
   PixelPtr  ptr   = gari_surface_pixelptr24(surface, x, y);
-  GariRGBA  old, col, nec;
-  // GariColor newcol;
+  GariColor  old, col, nec;
+  // GariDye newcol;
   old.r     = *ptr.rptr;
   old.g     = *ptr.gptr;
   old.b     = *ptr.bptr;
@@ -304,11 +304,11 @@ void gari_surface_rbp24(SDL_Surface * surface, int x, int y,
 // Blends a pixel with the one already there to a surface with BPP 16
 // taking into account the value of alpha
 void gari_surface_rbp16(SDL_Surface * surface, int x, int y, 
-                       GariColor color, GariAlpha alpha)  {
+                       GariDye color, GariAlpha alpha)  {
   SDL_PixelFormat * format = surface->format;                         
   uint16_t * ptr           = gari_surface_pixelptr16(surface, x, y);
-  GariColor old            = (GariColor)(*ptr);
-  GariColor newcol         = gari_help_blend(old, color, 
+  GariDye old            = (GariDye)(*ptr);
+  GariDye newcol         = gari_help_blend(old, color, 
                              format->Rmask, format->Gmask,
                              format->Bmask, format->Amask,
                              alpha);
@@ -318,11 +318,11 @@ void gari_surface_rbp16(SDL_Surface * surface, int x, int y,
 // Blends a pixel with the one already there to a surface with BPP 32
 // taking into account the value of alpha
 void gari_surface_rbp32(SDL_Surface * surface, int x, int y, 
-                       GariColor color, GariAlpha alpha)  {
+                       GariDye color, GariAlpha alpha)  {
   SDL_PixelFormat * format = surface->format;                         
   uint32_t * ptr           = gari_surface_pixelptr32(surface, x, y);
-  GariColor old            = (GariColor)(*ptr);
-  GariColor newcol         = gari_help_blend(old, color, 
+  GariDye old            = (GariDye)(*ptr);
+  GariDye newcol         = gari_help_blend(old, color, 
                              format->Rmask, format->Gmask,
                              format->Bmask, format->Amask,
                              alpha);
@@ -332,7 +332,7 @@ void gari_surface_rbp32(SDL_Surface * surface, int x, int y,
 // Blends a pixel depending on the BytesPerPixel of the target surface
 // format. Still doesn't check the x and y coordinates for validity. 
 void gari_surface_rbpbpp(SDL_Surface * surface, int x, int y, 
-                          GariColor color, GariAlpha alpha) {
+                          GariDye color, GariAlpha alpha) {
   switch (surface->format->BytesPerPixel) {
     case 1: gari_surface_rbp8(surface, x, y, color, alpha); break; 
     case 2: gari_surface_rbp16(surface, x, y, color, alpha); break;
@@ -345,7 +345,7 @@ void gari_surface_rbpbpp(SDL_Surface * surface, int x, int y,
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it! Only for 8 bits surfaces. 
-void gari_image_putpixel8_nl(GariImage *img, int x, int y, GariColor color) {
+void gari_image_putpixel8_nl(GariImage *img, int x, int y, GariDye color) {
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return ; }
   if(gari_image_pixeloutside(img, x, y)) { return ; }   
@@ -355,7 +355,7 @@ void gari_image_putpixel8_nl(GariImage *img, int x, int y, GariColor color) {
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it! Only for 16 bits surfaces. 
-void gari_image_putpixel16_nl(GariImage *img, int x, int y, GariColor color) {
+void gari_image_putpixel16_nl(GariImage *img, int x, int y, GariDye color) {
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return ; }
   if(gari_image_pixeloutside(img, x, y)) { return ; }   
@@ -365,7 +365,7 @@ void gari_image_putpixel16_nl(GariImage *img, int x, int y, GariColor color) {
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it! Only for 24 bits surfaces. 
-void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariColor color) {
+void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariDye color) {
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return ; }
   if(gari_image_pixeloutside(img, x, y)) { return ; }   
@@ -376,7 +376,7 @@ void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariColor color) {
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it! Only for 32 bits surfaces. 
-void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariColor color) {
+void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariDye color) {
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return ; }
   if(gari_image_pixeloutside(img, x, y)) { return ; }   
@@ -387,7 +387,7 @@ void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariColor color) {
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it!
 // this is for use in line drawing, etc. 
-void gari_image_putpixel_nolock(GariImage *img, int x, int y, GariColor color) {
+void gari_image_putpixel_nolock(GariImage *img, int x, int y, GariDye color) {
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return ; }
   if(gari_image_pixeloutside(img, x, y)) { return ; }   
@@ -399,8 +399,8 @@ void gari_image_putpixel_nolock(GariImage *img, int x, int y, GariColor color) {
 // Returns 0 if the pixel is outside of the clipping rectangle,
 // or outside of the bounds of the surface
 // Does no locking, so lock around it!
-GariColor gari_image_getpixel_nolock(GariImage *img, int x, int y) {
-  GariColor color = 0;
+GariDye gari_image_getpixel_nolock(GariImage *img, int x, int y) {
+  GariDye color = 0;
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return color; }
   if(gari_image_pixeloutside(img, x, y)) { return color; }   
@@ -414,7 +414,7 @@ GariColor gari_image_getpixel_nolock(GariImage *img, int x, int y) {
 // taking alpha into consideration. 
 // Does no locking, so lock around it!
 void gari_image_blendpixel_nolock(GariImage *img, 
-  int x, int y, GariColor color, GariAlpha alpha) {
+  int x, int y, GariDye color, GariAlpha alpha) {
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return ; }
   if(gari_image_pixeloutside(img, x, y)) { return ; }   
@@ -425,7 +425,7 @@ void gari_image_blendpixel_nolock(GariImage *img,
 // Puts a pixel with the given color at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Locks and unlocks the surface if that is needed for drawing
-void gari_image_putpixel(GariImage *img, int x, int y, GariColor color) {
+void gari_image_putpixel(GariImage *img, int x, int y, GariDye color) {
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return ; }
   if(gari_image_pixeloutside(img, x, y)) { return ; }   
@@ -439,8 +439,8 @@ void gari_image_putpixel(GariImage *img, int x, int y, GariColor color) {
 // Returns 0 if the pixel is outside of the clipping rectangle,
 // or outside of the bounds of the surface
 // Locks and unlocks the surface if that is needed
-GariColor gari_image_getpixel(GariImage *img, int x, int y) {
-  GariColor color = 0;
+GariDye gari_image_getpixel(GariImage *img, int x, int y) {
+  GariDye color = 0;
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return color; }
   if(gari_image_pixeloutside(img, x, y)) { return color; }   
@@ -454,7 +454,7 @@ GariColor gari_image_getpixel(GariImage *img, int x, int y) {
 // taking alpha into consideration. 
 // Locks and unlocks the surface if that is needed for drawing
 void gari_image_blendpixel(GariImage *img, 
-  int x, int y, GariColor color, GariAlpha alpha) {
+  int x, int y, GariDye color, GariAlpha alpha) {
   SDL_Surface * s = gari_image_surface(img);
   if(gari_image_pixelclip(img, x, y))    { return ; }
   if(gari_image_pixeloutside(img, x, y)) { return ; }   

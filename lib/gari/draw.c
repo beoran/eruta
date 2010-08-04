@@ -10,7 +10,7 @@ GariDraw * gari_draw_init(
                               GariDraw          * draw,
                               GariImage         * image,
                               GariDrawFunction  * func,
-                              GariColor color,
+                              GariDye color,
                               GariAlpha alpha
                              ) { 
   if(!draw) { return NULL; } 
@@ -91,7 +91,7 @@ int gari_draw_blendpixel(GariDraw * draw, int px, int py) {
 
 
 void gari_image_line(GariImage * image, int x, int y, 
-                    int w, int h, GariColor color) {
+                    int w, int h, GariDye color) {
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   gari_image_lock(image);
@@ -130,7 +130,7 @@ void gari_draw_dovline(GariDraw * draw, int x1, int y1, int h) {
 
 /* Optimized case of drawline, draws horizontal lines only. */
 void gari_image_hline_nolock(GariImage * image, int x, int y, 
-                    int w, GariColor color) {
+                    int w, GariDye color) {
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   // Adjust for negative widths.
@@ -144,7 +144,7 @@ void gari_image_hline_nolock(GariImage * image, int x, int y,
 
 /* Optimized case of blendline, blends horizontal lines only. */
 void gari_image_blendhline_nolock(GariImage * image, int x, int y, 
-                    int w, GariColor color, GariAlpha alpha) {
+                    int w, GariDye color, GariAlpha alpha) {
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_blendpixel, color, alpha);
   // Adjust for negative widths.
@@ -157,7 +157,7 @@ void gari_image_blendhline_nolock(GariImage * image, int x, int y,
 
 /* Optimized case of drawline, draws vertical lines only. */
 void gari_image_vline_nolock(GariImage * image, int x, int y, 
-                    int h, GariColor color) {
+                    int h, GariDye color) {
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   // Adjust for negative widths.
@@ -171,7 +171,7 @@ void gari_image_vline_nolock(GariImage * image, int x, int y,
 
 /* Optimized case of gari_image_line, draws horizontal 
    lines with a width of w only. */
-void gari_image_hline(GariImage * image, int x, int y, int w, GariColor color) 
+void gari_image_hline(GariImage * image, int x, int y, int w, GariDye color) 
 {
   gari_image_lock(image);
   gari_image_hline_nolock(image, x, y, w, color);
@@ -180,7 +180,7 @@ void gari_image_hline(GariImage * image, int x, int y, int w, GariColor color)
 
 /* Optimized case of gari_image_line, draws vertical 
    lines with a height h only. */
-void gari_image_vline(GariImage * image, int x, int y, int h, GariColor color) 
+void gari_image_vline(GariImage * image, int x, int y, int h, GariDye color) 
 {
   gari_image_lock(image);
   gari_image_vline_nolock(image, x, y, h, color);
@@ -199,7 +199,7 @@ void gari_draw_doslab(GariDraw * draw, int x, int y, int w, int h) {
 
 /** Draws a blended slab, which is a rectange, on the image. */
 void gari_image_blendslab( GariImage * image, int x, int y, int w, int h,  
-                      GariColor color, GariAlpha alpha) {
+                      GariDye color, GariAlpha alpha) {
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_blendpixel, color, alpha);
   // Adjust for negative widths and heights.
@@ -219,7 +219,7 @@ void gari_image_blendslab( GariImage * image, int x, int y, int w, int h,
 
 /** Draws a slab, which is a filled rectange, on the image. */
 void gari_image_slab( GariImage * image, int x, int y, int w, int h, 
-                      GariColor color) {
+                      GariDye color) {
     GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   // Adjust for negative widths and heights.
@@ -239,7 +239,7 @@ void gari_image_slab( GariImage * image, int x, int y, int w, int h,
 
 /** Draws a box, which is a rectange, on the image. */
 void gari_image_box( GariImage * image, int x, int y, int w, int h,  
-                      GariColor color) {
+                      GariDye color) {
   gari_image_lock(image);
   // Two horizontal lines...
   gari_image_hline_nolock(image, x, y    , w, color);
@@ -256,7 +256,7 @@ void gari_image_box( GariImage * image, int x, int y, int w, int h,
 the colors as needed **/
 void gari_image_copypixel_nolock(GariImage * dst, int dstx, int dsty,
                                  GariImage * src, int srcx, int srcy ) {
-  GariColor srcpix, dstpix;
+  GariDye srcpix, dstpix;
   srcpix = gari_image_getpixel_nolock(src, srcx, srcy);
   dstpix = gari_image_mapcolor(dst,  src, srcpix);
   gari_image_putpixel_nolock(dst, dstx, dsty, dstpix);
@@ -270,7 +270,7 @@ void gari_image_iscaleblit(GariImage * dst, int dstx, int dsty,
                                       int xmul, int ymul, GariImage * src,
                                       int srcx, int srcy, int srch, int srcw) {
   int xin, yin, xout, yout, stopx, stopy; 
-  GariColor pixel;
+  GariDye pixel;
   if ((xmul < 1) || (ymul < 1 )) { return; } 
   gari_image_lock(dst);
   gari_image_lock(src);  
@@ -296,7 +296,7 @@ void gari_image_scaleblit(GariImage * dst, int dstx, int dsty,
                                       int srcx, int srcy, 
                                       int srch, int srcw) {
   int xin, yin, xout, yout, stopx, stopy, xrest, yrest, xrat, yrat, xmod, ymod; 
-  GariColor pixel;
+  GariDye pixel;
   if ((dsth < 1) || (dstw < 1 )) { return; } 
   gari_image_lock(dst);
   gari_image_lock(src);  

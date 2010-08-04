@@ -59,7 +59,7 @@ void gari_font_free(GariFont * font) {
 }
 
 // transforms a gari RGBA into an SDL_Color 
-SDL_Color gari_rgba_sdl(GariRGBA rgba) {
+SDL_Color gari_rgba_sdl(GariColor rgba) {
   SDL_Color result;
   result.b = rgba.b;
   result.g = rgba.g;
@@ -69,7 +69,7 @@ SDL_Color gari_rgba_sdl(GariRGBA rgba) {
 
 /** Renders the font to a surface, depending on the font's settings. */
 GariImage * gari_font_render(GariFont * font, char * utf8, 
-    GariRGBA fgrgba, GariRGBA bgrgba) {
+    GariColor fgrgba, GariColor bgrgba) {
   TTF_Font * ttf = GARI_FONT_TTF(font);
   SDL_Color fg = gari_rgba_sdl(fgrgba);
   SDL_Color bg = gari_rgba_sdl(fgrgba);
@@ -85,7 +85,7 @@ GariImage * gari_font_render(GariFont * font, char * utf8,
 
 } 
 
-void gari_font_drawrgba(GariImage * image, int x, int y, char * utf8, GariFont * font, GariRGBA fg, GariRGBA bg) {  
+void gari_font_drawrgba(GariImage * image, int x, int y, char * utf8, GariFont * font, GariColor fg, GariColor bg) {  
   GariImage * rendered;
   rendered = gari_font_render(font, utf8, fg, bg);
   gari_image_blit(image, x, y, rendered);
@@ -93,8 +93,8 @@ void gari_font_drawrgba(GariImage * image, int x, int y, char * utf8, GariFont *
 }  
 
 void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_g, uint8_t bg_b) {
-  GariRGBA fg = { fg_r, fg_g, fg_b, 0};
-  GariRGBA bg = { bg_r, bg_g, bg_b, 0};
+  GariColor fg = { fg_r, fg_g, fg_b, 0};
+  GariColor bg = { bg_r, bg_g, bg_b, 0};
   gari_font_drawrgba(image, x, y, utf8, font, fg, bg);  
 }
 

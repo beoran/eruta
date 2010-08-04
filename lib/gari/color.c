@@ -1,37 +1,60 @@
 #include "gari.h"
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
- 
+
+/*
+The Uint32 used in SDL internaly as colors may or may not contain an alpha 
+channel, and are specific to the color depth of the image on which they are 
+drawn. But, this type of color is fast to draw as it needs no conversion  
+(especially on an 8 bit surface, e.g.). 
+
+For this reason, I have termed this fast uint32_t "a Dye". It can be used to 
+color a pixel, but what that color will be depends on the surface the dye is 
+applied to. :)
+
+GariColor is the color modeled as a surface-independed RGBA value, with A 
+being opaque by default. 
+
+In the public Gari interface, from now on, GariDye wil be avoided in favour of 
+GariColor. 
+
+ruby -pi -w -e 'gsub!(/GariRGBA/, "GariColor")' helped me here a lot. :)
+
+
+
+
+*/
 
 
 
 // gets the RGB components of a color for this surface
-GariRGBA gari_surface_getrgb(SDL_Surface * surface, GariColor color) {
-  GariRGBA result; 
+GariColor gari_surface_getrgb(SDL_Surface * surface, GariDye color) {
+  GariColor result; 
   SDL_GetRGB(color, surface->format, &result.r, &result.g, &result.b);
+  result.a = GARI_ALPHA_OPAQUE;
   return result;
 }
 
 // maps the rgb components of a color to a color for this surface 
-GariColor gari_surface_maprgb(SDL_Surface * surface, GariRGBA rgba) { 
+GariDye gari_surface_maprgb(SDL_Surface * surface, GariColor rgba) { 
   return SDL_MapRGB(surface->format, rgba.r, rgba.g, rgba.b);
 }
 
 // gets the RGBA components of a color for this surface
-GariRGBA gari_surface_getrgba(SDL_Surface * surface, GariColor color) {
-  GariRGBA result; 
+GariColor gari_surface_getrgba(SDL_Surface * surface, GariDye color) {
+  GariColor result; 
   SDL_GetRGBA(color, surface->format, &result.r, &result.g, &result.b, &result.a);
   return result;
 }
 
 // maps the rgb components of a color to a color for this surface 
-GariColor gari_surface_maprgba(SDL_Surface * surface, GariRGBA rgba) { 
+GariDye gari_surface_maprgba(SDL_Surface * surface, GariColor rgba) { 
   return SDL_MapRGBA(surface->format, rgba.r, rgba.g, rgba.b, rgba.a);
 }
 
 
-GariRGBA * 
-gari_rgba_init(GariRGBA * rgba, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+GariColor * 
+gari_rgba_init(GariColor * rgba, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   if(!rgba) { return NULL; }
   rgba->r = r;
   rgba->g = g;
@@ -40,27 +63,33 @@ gari_rgba_init(GariRGBA * rgba, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   return rgba;
 } 
 
-GariRGBA *
+GariColor *
 gari_rgba_make(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-  GariRGBA * res = gari_allocate(GariRGBA);
+  GariColor * res = gari_allocate(GariColor);
   return gari_rgba_init(res, r, g ,b , a);
 } 
 
+GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+  GariColor res;
+  gari_rgba_init(&res, r, g ,b , a);
+  return res;
+} 
 
-uint8_t gari_rgba_r(GariRGBA rgba) {
+
+uint8_t gari_rgba_r(GariColor rgba) {
   return rgba.r;
 } 
 
-uint8_t gari_rgba_g(GariRGBA rgba) {
+uint8_t gari_rgba_g(GariColor rgba) {
   return rgba.g;
 } 
 
-uint8_t gari_rgba_b(GariRGBA rgba) {
+uint8_t gari_rgba_b(GariColor rgba) {
   return rgba.b;
 } 
 
 
-uint8_t gari_rgba_a(GariRGBA rgba) {
+uint8_t gari_rgba_a(GariColor rgba) {
   return rgba.a;
 } 
 

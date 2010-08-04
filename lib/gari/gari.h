@@ -56,11 +56,11 @@ struct GariMusic_;
 typedef struct GariMusic_ GariMusic;
 
 /** Colors. Colors are models as simple uint32_t types.    */
-typedef uint32_t GariColor;
+typedef uint32_t GariDye;
 
 /** RBGA values that model colors in an RGBA color space.  */
-struct GariRGBA_;
-typedef struct GariRGBA_ GariRGBA;
+struct GariColor_;
+typedef struct GariColor_ GariColor;
 
 /** Alpha Levels. Alpha Levels are models as simple uint8_t types. */
 typedef uint8_t GariAlpha;
@@ -159,7 +159,7 @@ GariImage * gari_image_makedepth(int w, int h, int depth, int mode);
     You must call gari_image_free when you're done with the generated 
     GariImage. May return NULL on error.
 */
-GariImage * gari_image_make(int w, int h, int mode, GariColor colorkey);
+GariImage * gari_image_make(int w, int h, int mode, GariDye colorkey);
 
 /** Disposes of an image. */
 void gari_image_free(GariImage * image);
@@ -175,7 +175,7 @@ GariImage * gari_image_load(GariGame * game, char * filename);
 
 
 /** Optimizes the image for drawing to the screen. */
-GariImage * gari_image_optimize(GariImage * image, int mode, GariColor colorkey);
+GariImage * gari_image_optimize(GariImage * image, int mode, GariDye colorkey);
 
 /** Returns the width of the image. */
 int gari_image_w(GariImage * img);
@@ -188,13 +188,18 @@ void gari_image_lock(GariImage * image);
 /** Unlocks image after drawing. Needed after any _nolock drawing function. */
 void gari_image_unlock(GariImage * image); 
 
-/** Converts a color espressed in rgb components to a GariColor. */
-GariColor gari_image_rgb(GariImage *img, uint8_t r, uint8_t g, uint8_t b);
+/** Converts a color espressed in rgb components to a GariDye. */
+GariDye gari_image_rgb(GariImage *img, uint8_t r, uint8_t g, uint8_t b);
 
-/** Converts a color espressed in rgba components to a GariColor. */
-GariColor gari_image_rgba(GariImage *img, 
+/** Converts a color expressed in rgba components to a GariDye. */
+GariDye gari_image_rgba(GariImage *img, 
           uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-
+          
+/** 
+  Concstructs a color expressed as an RGBA quadruplet and returns it as a 
+  struct.
+*/          
+GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);          
 
 /* Drawing functions */
 
@@ -202,7 +207,7 @@ GariColor gari_image_rgba(GariImage *img,
 struct GariDraw_ {    
   GariImage        *  image; // image we're drawing to. 
   GariDrawFunction *  draw;  // Drawing function to use.
-  GariColor           color; // Color to draw with.
+  GariDye           color; // Color to draw with.
   GariAlpha           alpha; // alpha value to be used n drawing
   void *              other; // other user-defined data.
 };
@@ -212,31 +217,31 @@ GariDraw * gari_drawdata_init(
                               GariDraw          * data,
                               GariImage         * image,
                               GariDrawFunction  * func,
-                              GariColor color,
+                              GariDye color,
                               GariAlpha alpha
                              ); 
 
 /** Fills the image wth the given color. */
-void gari_image_fill(GariImage * image,  GariColor color);
+void gari_image_fill(GariImage * image,  GariDye color);
 
 /**/
-void gari_image_putpixel(GariImage * image, int x, int y, GariColor color);
+void gari_image_putpixel(GariImage * image, int x, int y, GariDye color);
 
 void gari_draw_doline(GariDraw * draw, int x1, int y1, int w, int h);  
 void gari_image_line(GariImage * image, int x1, int y1, 
-                    int w, int h, GariColor color);
+                    int w, int h, GariDye color);
 
 void gari_image_docircle(GariDraw * data, int x, int y, int d);  
 void gari_image_circle(GariImage * image, int x, int y, 
-                      int w, int h, GariColor color);
+                      int w, int h, GariDye color);
 
 void gari_image_dodisk(GariDraw * data);  
 void gari_image_disk(GariImage * image, int x, int y, 
-                      int w, int h, GariColor color);
+                      int w, int h, GariDye color);
 
 void gari_image_dobox(GariDraw * data); 
 void gari_image_box(GariImage * image, int x, int y, 
-                      int w, int h, GariColor color);
+                      int w, int h, GariDye color);
                       
      
 void gari_image_doslab(GariDraw * data);
@@ -244,16 +249,16 @@ void gari_image_doslab(GariDraw * data);
                       
 /** Draws a slab, which is a filled rectange, on the image. */                  
 void gari_image_slab(GariImage * image, int x, int y, 
-                      int w, int h, GariColor color);
+                      int w, int h, GariDye color);
 
 /** Draws a blended slab, which is a filled rectange, on the image. */
 void gari_image_blendslab( GariImage * image, int x, int y, int w, int h,  
-                      GariColor color, GariAlpha alpha);
+                      GariDye color, GariAlpha alpha);
 
 
 /* Text drawing functions. Only support UTF-8. */
 int gari_image_text(GariImage * dst, int x, int y,  
-                    char * utf8, GariColor color);
+                    char * utf8, GariDye color);
 
 /* Fast blit from image to image. */
 void gari_image_blit(GariImage * dst, int dstx, int dsty, GariImage * src);
@@ -347,7 +352,7 @@ GariFont * gati_font_mode(GariFont * font, int mode);
 void gari_font_free(GariFont *font); 
 
 /** Draws font with given colors. */
-void gari_font_drawrgba(GariImage * image, int x, int y, char * utf8, GariFont * font, GariRGBA fg, GariRGBA bg); 
+void gari_font_drawrgba(GariImage * image, int x, int y, char * utf8, GariFont * font, GariColor fg, GariColor bg); 
 
 /** Draws font with given colors. */
 void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_b, uint8_t bg_a);

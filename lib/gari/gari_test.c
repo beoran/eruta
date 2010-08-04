@@ -15,7 +15,7 @@ TEST_FUNC(game) {
   GariImage * tim, * mim, * oim, * bim;
   GariEvent ev;
   int i, j, rep, done;
-  GariColor c1, c2, c3, c4, cg, pixel;
+  GariDye c1, c2, c3, c4, cg, pixel;
   game    = gari_game_make();
   TEST_NOTNULL(game);
   screen  = gari_screen_make(game, 640, 480, 0);
@@ -74,7 +74,7 @@ TEST_FUNC(game) {
     gari_image_scaleblit(sim, 400, 100, 100, 100, bim, 
                               0, 0, 32, 32);
                               // gari_image_w(bim) , gari_image_h(bim));
-    gari_image_blendslab(sim, 1, 1, 200, 200, cg, 127);
+    gari_image_blendslab(sim, 1, 1, 200, 200, cg, 255);
     gari_game_nextframe(game);
     
     gari_game_update(game);

@@ -14,34 +14,34 @@ void gari_image_free(GariImage * image) {
 }
 
 
-GariColor gari_image_maprgb(GariImage *img, GariRGBA rgba) {
+GariDye gari_image_maprgb(GariImage *img, GariColor rgba) {
   return  gari_surface_maprgb(GARI_IMAGE_SURFACE(img), rgba);
 }
 
-GariColor gari_image_maprgba(GariImage *img, GariRGBA rgba) {
+GariDye gari_image_maprgba(GariImage *img, GariColor rgba) {
   return  gari_surface_maprgba(GARI_IMAGE_SURFACE(img), rgba);
 }
 
-GariRGBA gari_image_getrgb(GariImage *img, GariColor color) {
+GariColor gari_image_getrgb(GariImage *img, GariDye color) {
   return gari_surface_getrgb(GARI_IMAGE_SURFACE(img), color);
 }
 
-GariRGBA gari_image_getrgba(GariImage *img, GariColor color) {
+GariColor gari_image_getrgba(GariImage *img, GariDye color) {
   return gari_surface_getrgba(GARI_IMAGE_SURFACE(img), color);
 }
 
-GariColor gari_image_rgb(GariImage *img, uint8_t r, uint8_t g, uint8_t b) {
+GariDye gari_image_rgb(GariImage *img, uint8_t r, uint8_t g, uint8_t b) {
   return SDL_MapRGB(GARI_IMAGE_FORMAT(img), r, g, b); 
 }
 
-GariColor gari_image_rgba(GariImage *img, 
+GariDye gari_image_rgba(GariImage *img, 
           uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   return  SDL_MapRGBA(GARI_IMAGE_FORMAT(img), r, g, b, a); 
 }
 
 
 /** Optimizes the image for drawing to the screen. */
-GariImage * gari_image_optimize(GariImage * image, int mode, GariColor colorkey) {
+GariImage * gari_image_optimize(GariImage * image, int mode, GariDye colorkey) {
   SDL_Surface * surface;
   surface = gari_image_surface(image);
   if (!SDL_GetVideoSurface()) {
@@ -178,10 +178,10 @@ GariImage * gari_image_makedepth(int w, int h, int depth, int mode) {
 } 
 
 
-/** Transforms a GariColor from one kind of image to another. */
-GariColor gari_image_mapcolor(GariImage * dst, 
-                              GariImage * src, GariColor color) {
-  GariRGBA rgba;
+/** Transforms a GariDye from one kind of image to another. */
+GariDye gari_image_mapcolor(GariImage * dst, 
+                              GariImage * src, GariDye color) {
+  GariColor rgba;
   if (GARI_IMAGE_FORMAT(dst)  == GARI_IMAGE_FORMAT(src)) {
     return color; // no mappping if format identical.
   } 

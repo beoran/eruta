@@ -147,7 +147,7 @@ void gari_game_report(GariGame * game)  {
 }
 
 /** Quickly fills the image or screen with the given color */
-void gari_image_fill(GariImage * image,  GariColor color) {
+void gari_image_fill(GariImage * image,  GariDye color) {
   SDL_FillRect((SDL_Surface *) image, NULL, (Uint32) color);
 }
 
