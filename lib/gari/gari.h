@@ -81,8 +81,12 @@ typedef struct GariGame_ GariGame;
 struct GariDraw_; 
 typedef struct GariDraw_ GariDraw;
 
+
+
+
 /** Drawing callback function. */
 typedef int GariDrawFunction(GariDraw * data, int px, int py); 
+
 
 
 /** 
@@ -207,7 +211,7 @@ GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 struct GariDraw_ {    
   GariImage        *  image; // image we're drawing to. 
   GariDrawFunction *  draw;  // Drawing function to use.
-  GariDye           color; // Color to draw with.
+  GariDye            color;  // Dye to draw with.
   GariAlpha           alpha; // alpha value to be used n drawing
   void *              other; // other user-defined data.
 };
@@ -359,9 +363,28 @@ void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * fon
 
 /* Higher level functions and structs. */
 
-/** A camera models a 2D point of view over a tile map, etc. */
-struct GariCamera_; 
+/** Camera  A camera models a 2D point of view over a tile map, etc. */
+struct GariCamera_;
 typedef struct GariCamera_ GariCamera;
+
+/** Dust is a particle in particle engine */
+struct GariDust_;
+typedef struct GariDust_ GariDust;
+
+/** A Flow is a particle engine. 
+*   All particles in a flow follow the same rules for simplification.
+*/
+struct GariFlow_;
+typedef struct GariFlow_ GariFlow;
+
+/** Particle engine draw callback function. */
+typedef int GariDustDrawFunction(GariImage * im, GariDust * data); 
+
+/** Particle engine update callback function. */
+typedef int GariDustUpdateUpdateFunction(GariDust * data, int time); 
+
+
+
 
 /** A sprite is a fully aniated objectn that can be animated in different ways * depending on it's facing direction and actions.
 * For example, the sprite may have a walking action in 2 or 4 directions,
