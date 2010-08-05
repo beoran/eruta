@@ -367,21 +367,44 @@ void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * fon
 struct GariCamera_;
 typedef struct GariCamera_ GariCamera;
 
-/** Dust is a particle in particle engine */
-struct GariDust_;
-typedef struct GariDust_ GariDust;
 
-/** A Flow is a particle engine. 
-*   All particles in a flow follow the same rules for simplification.
+/* Known particle engine effects: */
+enum GariFlowKind_ {
+  GariFlowSnow,
+  GariFlowRain,
+  GariFlowBlood,
+  GariFlowSlash,
+  GariFlowExplode,
+  GariFlowDamage,
+};
+typedef enum GariFlowKind_ GariFlowKind;
+
+
+/** A drop is a particle in the particle engine */
+struct GariDrop_;
+typedef struct GariDrop_ GariDrop;
+
+/** A well generates particles in a particle engine*/
+struct GariWell_;
+typedef struct GariWell_ GariWell;
+
+/** A Flow is an instance of a particle engine. 
 */
 struct GariFlow_;
 typedef struct GariFlow_ GariFlow;
 
 /** Particle engine draw callback function. */
-typedef int GariDustDrawFunction(GariImage * im, GariDust * data); 
+typedef GariDrop * GariDropDrawFunction(GariDrop * data, GariImage * im); 
 
 /** Particle engine update callback function. */
-typedef int GariDustUpdateUpdateFunction(GariDust * data, int time); 
+typedef GariDrop * GariDropUpdateFunction(GariDrop * data, int time); 
+
+/** Initializes the random number generator, 
+    used mainly in the particle engine. */
+void gari_random_init(); 
+
+/** Gets a random number between min and max. */
+long gari_random(long min, long max);
 
 
 

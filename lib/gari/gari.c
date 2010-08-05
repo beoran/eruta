@@ -3,6 +3,7 @@
 #include "gari.h"
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
+#include <time.h>
 
 
 
@@ -151,11 +152,21 @@ void gari_image_fill(GariImage * image,  GariDye color) {
   SDL_FillRect((SDL_Surface *) image, NULL, (Uint32) color);
 }
 
-/** Rerturns the drawable image of the screen. */
+/** Returns the drawable image of the screen. */
 GariImage * gari_screen_image(GariScreen * screen) {
   return &(screen->image);
 }
 
+
+/** Initializes the random number generator. */
+void gari_random_init() {
+  srandom(((long)clock()));
+}
+
+/** Gets a random number between min and max. */
+long gari_random(long min, long max) {
+  return (random() % (max - min)) + min;
+}
 
 
 

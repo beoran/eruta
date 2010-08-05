@@ -102,6 +102,12 @@ GariGame * gari_game_init(GariGame * game);
 
 #define GARI_IMAGE_RGBA(IMG, R, G, B, A) \
           (SDL_MapRGBA(GARI_IMAGE_FORMAT(img), R, G, B, A))
+          
+          
+/* Clamping macros */
+/* GARI_CLAMP returns VALUE clamped between MIN and MAX. */
+#define GARI_CLAMP(VALUE, MIN, MAX) \
+          (VALUE < MIN ? MIN : ( VALUE > MAX ? MAX: VALUE ) )
 
 
 SDL_Surface * gari_image_surface(GariImage * img);
