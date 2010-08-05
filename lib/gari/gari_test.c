@@ -74,7 +74,7 @@ TEST_FUNC(game) {
     gari_image_scaleblit(sim, 400, 100, 100, 100, bim, 
                               0, 0, 32, 32);
                               // gari_image_w(bim) , gari_image_h(bim));
-    gari_image_blendslab(sim, 1, 1, 200, 200, cg, 255);
+    gari_image_blendslab(sim, 1, 1, 200, 200, cg, 64);
     gari_game_nextframe(game);
     
     gari_game_update(game);

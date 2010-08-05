@@ -11,7 +11,7 @@ struct GariDrop_ {
   GariDropDrawFunction    *  draw;
   GariDropUpdateFunction  *  update;
   int		   	  lifetime;
-  int		   	  x , y;
+  int		   	  x, y;
   int         vx, vy;
   int         ax, ay;
 };
@@ -55,10 +55,6 @@ struct GariWell_ {
   GariDropDrawFunction    *   draw;
   GariDropUpdateFunction  *   update;
 };
-
-
-
-
 
 
 /* GariFlow models a particle engine. */
@@ -287,8 +283,20 @@ GariWell * gari_well_init(GariWell * well, int x, int y,
 } 
 
 
-GariFlow * gari_flow_newdrop(GariFlow * flow) {
-  
+/** 
+* Finds the first unused GariDrop in a GariFlow. Returns NULL if all drops 
+* are in use. 
+*/
+GariDrop * gari_flow_unused(GariFlow * flow) {
+  int index;
+  // find first unused droplet
+  for (index = 0 ; index < flow->size ; index ++) {
+    GariDrop * drop = flow->particles + index;
+    if (drop->lifetime < 1) {       
+      return drop;
+    }
+  }
+  return NULL;
 } 
 
 
