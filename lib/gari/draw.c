@@ -191,7 +191,7 @@ void gari_image_vline(GariImage * image, int x, int y, int h, GariDye color)
 void gari_draw_doslab(GariDraw * draw, int x, int y, int w, int h) {
   int stopx, stopy, xi, yi;
   stopy = y + h;
-  printf("doslab: y, w, stopx, stopy: %d %d %d \n", y, h, stopy);
+  // printf("doslab: y, w, stopx, stopy: %d %d %d \n", y, h, stopy);
   for( yi = y ; yi < stopy ; yi++) {
     gari_draw_dohline(draw, x, yi, w);
   }
@@ -219,9 +219,12 @@ void gari_image_blendslab( GariImage * image, int x, int y, int w, int h,
 
 /** Draws a slab, which is a filled rectange, on the image. */
 void gari_image_slab( GariImage * image, int x, int y, int w, int h, 
-                      GariDye color) {
-    GariDraw draw;
-  gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
+                      GariColor color) {  
+  GariDraw draw;
+  GariDye   dye;
+  dye       = gari_color_dye(color, image);
+  gari_draw_init(&draw, image, gari_draw_putpixel, dye, GARI_ALPHA_OPAQUE);
+   
   // Adjust for negative widths and heights.
   if (w < 0) {
     w = -w;

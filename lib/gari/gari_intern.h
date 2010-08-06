@@ -116,10 +116,6 @@ SDL_Surface * gari_image_surface(GariImage * img);
 void gari_surface_lock(SDL_Surface * surface);
 void gari_surface_unlock(SDL_Surface * surface);
 
-// definition of RGBA
-struct GariColor_ {
-  uint8_t r, g, b, a;
-};
 
 
 GariColor gari_surface_getrgb(SDL_Surface * surface, GariDye color);
@@ -170,5 +166,11 @@ GariDye gari_image_getpixel_nolock(GariImage *img, int x, int y);
 /** "Translates" a GariDye from one kind of image to another. */
 GariDye gari_image_mapcolor(GariImage * dst, 
                               GariImage * src, GariDye color);
+                              
+/* 
+* Converts a GariColor to a gari dye for the given image. 
+* If the color's A is solid, then it uses SDL_MapRGB internally.
+*/
+GariDye gari_color_dye(GariColor color, GariImage * image);          
 
 #endif
