@@ -83,14 +83,10 @@ TEST_FUNC(game) {
     gari_image_scaleblit(sim, 400, 100, 100, 100, bim, 
                               0, 0, 32, 32);
                               // gari_image_w(bim) , gari_image_h(bim));
-<<<<<<< HEAD
-    gari_image_blendslab(sim, 1, 1, 200, 200, cg, 64);
-=======
     gari_image_blendslab(sim, 1, 1, 200, 200, cg, 255);
     gari_flow_activate(flow, 100, GariFlowSnow, 0, 0, white, NULL, NULL); 
     gari_flow_update(flow, 1);
     gari_flow_draw(flow, sim);
->>>>>>> aeae9010d1d295132802fa59d0f6bd40b0ab7b4b
     gari_game_nextframe(game);
     
     gari_game_update(game);
