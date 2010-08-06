@@ -46,6 +46,9 @@
 
 /** Common alpha values */
 #define GARI_ALPHA_OPAQUE      255
+#define GARI_ALPHA_SOLID       255
+#define GARI_ALPHA_HALF        128
+#define GARI_ALPHA_CLEAR       0
 #define GARI_ALPHA_TRANSLUCENT 0
 
 
@@ -58,9 +61,28 @@ typedef struct GariMusic_ GariMusic;
 /** Colors. Colors are models as simple uint32_t types.    */
 typedef uint32_t GariDye;
 
-/** RBGA values that model colors in an RGBA color space.  */
-struct GariColor_;
+/** RBGA values that model colors in an RGBA color space.
+* GariColor should be used as if it is immutable.  
+*/
+struct GariColor_ {
+  uint8_t r, g, b, a;
+};
+
 typedef struct GariColor_ GariColor;
+
+/** Returns a GariColor struct initialized with the given r, g, b 
+    and a components. */
+GariColor gari_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a); 
+
+/** Gets the r component of a GariColor. */
+uint8_t gari_color_r(GariColor rgba);
+
+/** Gets the g component of a GariColor. */
+uint8_t gari_color_g(GariColor rgba);
+
+/** Gets the b component of a GariColor. */
+uint8_t gari_color_b(GariColor rgba);
+
 
 /** Alpha Levels. Alpha Levels are models as simple uint8_t types. */
 typedef uint8_t GariAlpha;
@@ -253,7 +275,7 @@ void gari_image_doslab(GariDraw * data);
                       
 /** Draws a slab, which is a filled rectange, on the image. */                  
 void gari_image_slab(GariImage * image, int x, int y, 
-                      int w, int h, GariDye color);
+                      int w, int h, GariColor color);
 
 /** Draws a blended slab, which is a filled rectange, on the image. */
 void gari_image_blendslab( GariImage * image, int x, int y, int w, int h,  
@@ -384,7 +406,8 @@ typedef enum GariFlowKind_ GariFlowKind;
 struct GariDrop_;
 typedef struct GariDrop_ GariDrop;
 
-/** A well generates particles in a particle engine*/
+/** A well is an initial configuration af a certain amount of GariDrop 
+  particles in a GariFlow particle engine. */
 struct GariWell_;
 typedef struct GariWell_ GariWell;
 
@@ -393,11 +416,41 @@ typedef struct GariWell_ GariWell;
 struct GariFlow_;
 typedef struct GariFlow_ GariFlow;
 
+/** Particle engine init callback function. */
+typedef GariDrop * GariDropInitFunction(GariDrop * data, GariWell * well); 
+
 /** Particle engine draw callback function. */
 typedef GariDrop * GariDropDrawFunction(GariDrop * data, GariImage * im); 
 
 /** Particle engine update callback function. */
 typedef GariDrop * GariDropUpdateFunction(GariDrop * data, int time); 
+
+/** Allocates a new GariFlow particle engine with the given amount of 
+*   particles available. Free it after use with gari_flow_free(); 
+*/
+GariFlow * gari_flow_make(size_t size);
+
+/**
+* Free and destroy a previously allocated GariFlow particle engine.
+*/
+void gari_flow_free(GariFlow * flow); 
+
+/**
+* Updates the position of the pixels after time ticks passed.
+*/
+void gari_flow_update(GariFlow * flow, int time); 
+ 
+/** Draws all active particles from tthis flow to the screen. */
+void gari_flow_draw(GariFlow * flow, GariImage * im); 
+
+/**
+* Activates amount Drops (particles) in the GariFlow flow. 
+* The particle will be of kind kind, and will be placed, depending on the 
+* kind, at x a,d y, and displayed using given color, image or text 
+*/
+GariFlow * gari_flow_activate(GariFlow * flow, 
+      int amount, int kind, int x, int y, GariColor color, 
+      GariImage * im, char * text);
 
 /** Initializes the random number generator, 
     used mainly in the particle engine. */

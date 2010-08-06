@@ -69,22 +69,21 @@ gari_rgba_make(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   return gari_rgba_init(res, r, g ,b , a);
 } 
 
-GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+GariColor gari_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   GariColor res;
   gari_rgba_init(&res, r, g ,b , a);
   return res;
 } 
 
-
-uint8_t gari_rgba_r(GariColor rgba) {
+uint8_t gari_color_r(GariColor rgba) {
   return rgba.r;
 } 
 
-uint8_t gari_rgba_g(GariColor rgba) {
+uint8_t gari_color_g(GariColor rgba) {
   return rgba.g;
 } 
 
-uint8_t gari_rgba_b(GariColor rgba) {
+uint8_t gari_color_b(GariColor rgba) {
   return rgba.b;
 } 
 
@@ -94,6 +93,16 @@ uint8_t gari_rgba_a(GariColor rgba) {
 } 
 
 
+/* 
+* Converts a GariColor to a gari dye for the given image. 
+* If the color's A is solid, then it uses SDL_MapRGB internally.
+*/
+GariDye gari_color_dye(GariColor color, GariImage * image) { 
+  if (color.a == GARI_ALPHA_OPAQUE) { 
+    return gari_surface_maprgb(GARI_IMAGE_SURFACE(image), color);
+  }
+  return gari_surface_maprgba(GARI_IMAGE_SURFACE(image), color);
+}
 
 
 

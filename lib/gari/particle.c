@@ -6,42 +6,76 @@
 
 
 struct GariDrop_ {
-  GariFlow                *  flow;
-  GariColor 	   	           color;
-  GariDropDrawFunction    *  draw;
-  GariDropUpdateFunction  *  update;
+  GariFlow                * flow;
+  GariColor 	   	          color;
+  GariImage               * image;
+  char                    * text;
+  GariDropDrawFunction    * draw;
+  GariDropUpdateFunction  * update;
   int		   	  lifetime;
   int		   	  x, y;
   int         vx, vy;
   int         ax, ay;
 };
 
+
+
+/** Returns TRUE if this drop is idle(unused), FALSE if not. */
+int gari_drop_idle(GariDrop * drop) { 
+  if(!drop) return TRUE;
+  if (drop->lifetime < 1) return TRUE;
+  return FALSE;
+}  
+
+/** Returns TRUE if this drop is still active, FALSE if not. */
+int gari_drop_active(GariDrop * drop) { 
+  return !gari_drop_idle(drop);
+}  
+
 GariDrop * gari_drop_init(GariDrop * drop, GariFlow * flow) {
-  if(!drop) return NULL;
+  if(!drop) return NULL  ;
   drop->flow      = flow;
   drop->lifetime  = 0;
   drop->vx        = 0;
   drop->vy        = 0;
   drop->ax        = 0;
   drop->ay        = 0;
+  drop->text      = NULL;
+  drop->image     = NULL;
   return drop;
 }
 
+
+
 GariDrop * gari_drop_update(GariDrop * drop, int time) {
-  if (!drop)              return NULL;
-  if (!drop->update)      return NULL;
-  if (drop->lifetime < 1) return NULL;
+  if (!drop)                return NULL;
+  if (gari_drop_idle(drop)) return NULL;
+  
+  if (!drop->update)        {
+    // fprintf(stderr, "cannot update drop!\n");
+    return NULL;
+  }  
   // skip drops that are not active or not set up correctly. 
   drop->update(drop, time);
   return drop; 
 }
 
+//Draws the drop as a small filled recrtangle
+GariDrop * gari_drop_drawslab(GariDrop * drop, GariImage * im) {
+  gari_image_slab(im, drop->x, drop->y, 10, 10, drop->color);
+}
+
+
+// draws a generic drop.
 GariDrop * gari_drop_draw(GariDrop * drop, GariImage * im) {
   if (!drop) return NULL;
-  if (!drop->draw)        return NULL;
-  if (drop->lifetime < 1) return NULL;
-  // skip drops that are not active or not set up correctly.
-  drop->draw(drop, im);  
+  if (gari_drop_idle(drop)) return NULL;
+  if (!drop->draw)  {
+     gari_drop_drawslab(drop, im);
+  } else { 
+    // skip drops that are not active or not set up correctly.
+    drop->draw(drop, im);
+  }  
   return drop; 
 }
 
@@ -52,8 +86,11 @@ struct GariWell_ {
   GariColor                   color;
   int                         x, y;
   int                         kind;
+  GariImage               *   image;
+  char                    *   text;
   GariDropDrawFunction    *   draw;
   GariDropUpdateFunction  *   update;
+  GariDropInitFunction    *   init;
 };
 
 
@@ -73,7 +110,7 @@ GariFlow * gari_flow_init(GariFlow * flow, size_t size) {
   flow->active    = 0;
   flow->screenw   = 640;
   flow->screenh   = 480;
-  flow->particles = GARI_MALLOC(sizeof(GariFlow) * flow->size);
+  flow->particles = GARI_MALLOC(sizeof(GariDrop) * flow->size);
   if(!flow->particles) {
     flow->size = 0;
     return NULL;
@@ -126,16 +163,13 @@ void gari_flow_draw(GariFlow * flow, GariImage * im) {
 GariDrop * gari_drop_updatespeed(GariDrop * drop, int time) { 
   drop->x               += drop->vx * time;
   drop->y               += drop->vy * time;
+  printf("Updated!\n");
   return drop;
 }
     
-//Draws the drop as a small filled recrtangle
-GariDrop * gari_drop_drawslab(GariDrop * drop, GariImage * im) {
-  // gari_image_slab(im, , 2, 2, drop->color);
-}
 
 
-GariDrop * gari_drop_initsnow(GariDrop * drop) { 
+GariDrop * gari_drop_initsnow(GariDrop * drop, GariWell * well) { 
   drop->x         = gari_random(0, drop->flow->screenw);
   drop->y         = gari_random(0, drop->flow->screenh);
   drop->vx        = 0;
@@ -262,43 +296,86 @@ GariDrop * gari_drop_updatesnow(GariDrop * drop, int time) {
 
 
 
-GariWell * gari_well_init(GariWell * well, int x, int y, 
-                          GariColor color, int kind) {
-  if(!well) return NULL;
-  well->x     = x;
-  well->y     = y;
-  well->color = color;
-  well->kind  = kind;
+GariWell * gari_well_init(GariWell * well, int kind,  
+                          int x, int y, GariColor color, 
+                          GariImage * im, char * text) {
+  if(!well) return NULL; 
+  well->x       = x;
+  well->y       = y;
+  well->color   = color;
+  well->kind    = kind;
+  well->text    = text;
+  well->image   = im;
   well->draw    = gari_drop_drawslab;
   well->update  = gari_drop_updatespeed;
+  well->init    = gari_drop_initsnow;
   
   switch(well->kind) {
     case GariFlowSnow:
-      well->update = gari_drop_updatesnow;  
+      well->update = gari_drop_updatesnow;        
       return well;
     default:  
+      fprintf(stderr, "Unknown effect type.");
       return well;
   }
   return well;
 } 
 
+/** Initializes a drop with info from a Well */
+GariDrop * gari_drop_initwell(GariDrop * drop, GariFlow * flow, GariWell *well)
+{
+  if(!gari_drop_init(drop, flow)) return NULL;
+  if(!well) return NULL;
+  drop->x         = well->x;
+  drop->y         = well->y;
+  drop->color     = well->color;
+  drop->image     = well->image;
+  drop->text      = well->text;
+  if(well->init) {
+    well->init(drop, well);
+  }
+  return drop;
+}
+
 
 /** 
-* Finds the first unused GariDrop in a GariFlow. Returns NULL if all drops 
-* are in use. 
+* Gets the next idle (unused) drop from the particle engine. 
+* Returns NULL if no idle drop is available. 
 */
-GariDrop * gari_flow_unused(GariFlow * flow) {
+GariDrop * gari_flow_idle(GariFlow * flow) {
   int index;
-  // find first unused droplet
-  for (index = 0 ; index < flow->size ; index ++) {
+  if(!flow) return NULL;
+  for (index = 0; index < flow->size; index++) {
     GariDrop * drop = flow->particles + index;
-    if (drop->lifetime < 1) {       
-      return drop;
-    }
-  }
+    if(gari_drop_idle(drop)) return drop;
+  } 
   return NULL;
 } 
 
+/**
+* Activates amount Drops (particles) in the GariFlow flow. 
+* The particle will be of kind kind, and will be placed, depending on the 
+* kind, at x a,d y, and displayed using given color, image or text 
+*/
+GariFlow * gari_flow_activate(GariFlow * flow, 
+      int amount, int kind, int x, int y, GariColor color, 
+      GariImage * im, char * text) {
+      int index;
+      GariWell well;
+      if(!gari_well_init(&well, kind, x, y, color, im, text)) { 
+        return NULL; 
+      } 
+      for(index = 0; index < amount; index++) {
+        GariDrop  * drop;
+        drop = gari_flow_idle(flow);
+        if(!drop) {
+          fprintf(stderr, "No idle drops: %d!\n", amount ); 
+          return NULL;
+        }  
+        gari_drop_initwell(drop, flow, &well);
+      } 
+      return flow;
+}
 
 
 

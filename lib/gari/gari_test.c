@@ -8,6 +8,7 @@
 #define BUFFER_SIZE 123
 
 TEST_FUNC(game) { 
+  GariFlow * flow;
   GariFont * font; 
   GariGame * game;
   GariScreen * screen;
@@ -16,17 +17,26 @@ TEST_FUNC(game) {
   GariEvent ev;
   int i, j, rep, done;
   GariDye c1, c2, c3, c4, cg, pixel;
+  GariColor white, green, black, yellow;
+  
+  white   = gari_color(255,255, 255, GARI_ALPHA_SOLID);
+  green   = gari_color(0  ,255, 0  , GARI_ALPHA_SOLID);
+  black   = gari_color(0  ,0  , 0  , GARI_ALPHA_SOLID);
+  yellow  = gari_color(255,255, 0  , GARI_ALPHA_SOLID);  
+  
   game    = gari_game_make();
   TEST_NOTNULL(game);
   screen  = gari_screen_make(game, 640, 480, 0);
   TEST_NOTNULL(screen);
+  flow    = gari_flow_make(1000);
+  TEST_NOTNULL(flow);
   sim     = gari_screen_image(screen);  
   c1      = gari_image_rgb(sim,  255, 255, 0);
   c2      = gari_image_rgb(sim,    0,   0, 255);
   c3      = gari_image_rgb(sim,    0, 255, 0);
   c4      = gari_image_rgba(sim,   0,   0, 0, 0);
   cg      = gari_image_rgba(sim, 127, 127, 127, 127);
-  gari_image_slab(sim, 0, 0, 640, 480, c1);  
+  gari_image_slab(sim, 0, 0, 640, 480, yellow);  
   font    = gari_font_load("../../share/font/liberationserif.ttf", 14);
   TEST_NOTNULL(font);
   gari_font_mode(font, GariFontBlended);
@@ -36,7 +46,6 @@ TEST_FUNC(game) {
   
   bim     = gari_image_loadraw("../../share/image/ui/background/blue.png");
   TEST_NOTNULL(bim);
-        
   
   
   mim     = gari_image_makedepth(24, 48, 16, GariImageAlpha);
@@ -64,7 +73,7 @@ TEST_FUNC(game) {
     
     gari_image_line(sim, 0, 0, 640, 480, c2);
     gari_image_putpixel(sim, 21, 181, c2);
-    gari_image_slab(sim, -140, -140, 200, 200, c3);
+    gari_image_slab(sim, -140, -140, 200, 200, green);
     gari_font_draw(sim, 50, 50, "This is ök!", font, 127, 127, 127, 0, 0, 0);
     gari_image_box(sim, 40, 70, 200, 100, c3);
     gari_image_box(sim, 300, 300, -100, -200, c3);
@@ -74,7 +83,14 @@ TEST_FUNC(game) {
     gari_image_scaleblit(sim, 400, 100, 100, 100, bim, 
                               0, 0, 32, 32);
                               // gari_image_w(bim) , gari_image_h(bim));
+<<<<<<< HEAD
     gari_image_blendslab(sim, 1, 1, 200, 200, cg, 64);
+=======
+    gari_image_blendslab(sim, 1, 1, 200, 200, cg, 255);
+    gari_flow_activate(flow, 100, GariFlowSnow, 0, 0, white, NULL, NULL); 
+    gari_flow_update(flow, 1);
+    gari_flow_draw(flow, sim);
+>>>>>>> aeae9010d1d295132802fa59d0f6bd40b0ab7b4b
     gari_game_nextframe(game);
     
     gari_game_update(game);
