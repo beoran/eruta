@@ -14,8 +14,9 @@ struct GariDrop_ {
   GariDropUpdateFunction  * update;
   int		   	  lifetime;
   int		   	  x, y;
-  int         vx, vy;
-  int         ax, ay;
+  int         		  vx, vy;
+  int         		  ax, ay;
+  int 			  kind;
 };
 
 
@@ -32,6 +33,21 @@ int gari_drop_active(GariDrop * drop) {
   return !gari_drop_idle(drop);
 }  
 
+/** Deactivates a drop. */
+void gari_drop_disable(GariDrop * drop) {
+  if(!drop) return;
+  drop->lifetime = 0;
+}
+
+/** Deactivates a drop if it is of the given kind. */
+void gari_drop_disablekind(GariDrop * drop, int kind) {
+  if (!drop) return;
+  if (drop->kind != kind) return;
+  gari_drop_disable(drop);
+}
+
+
+
 GariDrop * gari_drop_init(GariDrop * drop, GariFlow * flow) {
   if(!drop) return NULL  ;
   drop->flow      = flow;
@@ -42,6 +58,8 @@ GariDrop * gari_drop_init(GariDrop * drop, GariFlow * flow) {
   drop->ay        = 0;
   drop->text      = NULL;
   drop->image     = NULL;
+  drop->update	  = NULL;
+  drop->draw	  = NULL;
   return drop;
 }
 
@@ -50,6 +68,8 @@ GariDrop * gari_drop_init(GariDrop * drop, GariFlow * flow) {
 GariDrop * gari_drop_update(GariDrop * drop, int time) {
   if (!drop)                return NULL;
   if (gari_drop_idle(drop)) return NULL;
+  // automatically reduce lifetime
+  drop->lifetime -= time;
   
   if (!drop->update)        {
     // fprintf(stderr, "cannot update drop!\n");
@@ -63,6 +83,13 @@ GariDrop * gari_drop_update(GariDrop * drop, int time) {
 //Draws the drop as a small filled recrtangle
 GariDrop * gari_drop_drawslab(GariDrop * drop, GariImage * im) {
   gari_image_slab(im, drop->x, drop->y, 10, 10, drop->color);
+  return drop;
+}
+
+// draws the drop as snow
+GariDrop * gari_drop_drawsnow(GariDrop * drop, GariImage * im) {
+  gari_image_slab(im, drop->x, drop->y, 5, 5, drop->color);
+  return drop;
 }
 
 
@@ -163,7 +190,6 @@ void gari_flow_draw(GariFlow * flow, GariImage * im) {
 GariDrop * gari_drop_updatespeed(GariDrop * drop, int time) { 
   drop->x               += drop->vx * time;
   drop->y               += drop->vy * time;
-  printf("Updated!\n");
   return drop;
 }
     
@@ -173,17 +199,18 @@ GariDrop * gari_drop_initsnow(GariDrop * drop, GariWell * well) {
   drop->x         = gari_random(0, drop->flow->screenw);
   drop->y         = gari_random(0, drop->flow->screenh);
   drop->vx        = 0;
-  drop->vy        = 0;
+  drop->vy        = gari_random(1, 3);
   drop->lifetime  = gari_random(10, 100);
   return drop;
 }  
       
 GariDrop * gari_drop_updatesnow(GariDrop * drop, int time) {
-  if (!drop->lifetime % 5) { 
+  if (!(drop->lifetime % 5)) { 
     drop->vx = gari_random(-1, 1);
   } else {
     drop->vx = 0;
   }
+  printf("Updated snow!\n");
   return gari_drop_updatespeed(drop, time);
 }
       
@@ -312,6 +339,7 @@ GariWell * gari_well_init(GariWell * well, int kind,
   
   switch(well->kind) {
     case GariFlowSnow:
+      well->draw   = gari_drop_drawsnow;        
       well->update = gari_drop_updatesnow;        
       return well;
     default:  
@@ -331,6 +359,10 @@ GariDrop * gari_drop_initwell(GariDrop * drop, GariFlow * flow, GariWell *well)
   drop->color     = well->color;
   drop->image     = well->image;
   drop->text      = well->text;
+  drop->kind	  = well->kind;
+  drop->update	  = well->update;
+  drop->draw	  = well->draw;
+  
   if(well->init) {
     well->init(drop, well);
   }
@@ -369,7 +401,7 @@ GariFlow * gari_flow_activate(GariFlow * flow,
         GariDrop  * drop;
         drop = gari_flow_idle(flow);
         if(!drop) {
-          fprintf(stderr, "No idle drops: %d!\n", amount ); 
+          // fprintf(stderr, "No idle drops: %d!\n", amount ); 
           return NULL;
         }  
         gari_drop_initwell(drop, flow, &well);
@@ -377,7 +409,17 @@ GariFlow * gari_flow_activate(GariFlow * flow,
       return flow;
 }
 
-
+/**
+* Deactivates all Drops of the given kind of effect.
+*/
+GariFlow * gari_flow_disablekind(GariFlow * flow, int kind) {  
+  int index;
+  for (index = 0; index < flow->size; index++) {
+    GariDrop * drop = flow->particles + index;
+    gari_drop_disablekind(drop, kind);    
+  }   
+  return flow;
+}
 
 
 
