@@ -477,7 +477,13 @@ typedef struct GariSprite_ GariSprite;
 struct GariAnimation_;
 typedef struct GariAnimation_ GariAnimation;
 
-
+/** Animation can be described as a crude "program", 
+  using the following constants: */
+enum GariAnimationProgram_ {
+  GariAnimationRewind,
+  GariAnimationNext,
+  GariAnimationWait
+};
 
 
 /** 
@@ -486,6 +492,33 @@ typedef struct GariAnimation_ GariAnimation;
  */
 struct GariTile_; 
 typedef struct GariTile_ GariTile;
+
+/** Flags for tiles that deterine their in-game properties. */
+enum GariTileFlags_ {   
+    GariTileWalk = 1 << 0, // The tile can be walked over.
+    GariTileJump = 1 << 1, // The tile can be jumped over.
+    GariTileLedge= 1 << 2, // The tile will cause a jump when walked over.
+    GariTileSwim = 1 << 3, // The tile is some kind of swimmable liquid.
+    GariTilePain = 1 << 4, // Walking over the tile causes pain.
+    GariTileUp   = 1 << 5, // The tile is a step-up stair to the next layer.
+    GariTileDown = 1 << 6, // The tile is a step-down to the previous layer.    
+    GariTileEdge = 1 << 7, // The tile blocks anything from being pushed inside
+    GariTileSlip = 1 << 8, // The tile is slippery, like ice, etc.    
+    GariTilePush = 1 << 9, // The tile will "push" the player, 
+                           // like a conveyor belt, etc.
+    // 1<<10, 1<<11 are reserved
+    GariTileNorth= 1 <<12, // The direction of this tile's effect.
+    GariTileEast = 1 <<13, // The direction of this tile's effect.
+    GariTileSouth= 1 <<14, // The direction of this tile's effect.
+    GariTileWest = 1 <<15, // The direction of this tile's effect.
+};
+
+/** Tile kinds that also help determine properties. */
+enum GariTileKinds_ {
+  GariTileFloor,
+  GariTileWall,
+  GariTileWater,
+};
 
 /** A tileset is a set of tiles that are used by a tile map. */
 struct GariTileset_; 
