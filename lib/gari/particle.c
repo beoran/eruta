@@ -5,6 +5,20 @@
 #include "gari_intern.h"
 
 
+
+// Speed and accelleration of particles is expressed 
+// in units of 1 / 1024 th of a pixel per frame time, (or >> 10) 
+// or 1/1024th of pixel per frame time squared (for accellerations)
+#ifndef GARI_DROP_SHIFT
+#define GARI_DROP_SHIFT 10 
+#endif
+
+// macro to scale speeds and accellerations.
+#define GARI_DROP_DIVIDE(VAL) 	((VAL)>>GARI_DROP_SHIFT)
+// macro to scale speeds and accellerations.
+#define GARI_DROP_MULTIPLY(VAL) ((VAL)<<GARI_DROP_SHIFT)
+
+
 struct GariDrop_ {
   GariFlow                * flow;
   GariColor 	   	          color;
@@ -188,29 +202,38 @@ void gari_flow_draw(GariFlow * flow, GariImage * im) {
 // Automatically integrate motion based upon speed
 // To be called in your custom callback, etc. 
 GariDrop * gari_drop_updatespeed(GariDrop * drop, int time) { 
-  drop->x               += drop->vx * time;
-  drop->y               += drop->vy * time;
+  drop->x               += GARI_DROP_DIVIDE(drop->vx * time);
+  drop->y               += GARI_DROP_DIVIDE(drop->vy * time);
   return drop;
 }
-    
+
+// Automatically update speed based on accelleration
+// To be called in your custom callback, etc. 
+GariDrop * gari_drop_updateaccell(GariDrop * drop, int time) { 
+  drop->vx              += GARI_DROP_DIVIDE(drop->ax * time);
+  drop->vy              += GARI_DROP_DIVIDE(drop->ay * time);
+  return drop;
+}
 
 
 GariDrop * gari_drop_initsnow(GariDrop * drop, GariWell * well) { 
   drop->x         = gari_random(0, drop->flow->screenw);
   drop->y         = gari_random(0, drop->flow->screenh);
+  drop->ax	  = 0;
+  drop->ay	  = GARI_DROP_MULTIPLY(100);
   drop->vx        = 0;
-  drop->vy        = gari_random(1, 3);
+  drop->vy        = gari_random(GARI_DROP_MULTIPLY(1), GARI_DROP_MULTIPLY(3));
   drop->lifetime  = gari_random(10, 100);
   return drop;
 }  
       
 GariDrop * gari_drop_updatesnow(GariDrop * drop, int time) {
   if (!(drop->lifetime % 5)) { 
-    drop->vx = gari_random(-1, 1);
+    drop->vx = GARI_DROP_MULTIPLY(gari_random(-1, 1));
   } else {
     drop->vx = 0;
   }
-  printf("Updated snow!\n");
+  gari_drop_updateaccell(drop, time);
   return gari_drop_updatespeed(drop, time);
 }
       

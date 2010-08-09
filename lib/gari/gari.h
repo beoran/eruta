@@ -474,15 +474,15 @@ typedef struct GariSprite_ GariSprite;
 /** An animation is a full cycle of an animation, 
 *   of which sprites are made up. 
 */
-struct GariAnimation_;
-typedef struct GariAnimation_ GariAnimation;
+struct GariAnime_;
+typedef struct GariAnime_ GariAnime;
 
-/** Animation can be described as a crude "program", 
+/** Anime can be described as a crude "program", 
   using the following constants: */
-enum GariAnimationProgram_ {
-  GariAnimationRewind,
-  GariAnimationNext,
-  GariAnimationWait
+enum GariAnimeProgram_ {
+  GariAnimeRewind,
+  GariAnimeNext,
+  GariAnimeWait
 };
 
 

@@ -8,6 +8,12 @@ game map.
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
 
+// Wind simulation, influences most particle motions and may affect tile 
+// animations.
+struct GariWind_ {
+  int vx; 
+  int vy;
+};
 
 
 struct GariCamera_ {
