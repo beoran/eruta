@@ -44,6 +44,20 @@ struct GariTile_ {
   int 		offset;
 };
 
+/**
+* A tile map.
+*/
+struct GariTilemap_ {
+  GariTileset *  tileset;
+  GariTile    ** layer;
+  long        ** layer_save;
+  int 		 layerwide, layerhigh;
+  int 		 tilehigh , tilewide;
+  int 		 realwide , realhigh;	
+  GariCamera   * camera;
+};
+
+
 
 /** Cleans up a tileset, and empties it.  */
 void gari_tileset_done(GariTileset * set) {
