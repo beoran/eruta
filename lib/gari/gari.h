@@ -515,9 +515,9 @@ enum GariTileFlags_ {
 
 /** Tile kinds that also help determine properties. */
 enum GariTileKinds_ {
-  GariTileFloor,
-  GariTileWall,
-  GariTileWater,
+  GariTileFloor ,
+  GariTileWall  ,
+  GariTileWater ,
 };
 
 /** A tileset is a set of tiles that are used by a tile map. */

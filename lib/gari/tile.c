@@ -44,18 +44,6 @@ struct GariTile_ {
   int 		offset;
 };
 
-/**
-* A tile map.
-*/
-struct GariTilemap_ {
-  GariTileset *  tileset;
-  GariTile    ** layer;
-  long        ** layer_save;
-  int 		 layerwide, layerhigh;
-  int 		 tilehigh , tilewide;
-  int 		 realwide , realhigh;	
-  GariCamera   * camera;
-};
 
 
 
@@ -128,11 +116,11 @@ GariTile * gari_tileset_tile(GariTileset * set) {
   return tile;
 } 
 
-// Gets a tile from a tile set by it's number. 
+/** Gets a tile from a tile set by it's tile id. **/ 
 GariTile * gari_tileset_get(GariTileset * set, int index) {
   if(!set) return NULL;
   if (index < 0) return NULL;
-  if (set->last >= ((size_t)index)) { // tile out of bounds
+  if (set->last >= ((size_t)index)) { // tile id out of bounds
     return NULL;
   }
   return set->tiles + index;

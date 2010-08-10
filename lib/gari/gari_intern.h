@@ -171,6 +171,13 @@ GariDye gari_image_mapcolor(GariImage * dst,
 * Converts a GariColor to a gari dye for the given image. 
 * If the color's A is solid, then it uses SDL_MapRGB internally.
 */
-GariDye gari_color_dye(GariColor color, GariImage * image);          
+GariDye gari_color_dye(GariColor color, GariImage * image);      
+    
+    
+
+/** Gets a tile from a tile set by it's tile id. **/
+GariTile * gari_tileset_get(GariTileset * set, int index);
+    
+    
 
 #endif
