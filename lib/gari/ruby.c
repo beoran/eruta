@@ -1,0 +1,29 @@
+
+
+/** Ruby interface for Gari. */
+
+#include "ruby.h"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
