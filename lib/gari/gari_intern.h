@@ -13,6 +13,7 @@ you find in here outside of the library.
 
 #include "SDL_ttf.h"
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 
 /* A few macros for memory allocation, so we can allow libgc later. */
 #ifndef gari_malloc
@@ -109,6 +110,11 @@ GariGame * gari_game_init(GariGame * game);
 #define GARI_CLAMP(VALUE, MIN, MAX) \
           (VALUE < MIN ? MIN : ( VALUE > MAX ? MAX: VALUE ) )
 
+/** Syntactig guard macro that returns RET if COND is false. */
+#define GUARI_GUARD(COND, RET) do { if(!(COND)) { return RET; } } while(0)
+
+/** Syntactic macro that returns NULL if the given value is is NULL or 0*/
+#define GARI_GUARD_NULL(VALUE) GUARI_GUARD(VALUE == NULL, NULL)
 
 SDL_Surface * gari_image_surface(GariImage * img);
  

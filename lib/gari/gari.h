@@ -52,12 +52,6 @@
 #define GARI_ALPHA_TRANSLUCENT 0
 
 
-struct GariSound_; 
-typedef struct GariSound_ GariSound;
-
-struct GariMusic_; 
-typedef struct GariMusic_ GariMusic;
-
 /** Colors. Colors are models as simple uint32_t types.    */
 typedef uint32_t GariDye;
 
@@ -382,6 +376,59 @@ void gari_font_drawrgba(GariImage * image, int x, int y, char * utf8, GariFont *
 
 /** Draws font with given colors. */
 void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_b, uint8_t bg_a);
+
+/** Music and sound. */
+
+/** Initializes the audio subsystem for a game. */
+void gari_audio_init(GariGame * game);
+/** Cleans up the audio subsystem for a game. */
+void gari_audio_done(GariGame * game);
+
+struct GariSound_;
+typedef struct GariSound_ GariSound;
+
+/** Initialises and loads sound into an existing GariSound record. */
+GariSound * gari_sound_init(GariSound * sound, char * filename);
+
+/** Creates a new GariSound and loads the sound from a file. */
+GariSound * gari_sound_load(char * filename);
+
+/** Deallocates the loaded sound, but not the wrapper GariSound itself. */
+GariSound * gari_sound_done(GariSound * sound);
+
+/** Calls gari_sound_done and then frees the sound itself.*/
+GariSound * gari_sound_free(GariSound * sound);
+
+/** Plays a sound once. */
+GariSound * gari_sound_play(GariSound * sound);
+
+
+struct GariMusic_;
+typedef struct GariMusic_ GariMusic;
+
+/** Initialises and loads music into an existing GariMusic record. */
+GariMusic * gari_music_init(GariMusic * music, char * filename);
+
+/** Creates a new GariMusic and loads the music from a file. */
+GariMusic * gari_music_load(char * filename);
+
+/** Deallocates up the loaded music, but not the wrapper GariMusic itself. */
+GariMusic * gari_music_done(GariMusic * music);
+
+/** Calls gari_music_done and then frees the music itself.*/
+GariMusic * gari_music_free(GariMusic * music);
+
+/** Starts playing the music loop times (-1 means to keep on repeating) 
+*   fading in after fade ms. 
+*/
+GariMusic * gari_music_fadein(GariMusic * music, int loops, int fade); 
+
+/** Stops playing the music, fading out after fade ms. */
+GariMusic * gari_music_fadeout(GariMusic * music, int fade); 
+
+
+ 
+
 
 /* Higher level functions and structs. */
 

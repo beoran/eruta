@@ -2,10 +2,6 @@
 
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
-#include "gari.h"
-
-#define GARI_INTERN_ONLY
-#include "gari_intern.h"
 
 #ifndef GARI_MAP_MAXLAYER
 #define GARI_MAP_MAXLAYER 16

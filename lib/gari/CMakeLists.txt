@@ -17,12 +17,13 @@ find_package(SDL_ttf REQUIRED)
 # FindSDL_sound
 # FindSDL_ttf
 # Set include and lib dirs. 
-include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR})
-set(LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY} ${SDLIMAGE_LIBRARY})
+include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR})
+set(LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY} 
+${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY})
 
 # set(LIBS ${LIBS} pthread m)
 # Real Time enabled C Utility Library
-set(CFILES gari.c image.c font.c pixel.c draw.c color.c tile.c 
+set(CFILES gari.c audio.c image.c font.c pixel.c draw.c color.c tile.c 
            layer.c map.c sprite.c event.c camera.c particle.c)
 add_library(gari STATIC ${CFILES})
 target_link_libraries(gari ${LIBS})

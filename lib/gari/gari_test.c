@@ -28,6 +28,8 @@ TEST_FUNC(game) {
   TEST_NOTNULL(game);
   screen  = gari_screen_make(game, 640, 480, 0);
   TEST_NOTNULL(screen);
+  gari_audio_init(game);
+  
   flow    = gari_flow_make(1000);
   TEST_NOTNULL(flow);
   sim     = gari_screen_image(screen);  
@@ -104,7 +106,8 @@ TEST_FUNC(game) {
   gari_image_putpixel(sim, 21, 181, c2);
   gari_game_update(game);
   
-  gari_flow_free(flow);  
+  gari_flow_free(flow);
+  gari_audio_done(game);  
   gari_game_free(game);
   
   
