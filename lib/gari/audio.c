@@ -120,7 +120,7 @@ GariMusic * gari_music_done(GariMusic * music) {
 /** Calls gari_music_done and then frees the music itself.*/
 GariMusic * gari_music_free(GariMusic * music) {
   if(!music) return NULL;
-  gari_music_done(music); 
+  gari_music_done(music);
   GARI_FREE(music);
   return NULL;
 }
