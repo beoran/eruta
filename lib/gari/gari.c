@@ -25,21 +25,83 @@ struct GariGame_ {
   uint32_t     framestart;
   uint32_t     framestop;
   uint32_t     delta;
+  SDL_Joystick **joysticks;
 };
 
 
 GariGame * gari_game_make() {
-  GariGame * game = malloc(sizeof(GariGame));
+  GariGame * game = GARI_MALLOC(sizeof(GariGame));
   if(gari_game_init(game)) { return game; }
   gari_game_free(game);
   return NULL;  
 }
 
+/** describes a joystick. */
+void gari_game_showjoystick(SDL_Joystick * joy, int index) {  
+  if(!joy) { 
+    fprintf(stderr, "Could not open joystick nr %d!\n", index);
+    return;
+  }    
+  fprintf(stderr, "Joystick Name: %s\n", SDL_JoystickName(index));
+  fprintf(stderr, "Axes: %d ", SDL_JoystickNumAxes(joy));
+  fprintf(stderr, "Buttons: %d ", SDL_JoystickNumButtons(joy));
+  fprintf(stderr, "Balls: %d \n", SDL_JoystickNumBalls(joy));
+}
+
+/*
+if(SDL_NumJoysticks()>0){
+  joy=SDL_JoystickOpen(0);
+  
+  if(joy)
+  {
+    printf("Opened Joystick 0\n");
+    printf("Name: %s\n", SDL_JoystickName(0));
+    printf("Number of Axes: %d\n", SDL_JoystickNumAxes(joy));
+    printf("Number of Buttons: %d\n", SDL_JoystickNumButtons(joy));
+    printf("Number of Balls: %d\n", SDL_JoystickNumBalls(joy));
+*/
+
+// opens all available joysticks.
+GariGame * gari_game_openjoysticks(GariGame * gari) {
+  int index;
+  if(SDL_NumJoysticks()<1) return NULL;
+  gari->joysticks = GARI_MALLOC(sizeof(SDL_Joystick *) * SDL_NumJoysticks());
+  for(index = 0; index < SDL_NumJoysticks(); index ++) {
+    gari->joysticks[index] = SDL_JoystickOpen(index);
+    gari_game_showjoystick(gari->joysticks[index], index);
+  }
+  return gari;
+}
+
+// closes all available joysticks.
+GariGame * gari_game_closejoysticks(GariGame * gari) {
+  int index;
+  if(SDL_NumJoysticks()<1) return NULL;
+  if(!(gari->joysticks)) return NULL;
+  for(index = 0; index < SDL_NumJoysticks(); index ++) {
+    SDL_JoystickClose(gari->joysticks[index]);        
+  }
+  GARI_FREE(gari->joysticks);
+  gari->joysticks 	= NULL;
+  return gari;
+}
+
+
+/** Returns how many joysticks are available. */
+int gari_game_joysticks(GariGame * game) {
+  return SDL_NumJoysticks();
+}
+
+
+
+
+/** Initializes a gari game, opeing all joysticks, etc. */
 GariGame * gari_game_init(GariGame * game) {
   if (!game) { return NULL; }
   gari_game_resetframes(game);
-  game->error  = 0;
-  game->screen = NULL;
+  game->error  		= 0;
+  game->screen 		= NULL;
+  game->joysticks 	= NULL;
   if(SDL_Init(SDL_INIT_EVERYTHING)) {
     fprintf(stderr, "\nUnable to initialize SDL:  %s\n", SDL_GetError());
     game->error = 1;
@@ -52,12 +114,20 @@ GariGame * gari_game_init(GariGame * game) {
   }
   // also enable unicode events.
   SDL_EnableUNICODE(1);
+  // also open all joysticks.
+  gari_game_openjoysticks(game);
+  
   return game;
 } 
 
 GariGame * gari_game_done(GariGame * game) {
   if (!game) { return NULL; } 
+  gari_game_closejoysticks(game);
+  // also close all joysticks.
   game->screen = NULL;
+  
+  
+  
   TTF_Quit();
   SDL_Quit();
   return game;

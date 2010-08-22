@@ -588,9 +588,47 @@ typedef struct GariMap_ GariMap;
 
 
 
+/** Ruby scripting. */
+#include <ruby.h> // needed for certain macros in main.
 
+struct GariRuby_;
 
+typedef struct GariRuby_ GariRuby; 
 
+// call this before main
+#define GARI_RUBY_BEFORE_MAIN RUBY_GLOBAL_SETUP
+
+// call this in main
+#define GARI_RUBY_IN_MAIN RUBY_INIT_STACK
+
+/* Since ruby 1.9.1 is sort of diffficult to embed, 
+call this to initialize ruby at the start of the main of your program, 
+passing argc and argv.  
+*/
+
+#define GARI_RUBY_INIT(ARGC, ARGV)		\
+	VALUE gari_stack_variable;	 	\
+	ruby_sysinit(&ARGC, &ARGV);		\
+	ruby_init_stack(&gari_stack_variable);
+    	
+//	ruby_init();				\
+// return ruby_run_node(ruby_options(argc, argv));
+    
+    
+/** Shows the last error after gari_ruby_eval */
+GariRuby * gari_ruby_showerror(GariRuby * ruby);
+
+/** Evaluates str as a ruby program. */
+GariRuby * gari_ruby_eval(GariRuby * ruby, char * str); 
+
+/** Executes the file in the filename as a ruby program. */
+int gari_ruby_exec(GariRuby * ruby, char * filename);
+
+/** Returns a new Ruby interpreter ready to use! :) */
+GariRuby * gari_ruby_new();
+
+/** Frees up the mem'ries of old. ruby interpreters that is. :) */
+void gari_ruby_free(GariRuby * ruby);
 
 
 

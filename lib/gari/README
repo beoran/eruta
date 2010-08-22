@@ -10,12 +10,11 @@ written in plain C. For now, it uses SDL as a backend, but that might change lat
 * Easy to embed in Ruby. 
 
 
-
 Rationale for creating Gari for use with the Eruta project:
  
 * In Eruta'm also wrapping SDL, in another layer, and then using this for tile maps, etc. Needless to say that this is all not very fast. To speed up things, I have to implement some lower level functionality in C. 
 
-* I could wrap this low level functionality directly from Ruby as is done by e.g. Starruby, but I feel this library could aslo be useful wrapped in other languages, in particular Go Language.
+* I could wrap this low level functionality directly from Ruby as is done by e.g. Starruby, but I feel this library could aslo be useful wrapped in other languages, like the Go Language, python, or even C++ (yuck).
     
 * I could mix-and match, only implement the functionality that SDL misses, and still wrap SDL directly using rubysdl, but that means that in ruby I have to 
 keep all sorts of dependencies. I'm using SGE for doing 2d drawing, which creates additional dependencies. It would be easiest if I has a single C library for game programming that I could wrap easily in Ruby.
@@ -26,8 +25,7 @@ Disadvantages of this project:
  
 * A lot of time consuming programming in C that does not directly help with the Eruta game being built. I've spent already a lot of time on writing "engine" layers, and not enough time on writing the game itself. 
  
- 
- 
+  
 Aside: why was I trying to wrap SDL in Go, essentially trying to create an
 identical project like Gari in Go? This was also for the same core reason: more
 performance. However, CGO is a letdown there, we still have to drop down to C 
@@ -35,7 +33,8 @@ for tile maps, etc. So why not use all C for the basic library, then?
 
 The crucial point here is: performance, is it worth all the extra work? If it 
 was a web application, then I'd say : no. But to allow people with old 
-computers or nettops to play my games: I'd say, yes, it's worth while to give it a try at least.
+computers or nettops to play my games: I'd say, yes, it's worth while to give it 
+a try at least.
 
 
  

@@ -10,7 +10,7 @@ find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_ttf REQUIRED)
-find_package(Ruby)
+find_package(Ruby 1.9 REQUIRED)
 # FindSDL
 # FindSDL_image
 # FindSDL_mixer
@@ -18,6 +18,20 @@ find_package(Ruby)
 # FindSDL_sound
 # FindSDL_ttf
 # Set include and lib dirs. 
+
+message("Ruby: >" ${RUBY_FOUND} "<")
+if(${RUBY_FOUND})
+else()
+set(RUBY_INCLUDE_PREFIX /usr/local/include/ruby1.9-1.9.1/)
+set(RUBY_INCLUDE_DIR1 ${RUBY_INCLUDE_PREFIX})
+set(RUBY_INCLUDE_DIR2 ${RUBY_INCLUDE_PREFIX}/i686-linux)
+set(RUBY_INCLUDE_DIR3 ${RUBY_INCLUDE_PREFIX}/backward)
+set(RUBY_INCLUDE_DIRS 
+   ${RUBY_INCLUDE_DIR1} ${RUBY_INCLUDE_DIR2} ${RUBY_INCLUDE_DIR3})
+set(RUBY_LIBRARY -L/usr/local/lib libruby1.9.so)
+endif()
+message("Ruby: " ${RUBY_INCLUDE_DIRS})
+
 include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR}
 ${RUBY_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY} 
@@ -28,7 +42,8 @@ ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${RUBY_LIBRARY})
 set(CFILES gari.c audio.c image.c font.c pixel.c draw.c color.c tile.c 
            layer.c map.c sprite.c event.c camera.c particle.c
            ruby.c)
-add_library(gari STATIC ${CFILES})
+add_library(gari_static STATIC ${CFILES})
+add_library(gari SHARED ${CFILES})
 target_link_libraries(gari ${LIBS})
 set(TEST_LIBS ${LIBS} gari) 
 add_executable(gari_test gari_test.c)

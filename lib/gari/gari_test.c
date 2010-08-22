@@ -7,10 +7,13 @@
 
 #define BUFFER_SIZE 123
 
+
+
 TEST_FUNC(game) { 
   GariFlow * flow;
   GariFont * font; 
   GariGame * game;
+  GariRuby * ruby;
   GariScreen * screen;
   GariImage * sim;
   GariImage * tim, * mim, * oim, * bim;
@@ -18,6 +21,11 @@ TEST_FUNC(game) {
   int i, j, rep, done;
   GariDye c1, c2, c3, c4, cg, pixel;
   GariColor white, green, black, yellow;
+  
+  
+  
+  ruby 	  = gari_ruby_new();
+  TEST_NOTNULL(ruby);
   
   white   = gari_color(255,255, 255, GARI_ALPHA_SOLID);
   green   = gari_color(0  ,255, 0  , GARI_ALPHA_SOLID);
@@ -29,6 +37,7 @@ TEST_FUNC(game) {
   screen  = gari_screen_make(game, 640, 480, 0);
   TEST_NOTNULL(screen);
   gari_audio_init(game);
+  
   
   flow    = gari_flow_make(1000);
   TEST_NOTNULL(flow);
@@ -94,6 +103,7 @@ TEST_FUNC(game) {
     gari_game_update(game);
     
     
+    
   }
   
   gari_game_update(game);
@@ -107,16 +117,73 @@ TEST_FUNC(game) {
   gari_game_update(game);
   
   gari_flow_free(flow);
-  gari_audio_done(game);  
+  
+  gari_audio_done(game);    
   gari_game_free(game);
+  gari_ruby_free(ruby);
   
   
   TEST_DONE();
 }
 
 
+int gari_ruby_do(const char * cmd) { 
+  int result;
+  rb_protect((VALUE (*)())rb_eval_string, (VALUE) cmd,
+	     &result);
+  if (result != 0) {
+    VALUE lasterr, m;
+    lasterr = rb_gv_get("$!");  
+    m = rb_obj_as_string(lasterr);
+    fprintf(stderr, "Ruby error: %s\n", RSTRING_PTR(m));
+  }
+  ruby_cleanup(result);
+  return result;
+}
 
-int main(void) {
+
+//RUBY_GLOBAL_SETUP
+
+int main(int argc, char * argv[]) {
+  int result;
+/*  RUBY_INIT_STACK
+  ruby_init();
+  // ruby_script(argv[0]);
+  // ruby_init_loadpath();
+  
+  {
+  	//	Ruby Options are just like /usr/bin/ruby
+	//	interpreter name, script name, argv ...
+	char*	options[]	=	{ "", "-e", "puts 'hello'"  };
+	void*	node		=	ruby_options( 2, options );
+	char*	options2[]	=	{ "", "-e", "puts 'world'"  };
+	void*	node2; 
+        result = ruby_run_node( node  );
+        ruby_cleanup(result);
+        node2 =	ruby_options( 2, options2 );	
+        ruby_run_node( node2 );
+  }
+  //	Ruby Options are just like /usr/bin/ruby
+  //	interpreter name, script name, argv ...
+  /*
+  { 	  
+    char*	options[]	=	{ "", "-e", "puts 'hello';"  };
+    void*	node		=	ruby_options( 2, options);
+    char*	options2[]	=	{ "", "-e", "puts 'world';"  };
+    void*	node2		=	ruby_options( 2, options);        
+    ruby_run_node( node );
+    ruby_run_node( node2 );
+  }  
+  /*ruby_init();
+  { 	  
+    char*	options[]	=	{ "", "-e", "puts 'world';"  };
+    void*	node		=	ruby_options( 2, options);
+    ruby_run_node( node );
+  }  
+*/
+
+ 
+  
   TEST_INIT(); 
   TEST_RUN(game);
   TEST_REPORT();
