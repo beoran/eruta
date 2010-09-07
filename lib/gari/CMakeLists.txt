@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
-cmake_policy(SET CMP0012 OLD)
+if(CMAKE_VERSION VERSION_GREATER "2.8.0")
+  cmake_policy(SET CMP0012 OLD)
+endif()  
 # set(CMAKE_BUILT_TYPE Debug)
 # below is for profiling.
 #set(CMAKE_C_FLAGS "-Wall -g -pg -O")

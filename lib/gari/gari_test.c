@@ -22,8 +22,6 @@ TEST_FUNC(game) {
   GariDye pixel;
   GariColor c1, c2, c3, c4, cg, white, green, black, yellow, red;
   
-  
-  
   ruby 	  = gari_ruby_new();
   TEST_NOTNULL(ruby);
   
@@ -93,7 +91,7 @@ TEST_FUNC(game) {
     gari_image_flood(sim, 250, 250, red);
     
     gari_image_blendslab(sim, 1, 1, 200, 200, cg, 255);
-    gari_font_drawcolor(sim, 50, 50, "This is ök!", font, white, black); 
+    gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
     gari_font_printf(sim, 20, 20, font, white, black,  
                      "FPS: %ld", (int)gari_game_fps(game));
     gari_flow_activate(flow, 10, GariFlowSnow, 0, 0, white, NULL, NULL);
@@ -118,6 +116,9 @@ TEST_FUNC(game) {
   gari_game_update(game);
   
   gari_flow_free(flow);
+  gari_image_free(bim);
+  gari_image_free(tim);
+  gari_font_free(font);
   
   gari_audio_done(game);    
   gari_game_free(game);

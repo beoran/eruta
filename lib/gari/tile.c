@@ -20,7 +20,7 @@ struct GariTileset_ {
   size_t     last;
 };
 
-/* 
+/** 
   A single tile from a tile map. 
   A tile can only hold up to GARI_TILE_FRAMES_MAX tiles pointers in itself.
 */
@@ -43,7 +43,6 @@ struct GariTile_ {
   /** Index of currently active image pointer for this tile. */
   int 		offset;
 };
-
 
 
 
