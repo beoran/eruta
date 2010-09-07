@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
+cmake_policy(SET CMP0012 OLD)
 # set(CMAKE_BUILT_TYPE Debug)
 # below is for profiling.
 #set(CMAKE_C_FLAGS "-Wall -g -pg -O")
@@ -36,6 +37,8 @@ include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_
 ${RUBY_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY} 
 ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${RUBY_LIBRARY})
+
+# configure_file("config.in.h" "config.h")
 
 # set(LIBS ${LIBS} pthread m)
 # Real Time enabled C Utility Library

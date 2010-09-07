@@ -2,12 +2,13 @@
 
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
+#include <stdarg.h>
 
 struct GariFont_ {
   TTF_Font   * ttf;
   int          ptsize;
   int          mode;
-  long         index;  
+  long         index;
   char       * filename;
   GariImage ** glyphs;
 };
@@ -85,7 +86,7 @@ GariImage * gari_font_render(GariFont * font, char * utf8,
 
 } 
 
-void gari_font_drawrgba(GariImage * image, int x, int y, char * utf8, GariFont * font, GariColor fg, GariColor bg) {  
+void gari_font_drawcolor(GariImage * image, int x, int y, char * utf8, GariFont * font, GariColor fg, GariColor bg) {  
   GariImage * rendered;
   rendered = gari_font_render(font, utf8, fg, bg);
   gari_image_blit(image, x, y, rendered);
@@ -95,11 +96,20 @@ void gari_font_drawrgba(GariImage * image, int x, int y, char * utf8, GariFont *
 void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_g, uint8_t bg_b) {
   GariColor fg = { fg_r, fg_g, fg_b, 0};
   GariColor bg = { bg_r, bg_g, bg_b, 0};
-  gari_font_drawrgba(image, x, y, utf8, font, fg, bg);  
+  gari_font_drawcolor(image, x, y, utf8, font, fg, bg);  
 }
 
 
 
+void gari_font_printf(GariImage * image, int x, int y, GariFont * font, GariColor fg, GariColor bg, char * format, ...) {  
+  GariImage * rendered;
+  va_list ap;
+  char buffer[2001];
+  va_start(ap, format);   
+  vsnprintf(buffer, 2000, format, ap);
+  va_end(ap);
+  gari_font_drawcolor(image, x, y, buffer, font, fg, bg);  
+}  
 
 
 

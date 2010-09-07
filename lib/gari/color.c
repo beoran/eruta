@@ -69,10 +69,14 @@ gari_rgba_make(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   return gari_rgba_init(res, r, g ,b , a);
 } 
 
-GariColor gari_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+GariColor gari_colora(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   GariColor res;
   gari_rgba_init(&res, r, g ,b , a);
   return res;
+} 
+
+GariColor gari_color(uint8_t r, uint8_t g, uint8_t b) {  
+  return gari_colora(r, g , b, GARI_ALPHA_OPAQUE);
 } 
 
 uint8_t gari_color_r(GariColor rgba) {

@@ -94,15 +94,22 @@ GariDrop * gari_drop_update(GariDrop * drop, int time) {
   return drop; 
 }
 
-//Draws the drop as a small filled recrtangle
+// Draws the drop as a small filled rectangle
 GariDrop * gari_drop_drawslab(GariDrop * drop, GariImage * im) {
-  gari_image_slab(im, drop->x, drop->y, 10, 10, drop->color);
+  gari_image_slab(im, drop->x, drop->y, 5, 5, drop->color);
   return drop;
 }
 
-// draws the drop as snow
+// Draws the drop as a small filled circle
+GariDrop * gari_drop_drawdisk(GariDrop * drop, GariImage * im) {
+  gari_image_slab(im, drop->x, drop->y, 3, 3, drop->color);
+  return drop;
+}
+
+// Draws the drop as snow
 GariDrop * gari_drop_drawsnow(GariDrop * drop, GariImage * im) {
-  gari_image_slab(im, drop->x, drop->y, 5, 5, drop->color);
+  gari_image_disk(im, drop->x, drop->y, 3, drop->color);
+  // gari_image_slab(im, drop->x, drop->y, 3, 3, drop->color);
   return drop;
 }
 

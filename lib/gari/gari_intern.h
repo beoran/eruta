@@ -52,10 +52,15 @@ GariGame * gari_game_init(GariGame * game);
 #define GARI_SURFACE_LOCK(S)    (SDL_MUSTLOCK(S) && (SDL_LockSurface(S)))
 #define GARI_SURFACE_UNLOCK(S)  (SDL_MUSTLOCK(S) && (SDL_UnlockSurface(S), 0))
 #define GARI_IMAGE_PIXELOUTSIDE(IMG, X, Y)\
-        ( (X < 0) || (Y < 0)            ||\
+        ( (!IMG)                        ||\
+          (X < 0) || (Y < 0)            ||\
           (X >= GARI_IMAGE_W(IMG))      ||\
           (Y >= GARI_IMAGE_H(IMG))        \
         )
+        
+#define GARI_DRAW_IMAGE(DRAW) (DRAW->image)
+#define GARI_DRAW_OUTSIDE(DRAW, X, Y)\
+        GARI_IMAGE_PIXELOUTSIDE(GARI_DRAW_IMAGE(DRAW), X, Y) 
 
 /* Macros for the clipping rectangle. */
 #define GARI_IMAGE_CLIPRECT(IMG)   (GARI_IMAGE_SURFACE(IMG)->clip_rect)
@@ -173,11 +178,6 @@ GariDye gari_image_getpixel_nolock(GariImage *img, int x, int y);
 GariDye gari_image_mapcolor(GariImage * dst, 
                               GariImage * src, GariDye color);
                               
-/* 
-* Converts a GariColor to a gari dye for the given image. 
-* If the color's A is solid, then it uses SDL_MapRGB internally.
-*/
-GariDye gari_color_dye(GariColor color, GariImage * image);      
     
     
 
