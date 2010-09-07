@@ -115,6 +115,18 @@ int main(int argc, char *argv[])
 
 // Data_Wrap_Struct(klass, mark, free, ptr)
 
+/* 
+All ruby wrappers for gari functions simply get an rb prefix, so it becomes 
+rbgari 
+*/
+
+VALUE rbgari_color(VALUE rv, VALUE bv, VALUE gv, VALUE av) {
+  return Qnil;
+  
+}
+
+
+
 
 
 Init_gari() {
