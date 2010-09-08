@@ -1,3 +1,7 @@
+/**
+* Interface to the library for MRI Ruby.
+*/
+
 #include "gari.h"
 
 #include "SDL_mixer.h"
@@ -15,103 +19,7 @@
 * 3) Which in turn will load the Gari library.
 */
 
-#include "ruby.h"
-#include "ruby/intern.h"
-
-struct GariRuby_;
-
-/*typedef struct GariRuby_ GariRuby; */
-
-struct GariRuby_ {
-  int wasinit;
-  int error;
-  int argc;
-  char  *argv[32];
-};
-
-GariRuby * gari_ruby_init(GariRuby * ruby) {
-  if(!ruby)         return NULL;
-  if(ruby->wasinit) return ruby;
-  // ruby->argc    = 0;
-  // ruby->argv[0] = "gari";
-  
-  // ruby_sysinit(&ruby->argc, &ruby->argv);
-  
-  
-  ruby_init();
-  ruby_init_loadpath();
-  ruby->wasinit = TRUE;
-  
-  
-  return ruby;
-} 
-
-GariRuby * gari_ruby_new() {
-  GariRuby * ruby;
-  ruby = GARI_ALLOCATE(GariRuby);
-  if(!ruby) return NULL;  
-  if(!gari_ruby_init(ruby)) {
-    GARI_FREE(ruby);
-    return NULL;
-  }
-  return ruby;  
-}
-
-
-
-GariRuby * gari_ruby_showerror(GariRuby * ruby) {
-  VALUE lasterr, m;
-  if (!ruby)   	  	{ return NULL; }
-  if (!ruby->error)	{ return ruby; }
-  lasterr = rb_gv_get("$!");
-  /* message */
-  m = rb_obj_as_string(lasterr);
-  printf("Ruby error: %s\n", RSTRING_PTR(m));
-}
-
-
-GariRuby * gari_ruby_done(GariRuby * ruby) {
-  if(!ruby)           return NULL;
-  if(!ruby->wasinit)  return NULL;
-  ruby_finalize();
-  ruby->wasinit = FALSE;
-}
-
-void gari_ruby_free(GariRuby * ruby) {
-  if(!ruby) return NULL;
-  gari_ruby_done(ruby);
-}
-
-
-GariRuby * gari_ruby_eval(GariRuby * ruby, char * str) {
- int result;
- rb_eval_string(str); 
- // rb_eval_string_protect(str, &result); 
- // ruby->error = result; 
- return ruby;
-}
-
-int gari_ruby_exec(GariRuby * ruby, char * filename) {
- rb_load_file(filename);
- // return ruby_exec();
-}
-
-
-/*
-RUBY_GLOBAL_SETUP
- 
-int main(int argc, char *argv[])
-{
-    ruby_sysinit(&argc, &argv);
-    {
-        RUBY_INIT_STACK;
-        ruby_init();
-        return ruby_run_node(ruby_options(argc, argv));
-    }
-}
-*/
-
-
+#include "rubyhelp.h"
 
 // Data_Wrap_Struct(klass, mark, free, ptr)
 
@@ -122,7 +30,6 @@ rbgari
 
 VALUE rbgari_color(VALUE rv, VALUE bv, VALUE gv, VALUE av) {
   return Qnil;
-  
 }
 
 

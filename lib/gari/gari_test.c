@@ -13,23 +13,22 @@ TEST_FUNC(game) {
   GariFlow * flow;
   GariFont * font; 
   GariGame * game;
-  GariRuby * ruby;
   GariScreen * screen;
   GariImage * sim;
   GariImage * tim, * mim, * oim, * bim;
   GariEvent ev;
   int i, j, rep, done;
   GariDye pixel;
-  GariColor c1, c2, c3, c4, cg, white, green, black, yellow, red;
+  GariColor c1, c2, c3, c4, cg, white, green, black, yellow, red, blue;
   
-  ruby 	  = gari_ruby_new();
-  TEST_NOTNULL(ruby);
   
   white   = gari_color(255,255, 255);
   green   = gari_color(0  ,255, 0);
   black   = gari_color(0  ,0  , 0);
   yellow  = gari_color(255,255, 0);  
   red     = gari_color(255, 0, 0);
+  blue    = gari_color(0  , 0, 255);
+  red     = blue;
   
   game    = gari_game_make();
   TEST_NOTNULL(game);
@@ -120,9 +119,8 @@ TEST_FUNC(game) {
   gari_image_free(tim);
   gari_font_free(font);
   
-  gari_audio_done(game);    
+  gari_audio_done(game);
   gari_game_free(game);
-  gari_ruby_free(ruby);
   
   
   TEST_DONE();
@@ -148,6 +146,7 @@ int gari_ruby_do(const char * cmd) {
 
 int main(int argc, char * argv[]) {
   int result;
+  GariColor red, green;
 /*  RUBY_INIT_STACK
   ruby_init();
   // ruby_script(argv[0]);
