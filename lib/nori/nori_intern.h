@@ -10,10 +10,7 @@ you find in here outside of the library.
 #error This include file is only for used inside the Nori Library source files.
 #endif
 
-
-#include "SDL_ttf.h"
-#include "SDL_image.h"
-#include "SDL_mixer.h"
+#include <stdint.h>
 
 /* A few macros for memory allocation, so we can allow libgc if needed. */
 #ifndef NORI_MALLOC
@@ -26,6 +23,15 @@ you find in here outside of the library.
 
 
 #define NORI_ALLOCATE(TYPENAME) NORI_MALLOC(sizeof(TYPENAME))
+
+#ifndef FALSE
+#define FALSE (0)
+#endif
+
+
+#ifndef TRUE
+#define TRUE (!FALSE)
+#endif
 
 
 
