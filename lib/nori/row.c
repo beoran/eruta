@@ -65,7 +65,7 @@ NoriRow * nori_row_init(NoriRow * row, size_t cap, size_t esz) {
 
 
 /** Cleans up the contents of the row after use, although it does not call 
-    cleanup on the elements. XXX/ this doesn't make sense from an ownership 
+    cleanup on the elements. XXX: this doesn't make sense from an ownership 
     point of view.*/
 NoriRow * nori_row_done(NoriRow * row) {
   if(row->ptr) {
