@@ -10,10 +10,8 @@ you find in here outside of the library.
 #error This include file is only for used inside the Nori Library source files.
 #endif
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+
+#include "nori.h"
 
 /* A few macros for memory allocation, so we can allow libgc if needed. */
 #ifndef NORI_MALLOC
@@ -24,17 +22,24 @@ you find in here outside of the library.
 #define NORI_FREE(PTR) (free(PTR))
 #endif 
 
+#ifndef NORI_REALLOC
+#define NORI_REALLOC(PTR, SIZE) (realloc(PTR, SIZE))
+#endif 
+
+
 
 #define NORI_ALLOCATE(TYPENAME) NORI_MALLOC(sizeof(TYPENAME))
+
+/* Define some fake booleans, of course. */
 
 #ifndef FALSE
 #define FALSE (0)
 #endif
 
-
 #ifndef TRUE
 #define TRUE (!FALSE)
 #endif
+
 
 
 

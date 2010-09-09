@@ -26,11 +26,16 @@
 
 // bag, bin, bar, row, box, jar, keg, kit, pea, pod, pot,rig, can, tin, tub, wad
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 
+// For sizes 
+typedef size_t NoriSize;
 
-
-
+/** Rows are generic low level arrays. */
 
 
 
