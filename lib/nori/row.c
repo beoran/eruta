@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 
 #define NORI_INTERN_ONLY
 #include "nori_intern.h"

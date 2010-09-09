@@ -11,6 +11,9 @@ you find in here outside of the library.
 #endif
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 /* A few macros for memory allocation, so we can allow libgc if needed. */
 #ifndef NORI_MALLOC
