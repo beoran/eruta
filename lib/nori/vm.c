@@ -79,8 +79,13 @@ typedef struct NoriFrame_ NoriFrame;
 #define NORI_REG_LOCAL_BASE 156
 #define NORI_REG_LOCAL(LOCAL) (NORI_REG_LOCAL_BASE    + (LOCAL))
 
+struct NoriVm_;
+typedef struct NoriVm_ NoriVm;
+
  
 struct NoriFrame_ {
+  NoriVm * vm;
+  // Backpointer to the VM
   /** The registers */
   NoriReg regs[NORI_FRAME_REGS];
   /** Every frame has the bytecode of the function it can execute, 
@@ -91,14 +96,9 @@ struct NoriFrame_ {
   NoriSize    ip        ;
 };
 
-
-struct NoriVm_;
-typedef struct NoriVm_ NoriVm;
- 
  
 /** Opcode operation functors. */
 NORI_FUNCTYPE(void) NoriOpFunc(NoriVm * vm);
- 
  
  
 #define NORI_VM_OPS 256
@@ -215,15 +215,38 @@ NoriPtr nori_frame_ip_up(NoriFrame * frame) {
 #define NORI_VM_MOV   40
 
 
-void nori_vm_nop(NoriVm * vm) {
-  nori_frame_ip_up(vm->active);
+void nori_vm_nop(NoriVm * vm) {  
 }
 
-void nori_vm_(NoriVm * vm) {
-  nori_frame_ip_up(vm->active);
+void nori_vm_iload(NoriVm * vm) {
 }
 
 
+NoriOpFunc nori_vm_opfunc(NoriVm * vm, NoriByte opcode) {
+  return vm->ops[opcode]; 
+}
+
+NoriOpFunc nori_frame_opfunc(NoriFrame * frame, NoriByte opcode) {
+  return nori_vm_opfunc(frame->vm); 
+}
+
+
+int nori_frame_runop(NoriFrame * frame) {
+  NoriByte   opcode   ;
+  NoriOpFunc op = NULL;
+  if (frame->ip >= frame->codesize) return FALSE;  
+  if (frame->ip < 0) return FALSE;
+  opcode         = frame->code[frame->ip];
+  nori_frame_ip_up(frame);
+  op             = nori_frame_opfunc(frame, opcode);
+  
+  
+  return TRUE;
+} 
+
+int nori_vm_runop(NoriVm * vm) {
+  
+}
 
 
 
