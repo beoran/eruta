@@ -15,20 +15,13 @@ struct NoriRun_;
 
 typedef struct NoriRun_ NoriRun;
 
-NORI_FUNCTYPE(NoriRun *) (*NoriFreeFunc) (NoriRun *self, void *   pointer);
-NORI_FUNCTYPE(void    *) (*NoriAllocFunc)(NoriRun *self, NoriSize size);
-NORI_FUNCTYPE(void    *) (*NoriReallocFunc)(NoriRun *self, NoriSize size);
- 
-
 // NoriRunto contains information of objects at run, so the object
 // Does not have to track it itself.
 struct NoriRunInfo_; 
 typedef struct NoriRunInfo_ NoriRunInfo;
 
 struct NoriRun_ {
-  NoriAllocFunc   alloc;
-  NoriFreeFunc    free;
-  NoriReallocFunc resize;
+  NoriCurator curator;
 };
 
 
@@ -54,7 +47,7 @@ struct NoriBase_ {
   // Reference count
 };
 
-
+/*
 NORI_FUNC(NoriRun*) nori_free(NoriRun * self , void * pointer) {
   if (!self)    return self;
   if (!pointer) return self;
@@ -67,17 +60,17 @@ NORI_FUNC(void*)  nori_alloc(NoriRun * self, NoriSize size) {
   if (!self)    return NULL;
   return        NORI_MALLOC(size);  
 }
-
+*/
 
 
 
 /* Initializes a run with the required parameters. */ 
 NORI_FUNC(NoriRun *) nori_run_init(NoriRun * self,
-                                     NoriAllocFunc a, 
-                                     NoriFreeFunc  f) {
+                                     NoriCuratorAllocate * a, 
+                                     NoriCuratorResize * r, 
+                                     NoriCuratorFree  * f) {
   if (!self)    return self;
-  self->alloc = ( a ? a : nori_alloc);
-  self->free  = ( f ? f : nori_free );
+  nori_curator_init(&self->curator, a, r, f);
   return self;
 }
 
@@ -112,8 +105,8 @@ NORI_FUNC(NoriBase *)  nori_toss(NoriBase * self) {
 }
 
 // The default runtime and a pointer to it
-static NoriRun   default_run      = { nori_alloc, nori_free };
-static NoriRun * default_run_ptr  = &default_run;
+static NoriRun   default_run      ;
+static NoriRun * default_run_ptr  = NULL;
 
 /* Sets the default run. Returns last default run. NOT REENTRANT! */
 NORI_FUNC(NoriRun *) nori_run_default_set(NoriRun * self) {
@@ -124,16 +117,19 @@ NORI_FUNC(NoriRun *) nori_run_default_set(NoriRun * self) {
 
 /* Gets the default run. Returns last default run. NOT REENTRANT! */
 NORI_FUNC(NoriRun *) nori_run_default_get(NoriRun * self) {
-  return  default_run_ptr;
+  if(!default_run_ptr) {
+    default_run_ptr = & default_run;
+    nori_run_init(default_run_ptr, NULL, NULL, NULL);
+  }
+  return default_run_ptr;
 }
 
 
 // Frees a basic object only
 NORI_FUNC(NoriBase *)  nori_base_free(NoriBase * b) {
   if (!b)            return b;
-  if (!b->run)       return b;
-  if (!b->run->free) return b;
-  NORI_DO(b->run, free, b);
+  if (!b->run)       return b;  
+  nori_curated_free(& ((b->run)->curator), b);  
   return NULL;
 }
 
@@ -153,7 +149,7 @@ NORI_FUNC(NoriBase *)  nori_base_init(NoriBase * b, NoriRun * r,
 // Makes a basic object, allocating it.
 NORI_FUNC(NoriBase *) nori_base_make(NoriRun * r, NoriBaseFreeFunc f, NoriSize s) {
   NoriBase * b;
-  b = (NoriBase *) NORI_DO(r, alloc, s);
+  b = (NoriBase *) nori_curated_allocate(& ((b->run)->curator), s);  
   return nori_base_init(b, r, f, s);
 }
 

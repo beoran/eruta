@@ -2,11 +2,6 @@
 #define NORI_INTERN_ONLY
 #include "nori_intern.h"
 
-typedef uint32_t NoriU32;
-typedef int32_t  NoriI32;
-typedef double   NoriF64;
-typedef uint8_t  NoriByte;
-typedef void *   NoriPtr;
 
 union NoriReg_;
 
@@ -221,7 +216,7 @@ void nori_vm_nop(NoriVm * vm) {
 void nori_vm_iload(NoriVm * vm) {
 }
 
-
+/*
 NoriOpFunc nori_vm_opfunc(NoriVm * vm, NoriByte opcode) {
   return vm->ops[opcode]; 
 }
@@ -248,7 +243,7 @@ int nori_vm_runop(NoriVm * vm) {
   
 }
 
-
+*/
 
 
 

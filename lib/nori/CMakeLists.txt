@@ -15,7 +15,7 @@ set(CMAKE_C_FLAGS "-Wall -g -O")
 # set(LIBS ${LIBS} pthread m)
 # Real Time enabled C Utility Library
 set(LIBNAME nori)
-set(CFILES row.c item.c run.c vm.c)
+set(CFILES memory.c row.c item.c run.c vm.c)
 add_library(${LIBNAME}_static STATIC ${CFILES})
 add_library(${LIBNAME} SHARED ${CFILES})
 target_link_libraries(nori ${LIBS})
