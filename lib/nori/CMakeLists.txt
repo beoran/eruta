@@ -8,7 +8,7 @@ endif()
 set(CMAKE_C_FLAGS "-Wall -g -O")
 
 # include_directories()
-# set(LIBS ${LIBS})
+set(LIBS ${LIBS} m)
 
 # configure_file("config.in.h" "config.h")
 
