@@ -75,9 +75,9 @@ struct NoriRod_ {
     and which must then be freed when the container is disposed of. But if 
     the container is temporary, that is, shorter lived than the containee, it might be enough to borrow a reference to it.
     
- 4) the pointer points to malloced() memory. Generally, a copy should be made.      However, if the malloced memory location has no other owner, a copy might       not be needed. In both cases, the container has to free the memory. Or, 
-    when it's a weak reference, a weak reference objet can be allocated to 
-    hod the borrowed reference. 
+ 4) the pointer points to malloced() memory. Generally, a copy should be made.      However, if the malloced memory location has no other owner, a copy might       not be needed, especially if it is to wrap a pointer that contains memory       allocated by some C library function. Anyway, in both cases, 
+    the container has to free the memory. Or, when it's a weak reference, 
+    a weak reference object can be allocated to hold the borrowed reference. 
     
   So basically there are two questions: copy or not copy, and free or not free.
   
@@ -85,18 +85,22 @@ struct NoriRod_ {
   No copy, do free: Took ownership of reference.
   Do copy, no free: Error, causes memory leaks.
   Do copy, do free: Took ownership and copied otherwise data that was volatile
-                    or owned by other container.     
+                    or owned by other container.
    
   
   Pointer To : | Constant   | Global    | Stack         | Malloced  
   -------------+------------+-----------+---------------+-----------
   Copy ?       | No         | No        | Yes, usually  | Yes, usually
-  Free ?       | No         | No        | Yes           | Yes, anyway.      
+  Free ?       | No         | No        | Yes           | Yes, anyway.
    
   
   => An owner is the container that is "responsible" for cleaning up the
   malloced data that it has pointers to. It does this by calling the
-  needed free functions on the object when it gets freed itself. 
+  needed free functions on the object when it gets freed itself.
+   
+  What do we need custom functions for? When dealing with memory allocation, there are several things we can do: allocate, resize, deep copy, shallow 
+  copy  and free. It seems it depends on how to deal with these whether or 
+  not we need such custom functions.
   
 
 */
