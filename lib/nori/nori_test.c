@@ -48,11 +48,14 @@ typedef struct Varia_ Varia;
 #define VARIA_INT     3
 #define VARIA_DOUBLE  4
 #define VARIA_POINTER 5
+#define VARIA_ARRAY   6
+
 #define VARIA_GC_FLAGS 7
 
 struct Varia_ {
   int type;
   int flags; //simulated flags that would beused for GC, etc in the real McCoy.
+  int size;
   union {
    int32_t  i;
    double   d;
@@ -61,6 +64,7 @@ struct Varia_ {
 }; 
 
 typedef Varia (VarFunc)(Varia firtstarg, ...);
+typedef Varia (VarFunc2)(int argc, Varia argv[]);
 
 Varia wrap_do_nothing(Varia arg) {
   Varia result;
@@ -83,6 +87,16 @@ Varia wrap_sum(Varia arg1, ...) {
 }
 
 
+Varia wrap_sum2(int argc, Varia argv[]) {
+  Varia result, arg1, arg2;
+  arg1          = argv[0];
+  arg2          = argv[1];
+  result.type   = VARIA_INT;
+  result.flags  = VARIA_GC_FLAGS;
+  result.data.i = sum(arg1.data.i, arg2.data.i);
+  return result;
+}
+
 #define TRIES 10000000
 
 TEST_FUNC(nori) {
@@ -91,12 +105,13 @@ TEST_FUNC(nori) {
   Varia   vararg, vararg2;
   VarFunc * varfunc = wrap_do_nothing;
   VarFunc * varsum  = wrap_sum;
+  VarFunc2 * varsum2  = wrap_sum2;
   void *values[2];
   int s;
   int rc;
   clock_t   start, stop, delta; 
   double d1 = 1.0, d2 = 1.0;
-  int i, j;
+  int32_t i, j;
   start = clock();  
   for(i = 0; i < TRIES; i++) {
     j = sum(i, i);
@@ -104,7 +119,7 @@ TEST_FUNC(nori) {
   stop  = clock();
   delta = stop - start;
   d1    = ((double) delta) / ((double)CLOCKS_PER_SEC);
-  fprintf(stderr, "Direct call: do_nothing %d times: %d (%lf s) %d\n", TRIES, delta, d1, j);
+  fprintf(stderr, "Direct call: sum %d times: %d (%lf s) %d\n", TRIES, delta, d1, j);
     
   start = clock();  
   for(i = 0; i < TRIES; i++) {
@@ -157,7 +172,27 @@ TEST_FUNC(nori) {
   d1    = ((double) delta) / ((double)CLOCKS_PER_SEC);
   fprintf(stderr, "Wrapped sum call: %d times: %d (%lf s) %d\n", TRIES, delta, d1, j);
 
-    
+  j     = 123;  
+  start = clock();  
+  for(i = 0; i < TRIES; i++) {
+    Varia result;
+    Varia args[2];
+    args[0].type    = VARIA_INT;
+    args[0].flags   = VARIA_GC_FLAGS;
+    args[0].data.i  = i;
+    args[1].type    = VARIA_INT;
+    args[1].flags   = VARIA_GC_FLAGS;
+    args[1].data.i  = 10;
+    result          = varsum2(2, args);
+    if (result.type == VARIA_INT) { 
+      j             = result.data.i;
+    }
+  }
+  stop  = clock();
+  delta = stop - start;
+  d1    = ((double) delta) / ((double)CLOCKS_PER_SEC);
+  fprintf(stderr, "Wrapped sum call via array: %d times: %d (%lf s) %d\n", TRIES, delta, d1, j);
+
   /* Initialize the argument info vectors */
   args[0]   = &ffi_type_sint;
   values[0] = &i;

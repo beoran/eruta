@@ -5,7 +5,8 @@ endif()
 # set(CMAKE_BUILT_TYPE Debug)
 # below is for profiling.
 #set(CMAKE_C_FLAGS "-Wall -g -pg -O")
-set(CMAKE_C_FLAGS "-Wall -g -O")
+# -Wall
+set(CMAKE_C_FLAGS "-g -O")
 
 # include_directories()
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
@@ -18,7 +19,7 @@ INCLUDE_DIRECTORIES(${FFI_INCLUDE_DIR})
 # set(LIBS ${LIBS} pthread m)
 # Real Time enabled C Utility Library
 set(LIBNAME nori)
-set(CFILES memory.c row.c item.c run.c vm.c)
+set(CFILES memory.c rod.c row.c item.c run.c vm.c)
 add_library(${LIBNAME}_static STATIC ${CFILES})
 add_library(${LIBNAME} SHARED ${CFILES})
 target_link_libraries(nori ${LIBS})

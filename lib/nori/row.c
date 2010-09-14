@@ -2,6 +2,8 @@
 #define NORI_INTERN_ONLY
 #include "nori_intern.h"
 
+
+/** A row is an array. */
 struct NoriRow_;
 typedef struct NoriRow_ NoriRow;
 
