@@ -8,7 +8,10 @@ endif()
 set(CMAKE_C_FLAGS "-Wall -g -O")
 
 # include_directories()
-set(LIBS ${LIBS} m)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+find_package(FFI REQUIRED)
+set(LIBS ${LIBS} ${FFI_LIBRARY} m)
+INCLUDE_DIRECTORIES(${FFI_INCLUDE_DIR})
 
 # configure_file("config.in.h" "config.h")
 
