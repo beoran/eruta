@@ -14,6 +14,10 @@ find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_ttf REQUIRED)
 find_package(Ruby 1.9 REQUIRED)
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
+find_package(Lua REQUIRED)
+
 # FindSDL
 # FindSDL_image
 # FindSDL_mixer
@@ -34,18 +38,21 @@ set(RUBY_INCLUDE_DIRS
 set(RUBY_LIBRARY -L/usr/local/lib libruby1.9.so)
 endif()
 message("Ruby: " ${RUBY_INCLUDE_DIRS})
+message("Lua: " ${LUA_LIBRARIES})
 
 include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR}
-${RUBY_INCLUDE_DIRS})
+${RUBY_INCLUDE_DIRS} ${LUA_INCLUDE_DIRS})
+
 set(LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY} 
-${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${RUBY_LIBRARY})
+${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${RUBY_LIBRARY}
+${LUA_LIBRARIES})
 
 # configure_file("config.in.h" "config.h")
 
 # set(LIBS ${LIBS} pthread m)
 # Real Time enabled C Utility Library
 set(CFILES gari.c audio.c image.c font.c pixel.c draw.c color.c tile.c 
-           layer.c map.c sprite.c event.c camera.c particle.c
+           layer.c map.c script.c sprite.c event.c camera.c particle.c
            ruby.c)
 add_library(gari_static STATIC ${CFILES})
 add_library(gari SHARED ${CFILES})

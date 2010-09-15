@@ -80,8 +80,8 @@ GariSound * gari_sound_play(GariSound * sound) {
 
 struct GariMusic_ {
   Mix_Music * tune;
-  uint32_t start;
-  uint32_t current;  
+  uint32_t    start;
+  uint32_t    current;
 };
 
 

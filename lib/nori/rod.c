@@ -90,7 +90,7 @@ struct NoriRod_ {
   
   Pointer To : | Constant   | Global    | Stack         | Malloced  
   -------------+------------+-----------+---------------+-----------
-  Copy ?       | No         | No        | Yes, usually  | Yes, usually
+  Copy ?       | No         | No        | Yes, usually  | Yes, usually.
   Free ?       | No         | No        | Yes           | Yes, anyway.
    
   
@@ -105,19 +105,53 @@ struct NoriRod_ {
 
 */
 
-#define NORI_ROD_CONST
-#define NORI_ROD_GRAB
-#define NORI_ROD_COPY
+/* Memory mode */
+
+#define NORI_MEM_DOCOPY   1
+#define NORI_MEM_DOFREE   2
+
+/** Three different things tio do with a reference. 
+    Either borrow it and don't become the owner, or become the owner, 
+    or copy the data and become the owner of the copy. 
+*/
+#define NORI_MEM_BORROW   0
+#define NORI_MEM_OWN      (NORI_MEM_DOFREE)
+#define NORI_MEM_COPY     (NORI_MEM_DOCOPY | NORI_MEM_FREE)
+
+#ifndef NORI_ROD_FREE
+#define NORI_ROD_FREE(MEM) nori_free(MEM)
+#endif
+
+#ifndef NORI_ROD_ALLOC
+#define NORI_ROD_ALLOC(SIZE) nori_alloc(SIZE)
+#endif
+
+char * nori_rod_makestr(NoriSize size) {
+  return NORI_ROD_ALLOC(size);
+}
+
+/** Copies amount characters from src to dest, ofsetting these poiners first
+by the given offsets. */
+char * nori_rod_strmv(char * dest, const char * src, NoriSize amount, 
+                      NoriSize dsroff, NoriSize srcoff) {
+  int index;
+  dest += dstoff;
+  src  += srcoff;
+  for(index = 0; index < amount; index ++) {
+    dest[index] = src[index];
+  }
+  return dest;
+}    
 
 NoriRod * nori_rod_init(NoriRod * rod, char * str, int mode) {
   rod->size     = strlen(str);
-  rod->constant = constant;
-  if(constant || grab) {
-    rod->str  = str;
-  } else {
-    rod->str  = nori_alloc(rod->size);
+  rod->mode     = mode;
+  if(mode & NORI_MEM_DOCOPY) {
+    rod->str    = nori_rod_makestr(rod->size);
     if(!rod->str) { return NULL; } 
-    strncpy(rod->strn, str, rod->size);
+    nori_rod_strmv(rod->strn, str, rod->size, 0, 0);    
+  } else {
+    rod->str  = str;
   }
   return rod;
 }
@@ -125,34 +159,114 @@ NoriRod * nori_rod_init(NoriRod * rod, char * str, int mode) {
 
 NoriRod * nori_rod_done(NoriRod * rod) {
   if(!rod) return NULL;
-  if(!rod->constant) { 
-    nori_free(rod->str); rod->str = NULL;
+  if(rod->mode & NORI_MEM_DOFREE) { 
+    NORI_ROD_FREE(rod->str); 
   }
+  rod->str = NULL;
   return rod;
 }
 
 void nori_rod_free(NoriRod * rod) {
   nori_rod_done(rod);
-  nori_free(rod);
+  NORI_ROD_FREE(rod);
 }
 
-NoriRod * nori_rod_new(char * str, int constant, int grab) {
-  NoriRod * rod = nori_alloc(sizeof(NoriRod));
+
+NoriRod * nori_rod_new(char * str, int mode) {
+  NoriRod * rod = NORI_ROD_ALLOC(sizeof(NoriRod));
   if(!rod) return NULL;
-  return nori_rod_init(rod, str, constant, grab);
+  return nori_rod_init(rod, str, mode);
 }   
 
 NoriRod * nori_rod_grab(char * str) {
-  return nori_rod_new(str, FALSE, TRUE);
+  return nori_rod_new(str, NORI_MEM_OWN);
 }   
 
-NoriRod * nori_rod_copy(char * str) {
-  return nori_rod_new(str, TRUE, FALSE);
+NoriRod * nori_rod_cstrcopy(char * str) {
+  return nori_rod_new(str, NORI_MEM_COPY);
 }   
 
-NoriRod * nori_rod_grab(char * str) {
-  return nori_rod_new(str, TRUE);
+NoriRod * nori_rod_wrap(const char * str) {
+  return nori_rod_new((char *)str, NORI_MEM_BORROW);
 }   
+
+char * nori_rod_cstr(const NoriRod * rod) {
+  return rod->str;
+} 
+
+NoriSize nori_rod_size(const NoriRod * rod)  {
+  return rod->size;
+}
+
+int nori_rod_puts(const NoriRod * rod) {
+  return puts(nori_rod_cstr(rod));
+}
+
+
+NoriRod * nori_rod_empty() {
+  return nori_rod_wrap("");
+}
+
+NoriRod * nori_rod_cat(const NoriRod * r1, const NoriRod * r2) {
+  NoriSize newsize, s1, s1;
+  char * buf; 
+  s1      = nori_rod_size(r1);
+  s2      = nori_rod_size(r2);
+  newsize = s1 + s2 + 1; // For ending \0 char.
+  buf     = nori_rod_makestr(newsize);
+  if(!buf) return NULL;
+  nori_rod_strmv(buf, nori_rod_cstr(r1), s1, 0);
+  nori_rod_strmv(buf, nori_rod_cstr(r2), s2, s1);
+  buf[s1 + s2] = '\0' ; // Null terminate.
+  return nori_rod_grab(buff);
+}
+
+NoriRod * nori_rod_join(NoriSize amount, 
+                        const NoriRod * rods[], const NoriRod * sep) {
+  int index;
+  NoriRod * result, newresult;
+  result  = nori_rod_empty();
+  for (index  = 0; index < amount; index ++) {
+    newresult = nori_rod_cat(result, rods[index]); 
+    if(!newresult) {
+      nori_rod_free(result);
+      return NULL;
+    }
+    result    = newresult;
+    // Add separator if not last part to be joined.
+    if(index < (amount - 1) { 
+      newresult = nori_rod_cat(result, sep); 
+      if(!newresult) {
+        nori_rod_free(result);
+        return NULL;
+      }
+    } 
+  }
+}
+
+char nori_rod_index(NoriRod * rod, NoriSize index) {
+  if(index > nori_rod_size()) return 0;
+  return rod->str[index];
+} 
+
+NoriRod * nori_rod_u32(NoriRod, NoriU32 u32) {
+  char buf[1024]; // hopefully long enough for evil sprintf :p
+  sprintf(buf, "%lu", u32);
+  return nori_rod_cstrcopy(buf);
+} 
+
+NoriRod * nori_rod_s32(NoriRod, NoriS32 s32) {
+  char buf[1024]; // hopefully long enough for evil sprintf :p
+  sprintf(buf, "%ld", s32);
+  return nori_rod_cstrcopy(buf);
+} 
+
+NoriRod * nori_rod_f64(NoriRod, NoriF64 f64) {
+  char buf[1024]; // hopefully long enough for evil sprintf :p
+  sprintf(buf, "%lf", f64);
+  return nori_rod_cstrcopy(buf);
+} 
+
 
 
 

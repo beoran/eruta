@@ -34,6 +34,7 @@ you find in here outside of the library.
 
 #define gari_allocate(TYPENAME) gari_malloc(sizeof(TYPENAME))
 #define GARI_ALLOCATE(TYPENAME) GARI_MALLOC(sizeof(TYPENAME))
+#define GARI_ALLOC(TYPENAME) GARI_ALLOCATE(TYPENAME)
 
 
 /* Initializes a gari game. External users will use gari_game_make. */

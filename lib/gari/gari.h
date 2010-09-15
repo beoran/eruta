@@ -29,6 +29,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+/* 
+  Some platforms will need a __declspec(dllexport) or something for 
+  functions in a shared library.
+*/
+#ifndef GARI_EXPORT_FUNC
+#define GARI_EXPORT_FUNC extern
+#endif
+  
+/*
+* Some platforms may require a change in calling convention
+*/  
+#ifndef GARI_CALL_FUNC
+#define GARI_CALL_FUNC
+#endif 
+
+/* All in a handy wrapper macro */
+#define GARI_FUNC(RESULT) GARI_EXPORT_FUNC RESULT GARI_CALL_FUNC
+ 
+/* An another wrapper macro to help typedefing such functions */
+#define GARI_FUNCTYPE(RESULT) typedef RESULT GARI_CALL_FUNC
+
 
 /** Default color depth to open the creen with. Normally 32.  */
 #ifndef GARI_DEFAULT_DEPTH 
