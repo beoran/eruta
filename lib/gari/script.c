@@ -27,6 +27,11 @@ typedef lua_CFunction gari_lua_function;
 #define GARI_LUA_STATE(STATE)  (lua_State *)(STATE)
 #define GARI_LUA_GARI(STATE)  (GariLua)(STATE)
 
+#define lua_boxpointer(L, U) \
+        (*(void **)(lua_newuserdata(L, sizeof(void *))) = (U))
+
+#define lua_unboxpointer(L, I)   (*(void **)(lua_touserdata(L, U)))
+
 
 void gari_lua_free(GariLua lua) {
   if(lua) { lua_close(lua); }
