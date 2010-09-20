@@ -1,2 +1,0 @@
-/usr/bin/ar cr libraku_static.a  CMakeFiles/raku_static.dir/string.c.o
-/usr/bin/ranlib libraku_static.a

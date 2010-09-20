@@ -1,4 +1,0 @@
-/home/bjmey/arch/eruta/lib/raku/CMakeFiles/check.dir
-/home/bjmey/arch/eruta/lib/raku/CMakeFiles/raku.dir
-/home/bjmey/arch/eruta/lib/raku/CMakeFiles/raku_static.dir
-/home/bjmey/arch/eruta/lib/raku/CMakeFiles/raku_test.dir

@@ -1,1 +1,0 @@
-/usr/bin/gcc  -fPIC -g -O  -shared -Wl,-soname,libraku.so -o libraku.so CMakeFiles/raku.dir/string.c.o -lm 
