@@ -1,0 +1,1 @@
+/usr/bin/gcc  -g -O   CMakeFiles/raku_test.dir/raku_test.c.o  -o raku_test -rdynamic -lm libraku.so -lm -Wl,-rpath,/home/bjmey/arch/eruta/lib/raku 
