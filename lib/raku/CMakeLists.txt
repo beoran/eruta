@@ -20,7 +20,7 @@ set(LIBS ${LIBS} m)
 # Real Time enabled C Utility Library
 set(LIBNAME raku)
 set(${SRC_SUBDIR} ${CMAKE_SOURCE_DIR}/src/)
-set(CFILES string.c)
+set(CFILES memory.c string.c)
 add_library(${LIBNAME}_static STATIC ${CFILES})
 add_library(${LIBNAME} SHARED ${CFILES})
 target_link_libraries(raku ${LIBS})

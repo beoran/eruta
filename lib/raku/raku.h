@@ -64,7 +64,7 @@ enum RaTypeEnum_ {
 
 /** Built in wrappers for handling memory, like 
 malloc, realloc, zero, set, copy  and free */
-RA_FUNC(void *) ra_mem_alloc(RaSize size);
+RA_FUNC(void *) ra_mem_allot(RaSize size);
 RA_FUNC(void *) ra_mem_resize(void * mem, RaSize size);
 RA_FUNC(void)   ra_mem_free(void   * mem);
 RA_FUNC(void *) ra_mem_set(void    * dst, int c, RaSize size);
@@ -86,7 +86,7 @@ struct RaObject_ {
   RaCount count;
 };
 
-typedef struct RaCount_ RaCount;
+typedef struct RaObject_ RaObject;
 
 
 
