@@ -147,7 +147,7 @@ RA_FUNC(RaObject) ra_object_init(RaObject obj, RaDestructor des);
 
 
 /** Generic Raku object finalization function. */
-RA_FUNC(void) ra_object_free(RaObject obj);
+RA_FUNC(void) ra_object_free(RaPtr obj);
 
 
 /** Increase refcount, taking care not to exceed the max.  

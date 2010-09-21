@@ -53,9 +53,10 @@ RA_FUNC(RaObject) ra_object_init(RaObject obj, RaDestructor des) {
 }
 
 /** Generic Raku object finalization function. */
-RA_FUNC(void) ra_object_free(RaObject obj) {
+RA_FUNC(void) ra_object_free(RaPtr objptr) {
+  RaObject obj = (RaObject) objptr;
   if(!obj || !obj->free_) return;
-  obj->free_((RaPtr) obj);  // call destructor. 
+  obj->free_(objptr);       // call destructor. 
   obj->free_ = NULL;        // prevent double erasure.
 }
 
