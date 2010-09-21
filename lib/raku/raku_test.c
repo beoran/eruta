@@ -11,7 +11,12 @@ TEST_FUNC(raku_mem) {
 
 
 TEST_FUNC(raku_string) {
+  RaString s1, s2, s3, s4;
   fprintf(stderr, "sizeof RaVar : %d\n", sizeof(RaVar)); 
+  s1 = ra_string_fromc("Hello!");
+  ra_string_puts(s1);
+  fprintf(stderr, "%p %p\n", s1, s1->data); 
+  RA_OBJECT_TOSS(s1);
   TEST_DONE();
 }
 

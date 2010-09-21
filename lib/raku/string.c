@@ -23,7 +23,9 @@ RA_FUNC(RaString) ra_string_done(RaString string) {
 
 /** Frees the RaString as a whole. */
 RA_FUNC(RaString) ra_string_free(RaString string) {
-  ra_mem_free(ra_string_done(string));
+  if(!string) return;
+  ra_string_done(string);
+  ra_mem_free(string);
 }
 
 
@@ -42,6 +44,9 @@ RA_FUNC(RaString) ra_string_newsize(RaString str, RaSize sz) {
 
 /** Initializes an already allocated RaString. */
 RA_FUNC(RaString) ra_string_init(RaString str, char * data, RaSize size) {
+  
+  str->data     = NULL;       
+  str->size     = 0;          
   if(!ra_string_newsize(str, size)) {
     return NULL;
   }   
@@ -50,8 +55,9 @@ RA_FUNC(RaString) ra_string_init(RaString str, char * data, RaSize size) {
 }
 
 RA_FUNC(RaString) ra_string_new(char * data, RaSize size) {
-  RaString string = ra_mem_allot(sizeof(RaString));
+  RaString string = ra_mem_allot(sizeof(RaStringStruct));  
   if(!string) return NULL;
+  RA_OBJECT_INIT(string, ra_string_free);
   if(!ra_string_init(string, data, size)) {
     free(string); 
     return NULL;
@@ -129,11 +135,22 @@ RA_FUNC(int) ra_string_equal(RaString s1, RaString s2) {
   return (memcmp(s1->data, s2->data, s1->size) == 0);
 }
 
-RA_FUNC(RaString) ra_string_fromnum(RaString dst, RaF64 num) {
+RA_FUNC(RaString) ra_string_fromf64(RaString dst, RaF64 num) {
   RaSize size;
   char buffer[1024]; // hope it's large enough :p
   if(!dst) return NULL; 
   sprintf(buffer, "%lf", num); // hope sprintf is accurate enough.
+  size = strlen(buffer);
+  ra_string_newsize(dst, size);
+  ra_strncpy(dst->data, buffer, size);
+  return dst;
+}
+
+RA_FUNC(RaString) ra_string_fromi32(RaString dst, RaI32 num) {
+  RaSize size;
+  char buffer[1024]; // hope it's large enough :p
+  if(!dst) return NULL; 
+  sprintf(buffer, "%ld", num); // hope sprintf is accurate enough.
   size = strlen(buffer);
   ra_string_newsize(dst, size);
   ra_strncpy(dst->data, buffer, size);
