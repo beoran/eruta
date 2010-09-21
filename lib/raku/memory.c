@@ -57,7 +57,7 @@ RA_FUNC(void) ra_object_free(RaPtr objptr) {
   RaObject obj = (RaObject) objptr;
   if(!obj || !obj->free_) return;
   obj->free_(objptr);       // call destructor. 
-  obj->free_ = NULL;        // prevent double erasure.
+  // Can't do obj->free_ = NULL, since obj has already been erased.   
 }
 
 
