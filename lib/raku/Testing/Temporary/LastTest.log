@@ -1,18 +1,20 @@
-Start testing: Sep 21 00:13 CEST
+Start testing: Sep 21 10:04 CEST
 ----------------------------------------------------------
-Changing directory into: /home/bjorn/eruta/lib/raku
 1/1 Testing: raku_test
 1/1 Test: raku_test
-Command: "/home/bjorn/eruta/lib/raku/raku_test" 
-Directory: /home/bjorn/eruta/lib/raku
-"raku_test" start time: Sep 21 00:13 CEST
+Command: "/home/bjmey/arch/eruta/lib/raku/raku_test"
+Directory: /home/bjmey/arch/eruta/lib/raku
+"raku_test" start time: Sep 21 10:04 CEST
 Output:
 ----------------------------------------------------------
 sizeof RaVar : 12
 SUCCESS: 0/0 
+<end of output>
+Test time =   0.00 sec
 ----------------------------------------------------------
-"raku_test" end time: Sep 21 00:13 CEST
+Test Passed.
+"raku_test" end time: Sep 21 10:04 CEST
 "raku_test" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Sep 21 00:13 CEST
+End testing: Sep 21 10:04 CEST
