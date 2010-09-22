@@ -20,7 +20,7 @@ set(LIBS ${LIBS} m)
 # Real Time enabled C Utility Library
 set(LIBNAME raku)
 set(${SRC_SUBDIR} ${CMAKE_SOURCE_DIR}/src/)
-set(CFILES memory.c string.c)
+set(CFILES array.c memory.c string.c)
 add_library(${LIBNAME}_static STATIC ${CFILES})
 add_library(${LIBNAME} SHARED ${CFILES})
 target_link_libraries(raku ${LIBS})
@@ -32,9 +32,11 @@ enable_testing()
 set(TEST_EXE ${EXECUTABLE_OUTPUT_PATH}${TEST_NAME}) 
 add_test(${TEST_NAME} ${TEST_EXE})
 # Make sure that ctest shows the test error messages if there are any.
-set(CMAKE_CTEST_OPTIONS --output-on-failure)
+set(MEMORYCHECK_COMMAND /usr/bin/valgrind)
+set(CMAKE_CTEST_OPTIONS --output-on-failure1)
 # Make check compiles the tests and runs them immediately.
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} ${CMAKE_CTEST_OPTIONS} DEPENDS ${TEST_EXE})
 
+add_custom_target(grind COMMAND ${MEMORYCHECK_COMMAND} ./${TEST_EXE} DEPENDS ${TEST_EXE})
 
 

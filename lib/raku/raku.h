@@ -58,11 +58,11 @@ typedef uint8_t  RaType;
 enum RaTypeEnum_ {
   RA_TYPE_FAIL    =  0,
   RA_TYPE_OK      =  1, 
-  RA_TYPE_INTEGER =  2, 
+  RA_TYPE_INT     =  2, 
   RA_TYPE_NUMBER  =  3, 
   RA_TYPE_STRING  =  4, 
   RA_TYPE_ARRAY   =  5, 
-  RA_TYPE_TABLE   =  6, 
+  RA_TYPE_TAB     =  6, 
   RA_TYPE_DEF     =  7,
   RA_TYPE_CODE    =  8,
   RA_TYPE_BOX     =  9,
@@ -72,8 +72,8 @@ enum RaTypeEnum_ {
 /** Built in wrappers for handling memory, like 
 malloc, realloc, zero, set, copy  and free */
 
-/** Allot (allocate) memory block of the given size. May return null if the underlying system call fails. */
-RA_FUNC(void *) ra_mem_allot(RaSize size); 
+/** Allocate memory block of the given size. May return null if the underlying system call fails. */
+RA_FUNC(void *) ra_mem_alloc(RaSize size); 
 
 /** Frees the memory block. meme may also be NULL in which case nothing 
 happens. */
@@ -103,12 +103,34 @@ struct RaVar_ {
 
 typedef struct RaVar_ RaVar;
 
-/** Constructs a RaVar that signals failure. 
-* Used a bit like in Snobol or Icon. 
-*/
-RaVar ra_fail_new(); 
+/** Constructs a RaVar that signals failure. Used like in Icon. */
+RA_FUNC(RaVar) ra_fail_new(); 
 
-#define RA_FAILIURE (ra_fail_new)
+/** Constructs an integer RaVar. */
+RA_FUNC(RaVar) ra_int_new(RaI32 i);
+ 
+/** Constructs an numerical RaVar. */
+RA_FUNC(RaVar) ra_num_new(RaF64 f);
+
+#define RA_FAILURE (ra_fail_new())
+
+/** Macro to construct a numerical RaVar */
+#define RA_NUM(N) ra_num_new(N)
+/** Macro to construct an integer RaVar */
+#define RA_INT(I) ra_int_new(I)
+
+
+/** Increases the ref count on an object contained in a ra_var if 
+it contains a pointer. */
+RA_FUNC(RaVar) ra_var_use(RaVar var); 
+
+/** Decreases the ref count on an object contained in a ra_var if 
+it contains a pointer. */
+RA_FUNC(RaVar) ra_var_toss(RaVar var);
+
+#define RA_USE(VAR)  ra_var_use(&VAR)
+#define RA_TOSS(VAR) ra_var_toss(&VAR)
+
 
 /** 
 The object header that every built-in Raku object must have.
@@ -147,7 +169,7 @@ RA_FUNC(RaObject) ra_object_init(RaObject obj, RaDestructor des);
 
 
 /** Generic Raku object finalization function. */
-RA_FUNC(void) ra_object_free(RaPtr obj);
+RA_FUNC(void) ra_object_free(RaObject obj);
 
 
 /** Increase refcount, taking care not to exceed the max.  
@@ -213,6 +235,9 @@ RA_FUNC(RaString) ra_string_concat(RaString dest, RaString s1, RaString s2);
 
 RA_FUNC(RaString) ra_string_between(RaString dst, RaString str, 
                           RaSize start, RaSize stop);
+                          
+RA_FUNC(RaString) ra_string_slice(RaString dst, RaString str, 
+                          RaSize start, RaSize count);
 
 RA_FUNC(int) ra_string_equal(RaString s1, RaString s2);
 
@@ -222,6 +247,56 @@ RA_FUNC(RaString) ra_string_fromi32(RaString dst, RaI32 num);
 RA_FUNC(int) ra_string_tof64(RaString src, RaF64 * f64);
 
 RA_FUNC(int) ra_string_toi32(RaString src, RaI32 * i32);
+
+
+
+/** Array functions. */
+/** A array is an array. */
+struct RaArray_;
+typedef struct RaArrayStruct_ RaArrayStruct;
+typedef RaArrayStruct * RaArray;
+
+/** Returns the length of the array.  */
+RA_FUNC(RaSize) ra_array_size(RaArray array);
+
+/** Returns the capacity of the array.  */
+RA_FUNC(RaSize) ra_array_cap(RaArray array);
+
+/** Returns the pointer of the array as a (void *) pointer. */
+RA_FUNC(void *) ra_array_ptr(RaArray array);
+
+/** Cleans up the contents of the array after use, although it does not call 
+* any cleanup function on the elements themselves. 
+*/
+RA_FUNC(RaArray) ra_array_done(RaArray array);
+
+/** Cleans up the arrray and it's contents, releasing all memory allocated. */
+RA_FUNC(void) ra_array_free(RaArray array); 
+
+/** Resizes an array to have a new capacity of newcap. Keeps the elements 
+* intact. Never shrinks the array to size 0.  
+*/
+RA_FUNC(RaArray) ra_array_newcap(RaArray arr, RaSize newcap);
+
+/** Initializes an empty array by allocating enough space for cap RaVar 
+* elements.
+*/
+RA_FUNC(RaArray) ra_array_init(RaArray arr, RaSize cap); 
+
+/** Allocates a new array with a default capacity of 16 elements. */
+RA_FUNC(RaArray) ra_array_new();
+
+/** Gets a value from the array. */
+RA_FUNC(RaVar) ra_array_get(RaArray arr, RaSize index); 
+
+/** Sets a value into the array. */
+RA_FUNC(RaVar) ra_array_set(RaArray arr, RaSize index, RaVar value); 
+
+/** Adds an element at the end of the array.*/
+RA_FUNC(RaVar) ra_array_push(RaArray arr, RaVar value); 
+
+/** Removes an element from the end of the array. */
+RA_FUNC(RaVar) ra_array_pop(RaArray arr);
 
 
 

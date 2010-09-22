@@ -33,7 +33,7 @@ RA_FUNC(RaString) ra_string_free(RaString string) {
 RA_FUNC(RaString) ra_string_newsize(RaString str, RaSize sz) {
   char * aid;
   if(!str) return NULL;
-  aid           = ra_mem_allot(sz + 1); // One more for \0.
+  aid           = ra_mem_alloc(sz + 1); // One more for \0.
   if(!aid) return NULL;                 // Fail if no memory allocated.  
   ra_string_done(str);                  // Only now, free up old string contents.
   str->data     = aid;                  // Point to newly allocated string.      
@@ -42,11 +42,17 @@ RA_FUNC(RaString) ra_string_newsize(RaString str, RaSize sz) {
   return str;
 }
 
-/** Initializes an already allocated RaString. */
-RA_FUNC(RaString) ra_string_init(RaString str, char * data, RaSize size) {
-  
+/** Initializes an already allocated string to be empty. */
+RA_FUNC(RaString) ra_string_initempty(RaString str) {  
+  if(!str) return NULL;
   str->data     = NULL;       
   str->size     = 0;          
+  return str;
+}
+
+/** Initializes an already allocated RaString. */
+RA_FUNC(RaString) ra_string_init(RaString str, char * data, RaSize size) {
+  ra_string_initempty(str);
   if(!ra_string_newsize(str, size)) {
     return NULL;
   }   
@@ -55,7 +61,7 @@ RA_FUNC(RaString) ra_string_init(RaString str, char * data, RaSize size) {
 }
 
 RA_FUNC(RaString) ra_string_new(char * data, RaSize size) {
-  RaString string = ra_mem_allot(sizeof(RaStringStruct));  
+  RaString string = ra_mem_alloc(sizeof(RaStringStruct));  
   if(!string) return NULL;
   RA_OBJECT_INIT(string, ra_string_free);
   if(!ra_string_init(string, data, size)) {
@@ -89,7 +95,11 @@ RA_FUNC(char *) ra_string_data(RaString str) {
 
 /** Puts the RaString to stdout. Useful for debugging. */
 RA_FUNC(int) ra_string_puts(RaString str) {
-  puts(ra_string_data(str));
+  if(str) { 
+    puts(ra_string_data(str));
+  } else {
+    puts("NULL string!");
+  }
 }
 
 RA_FUNC(RaString) ra_string_concat(RaString dest, RaString s1, RaString s2) {
@@ -107,25 +117,32 @@ RA_FUNC(RaString) ra_string_concat(RaString dest, RaString s1, RaString s2) {
    done so safely. */
 char * ra_strbetween(char * dst, RaSize size, char * src, 
                  RaSize start, RaSize stop) {   
-  int index;
+  int index, jdex;
+  if (start > stop)          return NULL;
   if (start > size)          return NULL; // can't copy past end of string.
   // Truncate stop that goes too far
   if (stop > size)    { stop = size ;  }    
-  for(index = start; index < stop; index ++) {
-    dst[index] = src[index]; 
+  for(index = start, jdex = 0; index < stop; index ++, jdex++) {
+    dst[jdex] = src[index];
   } 
   return dst;
 }
 
 RA_FUNC(RaString) ra_string_between(RaString dst, RaString str, 
                           RaSize start, RaSize stop) {
-  RaSize newsize; 
+  int newsize; 
   if(!dst || !str) return NULL;
-  newsize = stop - start + 1;
+  if(start > stop) return NULL;
+  newsize = stop - start + 1;  
   if (newsize < 0) { newsize = 0; }
-  ra_string_newsize(dst, newsize);
+  ra_string_newsize(dst, (RaSize) newsize);
   ra_strbetween(dst->data, dst->size, str->data, start, stop);
   return dst;  
+}
+
+RA_FUNC(RaString) ra_string_slice(RaString dst, RaString str, 
+                          RaSize start, RaSize count) {
+  return ra_string_between(dst, str, start, start + count);  
 }
 
 

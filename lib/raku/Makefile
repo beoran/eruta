@@ -122,6 +122,19 @@ check/fast:
 .PHONY : check/fast
 
 #=============================================================================
+# Target rules for targets named grind
+
+# Build rule for target.
+grind: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 grind
+.PHONY : grind
+
+# fast build rule for target.
+grind/fast:
+	$(MAKE) -f CMakeFiles/grind.dir/build.make CMakeFiles/grind.dir/build
+.PHONY : grind/fast
+
+#=============================================================================
 # Target rules for targets named raku
 
 # Build rule for target.
@@ -159,6 +172,33 @@ raku_test: cmake_check_build_system
 raku_test/fast:
 	$(MAKE) -f CMakeFiles/raku_test.dir/build.make CMakeFiles/raku_test.dir/build
 .PHONY : raku_test/fast
+
+array.o: array.c.o
+.PHONY : array.o
+
+# target to build an object file
+array.c.o:
+	$(MAKE) -f CMakeFiles/raku.dir/build.make CMakeFiles/raku.dir/array.c.o
+	$(MAKE) -f CMakeFiles/raku_static.dir/build.make CMakeFiles/raku_static.dir/array.c.o
+.PHONY : array.c.o
+
+array.i: array.c.i
+.PHONY : array.i
+
+# target to preprocess a source file
+array.c.i:
+	$(MAKE) -f CMakeFiles/raku.dir/build.make CMakeFiles/raku.dir/array.c.i
+	$(MAKE) -f CMakeFiles/raku_static.dir/build.make CMakeFiles/raku_static.dir/array.c.i
+.PHONY : array.c.i
+
+array.s: array.c.s
+.PHONY : array.s
+
+# target to generate assembly for a file
+array.c.s:
+	$(MAKE) -f CMakeFiles/raku.dir/build.make CMakeFiles/raku.dir/array.c.s
+	$(MAKE) -f CMakeFiles/raku_static.dir/build.make CMakeFiles/raku_static.dir/array.c.s
+.PHONY : array.c.s
 
 memory.o: memory.c.o
 .PHONY : memory.o
@@ -246,11 +286,15 @@ help:
 	@echo "... depend"
 	@echo "... check"
 	@echo "... edit_cache"
+	@echo "... grind"
 	@echo "... raku"
 	@echo "... raku_static"
 	@echo "... raku_test"
 	@echo "... rebuild_cache"
 	@echo "... test"
+	@echo "... array.o"
+	@echo "... array.i"
+	@echo "... array.s"
 	@echo "... memory.o"
 	@echo "... memory.i"
 	@echo "... memory.s"

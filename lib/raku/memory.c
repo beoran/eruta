@@ -8,7 +8,7 @@
 #include <string.h>
 
 /** Allot (allocate) memory block of the given size. May return null if the underlying system call fails. */
-RA_FUNC(void *) ra_mem_allot(RaSize size) {
+RA_FUNC(void *) ra_mem_alloc(RaSize size) {
   return calloc(size, 1);
 }
 
@@ -53,10 +53,9 @@ RA_FUNC(RaObject) ra_object_init(RaObject obj, RaDestructor des) {
 }
 
 /** Generic Raku object finalization function. */
-RA_FUNC(void) ra_object_free(RaPtr objptr) {
-  RaObject obj = (RaObject) objptr;
+RA_FUNC(void) ra_object_free(RaObject obj) {
   if(!obj || !obj->free_) return;
-  obj->free_(objptr);       // call destructor. 
+  obj->free_((RaPtr)obj);  // call destructor. 
   // Can't do obj->free_ = NULL, since obj has already been erased.   
 }
 
@@ -88,14 +87,47 @@ RA_FUNC(RaObject) ra_object_toss(RaObject obj) {
   return obj;
 }
 
+/** Increases the ref count on an object contained in a ra_var if 
+it contains a pointer. */
+RA_FUNC(RaVar) ra_var_use(RaVar var) {
+  if (var.type > RA_TYPE_NUMBER) { 
+    RA_OBJECT_USE(var.val.p);
+  }  
+  return var;
+};
+
+
+/** Decreases the ref count on an object contained in a ra_var if 
+it contains a pointer. */
+RA_FUNC(RaVar) ra_var_toss(RaVar var) {
+  if (var.type > RA_TYPE_NUMBER) { 
+    RA_OBJECT_TOSS(var.val.p);
+  }
+  return ra_fail_new();
+};
+
 /** Constructs a RaVar that signals failure. Used like in Icon. */
-RaVar ra_fail_new() {
+RA_FUNC(RaVar) ra_fail_new() {
   RaVar          result;
   result.type  = RA_TYPE_FAIL;
   result.val.p = NULL;
   return result;
 }
 
+/** Constructs an integer RaVar. */
+RA_FUNC(RaVar) ra_int_new(RaI32 i) {
+  RaVar          result;
+  result.type  = RA_TYPE_INT;
+  result.val.i = i;
+  return result;
+}
 
+/** Constructs an numerical RaVar. */
+RA_FUNC(RaVar) ra_num_new(RaF64 f) {
+  RaVar          result;
+  result.type  = RA_TYPE_NUMBER;
+  result.val.n = f;
+  return result;
+}
 
 

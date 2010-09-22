@@ -4,7 +4,7 @@
 
 TEST_FUNC(raku_mem) {
   void * mem;
-  mem = ra_mem_allot(123);
+  mem = ra_mem_alloc(123);
   ra_mem_free(mem);  
   TEST_DONE();
 }
@@ -13,10 +13,32 @@ TEST_FUNC(raku_mem) {
 TEST_FUNC(raku_string) {
   RaString s1, s2, s3, s4;
   fprintf(stderr, "sizeof RaVar : %d\n", sizeof(RaVar)); 
-  s1 = ra_string_fromc("Hello!");
+  s1 = ra_string_fromc("Hello");
   ra_string_puts(s1);
-  fprintf(stderr, "%p %p\n", s1, s1->data); 
+  s2 = ra_string_fromc(" World!");
+  ra_string_puts(s2);
+  s3 = ra_string_new(NULL, 0);
+  s3 = ra_string_concat(s3, s1, s2);  
+  ra_string_puts(s3); 
+  s4 = ra_string_new(NULL, 0);
+  s4 = ra_string_slice(s4, s3, 0, 5);
+  ra_string_puts(s4);
+  
   RA_OBJECT_TOSS(s1);
+  RA_OBJECT_TOSS(s2);
+  RA_OBJECT_TOSS(s3);
+  RA_OBJECT_TOSS(s4);
+  TEST_DONE();
+}
+
+TEST_FUNC(raku_array) {
+  RaVar   v1 = RA_INT(69) , v2, v3, v4;
+  RaArray a1;  
+  TEST_INTEQ(69, v1.val.i);
+  a1 = ra_array_new();
+  ra_array_push(a1, v1);
+  TEST_INTEQ(69, ra_array_get(a1, 0).val.i);
+  RA_OBJECT_TOSS(a1);
   TEST_DONE();
 }
 
@@ -27,6 +49,7 @@ int main(int argc, char * argv[]) {
   TEST_INIT(); 
   TEST_RUN(raku_mem);
   TEST_RUN(raku_string);
+  TEST_RUN(raku_array);
   TEST_REPORT();
 }
 
