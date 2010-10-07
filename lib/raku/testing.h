@@ -108,7 +108,7 @@ Test * test_streq(Test * test, char * s1, char * s2, char * explain) {
 }
 
 /** Tests if two memory areas are equal according to memcmp. */
-Test * test_memeq(Test * test, void * m1, void * m2, size_t n, 
+Test * test_memeq(Test * test, void * m1, size_t n, void * m2, 
                   char * explain) {
   return test_assert(test, memcmp(m1, m2, n) == 0, 
   "Memory should be equal: %p %p; %s ", m1, m2, explain);
@@ -120,16 +120,23 @@ Test * test_inteq(Test * test, int i1, int i2, char * explain) {
   "Integers should be equal: %d %d; %s ", i1, i2, explain);
 }
 
+/* Tests if two doubles are equal */
+Test * test_dbleq(Test * test, double d1, double d2, char * explain) {
+  return test_assert(test, d1 == d2, 
+  "Doubles should be equal: %lf %lf; %s ", d1, d2, explain);
+}
+
 /* Macros to help with calling tested functions.
 * Important notice: these macros assume that a Test * t exists.    
 */  
-#define TEST_CALL(CALL)       CALL,#CALL
-#define TEST_ASSERT(CALL)     test_assert(_t, TEST_CALL(CALL) )
-#define TEST_NULL(CALL)       test_null(_t, TEST_CALL(CALL) )
-#define TEST_NOTNULL(CALL)    test_notnull(_t, TEST_CALL(CALL) )
-#define TEST_STREQ(STR, CALL) test_streq(_t, STR, TEST_CALL(CALL))
-#define TEST_MEMEQ(MEM, CALL) test_memeq(_t, MEM, TEST_CALL(CALL))
-#define TEST_INTEQ(INT, CALL) test_inteq(_t, INT, TEST_CALL(CALL))
+#define TEST_CALL(CALL)             CALL,#CALL
+#define TEST_ASSERT(CALL)     	    test_assert(_t, TEST_CALL(CALL) )
+#define TEST_NULL(CALL)       	    test_null(_t, TEST_CALL(CALL) )
+#define TEST_NOTNULL(CALL)    	    test_notnull(_t, TEST_CALL(CALL) )
+#define TEST_STREQ(STR, CALL) 	    test_streq(_t, STR, TEST_CALL(CALL))
+#define TEST_MEMEQ(MEM, SIZE, CALL) test_memeq(_t, MEM, SIZE, TEST_CALL(CALL))
+#define TEST_INTEQ(INT, CALL) 	    test_inteq(_t, INT, TEST_CALL(CALL))
+#define TEST_DBLEQ(DBL, CALL) 	    test_dbleq(_t, DBL, TEST_CALL(CALL))
 
 /* Other utility macros. They are syntactic, so you may dislike them. */
 #define TEST_FUNC(NAME)       Test * test_##NAME(Test * _t) 
