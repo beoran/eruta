@@ -70,6 +70,18 @@ module Raku
         return res
       end
 
+      # gets the next character from self, as a string.
+      # Automatically advances line and col
+      def getch(pattern)
+        ch = @scan.getch
+        return ch unless ch
+        # advance col and line if we were able to parse some tokens off.
+        aid = res.split(/\r\n|\n|\r/)
+        @line += 1 if ch == "\n" || ch == "\r"
+        @col  += ch.size
+        return res
+      end
+
       # Tries to lex an escaped newline, or a newline.
       def lex_nl
         res = scan(/\\[ \t]*(\r\n|\r|\n)+/)

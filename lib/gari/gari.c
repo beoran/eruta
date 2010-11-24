@@ -16,6 +16,76 @@ struct GariScreen_ {
 };
 
 
+struct GariJoystick_ {
+  int             index;
+  SDL_Joystick *  handle;
+};
+
+/** Returns the amount of joysticks connected to this system. */
+int gari_joy_amount() {
+  return SDL_NumJoysticks();
+}
+
+
+const char * gari_joy_nameindex(int index) {  
+  return SDL_JoystickName(index);
+} 
+
+const char * gari_joy_name(GariJoystick * joy) {
+  if(!joy) return NULL;
+  return gari_joy_nameindex(joy->index);
+} 
+
+int gari_joy_axes(GariJoystick * joy) {
+  if(!joy) return -1;
+  return SDL_JoystickNumAxes(joy->handle);
+}
+
+int gari_joy_buttons(GariJoystick * joy) {
+  if(!joy) return -1;
+  return SDL_JoystickNumAxes(joy->handle);
+}
+
+int gari_joy_balls(GariJoystick * joy) {
+  if(!joy) return -1;
+  return SDL_JoystickNumBalls(joy->handle);
+}
+
+/** describes a joystick. */
+void gari_joy_describe(GariJoystick * joy) { 
+  if(!joy) { return;}  
+  fprintf(stderr, "Joystick Name: %s\n", gari_joy_name(joy));
+  fprintf(stderr, "Axes: %d ", gari_joy_axes(joy));
+  fprintf(stderr, "Buttons: %d ", gari_joy_buttons(joy));
+  fprintf(stderr, "Balls: %d \n", gari_joy_balls(joy));
+}
+
+GariJoystick * gari_joy_alloc() {
+  return GARI_MALLOC(sizeof(GariJoystick));
+}
+
+GariJoystick * gari_joy_open(int index) {
+  GariJoystick * joy = gari_joy_alloc();
+  if(!joy) return NULL;  
+  joy->index  = index; 
+  joy->handle = SDL_JoystickOpen(index);
+  return joy;
+} 
+
+GariJoystick * gari_joy_close(GariJoystick * stick) {
+  if(!stick) return NULL;
+  SDL_JoystickClose(stick->handle);
+  stick->handle = NULL;
+  stick->index  = -1;
+  return stick;
+} 
+
+void gari_joy_free(GariJoystick * stick) {
+  GARI_FREE(gari_joy_close(stick));   
+}
+
+
+
 struct GariGame_ {
   GariScreen * screen;
   int          error;
@@ -36,50 +106,27 @@ GariGame * gari_game_make() {
   return NULL;  
 }
 
-/** describes a joystick. */
-void gari_game_showjoystick(SDL_Joystick * joy, int index) {  
-  if(!joy) { 
-    fprintf(stderr, "Could not open joystick nr %d!\n", index);
-    return;
-  }    
-  fprintf(stderr, "Joystick Name: %s\n", SDL_JoystickName(index));
-  fprintf(stderr, "Axes: %d ", SDL_JoystickNumAxes(joy));
-  fprintf(stderr, "Buttons: %d ", SDL_JoystickNumButtons(joy));
-  fprintf(stderr, "Balls: %d \n", SDL_JoystickNumBalls(joy));
-}
 
-/*
-if(SDL_NumJoysticks()>0){
-  joy=SDL_JoystickOpen(0);
-  
-  if(joy)
-  {
-    printf("Opened Joystick 0\n");
-    printf("Name: %s\n", SDL_JoystickName(0));
-    printf("Number of Axes: %d\n", SDL_JoystickNumAxes(joy));
-    printf("Number of Buttons: %d\n", SDL_JoystickNumButtons(joy));
-    printf("Number of Balls: %d\n", SDL_JoystickNumBalls(joy));
-*/
-
-// opens all available joysticks.
+// Opens all available joysticks.
 GariGame * gari_game_openjoysticks(GariGame * gari) {
   int index;
-  if(SDL_NumJoysticks()<1) return NULL;
-  gari->joysticks = GARI_MALLOC(sizeof(SDL_Joystick *) * SDL_NumJoysticks());
-  for(index = 0; index < SDL_NumJoysticks(); index ++) {
-    gari->joysticks[index] = SDL_JoystickOpen(index);
-    gari_game_showjoystick(gari->joysticks[index], index);
+  int amount = gari_joy_amount();
+  if(amount<1) return NULL;
+  gari->joysticks = GARI_MALLOC(sizeof(SDL_Joystick *) * amount);
+  for(index = 0; index < amount; index ++) {
+    gari->joysticks[index] = gari_joy_open(index);
+    gari_joy_describe(gari->joysticks[index]);
   }
   return gari;
 }
 
-// closes all available joysticks.
+// Closes and deallocates all available joysticks.
 GariGame * gari_game_closejoysticks(GariGame * gari) {
   int index;
   if(SDL_NumJoysticks()<1) return NULL;
   if(!(gari->joysticks)) return NULL;
   for(index = 0; index < SDL_NumJoysticks(); index ++) {
-    SDL_JoystickClose(gari->joysticks[index]);        
+    gari_joy_free(gari->joysticks[index]);        
   }
   GARI_FREE(gari->joysticks);
   gari->joysticks 	= NULL;

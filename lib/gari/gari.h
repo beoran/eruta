@@ -9,12 +9,12 @@
 * 2) A simple API, that hides the details as much as possible.
 * 3) Fast, giving good performance everywhere possible.
 * 4) Cross platform. Enough said.
-* 5) Complete. All you need to write games, but nothing more.
+* 5) Complete yet concise. All you need to write 2D games, but nothing more.
 * 6) Release under Zlib license (or similar permissive).
 * 7) Easy to embed in Ruby with bindings provided (later).
 *
 * A C compiler which supports some C99 fratures, particularly
-* stdint.h, and one line comments is needed to compile Gari.
+* stdint.h, __VA_ARGS__, and one line comments is needed to compile Gari.
 *
 * More details are documented in gari.h
 * 
@@ -639,6 +639,36 @@ struct GariMap_;
 typedef struct GariMap_ GariMap;
 
 
+/** Joystick handling. */
+struct GariJoystick_ ;
+typedef struct GariJoystick_ GariJoystick; 
+
+/** Returns the amount of joysticks connected to this system. */
+int gari_joy_amount();
+
+/** Returns the name of the inde'th joystick or NULL if no such joystick. */
+const char * gari_joy_nameindex(int index); 
+
+/** Returns the name of a joystick object */
+const char * gari_joy_name(GariJoystick * joy); 
+
+/** Returns the amount of axes of a joystick object. */
+int gari_joy_axes(GariJoystick * joy); 
+
+/** Returns the amount of buttons of a joystick object. */
+int gari_joy_buttons(GariJoystick * joy);
+
+/** Returns the amount of buttons of a joystick object. */
+int gari_joy_balls(GariJoystick * joy); 
+
+/** Describes a joystick to stderr. */
+void gari_joy_describe(GariJoystick * joy); 
+
+/** Opens a joystick. Memory is allocated, so call gari_joy_free when done. */
+GariJoystick * gari_joy_open(int index); 
+
+/** Closes the joystick and frees associated memory. */
+void gari_joy_free(GariJoystick * stick); 
 
 
 /** Ruby scripting. */

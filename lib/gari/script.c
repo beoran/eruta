@@ -139,7 +139,7 @@ GariLua * gari_lua_wrap(GariLua * lua, void * ptr,
   luaL_newmetatable(lua->state, name);
   
 }
-*/ 
+ 
 
 GARI_LUA_FUNC(gari_game_make) {
   GariGame * game = gari_game_make();
@@ -166,7 +166,7 @@ GariLua gari_lua_setup(GariLua lua) {
   return lua;
 } 
 
-
+*/
 
 
 

@@ -21,6 +21,28 @@
 
 #include "rubyhelp.h"
 
+RBH_MODULE_DEFINE(Gari);
+RBH_CLASS_DEFINE(Font, GariFont);
+RBH_CLASS_DEFINE(Flow, GariFlow);
+RBH_CLASS_DEFINE(Screen, GariScreen);
+RBH_CLASS_DEFINE(Image, GariImage);
+RBH_CLASS_DEFINE(Joystick, GariJoystick);
+RBH_CLASS_DEFINE(Event, GariEvent);
+RBH_CLASS_DEFINE(Dye, GariDye);
+RBH_CLASS_DEFINE(Color, GariColor);
+RBH_CLASS_DEFINE(Layer, GariLayer);
+RBH_CLASS_DEFINE(Camera, GariCamera);
+RBH_CLASS_DEFINE(Tileset, GariTileset);
+RBH_CLASS_DEFINE(Tile, GariTile);
+
+// RBH_UNWRAP_DEFINE(Font, GariFont); 
+
+/*
+static VALUE GariMod, GariFontClass, GariFlowClass, GariScreenClass;
+static VALUE GariImageClass, GariEventClass, GariDyeClass, GariColorClass;
+static VALUE GariLayerClass, GariCameraClass, GariTilesetClass, GariTileClass;
+*/
+
 // Data_Wrap_Struct(klass, mark, free, ptr)
 
 /* 
@@ -32,14 +54,42 @@ VALUE rbgari_color(VALUE rv, VALUE bv, VALUE gv, VALUE av) {
   return Qnil;
 }
 
+VALUE rbgari_font_free(VALUE self) {
+  GariFont * font = RBH_UNWRAP(Font, self);
+  gari_font_free(font);
+  return Qnil;
+}
+
+VALUE rbgari_font_new(VALUE self, VALUE name, VALUE size) {
+  GariFont * font = gari_font_load(RBH_STRING(name), RBH_INT(size));
+  return RBH_WRAP(Font, font, rbgari_font_free);
+}
 
 
 
+void Init_gari() {
+  RBH_MODULE(Gari);
+  RBH_MODULE_CLASS(Gari, Color);
+  RBH_MODULE_CLASS(Gari, Dye);
+  RBH_MODULE_CLASS(Gari, Event);
+  RBH_MODULE_CLASS(Gari, Flow);
+  RBH_MODULE_CLASS(Gari, Font);
+  RBH_MODULE_CLASS(Gari, Image);
+  RBH_MODULE_CLASS(Gari, Joystick);
+  RBH_MODULE_CLASS(Gari, Screen);
+  RBH_MODULE_CLASS(Gari, Tile);
+  RBH_MODULE_CLASS(Gari, Tileset);
+  RBH_MODULE_CLASS(Gari, Camera);
+  RBH_MODULE_CLASS(Gari, Layer);
+  
+  RBH_SINGLETON_METHOD(Font, new, rbgari_font_new, 2);
+  RBH_CLASS_NUM_CONST(Font, Blended, GariFontBlended); 
+  RBH_CLASS_NUM_CONST(Font,  Shaded, GariFontSolid);
+  RBH_CLASS_NUM_CONST(Font,  Solid, GariFontShaded);
+  
 
-Init_gari() {
-  VALUE GariMod, GariFontClass, GariFlowClass, GariScreenClass;
-  VALUE GariImageClass, GariEventClass, GariDyeClass, GariColorClass;
-  VALUE GariLayerClass, GariCameraClass, GariTilesetClass, GariTileClass;
+  
+/*
   GariMod  	  = rb_define_module("Gari");
   GariColorClass  = rb_define_class_under(GariMod, "Color"   , rb_cObject);
   GariDyeClass    = rb_define_class_under(GariMod, "Dye"     , rb_cObject);
@@ -52,12 +102,13 @@ Init_gari() {
   GariTilesetClass= rb_define_class_under(GariMod, "Tileset" , rb_cObject);
   GariCameraClass = rb_define_class_under(GariMod, "Camera"  , rb_cObject);
   GariLayerClass  = rb_define_class_under(GariMod, "Layer"   , rb_cObject);
-  
-  
-  
-  
-  
+*/  
 }
+
+void Init_libgari() {
+  Init_gari();
+}
+
 
 /*
   GariFlow * flow;
@@ -173,7 +224,12 @@ Init_gari() {
   gari_audio_done(game);    
   gari_game_free(game);
   gari_ruby_free(ruby);
-*/  
+*/
+
+
+
+  
+  
 
 
 
