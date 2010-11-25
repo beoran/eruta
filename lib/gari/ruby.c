@@ -50,17 +50,10 @@ All ruby wrappers for gari functions simply get an rb prefix, so it becomes
 rbgari 
 */
 
-// Wrapper for gari_color_free
-VALUE rbgari_color_free(VALUE self) {
-  GariColor * color = RBH_UNWRAP(Color, self);
-  gari_color_free(color); 
-  return Qnil;
-}
-
 VALUE rbgari_color_new(VALUE self, VALUE r, VALUE g, VALUE b, VALUE a) {
   GariColor * color =
     gari_color_rgba(RBH_UINT8(r), RBH_UINT8(g), RBH_UINT8(b), RBH_UINT8(a));    
-  return RBH_WRAP(Color, color, rbgari_color_free);
+  return RBH_WRAP(Color, color, gari_color_free);
 }
 
 VALUE rbgari_color_newrgb(VALUE self, VALUE r, VALUE g, VALUE b) {
@@ -69,7 +62,7 @@ VALUE rbgari_color_newrgb(VALUE self, VALUE r, VALUE g, VALUE b) {
   printf("%p %d %d %d %d", color, gari_color_r(color), gari_color_g(color),
   gari_color_b(color), gari_color_a(color));  
   if(!color) return Qnil;  
-  return RBH_WRAP(Color, color, rbgari_color_free);
+  return RBH_WRAP(Color, color, gari_color_free);
 }
 
 
@@ -81,18 +74,12 @@ RBH_GETTER_DEFINE(gari_color_b, Color, GariColor, RBH_UINT8_NUM);
 RBH_GETTER_DEFINE(gari_color_a, Color, GariColor, RBH_UINT8_NUM);  
   
 
-VALUE rbgari_font_free(VALUE self) {
-  GariFont * font = RBH_UNWRAP(Font, self);
-  gari_font_free(font);
-  return Qnil;
-}
-
 VALUE rbgari_font_new(VALUE self, VALUE name, VALUE size) {
   char * nam = RBH_STRING(name);
   int sz = RBH_INT(size);
   GariFont * font = gari_font_load(nam, sz);
   if(!font) return Qnil;
-  return RBH_WRAP(Font, font, rbgari_font_free);
+  return RBH_WRAP(Font, font, gari_font_free);
 }
 
 VALUE rbgari_font_error(VALUE self) {

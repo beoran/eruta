@@ -17,15 +17,17 @@ STRUCTNAME * FUNCNAME(VALUE obj)        \
 {                                       \
   STRUCTNAME * st;                      \
                                         \
-  if(!rb_obj_is_kind_of(obj, KLASS)){   \
-    rb_raise(rb_eTypeError, "wrong argument type %s (expected " KLASSNAME ")", \
-             rb_obj_classname(obj));    \
-  }                                     \
   Data_Get_Struct(obj, STRUCTNAME, st); \
   printf("Get struct %s %p\n", #STRUCTNAME, st);        \
   return st;                            \
 } 
 
+/** Removed typecheck for speed and fun :) 
+  if(!rb_obj_is_kind_of(obj, KLASS)){   \
+    rb_raise(rb_eTypeError, "wrong argument type %s (expected " KLASSNAME ")", \
+             rb_obj_classname(obj));    \
+  }                                     \
+*/
 
 #define RBH_STATIC_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr) \
 static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
