@@ -32,13 +32,16 @@ TEST_FUNC(raku_string) {
 }
 
 TEST_FUNC(raku_array) {
-  RaVar   v1 = RA_INT(69) , v2, v3, v4;
+  RaVar   v1 = RA_INT(69) , v2 = RA_NUM(2.0), v3, v4;
   RaArray a1;  
   TEST_INTEQ(69, v1.val.i);
   a1 = ra_array_new();
   ra_array_push(a1, v1);
+  ra_array_push(a1, v2);
   TEST_INTEQ(69, ra_array_get(a1, 0).val.i);
+  // TEST_DBLEQ(2.0, ra_array_get(a1, 1).val.n);
   RA_OBJECT_TOSS(a1);
+  
   TEST_DONE();
 }
 
