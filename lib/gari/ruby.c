@@ -50,22 +50,22 @@ All ruby wrappers for gari functions simply get an rb prefix, so it becomes
 rbgari 
 */
 
+#define GARI_COLOR_WRAP(color)   RBH_WRAP(Color, color, gari_color_free)
+#define GARI_COLOR_UNWRAP(color) RBH_UNWRAP(Color, GariColor)
+
+
 VALUE rbgari_color_new(VALUE self, VALUE r, VALUE g, VALUE b, VALUE a) {
   GariColor * color =
     gari_color_rgba(RBH_UINT8(r), RBH_UINT8(g), RBH_UINT8(b), RBH_UINT8(a));    
-  return RBH_WRAP(Color, color, gari_color_free);
+  return GARI_COLOR_WRAP(color);
 }
 
 VALUE rbgari_color_newrgb(VALUE self, VALUE r, VALUE g, VALUE b) {
   GariColor * color =
-    gari_color_rgb(RBH_UINT8(r), RBH_UINT8(g), RBH_UINT8(b));
-  printf("%p %d %d %d %d", color, gari_color_r(color), gari_color_g(color),
-  gari_color_b(color), gari_color_a(color));  
+    gari_color_rgb(RBH_UINT8(r), RBH_UINT8(g), RBH_UINT8(b));  
   if(!color) return Qnil;  
-  return RBH_WRAP(Color, color, gari_color_free);
+  return GARI_COLOR_WRAP(color);
 }
-
-
 
 /* Getters for the components of the color */  
 RBH_GETTER_DEFINE(gari_color_r, Color, GariColor, RBH_UINT8_NUM);

@@ -16,9 +16,7 @@
 STRUCTNAME * FUNCNAME(VALUE obj)        \
 {                                       \
   STRUCTNAME * st;                      \
-                                        \
   Data_Get_Struct(obj, STRUCTNAME, st); \
-  printf("Get struct %s %p\n", #STRUCTNAME, st);        \
   return st;                            \
 } 
 
