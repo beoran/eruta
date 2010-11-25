@@ -22,6 +22,7 @@ STRUCTNAME * FUNCNAME(VALUE obj)        \
              rb_obj_classname(obj));    \
   }                                     \
   Data_Get_Struct(obj, STRUCTNAME, st); \
+  printf("Get struct %s %p\n", #STRUCTNAME, st);        \
   return st;                            \
 } 
 
@@ -65,77 +66,151 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 // Helper to define numerical constants 
 #define RBH_NUM_CONST(MOD, NAME, VALUE) \
         rb_define_const(MOD, NAME, UINT2NUM(VALUE));
- 
-// Helper to raise a rb_eRuntimeError. Requires a C compiler 
-// that understands __VA_ARGS__ 
-#define RBH_RAISE(FMT, ...) \
-        rb_raise(rb_eRuntimeError, FMT, __VA_ARGS__)
+        
+// Helps defining variable argument lists
+#define RBH_VA2(A, B)             (A), (B)
+#define RBH_VA3(A, B, C)          RBH_VA2(A, B), (C)
+#define RBH_VA4(A, B, C, D)       RBH_VA3(A, B, C), (D)
+#define RBH_VA5(A, B, C, D, E)    RBH_VA4(A, B, C, D), (E)
+#define RBH_VA6(A, B, C, D, E, F) RBH_VA5(A, B, C, D, E), (F)
+#define RBH_VA7(A, B, C, D, E, F, G) \
+        RBH_VA6(A, B, C, D, E, F), (G)
+#define RBH_VA8(A, B, C, D, E, F, G, H) \
+        RBH_VA7(A, B, C, D, E, F, G), (H)
 
+ 
+// Helper to raise a rb_eRuntimeError. Use together with the RBH_VA2 , RBH_VA3,
+// RBH_VA4, etc macros
+#define RBH_RAISE(FMT, VA_ARGS) \
+        rb_raise(rb_eRuntimeError, FMT, VA_ARGS)
+
+// Helper for RBH_TOSTR. Needed because of how the preprocessor works.
 #define RBH_TOSTR_AID(VAL)             #VAL
+// Stringify macro, always stringifies.
 #define RBH_TOSTR(VAL)                 RBH_TOSTR_AID(VAL)
 
+// Token pasting macro.
 #define RBH_PASTE(FIRST, SECOND)       FIRST##SECOND
+// String concatenation macro. Relies on the space being the C string
+// concatenation operator.
 #define RBH_JOINSTR(FIRST, SECOND)    (FIRST SECOND)
+// String concatenation macro. Relies on the space being the C string
+// concatenation operator.
 #define RBH_JOINSTR3(A1, A2, A3)      (A1 A2 A3)
 
-
+// Helper that defines the name of the variable that will store the Ruby module. 
 #define RBH_MODULE_VAR(MOD) (m##MOD)
+// Helper that defines the name of the variable that will store the Ruby class.
 #define RBH_CLASS_VAR(KLASS) (c##KLASS)
+// Helper that stringifies the name of the Ruby module.
 #define RBH_MODULE_NAME(MOD) RBH_TOSTR(MOD)
+// Helper that stringifies the name of the Ruby class.
 #define RBH_CLASS_NAME(KLASS) RBH_TOSTR(KLASS)
 
 
 
 #define RBH_MODULE(MOD) \
         RBH_MODULE_VAR(MOD) = rb_define_module(RBH_MODULE_NAME(MOD))
-        
+
+// Shorthand for rb_define_class_under
 #define RBH_CLASS_UNDER(MOD, KLASS, SUPER) \
         RBH_CLASS_VAR(KLASS) =             \
         rb_define_class_under(RBH_MODULE_VAR(MOD), RBH_CLASS_NAME(KLASS), SUPER)
         
+// Defines a Ruby class with rb_cObject as the superclass
 #define RBH_MODULE_CLASS(MOD, KLASS) \
         RBH_CLASS_UNDER(MOD, KLASS, rb_cObject)
         
+// Defines a Ruby class under a Ruby module, with a Ruby superclass.
 #define RBH_MODULE_CLASS_SUPER(MOD, KLASS, SUPER) \
         RBH_CLASS_UNDER(MOD, KLASS, RBH_CLASS_NAME(SUPER))
 
+// Helper that determines the name for the unwrap function.
 #define RBH_UNWRAP_NAME(KLASS) RBH_PASTE(rbh_unwrap_, KLASS)
 
+// Defines the unwrap function for a given Ruby class and C struct.
+// Call it wth RBH_UNWRAP(KLASS, VALUE).
 #define RBH_UNWRAP_DEFINE(KLASS, STRUCT) \
         RBH_GETSTRUCT_DEFINE(STRUCT, RBH_UNWRAP_NAME(KLASS), RBH_CLASS_VAR(KLASS), RBH_CLASS_NAME(KLASS))
 
-#define RBH_MODULE_DEFINE(MOD) static VALUE RBH_MODULE_VAR(MOD) = NULL 
+// Helper to define Ruby modules.
+#define RBH_MODULE_DEFINE(MOD) static VALUE RBH_MODULE_VAR(MOD) = Qnil
+
+// Helper to define Ruby classes. Automagically defines a functon to be used 
+// with RBH_UNWRAP. 
 #define RBH_CLASS_DEFINE(KLASS, STRUCT) \
-        static VALUE RBH_CLASS_VAR(KLASS) = NULL ; \
+        static VALUE RBH_CLASS_VAR(KLASS) = Qnil ; \
         RBH_UNWRAP_DEFINE(KLASS, STRUCT)
-          
           
 #define RBH_UNWRAP_CLASS(KLASS, VALUE) \
         RBH_UNWRAP_NAME(KLASS)(VALUE)
 
-#define RBH_WRAP_NAME(KLASS) RBH_PASTE(rbh_wrap_, KLASS)
-
+// Wraps a pointer to a struct into a ruby class. Useful if a mark function 
+// is needed.
 #define RBH_WRAP_MARK(KLASS, PTR, MARK, FREE) \
-        Data_Wrap_Struct( RBH_CLASS_VAR(KLASS), PTR, MARK, FREE)
+        Data_Wrap_Struct( RBH_CLASS_VAR(KLASS), MARK, FREE, PTR)
 
+// Wraps a pointer to a struct into a ruby class. Useful if no mark is needed,
+// you only need to suply the free pointer.
 #define RBH_WRAP(KLASS, PTR, FREE) \
-        Data_Wrap_Struct( RBH_CLASS_VAR(KLASS), PTR, NULL, FREE)
+        Data_Wrap_Struct(RBH_CLASS_VAR(KLASS), 0, FREE, PTR)
+ 
 
+// Unwraps a VALUE of ruby class KLASS to a pointer of the C struct.
+// It calls the function that RBH_UNWRAP_DEFINE generates
 #define RBH_UNWRAP(KLASS, VALUE) \
         RBH_UNWRAP_NAME(KLASS)(VALUE)
 
+// Converts a ruby VALUE to a C string pointer.
 #define RBH_STRING(VALUE) StringValuePtr(VALUE)
+// Converts a ruby numerical value to an int
 #define RBH_INT(VALUE) NUM2INT(VALUE)
 
+// Converts a ruby numerical value to a uint8_t
+#define RBH_UINT8(VALUE) ((uint8_t)(NUM2INT(VALUE)))
+
+
+// Converts an integer to a Ruby number value 
+#define RBH_INT_NUM(INT) INT2NUM(INT)
+// Converts an uint8_t to a ruby number value
+#define RBH_UINT8_NUM(UINT8) RBH_INT_NUM((int)(UINT8))
+
+// Helper to define a singleton method (class method) for a class
 #define RBH_SINGLETON_METHOD(KLASS, NAME, FUNC, ARITY) \
         rb_define_singleton_method(RBH_CLASS_VAR(KLASS), #NAME, FUNC, ARITY)
-
+  
+// Macro to define a method for a class 
 #define RBH_METHOD(KLASS, NAME, FUNC, ARITY) \
         rb_define_method(RBH_CLASS_VAR(KLASS), #NAME, FUNC, ARITY)
   
-// Helper to define numerical constants in a class 
+// Macro to define numerical constants in a class 
 #define RBH_CLASS_NUM_CONST(KLASS, NAME, VALUE) \
         rb_define_const(RBH_CLASS_VAR(KLASS), #NAME, UINT2NUM(VALUE));
   
+// Macro to define numerical constants in a module 
+#define RBH_MODULE_NUM_CONST(KLASS, NAME, VALUE) \
+        rb_define_const(RBH_MODULE_VAR(KLASS), #NAME, UINT2NUM(VALUE));
+
+/** Helper that determines the getter's name. Normally this is an rb 
+* prefix to NAME.
+*/
+#define RBH_GETTER_NAME(NAME) rb##NAME
+
+/** Macro that defines simple getter methods.
+* Suppose you have some C struct Foo, that has a getter function 
+* foo_get_bla(Foo * f). With this macro you can define a 
+* function rbfoo_get_bla(VALUE self) that will call foo_get_bla, 
+* and then wrap it into a VALUE using the WRAP function or macro you specify.  
+*/
+#define RBH_GETTER_DEFINE(NAME, KLASS, STRUCT, WRAP)  \
+  VALUE RBH_GETTER_NAME(NAME) (VALUE self) {          \
+  STRUCT * cself = RBH_UNWRAP(KLASS, self);           \
+  return WRAP(NAME(cself));                           \
+  }
+
+// Macro to install a getter method that was defined with RBH_GETSTRUCT_DEFINE 
+#define RBH_GETTER(KLASS, NAME, FUNC) \
+        rb_define_method(RBH_CLASS_VAR(KLASS), #NAME, RBH_GETTER_NAME(FUNC), 0)
+
 
 #endif

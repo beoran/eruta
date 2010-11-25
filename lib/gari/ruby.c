@@ -50,9 +50,36 @@ All ruby wrappers for gari functions simply get an rb prefix, so it becomes
 rbgari 
 */
 
-VALUE rbgari_color(VALUE rv, VALUE bv, VALUE gv, VALUE av) {
+// Wrapper for gari_color_free
+VALUE rbgari_color_free(VALUE self) {
+  GariColor * color = RBH_UNWRAP(Color, self);
+  gari_color_free(color); 
   return Qnil;
 }
+
+VALUE rbgari_color_new(VALUE self, VALUE r, VALUE g, VALUE b, VALUE a) {
+  GariColor * color =
+    gari_color_rgba(RBH_UINT8(r), RBH_UINT8(g), RBH_UINT8(b), RBH_UINT8(a));    
+  return RBH_WRAP(Color, color, rbgari_color_free);
+}
+
+VALUE rbgari_color_newrgb(VALUE self, VALUE r, VALUE g, VALUE b) {
+  GariColor * color =
+    gari_color_rgb(RBH_UINT8(r), RBH_UINT8(g), RBH_UINT8(b));
+  printf("%p %d %d %d %d", color, gari_color_r(color), gari_color_g(color),
+  gari_color_b(color), gari_color_a(color));  
+  if(!color) return Qnil;  
+  return RBH_WRAP(Color, color, rbgari_color_free);
+}
+
+
+
+/* Getters for the components of the color */  
+RBH_GETTER_DEFINE(gari_color_r, Color, GariColor, RBH_UINT8_NUM);
+RBH_GETTER_DEFINE(gari_color_g, Color, GariColor, RBH_UINT8_NUM);
+RBH_GETTER_DEFINE(gari_color_b, Color, GariColor, RBH_UINT8_NUM);
+RBH_GETTER_DEFINE(gari_color_a, Color, GariColor, RBH_UINT8_NUM);  
+  
 
 VALUE rbgari_font_free(VALUE self) {
   GariFont * font = RBH_UNWRAP(Font, self);
@@ -61,12 +88,19 @@ VALUE rbgari_font_free(VALUE self) {
 }
 
 VALUE rbgari_font_new(VALUE self, VALUE name, VALUE size) {
-  GariFont * font = gari_font_load(RBH_STRING(name), RBH_INT(size));
+  char * nam = RBH_STRING(name);
+  int sz = RBH_INT(size);
+  GariFont * font = gari_font_load(nam, sz);
+  if(!font) return Qnil;
   return RBH_WRAP(Font, font, rbgari_font_free);
 }
 
+VALUE rbgari_font_error(VALUE self) {
+  return RBH_STR_ASCII2(gari_font_error());
+}
 
 
+/** Entry point for Ruby. */
 void Init_gari() {
   RBH_MODULE(Gari);
   RBH_MODULE_CLASS(Gari, Color);
@@ -76,35 +110,30 @@ void Init_gari() {
   RBH_MODULE_CLASS(Gari, Font);
   RBH_MODULE_CLASS(Gari, Image);
   RBH_MODULE_CLASS(Gari, Joystick);
-  RBH_MODULE_CLASS(Gari, Screen);
+  // RBH_MODULE_CLASS_SUPER(Gari, Screen, Image);
   RBH_MODULE_CLASS(Gari, Tile);
   RBH_MODULE_CLASS(Gari, Tileset);
   RBH_MODULE_CLASS(Gari, Camera);
   RBH_MODULE_CLASS(Gari, Layer);
   
-  RBH_SINGLETON_METHOD(Font, new, rbgari_font_new, 2);
+  RBH_SINGLETON_METHOD(Color, new , rbgari_color_new, 4);
+  RBH_SINGLETON_METHOD(Color, rgba, rbgari_color_new, 4);
+  RBH_SINGLETON_METHOD(Color, rgb , rbgari_color_newrgb, 3);
+  RBH_GETTER(Color, r, gari_color_r);
+  RBH_GETTER(Color, g, gari_color_g);
+  RBH_GETTER(Color, b, gari_color_b);
+  RBH_GETTER(Color, a, gari_color_a);
+  RBH_CLASS_NUM_CONST(Font, ALPHA_SOLID, GARI_ALPHA_SOLID);
+  RBH_CLASS_NUM_CONST(Font, ALPHA_CLEAN, GARI_ALPHA_CLEAR);
+  
+  RBH_SINGLETON_METHOD(Font , new   , rbgari_font_new   , 2);
+  RBH_SINGLETON_METHOD(Font , error , rbgari_font_error , 0);
   RBH_CLASS_NUM_CONST(Font, Blended, GariFontBlended); 
   RBH_CLASS_NUM_CONST(Font,  Shaded, GariFontSolid);
   RBH_CLASS_NUM_CONST(Font,  Solid, GariFontShaded);
-  
-
-  
-/*
-  GariMod  	  = rb_define_module("Gari");
-  GariColorClass  = rb_define_class_under(GariMod, "Color"   , rb_cObject);
-  GariDyeClass    = rb_define_class_under(GariMod, "Dye"     , rb_cObject);
-  GariEventClass  = rb_define_class_under(GariMod, "Event"   , rb_cObject);  
-  GariFontClass   = rb_define_class_under(GariMod, "Font"    , rb_cObject);
-  GariFlowClass   = rb_define_class_under(GariMod, "Flow"    , rb_cObject);
-  GariImageClass  = rb_define_class_under(GariMod, "Image"   , rb_cObject);
-  GariScreenClass = rb_define_class_under(GariMod, "Screen"  , GariImageClass);
-  GariTileClass   = rb_define_class_under(GariMod, "Tile"    , rb_cObject);
-  GariTilesetClass= rb_define_class_under(GariMod, "Tileset" , rb_cObject);
-  GariCameraClass = rb_define_class_under(GariMod, "Camera"  , rb_cObject);
-  GariLayerClass  = rb_define_class_under(GariMod, "Layer"   , rb_cObject);
-*/  
 }
 
+/** Alternative entry point for Ruby. */
 void Init_libgari() {
   Init_gari();
 }

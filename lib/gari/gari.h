@@ -89,6 +89,21 @@ struct GariColor_ {
 
 typedef struct GariColor_ GariColor;
 
+/** Frees the memory associated with a GariColor allocated though
+*   gari_color_rgba or gari_color_rgb.  Returns NULL (guaranteed).
+*/
+GariColor * gari_color_free(GariColor * color); 
+
+/** Allocates a new color and initializes it with the given r, g, b and a values
+*/
+GariColor * gari_color_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
+/** Allocates a new color and initializes it with the given r, g, b values
+*   a will be set to GARI_ALPHA_OPAQUE.
+*/ 
+GariColor * gari_color_rgb(uint8_t r, uint8_t g, uint8_t b);  
+
+
 /** Returns a GariColor struct initialized with the given 
 * r, g, b, a components.
 */
@@ -101,13 +116,16 @@ GariColor gari_colora(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 GariColor gari_color(uint8_t r, uint8_t g, uint8_t b);
 
 /** Gets the r component of a GariColor. */
-uint8_t gari_color_r(GariColor rgba);
+uint8_t gari_color_r(GariColor * rgba);
 
 /** Gets the g component of a GariColor. */
-uint8_t gari_color_g(GariColor rgba);
+uint8_t gari_color_g(GariColor * rgba);
 
 /** Gets the b component of a GariColor. */
-uint8_t gari_color_b(GariColor rgba);
+uint8_t gari_color_b(GariColor * rgba);
+
+/** Gets the a component of a GariColor. */
+uint8_t gari_color_a(GariColor * rgba);
 
 
 /** Alpha Levels. Alpha Levels are models as simple uint8_t types. */
@@ -429,6 +447,10 @@ void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * fon
 * Will draw up to 2000 bytes of characters.  
 */
 void gari_font_printf(GariImage * image, int x, int y, GariFont * font, GariColor fg, GariColor bg, char * format, ...);
+
+/** Returns a text with details about the last error in oading or 
+handling a font. */
+char * gari_font_error();
 
 /** Music and sound. */
 

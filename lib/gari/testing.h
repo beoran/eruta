@@ -88,6 +88,7 @@ static Test * test_assert_va(Test * test, int assert, const char * fmt,
   } else {
     test_fail_va(test, fmt, ap);
   }
+  return test;
 }
 
 
@@ -157,6 +158,18 @@ static Test * test_false(Test * test, int boole, const char * explain) {
   "Boolean should be FALSE: %d; %s ", boole, explain);
 }
 
+/** This only exists to supress spurious compiler warnings. */
+static Test * warning_supressor(Test * test) {
+  test_streq(test, "", "", "");
+  test_streqn(test, "", 0, "", "");
+  test_memeq(test, "", 0, "", "");
+  test_intneq(test, 0, 0, "");
+  test_true(test, 0, "");
+  test_false(test, 0, "");
+  // ditto for useless and eternal recursion
+  warning_supressor(test); 
+  return test_fail(test, "");
+}
 
 /* Macros to help with calling tested functions.
 * Important notice: these macros assume that a Test * _t exists.

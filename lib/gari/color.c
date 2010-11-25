@@ -63,11 +63,31 @@ gari_rgba_init(GariColor * rgba, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   return rgba;
 } 
 
-GariColor *
-gari_rgba_make(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-  GariColor * res = gari_allocate(GariColor);
-  return gari_rgba_init(res, r, g ,b , a);
+
+GariColor * gari_color_allocate() {
+  GariColor * res = GARI_ALLOCATE(GariColor);
+  return res;
+}
+
+// Frees the memory associated with a GariColor. Returns NULL (guaranteed).
+GariColor * gari_color_free(GariColor * color) {
+  GARI_FREE(color);
+  return NULL;
+}
+
+// Allocates a new color and initializes it with the given r, g, b and a values
+GariColor * gari_color_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+  GariColor * res = gari_color_allocate();
+  return gari_rgba_init(res, r, g , b, a);  
 } 
+
+// Allocates a new color and initializes it with the given r, g, b values
+// a will be set to GARI_ALPHA_OPAQUE
+GariColor *
+gari_color_rgb(uint8_t r, uint8_t g, uint8_t b) {  
+  return gari_color_rgba(r, g, b, GARI_ALPHA_OPAQUE);
+} 
+
 
 GariColor gari_colora(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   GariColor res;
@@ -79,27 +99,30 @@ GariColor gari_color(uint8_t r, uint8_t g, uint8_t b) {
   return gari_colora(r, g , b, GARI_ALPHA_OPAQUE);
 } 
 
-uint8_t gari_color_r(GariColor rgba) {
-  return rgba.r;
+uint8_t gari_color_r(GariColor * rgba) {
+  if(!rgba) return 0;
+  return rgba->r;
 } 
 
-uint8_t gari_color_g(GariColor rgba) {
-  return rgba.g;
+uint8_t gari_color_g(GariColor * rgba) {
+  if(!rgba) return 0;
+  return rgba->g;
 } 
 
-uint8_t gari_color_b(GariColor rgba) {
-  return rgba.b;
+uint8_t gari_color_b(GariColor * rgba) {
+  if(!rgba) return 0;
+  return rgba->b;
 } 
 
-
-uint8_t gari_rgba_a(GariColor rgba) {
-  return rgba.a;
+uint8_t gari_color_a(GariColor * rgba) {
+  if(!rgba) return 0;
+  return rgba->a;
 } 
-
 
 /* 
 * Converts a GariColor to a gari dye for the given image. 
 * If the color's A is solid, then it uses SDL_MapRGB internally.
+* otherwise, it uses SDL_MapRGBA internally. 
 */
 GariDye gari_color_dye(GariColor color, GariImage * image) { 
   if (color.a == GARI_ALPHA_OPAQUE) { 

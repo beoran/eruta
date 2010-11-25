@@ -20,7 +20,13 @@ TEST_FUNC(game) {
   int i, j, rep, done;
   GariDye pixel;
   GariColor c1, c2, c3, c4, cg, white, green, black, yellow, red, blue;
-  
+  GariColor *cdyn;
+  cdyn    = gari_color_rgba(10,20,30,40);
+  TEST_NOTNULL(cdyn);
+  TEST_INTEQ(10, gari_color_r(cdyn));
+  TEST_INTEQ(20, gari_color_g(cdyn));
+  TEST_INTEQ(30, gari_color_b(cdyn));
+  TEST_INTEQ(40, gari_color_a(cdyn));
   
   white   = gari_color(255,255, 255);
   green   = gari_color(0  ,255, 0);
@@ -82,11 +88,11 @@ TEST_FUNC(game) {
     gari_image_blit(sim, 300, 300, tim);
     gari_image_blit(sim, 350, 350, mim);
     gari_image_blit(sim, 380, 380, oim);
-    gari_image_scaleblit(sim, 400, 100, 100, 100, bim, 
+    gari_image_scaleblit(sim, 400, 100, 100, 50, bim, 
                               0, 0, 32, 32);
                               // gari_image_w(bim) , gari_image_h(bim));
     gari_image_disk(sim, 400, 400, 50, white);
-    gari_image_hoop(sim, 400, 400, 50, black);
+    gari_image_hoop(sim, 400, 400, 50, *cdyn);
     gari_image_flood(sim, 250, 250, red);
     
     gari_image_blendslab(sim, 1, 1, 200, 200, cg, 255);
@@ -121,6 +127,7 @@ TEST_FUNC(game) {
   
   gari_audio_done(game);
   gari_game_free(game);
+  TEST_NULL(gari_color_free(cdyn));
   
   
   TEST_DONE();

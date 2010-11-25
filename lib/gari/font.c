@@ -14,6 +14,13 @@ struct GariFont_ {
 };
 
 
+int gari_font_ttf_start() {
+  if(!TTF_WasInit() && TTF_Init()==-1) {
+    return FALSE;
+  }
+  return TRUE;
+} 
+
 
 /** Sets the drawing mode of the font. */
 GariFont * gari_font_mode(GariFont * font, int mode) {
@@ -24,7 +31,7 @@ GariFont * gari_font_mode(GariFont * font, int mode) {
 
 
 GariFont * gari_font_init(GariFont * font, TTF_Font * ttffont, 
-           char *name, int ptsize, long index) {
+           char *name, int ptsize, long index) {  
   if(!font) { return NULL ; }
   font->ptsize  = ptsize;
   font->index   = index;
@@ -34,16 +41,21 @@ GariFont * gari_font_init(GariFont * font, TTF_Font * ttffont,
   return gari_font_mode(font, GariFontBlended);
 }
 
+char * gari_font_error() {
+  return TTF_GetError();
+}
 
 #define GARI_FONT_TTF(FONT) ((FONT)->ttf)
 
 GariFont * gari_font_loadindex(char * filename, int ptsize, long index) {
   GariFont * font;
-  TTF_Font * ttf = TTF_OpenFontIndex(filename, ptsize, index);
-  if (!ttf) return NULL;
+  TTF_Font * ttf;
+  gari_font_ttf_start(); // start ttf lib in case it wasn't started.
+  ttf = TTF_OpenFontIndex(filename, ptsize, index);
+  if (!ttf) {  return NULL; }  
   font         = GARI_ALLOCATE(GariFont);
   // If malloc failed, free ttf and get out of here.
-  if (!font) { TTF_CloseFont(ttf); return NULL; }
+  if (!font) {  TTF_CloseFont(ttf); return NULL; }
   return gari_font_init(font, ttf, filename, ptsize, index); 
 }
 
