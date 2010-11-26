@@ -116,7 +116,7 @@ GariGame * gari_game_init(GariGame * game);
 #define GARI_CLAMP(VALUE, MIN, MAX) \
           (VALUE < MIN ? MIN : ( VALUE > MAX ? MAX: VALUE ) )
 
-/** Syntactig guard macro that returns RET if COND is false. */
+/** Syntactic guard macro that returns RET if COND is false. */
 #define GUARI_GUARD(COND, RET) do { if(!(COND)) { return RET; } } while(0)
 
 /** Syntactic macro that returns NULL if the given value is is NULL or 0*/

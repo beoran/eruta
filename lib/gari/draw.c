@@ -160,9 +160,9 @@ void gari_image_hline_nolock(GariImage * image, int x, int y,
 
 /* Optimized case of blendline, blends horizontal lines only. */
 void gari_image_blendhline_nolock(GariImage * image, int x, int y, 
-                    int w, GariColor color, GariAlpha alpha) {
+                    int w, GariColor color) {
   GariDraw draw;
-  gari_draw_init(&draw, image, gari_draw_blendpixel, color, alpha);
+  gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
   // Adjust for negative widths.
   if (w < 0) {
     w = -w;
@@ -176,7 +176,7 @@ void gari_image_vline_nolock(GariImage * image, int x, int y,
                     int h, GariColor color) {
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
-  // Adjust for negative widths.
+  // Adjust for negative heights.  
   if (h < 0) {
     h = -h;
     y =  y - h;
@@ -213,11 +213,21 @@ void gari_draw_doslab(GariDraw * draw, int x, int y, int w, int h) {
   }
 } 
 
+// Helps to adjust negatives
+static void adjust_negative(int * u, int * v) {
+  if(*u < 0) {
+    (*u) =   - (*u);
+    (*v) = v - (*u);
+  }
+}   
+
+#define ADJUST_NEGATIVE(U, V) adjust_negative(&u, &v)
+
 /** Draws a blended slab, which is a rectange, on the image. */
 void gari_image_blendslab(GariImage * image, int x, int y, int w, int h,  
-                      GariColor color, GariAlpha alpha) {
+                      GariColor color) {
   GariDraw draw;
-  gari_draw_init(&draw, image, gari_draw_blendpixel, color, alpha);
+  gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
   // Adjust for negative widths and heights.
   if (w < 0) {
     w = -w;

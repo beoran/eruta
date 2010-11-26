@@ -95,7 +95,7 @@ struct GariGame_ {
   uint32_t     framestart;
   uint32_t     framestop;
   uint32_t     delta;
-  SDL_Joystick **joysticks;
+  GariJoystick **joysticks;
 };
 
 
@@ -112,7 +112,7 @@ GariGame * gari_game_openjoysticks(GariGame * gari) {
   int index;
   int amount = gari_joy_amount();
   if(amount<1) return NULL;
-  gari->joysticks = GARI_MALLOC(sizeof(SDL_Joystick *) * amount);
+  gari->joysticks = GARI_MALLOC(sizeof(GariJoystick *) * amount);
   for(index = 0; index < amount; index ++) {
     gari->joysticks[index] = gari_joy_open(index);
     gari_joy_describe(gari->joysticks[index]);
@@ -184,37 +184,106 @@ void gari_game_free(GariGame * game) {
   gari_free(gari_game_done(game));  
 }
 
-
 GariScreen * gari_game_screen(GariGame * game) {
   return game->screen;
 }
 
+// Converts between GariScreen and SDL_Surface
+SDL_Surface * gari_screen_surface(GariScreen * screen) {
+  return  (SDL_Surface *)(screen);
+}
 
-GariScreen * gari_screen_make(GariGame * game, int wide, int high, int fullscreen) {
-  int     depth = GARI_DEFAULT_DEPTH, new_depth = 0;
+// Converts between SDL_Surface and GariScreen
+GariScreen * gari_surface_screen(SDL_Surface * surf) {
+  return  (GariScreen *)(surf);
+}
+
+// Checks if a screen is the fullscreen screen or not
+int gari_screen_fullscreen(GariScreen * screen) {
+  if(!screen) return 0;
+  return gari_screen_surface(screen)->flags & SDL_FULLSCREEN;
+}
+
+// Checks if the main game  window is in fullscreen mode. 
+int gari_game_fullscreen(GariGame * game) {
+  return gari_screen_fullscreen(gari_game_screen(game));
+}
+
+// Opens the game screen with the given parameters.
+GariScreen * gari_game_openscreendepth(GariGame * game, int wide, int high, int fullscreen, int depth) {
+  int new_depth = 0;
   SDL_Surface * screen = NULL;
-  Uint32  flags = 0;
+  Uint32  flags = 0;  
   if (game->screen) { return game->screen; }
-  flags         = SDL_HWSURFACE;
+  if(depth < 1)     { depth = GARI_DEFAULT_DEPTH; } 
+  flags             = SDL_HWSURFACE;
   if (fullscreen)   { flags     |= SDL_FULLSCREEN; }
   new_depth  = SDL_VideoModeOK(wide, high, depth, flags);
-  if (!new_depth ) { 
-    flags      = SDL_ANYFORMAT;
-    new_depth  = SDL_VideoModeOK(wide, high, GARI_DEFAULT_DEPTH, flags);
+  if (!new_depth )  { 
+    flags           |= SDL_ANYFORMAT;
+    new_depth        = SDL_VideoModeOK(wide, high, GARI_DEFAULT_DEPTH, flags);
     if(!new_depth) {
       fprintf(stderr, "\nUnable to open screen: %dx%d@%d : %s\n", wide, high, new_depth, SDL_GetError());
       return NULL;
     }
   }  
   screen = SDL_SetVideoMode(wide, high, new_depth, flags);
-  if(!screen) {
+  if (!screen) {
       fprintf(stderr, "\nUnable to open screen: %dx%d@%d : %s\n", wide, high, new_depth, SDL_GetError());
       return NULL;
-    }
-
+  }
   game->screen = (GariScreen *) screen;
   return game->screen;
 }
+
+
+GariScreen * gari_game_openscreen(GariGame * game, int wide, int high, 
+                                  int fullscreen) {
+  return gari_game_openscreendepth(game, wide, high, 
+            fullscreen, GARI_DEFAULT_DEPTH);  
+}
+
+
+/**
+/ Tries to change screen resolution or flags. 
+*/
+GariScreen * gari_game_changescreen(GariGame * game, int w, int h, int depth, uint32_t flags) {
+  GariScreen * screen = gari_game_screen(game);
+  SDL_Surface * surf  = gari_screen_surface(screen);
+  SDL_Surface * newsurf;
+  int oldflags = surf->flags;
+  if (!screen) { return NULL; }  
+  newsurf = SDL_SetVideoMode(w, h, depth, flags);
+  if(!newsurf) newsurf = SDL_SetVideoMode(0, 0, 0, oldflags);
+  if(!newsurf) { return NULL; }  
+  game->screen = gari_surface_screen(newsurf);
+  return game->screen;
+} 
+
+GariScreen * gari_game_fullscreen_set(GariGame * game) {
+  GariScreen * screen = gari_game_screen(game);
+  SDL_Surface * surf  = gari_screen_surface(screen); 
+  return gari_game_changescreen(game, 0 ,0, 0, surf->flags | SDL_FULLSCREEN);
+}
+
+
+GariScreen * gari_game_fullscreen_unset(GariGame * game) {
+  GariScreen * screen = gari_game_screen(game);
+  SDL_Surface * surf  = gari_screen_surface(screen); 
+  return gari_game_changescreen(game, 0 ,0, 0, surf->flags & (~SDL_FULLSCREEN));
+}
+
+
+/** Can be used to set or unset fullscreen after opening the screen. */
+GariScreen * gari_game_fullscreen_(GariGame * game, int fullscreen) {    
+  if (fullscreen && !(gari_game_fullscreen(game))) {
+    return gari_game_fullscreen_set(game);
+  } else if (!fullscreen && (gari_game_fullscreen(game))) {
+    return gari_game_fullscreen_unset(game);
+  }
+  return gari_game_screen(game);
+}
+
 
 /** Advances the frame counter of the game. */
 GariGame * gari_game_nextframe(GariGame * game) {
@@ -224,7 +293,7 @@ GariGame * gari_game_nextframe(GariGame * game) {
 
 /** Updates the game screen, FPS, etc. */
 GariGame * gari_game_update(GariGame * game) {
-  SDL_Flip((SDL_Surface *)game->screen);
+  if(game->screen) SDL_Flip((SDL_Surface *)game->screen);
   gari_game_nextframe(game);
   return game;
 }
@@ -250,7 +319,6 @@ GariGame * gari_game_startfps(GariGame * game) {
 
 /** Retuns calculated fps after calling startfps . */
 double gari_game_fps(GariGame * game) {
-  uint32_t delta;
   double dd, df;
   game->framestop   = SDL_GetTicks();
   game->delta       = game->framestop - game->framestart;

@@ -186,8 +186,13 @@ double gari_game_fps(GariGame * game);
 void gari_game_report(GariGame * game);
 
 
-/** Opens the game main game screen or window. Must be done before using any image functions. */
-GariScreen * gari_screen_make(GariGame * game, int wide, int high, int fullscreen);
+/** Opens the game main game screen or window. Must be done before using any image functions, or before calling game.update . */
+GariScreen * gari_game_openscreendepth(GariGame * game, int wide, int high, int fullscreen, int depth); 
+
+/** Opens the game main game screen or window. 
+   Must be done before using any image functions. */   
+GariScreen * gari_game_openscreen(GariGame * game, int wide, int high, 
+                                  int fullscreen);
 
 /** Retuns the current main game screen. */
 GariScreen * gari_game_screen(GariGame * game);
@@ -195,9 +200,12 @@ GariScreen * gari_game_screen(GariGame * game);
 /** Returns the drawable image for the screen. */
 GariImage * gari_screen_image(GariScreen * screen);
 
-/** Opens the game main game screen or window. 
-   Must be done before using any image functions. */   
-GariScreen * screen_init_depth(GariGame * game, int wide, int high, int fullscreen, int depth);   
+/** Checks if the main game screen is in fullscreen mode. */ 
+int gari_game_fullscreen(GariGame * game);
+
+/** Can be used to set or unset fullscreen after opening the screen. */
+GariScreen * gari_game_fullscreen_(GariGame * game, int fullscreen); 
+
 
 /** Image mode, this deterines how to optimize the image for drawing to the screen, and whether the image has any transparency. */
 enum GariImageMode_ { 
@@ -206,15 +214,8 @@ enum GariImageMode_ {
   GariImageAlpha      = 2
 };
 
-/** Makes an empty gari image with given same bits per pixels (in depth), 
-    but supporting either alpha, or not, or a colorkey depending on mode.
-    The video mode must have been set and the screen must have been opened.
-    You must call gari_image_free when you're done with the generated 
-    GariImage. May return NULL on error.
-*/
 
-
-/** Makes an empty gari image with given same bits per pixels (in depth), 
+/** Makes an empty gari image with given bits per pixels (in depth), 
     but supporting either alpha, or not, depending on mode.
     The video mode must have been set and the screen must have been opened.
     You must call gari_image_free when you're done with the generated 
@@ -239,10 +240,8 @@ void gari_image_free(GariImage * image);
 /** Loads the image from the named file. */
 GariImage * gari_image_loadraw(char * filename);
 
-/** Loads the image from the named file and tries to optimize it for display. */
+/** Loads the image from the named file and tries to optimize it for display on the game's screen. This requires the game's screen to have been opened first. */
 GariImage * gari_image_load(GariGame * game, char * filename);
-
-
 
 /** Optimizes the image for drawing to the screen. */
 GariImage * gari_image_optimize(GariImage * image, int mode, GariDye dyekey);
@@ -296,7 +295,7 @@ GariDraw * gari_drawdata_init(
                               GariAlpha alpha
                              ); 
 
-/** Fills the image wth the given color. */
+/** Fills the image with the given dye. */
 void gari_image_fill(GariImage * image,  GariDye dye);
 
 /** Low level putpixel function.         */
@@ -334,7 +333,7 @@ void gari_image_slab(GariImage * image, int x, int y,
 
 /** Draws a blended slab, which is a filled rectange, on the image. */
 void gari_image_blendslab( GariImage * image, int x, int y, int w, int h,  
-                      GariColor color, GariAlpha alpha);
+                      GariColor color);
 
 
 /* Text drawing functions. Only support UTF-8. */
@@ -343,6 +342,10 @@ int gari_image_text(GariImage * dst, int x, int y,
 
 /* Fast blit from image to image. */
 void gari_image_blit(GariImage * dst, int dstx, int dsty, GariImage * src);
+
+/** Blits a part of one image to another one with the given coordinates. Takes the indicated parts of the image, as specified by srcx, srcy, srcw and srch  */
+void gari_image_blitpart(GariImage * dst, int dstx, int dsty, GariImage * src,
+int srcx, int srcy, int srcw, int srch);
 
 /* Copy part from image to image. */
 int gari_image_copy(GariImage * dst, int dstx, int dsty, GariImage * src,

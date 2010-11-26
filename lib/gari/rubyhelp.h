@@ -56,8 +56,8 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 #define RBH_MAKE(KLASS, STRUCT, PTR) \
         Data_Make_Struct(KLASS, STRUCT, 0, -1, PTR)
 
-// transforms a boolean VALUE to an int)
-#define RBH_BOOL2INT(VAL) (((VAL) == Qnil) || ((VAL) == Qfalse) ? FALSE : TRUE)
+// transforms a boolean VALUE to an int
+#define RBH_BOOL_INT(VAL) (((VAL) == Qnil) || ((VAL) == Qfalse) ? FALSE : TRUE)
 
 // transforms a C value (pointer or int) to Qtrue of Qfalse
 #define RBH_TOBOOL(VAL) ((VAL) ? Qtrue : Qfalse)
@@ -123,7 +123,7 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
         
 // Defines a Ruby class under a Ruby module, with a Ruby superclass.
 #define RBH_MODULE_CLASS_SUPER(MOD, KLASS, SUPER) \
-        RBH_CLASS_UNDER(MOD, KLASS, RBH_CLASS_NAME(SUPER))
+        RBH_CLASS_UNDER(MOD, KLASS, RBH_CLASS_VAR(SUPER))
 
 // Helper that determines the name for the unwrap function.
 #define RBH_UNWRAP_NAME(KLASS) RBH_PASTE(rbh_unwrap_, KLASS)
@@ -152,8 +152,9 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 
 // Wraps a pointer to a struct into a ruby class. Useful if no mark is needed,
 // you only need to suply the free pointer.
+// Also checks PTR, and returns Qnil if PTR is NULL.
 #define RBH_WRAP(KLASS, PTR, FREE) \
-        Data_Wrap_Struct(RBH_CLASS_VAR(KLASS), 0, FREE, PTR)
+        ( (PTR) ? Data_Wrap_Struct(RBH_CLASS_VAR(KLASS), 0, FREE, PTR) : Qnil) 
  
 
 // Unwraps a VALUE of ruby class KLASS to a pointer of the C struct.
@@ -163,8 +164,12 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 
 // Converts a ruby VALUE to a C string pointer.
 #define RBH_STRING(VALUE) StringValuePtr(VALUE)
+
 // Converts a ruby numerical value to an int
 #define RBH_INT(VALUE) NUM2INT(VALUE)
+
+// Converts a ruby numerical value to an unsigned int
+#define RBH_UINT(VALUE) NUM2UINT(VALUE)
 
 // Converts a ruby numerical value to a uint8_t
 #define RBH_UINT8(VALUE) ((uint8_t)(NUM2INT(VALUE)))
@@ -172,8 +177,13 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 
 // Converts an integer to a Ruby number value 
 #define RBH_INT_NUM(INT) INT2NUM(INT)
+// Converts an unsigned integer to a Ruby number value 
+#define RBH_UINT_NUM(INT) UINT2NUM(INT)
+
 // Converts an uint8_t to a ruby number value
 #define RBH_UINT8_NUM(UINT8) RBH_INT_NUM((int)(UINT8))
+// Converts a double to a ruby VALUE
+#define RBH_DOUBLE_NUM(DBL) DBL2NUM(DBL)
 
 // Helper to define a singleton method (class method) for a class
 #define RBH_SINGLETON_METHOD(KLASS, NAME, FUNC, ARITY) \

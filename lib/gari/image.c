@@ -91,8 +91,25 @@ void gari_image_blit(GariImage * dst, int dstx, int dsty, GariImage * src) {
   dstrect.y = dsty;
   sdlsrc    = GARI_IMAGE_SURFACE(src);
   sdldst    = GARI_IMAGE_SURFACE(dst);
-  SDL_BlitSurface(src, NULL, dst, &dstrect);  
+  SDL_BlitSurface(sdlsrc, NULL, sdldst, &dstrect);  
 }
+
+/** Blits a part of one image to another one with the given coordinates. Takes the indicated parts of the image, as specified by srcx, srcy, srcw and srch  */
+void gari_image_blitpart(GariImage * dst, int dstx, int dsty, GariImage * src,
+int srcx, int srcy, int srcw, int srch) {
+  SDL_Surface *sdlsrc, *sdldst;
+  SDL_Rect    dstrect, srcrect;
+  dstrect.x = dstx;
+  dstrect.y = dsty;
+  srcrect.x = srcx;
+  srcrect.y = srcy;
+  srcrect.w = srcw;
+  srcrect.h = srch;  
+  sdlsrc    = GARI_IMAGE_SURFACE(src);
+  sdldst    = GARI_IMAGE_SURFACE(dst);
+  SDL_BlitSurface(sdlsrc, &srcrect, sdldst, &dstrect);  
+}
+
 
 /* Make new images for various colour depths. */
 
@@ -173,7 +190,7 @@ GariImage * gari_image_makedepth(int w, int h, int depth, int mode) {
     case 24: return gari_image_make24(w, h, mode);
     case 32: 
     default:   
-	    return gari_image_make32(w, h, mode);    
+	    return gari_image_make32(w, h, mode);
   }
 } 
 
@@ -188,7 +205,7 @@ GariDye gari_image_mapcolor(GariImage * dst,
   rgba = gari_image_getrgba(src, color);
   return gari_image_maprgba(dst, rgba);
 }
-   
+
 
 
 

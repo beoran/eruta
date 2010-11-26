@@ -38,7 +38,7 @@ TEST_FUNC(game) {
   
   game    = gari_game_make();
   TEST_NOTNULL(game);
-  screen  = gari_screen_make(game, 640, 480, 0);
+  screen  = gari_game_openscreen(game, 640, 480, 0);
   TEST_NOTNULL(screen);
   gari_audio_init(game);
   
@@ -88,6 +88,9 @@ TEST_FUNC(game) {
     gari_image_blit(sim, 300, 300, tim);
     gari_image_blit(sim, 350, 350, mim);
     gari_image_blit(sim, 380, 380, oim);
+    
+    gari_image_blitpart(sim, 280, 280, tim, 10, 11, 12, 13);
+    
     gari_image_scaleblit(sim, 400, 100, 100, 50, bim, 
                               0, 0, 32, 32);
                               // gari_image_w(bim) , gari_image_h(bim));
@@ -95,7 +98,7 @@ TEST_FUNC(game) {
     gari_image_hoop(sim, 400, 400, 50, *cdyn);
     gari_image_flood(sim, 250, 250, red);
     
-    gari_image_blendslab(sim, 1, 1, 200, 200, cg, 255);
+    gari_image_blendslab(sim, 1, 1, 200, 200, cg);
     gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
     gari_font_printf(sim, 20, 20, font, white, black,  
                      "FPS: %ld", (int)gari_game_fps(game));
