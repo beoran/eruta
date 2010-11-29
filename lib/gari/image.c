@@ -206,8 +206,34 @@ GariDye gari_image_mapcolor(GariImage * dst,
   return gari_image_maprgba(dst, rgba);
 }
 
+/** Sets the clipping rectangle of the image to the given parameters. */
+GariImage * gari_image_setclip(GariImage * img, int x, int y, 
+  int w, int h) {
+  SDL_Surface * surf = gari_image_surface(img);
+  SDL_Rect     rect  = { 0, 0, 0, 0 } ;
+  if(!surf) return NULL;
+  
+  rect.x = x;
+  rect.y = y;
+  rect.w = w;
+  rect.h = h;
+  SDL_SetClipRect(surf, &rect);  
+  return img; 
+} 
 
-
+/* Gets the clipping array parameters. */
+GariImage * gari_image_getclip(GariImage * img, 
+  int *x, int *y, int *w, int *h) {
+  SDL_Surface * surf = gari_image_surface(img);
+  SDL_Rect      rect = { 0, 0, 0, 0 } ;
+  if(!surf || !x || !y ||!w || !h) return NULL;
+  SDL_GetClipRect(surf, &rect);
+  (*x) = rect.x;
+  (*y) = rect.y;
+  (*w) = rect.w;
+  (*h) = rect.h;
+  return img;
+}
 
 
 

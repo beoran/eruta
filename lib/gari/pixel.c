@@ -552,6 +552,7 @@ void gari_image_dot(GariImage *img, int x, int y, GariColor color) {
   gari_image_putpixel(img, x, y, dye);
 }
 
+
 // Gets the dye of a pixel from this surface 
 // Returns 0 if the pixel is outside of the clipping rectangle,
 // or outside of the bounds of the surface
@@ -577,6 +578,28 @@ void gari_image_blendpixel(GariImage *img,
   gari_surface_rbpbpp(s, x, y , dye, alpha);  
   gari_surface_unlock(s);
 }
+
+
+/** Blends a pixel with the given dye at the given coordinates
+* Takes the clipping rectangle and surface bounds into consideration
+* Locks and unlocks the surface if that is needed for drawing
+*/
+
+void gari_image_blenddot(GariImage *img, int x, int y, GariColor color) {
+  GariDye dye = gari_color_dye(color, img);
+  gari_image_blendpixel(img, x, y, dye, color.a);
+}
+
+/** Gets a pixel with the given dye at the given coordinates
+* Takes the clipping rectangle and surface bounds into consideration
+* Locks and unlocks the surface if that is needed for drawing
+*/
+
+GariColor gari_image_getdot(GariImage *img, int x, int y) {
+  GariDye dye = gari_image_getpixel(img, x, y);
+  return gari_dye_color(dye, img);
+}
+
 
 /*
 typedef void GariPutPixelFunc(GariImage * img, int x, int y, GariDye dye);

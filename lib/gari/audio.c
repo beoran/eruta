@@ -7,7 +7,7 @@
 
 
 /** Initializes the audio subsystem for a game. */
-void gari_audio_init(GariGame * game) {
+void gari_audio_init(GariGame * game, int frequency) {
   /*
   // start SDL with audio support
   if(SDL_Init(SDL_INIT_AUDIO)==-1) {
@@ -17,7 +17,7 @@ void gari_audio_init(GariGame * game) {
   */
   // open 22.05KHz, signed 16bit, system byte order,
   //      stereo audio, using 1024 byte chunks
-  if(Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 1024)==-1) {
+  if(Mix_OpenAudio(frequency, MIX_DEFAULT_FORMAT, 2, 1024)==-1) {
     printf("Mix_OpenAudio: %s\n", Mix_GetError());
     return;
   }  

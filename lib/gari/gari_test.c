@@ -20,13 +20,13 @@ TEST_FUNC(game) {
   int i, j, rep, done;
   GariDye pixel;
   GariColor c1, c2, c3, c4, cg, white, green, black, yellow, red, blue;
-  GariColor *cdyn;
-  cdyn    = gari_color_rgba(10,20,30,40);
+  GariColor *cdyn, ctst;
+  cdyn    = gari_color_rgba(240,40,20,160);
   TEST_NOTNULL(cdyn);
-  TEST_INTEQ(10, gari_color_r(cdyn));
-  TEST_INTEQ(20, gari_color_g(cdyn));
-  TEST_INTEQ(30, gari_color_b(cdyn));
-  TEST_INTEQ(40, gari_color_a(cdyn));
+  TEST_INTEQ(240, gari_color_r(cdyn));
+  TEST_INTEQ(40, gari_color_g(cdyn));
+  TEST_INTEQ(20, gari_color_b(cdyn));
+  TEST_INTEQ(160, gari_color_a(cdyn));
   
   white   = gari_color(255,255, 255);
   green   = gari_color(0  ,255, 0);
@@ -40,7 +40,7 @@ TEST_FUNC(game) {
   TEST_NOTNULL(game);
   screen  = gari_game_openscreen(game, 640, 480, 0);
   TEST_NOTNULL(screen);
-  gari_audio_init(game);
+  gari_audio_init(game, GARI_AUDIO_MEDIUMFREQENCY);
   
   
   flow    = gari_flow_make(1000);
@@ -54,7 +54,8 @@ TEST_FUNC(game) {
   gari_image_slab(sim, 0, 0, 640, 480, yellow);
   font    = gari_font_load("../../share/font/liberationserif.ttf", 14);
   TEST_NOTNULL(font);
-  gari_font_mode(font, GariFontBlended);
+  gari_font_mode_(font, GariFontBlended);
+  TEST_INTEQ(GariFontBlended,  gari_font_mode(font));
   
   tim     = gari_image_loadraw("../../share/image/tile_aqua.png");  
   TEST_NOTNULL(tim);
@@ -71,6 +72,8 @@ TEST_FUNC(game) {
 
   gari_game_resetframes(game);
   done = FALSE;
+  gari_image_setclip(sim, 5, 5, 630, 470);
+  
   while (!done) { 
     while (gari_event_fetch(&ev)) {
       fprintf(stderr, "Got event: kind: %d .\n", ev.kind);
@@ -78,9 +81,11 @@ TEST_FUNC(game) {
       if(done) break;
     }
  
-    gari_image_slab(sim, 0, 0, 640, 480, c1);    
+    gari_image_slab(sim, 0, 0, 640, 480, c1);
     gari_image_line(sim, 0, 0, 640, 480, c2);
     gari_image_dot(sim, 21, 181, c2);
+    // TEST_INTEQ(0, gari_color_cmp(c2, gari_image_getdot(sim, 21, 181)));
+        
     gari_image_slab(sim, -140, -140, 200, 200, green);
 
     gari_image_box(sim, 40, 70, 200, 100, c3);
@@ -103,6 +108,10 @@ TEST_FUNC(game) {
     gari_image_blenddisk(sim, 200, 200, 50, cg);
     gari_image_blendhoop(sim, 200, 200, 50, *cdyn);
     
+    gari_image_blendflood(sim, 210, 150, *cdyn);
+    
+    gari_image_blendline(sim, 0, 480, 640, -480, *cdyn);
+    
     
     gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
     gari_font_printf(sim, 20, 20, font, white, black,  
@@ -122,7 +131,7 @@ TEST_FUNC(game) {
   fprintf(stderr, "Putpixel FPS: %lf\n", gari_game_fps(game));
   gari_game_report(game);
   
-  gari_image_line(sim, 0, 0, 640, 480, c2);
+  
   gari_game_update(game);
   
   gari_image_dot(sim, 21, 181, c2);

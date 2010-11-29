@@ -157,20 +157,6 @@ RBH_GETTER_DEFINE(gari_color_r, Color, GariColor, RBH_UINT8_NUM);
 RBH_GETTER_DEFINE(gari_color_g, Color, GariColor, RBH_UINT8_NUM);
 RBH_GETTER_DEFINE(gari_color_b, Color, GariColor, RBH_UINT8_NUM);
 RBH_GETTER_DEFINE(gari_color_a, Color, GariColor, RBH_UINT8_NUM);  
-  
-#define GARI_FONT_WRAP(F)   RBH_WRAP(Font, F, gari_font_free)
-#define GARI_FONT_UNWRAP(F) RBH_UNWRAP(Font, F)  
-
-VALUE rbgari_font_new(VALUE self, VALUE name, VALUE size) {
-  char * nam = RBH_STRING(name);
-  int sz = RBH_INT(size);
-  GariFont * font = gari_font_load(nam, sz);
-  return GARI_FONT_WRAP(font);
-}
-
-VALUE rbgari_font_error(VALUE self) {
-  return RBH_STR_ASCII2(gari_font_error());
-}
 
 /** Returns the drawable image for the screen. XXX: do we need this?  
 GariImage * gari_screen_image(GariScreen * screen);
@@ -270,6 +256,13 @@ VALUE rbgari_image_box(VALUE self, VALUE vx, VALUE vy,
   return self;
 }
   
+VALUE rbgari_image_blendbox(VALUE self, VALUE vx, VALUE vy, 
+                        VALUE vw  , VALUE vh, VALUE vc) {
+  gari_image_blendbox(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
+                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
+  return self;
+}
+  
   
 VALUE rbgari_image_line(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vw  , VALUE vh, VALUE vc) {
@@ -277,6 +270,14 @@ VALUE rbgari_image_line(VALUE self, VALUE vx, VALUE vy,
                   RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
   return self;
 }
+
+VALUE rbgari_image_blendline(VALUE self, VALUE vx, VALUE vy, 
+                        VALUE vw  , VALUE vh, VALUE vc) {
+  gari_image_blendline(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
+                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
+  return self;
+}
+
  
 VALUE rbgari_image_disk(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vr  , VALUE vc) {
@@ -285,9 +286,25 @@ VALUE rbgari_image_disk(VALUE self, VALUE vx, VALUE vy,
   return self;
 }
  
+VALUE rbgari_image_blenddisk(VALUE self, VALUE vx, VALUE vy, 
+                        VALUE vr  , VALUE vc) {
+  gari_image_blenddisk(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
+                  RBH_INT(vr),*GARI_COLOR_UNWRAP(vc));
+  return self;
+}
+ 
+ 
 VALUE rbgari_image_hoop(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vr  , VALUE vc) {
   gari_image_hoop(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
+                  RBH_INT(vr),*GARI_COLOR_UNWRAP(vc));
+  return self;
+}
+
+
+VALUE rbgari_image_blendhoop(VALUE self, VALUE vx, VALUE vy, 
+                        VALUE vr  , VALUE vc) {
+  gari_image_blendhoop(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
                   RBH_INT(vr),*GARI_COLOR_UNWRAP(vc));
   return self;
 }
@@ -297,6 +314,13 @@ VALUE rbgari_image_flood(VALUE self, VALUE vx, VALUE vy, VALUE vc) {
                   *GARI_COLOR_UNWRAP(vc));
   return self;
 }
+
+VALUE rbgari_image_blendflood(VALUE self, VALUE vx, VALUE vy, VALUE vc) {
+  gari_image_flood(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
+                  *GARI_COLOR_UNWRAP(vc));
+  return self;
+}
+
 
 VALUE rbgari_image_dot(VALUE self, VALUE vx, VALUE vy, VALUE vc) {
   gari_image_dot(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
@@ -333,6 +357,209 @@ VALUE rbgari_image_scaleblit(VALUE self, VALUE vx, VALUE vy,
                   );
   return self;
 }
+
+VALUE rbgari_image_setclip(VALUE self, VALUE vx, VALUE vy, VALUE vw, VALUE vh) {
+  
+  gari_image_setclip(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
+                                                  RBH_INT(vw), RBH_INT(vh)); 
+  return self;             
+}
+  
+VALUE rbgari_image_getclip(VALUE self) {
+  int x, y, w, h;
+  if(!gari_image_getclip(GARI_IMAGE_UNWRAP(self), &x, &y, &w, &h)) return Qnil;
+  return rb_ary_new3(4, RBH_INT_NUM(x), RBH_INT_NUM(y), 
+                        RBH_INT_NUM(w), RBH_INT_NUM(h)); 
+}
+  
+#define GARI_EVENT_WRAP(EVE) RBH_WRAP(Event, EVE, gari_event_free)
+#define GARI_EVENT_UNWRAP(EVE) RBH_UNWRAP(Event, EVE)
+  
+  
+VALUE rbgari_event_poll(VALUE self) {
+  return GARI_EVENT_WRAP(gari_event_pollnew());
+}
+
+/*
+#define GARI_EVENT_NONE           0
+#define GARI_EVENT_ACTIVE         1
+#define GARI_EVENT_KEYDOWN        2
+#define GARI_EVENT_KEYUP          3
+#define GARI_EVENT_MOUSEPRESS     4
+#define GARI_EVENT_MOUSERELEASE   5
+#define GARI_EVENT_MOUSEMOVE      6
+#define GARI_EVENT_MOUSESCROLL    7
+#define GARI_EVENT_JOYMOVE        8
+#define GARI_EVENT_JOYPRESS       9
+#define GARI_EVENT_JOYRELEASE    10 
+#define GARI_EVENT_RESIZE        11
+#define GARI_EVENT_EXPOSE        12
+#define GARI_EVENT_QUIT          13 
+#define GARI_EVENT_USER          14 
+#define GARI_EVENT_SYSTEM        15
+
+sruct GariEvent_ {
+  uint8_t   kind;
+  uint8_t   gain;
+  uint16_t  key;
+  uint16_t  mod;
+  uint16_t  unicode; 
+  uint16_t  x, y, xrel, yrel, w, h;
+  uint16_t  button;
+  int16_t   value; 
+  uint8_t   which; 
+  uint8_t   axis;
+};
+
+*/
+
+VALUE rbgari_event_kind(VALUE self) {
+  return RBH_UINT8_NUM(GARI_EVENT_UNWRAP(self)->kind);
+}
+
+VALUE rbgari_event_gain(VALUE self) {
+  return RBH_UINT8_NUM(GARI_EVENT_UNWRAP(self)->gain);
+}
+
+VALUE rbgari_event_key(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->key);
+}
+
+VALUE rbgari_event_mod(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->mod);
+}
+
+VALUE rbgari_event_unicode(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->unicode);
+}
+
+VALUE rbgari_event_x(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->x);
+}
+
+VALUE rbgari_event_y(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->y);
+}
+
+VALUE rbgari_event_w(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->w);
+}
+
+VALUE rbgari_event_h(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->h);
+}
+
+VALUE rbgari_event_xrel(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->xrel);
+}
+
+VALUE rbgari_event_yrel(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->yrel);
+}
+
+VALUE rbgari_event_button(VALUE self) {
+  return RBH_UINT_NUM(GARI_EVENT_UNWRAP(self)->button);
+}
+
+VALUE rbgari_event_value(VALUE self) {
+  return RBH_INT_NUM(GARI_EVENT_UNWRAP(self)->value);
+}
+
+VALUE rbgari_event_which(VALUE self) {
+  return RBH_UINT8_NUM(GARI_EVENT_UNWRAP(self)->which);
+}
+
+VALUE rbgari_event_axis(VALUE self) {
+  return RBH_UINT8_NUM(GARI_EVENT_UNWRAP(self)->axis);
+}
+
+
+  
+#define GARI_FONT_WRAP(F)   RBH_WRAP(Font, F, gari_font_free)
+#define GARI_FONT_UNWRAP(F) RBH_UNWRAP(Font, F)  
+
+VALUE rbgari_font_new(VALUE self, VALUE name, VALUE size) {
+  char * nam = RBH_STRING(name);
+  int sz = RBH_INT(size);
+  GariFont * font = gari_font_load(nam, sz);
+  return GARI_FONT_WRAP(font);
+}
+
+VALUE rbgari_font_error(VALUE self) {
+  return RBH_STR_ASCII2(gari_font_error());
+}
+
+VALUE rbgari_font_mode(VALUE self) {
+  return RBH_INT_NUM(gari_font_mode(GARI_FONT_UNWRAP(self)));
+}
+
+VALUE rbgari_font_mode_(VALUE self, VALUE mode) {
+  gari_font_mode_(GARI_FONT_UNWRAP(self), RBH_INT(mode));
+  return mode;  
+}
+
+VALUE rbgari_font_draw(VALUE vimg, VALUE vx, VALUE vy, VALUE vutf8,
+                       VALUE vfont, VALUE vfg, VALUE vbg) { 
+  GariImage * image = GARI_IMAGE_UNWRAP(vimg);
+  int x             = RBH_INT(vx);
+  int y             = RBH_INT(vy);  
+  char * utf8       = RBH_CSTR(vutf8);
+  GariFont  * font  = GARI_FONT_UNWRAP(vfont); 
+  GariColor * fg    = GARI_COLOR_UNWRAP(vfg);
+  GariColor * bg    = GARI_COLOR_UNWRAP(vbg);
+  gari_font_drawcolor(image, x, y, utf8, font, *fg, *bg);
+} 
+
+/** Music and sound. */
+VALUE rbgari_game_openaudio(VALUE vgame, VALUE vfreq) {
+  gari_audio_init(GARI_GAME_UNWRAP(vgame), RBH_INT(vfreq));
+  return vgame;
+}
+  
+  
+/** Initialises and loads sound into an existing GariSound record. */
+GariSound * gari_sound_init(GariSound * sound, char * filename);
+
+/** Creates a new GariSound and loads the sound from a file. */
+GariSound * gari_sound_load(char * filename);
+
+/** Deallocates the loaded sound, but not the wrapper GariSound itself. */
+GariSound * gari_sound_done(GariSound * sound);
+
+/** Calls gari_sound_done and then frees the sound itself.*/
+GariSound * gari_sound_free(GariSound * sound);
+
+/** Plays a sound once. */
+GariSound * gari_sound_play(GariSound * sound);
+
+
+
+/** Initialises and loads music into an existing GariMusic record. */
+GariMusic * gari_music_init(GariMusic * music, char * filename);
+
+/** Creates a new GariMusic and loads the music from a file. */
+GariMusic * gari_music_load(char * filename);
+
+/** Deallocates up the loaded music, but not the wrapper GariMusic itself. */
+GariMusic * gari_music_done(GariMusic * music);
+
+/** Calls gari_music_done and then frees the music itself.*/
+GariMusic * gari_music_free(GariMusic * music);
+
+/** Starts playing the music loop times (-1 means to keep on repeating) 
+*   fading in after fade ms. 
+*/
+GariMusic * gari_music_fadein(GariMusic * music, int loops, int fade); 
+
+/** Stops playing the music, fading out after fade ms. */
+GariMusic * gari_music_fadeout(GariMusic * music, int fade); 
+
+
+
+  
+/** Gets the clipping rectangle of the image. 
+* Clipping applies to all drawing functions. 
+*/
 
 
 /*
@@ -400,18 +627,27 @@ void Init_gari() {
   
   RBH_GETTER(Image, w         , gari_image_w);
   RBH_GETTER(Image, h         , gari_image_h);
-  RBH_METHOD(Image, optimize  , rbgari_image_optimize , 2);
-  RBH_METHOD(Image, slab      , rbgari_image_slab     , 5);
-  RBH_METHOD(Image, blendslab , rbgari_image_blendslab, 5);
-  RBH_METHOD(Image, box       , rbgari_image_box      , 5);
-  RBH_METHOD(Image, line      , rbgari_image_line     , 5);
-  RBH_METHOD(Image, disk      , rbgari_image_disk     , 4);
-  RBH_METHOD(Image, hoop      , rbgari_image_hoop     , 4);
-  RBH_METHOD(Image, flood     , rbgari_image_flood    , 3);
-  RBH_METHOD(Image, dot       , rbgari_image_dot      , 3);
-  RBH_METHOD(Image, blit      , rbgari_image_blit     , 3);
-  RBH_METHOD(Image, blitpart  , rbgari_image_blitpart , 7);
-  RBH_METHOD(Image, blitscale , rbgari_image_scaleblit, 9);
+  RBH_METHOD(Image, clip?     , rbgari_image_getclip    , 0);
+  RBH_METHOD(Image, clip!     , rbgari_image_setclip    , 4);
+  
+  RBH_METHOD(Image, optimize  , rbgari_image_optimize   , 2);
+  RBH_METHOD(Image, slab      , rbgari_image_slab       , 5);
+  RBH_METHOD(Image, box       , rbgari_image_box        , 5);
+  RBH_METHOD(Image, line      , rbgari_image_line       , 5);
+  RBH_METHOD(Image, disk      , rbgari_image_disk       , 4);
+  RBH_METHOD(Image, hoop      , rbgari_image_hoop       , 4);
+  RBH_METHOD(Image, flood     , rbgari_image_flood      , 3);
+  RBH_METHOD(Image, blendslab , rbgari_image_blendslab  , 5);  
+  RBH_METHOD(Image, blendbox  , rbgari_image_blendbox   , 5);
+  RBH_METHOD(Image, blendline , rbgari_image_blendline  , 5);
+  RBH_METHOD(Image, blenddisk , rbgari_image_blenddisk  , 4);
+  RBH_METHOD(Image, blendhoop , rbgari_image_blendhoop  , 4);
+  RBH_METHOD(Image, blendflood, rbgari_image_blendflood , 3);
+
+  RBH_METHOD(Image, dot       , rbgari_image_dot        , 3);
+  RBH_METHOD(Image, blit      , rbgari_image_blit       , 3);
+  RBH_METHOD(Image, blitpart  , rbgari_image_blitpart   , 7);
+  RBH_METHOD(Image, blitscale , rbgari_image_scaleblit  , 9);
   // RBH_METHOD(Image,   , rbgari_image_ , );
   
   
@@ -425,11 +661,50 @@ void Init_gari() {
   RBH_GETTER(Color, g, gari_color_g);
   RBH_GETTER(Color, b, gari_color_b);
   RBH_GETTER(Color, a, gari_color_a);
+  
+  RBH_CLASS_NUM_CONST(Event, NONE         , GARI_EVENT_NONE);
+  RBH_CLASS_NUM_CONST(Event, ACTIVE       , GARI_EVENT_ACTIVE);
+  RBH_CLASS_NUM_CONST(Event, KEYDOWN      , GARI_EVENT_KEYDOWN);
+  RBH_CLASS_NUM_CONST(Event, KEYUP        , GARI_EVENT_KEYUP);
+  RBH_CLASS_NUM_CONST(Event, MOUSEPRESS   , GARI_EVENT_MOUSEPRESS);
+  RBH_CLASS_NUM_CONST(Event, MOUSERELEASE , GARI_EVENT_MOUSERELEASE);
+  RBH_CLASS_NUM_CONST(Event, MOUSEMOVE    , GARI_EVENT_MOUSEMOVE);
+  RBH_CLASS_NUM_CONST(Event, MOUSESCROLL  , GARI_EVENT_MOUSESCROLL);
+  RBH_CLASS_NUM_CONST(Event, JOYMOVE      , GARI_EVENT_JOYMOVE);
+  RBH_CLASS_NUM_CONST(Event, JOYPRESS     , GARI_EVENT_JOYPRESS);
+  RBH_CLASS_NUM_CONST(Event, JOYRELEASE   , GARI_EVENT_JOYRELEASE);
+  RBH_CLASS_NUM_CONST(Event, RESIZE       , GARI_EVENT_RESIZE);
+  RBH_CLASS_NUM_CONST(Event, EXPOSE       , GARI_EVENT_EXPOSE);
+  RBH_CLASS_NUM_CONST(Event, QUIT         , GARI_EVENT_QUIT);
+  RBH_CLASS_NUM_CONST(Event, USER         , GARI_EVENT_USER);
+  RBH_CLASS_NUM_CONST(Event, SYSTEM       , GARI_EVENT_SYSTEM);
+  
+  RBH_SINGLETON_METHOD(Event, poll        , rbgari_event_poll, 0);
+  RBH_METHOD(Event, kind    , rbgari_event_kind     , 0);
+  RBH_METHOD(Event, gain    , rbgari_event_gain     , 0);
+  RBH_METHOD(Event, key     , rbgari_event_key      , 0);
+  RBH_METHOD(Event, mod     , rbgari_event_mod      , 0);
+  RBH_METHOD(Event, unicode , rbgari_event_unicode  , 0);
+  RBH_METHOD(Event, x       , rbgari_event_x        , 0);
+  RBH_METHOD(Event, y       , rbgari_event_y        , 0);
+  RBH_METHOD(Event, xrel    , rbgari_event_xrel     , 0);
+  RBH_METHOD(Event, yrel    , rbgari_event_yrel     , 0);
+  RBH_METHOD(Event, w       , rbgari_event_w        , 0);
+  RBH_METHOD(Event, h       , rbgari_event_h        , 0);
+  RBH_METHOD(Event, button  , rbgari_event_button   , 0);
+  RBH_METHOD(Event, value   , rbgari_event_value    , 0);
+  RBH_METHOD(Event, which   , rbgari_event_which    , 0);
+  RBH_METHOD(Event, axis    , rbgari_event_axis     , 0);
+  
   RBH_CLASS_NUM_CONST(Font, ALPHA_SOLID, GARI_ALPHA_SOLID);
   RBH_CLASS_NUM_CONST(Font, ALPHA_CLEAN, GARI_ALPHA_CLEAR);
   
   RBH_SINGLETON_METHOD(Font , new   , rbgari_font_new   , 2);
   RBH_SINGLETON_METHOD(Font , error , rbgari_font_error , 0);
+  RBH_SINGLETON_METHOD(Font , mode  , rbgari_font_mode  , 0);
+  RBH_SINGLETON_METHOD(Font , mode= , rbgari_font_mode_ , 1);
+  RBH_SINGLETON_METHOD(Image, text  , rbgari_font_draw  , 6);
+  
   RBH_CLASS_NUM_CONST(Font  , Blended, GariFontBlended); 
   RBH_CLASS_NUM_CONST(Font  ,  Shaded, GariFontSolid);
   RBH_CLASS_NUM_CONST(Font  ,  Solid, GariFontShaded);

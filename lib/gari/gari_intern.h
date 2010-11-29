@@ -166,6 +166,18 @@ void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariDye color);
 void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariDye color);
 
 
+// Returns TRUE if the pixel lies outside the image
+// returns FALSE if not so and it may be drawn
+int gari_image_pixeloutside(GariImage * image, int x, int y); 
+
+// Returns TRUE if the pixel lies outside the clipping rectangle
+// returns FALSE if not so and it may be drawn
+int gari_image_pixelclip(GariImage * image, int x, int y); 
+
+// Returns true if the pixel lies outside of the image's boundaries or 
+// clipping rectangle.
+int gari_image_pixeloutorclip(GariImage * image, int x, int y);
+
 // Wraps a SDL_Surface inside a GariImage.
 GariImage * gari_image_wrap(SDL_Surface * surface);
 

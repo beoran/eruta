@@ -199,6 +199,19 @@ void gari_image_vline_nolock(GariImage * image, int x, int y,
   gari_draw_dovline(&draw, x, y, h);
 }
 
+/* Optimized case of blendline, blends vertical lines only. */
+void gari_image_blendvline_nolock(GariImage * image, int x, int y, 
+                    int h, GariColor color) {
+  GariDraw draw;
+  gari_draw_init(&draw, image, gari_draw_blendpixel, color, GARI_ALPHA_OPAQUE);
+  // Adjust for negative heights.  
+  if (h < 0) {
+    h = -h;
+    y =  y - h;
+  } 
+  gari_draw_dovline(&draw, x, y, h);
+}
+
 
 /* Optimized case of gari_image_line, draws horizontal 
    lines with a width of w only. */
@@ -277,6 +290,19 @@ void gari_image_box( GariImage * image, int x, int y, int w, int h,
   // And two vertical ones.
   gari_image_vline_nolock(image, x    , y, h, color);
   gari_image_vline_nolock(image, x + w, y, h, color); 
+  gari_image_unlock(image);
+} 
+
+/** Blends a box, which is an open rectange, on the image. */
+void gari_image_blendbox( GariImage * image, int x, int y, int w, int h,  
+                      GariColor color) {
+  gari_image_lock(image);
+  // Two horizontal lines...
+  gari_image_blendhline_nolock(image, x, y    , w, color);
+  gari_image_blendhline_nolock(image, x, y + h, w, color);
+  // And two vertical ones.
+  gari_image_blendvline_nolock(image, x    , y, h, color);
+  gari_image_blendvline_nolock(image, x + w, y, h, color); 
   gari_image_unlock(image);
 } 
 
@@ -520,8 +546,9 @@ void gari_draw_doflood(GariDraw * draw, int x, int y, GariDye old) {
 /** Flood fills with color starting from x and y. */
 void gari_image_flood(GariImage * image, int x, int y, GariColor color) {
   GariDraw draw;
-  GariDye  dye;
+  GariDye  dye;  
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
+  if (gari_image_pixeloutorclip(image, x, y)) return;
   gari_image_lock(image);
   dye = gari_image_getpixel_nolock(image, x, y);
   gari_draw_doflood(&draw, x, y, dye);
@@ -529,5 +556,15 @@ void gari_image_flood(GariImage * image, int x, int y, GariColor color) {
 }
 
 
-
+/** Flood blends with color starting from x and y. */
+void gari_image_blendflood(GariImage * image, int x, int y, GariColor color) {
+  GariDraw draw;
+  GariDye  dye;  
+  gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
+  if (gari_image_pixeloutorclip(image, x, y)) return;  
+  gari_image_lock(image);
+  dye = gari_image_getpixel_nolock(image, x, y);
+  gari_draw_doflood(&draw, x, y, dye);
+  gari_image_unlock(image);
+}
 

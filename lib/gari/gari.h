@@ -272,7 +272,22 @@ GariDye gari_color_dye(GariColor color, GariImage * image);
   Concstructs a color expressed as an RGBA quadruplet and returns it as a 
   struct.
 */          
-GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);          
+GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a); 
+         
+
+/** 
+* Converts a GariColor to a gari dye for the given image. 
+* If the color's A is solid, then it uses SDL_MapRGB internally.
+* otherwise, it uses SDL_MapRGBA internally. 
+*/
+GariDye gari_color_dye(GariColor color, GariImage * image); 
+
+/** Checks if two gariColors are equal. Colors will sort by ascending a,
+r, g and b */
+int gari_color_cmp(GariColor c1, GariColor c2);
+
+/** Converts a GariDye to a GariColor for the given image. */
+GariColor gari_dye_color(GariDye dye, GariImage * image);         
 
 /** Drawing functions. */
 typedef void GariPutPixelFunc(GariImage * img, int x, int y, GariDye dye);
@@ -319,8 +334,20 @@ GariDraw * gari_drawdata_init(
                               GariColor color,
                               GariAlpha alpha
                              ); 
+                             
+/** Sets the clipping rectangle of the image. 
+* Clipping applies to all drawing functions. 
+*/
+GariImage * gari_image_setclip(GariImage * img, 
+              int x, int y, int w, int h); 
+  
+/** Gets the clipping rectangle of the image. 
+* Clipping applies to all drawing functions. 
+*/
+GariImage * gari_image_getclip(GariImage * img, 
+              int *x, int *y, int *w, int *h);
 
-/** Fills the image with the given dye. */
+/** Fills the image with the given dye. Ignores clipping. */
 void gari_image_fill(GariImage * image,  GariDye dye);
 
 /** Low level putpixel function.         */
@@ -328,6 +355,12 @@ void gari_image_putpixel(GariImage * image, int x, int y, GariDye dye);
 
 /** High level level putpixel function.  */
 void gari_image_dot(GariImage * image, int x, int y, GariColor color);
+
+/** High level blend pixel function */
+void gari_image_blenddot(GariImage * image, int x, int y, GariColor color);
+
+/** High level getpixel function */
+GariColor gari_image_getdot(GariImage * image, int x, int y);
 
 /** Draws an arbitrary line on the image starting at x1, y1, and fitting inside
 the rectangle with the size w and h.     */
@@ -360,6 +393,10 @@ void gari_image_slab(GariImage * image, int x, int y,
 the rectangle with the size w and h.     */
 void gari_image_blendline(GariImage * image, int x1, int y1, 
                      int w, int h, GariColor color);
+                     
+/** Blends a box, which is an open rectange, on the image. */
+void gari_image_box( GariImage * image, int x, int y, int w, int h,  
+                      GariColor color);                     
 
 /** Draws a blended slab, which is a filled rectange, on the image. */
 void gari_image_blendslab( GariImage * image, int x, int y, int w, int h,  
@@ -370,6 +407,9 @@ void gari_image_blenddisk(GariImage * image, int x, int y, int r, GariColor colo
 
 /** Draws a blended hoop, which is a circle outline, on the image. */       
 void gari_image_blendhoop(GariImage * image, int x, int y, int r, GariColor color);
+
+/** Draws a blended floodfill. */
+void gari_image_blendflood(GariImage * image, int x, int y, GariColor color);
 
 
 /* Text drawing functions. Only support UTF-8. */
@@ -450,6 +490,15 @@ GariEvent gari_event_poll();
 */
 GariEvent * gari_event_fetch(GariEvent * event);
 
+/** Polls the event queue and returns a newly alloctaded GariEvent with 
+* the top event of the queue. Returns NULL, and allocates no memory if 
+* the queue is empty.
+*/
+GariEvent * gari_event_pollnew();
+
+/** Frees memory associated with a Garievent alloctated by gari_event_pollnew.*/
+void gari_event_free(GariEvent * event);
+
 
 /* Fonts and text rendering. */
 
@@ -470,7 +519,10 @@ GariFont * gari_font_loadindex(char * filename, int ptsize, long index);
 GariFont * gari_font_load(char * filename, int ptsize);
 
 /** Sets the drawing mode of the font. */
-GariFont * gati_font_mode(GariFont * font, int mode);
+GariFont * gari_font_mode_(GariFont * font, int mode);
+
+/** Gets the drawing mode of the font. */
+int gari_font_mode(GariFont * font);
 
 /** Frees the memory allocated by the font. */
 void gari_font_free(GariFont *font); 
@@ -487,14 +539,18 @@ void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * fon
 */
 void gari_font_printf(GariImage * image, int x, int y, GariFont * font, GariColor fg, GariColor bg, char * format, ...);
 
-/** Returns a text with details about the last error in oading or 
+/** Returns a text with details about the last error in loading or 
 handling a font. */
 char * gari_font_error();
 
 /** Music and sound. */
 
+#define GARI_AUDIO_LOWFREQENCY 8000
+#define GARI_AUDIO_MEDIUMFREQENCY 22050
+#define GARI_AUDIO_HIGHFREQENCY 44100
+
 /** Initializes the audio subsystem for a game. */
-void gari_audio_init(GariGame * game);
+void gari_audio_init(GariGame * game, int frequency);
 /** Cleans up the audio subsystem for a game. */
 void gari_audio_done(GariGame * game);
 

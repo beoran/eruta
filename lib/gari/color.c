@@ -132,4 +132,26 @@ GariDye gari_color_dye(GariColor color, GariImage * image) {
 }
 
 
+/** Converts a GariDye to a GariColor for the given image. */
+GariColor gari_dye_color(GariDye dye, GariImage * image) {
+  SDL_Surface *surf = gari_image_surface(image);
+  return gari_surface_getrgba(surf, image);
+}
+
+/** Checks if two gariColors are equal. Colors will sort by ascending a,
+r, g and b */
+int gari_color_cmp(GariColor c1, GariColor c2) {
+  if (c1.a < c2.a) return -1;
+  if (c1.a > c2.a) return  1;
+  if (c1.r < c2.r) return -1;
+  if (c1.r > c2.r) return  1;
+  if (c1.b < c2.b) return -1;
+  if (c1.b > c2.b) return  1;
+  if (c1.g < c2.g) return -1;
+  if (c1.g > c2.g) return  1;
+  return 0;
+} 
+
+
+
 

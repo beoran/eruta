@@ -182,6 +182,9 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 // Converts a ruby numerical value to a uint8_t
 #define RBH_UINT8(VALUE) ((uint8_t)(NUM2INT(VALUE)))
 
+// Converts a ruby numerical value to a C string
+#define RBH_CSTR(VALUE) ((RSTRING_PTR(VALUE)))
+
 
 // Converts an integer to a Ruby number value 
 #define RBH_INT_NUM(INT) INT2NUM(INT)

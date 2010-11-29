@@ -23,12 +23,18 @@ int gari_font_ttf_start() {
 
 
 /** Sets the drawing mode of the font. */
-GariFont * gari_font_mode(GariFont * font, int mode) {
+GariFont * gari_font_mode_(GariFont * font, int mode) {
   if(!font) { return NULL ; }
   font->mode = mode;
   return font;
 }
 
+
+/** Gets the drawing mode of the font. */
+int gari_font_mode(GariFont * font) {
+  if(!font) { return 0 ; }
+  return font->mode;
+}
 
 GariFont * gari_font_init(GariFont * font, TTF_Font * ttffont, 
            char *name, int ptsize, long index) {  
@@ -38,7 +44,7 @@ GariFont * gari_font_init(GariFont * font, TTF_Font * ttffont,
   font->filename= name; 
   font->ttf     = ttffont; 
   if(!font->ttf) { return NULL ; }
-  return gari_font_mode(font, GariFontBlended);
+  return gari_font_mode_(font, GariFontBlended);
 }
 
 char * gari_font_error() {

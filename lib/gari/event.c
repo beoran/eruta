@@ -135,6 +135,25 @@ GariEvent * gari_event_fetch(GariEvent * event) {
   } 
 }
 
+/** Polls the event queue and returns a newly alloctaded GariEvent with 
+* the top event of the queue. Returns NULL, and allocates no memory if 
+* the queue is empty.     
+*/
+GariEvent * gari_event_pollnew() {  
+  SDL_Event      sdlevent;
+  if (SDL_PollEvent(&sdlevent)) {
+    GariEvent    * event = GARI_ALLOCATE(GariEvent);
+    (*event) = gari_event_fromsdl(sdlevent);
+    return event;
+  } else {  
+    return NULL;  
+  } 
+}
+
+void gari_event_free(GariEvent * event) {
+  GARI_FREE(event);
+}
+
 
 
 /*
