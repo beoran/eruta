@@ -24,6 +24,15 @@ int gari_image_h(GariImage * img) {
   // return (gari_image_surface(img))->h;
 }
 
+// Returns the amount of byrtes per pixel for this image's format (1,2,3,4)
+int gari_image_bytesperpixel(GariImage * img) {
+  SDL_Surface * surface = gari_image_surface(img);
+  if(!img)             return 0;
+  if(!surface)         return 0; 
+  if(!surface->format) return 0;
+  return surface->format->BytesPerPixel;
+}
+
 void gari_surface_lock(SDL_Surface * surface) {
   (void)GARI_SURFACE_LOCK(surface);
   // SDL_MUSTLOCK(surface) && SDL_LockSurface(surface);
@@ -68,6 +77,15 @@ int gari_image_pixeloutside(GariImage * image, int x, int y) {
 int gari_image_pixelclip(GariImage * image, int x, int y) {
   return GARI_IMAGE_PIXELCLIP(image, x, y);  
 }
+
+// Returns true if the pixel lies outside of the image's boundaries or 
+// clipping rectangle.
+int gari_image_pixeloutorclip(GariImage * image, int x, int y) {
+  if (GARI_IMAGE_PIXELOUTSIDE(image, x, y)) { return TRUE; } 
+  return GARI_IMAGE_PIXELCLIP(image, x, y);
+}
+
+
 
 /** Generic pointer type suitable for pointer arithmetic. */
 typedef uint8_t * GariPtr;
@@ -166,6 +184,7 @@ void gari_surface_rpp24(SDL_Surface * surface, int x, int y, GariDye dye) {
   *(ptr.aptr)     = (uint8_t)(dye >> (GariDye)(format->Ashift));  
 }
 
+
 // Puts a pixel depending on the BytesPerPixel of the target surface
 // format. Still doesn't check the x and y coordinates for validity. 
 void gari_surface_rppbpp(SDL_Surface * surface, int x, int y, GariDye dye) {
@@ -224,7 +243,7 @@ GariDye gari_surface_rgpbpp(SDL_Surface * surface, int x, int y) {
 GariDye gari_help_blend(GariDye old, GariDye dye,
   GariDye rmask, GariDye gmask, GariDye bmask,
   GariDye amask, GariAlpha alpha)  {
-  GariDye oldr, oldb,oldg, olda, colr, colb, colg, cola, r, b, g , a;
+  GariDye oldr, oldb, oldg, olda, colr, colb, colg, cola, r, b, g , a;
   oldr = old & rmask;
   oldg = old & gmask;
   oldb = old & bmask;
@@ -342,12 +361,15 @@ void gari_surface_rbpbpp(SDL_Surface * surface, int x, int y,
 }
 
 
+
+
 // Puts a pixel with the given dye at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
 // Does no locking, so lock around it! Only for 8 bits surfaces. 
 void gari_image_putpixel8_nl(GariImage *img, int x, int y, GariDye dye) {
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return ; }
+  if(gari_image_pixeloutorclip(img, x, y)) { return; } 
+if(gari_image_pixeloutorclip(img, x, y)) { return; } 
   if(gari_image_pixeloutside(img, x, y)) { return ; }   
   gari_surface_rpp8(s, x, y , dye);
 }
@@ -357,8 +379,7 @@ void gari_image_putpixel8_nl(GariImage *img, int x, int y, GariDye dye) {
 // Does no locking, so lock around it! Only for 16 bits surfaces. 
 void gari_image_putpixel16_nl(GariImage *img, int x, int y, GariDye dye) {
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return ; }
-  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  if(gari_image_pixeloutorclip(img, x, y)) { return; }    
   gari_surface_rpp16(s, x, y , dye);
 }
 
@@ -367,8 +388,7 @@ void gari_image_putpixel16_nl(GariImage *img, int x, int y, GariDye dye) {
 // Does no locking, so lock around it! Only for 24 bits surfaces. 
 void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariDye dye) {
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return ; }
-  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  if(gari_image_pixeloutorclip(img, x, y)) { return; }    
   gari_surface_rpp24(s, x, y , dye);
 }
 
@@ -378,20 +398,66 @@ void gari_image_putpixel24_nl(GariImage *img, int x, int y, GariDye dye) {
 // Does no locking, so lock around it! Only for 32 bits surfaces. 
 void gari_image_putpixel32_nl(GariImage *img, int x, int y, GariDye dye) {
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return ; }
-  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  if(gari_image_pixeloutorclip(img, x, y)) { return; } 
   gari_surface_rpp32(s, x, y , dye);
 }
 
 // Puts a pixel with the given dye at the given coordinates
 // Takes the clipping rectangle and surface bounds into consideration
-// Does no locking, so lock around it!
-// this is for use in line drawing, etc. 
+// Does no locking, so lock around it! 
 void gari_image_putpixel_nolock(GariImage *img, int x, int y, GariDye dye) {
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return ; }
-  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  if(gari_image_pixeloutorclip(img, x, y)) { return; } 
   gari_surface_rppbpp(s, x, y , dye);
+}
+
+
+// Gets the dye of a pixel from this surface.
+// Returns 0 if the pixel is outside of the clipping rectangle,
+// or outside of the bounds of the surface.
+// Does no locking, so lock around it! Only for 8 bits GariImages.
+GariDye gari_image_getpixel8_nl(GariImage *img, int x, int y) {
+  GariDye dye = 0;
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixeloutorclip(img, x, y)) { return dye; }
+  dye = gari_surface_rgp8(s, x, y);  
+  return dye;
+}
+
+// Gets the dye of a pixel from this surface. 
+// Returns 0 if the pixel is outside of the clipping rectangle,
+// or outside of the bounds of the surface
+// Does no locking, so lock around it! Only works for 16 bits GariImages
+GariDye gari_image_getpixel16_nl(GariImage *img, int x, int y) {
+  GariDye dye = 0;
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixeloutorclip(img, x, y)) { return dye; }
+  dye = gari_surface_rgp16(s, x, y);  
+  return dye;
+}
+
+// Gets the dye of a pixel from this surface. 
+// Returns 0 if the pixel is outside of the clipping rectangle,
+// or outside of the bounds of the surface
+// Does no locking, so lock around it! Only works for 24 bits GariImages
+GariDye gari_image_getpixel24_nl(GariImage *img, int x, int y) {
+  GariDye dye = 0;
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixeloutorclip(img, x, y)) { return dye; }  
+  dye = gari_surface_rgp24(s, x, y);  
+  return dye;
+}
+
+// Gets the dye of a pixel from this surface. 
+// Returns 0 if the pixel is outside of the clipping rectangle,
+// or outside of the bounds of the surface
+// Does no locking, so lock around it! Only works for 32 bits GariImages
+GariDye gari_image_getpixel32_nl(GariImage *img, int x, int y) {
+  GariDye dye = 0;
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixeloutorclip(img, x, y)) { return dye; }  
+  dye = gari_surface_rgp32(s, x, y);  
+  return dye;
 }
 
 
@@ -402,10 +468,53 @@ void gari_image_putpixel_nolock(GariImage *img, int x, int y, GariDye dye) {
 GariDye gari_image_getpixel_nolock(GariImage *img, int x, int y) {
   GariDye dye = 0;
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return dye; }
-  if(gari_image_pixeloutside(img, x, y)) { return dye; }   
+  if(gari_image_pixeloutorclip(img, x, y)) { return dye; }
   dye = gari_surface_rgpbpp(s, x, y);  
   return dye;
+}
+
+
+// Blends the dye of a pixel from this surface, 
+// taking alpha into consideration. 
+// Does no locking, so lock around it! Only works for 32 bits GariImages
+void gari_image_blendpixel8_nl(GariImage *img, 
+  int x, int y, GariDye dye, GariAlpha alpha) {
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixeloutorclip(img, x, y)) { return; }    
+  gari_surface_rbp8(s, x, y , dye, alpha);  
+}
+
+
+// Blends the dye of a pixel from this surface, 
+// taking alpha into consideration. 
+// Does no locking, so lock around it! Only works for 32 bits GariImages
+void gari_image_blendpixel16_nl(GariImage *img, 
+  int x, int y, GariDye dye, GariAlpha alpha) {
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixeloutorclip(img, x, y)) { return; }    
+  gari_surface_rbp16(s, x, y , dye, alpha);  
+}
+
+
+// Blends the dye of a pixel from this surface, 
+// taking alpha into consideration. 
+// Does no locking, so lock around it! Only works for 32 bits GariImages
+void gari_image_blendpixel24_nl(GariImage *img, 
+  int x, int y, GariDye dye, GariAlpha alpha) {
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixeloutorclip(img, x, y)) { return; }    
+  gari_surface_rbp24(s, x, y , dye, alpha);  
+}
+
+
+// Blends the dye of a pixel from this surface, 
+// taking alpha into consideration. 
+// Does no locking, so lock around it! Only works for 32 bits GariImages
+void gari_image_blendpixel32_nl(GariImage *img, 
+  int x, int y, GariDye dye, GariAlpha alpha) {
+  SDL_Surface * s = gari_image_surface(img);
+  if(gari_image_pixeloutorclip(img, x, y)) { return; }    
+  gari_surface_rbp32(s, x, y , dye, alpha);  
 }
 
 
@@ -416,8 +525,7 @@ GariDye gari_image_getpixel_nolock(GariImage *img, int x, int y) {
 void gari_image_blendpixel_nolock(GariImage *img, 
   int x, int y, GariDye dye, GariAlpha alpha) {
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return ; }
-  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  if(gari_image_pixeloutorclip(img, x, y)) { return; }    
   gari_surface_rbpbpp(s, x, y , dye, alpha);  
 }
 
@@ -427,8 +535,7 @@ void gari_image_blendpixel_nolock(GariImage *img,
 // Locks and unlocks the surface if that is needed for drawing
 void gari_image_putpixel(GariImage *img, int x, int y, GariDye dye) {
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return ; }
-  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  if(gari_image_pixeloutorclip(img, x, y)) { return; }
   gari_surface_lock(s);
   gari_surface_rppbpp(s, x, y , dye);  
   gari_surface_unlock(s);
@@ -452,8 +559,7 @@ void gari_image_dot(GariImage *img, int x, int y, GariColor color) {
 GariDye gari_image_getpixel(GariImage *img, int x, int y) {
   GariDye dye = 0;
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return dye; }
-  if(gari_image_pixeloutside(img, x, y)) { return dye; }   
+  if(gari_image_pixeloutorclip(img, x, y)) { return dye; }
   gari_surface_lock(s);
   dye = gari_surface_rgpbpp(s, x, y);  
   gari_surface_unlock(s);
@@ -466,10 +572,55 @@ GariDye gari_image_getpixel(GariImage *img, int x, int y) {
 void gari_image_blendpixel(GariImage *img, 
   int x, int y, GariDye dye, GariAlpha alpha) {
   SDL_Surface * s = gari_image_surface(img);
-  if(gari_image_pixelclip(img, x, y))    { return ; }
-  if(gari_image_pixeloutside(img, x, y)) { return ; }   
+  if(gari_image_pixeloutorclip(img, x, y)) { return; }
   gari_surface_lock(s);
   gari_surface_rbpbpp(s, x, y , dye, alpha);  
   gari_surface_unlock(s);
 }
+
+/*
+typedef void GariPutPixelFunc(GariImage * img, int x, int y, GariDye dye);
+typedef GariDye GariGetPixelFunc(GariImage * img, int x, int y);
+typedef void GariBlendPixelFunc(GariImage * img, int x, int y, GariDye dye, GariAlpha alpha);
+*/
+
+// Returns a function that can be used to put a pixel on this GariImage.
+// The function returned does no locking. May return NULL if the format does 
+// not use 1,2,3 or 4 bytes per pixel.    
+GariPutPixelFunc * gari_image_putpixelfunc_nl(GariImage * image) {
+  switch (gari_image_bytesperpixel(image)) {
+    case 1: return gari_image_putpixel8_nl; 
+    case 2: return gari_image_putpixel16_nl;
+    case 3: return gari_image_putpixel24_nl;
+    case 4: return gari_image_putpixel32_nl;
+    default: return NULL;    
+  }
+}
+
+// Returns a function that can be used to get a pixel from this GariImage.
+// The function returned does no locking. May return NULL if the format does 
+// not use 1,2,3 or 4 bytes per pixel.    
+GariGetPixelFunc * gari_image_getpixelfunc_nl(GariImage * image) {
+  switch (gari_image_bytesperpixel(image)) {
+    case 1: return gari_image_getpixel8_nl; 
+    case 2: return gari_image_getpixel16_nl;
+    case 3: return gari_image_getpixel24_nl;
+    case 4: return gari_image_getpixel32_nl;
+    default: return NULL;    
+  }
+}
+
+// Returns a function that can be used to blend a pixel from this GariImage.
+// The function returned does no locking. May return NULL if the format does 
+// not use 1,2,3 or 4 bytes per pixel.    
+GariBlendPixelFunc * gari_image_blendpixelfunc_nl(GariImage * image) {
+  switch (gari_image_bytesperpixel(image)) {
+    case 1: return gari_image_blendpixel8_nl; 
+    case 2: return gari_image_blendpixel16_nl;
+    case 3: return gari_image_blendpixel24_nl;
+    case 4: return gari_image_blendpixel32_nl;
+    default: return NULL;    
+  }
+}
+
 

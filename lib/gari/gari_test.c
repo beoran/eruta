@@ -99,6 +99,11 @@ TEST_FUNC(game) {
     gari_image_flood(sim, 250, 250, red);
     
     gari_image_blendslab(sim, 1, 1, 200, 200, cg);
+    
+    gari_image_blenddisk(sim, 200, 200, 50, cg);
+    gari_image_blendhoop(sim, 200, 200, 50, *cdyn);
+    
+    
     gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
     gari_font_printf(sim, 20, 20, font, white, black,  
                      "FPS: %ld", (int)gari_game_fps(game));

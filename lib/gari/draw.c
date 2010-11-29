@@ -3,7 +3,7 @@
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
 
-
+#include <math.h>
 
 /* Constructs drawing information */
 GariDraw * gari_draw_init(GariDraw          * draw,
@@ -16,8 +16,15 @@ GariDraw * gari_draw_init(GariDraw          * draw,
   draw->image = image;
   draw->draw  = func;
   draw->color = color;
-  if(draw->image) { 
-    draw->dye   = gari_color_dye(draw->color, draw->image);
+  if(draw->image) {      
+    draw->dye         = gari_color_dye(draw->color, draw->image);
+    // We use these function pointers to speed up drawing somewhat.
+    // The function pointerwill match the color depth of the image, so
+    // we can avoid a case statement, at the expendse of a pointer 
+    // dereference. The latter should be faster on most architectures.    
+    draw->putpixel   = gari_image_putpixelfunc_nl(draw->image); 
+    draw->getpixel   = gari_image_getpixelfunc_nl(draw->image);
+    draw->blendpixel = gari_image_blendpixelfunc_nl(draw->image);
   } else {
     draw->dye = 0;
   } 
@@ -94,22 +101,30 @@ GariClipInfo gari_image_clipline(GariImage * image,
 
 
 int gari_draw_putpixel(GariDraw * draw, int px, int py) {
-  gari_image_putpixel_nolock(draw->image, px, py, draw->dye);
+  draw->putpixel(draw->image, px, py, draw->dye);
   return TRUE;
 }
 
 int gari_draw_blendpixel(GariDraw * draw, int px, int py) {
-  gari_image_blendpixel_nolock(draw->image, px, py, draw->dye, draw->alpha);
+  draw->blendpixel(draw->image, px, py, draw->dye, draw->alpha);
   return TRUE;
 }
 
-
-
-
+// Draws an arbitrary line
 void gari_image_line(GariImage * image, int x, int y, 
                     int w, int h, GariColor color) {
   GariDraw draw;  
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
+  gari_image_lock(image);
+  gari_draw_doline(&draw, x, y, w, h);
+  gari_image_unlock(image);
+}
+
+// Blends an arbitrary line
+void gari_image_blendline(GariImage * image, int x, int y, 
+                    int w, int h, GariColor color) {
+  GariDraw draw;  
+  gari_draw_init(&draw, image, gari_draw_blendpixel, color, GARI_ALPHA_OPAQUE);
   gari_image_lock(image);
   gari_draw_doline(&draw, x, y, w, h);
   gari_image_unlock(image);
@@ -221,7 +236,7 @@ static void adjust_negative(int * u, int * v) {
   }
 }   
 
-#define ADJUST_NEGATIVE(U, V) adjust_negative(&u, &v)
+#define ADJUST_NEGATIVE(U, V) adjust_negative(&U, &V)
 
 /** Draws a blended slab, which is a rectange, on the image. */
 void gari_image_blendslab(GariImage * image, int x, int y, int w, int h,  
@@ -229,14 +244,8 @@ void gari_image_blendslab(GariImage * image, int x, int y, int w, int h,
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
   // Adjust for negative widths and heights.
-  if (w < 0) {
-    w = -w;
-    x =  x - w;
-  }
-  if (h < 0) {
-    h = -h;
-    y =  y - h;
-  } 
+  ADJUST_NEGATIVE(w, x);
+  ADJUST_NEGATIVE(h, y);
   gari_image_lock(image); 
   gari_draw_doslab(&draw, x, y, w, h);
   gari_image_unlock(image);
@@ -250,14 +259,8 @@ void gari_image_slab( GariImage * image, int x, int y, int w, int h,
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
    
   // Adjust for negative widths and heights.
-  if (w < 0) {
-    w = -w;
-    x =  x - w;
-  }
-  if (h < 0) {
-    h = -h;
-    y =  y - h;
-  } 
+  ADJUST_NEGATIVE(w, x);
+  ADJUST_NEGATIVE(h, y);
   gari_image_lock(image); 
   gari_draw_doslab(&draw, x, y, w, h);
   gari_image_unlock(image);
@@ -282,6 +285,7 @@ void gari_image_box( GariImage * image, int x, int y, int w, int h,
 void gari_draw_dohoop(GariDraw * draw, int x, int y, int radius) {  
     
     int xp, yp, d, delta_e, delta_se;
+    if (radius < 0) return; // don't draw if radius is negative.  
 
     xp        = -1;
     yp        = radius;
@@ -325,43 +329,96 @@ void gari_image_hoop(GariImage * image, int x, int y, int r, GariColor color) {
   gari_image_unlock(image);
 }
 
-
-/* Traces a circle surface with the midpoint of the circle at x, y, and the radius being radius.  Calls gari_draw_dohline */
-void gari_draw_dodisk(GariDraw * draw, int x, int y, int radius) {  
-    int xp, yp, d, delta_e, delta_se, w;
-
-    xp = -1;
-    yp = radius;
-    d = 1 - radius;
-    delta_e = -1;
-    delta_se = (-radius << 1) + 3;
-
-    while (yp > xp) {
-        delta_e += 2;
-        xp++;
-
-        if (d < 0) {
-            d += delta_e;
-            delta_se += 2;
-        } else {
-            d += delta_se;
-            delta_se += 4;
-            yp--;
-        }
-        w = xp * 2;
-        gari_draw_dohline(draw, x - xp, y - yp, w); // top
-        gari_draw_dohline(draw, x - xp, y + yp, w); // bottom
-        
-        w = (yp * 2);
-        gari_draw_dohline(draw, x - yp, y - xp, w); // above middle
-        gari_draw_dohline(draw, x - yp, y + xp, w); // lower middle
-    }
+/** Blends a hoop, that is, an empty circle, on the image. */
+void gari_image_blendhoop(GariImage * image, int x, int y, int r, GariColor color) {
+  GariDraw draw;
+  gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
+  gari_image_lock(image);
+  gari_draw_dohoop(&draw, x, y, r);
+  gari_image_unlock(image);
 }
+
+
+/* Traces a circle surface with the midpoint of the circle at x, y, and the radius being radius.  Calls gari_draw_dohline. Does not handle bmends well, 
+and small circles are deformed. But it is faster. 
+*/
+void gari_draw_dodisk_fast(GariDraw * draw, int x, int y, int radius) {  
+  int xp, yp, d, delta_e, delta_se, w, oldy;
+  
+  if (radius < 0) return; // don't draw if radius is negative.
+
+  xp = -1;
+  yp = radius;
+  d = 1 - radius;
+  delta_e = -1;
+  delta_se = (-radius << 1) + 3;
+  // oldy     = y - yp - 1; // as to make it unequal
+  // oldy     = y - yp; 
+
+  while (yp > xp) {
+    delta_e += 2;
+    xp++;
+
+    if (d < 0) {
+      d += delta_e;
+      delta_se += 2;
+    } else {
+      d += delta_se;
+      delta_se += 4;
+      yp--;
+    }
+    w = xp * 2;
+    
+    gari_draw_dohline(draw, x - xp, y - yp, w); // top
+    gari_draw_dohline(draw, x - xp, y + yp, w); // bottom
+    
+    w = (yp * 2);
+    gari_draw_dohline(draw, x - yp, y - xp, w); // above middle
+    gari_draw_dohline(draw, x - yp, y + xp, w); // lower middle
+    
+    
+ }
+}
+
+/* Traces a circle surface with the midpoint of the circle at x, y, and the radius being radius.  Calls gari_draw_dohline and also works fine for blends,
+and does not deform small circle, but is slower due to float math. 
+*/
+
+void gari_draw_dodisk(GariDraw * draw, int x, int y, int radius) {  
+  int xp, yp, d, delta_e, delta_se, w, oldy;
+  
+  if (radius < 0) return; // don't draw if radius is negative.
+
+  xp = -1;
+  yp = radius;
+  d  = 1 - radius;
+  delta_e = -1;
+  delta_se = (-radius << 1) + 3;
+  while (yp > 0) {
+    yp--;
+    xp = (int)(round(sqrt(radius*radius - yp*yp)));
+    w  = xp * 2;
+    gari_draw_dohline(draw, x - xp, y - yp, w); // top
+    if (yp) { // prevent double line through the middle.
+      gari_draw_dohline(draw, x - xp, y + yp, w); // bottom
+    }     
+ }
+}
+
 
 /** Draws a disk, or a filled circle, on the image. */
 void gari_image_disk(GariImage * image, int x, int y, int r, GariColor color) {
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
+  gari_image_lock(image);
+  gari_draw_dodisk(&draw, x, y, r);
+  gari_image_unlock(image);
+}
+
+/** Blends a disk, or a filled circle, on the image. */
+void gari_image_blenddisk(GariImage * image, int x, int y, int r, GariColor color) {
+  GariDraw draw;
+  gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
   gari_image_lock(image);
   gari_draw_dodisk(&draw, x, y, r);
   gari_image_unlock(image);

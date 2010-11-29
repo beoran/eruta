@@ -10,6 +10,14 @@
 #include "ruby/intern.h"
 #include "ruby/encoding.h"
 
+#ifdef vsnprintf
+  #undef vsnprintf
+#endif
+
+#ifdef vprintf
+  #undef vprintf
+#endif  
+
 /* Macros */
 
 #define RBH_GETSTRUCT_DEFINE(STRUCTNAME, FUNCNAME, KLASS, KLASSNAME) \

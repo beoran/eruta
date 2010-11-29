@@ -274,12 +274,37 @@ GariDye gari_color_dye(GariColor color, GariImage * image);
 */          
 GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);          
 
-/* Drawing functions */
+/** Drawing functions. */
+typedef void GariPutPixelFunc(GariImage * img, int x, int y, GariDye dye);
+typedef GariDye GariGetPixelFunc(GariImage * img, int x, int y);
+typedef void GariBlendPixelFunc(GariImage * img, int x, int y, GariDye dye, GariAlpha alpha);
+
+/** Returns a function that can be used to put a pixel on this GariImage.
+* The function returned does no locking. May return NULL if the format does 
+* not use 1,2,3 or 4 bytes per pixel.    
+*/
+GariPutPixelFunc * gari_image_putpixelfunc_nl(GariImage * image);
+
+/** Returns a function that can be used to get a pixel from this GariImage.
+* The function returned does no locking. May return NULL if the format does 
+* not use 1,2,3 or 4 bytes per pixel.
+*/    
+GariGetPixelFunc * gari_image_getpixelfunc_nl(GariImage * image); 
+
+/** Returns a function that can be used to blend a pixel from this GariImage.
+* The function returned does no locking. May return NULL if the format does 
+* not use 1,2,3 or 4 bytes per pixel.
+*/    
+GariBlendPixelFunc * gari_image_blendpixelfunc_nl(GariImage * image); 
+
 
 /* Drawing context, used for abstracting certain drawing functions.*/
 struct GariDraw_ {
   GariImage        *  image; // image we're drawing to. 
-  GariDrawFunction *  draw;  // Drawing function to use.
+  GariDrawFunction *  draw;  // Generic drawing function to use.
+  GariGetPixelFunc *  getpixel; // Get pixel function (for the image) 
+  GariPutPixelFunc *  putpixel; // Put pixel function (for the image)
+  GariBlendPixelFunc *blendpixel; // Blend pixel function (for the image)
   GariColor           color; // Color to draw with.
   GariDye             dye;   // Dye to draw with.
   GariAlpha           alpha; // alpha value to be used when drawing
@@ -331,9 +356,20 @@ void gari_image_box(GariImage * image, int x, int y,
 void gari_image_slab(GariImage * image, int x, int y, 
                       int w, int h, GariColor color);
 
+/** Blends an arbitrary line on the image starting at x1, y1, and fitting inside
+the rectangle with the size w and h.     */
+void gari_image_blendline(GariImage * image, int x1, int y1, 
+                     int w, int h, GariColor color);
+
 /** Draws a blended slab, which is a filled rectange, on the image. */
 void gari_image_blendslab( GariImage * image, int x, int y, int w, int h,  
                       GariColor color);
+
+/** Draws a blended disk, which is a filled circle, on the image. */       
+void gari_image_blenddisk(GariImage * image, int x, int y, int r, GariColor color);
+
+/** Draws a blended hoop, which is a circle outline, on the image. */       
+void gari_image_blendhoop(GariImage * image, int x, int y, int r, GariColor color);
 
 
 /* Text drawing functions. Only support UTF-8. */
@@ -380,7 +416,7 @@ void gari_image_flood(GariImage * image, int x, int y, GariColor color);
 #define GARI_EVENT_JOYPRESS       9
 #define GARI_EVENT_JOYRELEASE    10 
 #define GARI_EVENT_RESIZE        11
-#define GARI_EVENT_EXPOSE         12
+#define GARI_EVENT_EXPOSE        12
 #define GARI_EVENT_QUIT          13 
 #define GARI_EVENT_USER          14 
 #define GARI_EVENT_SYSTEM        15
