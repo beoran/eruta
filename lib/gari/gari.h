@@ -11,7 +11,7 @@
 * 4) Cross platform. Enough said.
 * 5) Complete yet concise. All you need to write 2D games, but nothing more.
 * 6) Release under Zlib license (or similar permissive).
-* 7) Easy to embed in Ruby with bindings provided (later).
+* 7) Easy to embed in Ruby with bindings provided.
 *
 * A C compiler which supports some C99 fratures, particularly
 * stdint.h, __VA_ARGS__, and one line comments is needed to compile Gari.
@@ -31,7 +31,7 @@
 
 /* 
   Some platforms will need a __declspec(dllexport) or something for 
-  functions in a shared library.
+  functions in a shared library. Not used yet since I didn't get a chance to try it there yet.
 */
 #ifndef GARI_EXPORT_FUNC
 #define GARI_EXPORT_FUNC extern
@@ -277,8 +277,8 @@ GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 /** 
 * Converts a GariColor to a gari dye for the given image. 
-* If the color's A is solid, then it uses SDL_MapRGB internally.
-* otherwise, it uses SDL_MapRGBA internally. 
+* If the color's A is solid, then it maps as a soolid color. 
+* otherwise, it maps as a transparent color.  
 */
 GariDye gari_color_dye(GariColor color, GariImage * image); 
 
@@ -602,6 +602,28 @@ GariMusic * gari_music_fadeout(GariMusic * music, int fade);
 
 /* Higher level functions and structs. */
 
+struct GariStyle_;
+typedef struct GariStyle_ GariStyle;
+
+GariStyle * gari_style_free(GariStyle * style); 
+
+GariStyle * gari_style_new(GariColor *fore, 
+                           GariColor * back,
+                           GariFont  * font,
+                           GariImage * image
+                          );
+
+GariFont * gari_style_font(GariStyle * style); 
+
+GariColor * gari_style_fore(GariStyle * style);
+ 
+GariColor * gari_style_back(GariStyle * style);
+
+GariImage * gari_style_image(GariStyle * style); 
+
+
+
+
 /** Camera  A camera models a 2D point of view over a tile map, etc. */
 struct GariCamera_;
 typedef struct GariCamera_ GariCamera;
@@ -789,6 +811,13 @@ GariJoystick * gari_joy_open(int index);
 
 /** Closes the joystick and frees associated memory. */
 void gari_joy_free(GariJoystick * stick); 
+
+/** Returns how many joysticks are available. */
+int gari_game_joysticks(GariGame * game); 
+
+/** Returns the n-th joystick of the game. */
+GariJoystick * gari_game_joystick(GariGame * game, int index);
+
 
 
 /** Ruby scripting. */

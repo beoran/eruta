@@ -35,6 +35,7 @@ RBH_CLASS_DEFINE(Layer, GariLayer);
 RBH_CLASS_DEFINE(Music, GariMusic);
 RBH_CLASS_DEFINE(Screen, GariScreen);
 RBH_CLASS_DEFINE(Sound, GariSound);
+RBH_CLASS_DEFINE(Style, GariStyle);
 RBH_CLASS_DEFINE(Tileset, GariTileset);
 RBH_CLASS_DEFINE(Tile, GariTile);
 
@@ -619,6 +620,33 @@ VALUE rbgari_joy_index(VALUE self) {
   return RBH_INT_NUM(gari_joy_index(GARI_JOY_UNWRAP(self)));
 }
 
+
+/** Style */
+void rbgari_style_mark(void * ptr) {
+  GariStyle *style = (GariStyle*) ptr;
+  rb_gc_mark(gari_style_fore(style));
+  rb_gc_mark(gari_style_back(style));
+  rb_gc_mark(gari_style_font(style));
+  rb_gc_mark(gari_style_image(style));
+}
+
+#define GARI_STYLE_WRAP(STY) \
+        RBH_WRAP_MARK(Style, STY, gari_style_free, rbgari_style_mark)
+#define GARI_STYLE_UNWRAP(STY) RBH_UNWRAP(Style, STY)
+   
+VALUE rbgari_style_new(VALUE self, VALUE vfore, VALUE vback, 
+                     VALUE vfont, VALUE vimage) {
+  GariColor * fore = GARI_COLOR_UNWRAP(vfore);
+  GariColor * back = GARI_COLOR_UNWRAP(vback);
+  GariFont  * font = GARI_FONT_UNWRAP(vfont);
+  GariImage * img  = GARI_IMAGE_UNWRAP(vimage);
+  return GARI_STYLE_WRAP(gari_style_new(fore, back, font, img));  
+}
+
+VALUE rbgari_style_font(VALUE self) {
+  return GARI_FONT_WRAP(gari_style_font(GARI_STYLE_UNWRAP(self)));  
+}
+
   
 /** Gets the clipping rectangle of the image. 
 * Clipping applies to all drawing functions. 
@@ -653,7 +681,7 @@ void Init_gari() {
   RBH_MODULE(Gari);
   RBH_MODULE_CLASS(Gari, Game);
   RBH_MODULE_CLASS(Gari, Sound);
-  RBH_MODULE_CLASS(Gari, Music);
+  RBH_MODULE_CLASS(Gari, Music);  
   RBH_MODULE_CLASS(Gari, Color);
   RBH_MODULE_CLASS(Gari, Dye);
   RBH_MODULE_CLASS(Gari, Event); 
@@ -667,6 +695,7 @@ void Init_gari() {
   RBH_MODULE_CLASS(Gari, Tileset);
   RBH_MODULE_CLASS(Gari, Camera);
   RBH_MODULE_CLASS(Gari, Layer);
+  RBH_MODULE_CLASS(Gari, Style);
   
   RBH_SINGLETON_METHOD(Game, new, rbgari_game_new         , 0);
   RBH_METHOD(Game, update       , rbgari_game_update      , 0);
@@ -789,8 +818,12 @@ void Init_gari() {
   RBH_METHOD(Joystick           , buttons   , rbgari_joy_buttons        , 0);
   RBH_METHOD(Joystick           , balls     , rbgari_joy_balls          , 0);
   RBH_METHOD(Joystick           , index     , rbgari_joy_index          , 0);
-  RBH_METHOD(Game     , joysticks , rbgari_game_numjoysticks  , 0 );
-  RBH_METHOD(Game     , joystick  , rbgari_game_joystick      , 1);
+  
+  RBH_METHOD(Game               , joysticks , rbgari_game_numjoysticks  , 0 );
+  RBH_METHOD(Game               , joystick  , rbgari_game_joystick      , 1);
+    
+  RBH_SINGLETON_METHOD(Style    , new       , rbgari_style_new          , 4);
+  RBH_METHOD(Style              , font      , rbgari_style_font         , 0);
 
 }
 

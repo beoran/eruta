@@ -21,8 +21,8 @@ struct GariTileset_ {
 };
 
 /** 
-  A single tile from a tile map. 
-  A tile can only hold up to GARI_TILE_FRAMES_MAX tiles pointers in itself.
+*  A single tile from a tile map. 
+*  A tile can only hold up to GARI_TILE_FRAMES_MAX tiles pointers in itself.
 */
 
 
@@ -192,7 +192,7 @@ void gari_tile_update(GariTile * tile) {
     case GariAnimeRewind: // Back to first tile
       gari_tile_rewindanime(tile); // Rewind animation.
       break;
-    case GariAnimeNext: // Move to next tile in animation            
+    case GariAnimeNext: // Move to next tile in animation
       gari_tile_nextanime(tile);
       break;
     default:  // Wait, only increasing the anmation index

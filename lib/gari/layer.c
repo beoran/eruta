@@ -3,7 +3,39 @@
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
 
-/* Layers in a tile map. */
+/* Layers in a tile map. This is very much simplified. */
+
+/** 
+* A tile map consists of individual tiles. Tiles are simply indirect 
+* pointers to images, where the pointer is changed when animation is done.  
+* The same idea is used for sprites, and unified in the GariPane struct.
+*/
+
+struct GariPane_ {
+  GariImage * image;  
+}; 
+
+GariPane * gari_pane_image_(GariPane * pane, GariImage * image) {
+  if(!pane) return NULL;
+  pane->image = image;
+  return pane;
+}
+
+GariImage * gari_pane_image(GariPane * pane) {
+  if(!pane) return NULL;
+  if(!pane->image) return NULL;
+  return pane->image;
+}
+
+GariPane * gari_pane_new(GariImage * image) {
+  GariPane * pane = GARI_MALLOC(pane);
+  return gari_pane_image_(pane, image);
+}
+
+
+
+
+
 
 struct GariLayer_ {
   GariCamera  *   camera;

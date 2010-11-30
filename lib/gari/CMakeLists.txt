@@ -53,7 +53,7 @@ ${LUA_LIBRARIES})
 # Real Time enabled C Utility Library
 set(CFILES gari.c audio.c image.c font.c pixel.c draw.c color.c tile.c 
            layer.c map.c script.c sprite.c event.c camera.c particle.c
-           ruby.c)
+           style.c ruby.c)
 add_library(gari_static STATIC ${CFILES})
 add_library(gari SHARED ${CFILES})
 target_link_libraries(gari ${LIBS})

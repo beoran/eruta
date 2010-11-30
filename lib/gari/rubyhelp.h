@@ -155,7 +155,7 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 
 // Wraps a pointer to a struct into a ruby class. Useful if a mark function 
 // is needed.
-#define RBH_WRAP_MARK(KLASS, PTR, MARK, FREE) \
+#define RBH_WRAP_MARK(KLASS, PTR, FREE, MARK) \
         Data_Wrap_Struct( RBH_CLASS_VAR(KLASS), MARK, FREE, PTR)
 
 // Wraps a pointer to a struct into a ruby class. Useful if no mark is needed,
