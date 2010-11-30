@@ -395,7 +395,7 @@ void gari_image_blendline(GariImage * image, int x1, int y1,
                      int w, int h, GariColor color);
                      
 /** Blends a box, which is an open rectange, on the image. */
-void gari_image_box( GariImage * image, int x, int y, int w, int h,  
+void gari_image_blendbox( GariImage * image, int x, int y, int w, int h,  
                       GariColor color);                     
 
 /** Draws a blended slab, which is a filled rectange, on the image. */
@@ -550,7 +550,7 @@ char * gari_font_error();
 #define GARI_AUDIO_HIGHFREQENCY 44100
 
 /** Initializes the audio subsystem for a game. */
-void gari_audio_init(GariGame * game, int frequency);
+GariGame * gari_audio_init(GariGame * game, int frequency);
 /** Cleans up the audio subsystem for a game. */
 void gari_audio_done(GariGame * game);
 
@@ -679,7 +679,7 @@ long gari_random(long min, long max);
 
 
 
-/** A sprite is a fully aniated objectn that can be animated in different ways * depending on it's facing direction and actions.
+/** A sprite is a fully aniated object that can be animated in different ways * depending on it's facing direction and actions.
 * For example, the sprite may have a walking action in 2 or 4 directions,
 * which each have a different animation.
 * A sprite may also be consisted of different parts or layers superimposed 

@@ -22,17 +22,19 @@
 #include "rubyhelp.h"
 
 RBH_MODULE_DEFINE(Gari);
-RBH_CLASS_DEFINE(Game, GariGame);
+RBH_CLASS_DEFINE(Camera, GariCamera);
+RBH_CLASS_DEFINE(Color, GariColor);
+RBH_CLASS_DEFINE(Dye, GariDye);
+RBH_CLASS_DEFINE(Event, GariEvent);
 RBH_CLASS_DEFINE(Font, GariFont);
 RBH_CLASS_DEFINE(Flow, GariFlow);
-RBH_CLASS_DEFINE(Screen, GariScreen);
+RBH_CLASS_DEFINE(Game, GariGame);
 RBH_CLASS_DEFINE(Image, GariImage);
 RBH_CLASS_DEFINE(Joystick, GariJoystick);
-RBH_CLASS_DEFINE(Event, GariEvent);
-RBH_CLASS_DEFINE(Dye, GariDye);
-RBH_CLASS_DEFINE(Color, GariColor);
 RBH_CLASS_DEFINE(Layer, GariLayer);
-RBH_CLASS_DEFINE(Camera, GariCamera);
+RBH_CLASS_DEFINE(Music, GariMusic);
+RBH_CLASS_DEFINE(Screen, GariScreen);
+RBH_CLASS_DEFINE(Sound, GariSound);
 RBH_CLASS_DEFINE(Tileset, GariTileset);
 RBH_CLASS_DEFINE(Tile, GariTile);
 
@@ -508,53 +510,98 @@ VALUE rbgari_font_draw(VALUE vimg, VALUE vx, VALUE vy, VALUE vutf8,
   GariColor * fg    = GARI_COLOR_UNWRAP(vfg);
   GariColor * bg    = GARI_COLOR_UNWRAP(vbg);
   gari_font_drawcolor(image, x, y, utf8, font, *fg, *bg);
+  return vimg;
 } 
 
 /** Music and sound. */
 VALUE rbgari_game_openaudio(VALUE vgame, VALUE vfreq) {
-  gari_audio_init(GARI_GAME_UNWRAP(vgame), RBH_INT(vfreq));
+  GariGame * res = gari_audio_init(GARI_GAME_UNWRAP(vgame), RBH_INT(vfreq));
+  if(!res) return Qnil;
   return vgame;
 }
   
+#define GARI_SOUND_WRAP(SND) RBH_WRAP(Sound, SND, gari_sound_free)
+#define GARI_SOUND_UNWRAP(SND) RBH_UNWRAP(Sound, SND)
   
-/** Initialises and loads sound into an existing GariSound record. */
-GariSound * gari_sound_init(GariSound * sound, char * filename);
-
 /** Creates a new GariSound and loads the sound from a file. */
-GariSound * gari_sound_load(char * filename);
-
-/** Deallocates the loaded sound, but not the wrapper GariSound itself. */
-GariSound * gari_sound_done(GariSound * sound);
-
-/** Calls gari_sound_done and then frees the sound itself.*/
-GariSound * gari_sound_free(GariSound * sound);
-
+VALUE rbgari_sound_new(VALUE self, VALUE vname) { 
+  char * name       = RBH_STRING(vname);
+  GariSound * sound = gari_sound_load(name);
+  return GARI_SOUND_WRAP(sound);
+}  
+ 
 /** Plays a sound once. */
-GariSound * gari_sound_play(GariSound * sound);
+VALUE rbgari_sound_play(VALUE self) { 
+   GariSound * sound = GARI_SOUND_UNWRAP(self);
+   if(gari_sound_play(sound)) return self;
+   return Qnil;
+}   
 
-
-
-/** Initialises and loads music into an existing GariMusic record. */
-GariMusic * gari_music_init(GariMusic * music, char * filename);
+#define GARI_MUSIC_WRAP(MUS) RBH_WRAP(Music, MUS, gari_music_free)
+#define GARI_MUSIC_UNWRAP(MUS) RBH_UNWRAP(Music, MUS)
 
 /** Creates a new GariMusic and loads the music from a file. */
-GariMusic * gari_music_load(char * filename);
-
-/** Deallocates up the loaded music, but not the wrapper GariMusic itself. */
-GariMusic * gari_music_done(GariMusic * music);
-
-/** Calls gari_music_done and then frees the music itself.*/
-GariMusic * gari_music_free(GariMusic * music);
+VALUE rbgari_music_new(VALUE self, VALUE vname) { 
+  char * name       = RBH_STRING(vname);
+  GariMusic * music = gari_music_load(name);
+  return GARI_MUSIC_WRAP(music);
+}
 
 /** Starts playing the music loop times (-1 means to keep on repeating) 
 *   fading in after fade ms. 
 */
-GariMusic * gari_music_fadein(GariMusic * music, int loops, int fade); 
+VALUE rbgari_music_fadein(VALUE self, VALUE vloops, VALUE vfade) { 
+  GariMusic * music = GARI_MUSIC_UNWRAP(self); 
+  if(gari_music_fadein(music, RBH_INT(vloops), RBH_INT(vfade))) return self;
+  return Qnil;
+}
 
 /** Stops playing the music, fading out after fade ms. */
-GariMusic * gari_music_fadeout(GariMusic * music, int fade); 
+VALUE rbgari_music_fadeout(VALUE self, VALUE vfade) { 
+  GariMusic * music = GARI_MUSIC_UNWRAP(self); 
+  if(gari_music_fadeout(music, RBH_INT(vfade))) return self;
+  return Qnil;
+}
 
 
+/** Joystick handling. */
+#define GARI_JOY_WRAP(JOY) RBH_WRAP(Joystick, JOY, gari_joy_free)
+#define GARI_JOY_UNWRAP(JOY) RBH_UNWRAP(Joystick, JOY)
+
+
+VALUE rbgari_joy_amount(VALUE self) {
+  return RBH_INT_NUM(gari_joy_amount());
+}
+  
+/** Returns the name of the inde'th joystick or NULL if no such joystick. */  
+VALUE rbgari_joy_nameindex(VALUE self, VALUE vindex) {
+  const char * name = gari_joy_nameindex(RBH_INT(vindex));
+  if(name) return RBH_CSTR(name);
+  return Qnil;
+}
+
+/** Opens a joystick. Memory is allocated, so call gari_joy_free when done. */
+VALUE rbgari_joy_new(VALUE self, VALUE vindex) {
+  GariJoystick * joy = gari_joy_open(RBH_INT(vindex));
+  return GARI_JOY_WRAP(joy);
+}
+
+/** Returns the name of a joystick object. */
+VALUE rbgari_joy_name(VALUE self) { 
+  return RBH_CSTR(gari_joy_name(GARI_JOY_UNWRAP(self)));
+}
+
+VALUE rbgari_joy_axes(VALUE self) { 
+  return RBH_INT_NUM(gari_joy_axes(GARI_JOY_UNWRAP(self)));
+}  
+
+VALUE rbgari_joy_buttons(VALUE self) { 
+  return RBH_INT_NUM(gari_joy_buttons(GARI_JOY_UNWRAP(self)));
+}
+
+VALUE rbgari_joy_balls(VALUE self) { 
+  return RBH_INT_NUM(gari_joy_balls(GARI_JOY_UNWRAP(self)));
+}
 
   
 /** Gets the clipping rectangle of the image. 
@@ -589,9 +636,11 @@ GariMusic * gari_music_fadeout(GariMusic * music, int fade);
 void Init_gari() {
   RBH_MODULE(Gari);
   RBH_MODULE_CLASS(Gari, Game);
-  RBH_MODULE_CLASS(Gari, Color);  
+  RBH_MODULE_CLASS(Gari, Sound);
+  RBH_MODULE_CLASS(Gari, Music);
+  RBH_MODULE_CLASS(Gari, Color);
   RBH_MODULE_CLASS(Gari, Dye);
-  RBH_MODULE_CLASS(Gari, Event);
+  RBH_MODULE_CLASS(Gari, Event); 
   RBH_MODULE_CLASS(Gari, Flow);
   RBH_MODULE_CLASS(Gari, Font);
   RBH_MODULE_CLASS(Gari, Image);
@@ -708,6 +757,23 @@ void Init_gari() {
   RBH_CLASS_NUM_CONST(Font  , Blended, GariFontBlended); 
   RBH_CLASS_NUM_CONST(Font  ,  Shaded, GariFontSolid);
   RBH_CLASS_NUM_CONST(Font  ,  Solid, GariFontShaded);
+  
+  RBH_METHOD(Game           , openaudio , rbgari_game_openaudio , 1);
+  RBH_SINGLETON_METHOD(Sound, new       , rbgari_sound_new      , 1);
+  RBH_METHOD(Sound          , play      , rbgari_sound_play     , 0);
+  RBH_SINGLETON_METHOD(Music, new       , rbgari_music_new      , 1);
+  RBH_METHOD(Music          , fade_in   , rbgari_music_fadein   , 0);
+  RBH_METHOD(Music          , fade_out  , rbgari_music_fadeout  , 0);
+  
+  RBH_SINGLETON_METHOD(Joystick , amount  , rbgari_joy_amount     , 0);
+  RBH_SINGLETON_METHOD(Joystick , name    , rbgari_joy_nameindex  , 1);
+  RBH_SINGLETON_METHOD(Joystick , new     , rbgari_joy_new        , 1);
+  RBH_METHOD(Joystick           , name    , rbgari_joy_name       , 0);
+  RBH_METHOD(Joystick           , axes    , rbgari_joy_axes       , 0);
+  RBH_METHOD(Joystick           , buttons , rbgari_joy_buttons    , 0);
+  RBH_METHOD(Joystick           , balls   , rbgari_joy_balls      , 0);
+  
+
 }
 
 /** Alternative entry point for Ruby. */

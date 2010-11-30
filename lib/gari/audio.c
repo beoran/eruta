@@ -5,22 +5,26 @@
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
 
+#ifndef GARI_AUDIO_BUFFER
+#define GARI_AUDIO_BUFFER 4096
+#endif
+
+
+#define GARI_AUDIO_MONO   1
+#define GARI_AUDIO_STEREO 2
+
+
 
 /** Initializes the audio subsystem for a game. */
-void gari_audio_init(GariGame * game, int frequency) {
-  /*
-  // start SDL with audio support
-  if(SDL_Init(SDL_INIT_AUDIO)==-1) {
-      printf("Could not init SDL audio: %s\n", SDL_GetError());
-      return;
-  }
-  */
-  // open 22.05KHz, signed 16bit, system byte order,
-  //      stereo audio, using 1024 byte chunks
-  if(Mix_OpenAudio(frequency, MIX_DEFAULT_FORMAT, 2, 1024)==-1) {
-    printf("Mix_OpenAudio: %s\n", Mix_GetError());
-    return;
+GariGame * gari_audio_init(GariGame * game, int frequency) {
+  int res;
+  res =  Mix_OpenAudio(frequency, MIX_DEFAULT_FORMAT, 
+                       GARI_AUDIO_STEREO, GARI_AUDIO_BUFFER);    
+  if(res == -1) {
+    fprintf(stderr, "Mix_OpenAudio: %s\n", Mix_GetError());
+    return NULL;
   }  
+  return game;
 }
 
 /** Cleans up the audio subsystem for a game. */
