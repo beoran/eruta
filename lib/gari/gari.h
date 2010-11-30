@@ -766,8 +766,11 @@ int gari_joy_amount();
 /** Returns the name of the inde'th joystick or NULL if no such joystick. */
 const char * gari_joy_nameindex(int index); 
 
-/** Returns the name of a joystick object */
-const char * gari_joy_name(GariJoystick * joy); 
+/** Returns the name of a joystick object. */
+const char * gari_joy_name(GariJoystick * joy);
+ 
+/** Returns the index of a joystick object. */
+int gari_joy_index(GariJoystick * joy);
 
 /** Returns the amount of axes of a joystick object. */
 int gari_joy_axes(GariJoystick * joy); 

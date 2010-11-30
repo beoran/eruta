@@ -30,7 +30,7 @@ int gari_joy_amount() {
 const char * gari_joy_nameindex(int index) {  
   return SDL_JoystickName(index);
 } 
-
+ 
 const char * gari_joy_name(GariJoystick * joy) {
   if(!joy) return NULL;
   return gari_joy_nameindex(joy->index);
@@ -51,14 +51,22 @@ int gari_joy_balls(GariJoystick * joy) {
   return SDL_JoystickNumBalls(joy->handle);
 }
 
+int gari_joy_index(GariJoystick * joy) {
+  if(!joy) return -1;
+  return (joy->index);
+}
+
+
 /** describes a joystick. */
 void gari_joy_describe(GariJoystick * joy) { 
   if(!joy) { return;}  
-  fprintf(stderr, "Joystick Name: %s\n", gari_joy_name(joy));
+  fprintf(stderr, "Joystick Name: %s ", gari_joy_name(joy));
   fprintf(stderr, "Axes: %d ", gari_joy_axes(joy));
   fprintf(stderr, "Buttons: %d ", gari_joy_buttons(joy));
   fprintf(stderr, "Balls: %d \n", gari_joy_balls(joy));
 }
+
+
 
 GariJoystick * gari_joy_alloc() {
   return GARI_MALLOC(sizeof(GariJoystick));
@@ -69,7 +77,9 @@ GariJoystick * gari_joy_open(int index) {
   if(!joy) return NULL;  
   joy->index  = index; 
   joy->handle = SDL_JoystickOpen(index);
-  return joy;
+  if(joy->handle) return joy;
+  gari_joy_free(joy);
+  return NULL;
 } 
 
 GariJoystick * gari_joy_close(GariJoystick * stick) {
@@ -123,9 +133,10 @@ GariGame * gari_game_openjoysticks(GariGame * gari) {
 // Closes and deallocates all available joysticks.
 GariGame * gari_game_closejoysticks(GariGame * gari) {
   int index;
-  if(SDL_NumJoysticks()<1) return NULL;
+  int amount = gari_joy_amount();
+  if(amount<1) return NULL;
   if(!(gari->joysticks)) return NULL;
-  for(index = 0; index < SDL_NumJoysticks(); index ++) {
+  for(index = 0; index < amount; index ++) {
     gari_joy_free(gari->joysticks[index]);        
   }
   GARI_FREE(gari->joysticks);
@@ -136,10 +147,14 @@ GariGame * gari_game_closejoysticks(GariGame * gari) {
 
 /** Returns how many joysticks are available. */
 int gari_game_joysticks(GariGame * game) {
-  return SDL_NumJoysticks();
+  return gari_joy_amount();
 }
 
-
+/** Returns the n-th joystick of the game. */
+GariJoystick * gari_game_joystick(GariGame * game, int index) {
+  if (index > gari_joy_amount()) return NULL;
+  return game->joysticks[index];
+}
 
 
 /** Initializes a gari game, opeing all joysticks, etc. */
@@ -172,9 +187,6 @@ GariGame * gari_game_done(GariGame * game) {
   gari_game_closejoysticks(game);
   // also close all joysticks.
   game->screen = NULL;
-  
-  
-  
   TTF_Quit();
   SDL_Quit();
   return game;

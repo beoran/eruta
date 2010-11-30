@@ -566,6 +566,7 @@ VALUE rbgari_music_fadeout(VALUE self, VALUE vfade) {
 
 /** Joystick handling. */
 #define GARI_JOY_WRAP(JOY) RBH_WRAP(Joystick, JOY, gari_joy_free)
+#define GARI_JOY_WRAP_NOFREE(JOY) RBH_WRAP(Joystick, JOY, NULL)
 #define GARI_JOY_UNWRAP(JOY) RBH_UNWRAP(Joystick, JOY)
 
 
@@ -573,6 +574,16 @@ VALUE rbgari_joy_amount(VALUE self) {
   return RBH_INT_NUM(gari_joy_amount());
 }
   
+VALUE rbgari_game_numjoysticks(VALUE self) {
+  return RBH_INT_NUM(gari_game_joysticks(GARI_GAME_UNWRAP(self)));
+}
+
+VALUE rbgari_game_joystick(VALUE self, int vindex) {
+  GariJoystick * joy = 
+                 gari_game_joystick(GARI_GAME_UNWRAP(self), RBH_INT(vindex));
+  return GARI_JOY_WRAP_NOFREE(joy);
+}
+
 /** Returns the name of the inde'th joystick or NULL if no such joystick. */  
 VALUE rbgari_joy_nameindex(VALUE self, VALUE vindex) {
   const char * name = gari_joy_nameindex(RBH_INT(vindex));
@@ -583,12 +594,13 @@ VALUE rbgari_joy_nameindex(VALUE self, VALUE vindex) {
 /** Opens a joystick. Memory is allocated, so call gari_joy_free when done. */
 VALUE rbgari_joy_new(VALUE self, VALUE vindex) {
   GariJoystick * joy = gari_joy_open(RBH_INT(vindex));
-  return GARI_JOY_WRAP(joy);
+  if(joy) return GARI_JOY_WRAP(joy);
+  return Qnil;
 }
 
 /** Returns the name of a joystick object. */
 VALUE rbgari_joy_name(VALUE self) { 
-  return RBH_CSTR(gari_joy_name(GARI_JOY_UNWRAP(self)));
+  return RBH_STR_UTF82(gari_joy_name(GARI_JOY_UNWRAP(self)));
 }
 
 VALUE rbgari_joy_axes(VALUE self) { 
@@ -601,6 +613,10 @@ VALUE rbgari_joy_buttons(VALUE self) {
 
 VALUE rbgari_joy_balls(VALUE self) { 
   return RBH_INT_NUM(gari_joy_balls(GARI_JOY_UNWRAP(self)));
+}
+
+VALUE rbgari_joy_index(VALUE self) { 
+  return RBH_INT_NUM(gari_joy_index(GARI_JOY_UNWRAP(self)));
 }
 
   
@@ -746,7 +762,7 @@ void Init_gari() {
   RBH_METHOD(Event, axis    , rbgari_event_axis     , 0);
   
   RBH_CLASS_NUM_CONST(Font, ALPHA_SOLID, GARI_ALPHA_SOLID);
-  RBH_CLASS_NUM_CONST(Font, ALPHA_CLEAN, GARI_ALPHA_CLEAR);
+  RBH_CLASS_NUM_CONST(Font, ALPHA_CLEAR, GARI_ALPHA_CLEAR);
   
   RBH_SINGLETON_METHOD(Font , new   , rbgari_font_new   , 2);
   RBH_SINGLETON_METHOD(Font , error , rbgari_font_error , 0);
@@ -754,9 +770,9 @@ void Init_gari() {
   RBH_SINGLETON_METHOD(Font , mode= , rbgari_font_mode_ , 1);
   RBH_SINGLETON_METHOD(Image, text  , rbgari_font_draw  , 6);
   
-  RBH_CLASS_NUM_CONST(Font  , Blended, GariFontBlended); 
-  RBH_CLASS_NUM_CONST(Font  ,  Shaded, GariFontSolid);
-  RBH_CLASS_NUM_CONST(Font  ,  Solid, GariFontShaded);
+  RBH_CLASS_NUM_CONST(Font  , BLENDED , GariFontBlended); 
+  RBH_CLASS_NUM_CONST(Font  , SHADED  , GariFontSolid);
+  RBH_CLASS_NUM_CONST(Font  , SOLID   , GariFontShaded);
   
   RBH_METHOD(Game           , openaudio , rbgari_game_openaudio , 1);
   RBH_SINGLETON_METHOD(Sound, new       , rbgari_sound_new      , 1);
@@ -765,14 +781,16 @@ void Init_gari() {
   RBH_METHOD(Music          , fade_in   , rbgari_music_fadein   , 0);
   RBH_METHOD(Music          , fade_out  , rbgari_music_fadeout  , 0);
   
-  RBH_SINGLETON_METHOD(Joystick , amount  , rbgari_joy_amount     , 0);
-  RBH_SINGLETON_METHOD(Joystick , name    , rbgari_joy_nameindex  , 1);
-  RBH_SINGLETON_METHOD(Joystick , new     , rbgari_joy_new        , 1);
-  RBH_METHOD(Joystick           , name    , rbgari_joy_name       , 0);
-  RBH_METHOD(Joystick           , axes    , rbgari_joy_axes       , 0);
-  RBH_METHOD(Joystick           , buttons , rbgari_joy_buttons    , 0);
-  RBH_METHOD(Joystick           , balls   , rbgari_joy_balls      , 0);
-  
+  RBH_SINGLETON_METHOD(Joystick , amount    , rbgari_joy_amount         , 0);
+  RBH_SINGLETON_METHOD(Joystick , name      , rbgari_joy_nameindex      , 1);
+  RBH_SINGLETON_METHOD(Joystick , new       , rbgari_joy_new            , 1);
+  RBH_METHOD(Joystick           , name      , rbgari_joy_name           , 0);
+  RBH_METHOD(Joystick           , axes      , rbgari_joy_axes           , 0);
+  RBH_METHOD(Joystick           , buttons   , rbgari_joy_buttons        , 0);
+  RBH_METHOD(Joystick           , balls     , rbgari_joy_balls          , 0);
+  RBH_METHOD(Joystick           , index     , rbgari_joy_index          , 0);
+  RBH_METHOD(Game     , joysticks , rbgari_game_numjoysticks  , 0 );
+  RBH_METHOD(Game     , joystick  , rbgari_game_joystick      , 1);
 
 }
 

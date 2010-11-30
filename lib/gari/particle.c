@@ -14,23 +14,25 @@
 #endif
 
 // macro to scale speeds and accellerations.
-#define GARI_DROP_DIVIDE(VAL) 	((VAL)>>GARI_DROP_SHIFT)
+#define GARI_DROP_DIVIDE(VAL) 	((VAL) / 1024.0)
 // macro to scale speeds and accellerations.
-#define GARI_DROP_MULTIPLY(VAL) ((VAL)<<GARI_DROP_SHIFT)
+#define GARI_DROP_MULTIPLY(VAL) ((VAL) * 1024.0)
+
+typedef float GariNumber; 
 
 
 struct GariDrop_ {
   GariFlow                * flow;
-  GariColor 	   	          color;
+  GariColor                 color;
   GariImage               * image;
   char                    * text;
   GariDropDrawFunction    * draw;
   GariDropUpdateFunction  * update;
-  int		   	  lifetime;
-  int		   	  x, y;
-  int         		  vx, vy;
-  int         		  ax, ay;
-  int 			  kind;
+  int                       kind;
+  int                       lifetime;
+  GariNumber                x, y;
+  GariNumber                vx, vy;
+  GariNumber                ax, ay;
 };
 
 
@@ -118,6 +120,11 @@ GariDrop * gari_drop_drawsnow(GariDrop * drop, GariImage * im) {
 GariDrop * gari_drop_draw(GariDrop * drop, GariImage * im) {
   if (!drop) return NULL;
   if (gari_drop_idle(drop)) return NULL;
+  if (drop->image) {
+    gari_image_blit(im, drop->x, drop->y, drop->image); 
+    return drop;
+  }
+  
   if (!drop->draw)  {
      gari_drop_drawslab(drop, im);
   } else { 
@@ -131,9 +138,9 @@ GariDrop * gari_drop_draw(GariDrop * drop, GariImage * im) {
 /* GariWell is a a point location source where particles are generated. 
  It's in other words a kind of initial configuration for particles. */
 struct GariWell_ {
-  GariColor                   color;
-  int                         x, y;
   int                         kind;
+  GariColor                   color;  
+  GariNumber                  x, y;  
   GariImage               *   image;
   char                    *   text;
   GariDropDrawFunction    *   draw;
@@ -226,8 +233,8 @@ GariDrop * gari_drop_updateaccell(GariDrop * drop, int time) {
 GariDrop * gari_drop_initsnow(GariDrop * drop, GariWell * well) { 
   drop->x         = gari_random(0, drop->flow->screenw);
   drop->y         = gari_random(0, drop->flow->screenh);
-  drop->ax	  = 0;
-  drop->ay	  = GARI_DROP_MULTIPLY(100);
+  drop->ax	      = 0;
+  drop->ay	      = GARI_DROP_MULTIPLY(100);
   drop->vx        = 0;
   drop->vy        = gari_random(GARI_DROP_MULTIPLY(1), GARI_DROP_MULTIPLY(3));
   drop->lifetime  = gari_random(10, 100);

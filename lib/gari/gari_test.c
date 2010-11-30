@@ -64,11 +64,20 @@ TEST_FUNC(game) {
   TEST_NOTNULL(bim);
   
   
-  mim     = gari_image_makedepth(24, 48, 16, GariImageAlpha);
+  mim     = gari_image_makedepth(16, 18, 16, GariImageAlpha);
   TEST_NOTNULL(mim); 
-  gari_image_box(mim,  0,  0, 24, 48, c4);
-  gari_image_box(mim, 10, 10, 10, 10, c2);
-  oim     = gari_image_optimize(mim, GariImageAlpha, 0);
+  gari_image_slab(mim,  0,   0, 16,  16, black);
+  gari_image_line(mim,  0,   0, 16,  16, white);
+  gari_image_line(mim,  0,  16, 16, -16, white);
+  gari_image_line(mim,  8,   0,  0,  16, white);
+  gari_image_line(mim,  0,   8, 16,   0, white);
+  
+  /* 
+  gari_image_box(mim,  0,  0, 24, 48, white);
+  gari_image_box(mim, 10, 10, 10, 10, blue);
+  */
+  
+  oim     = gari_image_optimize(mim, GariImageColorkey, gari_color_dye(black, mim));
 
   gari_game_resetframes(game);
   done = FALSE;
@@ -91,7 +100,7 @@ TEST_FUNC(game) {
     gari_image_box(sim, 40, 70, 200, 100, c3);
     gari_image_box(sim, 300, 300, -100, -200, c3);
     gari_image_blit(sim, 300, 300, tim);
-    gari_image_blit(sim, 350, 350, mim);
+    // gari_image_blit(sim, 350, 350, mim);
     gari_image_blit(sim, 380, 380, oim);
     
     gari_image_blitpart(sim, 280, 280, tim, 10, 11, 12, 13);
@@ -116,7 +125,7 @@ TEST_FUNC(game) {
     gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
     gari_font_printf(sim, 20, 20, font, white, black,  
                      "FPS: %ld", (int)gari_game_fps(game));
-    gari_flow_activate(flow, 10, GariFlowSnow, 0, 0, white, NULL, NULL);
+    gari_flow_activate(flow, 10, GariFlowSnow, 0, 0, white, oim, NULL);
     gari_flow_update(flow, 1);
     gari_flow_draw(flow, sim);
     gari_game_nextframe(game);
