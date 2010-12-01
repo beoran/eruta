@@ -7,42 +7,46 @@
 
 /** 
 * A tile map consists of individual tiles. Tiles are simply indirect 
-* pointers to images, where the pointer is changed when animation is done.  
-* The same idea is used for sprites, and unified in the GariPane struct.
+* pointers to images, where the pointer can be changed when animation is needed. 
+* The same idea is used for sprites, and unified in the GariSheet struct.
 */
 
-struct GariPane_ {
+struct GariSheet_ {
   GariImage * image;  
 }; 
 
-GariPane * gari_pane_image_(GariPane * pane, GariImage * image) {
-  if(!pane) return NULL;
-  pane->image = image;
-  return pane;
+GariSheet * gari_sheet_image_(GariSheet * sheet, GariImage * image) {
+  if(!sheet) return NULL;
+  sheet->image = image;
+  return sheet;
 }
 
-GariImage * gari_pane_image(GariPane * pane) {
-  if(!pane) return NULL;
-  if(!pane->image) return NULL;
-  return pane->image;
+GariImage * gari_sheet_image(GariSheet * sheet) {
+  if(!sheet) return NULL;
+  if(!sheet->image) return NULL;
+  return sheet->image;
 }
 
-GariPane * gari_pane_new(GariImage * image) {
-  GariPane * pane = GARI_MALLOC(pane);
-  return gari_pane_image_(pane, image);
+GariSheet * gari_sheet_new(GariImage * image) {
+  GariSheet * sheet = GARI_ALLOCATE(GariSheet);
+  return gari_sheet_image_(sheet, image);
 }
 
+GariSheet * gari_sheet_free(GariSheet * sheet) {
+  GARI_FREE(sheet);
+  return NULL;
+}
 
-
+void gari_image_blitsheet(GariImage * dst, int x, int y, GariSheet * sheet) {
+  GariImage * img = sheet->image; 
+  if(!img) return; 
+  gari_image_blit(dst, x, y, img);
+} 
 
 
 
 struct GariLayer_ {
-  GariCamera  *   camera;
-  GariTileset *   set;
-  GariTile    *** tiles;
-  GariImage   *   background;
-  int         **  tilesave;
+  GariSheet   *** tiles;
   int             tilewide; // width of map tiles in pixels
   int             tilehigh; // height of map tiles in pixels
   int             gridwide; // width of the tile map in grid points (tiles)
@@ -57,25 +61,38 @@ GariLayer * gari_layer_done(GariLayer * layer) {
   int index;
   // First free the rows.
   if (!layer) return NULL;
-  for (index = 0; index < layer->gridhigh ; index ++) {
-    GARI_FREE(layer->tiles[index]);
-    GARI_FREE(layer->tilesave[index]);
-  }
+  if (layer->tiles) { 
+    for (index = 0; index < layer->gridhigh ; index ++) {
+      GARI_FREE(layer->tiles[index]);
+    }
+  }  
   // Then the column holder arrays. 
   GARI_FREE(layer->tiles);
-  GARI_FREE(layer->tilesave);
   // Size is now zero.
   layer->gridhigh = 0;
   layer->gridwide = 0;
   return layer;  
 }
 
-GariLayer * gari_layer_init(GariLayer * layer, GariTileset * set, 
+/** Deallocates gari layer. */
+GariLayer * gari_layer_free(GariLayer * layer) {
+  gari_layer_done(layer);
+  GARI_FREE(layer);
+  return NULL;
+}
+
+/** Makes new gari layer. */
+GariLayer * gari_layer_new(int gridwide, int gridhigh, 
+                           int tilewide, int tilehigh) {
+  GariLayer * layer = GARI_ALLOCATE(GariLayer);
+  return gari_layer_init(layer, gridwide, gridhigh, tilewide, tilehigh);
+}
+
+GariLayer * gari_layer_init(GariLayer * layer,  
                            int gridwide, int gridhigh, 
                            int tilewide, int tilehigh) {
   int index;
-  if((!layer) || (!set)) return NULL;
-  layer->set        = set;
+  if((!layer)) return NULL;
   layer->gridwide   = gridwide;
   layer->gridhigh   = gridhigh;
   layer->tilewide   = tilewide;  
@@ -83,12 +100,10 @@ GariLayer * gari_layer_init(GariLayer * layer, GariTileset * set,
   layer->realwide   = layer->tilewide * layer->gridwide;
   layer->realhigh   = layer->tilehigh * layer->gridhigh;
   // declare background, etc, empty
-  layer->camera     = NULL;
-  layer->background = NULL;
   
   // Precalculate dimensions...  
   // And allocate space for the tiles and tile indices.
-  layer->tiles    = GARI_MALLOC(sizeof(GariTile**) * layer->gridhigh);
+  layer->tiles    = GARI_MALLOC(sizeof(GariSheet**) * layer->gridhigh);
   if(!layer->tiles) {
     return NULL;
   }   
@@ -100,28 +115,49 @@ GariLayer * gari_layer_init(GariLayer * layer, GariTileset * set,
   // Then allocate column rows, calling gari_layer done on failiure
   // that's why nwe neede dto null everything first) 
   for (index = 0; index < layer->gridhigh ; index ++) {
-    layer->tiles[index] = GARI_MALLOC(sizeof(GariTile *) * layer->gridwide);
+    layer->tiles[index] = GARI_MALLOC(sizeof(GariSheet *) * layer->gridwide);
     if(!layer->tiles[index]) {
       gari_layer_done(layer);
       return NULL;
     } 
   }
-  // Now also the editing support matrix...
-  layer->tilesave = GARI_MALLOC(sizeof(int*) * layer->gridhigh);
-  if(!layer->tilesave) { // free up again on failiure
-    gari_layer_done(layer);
-    return NULL;
-  }
-  // And the rows of the editing matrix.
-  for (index = 0; index < layer->gridhigh ; index ++) {
-    layer->tilesave[index] = GARI_MALLOC(sizeof(int) * layer->gridwide);
-    if(!layer->tilesave[index]) {
-      gari_layer_done(layer);
-      return NULL;
-    }
-  }
-  
   return layer;
+}
+
+/** Returns the width of the layer in grid units. Returns -1 on error. */
+int gari_layer_gridwide(GariLayer * layer) {
+  if(!layer) return -1;
+  return layer->gridwide;
+}
+
+/** Returns the height of the layer in grid units. Returns -1 on error. */
+int gari_layer_gridhigh(GariLayer * layer) {
+  if(!layer) return -1;
+  return layer->gridhigh;
+}
+
+/** Returns the width of the layer's tiles in pixels. Returns -1 on error. */
+int gari_layer_tilewide(GariLayer * layer) {
+  if(!layer) return -1;
+  return layer->tilewide;
+}
+
+/** Returns the height of the layer's tiles in pixels. Returns -1 on error. */
+int gari_layer_tilehigh(GariLayer * layer) {
+  if(!layer) return -1;
+  return layer->tilehigh;
+}
+
+/** Returns the width of the layer in pixels. Returns -1 on error. */
+int gari_layer_wide(GariLayer * layer) {
+  if(!layer) return -1;
+  return layer->realwide;
+}
+
+/** Returns the height of the layer in pixels. Returns -1 on error. */
+int gari_layer_high(GariLayer * layer) {
+  if(!layer) return -1;
+  return layer->realhigh;
 }
 
 /** Returns TRUE if the given gridx and gridy are outside the grid
@@ -134,57 +170,70 @@ int gari_layer_outsidegrid(GariLayer * layer, int gridx, int gridy) {
   return FALSE;
 }
 
-/** Sets the tile in this layer to the tile with this tile index in the 
-layer's Tileset. Returns the tile thus set or NULL on error, or if a NULL 
-tile was set (index -1).  */
-GariTile * gari_layer_set(GariLayer * layer, int gridx, int gridy, int tileid) { 
-  GariTile * realtile = NULL;
-  if (gari_layer_outsidegrid(layer, gridx, gridy)) return NULL;                 
-  if (tileid < 0) {
-    realtile = NULL;
-    tileid   = -1; 
-  } else {
-    realtile = gari_tileset_get(layer->set, tileid);
-    if(!realtile) return NULL;
-    // bail out if no such tile found. 
-  }
-  layer->tiles[gridy][gridx]    = realtile;
-  layer->tilesave[gridy][gridx] = tileid;
-  return realtile;
-}  
-
-/** Returns the tile in the layer's grid at the given grid coordinates,
-* returns -2 if the fcoordinates are out of bounds, -1 if it was an empty tile.  
+/** Sets the tile at the given location to the given GariSheet pointer, 
+* which may be NULL. Returns the layer, or NULL on error.  
 */
-int gari_layer_get(GariLayer * layer, int gridx, int gridy) { 
-  GariTile * realtile = NULL;
-  if (gari_layer_outsidegrid(layer, gridx, gridy)) return -2;
-  return layer->tilesave[gridy][gridx];
+GariLayer * gari_layer_set(GariLayer * layer, 
+                          int gridx, int gridy, GariSheet * tile) { 
+  if (gari_layer_outsidegrid(layer, gridx, gridy)) return NULL;
+  layer->tiles[gridy][gridx]    = tile;
+  return layer;
 }  
 
+/** Returns the sheet in the layer's grid at the given grid coordinates,
+* returns NULL if the fcoordinates are out of bounds or if it was an empty tile.
+*/
+GariSheet * gari_layer_get(GariLayer * layer, int gridx, int gridy) { 
+  if (gari_layer_outsidegrid(layer, gridx, gridy)) return NULL;
+  return layer->tiles[gridy][gridx];
+}  
+
+/** Draws the tile layer, with x and y as the top left corner. 
+*  X and y may be negative. 
+*/
+void gari_layer_draw(GariLayer * layer, GariImage * image, int x, int y) {
+  // Copy everything to the stack since that should be faster than always
+  // referring to pointers.
+  int gridwide    = layer->gridwide;
+  int gridhigh    = layer->gridhigh;
+  int tilewide    = layer->tilewide;
+  int tilehigh    = layer->tilehigh;
+  int txstart     = x / tilewide;
+  int tystart     = y / tilehigh;
+  int xtilestop   = (gari_image_w(image) / tilewide) + 1;
+  int ytilestop   = (gari_image_h(image) / tilehigh) + 1;
+  int txstop      = xtilestop + txstart;
+  int tystop      = ytilestop + tystart;
+  int drawx       = 0;
+  int drawy       = 0;
+  int ty_index    = 0;
+  int tx_index    = 0;
+  int realwide    = layer->realwide;
+  int realhigh    = layer->realhigh;
+  GariSheet ** row= NULL;
+  GariSheet * tile= NULL;
+  if (txstart >= realwide) return;
+  if (tystart >= realhigh) return;
+  txstart         = (txstart < 0) ? 0 : txstart;
+  tystart         = (tystart < 0) ? 0 : tystart;
+  txstop          = (txstop > gridwide) ? gridwide : txstop;
+  tystop          = (tystop > gridhigh) ? gridhigh : tystop;  
+  drawy           = -y + ((tystart-1) * tilehigh);  
+  for (ty_index = tystart; ty_index < tystop ; ty_index++) {
+    drawy        += tilehigh;
+    drawx         = -x + ((txstart-1) * tilewide);
+    row           = layer->tiles[ty_index];      
+    for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
+      drawx      += tilewide;
+      tile        = row[tx_index];
+      if(tile) {
+        gari_image_blitsheet(image, drawx, drawy, tile);
+      }
+    }
+  } 
+}
 
 /*
-  
-  # Returns the actual tile at the given x and y coordinates, 
-  # or nil if the coordinates are out of bounds
-  def get_tile(x, y) 
-    gx = x; gy = y
-    return nil if gy > @high or gx > @wide or gy < 0 or gx < 0  
-    return @layer[gy][gx]
-  end
-  
-  # Iterate over all tiles in this layer, column by column. 
-  # Yields Tile objects, and the world x and y coordinate of this tile 
-  # in the layer.
-  def each_tile()
-    for y in (0...@high)
-      for x in (0...@wide)          
-          wx, wy = tile_to_world(x, y)
-          yield @layer[y][x], wx, wy
-      end
-    end
-  end
-
   def draw(screen, x, y)
     txstart     = ( x / @tilewide )
     tystart     = ( y / @tilehigh )

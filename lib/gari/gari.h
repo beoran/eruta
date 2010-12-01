@@ -770,6 +770,82 @@ typedef struct GariTileset_ GariTileset;
 struct GariLayer_; 
 typedef struct GariLayer_ GariLayer;
 
+/** 
+* A tile map consists of individual tiles. Tiles are simply indirect 
+* pointers to images, where the pointer can be changed to animate it. 
+* The same idea is used for sprites, and unified in the GariSheet struct.
+*/
+struct GariSheet_;
+typedef struct GariSheet_ GariSheet;
+
+/** Sets the active image of the GariSheet. */
+GariSheet * gari_sheet_image_(GariSheet * sheet, GariImage * image);
+ 
+/** Gets the active image of the GariSheet. */
+GariImage * gari_sheet_image(GariSheet * sheet); 
+
+/** Allocates a new GariSheet that has imageas it's active image.  */
+GariSheet * gari_sheet_new(GariImage * image); 
+
+/** Frees the memory associated with a previously allocated GariSheet. */
+GariSheet * gari_sheet_free(GariSheet * sheet); 
+
+/** Draws a GariSheet to an image. */
+void gari_image_blitsheet(GariImage * dst, int x, int y, GariSheet * sheet);
+
+/** Initializes a GariLayer. Gridwide and gridhigh are the size of 
+the tile map's grid. tilewide and tilehigh are the sizes of the tiles used. */
+GariLayer * gari_layer_init(GariLayer * layer,  
+                           int gridwide, int gridhigh, 
+                           int tilewide, int tilehigh); 
+
+/** Allocates a new gari layer with the given parameters. */
+GariLayer * gari_layer_new(int gridwide, int gridhigh, 
+                           int tilewide, int tilehigh);
+                            
+/** Deallocates memory allocated by gai_layer_new */ 
+GariLayer * gari_layer_free(GariLayer * layer); 
+
+/** Returns TRUE if the given gridx and gridy are outside the grid
+ Returns FALSE if inside the grid.
+*/
+int gari_layer_outsidegrid(GariLayer * layer, int gridx, int gridy); 
+
+/** Sets the tile at the given location to the given GariSheet pointer, 
+* which may be NULL. Returns the layer, or NULL on error.  
+*/
+GariLayer * gari_layer_set(GariLayer * layer, 
+                           int gridx, int gridy, GariSheet * tile);
+
+/** Returns the sheet in the layer's grid at the given grid coordinates,
+* returns NULL if the fcoordinates are out of bounds or if it was an empty tile.
+*/
+GariSheet * gari_layer_get(GariLayer * layer, int gridx, int gridy); 
+
+/** Draws the tile layer, with x and y as the top left corner, 
+* to the given image. X and y may be negative. 
+*/
+void gari_layer_draw(GariLayer * layer, GariImage * image, int x, int y); 
+
+/** Returns the width of the layer in grid units. Returns -1 on error. */
+int gari_layer_gridwide(GariLayer * layer); 
+
+/** Returns the height of the layer in grid units. Returns -1 on error. */
+int gari_layer_gridhigh(GariLayer * layer);
+
+/** Returns the width of the layer's tiles in pixels. Returns -1 on error. */
+int gari_layer_tilewide(GariLayer * layer);
+
+/** Returns the height of the layer's tiles in pixels. Returns -1 on error. */
+int gari_layer_tilehigh(GariLayer * layer);
+
+/** Returns the width of the layer in pixels. Returns -1 on error. */
+int gari_layer_wide(GariLayer * layer);
+
+/** Returns the height of the layer in pixels. Returns -1 on error. */
+int gari_layer_high(GariLayer * layer);
+
+
 /**
 * A map is the visual representation of the game's playfield, which 
 * consists of several layers and may contain several sprites.  

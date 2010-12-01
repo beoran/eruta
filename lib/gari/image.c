@@ -134,7 +134,7 @@ GariImage * gari_image_make15(int w, int h, int mode) {
 
 GariImage * gari_image_make16(int w, int h, int mode) {
     SDL_Surface* result = NULL;
-    if (mode == GariImageAlpha) {     
+    if (mode == GariImageAlpha) {
      // 4 - 4 - 4 - 4 
     #if SDL_BYTEORDER == SDL_BIG_ENDIAN
       result = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 16, 0xf000, 0x0f00, 0x00f0, 0x000f);

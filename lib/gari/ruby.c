@@ -34,6 +34,7 @@ RBH_CLASS_DEFINE(Joystick, GariJoystick);
 RBH_CLASS_DEFINE(Layer, GariLayer);
 RBH_CLASS_DEFINE(Music, GariMusic);
 RBH_CLASS_DEFINE(Screen, GariScreen);
+RBH_CLASS_DEFINE(Sheet, GariSheet);
 RBH_CLASS_DEFINE(Sound, GariSound);
 RBH_CLASS_DEFINE(Style, GariStyle);
 RBH_CLASS_DEFINE(Tileset, GariTileset);
@@ -647,6 +648,127 @@ VALUE rbgari_style_font(VALUE self) {
   return GARI_FONT_WRAP(gari_style_font(GARI_STYLE_UNWRAP(self)));  
 }
 
+void rbgari_sheet_mark(void * ptr) {
+  GariSheet * sheet = (GariSheet *)(ptr);
+  GariImage * image = gari_sheet_image(sheet);
+  if(image) {
+    rb_gc_mark(GARI_IMAGE_WRAP(image));
+  }  
+}
+
+struct RbGariSheet_ { 
+  GariSheet * sheet;
+  VALUE vimage; 
+};
+
+typedef struct RbGariSheet_ RbGariSheet;
+
+#define GARI_SHEET_WRAP(SHE)   RBH_WRAP_MARK(Sheet, SHE,\
+                                gari_sheet_free, rbgari_sheet_mark)
+                                #define GARI_SHEET_WRAP(SHE)  
+
+#define GARI_SHEET_WRAP_NOFREE(SHE) RBH_WRAP(Sheet, SHE, NULL)
+#define GARI_IMAGE_WRAP_NOFREE(IMG) RBH_WRAP(Image, IMG, NULL)
+
+#define GARI_SHEET_UNWRAP(SHE) RBH_UNWRAP(Sheet, SHE)
+
+VALUE rbgari_sheet_image_(VALUE self, VALUE vimage) {
+  GariSheet * sheet = GARI_SHEET_UNWRAP(self);
+  GariImage * image = NULL;
+  if(NIL_P(image)) {
+    gari_sheet_image_(sheet, NULL); 
+  } else {
+    image = GARI_IMAGE_UNWRAP(vimage);
+    gari_sheet_image_(sheet, image);
+  } 
+  return self;
+}
+
+VALUE rbgari_sheet_image(VALUE self) {
+  GariSheet * sheet = GARI_SHEET_UNWRAP(self);
+  return GARI_IMAGE_WRAP_NOFREE(gari_sheet_image(sheet));
+}
+
+VALUE rbgari_sheet_new(VALUE self, VALUE vimage) {
+  GariSheet * sheet = NULL;
+  GariImage * image = NULL;
+  if(NIL_P(image)) {
+    image = NULL;
+  } else {
+    image = GARI_IMAGE_UNWRAP(vimage);
+  }
+  return GARI_SHEET_WRAP(gari_sheet_new(image));
+}  
+   
+VALUE rbgari_image_blitsheet(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) {
+  GariImage * image   = GARI_IMAGE_UNWRAP(self);
+  GariSheet * sheet   = GARI_SHEET_UNWRAP(vsheet);
+  int x               = RBH_INT(vx);
+  int y               = RBH_INT(vy);
+  gari_image_blitsheet(image, x, y, sheet);
+  return Qnil;
+}   
+   
+/** 
+* A layer is a single layer in a 2D game tile map.
+* A layer can consists of a background and/or tiles.
+*/
+#define GARI_LAYER_WRAP(LAY)  RBH_WRAP(Layer, LAY, gari_layer_free)
+#define GARI_LAYER_UNWRAP(LAY) RBH_UNWRAP(Layer, LAY)
+
+VALUE rbgari_layer_new(VALUE self, VALUE gw, VALUE gh, VALUE tw, VALUE th) {  
+  int gridwide  = RBH_INT(gw); 
+  int gridhigh  = RBH_INT(gh); 
+  int tilewide  = RBH_INT(tw);
+  int tilehigh  = RBH_INT(th);
+  return GARI_LAYER_WRAP(gari_layer_new(gridwide, gridhigh,tilewide,tilehigh));
+}
+
+VALUE rbgari_layer_outside(VALUE self, VALUE vgx, VALUE vgy) { 
+  GariLayer * layer = GARI_LAYER_UNWRAP(self); 
+  return RBH_TOBOOL(gari_layer_outsidegrid(layer, RBH_INT(vgx), RBH_INT(vgy))); 
+}
+
+VALUE rbgari_layer_set(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) { 
+  GariLayer * layer = GARI_LAYER_UNWRAP(self); 
+  GariSheet * sheet   = GARI_SHEET_UNWRAP(vsheet);
+  int x               = RBH_INT(vx); 
+  int y               = RBH_INT(vy);  
+  if(gari_layer_set(layer, x, y, sheet)) return self;
+  return Qnil; 
+}
+
+VALUE rbgari_layer_get(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) { 
+  GariLayer * layer   = GARI_LAYER_UNWRAP(self); 
+  GariSheet * sheet   = NULL;
+  int x               = RBH_INT(vx); 
+  int y               = RBH_INT(vy);
+  sheet               = gari_layer_get(layer, x, y);
+  if(sheet) return GARI_SHEET_WRAP(sheet);
+  return Qnil;
+}
+
+/** Draws the tile layer, with x and y as the top left corner, 
+* to the given image. X and y may be negative. 
+*/
+VALUE rbgari_layer_draw(VALUE self, VALUE vimage, VALUE vx, VALUE vy) {
+  GariImage * image   = GARI_IMAGE_UNWRAP(vimage);
+  GariLayer * layer   = GARI_LAYER_UNWRAP(self);
+  int x               = RBH_INT(vx);
+  int y               = RBH_INT(vy);
+  gari_layer_draw(layer, image, x, y);  
+  return Qnil;
+}   
+
+/* Getters for the dimensions of the layer */  
+RBH_GETTER_DEFINE(gari_layer_gridwide, Layer, GariLayer, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_layer_gridhigh, Layer, GariLayer, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_layer_tilewide, Layer, GariLayer, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_layer_tilehigh, Layer, GariLayer, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_layer_wide, Layer, GariLayer, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_layer_high, Layer, GariLayer, RBH_INT_NUM);
+
+
   
 /** Gets the clipping rectangle of the image. 
 * Clipping applies to all drawing functions. 
@@ -696,6 +818,7 @@ void Init_gari() {
   RBH_MODULE_CLASS(Gari, Camera);
   RBH_MODULE_CLASS(Gari, Layer);
   RBH_MODULE_CLASS(Gari, Style);
+  RBH_MODULE_CLASS(Gari, Sheet);
   
   RBH_SINGLETON_METHOD(Game, new, rbgari_game_new         , 0);
   RBH_METHOD(Game, update       , rbgari_game_update      , 0);
@@ -711,7 +834,7 @@ void Init_gari() {
   RBH_METHOD(Game, fullscreen=  , rbgari_game_fullscreen_ , 1);
   
   RBH_SINGLETON_METHOD(Image, loadraw, rbgari_image_loadraw, 1);
-  RBH_SINGLETON_METHOD(Image, newdepth, rbgari_image_newdepth, 4);
+  RBH_SINGLETON_METHOD(Image, new    , rbgari_image_newdepth, 4);
     
   RBH_CLASS_NUM_CONST(Image, SOLID, GariImageSolid);
   RBH_CLASS_NUM_CONST(Image, COLORKEY, GariImageColorkey);
@@ -819,11 +942,28 @@ void Init_gari() {
   RBH_METHOD(Joystick           , balls     , rbgari_joy_balls          , 0);
   RBH_METHOD(Joystick           , index     , rbgari_joy_index          , 0);
   
-  RBH_METHOD(Game               , joysticks , rbgari_game_numjoysticks  , 0 );
+  RBH_METHOD(Game               , joysticks , rbgari_game_numjoysticks  , 0);
   RBH_METHOD(Game               , joystick  , rbgari_game_joystick      , 1);
     
   RBH_SINGLETON_METHOD(Style    , new       , rbgari_style_new          , 4);
   RBH_METHOD(Style              , font      , rbgari_style_font         , 0);
+  
+  RBH_SINGLETON_METHOD(Sheet    , new         , rbgari_sheet_new        , 1);
+  RBH_METHOD(Sheet              , image=      , rbgari_sheet_image_     , 1);
+  RBH_METHOD(Sheet              , image       , rbgari_sheet_image      , 0);
+  RBH_METHOD(Image              , blitsheet   , rbgari_image_blitsheet  , 3);
+  
+  RBH_SINGLETON_METHOD(Layer    , new         , rbgari_layer_new        , 4);  
+  RBH_GETTER(Layer, w           , gari_layer_wide);
+  RBH_GETTER(Layer, h           , gari_layer_high);
+  RBH_GETTER(Layer, tilewide    , gari_layer_tilewide);
+  RBH_GETTER(Layer, tilehigh    , gari_layer_tilehigh);
+  RBH_GETTER(Layer, gridwide    , gari_layer_gridwide);
+  RBH_GETTER(Layer, gridhigh    , gari_layer_gridhigh);  
+  RBH_METHOD(Layer              , outside?    , rbgari_layer_outside    , 2);
+  RBH_METHOD(Layer              , set         , rbgari_layer_set        , 3);
+  RBH_METHOD(Layer              , get         , rbgari_layer_get        , 2);
+  RBH_METHOD(Layer              , draw        , rbgari_layer_draw       , 3);
 
 }
 
