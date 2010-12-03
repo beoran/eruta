@@ -2,6 +2,13 @@
 
 require 'gari.so'
 
+module Gari
+  class Color
+     
+  end
+
+end  
+
 
 
 
