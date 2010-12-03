@@ -2,11 +2,8 @@ Eruta, An Action RPG for ADULTS written in Ruby. Some contents may be NSFW.
 
 How to try it:
 
-First of all, the game needs the SDL, SDL_image, SDL_ttf, SDL_mixer and SGE libraries.
+First of all, the game needs the SDL, SDL_image, SDL_ttf, SDL_mixer libraries.
 You have to make sure that you have the development packages installed too.
-
-SGE can be found here: 
-http://www.digitalfanatics.org/cal/sge/index.html
 
 Then install Ruby 1.9.1 and Ruby/SDL 2.1.0. Get it from here:
 http://rubyforge.org/frs/?group_id=1006
@@ -21,6 +18,8 @@ Just do
 ruby(1.9) extconf.rb ; make ; make install
 and it should work.
 
+Also install the gari labriary in ext/gari. It replaces rubySDL, and SGE.
+
 
 Then, check eruta out fom github, and:
 cd src
@@ -32,7 +31,7 @@ ruby1.9 eruma.rb
 
 License: 
 
-    Eruta is Copyright (C) 2007-2009 Beoran beoran@rubyforge.org
+    Eruta is Copyright (C) 2007-2010 Beoran beoran@rubyforge.org
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -46,3 +45,5 @@ License:
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+
