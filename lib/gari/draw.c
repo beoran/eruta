@@ -519,7 +519,7 @@ void gari_image_scaleblit(GariImage * dst, int dstx, int dsty,
       if (xrest >= dstw ) {
         xin   ++;
         xrest = 0;
-      }         
+      }
       gari_image_copypixel_nolock(dst, xout, yout, src, xin, yin);
     }
   } 
@@ -527,6 +527,8 @@ void gari_image_scaleblit(GariImage * dst, int dstx, int dsty,
   gari_image_unlock(src);
   gari_image_unlock(dst);
 }
+
+
 
 
 void gari_draw_doflood(GariDraw * draw, int x, int y, GariDye old) {

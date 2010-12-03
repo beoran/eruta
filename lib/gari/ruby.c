@@ -381,7 +381,9 @@ VALUE rbgari_image_getclip(VALUE self) {
   
   
 VALUE rbgari_event_poll(VALUE self) {
-  return GARI_EVENT_WRAP(gari_event_pollnew());
+  GariEvent * event = gari_event_pollnew();
+  if(event) return GARI_EVENT_WRAP(event);
+  return Qnil;
 }
 
 /*
@@ -589,7 +591,7 @@ VALUE rbgari_game_joystick(VALUE self, int vindex) {
 /** Returns the name of the inde'th joystick or NULL if no such joystick. */  
 VALUE rbgari_joy_nameindex(VALUE self, VALUE vindex) {
   const char * name = gari_joy_nameindex(RBH_INT(vindex));
-  if(name) return RBH_CSTR(name);
+  if(name) return RBH_STR_UTF82(name);
   return Qnil;
 }
 
@@ -622,17 +624,9 @@ VALUE rbgari_joy_index(VALUE self) {
 }
 
 
-/** Style */
-void rbgari_style_mark(void * ptr) {
-  GariStyle *style = (GariStyle*) ptr;
-  rb_gc_mark(gari_style_fore(style));
-  rb_gc_mark(gari_style_back(style));
-  rb_gc_mark(gari_style_font(style));
-  rb_gc_mark(gari_style_image(style));
-}
 
 #define GARI_STYLE_WRAP(STY) \
-        RBH_WRAP_MARK(Style, STY, gari_style_free, rbgari_style_mark)
+        RBH_WRAP_MARK(Style, STY, gari_style_free, NULL)
 #define GARI_STYLE_UNWRAP(STY) RBH_UNWRAP(Style, STY)
    
 VALUE rbgari_style_new(VALUE self, VALUE vfore, VALUE vback, 
@@ -648,56 +642,46 @@ VALUE rbgari_style_font(VALUE self) {
   return GARI_FONT_WRAP(gari_style_font(GARI_STYLE_UNWRAP(self)));  
 }
 
-void rbgari_sheet_mark(void * ptr) {
-  GariSheet * sheet = (GariSheet *)(ptr);
-  GariImage * image = gari_sheet_image(sheet);
-  if(image) {
-    rb_gc_mark(GARI_IMAGE_WRAP(image));
-  }  
-}
-
-struct RbGariSheet_ { 
-  GariSheet * sheet;
-  VALUE vimage; 
-};
-
-typedef struct RbGariSheet_ RbGariSheet;
-
-#define GARI_SHEET_WRAP(SHE)   RBH_WRAP_MARK(Sheet, SHE,\
-                                gari_sheet_free, rbgari_sheet_mark)
-                                #define GARI_SHEET_WRAP(SHE)  
+#define GARI_SHEET_WRAP(SHE)   RBH_WRAP(Sheet, SHE, gari_sheet_free) 
+#define GARI_SHEET_UNWRAP(SHE) RBH_UNWRAP(Sheet, SHE)
 
 #define GARI_SHEET_WRAP_NOFREE(SHE) RBH_WRAP(Sheet, SHE, NULL)
 #define GARI_IMAGE_WRAP_NOFREE(IMG) RBH_WRAP(Image, IMG, NULL)
 
-#define GARI_SHEET_UNWRAP(SHE) RBH_UNWRAP(Sheet, SHE)
+
 
 VALUE rbgari_sheet_image_(VALUE self, VALUE vimage) {
   GariSheet * sheet = GARI_SHEET_UNWRAP(self);
   GariImage * image = NULL;
   if(NIL_P(image)) {
-    gari_sheet_image_(sheet, NULL); 
+    gari_sheet_image_(sheet, NULL);
   } else {
     image = GARI_IMAGE_UNWRAP(vimage);
     gari_sheet_image_(sheet, image);
   } 
+  // Also sets as instance variable so ruby knows to keep 
+  // track of the reference to it when garbage collecting.
+  rb_ivar_set(self, rb_intern("image"), vimage);
   return self;
 }
 
 VALUE rbgari_sheet_image(VALUE self) {
   GariSheet * sheet = GARI_SHEET_UNWRAP(self);
-  return GARI_IMAGE_WRAP_NOFREE(gari_sheet_image(sheet));
+  return rb_ivar_get(self, rb_intern("image"));  
 }
 
 VALUE rbgari_sheet_new(VALUE self, VALUE vimage) {
   GariSheet * sheet = NULL;
   GariImage * image = NULL;
+  VALUE instance;
   if(NIL_P(image)) {
     image = NULL;
   } else {
     image = GARI_IMAGE_UNWRAP(vimage);
-  }
-  return GARI_SHEET_WRAP(gari_sheet_new(image));
+  }  
+  instance = GARI_SHEET_WRAP(gari_sheet_new(image));
+  rb_ivar_set(instance, rb_intern("image"), vimage);
+  return instance;
 }  
    
 VALUE rbgari_image_blitsheet(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) {
@@ -716,12 +700,30 @@ VALUE rbgari_image_blitsheet(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) {
 #define GARI_LAYER_WRAP(LAY)  RBH_WRAP(Layer, LAY, gari_layer_free)
 #define GARI_LAYER_UNWRAP(LAY) RBH_UNWRAP(Layer, LAY)
 
+#define GARI_LAYER_IVARNAME "@tiles"
+
+VALUE rbgari_layer_init(VALUE self, int gridwide, int gridhigh) {
+  // Two levels of arrays, one array per row.
+  int index;
+  VALUE  vtiles      ;
+  vtiles = rb_ary_new2(gridhigh); 
+  for(index = 0; index < gridwide; index ++) {
+    rb_ary_store(vtiles, index, rb_ary_new2(gridwide));
+  } 
+  return rb_ivar_set(self, rb_intern(GARI_LAYER_IVARNAME), vtiles); 
+}
+
+
 VALUE rbgari_layer_new(VALUE self, VALUE gw, VALUE gh, VALUE tw, VALUE th) {  
   int gridwide  = RBH_INT(gw); 
   int gridhigh  = RBH_INT(gh); 
   int tilewide  = RBH_INT(tw);
   int tilehigh  = RBH_INT(th);
-  return GARI_LAYER_WRAP(gari_layer_new(gridwide, gridhigh,tilewide,tilehigh));
+  VALUE instance;
+  instance      = GARI_LAYER_WRAP(gari_layer_new(gridwide,
+                                  gridhigh,tilewide,tilehigh));
+  rbgari_layer_init(instance, gridwide, gridhigh);  
+  return instance;
 }
 
 VALUE rbgari_layer_outside(VALUE self, VALUE vgx, VALUE vgy) { 
@@ -729,23 +731,53 @@ VALUE rbgari_layer_outside(VALUE self, VALUE vgx, VALUE vgy) {
   return RBH_TOBOOL(gari_layer_outsidegrid(layer, RBH_INT(vgx), RBH_INT(vgy))); 
 }
 
+VALUE rbgari_layer_tiles(VALUE self) {
+  GariLayer * layer   = GARI_LAYER_UNWRAP(self);
+  VALUE vtiles        = rb_ivar_get(self, rb_intern(GARI_LAYER_IVARNAME));
+  return vtiles;
+}
+
+VALUE rbgari_layer_ivar_set(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) {
+  VALUE varray = rbgari_layer_tiles(self);
+  VALUE vrow   = RARRAY_PTR(varray)[RBH_INT(vy)];
+  if(NIL_P(vrow)) return Qnil;
+  rb_ary_store(vrow, RBH_INT(vx), vsheet);
+  return vsheet;
+}
+
+VALUE rbgari_layer_ivar_get(VALUE self, VALUE vx, VALUE vy) {
+  VALUE varray = rbgari_layer_tiles(self);
+  VALUE vrow   = RARRAY_PTR(varray)[RBH_INT(vy)];
+  if(NIL_P(vrow)) return Qnil;  
+  return RARRAY_PTR(vrow)[RBH_INT(vx)];
+}
+
+
+
 VALUE rbgari_layer_set(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) { 
-  GariLayer * layer = GARI_LAYER_UNWRAP(self); 
-  GariSheet * sheet   = GARI_SHEET_UNWRAP(vsheet);
+  GariLayer * layer   = GARI_LAYER_UNWRAP(self); 
+  GariSheet * sheet   = NULL; 
   int x               = RBH_INT(vx); 
-  int y               = RBH_INT(vy);  
+  int y               = RBH_INT(vy);
+  if(NIL_P(vsheet)) { 
+    sheet               = NULL;
+  } else { 
+    sheet               = GARI_SHEET_UNWRAP(vsheet);
+  }  
+  rbgari_layer_ivar_set(self, vx, vy, vsheet);
   if(gari_layer_set(layer, x, y, sheet)) return self;
   return Qnil; 
 }
 
 VALUE rbgari_layer_get(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) { 
+/*  
   GariLayer * layer   = GARI_LAYER_UNWRAP(self); 
   GariSheet * sheet   = NULL;
   int x               = RBH_INT(vx); 
   int y               = RBH_INT(vy);
-  sheet               = gari_layer_get(layer, x, y);
-  if(sheet) return GARI_SHEET_WRAP(sheet);
-  return Qnil;
+   sheet               = gari_layer_get(layer, x, y);
+*/   
+  return rbgari_layer_ivar_get(self, vx, vy);
 }
 
 /** Draws the tile layer, with x and y as the top left corner, 
@@ -820,7 +852,9 @@ void Init_gari() {
   RBH_MODULE_CLASS(Gari, Style);
   RBH_MODULE_CLASS(Gari, Sheet);
   
+  
   RBH_SINGLETON_METHOD(Game, new, rbgari_game_new         , 0);
+  
   RBH_METHOD(Game, update       , rbgari_game_update      , 0);
   RBH_METHOD(Game, resetframes  , rbgari_game_resetframes , 0);
   RBH_METHOD(Game, frames       , rbgari_game_frames      , 0);
