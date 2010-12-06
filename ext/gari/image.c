@@ -236,8 +236,14 @@ GariImage * gari_image_getclip(GariImage * img,
 }
 
 
-
-
-
+/** Gets the color depth in bits per pixels of this image.
+* Returns -1 on error.
+*/
+int gari_image_depth(GariImage * img) {
+  SDL_Surface * surf = gari_image_surface(img);
+  if(!surf)         return -1;  
+  if(!surf->format) return -1;
+  return surf->format->BitsPerPixel;
+}
 
 

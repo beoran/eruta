@@ -194,6 +194,9 @@ GariScreen * gari_game_openscreendepth(GariGame * game, int wide, int high, int 
 GariScreen * gari_game_openscreen(GariGame * game, int wide, int high, 
                                   int fullscreen);
 
+// Checks if a screen is the fullscreen screen or not
+int gari_screen_fullscreen(GariScreen * screen);
+
 /** Retuns the current main game screen. */
 GariScreen * gari_game_screen(GariGame * game);
 
@@ -251,6 +254,10 @@ int gari_image_w(GariImage * img);
  
 /** Returns the height of the image. */
 int gari_image_h(GariImage * img);
+
+/** Gets the color depth in bits per pixels of this image. Returns -1 on error.
+*/
+int gari_image_depth(GariImage * img);
 
 /** Locks image before drawing. Needed before any _nolock drawing function. */
 void gari_image_lock(GariImage * image); 

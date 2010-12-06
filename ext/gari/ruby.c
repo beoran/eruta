@@ -235,8 +235,10 @@ VALUE rbgari_image_optimize(VALUE self, VALUE vmode, VALUE vdye) {
   return GARI_IMAGE_WRAP(fast);
 }
 
-RBH_GETTER_DEFINE(gari_image_w, Image, GariImage, RBH_INT_NUM);
-RBH_GETTER_DEFINE(gari_image_h, Image, GariImage, RBH_INT_NUM);
+
+RBH_GETTER_DEFINE(gari_image_w    , Image, GariImage, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_image_h    , Image, GariImage, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_image_depth, Image, GariImage, RBH_INT_NUM);
 
 /** Drawing function wrappers */
 VALUE rbgari_image_slab(VALUE self, VALUE vx, VALUE vy, 
@@ -331,6 +333,15 @@ VALUE rbgari_image_dot(VALUE self, VALUE vx, VALUE vy, VALUE vc) {
                   *GARI_COLOR_UNWRAP(vc));
   return self;
 }
+
+VALUE rbgari_image_getdot(VALUE self, VALUE vx, VALUE vy, VALUE vc) {  
+  GariColor   color;
+  GariColor * result;  
+  color = gari_image_getdot(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy));
+  result = gari_color_rgba(color.r, color.g, color.b, color.a);
+  return GARI_COLOR_WRAP(result);
+}
+
 
 VALUE rbgari_image_blit(VALUE self, VALUE vx, VALUE vy, VALUE vimg) {
   gari_image_blit(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
@@ -878,6 +889,7 @@ void Init_gari() {
   
   RBH_GETTER(Image, w         , gari_image_w);
   RBH_GETTER(Image, h         , gari_image_h);
+  RBH_GETTER(Image, depth     , gari_image_depth);
   RBH_METHOD(Image, clip?     , rbgari_image_getclip    , 0);
   RBH_METHOD(Image, clip!     , rbgari_image_setclip    , 4);
   
@@ -896,6 +908,7 @@ void Init_gari() {
   RBH_METHOD(Image, blendflood, rbgari_image_blendflood , 3);
 
   RBH_METHOD(Image, dot       , rbgari_image_dot        , 3);
+  RBH_METHOD(Image, getdot    , rbgari_image_getdot     , 2);
   RBH_METHOD(Image, blit      , rbgari_image_blit       , 3);
   RBH_METHOD(Image, blitpart  , rbgari_image_blitpart   , 7);
   RBH_METHOD(Image, blitscale , rbgari_image_scaleblit  , 9);
