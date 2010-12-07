@@ -79,6 +79,6 @@ include Nanotest
 
 $: << '../lib'
 # $: << '../ext/gari'
-require 'gari'
+# require 'gari'
 
 

@@ -132,6 +132,12 @@ VALUE rbgari_game_fullscreen(VALUE vgame) {
   return RBH_TOBOOL(gari_game_fullscreen(GARI_GAME_UNWRAP(vgame)));
 }  
 
+/** Checks if self is a full screen screen. */
+VALUE rbgari_screen_fullscreen(VALUE vscreen) {  
+  return RBH_TOBOOL(gari_screen_fullscreen(GARI_SCREEN_UNWRAP(vscreen)));
+}  
+
+
 /** Can be used to set or unset fullscreen after opening the screen. */
 VALUE rbgari_game_fullscreen_(VALUE vgame, VALUE vfull) { 
   GariGame * game     = GARI_GAME_UNWRAP(vgame);
@@ -913,6 +919,7 @@ void Init_gari() {
   RBH_METHOD(Image, blitpart  , rbgari_image_blitpart   , 7);
   RBH_METHOD(Image, blitscale , rbgari_image_scaleblit  , 9);
   // RBH_METHOD(Image,   , rbgari_image_ , );
+  RBH_METHOD(Screen, fullscreen, rbgari_screen_fullscreen, 0);
   
   
   RBH_METHOD(Color, dye       , rbgari_color_dye, 1);

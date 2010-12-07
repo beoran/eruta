@@ -1,6 +1,13 @@
 require 'test_helper.rb'
 require 'gari'
 
+# dot test helper
+class Gari::Image
+ def is?(x, y, col)
+  return self.getdot(x, y) == col
+ end
+end  
+
 assert { Gari           } 
 assert { Gari::Game     }
 assert { Gari::Sound    }
@@ -27,24 +34,58 @@ game.resetframes
 assert { game.frames == 0 }
   
 screen = game.openscreen(640, 480, false)
-assert { screen } 
-assert { !game.fullscreen  }
-  
-#   
-#   RBH_SINGLETON_METHOD(Image, loadraw, rbgari_image_loadraw, 1);
-#   RBH_SINGLETON_METHOD(Image, new    , rbgari_image_newdepth, 4);
-#     
-#   RBH_CLASS_NUM_CONST(Image, SOLID, GariImageSolid);
-#   RBH_CLASS_NUM_CONST(Image, COLORKEY, GariImageColorkey);
-#   RBH_CLASS_NUM_CONST(Image, ALPHA, GariImageAlpha);
-# 
-#   // RBH_METHOD(Game, loadimage  , rbgari_game_loadimage, 1);
-#   
-#   RBH_GETTER(Image, w         , gari_image_w);
-#   RBH_GETTER(Image, h         , gari_image_h);
-#   RBH_GETTER(Image, depth     , gari_image_depth);
-#   RBH_METHOD(Image, clip?     , rbgari_image_getclip    , 0);
-#   RBH_METHOD(Image, clip!     , rbgari_image_setclip    , 4);
+assert { screen                     } 
+assert { !game.fullscreen           }
+assert { !screen.fullscreen         }
+assert { screen.depth > 0           } 
+
+ri      = Gari::Image.loadraw('test/test_tile.png')
+assert  { ri                        } 
+assert  { ri.w == 40                }
+assert  { ri.h == 40                }
+assert  { ri.depth == 24            }
+assert  { Gari::Image::SOLID        } 
+assert  { Gari::Image::COLORKEY     }
+assert  { Gari::Image::ALPHA        } 
+oi      = ri.optimize(Gari::Image::SOLID, 0)
+assert  { oi                        } 
+assert  { oi.w == ri.w              }
+assert  { oi.h == ri.w              }
+assert  { oi.depth == screen.depth  }
+
+ni      = Gari::Image.new(ri.w, ri.h, screen.depth, Gari::Image::ALPHA)
+assert  { ni                        } 
+assert  { ni.w == ri.w              }
+assert  { ni.h == ri.w              }
+assert  { ni.depth == screen.depth  }
+
+assert  { ni.clip? == [ 0, 0, ri.w, ri.h ]          }
+assert  { ni.clip!(5, 5, ri.w - 5, ri.h - 5 )       }
+assert  { ni.clip? == [ 5, 5, ri.w - 5, ri.h - 5 ]  }
+assert  { ni.clip!(0, 0, ri.w, ri.h)                }
+assert  { ni.clip? == [ 0, 0, ri.w, ri.h ]          }
+
+c0      = Gari::Color.new(0  ,  0,  0, 255)
+c1      = Gari::Color.new(20 , 40, 60, 255)
+c2      = Gari::Color.new(255, 51, 17, 255)
+c3      = Gari::Color.new(20 , 40, 60, 255)
+assert  { c1 }
+assert  { c2 } 
+assert  { c1 == c1 }
+assert  { c2 == c2 } 
+assert  { c3 == c3 }
+assert  { c1 == c3 }
+assert  { c3 == c1 }
+assert  { (c3 <=> c1) == 0 }
+assert  { (c2 <=> c1) == 1 }
+
+ni.slab(0, 0, ni.w, ni.h, c2)
+assert  { ni.is?(0, 0, c2)  }
+screen.blit(10, 10, ni)
+game.update
+
+
+
 #   
 #   RBH_METHOD(Image, optimize  , rbgari_image_optimize   , 2);
 #   RBH_METHOD(Image, slab      , rbgari_image_slab       , 5);
