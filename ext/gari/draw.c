@@ -352,7 +352,7 @@ void gari_image_hoop(GariImage * image, int x, int y, int d, GariColor color) {
   int r = d / 2;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   gari_image_lock(image);
-  gari_draw_dohoop(&draw, x + r, y +r, r / 2);
+  gari_draw_dohoop(&draw, x + r, y + r, r);
   gari_image_unlock(image);
 }
 
@@ -362,7 +362,7 @@ void gari_image_blendhoop(GariImage * image, int x, int y, int d, GariColor colo
   int r = d / 2;
   gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
   gari_image_lock(image);
-  gari_draw_dohoop(&draw, x + r, y + r, r / 2);
+  gari_draw_dohoop(&draw, x + r, y + r, r);
   gari_image_unlock(image);
 }
 

@@ -1,10 +1,27 @@
-# Sisa::Mixin::Surface is a mixin for SDL::Surface 
-# that helps making it easier to use, and more Rubyish.
-# For example, the drawing methods'colors are mapped automagically, 
-# and are taken from an array-like object [r, g, b, a].
+# 
+# Extendsions to the Gari C library in Ruby, for ease of implementation. 
+# These may be moved down to C later if needed. 
+# 
 
 module Gari 
   class Image
+    # Dot? checks whether the dot at the location x, y is of color color
+    # Very useful as a unit test helper to check drawing functions.
+    def dot?(x, y, col)
+      return self.getdot(x, y) == col
+    end
+    
+    # Returns half of the width (rounded down). Useful for centering, etc
+    def w_half
+      return w / 2
+    end
+    
+    # Returns half of the height (rounded down). Useful for centering, etc
+    def h_half
+      return h / 2
+    end
+
+  
     # Blits to target a according to a 9 part scaling alorithm. 
     # This splits the bitmap in 9 parts, 
     # keeping the 4 corners unscaled, but scaling the 4 edges and the center  

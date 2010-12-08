@@ -1,12 +1,6 @@
 require 'test_helper.rb'
 require 'gari'
 
-# dot test helper
-class Gari::Image
- def is?(x, y, col)
-  return self.getdot(x, y) == col
- end
-end  
 
 assert { Gari           } 
 assert { Gari::Game     }
@@ -65,24 +59,48 @@ assert  { ni.clip? == [ 5, 5, ri.w - 5, ri.h - 5 ]  }
 assert  { ni.clip!(0, 0, ri.w, ri.h)                }
 assert  { ni.clip? == [ 0, 0, ri.w, ri.h ]          }
 
-c0      = Gari::Color.new(0  ,  0,  0, 255)
-c1      = Gari::Color.new(20 , 40, 60, 255)
-c2      = Gari::Color.new(255, 51, 17, 255)
-c3      = Gari::Color.new(20 , 40, 60, 255)
-assert  { c1 }
-assert  { c2 } 
+# Colors must be optimized before use, otherwise they won't fit the 16 bits
+# image if the screen depth is 16 bits.
+c0      = Gari::Color.new(1  ,  1,  1, 255).optimize(ni)
+c1      = Gari::Color.new(20 , 40, 255, 255).optimize(ni)
+c2      = Gari::Color.new(255, 50, 20, 255).optimize(ni)
+c3      = Gari::Color.new(20 , 255, 60, 255).optimize(ni)
+c4      = Gari::Color.new(20 , 40, 255, 255).optimize(ni)
+
+d0      = c0.dye(ni)
+d1      = c1.dye(ni)
+d2      = c2.dye(ni)
+d3      = c3.dye(ni)
+d4      = c4.dye(ni)
+
+assert  { ni.dyecolor(d0) == c0 }
+assert  { ni.dyecolor(d1) == c1 }
+assert  { ni.dyecolor(d2) == c2 }
+assert  { ni.dyecolor(d3) == c3 }
+
+assert  { c1       }
+assert  { c2       } 
 assert  { c1 == c1 }
 assert  { c2 == c2 } 
 assert  { c3 == c3 }
-assert  { c1 == c3 }
-assert  { c3 == c1 }
-assert  { (c3 <=> c1) == 0 }
+assert  { c4 == c1 }
+assert  { c1 == c4 }
+assert  { (c4 <=> c1) == 0 }
 assert  { (c2 <=> c1) == 1 }
 
+# Test Drawing, checking with dot? 
 ni.slab(0, 0, ni.w, ni.h, c2)
-assert  { ni.is?(0, 0, c2)  }
+assert  { ni.dot?(0, 0, c2)  }
+ni.box(0, 0, ni.w, ni.h, c1)
+assert  { ni.dot?(0, 0, c1)  }
+ni.hoop(0, 0, ni.w, c3)
+assert  { ni.dot?(ni.w_half, 0, c3)  }
+ni.disk(0, 0, ni.w, c1)
+assert  { ni.dot?(ni.w_half, ni.h_half, c1) }
+
 screen.blit(10, 10, ni)
 game.update
+sleep 1
 
 
 

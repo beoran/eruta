@@ -1,7 +1,7 @@
 # Ruby extensions to the gari library
 
 require 'gari.so'
-
+require 'gari/image'
 
 module Gari
   class Color
@@ -28,7 +28,6 @@ module Gari
      def inspect
       to_s
      end
-     
   end
 
 end

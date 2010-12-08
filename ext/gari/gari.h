@@ -270,10 +270,8 @@ GariDye gari_image_rgb(GariImage *img, uint8_t r, uint8_t g, uint8_t b);
 /** Converts a color expressed in rgba components to a GariDye. */
 GariDye gari_image_rgba(GariImage *img, 
           uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-/** 
-* Converts a GariColor to a GariDye for the given image. 
-*/
-GariDye gari_color_dye(GariColor color, GariImage * image);
+
+
           
 /** 
   Concstructs a color expressed as an RGBA quadruplet and returns it as a 
@@ -284,7 +282,7 @@ GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 /** 
 * Converts a GariColor to a gari dye for the given image. 
-* If the color's A is solid, then it maps as a soolid color. 
+* If the color's A is solid, then it maps as a solid color. 
 * otherwise, it maps as a transparent color.  
 */
 GariDye gari_color_dye(GariColor color, GariImage * image); 
@@ -294,7 +292,15 @@ r, g and b */
 int gari_color_cmp(GariColor c1, GariColor c2);
 
 /** Converts a GariDye to a GariColor for the given image. */
-GariColor gari_dye_color(GariDye dye, GariImage * image);         
+GariColor gari_dye_color(GariDye dye, GariImage * image);
+
+/** Optimizes a color for use with the given image. For 24 or 32 bpp images 
+this does nothing. However, other image depths, such as 16, 15 or 8 bits don't have enough resolution to display 3 or 4 rgb(a) components correctly, so the 
+colors used are reduced. All in all, this fuction is a round-trip between 
+gari_color_dye and gari_dye_color.  
+*/
+GariColor gari_color_optimize(GariColor color, GariImage * image);
+         
 
 /** Drawing functions. */
 typedef void GariPutPixelFunc(GariImage * img, int x, int y, GariDye dye);

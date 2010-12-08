@@ -141,6 +141,17 @@ GariColor gari_dye_color(GariDye dye, GariImage * image) {
   return gari_surface_getrgb(surf, dye);
 }
 
+/** Optimizes a color for use with the given image. For 24 or 32 bpp images 
+this does nothing. However, other image depths, such as 16, 15 or 8 bits don't have enough resolution to display 3 or 4 rgb(a) components correctly, so the 
+colors used are reduced. All in all, this fuction is a round-trip between 
+gari_color_dye and gari_dye_color.  
+*/
+GariColor gari_color_optimize(GariColor color, GariImage * image) {
+  GariDye dye = gari_color_dye(color, image); 
+  return gari_dye_color(dye, image); 
+}
+
+
 /** Checks if two gariColors are equal. Colors will sort by ascending a,
 r, g and b */
 int gari_color_cmp(GariColor c1, GariColor c2) {
@@ -154,6 +165,7 @@ int gari_color_cmp(GariColor c1, GariColor c2) {
   if (c1.g > c2.g) return  1;
   return 0;
 } 
+
 
 
 

@@ -188,6 +188,30 @@ VALUE rbgari_color_dye(VALUE vcolor, VALUE vimg)  {
   return GARI_DYE_WRAP(gari_color_dye(*color, image));
 }
 
+/** 
+* Converts a GariDye to a GariColor for the given image. 
+*/
+VALUE rbgari_dye_color(VALUE vimg, VALUE vdye)  {
+  GariImage * image = GARI_IMAGE_UNWRAP(vimg);
+  GariDye dye = GARI_DYE_UNWRAP(vdye);
+  GariColor aid = gari_dye_color(dye, image);
+  GariColor * result = gari_color_rgba(aid.r, aid.g, aid.b, aid.a);    
+  return GARI_COLOR_WRAP(result);
+}
+
+/** 
+* Optimizes a  GariColor for the given image. 
+*/
+VALUE rbgari_color_optimize(VALUE vcolor, VALUE vimg)  {
+  GariColor * color = GARI_COLOR_UNWRAP(vcolor);
+  GariImage * image = GARI_IMAGE_UNWRAP(vimg);
+  GariColor aid = gari_color_optimize(*color, image);
+  GariColor * result = gari_color_rgba(aid.r, aid.g, aid.b, aid.a);    
+  return GARI_COLOR_WRAP(result);
+}
+
+
+
 
 
 /** Makes an empty gari image with given bits per pixels (in depth), 
@@ -918,6 +942,8 @@ void Init_gari() {
   RBH_METHOD(Image, blit      , rbgari_image_blit       , 3);
   RBH_METHOD(Image, blitpart  , rbgari_image_blitpart   , 7);
   RBH_METHOD(Image, blitscale , rbgari_image_scaleblit  , 9);
+  
+  RBH_METHOD(Image, dyecolor  , rbgari_dye_color        , 1); 
   // RBH_METHOD(Image,   , rbgari_image_ , );
   RBH_METHOD(Screen, fullscreen, rbgari_screen_fullscreen, 0);
   
@@ -932,6 +958,9 @@ void Init_gari() {
   RBH_GETTER(Color, g, gari_color_g);
   RBH_GETTER(Color, b, gari_color_b);
   RBH_GETTER(Color, a, gari_color_a);
+  RBH_METHOD(Color, optimize, rbgari_color_optimize, 1);
+  RBH_METHOD(Color, dye     , rbgari_color_dye     , 1); 
+  
   
   RBH_CLASS_NUM_CONST(Event, NONE         , GARI_EVENT_NONE);
   RBH_CLASS_NUM_CONST(Event, ACTIVE       , GARI_EVENT_ACTIVE);
