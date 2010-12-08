@@ -601,6 +601,23 @@ GariColor gari_image_getdot(GariImage *img, int x, int y) {
 }
 
 
+void gari_image_dot_nolock(GariImage *img, int x, int y, GariColor color) {
+  GariDye dye = gari_color_dye(color, img);   
+  gari_image_putpixel_nolock(img, x, y, dye);  
+}
+
+
+GariColor gari_image_getdot_nolock(GariImage *img, int x, int y) {
+  GariDye dye = gari_image_getpixel_nolock(img, x, y);
+  return gari_dye_color(dye, img);
+}
+
+void gari_image_blenddot_nolock(GariImage *img, int x, int y, GariColor color) {
+  GariDye dye = gari_color_dye(color, img);
+  gari_image_blendpixel_nolock(img, x, y, dye, color.a);
+}
+
+
 /*
 typedef void GariPutPixelFunc(GariImage * img, int x, int y, GariDye dye);
 typedef GariDye GariGetPixelFunc(GariImage * img, int x, int y);

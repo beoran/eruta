@@ -193,9 +193,16 @@ GariDye gari_image_mapcolor(GariImage * dst,
                               
     
     
+void gari_image_dot_nolock(GariImage *img, int x, int y, GariColor color); 
+
+GariColor gari_image_getdot_nolock(GariImage *img, int x, int y);
+
+void gari_image_blenddot_nolock(GariImage *img, int x, int y, GariColor color);
 
 /** Gets a tile from a tile set by it's tile id. **/
 GariTile * gari_tileset_get(GariTileset * set, int index);
+
+
     
     
 

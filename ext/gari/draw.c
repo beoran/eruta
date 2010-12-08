@@ -457,15 +457,26 @@ void gari_image_blenddisk(GariImage * image, int x, int y, int d,
 
 
 /** Copies a pixel from one image to another, without locking, but mapping 
-the colors as needed **/
+the colors as needed, and blending when needed as well. **/
 void gari_image_copypixel_nolock(GariImage * dst, int dstx, int dsty,
                                  GariImage * src, int srcx, int srcy ) {
   GariDye srcpix, dstpix;
+  GariColor srccol;
+  srccol = gari_image_getdot_nolock(src, srcx, srcy);
+  gari_image_blenddot_nolock(dst, dstx, dsty, srccol);
+}
+
+/*
+GariColor gari_image_getdot_nolock(GariImage *img, int x, int y)
+  
   srcpix = gari_image_getpixel_nolock(src, srcx, srcy);
+  // there's a logical error here: if the pixel gotten has an alpha value
+  // mapcolor might destroy the alpha if the target has no alpha channel. 
+  
   dstpix = gari_image_mapcolor(dst, src, srcpix);
   gari_image_putpixel_nolock(dst, dstx, dsty, dstpix);
 }  
-
+*/
 
 /** Blits (a part of) an image to another one, 
     scaling it in integer increments by simple repitition 
@@ -495,37 +506,37 @@ void gari_image_iscaleblit(GariImage * dst, int dstx, int dsty,
 
 /** Arbitrary scaling, without interpolation. Uses linear stepping. */
 void gari_image_scaleblit(GariImage * dst, int dstx, int dsty, 
-                                      int dsth, int dstw, 
+                                      int dstw, int dsth, 
                                       GariImage * src,
                                       int srcx, int srcy, 
-                                      int srch, int srcw) {
+                                      int srcw, int srch) {
   int xin, yin, xout, yout, stopx, stopy, xrest, yrest, xrat, yrat, xmod, ymod; 
   GariDye pixel;
   if ((dsth < 1) || (dstw < 1 )) { return; } 
   gari_image_lock(dst);
   gari_image_lock(src);  
-  stopx = dstx + dstw - 1    ; stopy = dsty + dsth  - 1   ;
+  stopx = dstx + dstw        ; stopy = dsty + dsth        ;
   xin   = srcx               ; yin   = srcy               ;
   xrat  = srcw / dstw        ; yrat  = srch / dsth        ;
   yrest = 0                  ; xrest = 0                  ;
-  xmod  = srch % dsth        ; ymod  = srcw % dstw        ;  
+  xmod  = srcw % dstw        ; ymod  = srch % dsth        ;  
   for (yout  = dsty ; yout < stopy; yout++)  {
-    yrest += ymod;
-    yin   += yrat;
-    if (yrest >= dsth ) {
-      yin    ++;
-      yrest = 0;
-    }     
-    xin   = srcx;
-    xrest = 0;
     for (xout  = dstx ; xout < stopx; xout++)  {
+      gari_image_copypixel_nolock(dst, xout, yout, src, xin, yin);
       xrest += xmod;
       xin   += xrat; 
       if (xrest >= dstw ) {
         xin   ++;
         xrest = 0;
       }
-      gari_image_copypixel_nolock(dst, xout, yout, src, xin, yin);
+    }
+    xin    = srcx;
+    xrest  = 0;
+    yrest += ymod;
+    yin   += yrat;
+    if (yrest >= dsth ) {
+      yin    ++;
+      yrest = 0;
     }
   } 
   

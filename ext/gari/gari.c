@@ -125,7 +125,7 @@ GariGame * gari_game_openjoysticks(GariGame * gari) {
   gari->joysticks = GARI_MALLOC(sizeof(GariJoystick *) * amount);
   for(index = 0; index < amount; index ++) {
     gari->joysticks[index] = gari_joy_open(index);
-    gari_joy_describe(gari->joysticks[index]);
+    // gari_joy_describe(gari->joysticks[index]);
   }
   return gari;
 }

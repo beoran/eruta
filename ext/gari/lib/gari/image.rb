@@ -20,6 +20,38 @@ module Gari
     def h_half
       return h / 2
     end
+    
+    # Blits to target a according to a 9 part scaling alorithm. 
+    # This splits the bitmap in 9 parts, 
+    # keeping the 4 corners unscaled, but scaling the 4 edges and the center  
+    # according to the desired size. The 4 corners should be rectangles of
+    # identical size corner_w by corner_h in the original image.
+    # new_w and new_h are the new dimensions the new image should have. 
+    # This is useful for GUI backgrounds.
+    def blitscale9(src, xx, yy, new_w, new_h, corner_w = nil, corner_h = nil)
+      corner_w  ||= src.h / 4
+      corner_h  ||= corner_w      
+      center_old_w= src.w - (corner_w * 2) 
+      center_old_h= src.h - (corner_h * 2)
+      center_new_w= new_w - (corner_w * 2) 
+      center_new_h= new_h - (corner_h * 2)
+      # First blit the four border strips
+      # Top strip
+      dstx  = xx+corner_w     ; dsty = yy
+      dstw  = center_new_w    ; dsth = corner_h
+      srcx  = corner_w        ; srcy = 0
+      srcw  = center_old_w    ; srch = corner_h       
+      self.blitscale(dstx, dsty, dstw, dsth, src, srcx, srcy, srcw, srch)
+      
+      # Bottom strip
+      p dsty 
+      dsty  = yy + corner_h + center_new_h
+      p dsty
+      # srcy  = corner_h + center_old_h
+      self.blitscale(dstx, dsty, dstw, dsth, src, srcx, srcy, srcw, srch)
+    end
+    
+    
 
   
     # Blits to target a according to a 9 part scaling alorithm. 
@@ -29,7 +61,7 @@ module Gari
     # identical size corner_w by corner_h in the original image.
     # new_w and new_h are the new dimensions the new image should have. 
     # This is useful for GUI backgrounds.
-    def scale_9(target, xx, yy, new_w, new_h, corner_w = 16, corner_h = nil)
+    def scale_9_old(target, xx, yy, new_w, new_h, corner_w = 16, corner_h = nil)
       corner_h  ||= corner_w      
       center_old_w= self.w - (corner_w * 2) 
       center_old_h= self.h - (corner_h * 2)
@@ -50,7 +82,7 @@ module Gari
 
       # Right strip
        self.blitscale(target  , xx + corner_w + center_new_w, yy + corner_h,
-                       corner_w + center_old_w, corner_h, corner_w, center_old_h,  corner_w, center_new_h)                       
+                       corner_w + center_old_w, corner_h, corner_w, center_old_h,  corner_w, center_new_h)
   
       # Now, blit the four corners
             

@@ -52,6 +52,13 @@ assert  { ni                        }
 assert  { ni.w == ri.w              }
 assert  { ni.h == ri.w              }
 assert  { ni.depth == screen.depth  }
+gi      = Gari::Image.loadraw('test/test_bg.png')
+assert { gi } 
+go      = gi.optimize(Gari::Image::ALPHA, 0)
+assert { go }
+si      = Gari::Image.loadraw('test/test_sprite_1.png')
+so      = si.optimize(Gari::Image::ALPHA, 0)
+
 
 assert  { ni.clip? == [ 0, 0, ri.w, ri.h ]          }
 assert  { ni.clip!(5, 5, ri.w - 5, ri.h - 5 )       }
@@ -66,6 +73,13 @@ c1      = Gari::Color.new(20 , 40, 255, 255).optimize(ni)
 c2      = Gari::Color.new(255, 50, 20, 255).optimize(ni)
 c3      = Gari::Color.new(20 , 255, 60, 255).optimize(ni)
 c4      = Gari::Color.new(20 , 40, 255, 255).optimize(ni)
+cgray   = Gari::Color.new(80 , 80, 80, 255).optimize(ni)
+cfull   = Gari::Color.new(128, 255, 0, 255)
+chalf   = Gari::Color.new(255, 255, 0, 127)
+ctrans  = Gari::Color.new(255, 128, 0,   0)
+
+p chalf
+p ctrans
 
 d0      = c0.dye(ni)
 d1      = c1.dye(ni)
@@ -88,7 +102,9 @@ assert  { c1 == c4 }
 assert  { (c4 <=> c1) == 0 }
 assert  { (c2 <=> c1) == 1 }
 
-# Test Drawing, checking with dot? 
+# Test Drawing, checking with dot?
+screen.slab(0, 0, screen.w, screen.h, cgray)
+ 
 ni.slab(0, 0, ni.w, ni.h, c2)
 assert  { ni.dot?(0, 0, c2)  }
 ni.box(0, 0, ni.w, ni.h, c1)
@@ -98,9 +114,63 @@ assert  { ni.dot?(ni.w_half, 0, c3)  }
 ni.disk(0, 0, ni.w, c1)
 assert  { ni.dot?(ni.w_half, ni.h_half, c1) }
 
+screen.slab(100, 0, 20, 20, ctrans)
+screen.slab(120, 0, 20, 20, chalf)
+
+screen.blit(150, 0, si)
+screen.blit(200, 0, so)
+
+
 screen.blit(10, 10, ni)
+# screen.blitscale(100, 100, 40, 80, go, 0, 0, go.w, go.h)
+
+old = screen.getdot(300 + si.w, 100 + si.h)
+screen.blitscale(300, 100, si.w , si.h, si,  0 , 0, si.w, si.h)
+# check if scaling without actually scaling preserves the size
+assert { screen.dot?(300 + si.w, 100 + si.h, old) }
+
+old = screen.getdot(300 + so.w, 200 + so.h)
+screen.blitscale(300, 200, so.w , so.h, so,  0 , 0, so.w, so.h)
+# check if scaling without actually scaling preserves the size
+assert { screen.dot?(300 + so.w, 200 + so.h, old) }
+
+screen.blitscale(300, 280, 40, 20, go,  0       , 20, 20, 20)
+screen.blitscale(300, 300, 20, 20, go,  0       , 20, 20, 20)
+
+screen.blitscale(120, 100, 60, 20, go, 20       , 0, 60, 20)
+screen.blitscale(100, 100, 20, 20, go,  0       , 0, 20, 20)
+screen.blitscale(180, 100, 20, 20, go, go.w - 20, 0, 20, 20)
+
+dstmidh = 40
+srcmidh = go.h - (2 * 20)
+
+screen.blitscale(100, 120, 20, dstmidh, go, 0        , 20, 20, srcmidh)
+screen.blitscale(120, 120, 60, dstmidh, go, 20       , 20, 60, srcmidh)
+screen.blitscale(180, 120, 20, dstmidh, go, go.w - 20, 20, 20, srcmidh)
+
+
+screen.blitscale(120, 160, 60, 20, go, 20       , go.h - 20, 60, 20)
+screen.blitscale(100, 160, 20, 20, go,  0       , go.h - 20, 20, 20)
+screen.blitscale(180, 160, 20, 20, go, go.w - 20, go.h - 20, 20, 20)
+
+
+screen.blitscale9(go, 200, 300, 80, 100, 16, 16)
+
 game.update
-sleep 1
+busy = true
+start = Time.now
+while busy 
+  ev = Gari::Event.poll
+  # Close when clicking the close button, or after no events for 5 seconds
+  if ev && ev.kind == Gari::Event::QUIT
+    busy = false
+  elsif ev 
+    start = Time.now
+  end  
+  busy = false if (Time.now - start) > 5
+  game.update
+end  
+# sleep 10
 
 
 
