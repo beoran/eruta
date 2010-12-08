@@ -351,7 +351,7 @@ void gari_image_hoop(GariImage * image, int x, int y, int r, GariColor color) {
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   gari_image_lock(image);
-  gari_draw_dohoop(&draw, x, y, r);
+  gari_draw_dohoop(&draw, x + r, y +r, r);
   gari_image_unlock(image);
 }
 
@@ -360,12 +360,12 @@ void gari_image_blendhoop(GariImage * image, int x, int y, int r, GariColor colo
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
   gari_image_lock(image);
-  gari_draw_dohoop(&draw, x, y, r);
+  gari_draw_dohoop(&draw, x + r, y + r, r);
   gari_image_unlock(image);
 }
 
 
-/* Traces a circle surface with the midpoint of the circle at x, y, and the radius being radius.  Calls gari_draw_dohline. Does not handle bmends well, 
+/* Traces a circle surface with the midpoint of the circle at x, y, and the radius being radius.  Calls gari_draw_dohline. Does not handle blends well, 
 and small circles are deformed. But it is faster. 
 */
 void gari_draw_dodisk_fast(GariDraw * draw, int x, int y, int radius) {  
@@ -437,7 +437,7 @@ void gari_image_disk(GariImage * image, int x, int y, int r, GariColor color) {
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   gari_image_lock(image);
-  gari_draw_dodisk(&draw, x, y, r);
+  gari_draw_dodisk(&draw, x + r, y + r, r);
   gari_image_unlock(image);
 }
 
@@ -446,7 +446,7 @@ void gari_image_blenddisk(GariImage * image, int x, int y, int r, GariColor colo
   GariDraw draw;
   gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
   gari_image_lock(image);
-  gari_draw_dodisk(&draw, x, y, r);
+  gari_draw_dodisk(&draw, x + r, y +r, r);
   gari_image_unlock(image);
 }
 
