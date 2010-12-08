@@ -138,8 +138,8 @@ screen.blitscale(300, 280, 40, 20, go,  0       , 20, 20, 20)
 screen.blitscale(300, 300, 20, 20, go,  0       , 20, 20, 20)
 
 screen.blitscale(120, 100, 60, 20, go, 20       , 0, 60, 20)
-screen.blitscale(100, 100, 20, 20, go,  0       , 0, 20, 20)
-screen.blitscale(180, 100, 20, 20, go, go.w - 20, 0, 20, 20)
+screen.blitpart(100, 100, go,  0       , 0, 20, 20)
+screen.blitpart(180, 100, go, go.w - 20, 0, 20, 20)
 
 dstmidh = 40
 srcmidh = go.h - (2 * 20)
@@ -150,8 +150,8 @@ screen.blitscale(180, 120, 20, dstmidh, go, go.w - 20, 20, 20, srcmidh)
 
 
 screen.blitscale(120, 160, 60, 20, go, 20       , go.h - 20, 60, 20)
-screen.blitscale(100, 160, 20, 20, go,  0       , go.h - 20, 20, 20)
-screen.blitscale(180, 160, 20, 20, go, go.w - 20, go.h - 20, 20, 20)
+screen.blitpart(100, 160, go,  0       , go.h - 20, 20, 20)
+screen.blitpart(180, 160, go, go.w - 20, go.h - 20, 20, 20)
 
 
 screen.blitscale9(go, 200, 300, 80, 100, 16, 16)
