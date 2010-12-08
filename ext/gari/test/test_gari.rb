@@ -154,7 +154,7 @@ screen.blitpart(100, 160, go,  0       , go.h - 20, 20, 20)
 screen.blitpart(180, 160, go, go.w - 20, go.h - 20, 20, 20)
 
 
-screen.blitscale9(go, 200, 300, 80, 100, 16, 16)
+screen.blitscale9(go, 200, 300, 100, 200)
 
 game.update
 busy = true

@@ -29,8 +29,8 @@ module Gari
     # new_w and new_h are the new dimensions the new image should have. 
     # This is useful for GUI backgrounds.
     def blitscale9(src, xx, yy, new_w, new_h, corner_w = nil, corner_h = nil)
-      corner_w  ||= src.h / 4
-      corner_h  ||= corner_w      
+      corner_w  ||= src.h / 16
+      corner_h  ||= corner_w
       mid_src_w= src.w - (corner_w * 2) 
       mid_src_h= src.h - (corner_h * 2)
       mid_dst_w= new_w - (corner_w * 2) 
