@@ -244,8 +244,8 @@ void gari_draw_doslab(GariDraw * draw, int x, int y, int w, int h) {
 // Helps to adjust negatives
 static void adjust_negative(int * u, int * v) {
   if(*u < 0) {
-    (*u) =   - (*u);
-    (*v) = v - (*u);
+    (*u) =    - (*u);
+    (*v) = *v - (*u);
   }
 }   
 
@@ -347,8 +347,9 @@ void gari_draw_dohoop(GariDraw * draw, int x, int y, int radius) {
 
 
 /** Draws a hoop, that is, an empty circle, on the image. */
-void gari_image_hoop(GariImage * image, int x, int y, int r, GariColor color) {
+void gari_image_hoop(GariImage * image, int x, int y, int d, GariColor color) {
   GariDraw draw;
+  int r = d / 2;
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   gari_image_lock(image);
   gari_draw_dohoop(&draw, x + r, y +r, r / 2);
@@ -356,8 +357,9 @@ void gari_image_hoop(GariImage * image, int x, int y, int r, GariColor color) {
 }
 
 /** Blends a hoop, that is, an empty circle, on the image. */
-void gari_image_blendhoop(GariImage * image, int x, int y, int r, GariColor color) {
+void gari_image_blendhoop(GariImage * image, int x, int y, int d, GariColor color) {
   GariDraw draw;
+  int r = d / 2;
   gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
   gari_image_lock(image);
   gari_draw_dohoop(&draw, x + r, y + r, r / 2);
@@ -433,20 +435,23 @@ void gari_draw_dodisk(GariDraw * draw, int x, int y, int radius) {
 
 
 /** Draws a disk, or a filled circle, on the image. */
-void gari_image_disk(GariImage * image, int x, int y, int r, GariColor color) {
+void gari_image_disk(GariImage * image, int x, int y, int d, GariColor color) {
   GariDraw draw;
+  int r = d / 2; 
   gari_draw_init(&draw, image, gari_draw_putpixel, color, GARI_ALPHA_OPAQUE);
   gari_image_lock(image);
-  gari_draw_dodisk(&draw, x + r, y + r, r / 2);
+  gari_draw_dodisk(&draw, x + r, y + r, r);
   gari_image_unlock(image);
 }
 
 /** Blends a disk, or a filled circle, on the image. */
-void gari_image_blenddisk(GariImage * image, int x, int y, int r, GariColor color) {
+void gari_image_blenddisk(GariImage * image, int x, int y, int d, 
+                          GariColor   color) {
   GariDraw draw;
+  int r = d / 2;
   gari_draw_init(&draw, image, gari_draw_blendpixel, color, color.a);
   gari_image_lock(image);
-  gari_draw_dodisk(&draw, x + r, y + r, r / 2);
+  gari_draw_dodisk(&draw, x + r, y + r, r);
   gari_image_unlock(image);
 }
 
