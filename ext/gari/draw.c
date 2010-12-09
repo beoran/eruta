@@ -153,7 +153,7 @@ void gari_draw_dovline(GariDraw * draw, int x1, int y1, int h) {
   int py    = y1;
   int stop  = y1 + h;
   if (h <= 0) { return; }
-  for (py = y1; py < stop ; py++) {
+  for (py = y1; py <= stop ; py++) {
     draw->draw(draw, px, py);
   }
 }
@@ -487,15 +487,15 @@ void gari_image_iscaleblit(GariImage * dst, int dstx, int dsty,
   int xin, yin, xout, yout, stopx, stopy; 
   GariDye pixel;
   if ((xmul < 1) || (ymul < 1 )) { return; } 
-  gari_image_lock(dst);
-  gari_image_lock(src);  
+  //gari_image_lock(dst);
+  //gari_image_lock(src);  
   stopx = dstx + (srcw*xmul) ; stopy = dsty + (srch*ymul) ;   
     
   for (yout  = dsty ; yout < stopy; yout++)  {
     yin = srcy + ((yout - dsty) / ymul);
     for (xout  = dstx ; xout < stopx; xout++)  {
       xin = srcx + (( xout - dstx) / xmul);
-      gari_image_copypixel_nolock(dst, xout, yout, src, xin, yin);
+      gari_image_copypixel(dst, xout, yout, src, xin, yin);
     }
   } 
   
@@ -513,8 +513,8 @@ void gari_image_scaleblit(GariImage * dst, int dstx, int dsty,
   int xin, yin, xout, yout, stopx, stopy, xrest, yrest, xrat, yrat, xmod, ymod; 
   GariDye pixel;
   if ((dsth < 1) || (dstw < 1 )) { return; } 
-  gari_image_lock(dst);
-  gari_image_lock(src);  
+  //gari_image_lock(dst);
+  //gari_image_lock(src);  
   stopx = dstx + dstw        ; stopy = dsty + dsth        ;
   xin   = srcx               ; yin   = srcy               ;
   xrat  = srcw / dstw        ; yrat  = srch / dsth        ;
@@ -522,7 +522,7 @@ void gari_image_scaleblit(GariImage * dst, int dstx, int dsty,
   xmod  = srcw % dstw        ; ymod  = srch % dsth        ;  
   for (yout  = dsty ; yout < stopy; yout++)  {
     for (xout  = dstx ; xout < stopx; xout++)  {
-      gari_image_copypixel_nolock(dst, xout, yout, src, xin, yin);
+      gari_image_copypixel(dst, xout, yout, src, xin, yin);
       xrest += xmod;
       xin   += xrat; 
       if (xrest >= dstw ) {
