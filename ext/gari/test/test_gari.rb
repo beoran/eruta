@@ -1,5 +1,10 @@
+# encoding: utf-8
 require 'test_helper.rb'
 require 'gari'
+
+def test_file(fname)
+  return File.join('test', fname)
+end
 
 
 assert { Gari           } 
@@ -33,7 +38,8 @@ assert { !game.fullscreen           }
 assert { !screen.fullscreen         }
 assert { screen.depth > 0           } 
 
-ri      = Gari::Image.loadraw('test/test_tile.png')
+
+ri      = Gari::Image.loadraw(test_file('test_tile.png'))
 assert  { ri                        } 
 assert  { ri.w == 40                }
 assert  { ri.h == 40                }
@@ -52,11 +58,11 @@ assert  { ni                        }
 assert  { ni.w == ri.w              }
 assert  { ni.h == ri.w              }
 assert  { ni.depth == screen.depth  }
-gi      = Gari::Image.loadraw('test/test_bg.png')
+gi      = Gari::Image.loadraw(test_file('test_bg.png'))
 assert { gi } 
 go      = gi.optimize(:alpha)
 assert { go }
-si      = Gari::Image.loadraw('test/test_sprite_1.png')
+si      = Gari::Image.loadraw(test_file('test_sprite_1.png'))
 so      = si.optimize(:alpha)
 
 
@@ -68,15 +74,18 @@ assert  { ni.clip? == [ 0, 0, ri.w, ri.h ]          }
 
 # Colors must be optimized before use, otherwise they won't fit the 16 bits
 # image if the screen depth is 16 bits.
-c0      = Gari::Color.new(1  ,  1,  1, 255).optimize(ni)
-c1      = Gari::Color.new(20 , 40, 255, 255).optimize(ni)
-c2      = Gari::Color.new(255, 50, 20, 255).optimize(ni)
-c3      = Gari::Color.new(20 , 255, 60, 255).optimize(ni)
-c4      = Gari::Color.new(20 , 40, 255, 255).optimize(ni)
-cgray   = Gari::Color.new(80 , 80, 80, 255).optimize(ni)
-cfull   = Gari::Color.new(128, 255, 0, 255)
-chalf   = Gari::Color.new(255, 255, 0, 127)
-ctrans  = Gari::Color.new(255, 128, 0,   0)
+c0      = Gari::Color.new(1  ,   1,  1, 255).optimize(ni)
+c1      = Gari::Color.new(20 ,  40,  255, 255).optimize(ni)
+c2      = Gari::Color.new(255,  50,  20, 255).optimize(ni)
+c3      = Gari::Color.new(20 , 255,  60, 255).optimize(ni)
+c4      = Gari::Color.new(20 ,  40, 255, 255).optimize(ni)
+cgray   = Gari::Color.new(80 ,  80,  80, 255).optimize(ni)
+cwhite  = Gari::Color.new(255, 255, 255, 255)
+cgrey   = Gari::Color.new(191, 191, 191, 255)
+cgreen  = Gari::Color.new(0  , 128,   0, 255)
+cfull   = Gari::Color.new(128, 255,   0, 255)
+chalf   = Gari::Color.new(255, 255,   0, 127)
+ctrans  = Gari::Color.new(255, 128,   0,   0)
 
 p chalf
 p ctrans
@@ -123,27 +132,49 @@ screen.slab(120, 0, 20, 20, chalf)
 screen.blendslab(140, 0, 20, 20, ctrans)
 screen.blendslab(160, 0, 20, 20, chalf)
 
-
 screen.blit(180, 0, si)
 screen.blit(220, 0, so)
-
 
 screen.blit(10, 10, ni)
 # screen.blitscale(100, 100, 40, 80, go, 0, 0, go.w, go.h)
 
 old = screen.getdot(300 + si.w, 100 + si.h)
 screen.blitscale(300, 100, si.w , si.h, si,  0 , 0, si.w, si.h)
-# check if scaling without actually scaling preserves the size
+# Check if scaling without actually scaling preserves the size
 assert { screen.dot?(300 + si.w, 100 + si.h, old) }
 
 old = screen.getdot(300 + so.w, 200 + so.h)
 screen.blitscale(300, 200, so.w , so.h, so,  0 , 0, so.w, so.h)
-# check if scaling without actually scaling preserves the size
+# Check if scaling without actually scaling preserves the size
 assert { screen.dot?(300 + so.w, 200 + so.h, old) }
 # Try blitscale 9 algorithm
 screen.blitscale9(go, 200, 300, 100, 150, 8, 8)
 
-screen.frame(400, 300, 100, 150, 5, chalf)
+screen.frame(320, 300, 100, 150, 3, cgrey, cgreen)
+screen.roundframe(440, 300, 100, 150, 3, cgrey, cgreen)
+
+font = Gari::Font.new(test_file('test_font_1.ttf'), 14)
+assert { font }
+p font.height, font.ascent, font.descent, font.lineskip, font.mode 
+assert { font.width_of("Hello") > 0 } 
+assert { font.height > 0 }
+assert { font.ascent > 0 }
+assert { font.descent <= 0 }
+assert { font.lineskip > 0 }
+assert { Gari::Font::NORMAL } 
+assert { Gari::Font::BOLD   }
+assert { Gari::Font::ITALIC }
+assert { Gari::Font::UNDERLINE }
+assert { font.style == Gari::Font::NORMAL }
+TEXT = "Hello! 日本語　This is ök!"
+p font.width_of(TEXT);
+
+tri = font.render(TEXT, cwhite, cgreen)
+assert { tri }
+screen.blit(90, 90, tri) 
+
+screen.text(70, 70, "Hello! 日本語　This is ök!", font, cwhite, cgreen);
+
 
 
 game.update
@@ -156,9 +187,10 @@ while busy
     if ev.quit?
       busy = false
     elsif ev.keydown?
-      game.fullscreen = ! game.fullscreen
-      screen.blitscale9(go, 200, 300, 100, 150, 8, 8)
-      game.update  
+      p ev.key, ev.text
+      # game.fullscreen = ! game.fullscreen
+      # screen.blitscale9(go, 200, 300, 100, 150, 8, 8)
+      # game.update  
     else ev 
       start = Time.now
     end

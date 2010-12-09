@@ -523,11 +523,19 @@ struct GariFont_;
 /** Opaque struct for font handling. */
 typedef struct GariFont_ GariFont;
 
-/** Ways to render the font. Default is GariFontSolid */
+/** Ways to render the font.  Default is GariFontSolid */
 enum GariFontMode_ {
   GariFontSolid,
   GariFontShaded,
   GariFontBlended,
+};
+
+/** Font styles and effects like, bold, italic, underline. */
+enum GariFontStyle_ {
+  GariFontNormal    = 0,
+  GariFontItalic    = 1,
+  GariFontBold      = 2, 
+  GariFontUnderline = 4,
 };
 
 /** Loads one of the fonts in a font file. */
@@ -544,6 +552,10 @@ int gari_font_mode(GariFont * font);
 /** Frees the memory allocated by the font. */
 void gari_font_free(GariFont *font); 
 
+/** Renders the font to a surface, depending on the font's settings. */
+GariImage * gari_font_render(GariFont * font, char * utf8, 
+    GariColor fgrgba, GariColor bgrgba);
+
 /** Draws font with given colors. */
 void gari_font_drawcolor(GariImage * image, int x, int y, char * utf8, 
                          GariFont  * font , GariColor fg, GariColor bg); 
@@ -559,6 +571,33 @@ void gari_font_printf(GariImage * image, int x, int y, GariFont * font, GariColo
 /** Returns a text with details about the last error in loading or 
 handling a font. */
 char * gari_font_error();
+
+/** Returns the width that the given UTF-8 encoded text would be if it was rendered using gari_fonr_render. */
+int gari_font_renderwidth(GariFont * font, char * utf8); 
+
+/** Returns the font's max height */
+int gari_font_height(GariFont * font); 
+
+/** Returns the font's font max ascent (y above origin)*/
+int gari_font_ascent(GariFont * font); 
+
+/** Returns the font's min descent (y below origin)*/
+int gari_font_descent(GariFont * font);
+
+/** Returns the font's recommended line spacing. */
+int gari_font_lineskip(GariFont * font);
+
+int gari_fontstyle_tottf(int style);
+
+int gari_fontstyle_fromttf(int style); 
+
+/** Returns the style of the font.  */
+int gari_font_style(GariFont * font);
+
+/** Sets the style of the font. Note that the style may be "faked" 
+by the underlaying implementation. Use a suitably pre-modified font for 
+better effects. */
+void gari_font_style_(GariFont * font, int style); 
 
 /** Music and sound. */
 

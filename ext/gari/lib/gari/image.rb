@@ -67,14 +67,49 @@ module Gari
     end
     
     
-    # draws a frame of the given thickness on the screen.
+    # draws a filled frame of the given thickness on the screen.
     # The outer size of the frame will be ww and hh.
-    def frame(xx, yy, ww, hh, tt, col)
-      (0...tt).each do | ii|
-        self.box(xx + ii, yy + ii, ww - ii, hh - ii, col) 
-      end 
+    # border color is fg, background color is bg. bg is not drawn 
+    # if omitted or nil.
+    def frame(xx, yy, ww, hh, tt, fg, bg=nil)  
+      # top ...
+      self.slab(xx, yy, ww, tt, fg)
+      # bottom ...   
+      self.slab(xx, yy + hh - tt, ww, tt, fg)
+      # left 
+      self.slab(xx, yy, tt, hh, fg)
+      # right
+      self.slab(xx + ww - tt, yy, tt, hh, fg)
+
+      if bg 
+        self.slab(xx + tt, yy + tt, ww - (tt*2), hh - (tt*2), bg)
+      end  
     end
     
+    # Draws a rounded frame 
+    def roundframe(xx, yy, ww, hh, tt, fg, bg=nil)
+      # top ...
+      self.slab(xx + tt, yy, ww - tt * 2, tt, fg)
+      # bottom ...   
+      self.slab(xx + tt, yy + hh - tt, ww - tt * 2, tt, fg)
+      # left 
+      self.slab(xx , yy + tt, tt, hh - tt * 2, fg)
+      # right
+      self.slab(xx + ww - tt, yy + tt, tt, hh - tt * 2, fg)
+      
+      # tl corner
+      self.disk(xx , yy, tt * 2, fg)
+      # tr corner
+      self.disk(xx + ww - tt * 2, yy, tt * 2, fg)
+      # bl corner
+      self.disk(xx , yy + hh - tt * 2, tt * 2, fg)
+      # br corner
+      self.disk(xx + ww - tt * 2, yy + hh - tt * 2, tt * 2, fg)
+      
+      if bg 
+        self.slab(xx + tt, yy + tt, ww - (tt*2), hh - (tt*2), bg)
+      end  
+    end
     
     MODE_LOOKUP = { :alpha    => Gari::Image::ALPHA    , 
                     :colorkey => Gari::Image::COLORKEY ,

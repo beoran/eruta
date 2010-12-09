@@ -98,18 +98,20 @@ GariImage * gari_font_render(GariFont * font, char * utf8,
     case GariFontShaded:
       return gari_image_wrap(TTF_RenderUTF8_Shaded(ttf, utf8, fg, bg));
     case GariFontBlended:
+    default:
       return gari_image_wrap(TTF_RenderUTF8_Blended(ttf, utf8, fg));    
   }  
   return NULL;
 
 } 
 
-void gari_font_drawcolor(GariImage * image, int x, int y, char * utf8, GariFont * font, GariColor fg, GariColor bg) {  
+void gari_font_drawcolor(GariImage * image, int x, int y, 
+  char * utf8, GariFont * font, GariColor fg, GariColor bg) {  
   GariImage * rendered;
   rendered = gari_font_render(font, utf8, fg, bg);
   gari_image_blit(image, x, y, rendered);
   gari_image_free(rendered);  
-}  
+}
 
 void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_g, uint8_t bg_b) {
   GariColor fg = { fg_r, fg_g, fg_b, 0};
@@ -130,10 +132,66 @@ void gari_font_printf(GariImage * image, int x, int y, GariFont * font, GariColo
 }  
 
 
+/** Returns the width that the given UTF-8 encoded text would be if it was rendered using gari_fonr_render. */
+int gari_font_renderwidth(GariFont * font, char * utf8) {
+  int w; 
+  TTF_Font * ttf = GARI_FONT_TTF(font);
+  TTF_SizeUTF8(ttf, (const char *) utf8, &w, NULL);
+  return w; 
+}
 
+/** Returns the font's max height */
+int gari_font_height(GariFont * font) {
+  TTF_Font * ttf = GARI_FONT_TTF(font);
+  return TTF_FontHeight(ttf); 
+}
 
+/** Returns the font's font max ascent (y above origin)*/
+int gari_font_ascent(GariFont * font) {
+  TTF_Font * ttf = GARI_FONT_TTF(font);
+  return TTF_FontAscent(ttf); 
+}
 
+/** Returns the font's min descent (y below origin)*/
+int gari_font_descent(GariFont * font) {
+  TTF_Font * ttf = GARI_FONT_TTF(font);
+  return TTF_FontDescent(ttf); 
+}
 
+/** Returns the font's recommended line spacing. */
+int gari_font_lineskip(GariFont * font) {
+  TTF_Font * ttf = GARI_FONT_TTF(font);
+  return TTF_FontLineSkip(ttf); 
+}
+
+int gari_fontstyle_tottf(int style) {
+  int result = TTF_STYLE_NORMAL;
+  if (style & GariFontItalic    ) result |= TTF_STYLE_ITALIC;
+  if (style & GariFontBold      ) result |= TTF_STYLE_BOLD;
+  if (style & GariFontUnderline ) result |= TTF_STYLE_UNDERLINE;
+  return result;  
+} 
+
+int gari_fontstyle_fromttf(int style) {
+  int result = GariFontNormal;
+  if (style & TTF_STYLE_ITALIC    ) result |= GariFontItalic;
+  if (style & TTF_STYLE_BOLD      ) result |= GariFontBold;
+  if (style & TTF_STYLE_UNDERLINE ) result |= GariFontUnderline;
+  return result;
+} 
+
+/** Returns the style of the font.  */
+int gari_font_style(GariFont * font) {
+  TTF_Font * ttf = GARI_FONT_TTF(font);
+  return gari_fontstyle_fromttf(TTF_GetFontStyle(ttf));
+}  
+
+/** Sets the style of the font. Note that the style may be "faked" 
+by the underlaying implementation. Use a different font for better effects. */
+void gari_font_style_(GariFont * font, int style) {
+  TTF_Font * ttf = GARI_FONT_TTF(font);
+  TTF_SetFontStyle(ttf, gari_fontstyle_tottf(style));
+}  
 
 
 

@@ -523,7 +523,7 @@ VALUE rbgari_event_axis(VALUE self) {
 
   
 #define GARI_FONT_WRAP(F)   RBH_WRAP(Font, F, gari_font_free)
-#define GARI_FONT_UNWRAP(F) RBH_UNWRAP(Font, F)  
+#define GARI_FONT_UNWRAP(F) RBH_UNWRAP(Font, F)
 
 VALUE rbgari_font_new(VALUE self, VALUE name, VALUE size) {
   char * nam = RBH_STRING(name);
@@ -557,6 +557,34 @@ VALUE rbgari_font_draw(VALUE vimg, VALUE vx, VALUE vy, VALUE vutf8,
   gari_font_drawcolor(image, x, y, utf8, font, *fg, *bg);
   return vimg;
 } 
+
+VALUE rbgari_font_render(VALUE vfont, VALUE vutf8, VALUE vfg, VALUE vbg) {
+  GariImage * image = NULL;
+  char * utf8       = RBH_CSTR(vutf8);
+  GariFont  * font  = GARI_FONT_UNWRAP(vfont); 
+  GariColor * fg    = GARI_COLOR_UNWRAP(vfg);
+  GariColor * bg    = GARI_COLOR_UNWRAP(vbg);
+  image             = gari_font_render(font, utf8, *fg, *bg);
+  return GARI_IMAGE_WRAP(image);
+} 
+
+VALUE rbgari_font_renderwidth(VALUE self, VALUE vutf8) {
+  GariFont * font = GARI_FONT_UNWRAP(self);
+  char * utf8     = RBH_CSTR(vutf8);
+  return RBH_INT_NUM(gari_font_renderwidth(font, utf8));
+} 
+
+/* Getters for the font's various dimensions and style */  
+RBH_GETTER_DEFINE(gari_font_height  , Font, GariFont, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_font_ascent  , Font, GariFont, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_font_descent , Font, GariFont, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_font_lineskip, Font, GariFont, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_font_style   , Font, GariFont, RBH_INT_NUM);
+
+VALUE rbgari_font_style_(VALUE self, VALUE vstyle) { 
+  gari_font_style_(GARI_FONT_UNWRAP(self), RBH_INT(vstyle));
+  return self; 
+}  
 
 /** Music and sound. */
 VALUE rbgari_game_openaudio(VALUE vgame, VALUE vfreq) {
@@ -1001,13 +1029,28 @@ void Init_gari() {
   
   RBH_SINGLETON_METHOD(Font , new   , rbgari_font_new   , 2);
   RBH_SINGLETON_METHOD(Font , error , rbgari_font_error , 0);
-  RBH_SINGLETON_METHOD(Font , mode  , rbgari_font_mode  , 0);
-  RBH_SINGLETON_METHOD(Font , mode= , rbgari_font_mode_ , 1);
-  RBH_SINGLETON_METHOD(Image, text  , rbgari_font_draw  , 6);
+  RBH_METHOD(Font , mode    , rbgari_font_mode  , 0);
+  RBH_METHOD(Font , mode=   , rbgari_font_mode_ , 1);
+  RBH_METHOD(Image, text    , rbgari_font_draw  , 6);
   
-  RBH_CLASS_NUM_CONST(Font  , BLENDED , GariFontBlended); 
-  RBH_CLASS_NUM_CONST(Font  , SHADED  , GariFontSolid);
-  RBH_CLASS_NUM_CONST(Font  , SOLID   , GariFontShaded);
+  RBH_METHOD(Font , render  , rbgari_font_render, 3);
+  RBH_METHOD(Font , width_of, rbgari_font_renderwidth, 1);
+  
+  RBH_GETTER(Font, height   , gari_font_height);
+  RBH_GETTER(Font, ascent   , gari_font_ascent);
+  RBH_GETTER(Font, descent  , gari_font_descent);
+  RBH_GETTER(Font, lineskip , gari_font_lineskip);
+  RBH_GETTER(Font, style    , gari_font_style);
+  
+  RBH_METHOD(Font, style=   , rbgari_font_style_, 1); 
+  
+  RBH_CLASS_NUM_CONST(Font  , BLENDED   , GariFontBlended); 
+  RBH_CLASS_NUM_CONST(Font  , SHADED    , GariFontSolid);
+  RBH_CLASS_NUM_CONST(Font  , SOLID     , GariFontShaded);
+  RBH_CLASS_NUM_CONST(Font  , NORMAL    , GariFontNormal);
+  RBH_CLASS_NUM_CONST(Font  , ITALIC    , GariFontItalic);
+  RBH_CLASS_NUM_CONST(Font  , BOLD      , GariFontBold);
+  RBH_CLASS_NUM_CONST(Font  , UNDERLINE , GariFontUnderline);
   
   RBH_METHOD(Game           , openaudio , rbgari_game_openaudio , 1);
   RBH_SINGLETON_METHOD(Sound, new       , rbgari_sound_new      , 1);
@@ -1054,139 +1097,4 @@ void Init_gari() {
 void Init_libgari() {
   Init_gari();
 }
-
-
-/*
-  GariFlow * flow;
-  GariFont * font; 
-  GariGame * game;
-  GariRuby * ruby;
-  GariScreen * screen;
-  GariImage * sim;
-  GariImage * tim, * mim, * oim, * bim;
-  GariEvent ev;
-  int i, j, rep, done;
-  GariDye pixel;
-  GariColor c1, c2, c3, c4, cg, white, green, black, yellow, red;
-  
-  ruby 	  = gari_ruby_new();
-  TEST_NOTNULL(ruby);
-  
-  white   = gari_color(255,255, 255);
-  green   = gari_color(0  ,255, 0);
-  black   = gari_color(0  ,0  , 0);
-  yellow  = gari_color(255,255, 0);  
-  red     = gari_color(255, 0, 0);
-  
-  game    = gari_game_make();
-  TEST_NOTNULL(game);
-  screen  = gari_screen_make(game, 640, 480, 0);
-  TEST_NOTNULL(screen);
-  gari_audio_init(game);
-  
-  
-  flow    = gari_flow_make(1000);
-  TEST_NOTNULL(flow);
-  sim     = gari_screen_image(screen);
-  c1      = gari_color(255  , 255, 0        );
-  c2      = gari_color(0    ,   0, 255      );
-  c3      = gari_color(0    , 255, 0        );
-  c4      = gari_colora(0   ,   0, 0  , 0   );
-  cg      = gari_colora(127 , 127, 127, 127 );
-  gari_image_slab(sim, 0, 0, 640, 480, yellow);
-  font    = gari_font_load("../../share/font/liberationserif.ttf", 14);
-  TEST_NOTNULL(font);
-  gari_font_mode(font, GariFontBlended);
-  
-  tim     = gari_image_loadraw("../../share/image/tile_aqua.png");  
-  TEST_NOTNULL(tim);
-  
-  bim     = gari_image_loadraw("../../share/image/ui/background/blue.png");
-  TEST_NOTNULL(bim);
-  
-  
-  mim     = gari_image_makedepth(24, 48, 16, GariImageAlpha);
-  TEST_NOTNULL(mim); 
-  gari_image_box(mim,  0,  0, 24, 48, c4);
-  gari_image_box(mim, 10, 10, 10, 10, c2);
-  oim     = gari_image_optimize(mim, GariImageAlpha, 0);
-
-  gari_game_resetframes(game);
-  done = FALSE;
-  while (!done) { 
-    while (gari_event_fetch(&ev)) {
-      fprintf(stderr, "Got event: kind: %d .\n", ev.kind);
-      done = (ev.kind == GARI_EVENT_QUIT);
-      if(done) break;
-    }
- 
-    gari_image_slab(sim, 0, 0, 640, 480, c1);    
-    gari_image_line(sim, 0, 0, 640, 480, c2);
-    gari_image_dot(sim, 21, 181, c2);
-    gari_image_slab(sim, -140, -140, 200, 200, green);
-
-    gari_image_box(sim, 40, 70, 200, 100, c3);
-    gari_image_box(sim, 300, 300, -100, -200, c3);
-    gari_image_blit(sim, 300, 300, tim);
-    gari_image_blit(sim, 350, 350, mim);
-    gari_image_blit(sim, 380, 380, oim);
-    gari_image_scaleblit(sim, 400, 100, 100, 100, bim, 
-                              0, 0, 32, 32);
-                              // gari_image_w(bim) , gari_image_h(bim));
-    gari_image_disk(sim, 400, 400, 50, white);
-    gari_image_hoop(sim, 400, 400, 50, black);
-    gari_image_flood(sim, 250, 250, red);
-    
-    gari_image_blendslab(sim, 1, 1, 200, 200, cg, 255);
-    gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
-    gari_font_printf(sim, 20, 20, font, white, black,  
-                     "FPS: %ld", (int)gari_game_fps(game));
-    gari_flow_activate(flow, 10, GariFlowSnow, 0, 0, white, NULL, NULL);
-    gari_flow_update(flow, 1);
-    gari_flow_draw(flow, sim);
-    gari_game_nextframe(game);
-    
-    gari_game_update(game);
-    
-    
-    
-  }
-  
-  gari_game_update(game);
-  fprintf(stderr, "Putpixel FPS: %lf\n", gari_game_fps(game));
-  gari_game_report(game);
-  
-  gari_image_line(sim, 0, 0, 640, 480, c2);
-  gari_game_update(game);
-  
-  gari_image_dot(sim, 21, 181, c2);
-  gari_game_update(game);
-  
-  gari_flow_free(flow);
-  gari_image_free(bim);
-  gari_image_free(tim);
-  gari_font_free(font);
-  
-  gari_audio_done(game);    
-  gari_game_free(game);
-  gari_ruby_free(ruby);
-*/
-
-
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
 

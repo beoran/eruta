@@ -46,6 +46,11 @@ module Gari
       return KIND_TO_TYPE[self.kind]
     end
     
+    # returns the key press unicode value as a text
+    def text
+      [self.unicode].pack("U*").force_encoding("utf-8")
+    end
+    
     # This "macro" below ensures that instances of the Event class get 
     # metods like quit?, active?, keyup?, keydown?, etc, etc, based 
     # on the table above 
