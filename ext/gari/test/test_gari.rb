@@ -189,22 +189,51 @@ font.mode = Gari::Font::SHADED
 assert { font }
 p font.height, font.ascent, font.descent, font.lineskip, font.mode, font.faces 
 assert { font.width_of(TEXT) > 0 } 
-assert { font.height > 0 }
-assert { font.ascent > 0 }
-assert { font.descent <= 0 }
-assert { font.lineskip > 0 }
+assert { font.height > 0    }
+assert { font.ascent > 0    }
+assert { font.descent <= 0  }
+assert { font.lineskip > 0  }
 assert { font.style == Gari::Font::NORMAL }
 assert { font.mode  == Gari::Font::SHADED }
 p font.width_of(TEXT);
 screen.text(70, 90, TEXT, font, cwhite, cgreen);
 
 font.mode = Gari::Font::BLENDED
-tim = font.render(TEXT, cwhite, cgreen).optimize(:alpha);
+tim       = font.render(TEXT, cwhite, cgreen) # .optimize(:alpha)
 screen.blit(70, 110, tim)
 
+FREQ   = 22050
+audio  = game.openaudio(FREQ)
+assert { audio                    } 
+assert { audio.frequency == FREQ  }
+assert { audio.channels  == 2     }
+assert { audio.format > 0         }
+
+assert { Gari::Joystick.amount > -1 } 
+(0...(Gari::Joystick.amount)).each do |j|
+  assert { Gari::Joystick.name(j) }
+  js = game.joystick(j)
+  assert { js             }
+  assert { js.name        }
+  assert { js.axes  > 0   }
+  assert { js.buttons > 0 }
+  assert { js.balls > -1  } 
+  assert { js.index == j  }
+end
+
+
+#   RBH_SINGLETON_METHOD(Joystick , amount    , rbgari_joy_amount         , 0);
+#   RBH_SINGLETON_METHOD(Joystick , name      , rbgari_joy_nameindex      , 1);
+#   RBH_SINGLETON_METHOD(Joystick , new       , rbgari_joy_new            , 1);
+#   RBH_METHOD(Joystick           , name      , rbgari_joy_name           , 0);
+#   RBH_METHOD(Joystick           , axes      , rbgari_joy_axes           , 0);
+#   RBH_METHOD(Joystick           , buttons   , rbgari_joy_buttons        , 0);
+#   RBH_METHOD(Joystick           , balls     , rbgari_joy_balls          , 0);
+#   RBH_METHOD(Joystick           , index     , rbgari_joy_index          , 0);
+ 
 
 game.update
-busy = true
+busy  = true
 start = Time.now
 while busy 
   ev = Gari::Event.poll

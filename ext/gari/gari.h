@@ -605,8 +605,32 @@ void gari_font_style_(GariFont * font, int style);
 #define GARI_AUDIO_MEDIUMFREQENCY 22050
 #define GARI_AUDIO_HIGHFREQENCY 44100
 
-/** Initializes the audio subsystem for a game. */
+struct GariAudioInfo_;
+typedef struct GariAudioInfo_ GariAudioInfo;
+
+/** Allocates a new audioinfo. */
+GariAudioInfo * gari_audioinfo_new(int freq, int form, int chan); 
+
+/** Frees an allocated audioinfo. */
+GariAudioInfo * gari_audioinfo_free(GariAudioInfo * info); 
+
+/** Gets the frequency of an audio info  */
+int gari_audioinfo_frequency(GariAudioInfo * info);
+
+/** Gets the amount of channels of an audio info  */
+int gari_audioinfo_channels(GariAudioInfo * info); 
+
+/** Gets the format of an audio info  */
+int gari_audioinfo_format(GariAudioInfo * info); 
+
+/** Queries the current state of the audio system. 
+Returns NULL if it was not initialized yet. */
+GariAudioInfo * gari_audio_query();
+
+/** Initializes the audio subsystem for a game. 
+Free it with gari_audioinfo_free */
 GariGame * gari_audio_init(GariGame * game, int frequency);
+
 /** Cleans up the audio subsystem for a game. */
 void gari_audio_done(GariGame * game);
 

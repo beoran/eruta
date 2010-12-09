@@ -22,6 +22,7 @@
 #include "rubyhelp.h"
 
 RBH_MODULE_DEFINE(Gari);
+RBH_CLASS_DEFINE(Audio, GariAudioInfo);
 RBH_CLASS_DEFINE(Camera, GariCamera);
 RBH_CLASS_DEFINE(Color, GariColor);
 RBH_CLASS_DEFINE(Dye, GariDye);
@@ -604,10 +605,32 @@ VALUE rbgari_font_style_(VALUE self, VALUE vstyle) {
 }  
 
 /** Music and sound. */
+#define GARI_AUDIO_WRAP(AUD) RBH_WRAP(Audio, AUD, gari_audioinfo_free)
+#define GARI_AUDIO_UNWRAP(AUD) RBH_UNWRAP(Audio, AUD)
+
+/** Queries the current state of the audio system. 
+Returns NULL if it was not initialized yet. */
+VALUE rbgari_audio_query(VALUE self) {
+  GariAudioInfo * info  = gari_audio_query();
+  return GARI_AUDIO_WRAP(info);
+}
+
+RBH_GETTER_DEFINE(gari_audioinfo_frequency, Audio, GariAudioInfo, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_audioinfo_channels , Audio, GariAudioInfo, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_audioinfo_format   , Audio, GariAudioInfo, RBH_INT_NUM);
+
+
+/** Initializes the audio subsystem for a game. 
+Free it with gari_audioinfo_free */
+GariGame * gari_audio_init(GariGame * game, int frequency);
+
+/** Cleans up the audio subsystem for a game. */
+void gari_audio_done(GariGame * game);
+
 VALUE rbgari_game_openaudio(VALUE vgame, VALUE vfreq) {
   GariGame * res = gari_audio_init(GARI_GAME_UNWRAP(vgame), RBH_INT(vfreq));
   if(!res) return Qnil;
-  return vgame;
+  return rbgari_audio_query(vgame);
 }
   
 #define GARI_SOUND_WRAP(SND) RBH_WRAP(Sound, SND, gari_sound_free)
@@ -920,6 +943,7 @@ RBH_GETTER_DEFINE(gari_layer_high, Layer, GariLayer, RBH_INT_NUM);
 void Init_gari() {
   RBH_MODULE(Gari);
   RBH_MODULE_CLASS(Gari, Game);
+  RBH_MODULE_CLASS(Gari, Audio);
   RBH_MODULE_CLASS(Gari, Sound);
   RBH_MODULE_CLASS(Gari, Music);  
   RBH_MODULE_CLASS(Gari, Color);
@@ -1072,6 +1096,12 @@ void Init_gari() {
   RBH_CLASS_NUM_CONST(Font  , UNDERLINE , GariFontUnderline);
   
   RBH_METHOD(Game           , openaudio , rbgari_game_openaudio , 1);
+  RBH_SINGLETON_METHOD(Audio, open      , rbgari_game_openaudio , 1);
+  
+  RBH_GETTER(Audio, frequency          , gari_audioinfo_frequency);
+  RBH_GETTER(Audio, channels           , gari_audioinfo_channels);
+  RBH_GETTER(Audio, format             , gari_audioinfo_format);
+  
   RBH_SINGLETON_METHOD(Sound, new       , rbgari_sound_new      , 1);
   RBH_METHOD(Sound          , play      , rbgari_sound_play     , 0);
   RBH_SINGLETON_METHOD(Music, new       , rbgari_music_new      , 1);

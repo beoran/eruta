@@ -13,6 +13,49 @@
 #define GARI_AUDIO_MONO   1
 #define GARI_AUDIO_STEREO 2
 
+struct GariAudioInfo_ {
+  int frequency;
+  int channels; 
+  int format;
+};  
+
+
+GariAudioInfo * gari_audioinfo_new(int freq, int form, int chan) {
+  GariAudioInfo * info = GARI_ALLOCATE(GariAudioInfo);
+  if(!info) return NULL;
+  info->frequency = freq;
+  info->channels  = chan;
+  info->format    = form;
+  return info;  
+} 
+
+GariAudioInfo * gari_audioinfo_free(GariAudioInfo * info) {
+  GARI_FREE(info);
+}
+
+int gari_audioinfo_frequency(GariAudioInfo * info) {
+  if(!info) return -1;
+  return info->frequency;
+}
+
+int gari_audioinfo_channels(GariAudioInfo * info) {
+  if(!info) return -1;
+  return info->channels;
+}
+
+int gari_audioinfo_format(GariAudioInfo * info) {
+  if(!info) return -1;
+  return info->format;
+}
+
+
+GariAudioInfo * gari_audio_query() {
+  int frequency; Uint16 format; int channels; int res;  
+  res = Mix_QuerySpec(&frequency, &format, &channels);
+  if(res < 0) { return NULL ; } 
+  return gari_audioinfo_new(frequency, format, channels);
+}  
+
 
 
 /** Initializes the audio subsystem for a game. */

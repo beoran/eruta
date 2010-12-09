@@ -102,9 +102,9 @@ module Gari
       # tr corner
       self.disk(xx + ww - tt * 2, yy, tt * 2, fg)
       # bl corner
-      self.disk(xx , yy + hh - tt * 2, tt * 2, fg)
+      self.disk(xx , yy + hh - tt * 2 - 1, tt * 2, fg)
       # br corner
-      self.disk(xx + ww - tt * 2, yy + hh - tt * 2, tt * 2, fg)
+      self.disk(xx + ww - tt * 2, yy + hh - tt * 2 - 1, tt * 2, fg)
       
       if bg 
         self.slab(xx + tt, yy + tt, ww - (tt*2), hh - (tt*2), bg)
