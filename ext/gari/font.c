@@ -77,12 +77,12 @@ void gari_font_free(GariFont * font) {
   GARI_FREE(font);
 }
 
-// transforms a gari RGBA into an SDL_Color 
+// transforms a gari Color (rgba) into an SDL_Color 
 SDL_Color gari_rgba_sdl(GariColor rgba) {
   SDL_Color result;
-  result.b = rgba.b;
-  result.g = rgba.g;
   result.r = rgba.r;
+  result.g = rgba.g;
+  result.b = rgba.b;
   return result;
 }
 
@@ -105,12 +105,25 @@ GariImage * gari_font_render(GariFont * font, char * utf8,
 
 } 
 
+GariImage * gari_image_convert(GariImage * srci, 
+                               GariImage * dsti, Uint32 flags) {
+  SDL_Surface * src = gari_image_surface(srci);
+  SDL_Surface * dst = gari_image_surface(dsti);
+  if((!src) || (!dst)) return NULL;
+  return gari_image_wrap(SDL_ConvertSurface(src, dst->format, flags));
+}
+
 void gari_font_drawcolor(GariImage * image, int x, int y, 
   char * utf8, GariFont * font, GariColor fg, GariColor bg) {  
-  GariImage * rendered;
-  rendered = gari_font_render(font, utf8, fg, bg);
-  gari_image_blit(image, x, y, rendered);
-  gari_image_free(rendered);  
+  GariImage * rendered, * converted;
+  rendered  = gari_font_render(font, utf8, fg, bg);
+  // converted = gari_image_convert(rendered, image, SDL_SRCALPHA);
+  // gari_image_blit(image, x, y, converted); 
+  if (rendered) {
+    gari_image_blit(image, x, y, rendered);
+    gari_image_free(rendered);
+  }  
+  // gari_image_free(converted);
 }
 
 void gari_font_draw(GariImage * image, int x, int y, char * utf8, GariFont * font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_g, uint8_t bg_b) {
@@ -193,7 +206,11 @@ void gari_font_style_(GariFont * font, int style) {
   TTF_SetFontStyle(ttf, gari_fontstyle_tottf(style));
 }  
 
-
+/** Returns the amount of font faces in a font. */
+int gari_font_faces(GariFont * font) {
+  TTF_Font * ttf = GARI_FONT_TTF(font);
+  return TTF_FontFaces(ttf);
+}
 
 
 

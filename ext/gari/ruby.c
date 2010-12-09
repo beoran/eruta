@@ -50,10 +50,18 @@ static VALUE GariLayerClass, GariCameraClass, GariTilesetClass, GariTileClass;
 
 // Data_Wrap_Struct(klass, mark, free, ptr)
 
+
 /* 
 All ruby wrappers for gari functions simply get an rb prefix, so it becomes 
 rbgari 
 */
+
+
+// converts a ruby string to utf-8
+VALUE rb_str_to_utf8(VALUE text) { 
+  return rb_str_export_to_enc(text, rb_utf8_encoding());
+}
+
 
 #define GARI_GAME_WRAP(GAME)   RBH_WRAP(Game, GAME, gari_game_free)
 #define GARI_GAME_UNWRAP(GAME) RBH_UNWRAP(Game, GAME)
@@ -525,12 +533,20 @@ VALUE rbgari_event_axis(VALUE self) {
 #define GARI_FONT_WRAP(F)   RBH_WRAP(Font, F, gari_font_free)
 #define GARI_FONT_UNWRAP(F) RBH_UNWRAP(Font, F)
 
-VALUE rbgari_font_new(VALUE self, VALUE name, VALUE size) {
-  char * nam = RBH_STRING(name);
-  int sz = RBH_INT(size);
+VALUE rbgari_font_new(VALUE self, VALUE name, VALUE size, VALUE index) {
+  char * nam      = RBH_STRING(name);
+  int sz          = RBH_INT(size);
   GariFont * font = gari_font_load(nam, sz);
   return GARI_FONT_WRAP(font);
 }
+
+VALUE rbgari_font_newindex(VALUE self, VALUE name, VALUE size, VALUE index) {
+  char * nam      = RBH_STRING(name);
+  int sz          = RBH_INT(size);
+  GariFont * font = gari_font_loadindex(nam, sz, RBH_INT(index));  
+  return GARI_FONT_WRAP(font);
+}
+
 
 VALUE rbgari_font_error(VALUE self) {
   return RBH_STR_ASCII2(gari_font_error());
@@ -549,8 +565,8 @@ VALUE rbgari_font_draw(VALUE vimg, VALUE vx, VALUE vy, VALUE vutf8,
                        VALUE vfont, VALUE vfg, VALUE vbg) { 
   GariImage * image = GARI_IMAGE_UNWRAP(vimg);
   int x             = RBH_INT(vx);
-  int y             = RBH_INT(vy);  
-  char * utf8       = RBH_CSTR(vutf8);
+  int y             = RBH_INT(vy);    
+  char * utf8       = RSTRING_PTR(rb_str_to_utf8(vutf8));
   GariFont  * font  = GARI_FONT_UNWRAP(vfont); 
   GariColor * fg    = GARI_COLOR_UNWRAP(vfg);
   GariColor * bg    = GARI_COLOR_UNWRAP(vbg);
@@ -560,7 +576,7 @@ VALUE rbgari_font_draw(VALUE vimg, VALUE vx, VALUE vy, VALUE vutf8,
 
 VALUE rbgari_font_render(VALUE vfont, VALUE vutf8, VALUE vfg, VALUE vbg) {
   GariImage * image = NULL;
-  char * utf8       = RBH_CSTR(vutf8);
+  char * utf8       = RSTRING_PTR(rb_str_to_utf8(vutf8));
   GariFont  * font  = GARI_FONT_UNWRAP(vfont); 
   GariColor * fg    = GARI_COLOR_UNWRAP(vfg);
   GariColor * bg    = GARI_COLOR_UNWRAP(vbg);
@@ -580,6 +596,7 @@ RBH_GETTER_DEFINE(gari_font_ascent  , Font, GariFont, RBH_INT_NUM);
 RBH_GETTER_DEFINE(gari_font_descent , Font, GariFont, RBH_INT_NUM);
 RBH_GETTER_DEFINE(gari_font_lineskip, Font, GariFont, RBH_INT_NUM);
 RBH_GETTER_DEFINE(gari_font_style   , Font, GariFont, RBH_INT_NUM);
+RBH_GETTER_DEFINE(gari_font_faces   , Font, GariFont, RBH_INT_NUM);
 
 VALUE rbgari_font_style_(VALUE self, VALUE vstyle) { 
   gari_font_style_(GARI_FONT_UNWRAP(self), RBH_INT(vstyle));
@@ -1027,7 +1044,8 @@ void Init_gari() {
   RBH_CLASS_NUM_CONST(Font, ALPHA_SOLID, GARI_ALPHA_SOLID);
   RBH_CLASS_NUM_CONST(Font, ALPHA_CLEAR, GARI_ALPHA_CLEAR);
   
-  RBH_SINGLETON_METHOD(Font , new   , rbgari_font_new   , 2);
+  RBH_SINGLETON_METHOD(Font , new     , rbgari_font_new      , 2);
+  RBH_SINGLETON_METHOD(Font , newindex, rbgari_font_newindex , 3);
   RBH_SINGLETON_METHOD(Font , error , rbgari_font_error , 0);
   RBH_METHOD(Font , mode    , rbgari_font_mode  , 0);
   RBH_METHOD(Font , mode=   , rbgari_font_mode_ , 1);
@@ -1041,6 +1059,7 @@ void Init_gari() {
   RBH_GETTER(Font, descent  , gari_font_descent);
   RBH_GETTER(Font, lineskip , gari_font_lineskip);
   RBH_GETTER(Font, style    , gari_font_style);
+  RBH_GETTER(Font, faces    , gari_font_faces);
   
   RBH_METHOD(Font, style=   , rbgari_font_style_, 1); 
   

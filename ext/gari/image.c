@@ -267,3 +267,11 @@ int gari_image_depth(GariImage * img) {
 }
 
 
+GariImage * gari_image2image_convert(GariImage * srci, 
+                               GariImage * dsti, Uint32 flags) {
+  SDL_Surface * src = gari_image_surface(srci);
+  SDL_Surface * dst = gari_image_surface(dsti);
+  if((!src) || (!dst)) return NULL;
+  return gari_image_wrap(SDL_ConvertSurface(src, dst->format, flags));
+}
+

@@ -153,28 +153,54 @@ screen.blitscale9(go, 200, 300, 100, 150, 8, 8)
 screen.frame(320, 300, 100, 150, 3, cgrey, cgreen)
 screen.roundframe(440, 300, 100, 150, 3, cgrey, cgreen)
 
-font = Gari::Font.new(test_file('test_font_1.ttf'), 14)
+# Fonts
+# It seems there is a problem in some cases with 
+# font.mode = Gari::Font::SOLID, which produces solid blocks 
+# in stead of letters, and with some fonts font.mode = Gari::Font::BLENDED
+# just renders garbage. YMMV
+
+
+assert { Gari::Font::NORMAL    } 
+assert { Gari::Font::BOLD      }
+assert { Gari::Font::ITALIC    }
+assert { Gari::Font::UNDERLINE }
+assert { Gari::Font::SOLID     }
+assert { Gari::Font::BLENDED   }
+assert { Gari::Font::SHADED    }
+
+font = Gari::Font.newindex(test_file('test_font_1.ttf'), 16, 0)
 assert { font }
-p font.height, font.ascent, font.descent, font.lineskip, font.mode 
+font.mode = Gari::Font::BLENDED
+p font.height, font.ascent, font.descent, font.lineskip, font.mode, font.faces 
 assert { font.width_of("Hello") > 0 } 
 assert { font.height > 0 }
 assert { font.ascent > 0 }
 assert { font.descent <= 0 }
 assert { font.lineskip > 0 }
-assert { Gari::Font::NORMAL } 
-assert { Gari::Font::BOLD   }
-assert { Gari::Font::ITALIC }
-assert { Gari::Font::UNDERLINE }
 assert { font.style == Gari::Font::NORMAL }
 TEXT = "Hello! 日本語　This is ök!"
 p font.width_of(TEXT);
 
-tri = font.render(TEXT, cwhite, cgreen)
-assert { tri }
-screen.blit(90, 90, tri) 
-
 screen.text(70, 70, "Hello! 日本語　This is ök!", font, cwhite, cgreen);
 
+
+font = Gari::Font.new(test_file('test_font_2.ttf'), 16)
+font.mode = Gari::Font::SHADED
+assert { font }
+p font.height, font.ascent, font.descent, font.lineskip, font.mode, font.faces 
+assert { font.width_of(TEXT) > 0 } 
+assert { font.height > 0 }
+assert { font.ascent > 0 }
+assert { font.descent <= 0 }
+assert { font.lineskip > 0 }
+assert { font.style == Gari::Font::NORMAL }
+assert { font.mode  == Gari::Font::SHADED }
+p font.width_of(TEXT);
+screen.text(70, 90, TEXT, font, cwhite, cgreen);
+
+font.mode = Gari::Font::BLENDED
+tim = font.render(TEXT, cwhite, cgreen).optimize(:alpha);
+screen.blit(70, 110, tim)
 
 
 game.update
