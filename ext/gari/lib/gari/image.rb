@@ -66,7 +66,45 @@ module Gari
                       src, src.w - corner_w, src.h - corner_h, corner_w, corner_h)
     end
     
-
+    
+    # draws a frame of the given thickness on the screen.
+    # The outer size of the frame will be ww and hh.
+    def frame(xx, yy, ww, hh, tt, col)
+      (0...tt).each do | ii|
+        self.box(xx + ii, yy + ii, ww - ii, hh - ii, col) 
+      end 
+    end
+    
+    
+    MODE_LOOKUP = { :alpha    => Gari::Image::ALPHA    , 
+                    :colorkey => Gari::Image::COLORKEY ,
+                    :solid    => Gari::Image::SOLID    
+                  }
+    def self.sym_to_mode(type)
+      if type.respond_to? :to_sym
+        return MODE_LOOKUP[type.to_sym]
+      end 
+      return type.to_i
+    end
+                    
+    alias :old_optimize :optimize
+    
+    # Copies this image to an image optimized for display on the game screen. 
+    # type is the mode, which may be :alpha, :solid, or :colorkey
+    # If colorkey is given, it must be a dye obtained from Color#dye
+    # after optimizing the color. 
+    def optimize(type, colorkey = 0)
+      old_optimize(self.class.sym_to_mode(type), colorkey)
+    end
+    
+    class << self
+      alias :old_new :new
+      # Creates a new image with withd w and height h. The color depth is d 
+      # bits per pixel. m is the mode, which may be :alpha or :solid 
+      def new(w, h, d, m) 
+        return old_new(w, h, d, sym_to_mode(m))
+      end
+    end
     
   end # class Image  
 end # module Gari

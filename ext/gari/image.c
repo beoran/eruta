@@ -111,6 +111,26 @@ int srcx, int srcy, int srcw, int srch) {
 }
 
 
+
+/** Copys exactly one pixel from src to dst using SDL_BlitSurface. 
+Hence, neither src nor dst may be locked according to SDL_BlitSurface's
+documentation. */
+void gari_image_copypixel(GariImage * dst, int dstx, int dsty, 
+                                 GariImage * src, int srcx, int srcy) {
+  SDL_Surface *sdlsrc, *sdldst;
+  SDL_Rect    dstrect, srcrect;
+  dstrect.x = dstx;
+  dstrect.y = dsty;
+  srcrect.x = srcx;
+  srcrect.y = srcy;
+  srcrect.w = 1;
+  srcrect.h = 1;  
+  sdlsrc    = GARI_IMAGE_SURFACE(src);
+  sdldst    = GARI_IMAGE_SURFACE(dst);
+  SDL_BlitSurface(sdlsrc, &srcrect, sdldst, &dstrect);  
+}
+
+
 /* Make new images for various colour depths. */
 
 GariImage * gari_image_make8(int w, int h, int mode) {

@@ -26,7 +26,7 @@ assert { game.frames == 1 }
 assert { game.fps > 0.0  }
 game.resetframes
 assert { game.frames == 0 }
-  
+    
 screen = game.openscreen(640, 480, false)
 assert { screen                     } 
 assert { !game.fullscreen           }
@@ -41,23 +41,23 @@ assert  { ri.depth == 24            }
 assert  { Gari::Image::SOLID        } 
 assert  { Gari::Image::COLORKEY     }
 assert  { Gari::Image::ALPHA        } 
-oi      = ri.optimize(Gari::Image::SOLID, 0)
+oi      = ri.optimize(:solid)
 assert  { oi                        } 
 assert  { oi.w == ri.w              }
 assert  { oi.h == ri.w              }
 assert  { oi.depth == screen.depth  }
 
-ni      = Gari::Image.new(ri.w, ri.h, screen.depth, Gari::Image::ALPHA)
+ni      = Gari::Image.new(ri.w, ri.h, screen.depth, :alpha)
 assert  { ni                        } 
 assert  { ni.w == ri.w              }
 assert  { ni.h == ri.w              }
 assert  { ni.depth == screen.depth  }
 gi      = Gari::Image.loadraw('test/test_bg.png')
 assert { gi } 
-go      = gi.optimize(Gari::Image::ALPHA, 0)
+go      = gi.optimize(:alpha)
 assert { go }
 si      = Gari::Image.loadraw('test/test_sprite_1.png')
-so      = si.optimize(Gari::Image::ALPHA, 0)
+so      = si.optimize(:alpha)
 
 
 assert  { ni.clip? == [ 0, 0, ri.w, ri.h ]          }
@@ -101,6 +101,10 @@ assert  { c4 == c1 }
 assert  { c1 == c4 }
 assert  { (c4 <=> c1) == 0 }
 assert  { (c2 <=> c1) == 1 }
+assert  { c1.r > 0 && c1.r < 256 }
+assert  { c1.g > 0 && c1.g < 256 }
+assert  { c1.b > 0 && c1.b < 256 }
+  
 
 # Test Drawing, checking with dot?
 screen.slab(0, 0, screen.w, screen.h, cgray)
@@ -116,9 +120,12 @@ assert  { ni.dot?(ni.w_half, ni.h_half, c1) }
 
 screen.slab(100, 0, 20, 20, ctrans)
 screen.slab(120, 0, 20, 20, chalf)
+screen.blendslab(140, 0, 20, 20, ctrans)
+screen.blendslab(160, 0, 20, 20, chalf)
 
-screen.blit(150, 0, si)
-screen.blit(200, 0, so)
+
+screen.blit(180, 0, si)
+screen.blit(220, 0, so)
 
 
 screen.blit(10, 10, ni)
@@ -133,40 +140,30 @@ old = screen.getdot(300 + so.w, 200 + so.h)
 screen.blitscale(300, 200, so.w , so.h, so,  0 , 0, so.w, so.h)
 # check if scaling without actually scaling preserves the size
 assert { screen.dot?(300 + so.w, 200 + so.h, old) }
+# Try blitscale 9 algorithm
+screen.blitscale9(go, 200, 300, 100, 150, 8, 8)
 
-screen.blitscale(300, 280, 40, 20, go,  0       , 20, 20, 20)
-screen.blitscale(300, 300, 20, 20, go,  0       , 20, 20, 20)
+screen.frame(400, 300, 100, 150, 5, chalf)
 
-screen.blitscale(120, 100, 60, 20, go, 20       , 0, 60, 20)
-screen.blitpart(100, 100, go,  0       , 0, 20, 20)
-screen.blitpart(180, 100, go, go.w - 20, 0, 20, 20)
-
-dstmidh = 40
-srcmidh = go.h - (2 * 20)
-
-screen.blitscale(100, 120, 20, dstmidh, go, 0        , 20, 20, srcmidh)
-screen.blitscale(120, 120, 60, dstmidh, go, 20       , 20, 60, srcmidh)
-screen.blitscale(180, 120, 20, dstmidh, go, go.w - 20, 20, 20, srcmidh)
-
-
-screen.blitscale(120, 160, 60, 20, go, 20       , go.h - 20, 60, 20)
-screen.blitpart(100, 160, go,  0       , go.h - 20, 20, 20)
-screen.blitpart(180, 160, go, go.w - 20, go.h - 20, 20, 20)
-
-
-screen.blitscale9(go, 200, 300, 100, 200)
 
 game.update
 busy = true
 start = Time.now
 while busy 
   ev = Gari::Event.poll
-  # Close when clicking the close button, or after no events for 5 seconds
-  if ev && ev.kind == Gari::Event::QUIT
-    busy = false
-  elsif ev 
-    start = Time.now
-  end  
+  # Close when clicking the close button ...
+  if ev
+    if ev.quit?
+      busy = false
+    elsif ev.keydown?
+      game.fullscreen = ! game.fullscreen
+      screen.blitscale9(go, 200, 300, 100, 150, 8, 8)
+      game.update  
+    else ev 
+      start = Time.now
+    end
+  end    
+  # ... or after no events for 5 seconds
   busy = false if (Time.now - start) > 5
   game.update
 end  

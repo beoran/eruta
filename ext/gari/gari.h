@@ -440,6 +440,10 @@ int srcx, int srcy, int srcw, int srch);
 int gari_image_copy(GariImage * dst, int dstx, int dsty, GariImage * src,
 int srcx, int srcy, int w, int h);
 
+/* Copy pixel from image to image. */
+void gari_image_copypixel(GariImage * dst, int dstx, int dsty, 
+                          GariImage * src, int srcx, int srcy);
+
 /** Blits (a part of) an image to another one, 
     scaling it arbitrarily to the wanted size. Uses no 
     interpolation nor smoothing. 
