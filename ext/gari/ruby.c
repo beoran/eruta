@@ -847,45 +847,56 @@ VALUE rbgari_layer_tiles(VALUE self) {
 }
 
 VALUE rbgari_layer_ivar_set(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) {
+  int y        = RBH_INT(vy);   
+  int x        = RBH_INT(vx);
   VALUE varray = rbgari_layer_tiles(self);
-  VALUE vrow   = RARRAY_PTR(varray)[RBH_INT(vy)];
+  VALUE vrow   = Qnil;
+  if(y < 0) return Qnil;  
+  vrow = RARRAY_PTR(varray)[y];
   if(NIL_P(vrow)) return Qnil;
-  rb_ary_store(vrow, RBH_INT(vx), vsheet);
+  if(x < 0) return Qnil;
+  rb_ary_store(vrow, x, vsheet);
   return vsheet;
 }
 
 VALUE rbgari_layer_ivar_get(VALUE self, VALUE vx, VALUE vy) {
+  int y        = RBH_INT(vy);
+  int x        = RBH_INT(vx);
   VALUE varray = rbgari_layer_tiles(self);
-  VALUE vrow   = RARRAY_PTR(varray)[RBH_INT(vy)];
-  if(NIL_P(vrow)) return Qnil;  
-  return RARRAY_PTR(vrow)[RBH_INT(vx)];
+  VALUE vrow   = Qnil;
+  if (y < 0) return Qnil;
+  vrow = RARRAY_PTR(varray)[y];
+  if(NIL_P(vrow)) return Qnil;
+  if (x < 0) return Qnil;
+  return RARRAY_PTR(vrow)[x];
 }
 
 
 
 VALUE rbgari_layer_set(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) { 
-  GariLayer * layer   = GARI_LAYER_UNWRAP(self); 
-  GariSheet * sheet   = NULL; 
-  int x               = RBH_INT(vx); 
-  int y               = RBH_INT(vy);
-  if(NIL_P(vsheet)) { 
+  GariLayer * layer     = GARI_LAYER_UNWRAP(self); 
+  GariSheet * sheet     = NULL; 
+  int x                 = RBH_INT(vx); 
+  int y                 = RBH_INT(vy);
+  if (gari_layer_outsidegrid(layer, x, y)) return Qnil;
+  if(NIL_P(vsheet)) {
     sheet               = NULL;
   } else { 
     sheet               = GARI_SHEET_UNWRAP(vsheet);
-  }  
-  rbgari_layer_ivar_set(self, vx, vy, vsheet);
-  if(gari_layer_set(layer, x, y, sheet)) return self;
-  return Qnil; 
+  }
+  
+  if(!gari_layer_set(layer, x, y, sheet)) return Qnil;
+  rbgari_layer_ivar_set(self, vx, vy, vsheet); 
+  return self;
 }
 
 VALUE rbgari_layer_get(VALUE self, VALUE vx, VALUE vy, VALUE vsheet) { 
-/*  
-  GariLayer * layer   = GARI_LAYER_UNWRAP(self); 
-  GariSheet * sheet   = NULL;
+ GariLayer * layer   = GARI_LAYER_UNWRAP(self); 
+// GariSheet * sheet   = NULL;
   int x               = RBH_INT(vx); 
   int y               = RBH_INT(vy);
-   sheet               = gari_layer_get(layer, x, y);
-*/   
+ //  sheet               = gari_layer_get(layer, x, y);  
+  if (gari_layer_outsidegrid(layer, x, y)) return Qnil;
   return rbgari_layer_ivar_get(self, vx, vy);
 }
 
@@ -1098,6 +1109,7 @@ void Init_gari() {
   RBH_METHOD(Game           , openaudio , rbgari_game_openaudio , 1);
   RBH_SINGLETON_METHOD(Audio, open      , rbgari_game_openaudio , 1);
   
+  RBH_CLASS_NUM_CONST(Audio , DEFAULT_FREQUENCY                 , 22050);
   RBH_GETTER(Audio, frequency          , gari_audioinfo_frequency);
   RBH_GETTER(Audio, channels           , gari_audioinfo_channels);
   RBH_GETTER(Audio, format             , gari_audioinfo_format);

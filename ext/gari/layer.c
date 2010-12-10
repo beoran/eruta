@@ -91,7 +91,7 @@ GariLayer * gari_layer_new(int gridwide, int gridhigh,
 GariLayer * gari_layer_init(GariLayer * layer,  
                            int gridwide, int gridhigh, 
                            int tilewide, int tilehigh) {
-  int index;
+  int index, jdex;
   if((!layer)) return NULL;
   layer->gridwide   = gridwide;
   layer->gridhigh   = gridhigh;
@@ -113,13 +113,16 @@ GariLayer * gari_layer_init(GariLayer * layer,
   }
   
   // Then allocate column rows, calling gari_layer done on failiure
-  // that's why nwe neede dto null everything first) 
+  // that's why we need to null everything first) 
   for (index = 0; index < layer->gridhigh ; index ++) {
-    layer->tiles[index] = GARI_MALLOC(sizeof(GariSheet *) * layer->gridwide);
+    int size = sizeof(GariSheet *) * layer->gridwide;
+    layer->tiles[index] = GARI_MALLOC(size);
     if(!layer->tiles[index]) {
       gari_layer_done(layer);
       return NULL;
-    } 
+    }
+    // zero every garisheet pointer
+    memset(layer->tiles[index], 0,  size); 
   }
   return layer;
 }
@@ -222,7 +225,8 @@ void gari_layer_draw(GariLayer * layer, GariImage * image, int x, int y) {
   for (ty_index = tystart; ty_index < tystop ; ty_index++) {
     drawy        += tilehigh;
     drawx         = -x + ((txstart-1) * tilewide);
-    row           = layer->tiles[ty_index];      
+    row           = layer->tiles[ty_index];     
+    if(!row) continue; 
     for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
       drawx      += tilewide;
       tile        = row[tx_index];

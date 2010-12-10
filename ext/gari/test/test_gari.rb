@@ -87,8 +87,6 @@ cfull   = Gari::Color.new(128, 255,   0, 255)
 chalf   = Gari::Color.new(255, 255,   0, 127)
 ctrans  = Gari::Color.new(255, 128,   0,   0)
 
-p chalf
-p ctrans
 
 d0      = c0.dye(ni)
 d1      = c1.dye(ni)
@@ -168,41 +166,51 @@ assert { Gari::Font::SOLID     }
 assert { Gari::Font::BLENDED   }
 assert { Gari::Font::SHADED    }
 
-font = Gari::Font.newindex(test_file('test_font_1.ttf'), 16, 0)
-assert { font }
-font.mode = Gari::Font::BLENDED
-p font.height, font.ascent, font.descent, font.lineskip, font.mode, font.faces 
-assert { font.width_of("Hello") > 0 } 
-assert { font.height > 0 }
-assert { font.ascent > 0 }
-assert { font.descent <= 0 }
-assert { font.lineskip > 0 }
-assert { font.style == Gari::Font::NORMAL }
 TEXT = "Hello! 日本語　This is ök!"
-p font.width_of(TEXT);
-
-screen.text(70, 70, "Hello! 日本語　This is ök!", font, cwhite, cgreen);
-
 
 font = Gari::Font.new(test_file('test_font_2.ttf'), 16)
-font.mode = Gari::Font::SHADED
 assert { font }
-p font.height, font.ascent, font.descent, font.lineskip, font.mode, font.faces 
+STYLE = Gari::Font::UNDERLINE
+MODE  = Gari::Font::SHADED
+font.mode = MODE
+font.style = STYLE
+ 
 assert { font.width_of(TEXT) > 0 } 
 assert { font.height > 0    }
 assert { font.ascent > 0    }
 assert { font.descent <= 0  }
 assert { font.lineskip > 0  }
-assert { font.style == Gari::Font::NORMAL }
-assert { font.mode  == Gari::Font::SHADED }
-p font.width_of(TEXT);
+assert { font.style == STYLE }
+assert { font.mode  == MODE }
+
 screen.text(70, 90, TEXT, font, cwhite, cgreen);
 
 font.mode = Gari::Font::BLENDED
 tim       = font.render(TEXT, cwhite, cgreen) # .optimize(:alpha)
 screen.blit(70, 110, tim)
 
+
+font = Gari::Font.newindex(test_file('test_font_1.ttf'), 16, 0)
+STYLE1    = Gari::Font::BOLD
+MODE1     = Gari::Font::BLENDED
+font.mode  = MODE1
+font.style = STYLE1
+
+assert { font }
+assert { font.width_of("Hello") > 0 } 
+assert { font.height > 0 }
+assert { font.ascent > 0 }
+assert { font.descent <= 0 }
+assert { font.lineskip > 0 }
+assert { font.style == STYLE1 }
+assert { font.mode  == MODE1  }
+
+
+screen.text(70, 70, "Hello! 日本語　This is ök!", font, cwhite, cgreen);
+
+
 FREQ   = 22050
+assert { Gari::Audio::DEFAULT_FREQUENCY } 
 audio  = game.openaudio(FREQ)
 assert { audio                    } 
 assert { audio.frequency == FREQ  }
@@ -212,7 +220,7 @@ assert { audio.format > 0         }
 assert { Gari::Joystick.amount > -1 } 
 (0...(Gari::Joystick.amount)).each do |j|
   assert { Gari::Joystick.name(j) }
-  js = game.joystick(j)
+  js     = game.joystick(j)
   assert { js             }
   assert { js.name        }
   assert { js.axes  > 0   }
@@ -222,15 +230,34 @@ assert { Gari::Joystick.amount > -1 }
 end
 
 
-#   RBH_SINGLETON_METHOD(Joystick , amount    , rbgari_joy_amount         , 0);
-#   RBH_SINGLETON_METHOD(Joystick , name      , rbgari_joy_nameindex      , 1);
-#   RBH_SINGLETON_METHOD(Joystick , new       , rbgari_joy_new            , 1);
-#   RBH_METHOD(Joystick           , name      , rbgari_joy_name           , 0);
-#   RBH_METHOD(Joystick           , axes      , rbgari_joy_axes           , 0);
-#   RBH_METHOD(Joystick           , buttons   , rbgari_joy_buttons        , 0);
-#   RBH_METHOD(Joystick           , balls     , rbgari_joy_balls          , 0);
-#   RBH_METHOD(Joystick           , index     , rbgari_joy_index          , 0);
- 
+
+sh1 = Gari::Sheet.new(ri)
+sh2 = Gari::Sheet.new(ni)
+
+assert { sh1 }
+assert { sh2 }
+
+lay = Gari::Layer.new(3, 3, ri.w, ri.h);
+lay.draw(screen, 10, 10);
+(0..2).each { |x| (0..2).each { |y| lay.set(x, y, sh1) } }
+assert { lay.set(1, 2, sh2) }
+assert { lay.get(2, 2) }
+assert { lay.get(2, 2) == sh1 } 
+lay.set(2, 2, nil) 
+assert { !lay.get(2, 2) }
+assert { !lay.set(2, -10, 77)}
+assert { !lay.get(-10, 2) }
+assert { !lay.get(-10, -20) }
+assert { !lay.get(1000, 2000) }
+assert { lay.outside?(1000, 2000) }
+assert { lay.outside?(-1, -2) }
+assert { lay.outside?(1000, -1000) }
+assert { !lay.outside?(0, 0) }
+
+
+lay.draw(screen, -400, -5);
+sh2.image = ri
+lay.draw(screen, -400, -130);
 
 game.update
 busy  = true
@@ -377,3 +404,5 @@ end
 #   RBH_METHOD(Layer              , set         , rbgari_layer_set        , 3);
 #   RBH_METHOD(Layer              , get         , rbgari_layer_get        , 2);
 #   RBH_METHOD(Layer              , draw        , rbgari_layer_draw       , 3);
+
+
