@@ -17,13 +17,14 @@ module Zori
     attr_accessor :order
     attr_accessor :parent
     attr_reader   :hanao
+    attr_accessor :target
     
     Z_BACK        = 0
     Z_NORMAL      = 1
     Z_FRONT       = 2
     
   
-    def initialize(&action)
+    def initialize(target = nil, &action)
       @autolayout   = false
       @action       = action
       @layer        = 10
@@ -45,10 +46,11 @@ module Zori
       @parent       = nil
       @can_drag     = false
       @debug        = Zori::DEBUG
-      @iobalance    = 0 # Hover debugging
-      @ignore       = [] # events this widget is not interested in
-      @mouse_down   = false # is the mouse down on this widget or not?
-      @mouse_over   = false # is the mouse over this widget or not?
+      @iobalance    = 0     # Hover debugging
+      @ignore       = []    # Events this widget is not interested in
+      @mouse_down   = false # Is the mouse down on this widget or not?
+      @mouse_over   = false # Is the mouse over this widget or not?
+      @target       = Zori::Hanao.screen  # currently active drawing target
     end
     
     # Returns true if the widget can be dragged, false if not    
@@ -546,18 +548,18 @@ module Zori
     # Override this, as it draws the widget itself.
     # This will be called before draw_children, so the children normally 
     # draw over the parent widget 
-    def draw(target)      
+    def draw(target)
     end
     
     # You may override this if you need to draw something after your child 
     # widgets are done drawing
-    def draw_after_children(target)
+    def draw_after_children(target = nil)
       draw_border(target)
     end
     
     
     # Draws the children. Ususally you don't need to override this.
-    def draw_children(target)
+    def draw_children(target = nil)
       for child in self.ordered_children do
         child.draw_all(target)
       end
@@ -574,7 +576,7 @@ module Zori
     # It also takes care of not drawing the widget if it's hidden or closed.
     def draw_all(target=nil)
       return if self.hidden?
-      target ||= @hanao.screen
+      target ||= @self.target
       draw_background(target)
       draw(target)
       draw_children(target)
@@ -586,6 +588,20 @@ module Zori
     end
     
     # Drawing helper functions
+    
+    # Draws a text with the Widget's default font and colors at the given 
+    # position on the given bitmap.
+    def put_text(target, x, y, text)
+      target.text(x, y, text, self.font, 
+                  self.colors.text, self.colors.background)  
+    end
+    
+    
+    # Draws a normal background around ourself 
+    def put_background(target)
+      target.slab.put_border(*self.dimensions, self.colors.background)
+    end
+    
     # Draws a normal border around ourself 
     def put_border(target)
       @hanao.put_border(target, self.colors, *self.dimensions)

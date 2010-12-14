@@ -42,21 +42,20 @@ module Zori
       if heading
         dx = self.padding + (pressed ? 1 : 0)
         dy = self.padding + (pressed ? 1 : 0)
-        self.font.draw(target, self.x + dx, self.y + dy, 
-                       heading, self.colors.text, self.colors.background)
+        self.put_text(target, self.x + dx, self.y + dy, heading)
       end
     end
     
     def draw_pressed(target)
       bg = self.colors.background
-      target.quickfill_rectangle(self.x, self.y, self.w, self.h, bg)
+      self.put_background(target)
       self.put_inset(target)
       draw_heading(target, true)
     end
     
     def draw_released(target)
       bg = self.colors.background      
-      target.quickfill_rectangle(self.x, self.y, self.w, self.h, bg)
+      self.put_background(target)      
       self.put_outset(target)
       draw_heading(target, false)
     end

@@ -33,20 +33,20 @@ module Zori
       top   = self.y + padding 
       wide  = self.w - (2 * self.padding )
       high  = self.h - (2 * self.padding )
-      target.quickfill_rectangle(left, top, wide, high, tx)
+      target.slab(left, top, wide, high, tx)
     end
     
     def draw_pressed(target)
       fg = self.colors.highlight      
-      target.quickfill_rectangle(self.x, self.y, self.w, self.h, fg)
+      target.slab(self.x, self.y, self.w, self.h, fg)
       self.put_inset(target)
       draw_check(target)    
     end
     
     def draw_released(target)
-      bg = self.colors.background      
-      target.quickfill_rectangle(self.x, self.y, self.w, self.h, bg)
-      self.put_outset(target)      
+      bg = self.colors.background
+      target.slab(self.x, self.y, self.w, self.h, bg)
+      self.put_outset(target)
     end
     
     def draw(target)

@@ -16,6 +16,7 @@ module Zori
     # Constants    
     # Directory under which images are stored
     IMAGE_DIR     = File.join(* %w{.. share image ui} )
+    FONT_DIR      = File.join(* %w{.. share image font} )
     p Dir.pwd
     
     
@@ -28,8 +29,6 @@ module Zori
     # Enable workaround for utf scancode bug on Ubuntu
     SCANCODE_BUG_WORKAROUND = true
     # Maybe I'm handling the unicode wrong? Here'swhat the SDL docs say:
-    
-    
 #  mod stores the current state of the keyboard modifiers as explained in SDL_GetModState.
 # 
 # The unicode field is only used when UNICODE translation is enabled with SDL_EnableUNICODE. If unicode is non-zero then this is the UNICODE character corresponding to the keypress. If the high 9 bits of the character are 0, then this maps to the equivalent ASCII character:
@@ -41,8 +40,6 @@ module Zori
 # else {
 #   printf("An International Character.\n");
 # }
-    
-    
     # Structure for mouse button info
     MouseButtonInfo = Struct.new(:button, :pressed, :released)
     # Structure for Click Info

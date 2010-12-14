@@ -14,12 +14,12 @@ module Zori
       attr_accessor :shadow
       
       def initialize(tx = nil, bg = nil, br = nil, hi = nil, sh = nil)
-        @text       = tx || Sisa::Color::White
-        @background = bg || Sisa::Color::DarkGreen
+        @text       = tx || Gari::Color.rgb(255,255,255)
+        @background = bg || Gari::Color.rgb(0,0,128)
          # PaleGreen # GoldenWhisp # PaleGoldenRod
-        @border     = br || Sisa::Color::Gray
-        @highlight  = hi || Sisa::Color::White
-        @shadow     = sh || Sisa::Color::ShadowGray
+        @border     = br || Gari::Color.rgb(191,191,191)
+        @highlight  = hi || Gari::Color.rgb(255,255,255)
+        @shadow     = sh || Gari::Color.rgb(64,64,64)
       end 
       
       # Returns a deep copy of self
@@ -69,7 +69,7 @@ module Zori
       else
         fontname  ||= DEFAULT_FONTNAME
         fontsize  ||= 12
-        @font       = Sisa::Font.load(fontname, fontsize)
+        @font       = Gari::Font.new(fontname, fontsize)
       end        
       @colors     = colors_in  || Zori::Style::Colors.new
       @margin     = DEFAULT_MARGIN

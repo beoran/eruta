@@ -77,6 +77,12 @@ end
 
 include Nanotest
 
+
+def test_file(fname)
+  return File.join('test', fname)
+end
+
+
 $: << '../lib'
 # $: << '../ext/gari'
 # require 'gari'
