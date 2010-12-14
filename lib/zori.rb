@@ -1,8 +1,8 @@
 # encoding: UTF-8
 # Zori: 
 #
-# Yet another  GUI library for Ruby/SDL ( though Sisa  )
-# beoran@gmail.com, 2009
+# Yet another  GUI library for Ruby/SDL ( though Gari )
+# beoran@gmail.com, 2009, 2010
 #
 # Zori (japanese footwear) follows the Shoes philosophy in that it sees width 
 # as largely static, and height as dynamic and scrollable because of the mouse 
