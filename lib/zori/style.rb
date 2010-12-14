@@ -63,14 +63,8 @@ module Zori
       return File.join( '..', 'share', 'font', '..')
     end
     
-    def initialize(fontname = DEFAULT_FONTNAME, fontsize = 12, colors_in = nil, background = DEFAULT_BACKGROUND)
-      if fontsize == :font_handle
-        @font       = fontname
-      else
-        fontname  ||= DEFAULT_FONTNAME
-        fontsize  ||= 12
-        @font       = Gari::Font.new(fontname, fontsize)
-      end        
+    def initialize(font, colors_in = nil, background = DEFAULT_BACKGROUND)
+      @font       = font      
       @colors     = colors_in  || Zori::Style::Colors.new
       @margin     = DEFAULT_MARGIN
       @padding    = DEFAULT_PADDING
@@ -91,7 +85,7 @@ module Zori
     # Returns a deep copy of self 
     def deep_copy()
       new_colors = self.colors.deep_copy();
-      return self.class.new(@font.name, @font.pointsize, new_colors, @bgimage)
+      return self.class.new(@font, new_colors, @bgimage)
     end
     
     # Returns a deep copy of self

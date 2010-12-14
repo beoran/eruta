@@ -128,9 +128,9 @@ module Zori
         color = Gari::Color::Green if pressed?()
         color = Gari::Color::Red   if pressed?(2)
         if @cursor
-          screen.put_bitmap(@x, @y, @cursor)
+          screen.blit(@x, @y, @cursor)
         else   
-          screen.fill_circle(@x, @y, 1, color)
+          screen.disk(@x, @y, 1, color)
         end  
 #     Uncomment these lines below to mark clicked/hovered widgets for debugging
 #         if @clicked
@@ -274,10 +274,13 @@ module Zori
     end
     
    
+   
+   
     def initialize(screen, queue) 
       @screen         = screen
       @queue          = queue
-      @style          = Zori::Style.new()      
+      @defaultfont    = Hanao.load_font('dejavuserif.ttf', 12)
+      @style          = Zori::Style.new(@defaultfont)
       @handlers       = {}
       @done           = false
       @active         = true 
@@ -293,9 +296,9 @@ module Zori
       @focuscursor    = Hanao.load_image('ui', 'cursor', 'joystick_0.png')
       # Cursor for focusing             
       # Set up handlers by name, from constants  
-      for name, klass in Sisa::Event.list do
-        handler           = "on_#{name.to_s.downcase}".to_sym
-        @handlers[klass]  = handler
+      for val, sym in  Gari::Event::KIND_TO_TYPE  do
+        handler           = "on_#{sym.to_s.downcase}".to_sym
+        @handlers[val]    = handler
       end
       @main           = nil
     end
@@ -344,7 +347,7 @@ module Zori
       # Do nothing unless active
       event = @queue.poll
       while event
-        handler = @handlers[event.class]        
+        handler = @handlers[event.kind]
         self.send(handler, event)
         event   = @queue.poll
       end
@@ -469,21 +472,21 @@ module Zori
     
     # Called when key is pressed
     def on_keydown(event)      
-      text    = cleanup_unicode(event)            
-      keyboard.press(event.sym, event.mod, text)
-      send_to_interested(:on_key_down, event.sym, event.mod, text)      
+      text    = event.unicode # cleanup_unicode(event)            
+      keyboard.press(event.key, event.mod, text)
+      send_to_interested(:on_key_down, event.key, event.mod, text)      
     end
     
     # Called when key is released
     def on_keyup(event)
       text    = cleanup_unicode(event)
       state   = keyboard.state(event.sym)
-      send_to_interested(:on_key_up, event.sym, event.mod, text)
+      send_to_interested(:on_key_up, event.key, event.mod, text)
       keyboard.release(event.sym)
     end
     
     # Called when the mouse moves
-    def on_mousemotion(event)
+    def on_mousemove(event)
       old_x , old_y     = @mouse.x , @mouse.y
       @mouse.move(event.x, event.y)
       old_hovered       = @hovered || []
@@ -511,11 +514,11 @@ module Zori
     end
     
     # Called when the mouse button is pressed
-    def on_mousebuttondown(event)
+    def on_mousepress(event)
       scroll = Mouse.is_scroll?(event.button)
       if scroll # redirect to scrolling
         return self.on_mousescroll(event, scroll)
-      end      
+      end
       widget = @hovered.first
       p widget
       # Send mouse down to first (topmost) hovered widget only  
@@ -531,7 +534,7 @@ module Zori
     # Called when the mouse button is released
     # XXX: Opening up a dialog in the front somehow prevents the click being 
     # unset correctly  
-    def on_mousebuttonup(event)      
+    def on_mouserelease(event)      
       if Mouse.is_scroll?(event.button)
         return # do nothing for scroll second phase.
       end
@@ -603,7 +606,7 @@ module Zori
     # Draws a border with the style's  color settings 
     def put_border(target, colors, x, y, w, h)
       x += 1 ; y += 1 ; w -= 3 ; h -= 3       
-      target.put_rectangle(x, y, w, h,  colors.border)
+      target.box(x, y, w, h,  colors.border)
     end 
     
     # Draws an outset with the given colors and with correct dimensions 

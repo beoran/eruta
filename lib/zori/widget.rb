@@ -2,6 +2,16 @@ require 'forwardable'
 
 
 module Zori
+  class Rect
+    attr_reader :x
+    attr_reader :y
+    attr_reader :h
+    attr_reader :w
+    def initialize(x, y, h, w)
+      @x, @y, @h, @w = x , y, h, w
+    end 
+  end
+
   # A widget is any potentially visible object in the user iterface
   class Widget
     extend  Forwardable # We forward size and position requests to bounds rect    
@@ -40,7 +50,7 @@ module Zori
       @children     = []            # Child widgets in logical (insertion) order
       @drawchildren = []            # Children, in drawing order 
       @eventchildren= []            # Children, in event interaction order  
-      @bounds       = Sisa::Rect.new(0, 0, @hanao.w, @hanao.h)
+      @bounds       = Zori::Rect.new(0, 0, @hanao.w, @hanao.h)
       @z            = Z_NORMAL      # Useful for z-ordering 
       @order        = 0             # Logical order of this widget in it's parent
       @parent       = nil
