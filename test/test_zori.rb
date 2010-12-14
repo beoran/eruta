@@ -3,7 +3,7 @@ require 'test_helper'
 p $:
 
 require 'gari'
-
+require 'fimyfi'
 require 'zori'
 
 assert { Gari              }

@@ -146,6 +146,20 @@ VALUE rbgari_screen_fullscreen(VALUE vscreen) {
   return RBH_TOBOOL(gari_screen_fullscreen(GARI_SCREEN_UNWRAP(vscreen)));
 }  
 
+VALUE rbgari_screen_showcursor_(VALUE vscreen, VALUE vshow) {
+  GariScreen * screen = GARI_SCREEN_UNWRAP(vscreen);
+  int show            = RBH_BOOL_INT(vshow);  
+  return RBH_TOBOOL(gari_screen_showcursor_(screen, show)); 
+}  
+
+/** Returns true if the cursor is shown, false if not. */
+VALUE rbgari_screen_showcursor(VALUE vscreen) {
+  GariScreen * screen = GARI_SCREEN_UNWRAP(vscreen);  
+  return RBH_TOBOOL(gari_screen_showcursor(screen)); 
+}  
+
+
+
 
 /** Can be used to set or unset fullscreen after opening the screen. */
 VALUE rbgari_game_fullscreen_(VALUE vgame, VALUE vfull) { 
@@ -987,6 +1001,9 @@ void Init_gari() {
   RBH_METHOD(Game, screen       , rbgari_game_screen      , 0);
   RBH_METHOD(Game, fullscreen   , rbgari_game_fullscreen  , 0);
   RBH_METHOD(Game, fullscreen=  , rbgari_game_fullscreen_ , 1);
+  
+  RBH_METHOD(Screen, showcursor , rbgari_screen_showcursor  , 0);
+  RBH_METHOD(Screen, showcursor=, rbgari_screen_showcursor_ , 1);
   
   RBH_SINGLETON_METHOD(Image, loadraw, rbgari_image_loadraw, 1);
   RBH_SINGLETON_METHOD(Image, new    , rbgari_image_newdepth, 4);

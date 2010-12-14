@@ -366,7 +366,14 @@ long gari_random(long min, long max) {
 }
 
 
+/** Hides or shows the default mouse cursor over the screen. Returns the previous state of the mouse cursor.  */
+int gari_screen_showcursor_(GariScreen * screen, int show) {
+  int toggle = show ? SDL_ENABLE : SDL_DISABLE;
+  return SDL_ShowCursor(toggle) == SDL_ENABLE;
+}  
 
-
-
+/** Returns true if the cursor is shown, false if not. */
+int gari_screen_showcursor(GariScreen * screen) {  
+  return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE;
+}  
 

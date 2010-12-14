@@ -208,6 +208,9 @@ assert { font.mode  == MODE1  }
 
 screen.text(70, 70, "Hello! 日本語　This is ök!", font, cwhite, cgreen);
 
+assert { screen.showcursor } 
+screen.showcursor = false
+assert { !screen.showcursor }
 
 FREQ   = 22050
 assert { Gari::Audio::DEFAULT_FREQUENCY } 

@@ -17,8 +17,6 @@ module Zori
     # Directory under which images are stored
     IMAGE_DIR     = File.join(* %w{.. share image ui} )
     FONT_DIR      = File.join(* %w{.. share image font} )
-    p Dir.pwd
-    
     
     # Time mouse button must be down to generate a click
     CLICK_TIME    = 0.5
@@ -53,8 +51,13 @@ module Zori
     
     def self.load_image(*names)
       fname = Fimyfi.join(self.image_dir, *names)
-      return Sisa::Surface.load_alpha(fname)
-    end  
+      return Gari::Image.loadraw(fname)
+    end
+      
+   def self.load_font(name, size)
+      fname = Fimyfi.join(self.image_dir, name)
+      return Gari::Font.new(fname, size)
+    end   
     
     # Class that models the mouse state and constants
     class Mouse
@@ -91,7 +94,7 @@ module Zori
         @dragged = {}
         @visible = true
         @cursor  = Hanao.load_image('cursor', 'mouse.png') rescue nil;
-        Sisa::Mouse.hide if @cursor 
+        Hanao.screen.showcursor = false if @cursor 
       end
       
       def move(xin, yin) 
@@ -121,9 +124,9 @@ module Zori
       
       # Draws the mouse cursor to the screen
       def draw(screen)
-        color = Sisa::Color::White
-        color = Sisa::Color::Green if pressed?()
-        color = Sisa::Color::Red   if pressed?(2)
+        color = Gari::Color::White
+        color = Gari::Color::Green if pressed?()
+        color = Gari::Color::Red   if pressed?(2)
         if @cursor
           screen.put_bitmap(@x, @y, @cursor)
         else   
@@ -131,11 +134,11 @@ module Zori
         end  
 #     Uncomment these lines below to mark clicked/hovered widgets for debugging
 #         if @clicked
-#            screen.fill_circle(@clicked.x, @clicked.y, 10, Sisa::Color::Red)
+#            screen.disk(@clicked.x, @clicked.y, 10, Gari::Color::Red)
 #         end
 #         if @under && (!under.empty?)
 #           for under in @under do
-#             screen.fill_circle(under.x, under.y, 7, Sisa::Color::Green)
+#             screen.disk(under.x, under.y, 7, Gari::Color::Green)
 #           end 
 #         end
 

@@ -28,6 +28,11 @@ module Gari
      def inspect
       to_s
      end
+     
+     White = self.rgb(255, 255, 255)
+     Green = self.rgb(  0, 255,   0)
+     Red   = self.rgb(255,   0,   0)
+     Blue  = self.rgb(  0,   0, 255)
   end
   
   
