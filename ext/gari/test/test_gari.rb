@@ -229,6 +229,12 @@ assert { Gari::Joystick.amount > -1 }
   assert { js.index == j  }
 end
 
+assert { Gari::Key::KEY_BACKSPACE }
+assert { Gari::Key.sym2key(:backspace) == Gari::Key::KEY_BACKSPACE }
+assert { Gari::Key.key2sym(Gari::Key::KEY_BACKSPACE) == :backspace }
+assert { Gari::Mod::MOD_CAPS }
+assert { Gari::Mod.sym2mod(:caps) == Gari::Mod::MOD_CAPS }
+assert { Gari::Mod.mod2sym(Gari::Mod::MOD_CAPS) == :caps }
 
 
 sh1 = Gari::Sheet.new(ri)
@@ -269,7 +275,7 @@ while busy
     if ev.quit?
       busy = false
     elsif ev.keydown?
-      p ev.key, ev.text
+      p ev.key, ev.text, ev.keysym
       # game.fullscreen = ! game.fullscreen
       # screen.blitscale9(go, 200, 300, 100, 150, 8, 8)
       # game.update  
