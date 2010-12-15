@@ -177,7 +177,7 @@ module Zori
 #       yscale = widget.h.to_f / ( @bgimage.h.to_f + 1) 
       corner_w = (widget.w / 8).to_i + 4
       corner_h = (widget.h / 8).to_i + 4
-      @bgimage.scale_9(target, widget.x, widget.y, widget.w, widget.h, 
+      target.blitscale9(widget.x, widget.y, @bgimage, widget.w, widget.h, 
                        corner_w, corner_h)
 #       @bgimage.rotozoom_blit(target, widget.x, widget.y, xscale, yscale)
     end

@@ -29,10 +29,13 @@
 #  ......................................
 #
 # The padding determines the minimal distance between the border or the 
-# parent widget and it's contents and/or child widgets  
+# parent widget and it's contents and/or child widgets.
 #
-# When automatically arranging widgets, the margin of a widget determines how 
-# closely that widget may be packed to other widgets that are on the same level.
+# The border's thickness is only relevant for visual effects. It does not change  
+# the layout. The border is effectively "inside" the padding of the widget.
+#
+# The margin of a widget determines how closely that widget may be packed 
+# to it's sibling widgets.
 # 
 # The work in Zori is divided between Hanao and Widget. The Hanao class 
 # handles everything that depends on and/or may influence several widgets at 

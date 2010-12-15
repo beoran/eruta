@@ -4,7 +4,7 @@
 
 #include "gari.h"
 
-#include "SDL_mixer.h"
+// #include "SDL_mixer.h"
 
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"  
@@ -40,6 +40,7 @@ RBH_CLASS_DEFINE(Sound, GariSound);
 RBH_CLASS_DEFINE(Style, GariStyle);
 RBH_CLASS_DEFINE(Tileset, GariTileset);
 RBH_CLASS_DEFINE(Tile, GariTile);
+RBH_CLASS_DEFINE(Vector, GariVector);
 
 // RBH_UNWRAP_DEFINE(Font, GariFont); 
 
@@ -964,6 +965,163 @@ RBH_GETTER_DEFINE(gari_layer_high, Layer, GariLayer, RBH_INT_NUM);
                      "FPS: %ld", (int)gari_game_fps(game));
 */
 
+
+/** Vector functions  */
+
+#define GARI_VECTOR_WRAP(VEC)   RBH_WRAP(Vector, VEC, gari_vector_free) 
+#define GARI_VECTOR_UNWRAP(VEC) RBH_UNWRAP(Vector, VEC)
+
+/* Helper fuinction that allocates memory for a GariVector and wraps it as a value */
+
+VALUE rbgari_vector(GariVector v1) {
+  return GARI_VECTOR_WRAP(gari_vector_newvector(v1));
+}
+
+VALUE rbgari_vector_new(VALUE vself, VALUE vx, VALUE vy) {
+  GariVector * v1 = gari_vector_new(RBH_FLOAT(vx), RBH_FLOAT(vy));
+  return GARI_VECTOR_WRAP(v1);
+}
+
+VALUE rbgari_vector_equal(VALUE vself, VALUE vother, VALUE vdelta) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother);
+  GariFloat delta = RBH_FLOAT(vdelta);
+  return RBH_TOBOOL(gari_vector_equal(*v1, *v2, delta));
+}
+
+VALUE rbgari_vector_add(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother); 
+  return rbgari_vector(gari_vector_add(*v1, *v2));
+}
+
+VALUE rbgari_vector_sub(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother); 
+  return rbgari_vector(gari_vector_sub(*v1, *v2));
+}
+
+VALUE rbgari_vector_mul(VALUE vself, VALUE vf) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariFloat    f  = RBH_FLOAT(vf); 
+  return rbgari_vector(gari_vector_mul(*v1, f));
+}
+
+VALUE rbgari_vector_div(VALUE vself, VALUE vf) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariFloat    f  = RBH_FLOAT(vf); 
+  return rbgari_vector(gari_vector_div(*v1, f));
+}
+
+VALUE rbgari_vector_dot(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother); 
+  return RBH_FLOAT_NUM(gari_vector_dot(*v1, *v2));
+}
+
+VALUE rbgari_vector_cross(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother); 
+  return RBH_FLOAT_NUM(gari_vector_cross(*v1, *v2));
+}
+
+VALUE rbgari_vector_perp(VALUE vself) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself); 
+  return rbgari_vector(gari_vector_perp(*v1));
+}
+
+VALUE rbgari_vector_nperp(VALUE vself) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself); 
+  return rbgari_vector(gari_vector_nperp(*v1));
+}
+
+VALUE rbgari_vector_normalize(VALUE vself) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself); 
+  return rbgari_vector(gari_vector_normalize(*v1));
+}
+
+VALUE rbgari_vector_lensq(VALUE vself) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself); 
+  return RBH_FLOAT_NUM(gari_vector_lensq(*v1));
+}
+
+VALUE rbgari_vector_len(VALUE vself) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself); 
+  return RBH_FLOAT_NUM(gari_vector_len(*v1));
+}
+
+VALUE rbgari_vector_angle(VALUE vself) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself); 
+  return RBH_FLOAT_NUM(gari_vector_angle(*v1));
+}
+
+VALUE rbgari_vector_project(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother); 
+  return rbgari_vector(gari_vector_project(*v1, *v2));
+}
+
+VALUE rbgari_vector_rotate(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother); 
+  return rbgari_vector(gari_vector_rotate(*v1, *v2));
+}
+
+VALUE rbgari_vector_unrotate(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother); 
+  return rbgari_vector(gari_vector_unrotate(*v1, *v2));
+}
+
+VALUE rbgari_vector_lerp(VALUE vself, VALUE vother, VALUE vt) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother);
+  GariFloat    t  = RBH_FLOAT(vt);
+  return rbgari_vector(gari_vector_lerp(*v1, *v2, t));
+}
+
+VALUE rbgari_vector_max(VALUE vself, VALUE vmax) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);  
+  GariFloat   max = RBH_FLOAT(vmax);
+  return rbgari_vector(gari_vector_max(*v1, max));
+}
+
+VALUE rbgari_vector_dist(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother);  
+  return RBH_FLOAT_NUM(gari_vector_dist(*v1, *v2));
+}
+
+VALUE rbgari_vector_distsq(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother);  
+  return RBH_FLOAT_NUM(gari_vector_distsq(*v1, *v2));
+}
+
+VALUE rbgari_vector_near(VALUE vself, VALUE vother, VALUE vd) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother);
+  GariFloat    d  = RBH_FLOAT(vd);
+  return RBH_TOBOOL(gari_vector_near(*v1, *v2, d));
+}
+
+VALUE rbgari_vector_fromangle(VALUE self, VALUE vangle) { 
+  GariFloat    a  = RBH_FLOAT(vangle);
+  return rbgari_vector(gari_vector_fromangle(a));
+}   
+
+VALUE rbgari_vector_x(VALUE vself, VALUE vother, VALUE vd) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  return RBH_FLOAT_NUM(v1->x);
+}
+
+VALUE rbgari_vector_y(VALUE vself, VALUE vother, VALUE vd) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  return RBH_FLOAT_NUM(v1->y);
+}
+
+
+
 /** Entry point for Ruby. */
 void Init_gari() {
   RBH_MODULE(Gari);
@@ -986,6 +1144,7 @@ void Init_gari() {
   RBH_MODULE_CLASS(Gari, Layer);
   RBH_MODULE_CLASS(Gari, Style);
   RBH_MODULE_CLASS(Gari, Sheet);
+  RBH_MODULE_CLASS(Gari, Vector);
   
   
   RBH_SINGLETON_METHOD(Game, new, rbgari_game_new         , 0);
@@ -1168,7 +1327,36 @@ void Init_gari() {
   RBH_METHOD(Layer              , set         , rbgari_layer_set        , 3);
   RBH_METHOD(Layer              , get         , rbgari_layer_get        , 2);
   RBH_METHOD(Layer              , draw        , rbgari_layer_draw       , 3);
-
+  
+  RBH_SINGLETON_METHOD(Vector   , new         , rbgari_vector_new       , 2);
+  RBH_SINGLETON_METHOD(Vector   , angle       , rbgari_vector_fromangle , 1);  
+  RBH_METHOD(Vector             , equal_delta?, rbgari_vector_equal     , 2);
+  RBH_METHOD(Vector             , +           , rbgari_vector_add       , 1);
+  RBH_METHOD(Vector             , -           , rbgari_vector_sub       , 1);
+  RBH_METHOD(Vector             , *           , rbgari_vector_mul       , 1);
+  RBH_METHOD(Vector             , /           , rbgari_vector_div       , 1);
+  RBH_METHOD(Vector             , dot         , rbgari_vector_dot       , 1);
+  RBH_METHOD(Vector             , cross       , rbgari_vector_cross     , 1);
+  RBH_METHOD(Vector             , perp        , rbgari_vector_perp      , 0);
+  RBH_METHOD(Vector             , nperp       , rbgari_vector_nperp     , 0);
+  RBH_METHOD(Vector             , normalize   , rbgari_vector_normalize , 0);
+  RBH_METHOD(Vector             , lensq       , rbgari_vector_lensq     , 0);
+  RBH_METHOD(Vector             , len         , rbgari_vector_len       , 0);
+  RBH_METHOD(Vector             , length      , rbgari_vector_len       , 0);
+  RBH_METHOD(Vector             , l           , rbgari_vector_len       , 0);
+  RBH_METHOD(Vector             , a           , rbgari_vector_angle     , 0);
+  RBH_METHOD(Vector             , angle       , rbgari_vector_angle     , 0);
+  RBH_METHOD(Vector             , project     , rbgari_vector_project   , 1);
+  RBH_METHOD(Vector             , rotate      , rbgari_vector_rotate    , 1);
+  RBH_METHOD(Vector             , unrotate    , rbgari_vector_unrotate  , 1);
+  RBH_METHOD(Vector             , lerp        , rbgari_vector_lerp      , 2);
+  RBH_METHOD(Vector             , max         , rbgari_vector_max       , 1);
+  RBH_METHOD(Vector             , dist        , rbgari_vector_dist      , 1);
+  RBH_METHOD(Vector             , distsq      , rbgari_vector_distsq    , 1);
+  RBH_METHOD(Vector             , near        , rbgari_vector_near      , 2);
+  RBH_METHOD(Vector             , x           , rbgari_vector_x         , 0);
+  RBH_METHOD(Vector             , y           , rbgari_vector_y         , 0);
+  
 }
 
 /** Alternative entry point for Ruby. */

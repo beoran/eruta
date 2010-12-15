@@ -43,9 +43,8 @@ ui      = @ui
 assert { @ui.wide == @screen.w }
 assert { @ui.high == @screen.h } 
 uinow   = Zori::Hanao.current()
-p uinow.wide
-p uinow.high
-p uinow.style
+assert { uinow.defaultfont }
+
 
 widget  = Zori::Frame.new
 # Set up a test menu
@@ -166,10 +165,10 @@ menu        = Zori::Menubar.new
   
   until ui.done do
     progress.advance
-    screen.fill(Sisa::Color.new(128,128,255))
+    @screen.slab(0,0, @screen.w, @screen.h, Gari::Color.rgb(128,128,255))
     ui.update
     ui.draw
-    screen.flip
+    @game.update
   end
 
 

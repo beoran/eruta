@@ -3,10 +3,10 @@ require 'forwardable'
 
 module Zori
   class Rect
-    attr_reader :x
-    attr_reader :y
-    attr_reader :h
-    attr_reader :w
+    attr_accessor :x
+    attr_accessor :y
+    attr_accessor :h
+    attr_accessor :w
     def initialize(x, y, h, w)
       @x, @y, @h, @w = x , y, h, w
     end 
@@ -60,7 +60,7 @@ module Zori
       @ignore       = []    # Events this widget is not interested in
       @mouse_down   = false # Is the mouse down on this widget or not?
       @mouse_over   = false # Is the mouse over this widget or not?
-      @target       = Zori::Hanao.screen  # currently active drawing target
+      @target       = @hanao.screen  # currently active drawing target
     end
     
     # Returns true if the widget can be dragged, false if not    

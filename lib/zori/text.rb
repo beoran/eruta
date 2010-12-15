@@ -15,7 +15,7 @@ module Zori
       attr_reader :h
       def initialize(style, text=nil)
         @style  = style
-        @h      = @style.font.line_skip
+        @h      = @style.font.lineskip
         @w      = 0
         @line   = ""
         if text
@@ -32,7 +32,8 @@ module Zori
       
       def draw(target, x, y, style = nil)
         style ||= @style
-        style.font.draw(target, x, y, @line, style.colors.text, style.colors.background)
+        target.text(x, y, @line, @style.font, 
+                    style.colors.text, style.colors.background)
       end
       
       
@@ -46,7 +47,7 @@ module Zori
         result          = []
         line            = Zori::Text::Line.new(style)           
         for word in words do
-          word_wide     = style.font.wide(word)          
+          word_wide     = style.font.width_of(word)          
           if line.w + word_wide > max_wide 
             # Line width plus word width is too wide.
             # Insert the line, and put the word in the next line  
@@ -133,7 +134,7 @@ module Zori
       @lines      = Zori::Text::Line.split_multi_paragraph(@style, text, maxwide)  
       @line_count = @lines.size
       @wide       = maxwide
-      @line_high  = @font.line_skip
+      @line_high  = @font.lineskip
       @high       = @line_count * @line_high
       @textcolor  = style.colors.text
       @backcolor  = style.colors.background
@@ -194,7 +195,7 @@ module Zori
       for index in @window do
         line  = @lines[index];
         unless line.nil? or line.empty?
-          @font.draw(target, dx, dy, line.to_s, @textcolor, @backcolor)
+          line.draw(target, dx, dy)
         end  
         # Draw one line if we have it, otherwise skip a line.         
         dy      += @line_high;

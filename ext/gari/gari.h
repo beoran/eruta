@@ -974,7 +974,121 @@ int gari_game_joysticks(GariGame * game);
 /** Returns the n-th joystick of the game. */
 GariJoystick * gari_game_joystick(GariGame * game, int index);
 
+/** 2d vectors, for speedy vector math.  */
 
+typedef float GariFloat; 
+
+/** A two-dimensional vector. */
+struct GariVector_;
+typedef struct GariVector_ GariVector;
+
+struct GariVector_     {
+  GariFloat x, y;
+};
+
+typedef const GariVector GariCVector;
+
+/** Makes a new GariVector. */
+GariVector gari_vector(GariFloat x, GariFloat y); 
+
+/** Initializes a GariVector */
+GariVector * gari_vector_init(GariVector * vec, GariFloat x, GariFloat y);
+
+/** Allocates and initializes a GariVector and returns it. Retuns NULL if out 
+   of memory. */
+GariVector * gari_vector_new(GariFloat x, GariFloat y);
+
+/** Allocates and initializes a Garivectory and returns it. Retuns NULL if out 
+   of memory. */
+GariVector * gari_vector_newvector(GariVector v1);
+
+/** Frees a GariVector's allocated memory. Returns NULL. */
+GariVector * gari_vector_free(GariVector * vec);
+
+/** Compares two vectors and sees if they are within delta of each other. */
+int gari_vector_equal(const GariVector v1, const GariVector v2, 
+                      GariFloat delta);
+/** Vector addition. */
+GariVector gari_vector_add(GariVector v1, GariVector v2); 
+
+/** Vector substraction. */
+GariVector gari_vector_sub(GariVector v1, GariVector v2); 
+
+/** Vector negation. */
+GariVector gari_vector_neg(GariVector v1); 
+
+/** Scalar Vector multiplication. */
+GariVector gari_vector_mul(GariVector v1, GariFloat f); 
+
+/** Scalar Vector division. */
+GariVector gari_vector_div(GariVector v1, GariFloat f); 
+
+/** Vector dot product. */
+GariFloat gari_vector_dot(GariVector v1, GariVector v2); 
+
+/** 
+Cross product magnitude. The cross product of 2D x,y vectors is 
+a 3D vector with a z component, so this function returns only the magnitude of
+that z component.  
+*/
+GariFloat gari_vector_cross(GariVector v1, GariVector v2);
+
+/** Perpendicular vector, rotated by 90 degrees, anticlockwise. */
+GariVector gari_vector_perp(GariVector v1);
+
+/** Perpendicular vector, rotated by -90 degrees, clockwise. */
+GariVector gari_vector_nperp(GariVector v1);
+
+/** Returns the dot poduct of the vector and itself. */
+GariFloat gari_vector_dotself(GariVector v1);
+
+/** Returns the squared length of the vector. Same as dotself, really. 
+Useful for comparing lengths when speed is of importance.  */
+GariFloat gari_vector_lensq(GariVector v1);
+
+/** Returns the length of the vector. */
+GariFloat gari_vector_len(GariVector v1);
+
+/** Returns a vector that is the projection of v1 onto v2*/
+GariVector gari_vector_project(GariVector v1, GariVector v2);
+
+/** Rotates v1 by v2. */
+GariVector gari_vector_rotate(GariVector v1, GariVector v2); 
+ 
+/** Inverse rotation. */
+GariVector gari_vector_unrotate(GariVector v1, GariVector v2);
+
+/** Linear interpolation on a line between between v1 and v2. Returns a vector 
+that points to a point on the line between v1 and v2. */
+GariVector gari_vector_lerp(GariVector v1, GariVector v2, GariFloat tx);
+
+/** Returns v1 normalized. Not safe for division by 0 in case length is 0. */
+GariVector gari_vector_normalize_unsafe(GariVector v1); 
+
+/** Returns v1 normalized. Safe for division by 0 in case length is 0. */
+GariVector gari_vector_normalize(GariVector v1);
+
+/** If the length of the vector is greater than max, this function 
+returns a vector with the same direction as v1, but with the length 
+of that vector limited to max. Otherwise, it returns v1  */
+GariVector gari_vector_max(GariVector v1, GariFloat max); 
+
+/** Returns the distance between v1 and v2. */
+GariFloat gari_vector_dist(GariVector v1, GariVector v2);
+ 
+/** Returns the squared distance between v1 and v2. */
+GariFloat gari_vector_distsq(GariVector v1, GariVector v2); 
+
+/** Returns true if the distance between v1 and v2 is less than d. */
+int gari_vector_near(GariVector v1, GariVector v2, GariFloat d);
+
+/** Retuns a unit vector that makes an angle a with the X axis. */
+GariVector gari_vector_fromangle(GariFloat f);
+ 
+/** Returns the angle of the vector with the X axis in clockwise 
+direction in radians */
+GariFloat gari_vector_angle(GariVector v1);
+ 
 
 /** Ruby scripting. */
 #include <ruby.h> // needed for certain macros in main.

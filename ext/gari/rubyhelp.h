@@ -70,6 +70,11 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 // transforms a C value (pointer or int) to Qtrue of Qfalse
 #define RBH_TOBOOL(VAL) ((VAL) ? Qtrue : Qfalse)
 
+// transforms a C value (pointer or int) to Qtrue of Qfalse
+// For consistency with RBH_BOOL_INT. 
+#define RBH_INT_BOOL(VAL) ((VAL) ? Qtrue : Qfalse)
+
+
 
 // Helper to define numerical constants 
 #define RBH_NUM_CONST(MOD, NAME, VALUE) \
@@ -193,8 +198,17 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 
 // Converts an uint8_t to a ruby number value
 #define RBH_UINT8_NUM(UINT8) RBH_INT_NUM((int)(UINT8))
+
+// Converts a ruby VALUE to a double
+#define RBH_DOUBLE(DBL) ((float)NUM2DBL(DBL))
 // Converts a double to a ruby VALUE
 #define RBH_DOUBLE_NUM(DBL) DBL2NUM(DBL)
+
+// Converts a ruby VALUE to a float
+#define RBH_FLOAT(FLT) ((float)NUM2DBL(FLT))
+// Converts a float to a ruby VALUE
+#define RBH_FLOAT_NUM(FLT) (DBL2NUM((double)FLT))
+
 
 // Helper to define a singleton method (class method) for a class
 #define RBH_SINGLETON_METHOD(KLASS, NAME, FUNC, ARITY) \

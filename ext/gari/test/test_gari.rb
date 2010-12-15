@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'test_helper.rb'
 require 'gari'
+# require 'math'
 
 def test_file(fname)
   return File.join('test', fname)
@@ -21,6 +22,91 @@ assert { Gari::Joystick }
 assert { Gari::Screen   }
 assert { Gari::Layer    }
 assert { Gari::Sheet    }
+assert { Gari::Vector   }
+ 
+v1 = Gari::Vector.new(2, 3);
+v2 = Gari::Vector.new(3, 1);
+assert { v1 }
+assert { v1.x == 2 }
+assert { v1.y == 3 }
+assert { v2   }
+assert { v2.x == 3 }
+assert { v2.y == 1 }
+
+va = Gari::Vector.angle(Math::PI / 4.0)
+assert { va }
+assert { v1.equal_delta?(v1, 0.001) }
+assert { v2.equal_delta?(v2, 0.001) }
+assert { ! v1.equal_delta?(v2, 0.001) }
+assert { ! v2.equal_delta?(v1, 0.001) }
+vs = v1 + v2
+assert { vs } 
+assert { vs.x == (v1.x + v2.x) }
+assert { vs.y == (v1.y + v2.y) }
+vs = v1 - v2
+assert { vs }
+assert { vs.x == (v1.x - v2.x) }
+assert { vs.y == (v1.y - v2.y) }
+d1 = 0.23
+# multiplication and divuisin are not exact compared to ruby because 
+# gari uses floats internally (not doubles) for speed reasons.
+
+def close?(f1, f2, d=0.00001)
+  return (f1 - f2).abs < d
+end
+ 
+ 
+vs = v1 * d1
+assert { vs }
+assert { close?(vs.x, v1.x * d1) }
+assert { close?(vs.y, v1.y * d1) }
+vs = v1 / d1
+assert { vs }
+assert { close?(vs.x, v1.x / d1) }
+assert { close?(vs.y, v1.y / d1) }
+vs = v1.dot(v2) 
+assert  { vs }
+vs = v1.cross(v2)
+assert  { vs } 
+vs = v1.perp()
+assert  { vs }
+vs = v1.nperp()
+assert  { vs } 
+assert  {  close?(v1.lensq, v1.x**2 + v1.y**2)  }
+assert  {  close?(v1.len, v1.lensq**0.5)        }
+assert  {  close?(va.angle, Math::PI / 4.0)     }
+ 
+
+
+
+
+
+=begin
+  RBH_METHOD(Vector             , dot         , rbgari_vector_dot       , 1);
+  RBH_METHOD(Vector             , cross       , rbgari_vector_cross     , 1);
+  RBH_METHOD(Vector             , perp        , rbgari_vector_perp      , 0);
+  RBH_METHOD(Vector             , nperp       , rbgari_vector_nperp     , 0);
+  RBH_METHOD(Vector             , normalize   , rbgari_vector_normalize , 0);
+  RBH_METHOD(Vector             , lensq       , rbgari_vector_lensq     , 0);
+  RBH_METHOD(Vector             , len         , rbgari_vector_len       , 0);
+  RBH_METHOD(Vector             , length      , rbgari_vector_len       , 0);
+  RBH_METHOD(Vector             , l           , rbgari_vector_len       , 0);
+  RBH_METHOD(Vector             , a           , rbgari_vector_angle     , 0);
+  RBH_METHOD(Vector             , angle       , rbgari_vector_angle     , 0);
+  RBH_METHOD(Vector             , project     , rbgari_vector_project   , 1);
+  RBH_METHOD(Vector             , rotate      , rbgari_vector_rotate    , 1);
+  RBH_METHOD(Vector             , unrotate    , rbgari_vector_unrotate  , 1);
+  RBH_METHOD(Vector             , lerp        , rbgari_vector_lerp      , 2);
+  RBH_METHOD(Vector             , max         , rbgari_vector_max       , 1);
+  RBH_METHOD(Vector             , dist        , rbgari_vector_dist      , 1);
+  RBH_METHOD(Vector             , distsq      , rbgari_vector_distsq    , 1);
+  RBH_METHOD(Vector             , near        , rbgari_vector_near      , 2);
+  RBH_METHOD(Vector             , x           , rbgari_vector_x         , 0);
+  RBH_METHOD(Vector             , y           , rbgari_vector_y         , 0);
+=end
+
+
+
   
 game = Gari::Game.new
 assert { game } 
@@ -146,7 +232,7 @@ screen.blitscale(300, 200, so.w , so.h, so,  0 , 0, so.w, so.h)
 # Check if scaling without actually scaling preserves the size
 assert { screen.dot?(300 + so.w, 200 + so.h, old) }
 # Try blitscale 9 algorithm
-screen.blitscale9(go, 200, 300, 100, 150, 8, 8)
+screen.blitscale9(200, 300, go, 100, 150, 8, 8)
 
 screen.frame(320, 300, 100, 150, 3, cgrey, cgreen)
 screen.roundframe(440, 300, 100, 150, 3, cgrey, cgreen)
@@ -182,6 +268,9 @@ assert { font.descent <= 0  }
 assert { font.lineskip > 0  }
 assert { font.style == STYLE }
 assert { font.mode  == MODE }
+w, h = font.size_text(TEXT) 
+assert { w == font.width_of(TEXT) }
+assert { h == font.lineskip       } 
 
 screen.text(70, 90, TEXT, font, cwhite, cgreen);
 
@@ -205,8 +294,13 @@ assert { font.lineskip > 0 }
 assert { font.style == STYLE1 }
 assert { font.mode  == MODE1  }
 
-
 screen.text(70, 70, "Hello! 日本語　This is ök!", font, cwhite, cgreen);
+font.antialias = :blended
+assert { font.mode  == Gari::Font::BLENDED }
+font.antialias = :solid
+assert { font.mode  == Gari::Font::SOLID }
+font.antialias = :shaded
+assert { font.mode  == Gari::Font::SHADED }
 
 assert { screen.showcursor } 
 screen.showcursor = false

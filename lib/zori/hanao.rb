@@ -45,18 +45,28 @@ module Zori
     # Structure for Drag Info
     DragInfo        = Struct.new(:button, :widget, :when)
     
+    # Returns the directory used for the images
     def self.image_dir
       return Fimyfi.image_dir
     end
     
+    # Returns the directory used for the fonts
+    def self.font_dir
+      return Fimyfi.font_dir
+    end
+    
+    # Loads an image (not optimized) 
     def self.load_image(*names)
       fname = Fimyfi.join(self.image_dir, *names)
       return Gari::Image.loadraw(fname)
     end
       
-   def self.load_font(name, size)
-      fname = Fimyfi.join(self.image_dir, name)
-      return Gari::Font.new(fname, size)
+    # Loads a font.
+    def self.load_font(name, size)
+      fname = Fimyfi.join(self.font_dir, name)
+      font  = Gari::Font.new(fname, size)
+      warn("Could not open font #{name} in #{fname}") if(!font)
+      return font      
     end   
     
     # Class that models the mouse state and constants
@@ -258,6 +268,7 @@ module Zori
     attr_reader   :mouse      # Mouse information
     attr_reader   :keyboard   # Keyboard information
     attr_reader   :joysticks  # Array of joystick information
+    attr_reader   :defaultfont# Default font
     
     # Overridden self. Needed for some nested initialization problem in Dialog.
     def self.new(*args)
