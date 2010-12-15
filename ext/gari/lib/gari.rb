@@ -51,7 +51,7 @@ module Gari
       return KIND_TO_TYPE[self.kind]
     end
     
-    # returns the key press unicode value as a text
+    # Returns the key press unicode value as a text
     def text
       [self.unicode].pack("U*").force_encoding("utf-8")
     end

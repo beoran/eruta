@@ -36,9 +36,9 @@ module Zori
       wmax  = self.w - (self.margin * 2)
       hreal = self.h - (self.margin * 2)
       wreal = ((wmax * @value) / @maximum.to_f).round
-      target.fill_rectangle(x + self.margin, y + self.margin, wreal, hreal,
-                            self.colors.text)
-      put_border(target)      
+      target.slab(x + self.margin, y + self.margin, 
+                  wreal, hreal, self.colors.text)
+      put_border(target)
     end
     
     def can_drag?

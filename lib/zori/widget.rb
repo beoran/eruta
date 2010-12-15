@@ -609,7 +609,7 @@ module Zori
     
     # Draws a normal background around ourself 
     def put_background(target)
-      target.slab.put_border(*self.dimensions, self.colors.background)
+      @hanao.put_background(target, self.colors, *self.dimensions)
     end
     
     # Draws a normal border around ourself 

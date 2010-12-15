@@ -20,6 +20,7 @@ module Zori
         @max      = str.length
         @index    = ind || @max
         @w        = 1
+        @color    = Gari::Color.rgb(255, 255, 191)
         update()
       end
       
@@ -44,7 +45,7 @@ module Zori
       end    
         
       def draw(target)
-        target.line(self.x, self.y, self.w, self.h)
+        target.line(self.x, self.y, self.w, self.h, @color)
       end
     end
       
@@ -99,12 +100,12 @@ module Zori
       # update()
       fg = self.colors.text
       bg = self.colors.background      
-      target.quickfill_rectangle(self.x, self.y, self.w, self.h, bg)
+      target.slab(self.x, self.y, self.w, self.h, bg)
       
       self.put_inset(target)
       dx = self.x + self.margin
       dy = self.y + self.margin      
-      self.font.draw(target, dx, dy, @value.to_s, fg, bg)
+      target.text(dx, dy, @value.to_s, font, fg, bg)
       
       #self.font.draw( target, self.x + self.margin, self.y + self.margin, 
       #                self.value, fg, bg )
@@ -112,7 +113,7 @@ module Zori
       if self.focus?
         col = self.style.colors.text
         ih  = self.h - (2 * self.margin) 
-        target.put_line(@cursor_x1, @cursor_y1, 0, ih, col)
+        target.line(@cursor_x1, @cursor_y1, 0, ih, col)
         # Todo: cursor should follow 
       end
     end    
@@ -141,42 +142,43 @@ module Zori
     # Handle key presses
     def on_key(key, modifier, string)
       case key
-        when Sisa::Key::RIGHT
+        when Gari::Key::KEY_RIGHT
           if @cursor < self.value.size
             @cursor += 1
             update()
           end
-        when Sisa::Key::LEFT
+        when Gari::Key::KEY_LEFT
            if @cursor > 0
             @cursor -= 1
             update()
            end
-        when Sisa::Key::HOME
+        when Gari::Key::KEY_HOME
           @cursor = 0
           update()
-        when Sisa::Key::END
+        when Gari::Key::KEY_END
           @cursor = self.value.size
-          update()          
-        when Sisa::Key::BACKSPACE          
+          update()
+        when Gari::Key::KEY_BACKSPACE
           if @cursor > 0
             @cursor -= 1
             self.value[@cursor] = '' # Remove character
             update()
            end 
-        when Sisa::Key::DELETE          
+        when Gari::Key::KEY_DELETE          
           if @cursor < self.value.size
             self.value[@cursor] = '' # Remove character
             update()
           end                    
-        when Sisa::Key::RETURN, Sisa::Key::KP_ENTER
+        when Gari::Key::KEY_RETURN, Gari::Key::KEY_KP_ENTER
            act
            # Call the given block if enter  is pressed.          
-        when Sisa::Key::LSHIFT, Sisa::Key::RSHIFT
+        when Gari::Key::KEY_LSHIFT, Gari::Key::KEY_RSHIFT
           # Ignore control keys.
         else
+          p string 
           if string && (!string.empty?) && (self.value.size < @maxchar)            
-            if ((modifier & Sisa::Key::LSHIFT) > 0 or 
-                (modifier & Sisa::Key::RSHIFT) > 0) 
+            if ((modifier & Gari::Key::KEY_LSHIFT) > 0 or 
+                (modifier & Gari::Key::KEY_RSHIFT) > 0) 
               string.upcase! 
             end
             self.value = self.value.insert(@cursor, string)

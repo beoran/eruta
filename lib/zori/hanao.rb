@@ -228,13 +228,6 @@ module Zori
       
       def make_joystick_cursor
         return Hanao.load_image('ui', 'cursor', 'joystick_0.png')
-#         cursor = Sisa::Surface.make(16, 16)
-#         col    = Sisa::Color::Black
-#         cursor.put_line(0 , 16,  0, 32, col)
-#         cursor.put_line(16,  0, 16, 16, col)
-#         cursor.put_line(16, 32, 16, 16, col)
-#         cursor.fill_rectangle(16, 16, 16, 16, col)
-#         return cursor
       end
     
       def initialize
@@ -249,11 +242,12 @@ module Zori
       end
       
       def draw(screen)
-        screen.put_bitmap(@x, @y, @cursor)
+        screen.blit(@x, @y, @cursor)
       end
       
     end
 
+    attr_reader   :game       # Game
     attr_reader   :screen     # Screen
     attr_reader   :queue      # Event queue
     attr_accessor :main       # Main widget
@@ -287,8 +281,9 @@ module Zori
    
    
    
-    def initialize(screen, queue) 
-      @screen         = screen
+    def initialize(game, queue) 
+      @game           = game
+      @screen         = game.screen
       @queue          = queue
       @defaultfont    = Hanao.load_font('dejavuserif.ttf', 12)
       @style          = Zori::Style.new(@defaultfont)
@@ -362,13 +357,18 @@ module Zori
         self.send(handler, event)
         event   = @queue.poll
       end
-      repeat_keys # Repeat keypresses
+      # repeat_keys # Don't Repeat keypresses, let Gari handle it. 
       return self
+    end
+    
+    # Update the state of the game that hanao is connected to.
+    def update_game
+      self.game.update
     end
     
     # Draws the system's widgets to the screen, or to the given surface.
     # Returns self. 
-    def draw(surface = nil)      
+    def draw(surface = nil)
       surface        ||= @screen
       @main.draw_all(surface) if @main
       @mouse.draw(surface)    if @mouse
@@ -416,7 +416,7 @@ module Zori
       return false unless self.focused && @focuscursor
       x = self.focused.in_left - (@focuscursor.w)
       y = self.focused.vertical_center - (@focuscursor.h / 2)
-      screen.put_bitmap(x, y, @focuscursor)
+      screen.blit(x, y, @focuscursor)
     end
     
     # Returns the widget under this x and y, or nil if not found.
@@ -483,17 +483,17 @@ module Zori
     
     # Called when key is pressed
     def on_keydown(event)      
-      text    = event.unicode # cleanup_unicode(event)            
+      text    = event.text # cleanup_unicode(event)            
       keyboard.press(event.key, event.mod, text)
       send_to_interested(:on_key_down, event.key, event.mod, text)      
     end
     
     # Called when key is released
     def on_keyup(event)
-      text    = cleanup_unicode(event)
-      state   = keyboard.state(event.sym)
+      text    = event.text
+      state   = keyboard.state(event.key)
       send_to_interested(:on_key_up, event.key, event.mod, text)
-      keyboard.release(event.sym)
+      keyboard.release(event.key)
     end
     
     # Called when the mouse moves
@@ -640,6 +640,11 @@ module Zori
       target.line(x    , y    , 0     , h     , colors.shadow)
       target.line(x + w, y + 1, 0     , h - 1 , colors.highlight)
       target.line(x + 1, y + h, w - 1 , 0     , colors.highlight)
+    end
+    
+    # Draws a solid background with the given colors and given sizes
+    def put_background(target, colors, x, y, w, h) 
+      target.slab(x, y, w, h, colors.background)
     end
     
     # For debugging

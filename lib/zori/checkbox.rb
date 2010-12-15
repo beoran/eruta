@@ -65,7 +65,7 @@ module Zori
     # Called on key press 
     def on_key(code, mods, text)
       super(code, mods, text)
-      if code == Sisa::Key::SPACE
+      if code == Gari::Key::KEY_SPACE
         self.toggle
       end
     end

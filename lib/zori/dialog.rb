@@ -42,7 +42,7 @@ module Zori
       until self.hanao.done? or self.close? do
         self.hanao.update
         self.hanao.draw(self.hanao.screen)
-        self.hanao.screen.flip
+        self.hanao.update_game
         block.call(self) if block
       end 
       return self.value if self.respond_to? :value

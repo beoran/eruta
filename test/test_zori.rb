@@ -38,7 +38,7 @@ assert { Zori::Shortcut    }
 @game   = Gari::Game.new
 @screen = @game.openscreen(640, 480, false)
 @queue  = Gari::Event
-@ui     = Zori.open(@screen, @queue)
+@ui     = Zori.open(@game, @queue)
 ui      = @ui
 assert { @ui.wide == @screen.w }
 assert { @ui.high == @screen.h } 

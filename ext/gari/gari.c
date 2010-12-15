@@ -176,6 +176,9 @@ GariGame * gari_game_init(GariGame * game) {
   }
   // also enable unicode events.
   SDL_EnableUNICODE(1);
+  //aalso enable keboard repeats. XXX: Need way to disable them again.
+  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+  
   // also open all joysticks.
   gari_game_openjoysticks(game);
   
