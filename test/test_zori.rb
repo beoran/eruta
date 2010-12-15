@@ -92,9 +92,7 @@ menu        = Zori::Menubar.new
   button1 = Zori::Button.new("Left!") {   
     widget.style.alignment = :left
     label.style.alignment  = :left
-    widget.layout_all     
-    res = Zori::Dialog.yesno('What will it be, yes or no?')
-    p res  
+    widget.layout_all
   }
   
   button2 = Zori::Button.new("Middle!") {   
@@ -162,6 +160,10 @@ menu        = Zori::Menubar.new
   # Zori::Dialog.textsplash('This will disappear in a few seconds')
   # answer = Zori::Dialog.ask('What do you say?')
   # p answer
+   
+   res = Zori::Dialog.yesno('What will it be, yes or no?')
+   p res  
+
   
   until ui.done do
     progress.advance

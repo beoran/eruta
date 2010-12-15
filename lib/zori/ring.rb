@@ -18,7 +18,7 @@ module Zori
       attr_accessor :name     # Short name
       attr_accessor :text     # Long description
       attr_accessor :icon     # Icon
-      attr_accessor :subring  # Subring to be opened on activating this item, of any
+      attr_accessor :subring  # Subring to be opened on activating this item
       attr_accessor :x        # X position to draw the icon
       attr_accessor :y        # Y position to draw the icon
       attr_accessor :display  # Our display

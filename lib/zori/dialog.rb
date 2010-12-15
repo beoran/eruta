@@ -34,6 +34,12 @@ module Zori
     end
 
     
+    def wait_once(&block)
+      return true if self.close? 
+      block.call(self) if block
+      Fiber.yield :wait
+    end
+    
     # Waits for ourself to be to be finished
     def wait_on(&block)
       self.hanao.queue.poll { |e| } 
@@ -227,27 +233,26 @@ module Zori
     # Creates an alert dialog
     def self.new_alert(message, text='')
       dialog = Dialog::Choice.new(message, text)
-      return dialog     
-    end    
+      return dialog
+    end
     
     # Creates an ask dialog (for simple text input)
     def self.new_ask(question, text="")
       dialog = Dialog::Question.new(question, text)
-      return dialog     
-    end    
+      return dialog
+    end
     
     # Creates an textsplash dialog (for timed text output)
     def self.new_textsplash(message="", delay=3.0)
       dialog = Dialog::Textsplash.new(message, delay)
-      return dialog     
-    end    
+      return dialog
+    end
     
     # Creates a new status dialog 
     def self.new_status(message="", &block)
       dialog = Dialog::Status.new(message, &block)
-      return dialog     
-    end    
-    
+      return dialog
+    end
     
     # Inserts dialog into the system
     def self.into_system(dialog)
@@ -256,9 +261,9 @@ module Zori
       # Add to dialog pane
       dialog.to_front
       # And ensure it is set to the front. 
-    end    
+    end
         
-    # Creates a chooice dialog and waits until the user presses one of 
+    # Creates a choice dialog and waits until the user presses one of 
     # it's buttons.
     def self.choose(message, *options, &block)
       dialog = Dialog.new_choose(message, *options)
@@ -295,7 +300,7 @@ module Zori
     def self.ask(message='', text='', &block)
       dialog = Dialog.new_ask(message, text)
       into_system(dialog)
-      dialog.wait_on(&block)      
+      dialog.wait_on(&block)
     end
     
     # Creates a status dialog and inserts it into the GUI automatically
@@ -305,7 +310,6 @@ module Zori
       into_system(dialog)
       return dialog
     end
-
     
     # Creates an ask dialog and waits until the delay has passed.
     # The block will be continuously called, with the dialog as it's parameter

@@ -8,7 +8,8 @@ module Zori
       @heading      = heading || ""
       @pushed       = false
       @textsurf     = nil
-      self.w        = Zori::Text.best_width(@heading, self.style) + self.padding * 2
+      self.w        = Zori::Text.best_width(@heading, self.style) 
+                    + self.padding * 4
       # Calculate what might be the best width      
       self.update()
       # @text         = Zori::Text.new(@heading, self.w, self.style)
