@@ -182,7 +182,7 @@ GariGame * gari_game_init(GariGame * game) {
   }
   // also enable unicode events.
   SDL_EnableUNICODE(1);
-    
+  
   // also open all joysticks.
   gari_game_openjoysticks(game);
   
