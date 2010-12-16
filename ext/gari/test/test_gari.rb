@@ -358,9 +358,10 @@ assert { lay.outside?(1000, -1000) }
 assert { !lay.outside?(0, 0) }
 
 
-lay.draw(screen, -400, -5);
+lay.draw(screen, -400, -5)
 sh2.image = ri
-lay.draw(screen, -400, -130);
+lay.draw(screen, -400, -130)
+game.keyrepeat(100, 10)
 
 game.update
 busy  = true
@@ -372,6 +373,7 @@ while busy
     if ev.quit?
       busy = false
     elsif ev.keydown?
+       
       p ev.key, ev.text, ev.keysym
       # game.fullscreen = ! game.fullscreen
       # screen.blitscale9(go, 200, 300, 100, 150, 8, 8)

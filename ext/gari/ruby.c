@@ -132,6 +132,16 @@ VALUE rbgari_game_openscreen(VALUE vgame, VALUE vwide, VALUE vhigh, VALUE vfull)
                           RBH_INT(vwide), RBH_INT(vhigh), RBH_BOOL_INT(vfull)));
 }
 
+/** Sets the keyboard repeat delay and interval in ms, 
+*   or disable with delay 0. */
+VALUE rbgari_game_keyrepeat(VALUE self, VALUE vdelay, VALUE vinterval) { 
+  GariGame * game = GARI_GAME_UNWRAP(self);
+  int delay     = RBH_INT(vdelay);
+  int interval  = RBH_INT(vinterval);  
+  gari_game_keyrepeat(game, delay, interval);
+  return self;
+}
+
 /** Retuns the current main game screen. */
 VALUE rbgari_game_screen(VALUE vgame) { 
   return GARI_SCREEN_WRAP(gari_game_screen(GARI_GAME_UNWRAP(vgame)));
@@ -1157,6 +1167,8 @@ void Init_gari() {
   RBH_METHOD(Game, fps          , rbgari_game_fps         , 0);
   RBH_METHOD(Game, openscreen   , rbgari_game_openscreen  , 3);
   RBH_METHOD(Game, openscreendepth  , rbgari_game_openscreendepth, 4);
+  RBH_METHOD(Game, keyrepeat    , rbgari_game_keyrepeat   , 2 );
+  
   RBH_METHOD(Game, screen       , rbgari_game_screen      , 0);
   RBH_METHOD(Game, fullscreen   , rbgari_game_fullscreen  , 0);
   RBH_METHOD(Game, fullscreen=  , rbgari_game_fullscreen_ , 1);

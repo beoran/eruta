@@ -209,6 +209,10 @@ int gari_game_fullscreen(GariGame * game);
 /** Can be used to set or unset fullscreen after opening the screen. */
 GariScreen * gari_game_fullscreen_(GariGame * game, int fullscreen); 
 
+/** Sets the keyboard repeat delay and interval in ms, 
+*   or disable with delay 0. */
+GariGame * gari_game_keyrepeat(GariGame * game, int delay, int interval);
+
 
 /** Image mode, this deterines how to optimize the image for drawing to the screen, and whether the image has any transparency. */
 enum GariImageMode_ { 

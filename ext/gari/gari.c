@@ -156,6 +156,12 @@ GariJoystick * gari_game_joystick(GariGame * game, int index) {
   return game->joysticks[index];
 }
 
+/** Sets the keyboard repeat delay and interval in ms, 
+*   or disable with delay 0. */
+GariGame * gari_game_keyrepeat(GariGame * game, int delay, int interval) { 
+  SDL_EnableKeyRepeat(delay, interval);
+}
+
 
 /** Initializes a gari game, opeing all joysticks, etc. */
 GariGame * gari_game_init(GariGame * game) {
@@ -176,9 +182,7 @@ GariGame * gari_game_init(GariGame * game) {
   }
   // also enable unicode events.
   SDL_EnableUNICODE(1);
-  //aalso enable keboard repeats. XXX: Need way to disable them again.
-  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-  
+    
   // also open all joysticks.
   gari_game_openjoysticks(game);
   
