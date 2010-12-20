@@ -5,7 +5,12 @@
 # Remark on the dision of labour between Hanao and Widget:
 # Hanao handles everything that regards or influences different widgets,
 # Widget handles everything that only regards or influences one widget.
-# Hanao also contains various helper functions for drawing, etc. 
+# Hanao also contains various helper functions for drawing, 
+# loading rescoures, etc. 
+#
+# XXX: Think of a better way to handle modal dialogs. This could mean:
+# * Keeping track of who is modal in Hanao.
+# * Alternatively, use a ModalPane widget to ensure modality. 
 
 require 'forwardable'
 
@@ -307,6 +312,7 @@ module Zori
         @handlers[val]    = handler
       end
       @main           = nil
+      @modal          = nil # Curent modal widget. 
     end
     
     def init
@@ -376,12 +382,12 @@ module Zori
       self.draw_debug(surface)
       return self
     end
-    
+   
     ## Focus control
     # Tries to focus the widget. Automatically unfocuses the previous 
     # focus, and sends on_focus_lost and on_focus messages (in that order)
-    # Return true if the widget was focused, false if not
-    # widget may be nil to unset mouse focus
+    # Return true if the widget was focused, false if not.
+    # Widget may be nil to unset mouse focus.
     def focus(widget)
       if widget 
         return false unless widget.can_focus?

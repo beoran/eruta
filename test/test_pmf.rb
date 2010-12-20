@@ -67,7 +67,7 @@ fib = PMF.new do
     PMF.busy do
       puts "I'm still busy now"
       PMF.done("Not busy anymore!")
-    end  
+    end
   end
 end
 

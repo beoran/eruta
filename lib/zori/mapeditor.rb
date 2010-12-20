@@ -5,12 +5,12 @@ require 'rogaru'
 # Extracted from Eruma
  
 module Zori 
-  class Mapeditor
+  class Mapeditor < Widget
     def initialize(map)
       super()
       @map    = map
       @status = @hanao.statusdisplay("")
-      @clock  = Rogaru::Clock.new()
+      # @clock  = Rogaru::Clock.new()
       @camera = Rogaru::Tilemap::Camera.new(0, 0, 
                 @screen.w, @screen.h, *@map.map_size)
       map.camera  = @camera

@@ -5,7 +5,7 @@
 #
 module Zori
   module Linklist
-    # Inlcue this in the nodes.
+    # Include this in the nodes.
     module Node
       attr_accessor :node_next
       attr_accessor :node_previous
@@ -46,12 +46,12 @@ module Zori
         now = self
         while now
           block.call(now)
-          now = now.node_next
-        end      
+          now = now.node_previous
+        end
       end
-      
+
     end
-    
+
     # A class to hold your linked list nodes.
     class List
       attr_accessor :list_head
@@ -60,13 +60,12 @@ module Zori
         @list_head = nil
         @list_tail = nil
       end 
-      
+
       def each(&block)
         return @list_head.each if @list_head
       end
-      
-           
+
     end
-    
+
   end # module Linklist
 end  
