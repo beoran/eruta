@@ -2,7 +2,7 @@
 # and open the template in the editor.
 
 module Raku
-  
+  autoload :Lexer, 'raku/lexer'
 
 
 end

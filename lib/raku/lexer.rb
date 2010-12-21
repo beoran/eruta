@@ -29,22 +29,30 @@ module Raku
    class Token
      include Fail
      attr_reader :kind
-     attr_reader :text
+     attr_reader :value
 
-     def initialize(kind, text = "", line = 0, col = 0)
+     def initialize(kind, value = "", line = 0, col = 0)
        @kind   = kind.to_sym
-       @text   = text.to_s
+       @value  = value
        @line   = line
        @col    = col
+       if kind == :fail then
+        self.fail!(value)
+       end
      end
    end
 
    class Lexer
+      
+      attr_reader :line
+      attr_reader :col
+      
       # Initialize the lexer with empty text
       def initialize(text = "")
         text ||= ""
         # start with an empty scan string/
-        @scan   = new StringScanner(text)
+        @text   = text
+        @scan   = StringScanner.new(@text)
         @line   = 0
         @col    = 0
       end
@@ -54,10 +62,18 @@ module Raku
         @scan << text
       end
 
-      # generates a token. shortcut to Token.new
-      def token(kind, text = "")
-        return Token.new(kind, text, @line, @col)
+      # Generates a token. shortcut to Token.new
+      def token(kind, value = "")
+        return Token.new(kind, value, @line, @col)
       end
+      
+      # Generates a token. shortcut to Token.new, but only if text is not nil
+      # returns nil if text or kind is nil
+      def try_token(kind, value = nil)
+        return nil if (!kind || !value) 
+        return Token.new(kind, value, @line, @col)
+      end
+
 
       # scans self, automatically advancing line and col
       def scan(pattern)
@@ -76,10 +92,9 @@ module Raku
         ch = @scan.getch
         return ch unless ch
         # advance col and line if we were able to parse some tokens off.
-        aid = res.split(/\r\n|\n|\r/)
         @line += 1 if ch == "\n" || ch == "\r"
         @col  += ch.size
-        return res
+        return ch
       end
 
       # Tries to lex an escaped newline, or a newline.
@@ -87,16 +102,14 @@ module Raku
         res = scan(/\\[ \t]*(\r\n|\r|\n)+/)
         return token(:esc_nl, res) if res
         res = scan(/(\r\n|\r|\n)+/)
-        return token(:nl, res) if res
-        return nil
+        return try_token(:nl, res)
       end
 
 
       # Tries to lex whitespace. returns a token on success, nil on failiure.
       def lex_ws
-        res = scan(/[ \t]+/)
-        return nil unless res
-        return token(:ws, res)
+        res = scan(/[ \t]+/)        
+        return try_token(:ws, res)
       end
 
       # Tries to lex keywords, brackets, special operators and separators
@@ -114,64 +127,77 @@ module Raku
           '.'   => :period,
         }
         for k, v in search do
-          res = scan(k)
+          res = scan(Regexp.new("\#{k}"))
           return token(v, k) if res
         end
-        return null
+        return nil
       end
 
       # Tries to lex comments
       def lex_comment
         # Single line comment
         res = scan(%r{\#[^\r\n]+(\r\n|\r|\n)})
-        return token(:comment, text) unless res
+        return try_token(:comment, res) 
       end
       
       # Tries to lex symbols (start with a letter, and can contain letters, numbers and underscores)
       def lex_symbol
-        # Single line comment
+        # Symbols
         res = scan(%r{\w[\w\d_]+})
-        return token(:symbol, text) unless res
+        return try_token(:symbol, res)
       end
 
       # Tries to lex operators (consist of one or more of &|@^!*%+-=/<>$
       def lex_operator
-        # Single line comment
+        # Operators
         res = scan(%r{[&|@^!*%+-=/<>$]+})
-        return token(:operator, text) unless res
+        return try_token(:operator, res)
       end
       
       # Tries to lex integer numbers
       def lex_int()
         res = scan(%r{\d[\w\d_]+})
-        return token(:integer, text) unless res
+        return try_token(:integer, res)
       end
 
       # Tries to lex floating point numbers
       def lex_float()
         res = scan(%r{\d[\d_]+(\.)?[\d_]+([eE]\d[\d_]+(\.)?[\d_]+)?})
-        return token(:integer, text) unless res
+        return try_token(:float, res)
       end
 
       #
       # tries to lex strings
-
-      # Gets one token. Returns fail? on failure.
-      def lex()
-        return token(:eof) if @scan.eos?
-        tok = lex_ws
-        return tok if tok
-        tok = lex_nl
-        return tok if tok
-        tok = lex_key
-        return tok if tok
-
-
-
-        return fail!("Unknown text at #{line}: #{col}.")
+      def lex_string()
+        res = scan(%r{"([^"\\]|\\.)*"})
+        return try_token(:string, res) 
       end
 
+      LEX_ORDER = [ 
+        :lex_comment,
+        :lex_key,
+        :lex_operator,
+        :lex_symbol,
+        :lex_float,
+        :lex_int,
+        :lex_string,
+        :lex_nl, 
+        :lex_ws,
+      ]
 
+
+      # Gets one token. Returns fail? on failure.
+      def lex()        
+        return token(:eof) if @scan.eos?
+        # Try to lex the various possiblel exemes in the list. 
+        for action in LEX_ORDER do 
+          tok = self.send(action)
+          return tok if tok 
+          # If we find something, return it.
+        end
+        # If we got here, it all failed. 
+        return Token.new(:fail, "Lex error text at #{@line}: #{@col}: #{@scan.peek(10)}.")
+      end
 
    end
 end
