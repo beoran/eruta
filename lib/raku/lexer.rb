@@ -88,7 +88,7 @@ module Raku
 
       # gets the next character from self, as a string.
       # Automatically advances line and col
-      def getch(pattern)
+      def getch()
         ch = @scan.getch
         return ch unless ch
         # advance col and line if we were able to parse some tokens off.
@@ -96,6 +96,25 @@ module Raku
         @col  += ch.size
         return ch
       end
+      
+      # puts back the next character from self, as a string.
+      # Automatically advances line and col
+      def ungetch(ch)
+        @scan.unscan 
+        # reset col and line if we were able to parse some tokens off.
+        @line -= 1 if ch == "\n" || ch == "\r"
+        @col  -= ch.size
+        return ch
+      end
+      
+      
+      # Checks if the next character or string is the one requested or not
+      # uses peek to look forward
+      def checkch(str)
+        # getch
+        return nil
+      end
+       
 
       # Tries to lex an escaped newline, or a newline.
       def lex_nl
