@@ -2,7 +2,8 @@
 # and open the template in the editor.
 
 module Raku
-  autoload :Lexer, 'raku/lexer'
-
+  autoload :Fail  , 'raku/fail'
+  autoload :Lexer , 'raku/lexer'
+  autoload :Parser, 'raku/parser'
 
 end

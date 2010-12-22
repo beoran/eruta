@@ -576,7 +576,7 @@ class Game
   def main
     while @state && @state != :done
       self.send("state_#@state")
-    end  
+    end
   end
   
   def self.main

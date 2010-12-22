@@ -7,29 +7,15 @@
 require 'strscan'
 
 module Raku
-   # A Fail is used for anything that fails.
-   module Fail
-     def fail!(msg = "")
-       @fail_message = msg
-       @fail_failed  = true
-       return self
-     end
-
-     def fail?()
-       @fail_failed  ||= false
-       return @fail_failed
-     end
-
-     def fail_message()
-       return @fail_message
-     end
-   end
+   
 
    # A token is the result of a single step of the lexer
    class Token
      include Fail
      attr_reader :kind
      attr_reader :value
+     attr_reader :line
+     attr_reader :col
 
      def initialize(kind, value = "", line = 0, col = 0)
        @kind   = kind.to_sym
@@ -80,9 +66,11 @@ module Raku
         res = @scan.scan(pattern)
         return res unless res
         # advance col and line if we were able to parse some tokens off.
-        aid = res.split(/\r\n|\n|\r/)
+        # XXX: this counts the newline characters, but is buggy
+        aid    = res.split(/\r\n|\n|\r/)
+        aid    = "A#{res}Z".split(/\r\n|\n|\r/) unless aid
         @line += aid.size
-        @col  += aid.last.size
+        @col  += (aid.last ? aid.last.size : 0) 
         return res
       end
 
@@ -112,6 +100,11 @@ module Raku
       # uses peek to look forward
       def checkch(str)
         # getch
+        ch = self.getch
+        return nil unless ch
+        return ch if ch == str
+        # If we het here, the str was different
+        ungetch(ch) 
         return nil
       end
        
@@ -146,7 +139,7 @@ module Raku
           '.'   => :period,
         }
         for k, v in search do
-          res = scan(Regexp.new("\#{k}"))
+          res = checkch(k)
           return token(v, k) if res
         end
         return nil
@@ -169,19 +162,19 @@ module Raku
       # Tries to lex operators (consist of one or more of &|@^!*%+-=/<>$
       def lex_operator
         # Operators
-        res = scan(%r{[&|@^!*%+-=/<>$]+})
+        res = scan(%r{[\&\|\@\^\!\*\%\+\-\=\/\<\>\$]+})
         return try_token(:operator, res)
       end
       
       # Tries to lex integer numbers
       def lex_int()
-        res = scan(%r{\d[\w\d_]+})
+        res = scan(%r{\d[\w\d_]*})
         return try_token(:integer, res)
       end
 
       # Tries to lex floating point numbers
       def lex_float()
-        res = scan(%r{\d[\d_]+(\.)?[\d_]+([eE]\d[\d_]+(\.)?[\d_]+)?})
+        res = scan(%r{\d[\d_]*\.[\d_]+([eE]\d[\d_]*(\.[\d_]+)?)?})
         return try_token(:float, res)
       end
 
@@ -195,11 +188,11 @@ module Raku
       LEX_ORDER = [ 
         :lex_comment,
         :lex_key,
-        :lex_operator,
         :lex_symbol,
         :lex_float,
         :lex_int,
         :lex_string,
+        :lex_operator,
         :lex_nl, 
         :lex_ws,
       ]
@@ -217,6 +210,38 @@ module Raku
         # If we got here, it all failed. 
         return Token.new(:fail, "Lex error text at #{@line}: #{@col}: #{@scan.peek(10)}.")
       end
+      
+      # Gets tokens until the kin is not in the skip list 
+      def lex_skip(*skiplist)
+        tok = lex() 
+        while tok && tok.kind != :eof && tok.kind != :fail &&
+              skiplist.member?(tok.kind)
+          tok = lex()
+          return tok if tok.kind == :eof
+          return tok if tok.kind == :fail
+        end
+        return tok
+      end
+      
+      # Gets all tokens, ignoring those to be skipped in skiplist, 
+      # and returns them as an array
+      def lex_all(*skiplist)
+        res = []
+        tok = self.lex 
+        while tok && tok.kind != :eof && tok.kind != :fail 
+          res << tok unless skiplist.member?(tok.kind)
+          tok = self.lex
+        end
+        res << tok unless skiplist.member?(tok.kind)
+        return res
+      end
+      
+      # Creates a lexer, lexes everythng, and returns the results as an array
+      def self.lex_all(prog, *skiplist)
+        lexer = self.new(prog)
+        return lexer.lex_all(*skiplist)
+      end
+      
 
    end
 end

@@ -2,6 +2,7 @@
 # require 'redgreen'
 
 require 'pathname'
+require 'timeout'
 require 'term/ansicolor'
 
 module RedGreen
@@ -35,7 +36,9 @@ module Nanotest
     res    = nil
     raised = nil
     begin 
-      res = block.call
+      Timeout.timeout(5) do 
+        res = block.call
+      end  
     rescue 
       raised = $!
       res = nil
