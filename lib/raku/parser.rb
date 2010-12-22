@@ -70,6 +70,8 @@ module Raku
       return res if res 
       res = want(:float)
       return res if res
+      res = want(:string)
+      return res if res
       res = want(:symbol)
       return res if res
       res = want(:operator)

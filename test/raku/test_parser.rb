@@ -35,11 +35,35 @@ prog2 = %Q{
 # assert { result = parser.parse_basic }
 # assert { result.kind == :symbol }
 # p result 
+res = Raku::Parser.new("12340.5").parse_basic
+p res 
+assert { res.kind == :float } 
+res = Raku::Parser.new("12340 5").parse_basic
+p res 
+assert { res.kind == :integer }
+res = Raku::Parser.new(" a12340.5").parse_basic
+p res 
+assert { res.kind == :symbol }
+res = Raku::Parser.new('"Hi!"').parse_basic
+p res 
+assert { res.kind == :string }
+assert { res.value == '"Hi!"' }
 
-parser = Raku::Parser.new(prog2)
-result = nil
-assert { parser }
-assert { result = parser.parse } 
-assert { result }
-p result 
+res = Raku::Parser.new('>^-^<').parse_basic
+p res 
+assert { res.kind == :operator }
+assert { res.value == '>^-^<' }
+
+res = Raku::Parser.new("\n12340.5").parse_basic
+assert { !res } 
+ 
+ 
+
+
+# parser = Raku::Parser.new(prog2)
+# result = nil
+# assert { parser }
+# assert { result = parser.parse } 
+# assert { result }
+# p result 
  

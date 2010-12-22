@@ -188,9 +188,9 @@ module Raku
       LEX_ORDER = [ 
         :lex_comment,
         :lex_key,
-        :lex_symbol,
         :lex_float,
         :lex_int,
+        :lex_symbol,
         :lex_string,
         :lex_operator,
         :lex_nl, 
