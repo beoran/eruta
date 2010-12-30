@@ -26,6 +26,11 @@ module Raku
         self.fail!(value)
        end
      end
+     
+     def eof?
+      self.kind == :eof 
+     end
+    
    end
 
    class Lexer
@@ -214,7 +219,7 @@ module Raku
       # Gets tokens until the kin is not in the skip list 
       def lex_skip(*skiplist)
         tok = lex() 
-        while tok && tok.kind != :eof && tok.kind != :fail &&
+        while tok && !tok.eof? && !tok.fail? &&
               skiplist.member?(tok.kind)
           tok = lex()
           return tok if tok.kind == :eof

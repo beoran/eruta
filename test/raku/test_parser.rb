@@ -27,6 +27,9 @@ prog2 = %Q{
   }
 }
 
+prog3 = %Q{ map 2 2 2 2.0
+}
+
 # parser = Raku::Parser.new(prog2)
 # assert { parser } 
 # result = nil
@@ -60,10 +63,17 @@ assert { !res }
  
 
 
-# parser = Raku::Parser.new(prog2)
-# result = nil
-# assert { parser }
-# assert { result = parser.parse } 
-# assert { result }
-# p result 
+parser = Raku::Parser.new(prog3)
+result = nil
+assert { parser }
+assert { result = parser.parse } 
+assert { result }
+p result 
+
+parser = Raku::Parser.new('map')
+result = nil
+assert { parser }
+assert { result = parser.parse } 
+assert { result }
+p result 
  

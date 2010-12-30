@@ -40,6 +40,12 @@ lexer = Raku::Lexer.new(STR)
 assert { lexer }
 res   = lexer.lex
 assert { res } 
+assert_lex("") { |res| res.is_a? Raku::Token } 
+assert_lex("") { |res| res.kind  == :eof }
+assert_lex("") { |res| res.value == nil }
+assert_lex("") { |res, lex| res.eof? }
+assert_lex("") { |res, lex| !res.fail? }
+
 
 assert_lex("map") { |res| res.is_a? Raku::Token } 
 assert_lex("map") { |res| res.kind  == :symbol }
