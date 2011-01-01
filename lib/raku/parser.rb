@@ -108,9 +108,11 @@ module Raku
       end
     end
     
+    #the bug is here: we have only 1 token lookahead, but this function assumes 
+    # unlimited (3) rollback pints. Bad indeed! :p
     def parse_statement
       result = node(:statement)
-      aid     = want(:nl)
+      aid    = want(:nl)
       return result if aid
       warn 'stat not empty'
       # handle empty statements
@@ -131,7 +133,8 @@ module Raku
     
     def parse_statements
       result = node(:statements)
-      res   = parse_statement
+      res    = parse_statement
+      return nil if !res
       while res 
         res = parse_statement
         result << res if res
@@ -155,7 +158,7 @@ module Raku
     end
     
     def parse_block_or_statements
-      parse_empty_statements
+      #parse_empty_statements
       res = parse_block
       return res if res
       res = parse_statements

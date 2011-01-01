@@ -70,13 +70,13 @@ assert { !res }
 # assert { result }
 # p result 
 
-# parser = Raku::Parser.new('map
-# ')
-# result = nil
-# assert { parser }
-# assert { result = parser.parse } 
-# assert { result }
-# p result 
+parser = Raku::Parser.new('map
+')
+result = nil
+assert { parser }
+assert { result = parser.parse } 
+assert { result }
+p result 
 
  
 parser = Raku::Parser.new('map
