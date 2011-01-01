@@ -42,17 +42,20 @@ module Raku
     
     def want(kind)
       # XXX: still buggy somewhere...
+      # the problem is that there is no function for look ahead ad if it
+      #is not what i want, even eof, fail and rollback the lexer (unscan)
       unless @next # scan for the first time
         @now    = nil
         @next   = @lexer.lex_skip(*IGNORE)
       end
-      if @next.kind == :fail
+      if @next.fail?
         raise "Lex error: at #{@next.line}:#{@next.col}"
       end
       
-      if @next.kind == :eof && kind != :eof
-        raise "Parse error: unexpected #{@next.kind} at #{@next.line}:#{@next.col}"
-      end  
+#       if @next.eof? && kind != :eof
+#         raise "Parse error: unexpected #{@next.kind} at
+#{@next.line}:#{@next.col}"
+#       end  
       if @next.kind == kind
         # all ok, advance
         advance
@@ -90,7 +93,7 @@ module Raku
     def parse_arguments
       result = node(:arguments)
       aid    = parse_argument
-      return nil unless aid
+      return result unless aid
       while aid
         result << aid if aid
         aid = parse_argument
@@ -100,22 +103,28 @@ module Raku
     
     def parse_empty_statements
       aid = want(:nl)
-      while aid &&  
+      while aid  
         aid = want(:nl)
       end
     end
     
     def parse_statement
       result = node(:statement)
-      parse_empty_statements # skip empty statements
+      aid     = want(:nl)
+      return result if aid
+      warn 'stat not empty'
+      # handle empty statements
       aid    = parse_basic
       return nil unless aid
+      warn 'stat starts with basic'
       result << aid
       aid    = parse_arguments
       return nil unless aid
+      warn 'stat args ok'
       result << aid
       aid    = want(:nl)
       return nil unless aid
+      warn 'stat ends with newline'
       result << aid
       return result
     end

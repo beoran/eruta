@@ -8,7 +8,7 @@ module Raku
      end
 
      def fail?()
-       @fail_failed  ||= false
+       @fail_failed ||= false
        return @fail_failed
      end
 
