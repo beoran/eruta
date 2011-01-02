@@ -36,26 +36,35 @@ module Raku
     end
     
     def advance
-        @now    = @next 
-        @next   = @lexer.lex_skip(*IGNORE)
+      @now    = @next 
+      @next   = @lexer.lex_skip(*IGNORE)
+      return give_up("Lex error") if @next.fail?
+      return @now
+    end
+   
+    def give_up(reason="")
+      raise "Parse Error at #{@next.line}:#{@next.col}: #{reason}"
     end
     
+    def peek()
+      unless @next # scan for the first time
+        advance
+      end
+      return @next
+    end
+    
+    def peek?(kind)
+      return self.peek.kind == kind
+    end
+
     def want(kind)
       # XXX: still buggy somewhere...
       # the problem is that there is no function for look ahead ad if it
       #is not what i want, even eof, fail and rollback the lexer (unscan)
       unless @next # scan for the first time
-        @now    = nil
-        @next   = @lexer.lex_skip(*IGNORE)
+        advance
       end
-      if @next.fail?
-        raise "Lex error: at #{@next.line}:#{@next.col}"
-      end
-      
-#       if @next.eof? && kind != :eof
-#         raise "Parse error: unexpected #{@next.kind} at
-#{@next.line}:#{@next.col}"
-#       end  
+     
       if @next.kind == kind
         # all ok, advance
         advance
@@ -66,6 +75,8 @@ module Raku
       end
     end
     
+    def one_of(*kinds)
+    end
     # raise "Parse error: unexpected #{@now.kind} at #{@now.line}:#{@now.col}"
     
     def parse_basic
@@ -87,16 +98,16 @@ module Raku
       return aid if aid
       aid = parse_block 
       return aid if aid
-      return nil
+      # Argument must be a basic or a block. If not, fail
+      return give_up("argument expected")
     end
     
     def parse_arguments
       result = node(:arguments)
-      aid    = parse_argument
-      return result unless aid
-      while aid
-        result << aid if aid
-        aid = parse_argument
+      # argument lists are optional, but must be ended by a newline
+      while (!want(:nl) && (!want(:eof)))     
+        aid     = parse_argument
+        result << aid
       end
       return result 
     end
@@ -112,21 +123,10 @@ module Raku
     # unlimited (3) rollback pints. Bad indeed! :p
     def parse_statement
       result = node(:statement)
-      aid    = want(:nl)
-      return result if aid
-      warn 'stat not empty'
-      # handle empty statements
+      # handle empty statements ? 
       aid    = parse_basic
       return nil unless aid
-      warn 'stat starts with basic'
-      result << aid
       aid    = parse_arguments
-      return nil unless aid
-      warn 'stat args ok'
-      result << aid
-      aid    = want(:nl)
-      return nil unless aid
-      warn 'stat ends with newline'
       result << aid
       return result
     end
@@ -147,12 +147,12 @@ module Raku
       aid    = want(:lcurly)
       return nil unless aid
       result << aid
-      parse_empty_statements
+      # parse_empty_statements
       aid    = parse_statements
-      return nil unless aid  
+      return give_up("No statements in block.") unless aid  
       result << aid
       aid    = want(:rcurly)
-      return nil unless aid
+      return give_up("No end of block found.") unless aid
       result << aid
       return result 
     end
@@ -161,9 +161,10 @@ module Raku
       #parse_empty_statements
       res = parse_block
       return res if res
+      p "block or statements:", @now, @next
       res = parse_statements
       return res if res
-      raise "Could not parse statements or blocks." 
+      return give_up("Could not parse statements or blocks.") 
     end
     
     def parse_program
