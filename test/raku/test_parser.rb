@@ -13,6 +13,12 @@ node << node
 assert { !node.children.empty? }
 assert { node.children.first == node }
 
+
+pa01   = Raku::Parser.new("12340")
+assert { pa01.have?(:integer)  } 
+assert { !pa01.have?(:float)  } 
+assert { pa01.have?(:float, :integer)  } 
+
 prog2 = %Q{
   map 2 2 2 2.0 {
     layer 1 {
@@ -39,21 +45,16 @@ prog3 = %Q{ map 2 2 2 2.0
 # assert { result.kind == :symbol }
 # p result 
 res = Raku::Parser.new("12340.5").parse_basic
-p res 
 assert { res.kind == :float } 
 res = Raku::Parser.new("12340 5").parse_basic
-p res 
 assert { res.kind == :integer }
 res = Raku::Parser.new(" a12340.5").parse_basic
-p res 
 assert { res.kind == :symbol }
 res = Raku::Parser.new('"Hi!"').parse_basic
-p res 
 assert { res.kind == :string }
 assert { res.value == '"Hi!"' }
 
 res = Raku::Parser.new('>^-^<').parse_basic
-p res 
 assert { res.kind == :operator }
 assert { res.value == '>^-^<' }
 
@@ -78,12 +79,25 @@ assert { result = parser.parse }
 assert { result }
 p result 
 
- 
+
 parser = Raku::Parser.new('map
 ')
 result = nil
 assert { parser }
-assert { result = parser.parse_statement } 
+assert { result = parser.parse_statement  } 
 assert { result }
 p result 
 
+
+parser = Raku::Parser.new('map
+')
+result = nil
+assert { parser }
+assert { ! parser.parse_block } 
+assert { parser.have?(:symbol) }
+assert { result = parser.parse_statement  } 
+assert { result }
+
+p parser.token
+
+ 
