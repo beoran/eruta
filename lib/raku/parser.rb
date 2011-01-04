@@ -1,3 +1,27 @@
+# Parser for the Raku dta definition, scripting and  and programming
+# language. Like Lisp or TCL but better. ;-)
+# Raku's grammar is a grammar verified to be LL(1) to guarantee parse speed.
+# An LL(1) grammar can be parsed by a predictive parser, which runs in 
+# linear time, or O(n) time.
+#  
+# Verified with : http://smlweb.cpsc.ucalgary.ca/start.html
+#  
+=begin
+
+PROGRAM -> STATEMENT PROGRAM | .
+STATEMENT -> EXPRESSION | BLOCK | EMPTY_LINE |  comment .
+EXPRESSION -> VALUE PARAMLIST NL. 
+PARAMLIST -> PARAMETER PARAMLIST | .
+PARAMETER -> BLOCK | VALUE .
+EMPTY_LINE -> NL .
+BLOCK -> do PROGRAM end | ob PROGRAM cb | ( PROGRAM ) | oa PROGRAM ca.
+NL -> nl | semicolon .
+VALUE -> string | integer | float | symbol | operator .
+
+=end
+
+
+
 module Raku
   class Parser
     class Node
@@ -15,6 +39,10 @@ module Raku
       
       def << (child)
         @children << child
+      end
+      
+      def shift (child)
+        @children.shift child
       end
     end # class Node
   
@@ -44,7 +72,8 @@ module Raku
     # give up parsing
     def give_up(reason="")
       raise "Parse Error: #{reason}" unless @token    
-      raise "Parse Error at #{@token.line}:#{@token.col}: #{reason}"
+      raise "Parse Error in #{@token.kind} at #{@token.line}:#{@token.col}:
+#{reason}"
     end
     
     # returns the kind of the current token
@@ -79,97 +108,87 @@ module Raku
       return give_up("Expected one of #{kinds}")
     end
     
-    def parse_basic
-      return accept(:integer, :float, :string, :symbol, :operator)
+    def parse_value
+      aid = accept(:integer, :float, :string, :symbol, :operator)
+      return aid if aid
+      return nil
+    end
+
+    def parse_nl
+      return accept(:nl, :semicolon)
     end
     
-    def parse_argument
-      aid = parse_basic 
+    def parse_block
+      return nil unless accept(:lcurly)
+      res = node(:block) 
+      pro = parse_program
+      res << pro
+      return nil unless accept(:rcurly)
+      return res
+    end
+
+    def parse_parameter
+      aid = parse_value 
       return aid if aid
       aid = parse_block 
       return aid if aid
       # Argument must be a basic or a block. If not, fail
-      return give_up("argument expected")
+      return give_up("parameter expected")
     end
     
-    def parse_arguments
-      result = node(:arguments)
-      # argument lists are optional, but must be ended by a newline
-      while (!accept(:nl)) 
-        give_up 'Unexpected end of file!' if have?(:eof)
-        aid     = parse_argument
-        result << aid
-      end
-      return result 
+    def parse_paramlist
+      res   = node(:paramlist)
+      until have?(:nl, :semicolon)
+        return give_up("Unexpected end of file.") if have?(:eof) 
+      # end of paramlist on nl or semicolon
+        param = parse_parameter
+      # if it's not the end, parse a parameter
+      # Followed by a paramlist
+        res << param
+      end  
+      return res
+    end  
+         
+    def parse_blank
+      return parse_nl
+    end
+
+    def parse_expression
+      result = node(:expression)
+      val = parse_value
+      return nil unless val
+      result << val
+      params = parse_paramlist
+      result << params
+      expect(:nl) # there must be an nl after all params
+      return result
     end
     
-    def parse_empty_statement
-      aid = accept(:nl)
-    end
-    
-    #the bug is here: we have only 1 token lookahead, but this function assumes 
-    # unlimited (3) rollback pints. Bad indeed! :p
     def parse_statement
-      result = node(:statement)
-      # handle empty statements ? 
-      aid    = parse_basic
-      return nil unless aid
-      result << aid
-      aid    = parse_arguments
-      result << aid
-      return result
-    end
-    
-    def parse_statements
-      result = node(:statements)
-      res    = true 
-      while res
-        res = parse_statement
-        result << res if res
-      end
-      return result
+      aid = parse_expression || parse_block || parse_blank || accept(:comment)
+      return aid if aid
+      return give_up("Could not parse statement.")
     end 
-    
-    def parse_block
-      result = node(:block)
-      aid    = accept(:lcurly)
-      return nil unless aid
-      result << aid
-      # parse_empty_statements
-      aid    = parse_statements
-      return give_up("No statements in block.") unless aid  
-      result << aid
-      aid    = expect(:rcurly)
-      return give_up("No end of block found.") unless aid
-      result << aid
-      return result 
-    end
-    
-    def parse_block_or_statement
-      res = parse_empty_statement
-      p "block or statements:", @token
-      return res if res
-      res = parse_block
-      return res if res
-      p "block or statements:", @token
-      res = parse_statement
-      return res if res
-      return give_up("Could not parse statements or blocks.") 
-    end
+  
     
     def parse_program
-      result = node(:program)
-      res    = true # xxx improve this
-      while res && !(have?(:eof))
-        res = parse_block_or_statement
-        result << res if res
+      prog = node(:program)
+      until have?(:rcurly, :eof)
+        expr = parse_statement # NOT expression!
+        prog << expr
       end
-      return result
+      return prog
+    end
+    
+    def parse_raku
+      prog = parse_program
+      expect(:eof)
+      return prog
     end
     
     def parse
       p "first token", self.token
-      res = parse_program
+      res = parse_raku
       @result << res if res
       return @result
     end

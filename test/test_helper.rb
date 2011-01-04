@@ -36,7 +36,7 @@ module Nanotest
     res    = nil
     raised = nil
     begin 
-      Timeout.timeout(5) do 
+      Timeout.timeout(10) do 
         res = block.call
       end  
     rescue 

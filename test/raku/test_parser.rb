@@ -41,35 +41,29 @@ prog3 = %Q{ map 2 2 2 2.0
 # result = nil
 # parser.parse_empty_statements
 # 
-# assert { result = parser.parse_basic }
+# assert { result = parser.parse_value }
 # assert { result.kind == :symbol }
 # p result 
-res = Raku::Parser.new("12340.5").parse_basic
+res = Raku::Parser.new("12340.5").parse_value
 assert { res.kind == :float } 
-res = Raku::Parser.new("12340 5").parse_basic
+res = Raku::Parser.new("12340 5").parse_value
 assert { res.kind == :integer }
-res = Raku::Parser.new(" a12340.5").parse_basic
+res = Raku::Parser.new(" a12340.5").parse_value
 assert { res.kind == :symbol }
-res = Raku::Parser.new('"Hi!"').parse_basic
+res = Raku::Parser.new('"Hi!"').parse_value
 assert { res.kind == :string }
 assert { res.value == '"Hi!"' }
 
-res = Raku::Parser.new('>^-^<').parse_basic
+res = Raku::Parser.new('>^-^<').parse_value
 assert { res.kind == :operator }
 assert { res.value == '>^-^<' }
 
-res = Raku::Parser.new("\n12340.5").parse_basic
+res = Raku::Parser.new("\n12340.5").parse_value
 assert { !res } 
  
  
 
 
-# parser = Raku::Parser.new(prog3)
-# result = nil
-# assert { parser }
-# assert { result = parser.parse } 
-# assert { result }
-# p result 
 
 parser = Raku::Parser.new('map
 ')
@@ -79,25 +73,19 @@ assert { result = parser.parse }
 assert { result }
 p result 
 
-
-parser = Raku::Parser.new('map
-')
+parser = Raku::Parser.new(prog3)
 result = nil
 assert { parser }
-assert { result = parser.parse_statement  } 
+assert { result = parser.parse } 
 assert { result }
 p result 
 
-
-parser = Raku::Parser.new('map
-')
+parser = Raku::Parser.new(prog2)
 result = nil
 assert { parser }
-assert { ! parser.parse_block } 
-assert { parser.have?(:symbol) }
-assert { result = parser.parse_statement  } 
+assert { result = parser.parse } 
 assert { result }
+p result 
 
-p parser.token
 
  
