@@ -132,8 +132,8 @@ module Raku
       # Tries to lex keywords, brackets, special operators and separators
       def lex_key
         search = {
-          '('   => :lbrace,
-          ')'   => :lbrace,
+          '('   => :lparen,
+          ')'   => :rparen,
           '['   => :lbracket,
           ']'   => :rbracket,
           '{'   => :lcurly,

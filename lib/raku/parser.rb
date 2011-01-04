@@ -1,3 +1,4 @@
+#
 # Parser for the Raku dta definition, scripting and  and programming
 # language. Like Lisp or TCL but better. ;-)
 # Raku's grammar is a grammar verified to be LL(1) to guarantee parse speed.
@@ -19,7 +20,21 @@ NL -> nl | semicolon .
 VALUE -> string | integer | float | symbol | operator .
 
 =end
-
+=begin idea for possible later extension that actually parses operations :
+MAIN -> PROGRAM eof.
+PROGRAM -> STATEMENT PROGRAM | .
+STATEMENT -> EXPRESSION | BLOCK | EMPTY_LINE.
+EXPRESSION -> VALUE PARAMLIST_OR_OP NL. 
+PARAMLIST_OR_OP -> OP_EXPR | PARAMLIST .
+OP_EXPR -> OPERATOR EXPRESSION .
+OPERATOR -> operator | period | comma | colon .
+PARAMLIST -> PARAMETER PARAMLIST | .
+PARAMETER -> BLOCK | VALUE .
+EMPTY_LINE -> NL .
+BLOCK -> do PROGRAM end .
+NL -> nl .
+VALUE -> string | integer | float | symbol  .
+=end
 
 
 module Raku
@@ -30,8 +45,9 @@ module Raku
       attr_reader :kind
       attr_reader :value
       attr_reader :children
+      attr_accessor :parent
       
-      def initialize(type, value)
+      def initialize(type, value, parent = nil)
         @kind     = type.to_sym
         @value    = value
         @children = []
@@ -39,10 +55,14 @@ module Raku
       
       def << (child)
         @children << child
+        child.parent = self
       end
       
-      def shift (child)
-        @children.shift child
+      # Walks the tree in depth-first fashion, yielding it's child nodes
+      def walk
+        yield self
+        proc = Proc.new
+        @children.each { |child| child.walk(&proc) }
       end
     end # class Node
   
@@ -109,7 +129,8 @@ module Raku
     end
     
     def parse_value
-      aid = accept(:integer, :float, :string, :symbol, :operator)
+      aid = accept(:integer, :float, :string, :symbol, :operator, :colon,
+:comma, :period)
       return aid if aid
       return nil
     end
@@ -118,13 +139,20 @@ module Raku
       return accept(:nl, :semicolon)
     end
     
-    def parse_block
-      return nil unless accept(:lcurly)
-      res = node(:block) 
+    def parse_block_in(open, close)
+      return nil unless accept(open)
+      res = node(:block, open) 
       pro = parse_program
-      res << pro
-      return nil unless accept(:rcurly)
+      pro.children.each { |child| res << child }
+      # was res << pro, but the above removes the useless program in the block
+      return nil unless accept(close)
       return res
+    end
+    
+    def parse_block
+      return parse_block_in(:lcurly, :rcurly) || 
+             parse_block_in(:lparen, :rparen) ||
+             parse_block_in(:lbracket, :rbracket)
     end
 
     def parse_parameter
@@ -150,7 +178,8 @@ module Raku
     end  
          
     def parse_blank
-      return parse_nl
+      return node(:blank) if parse_nl
+      return nil
     end
 
     def parse_expression
@@ -173,9 +202,10 @@ module Raku
     
     def parse_program
       prog = node(:program)
-      until have?(:rcurly, :eof)
-        expr = parse_statement # NOT expression!
-        prog << expr
+      until have?(:rcurly, :rbracket, :rparen, :eof)
+        stat = parse_statement # NOT expression!
+        prog << stat unless stat.kind == :blank
+        # don't add blanks to program 
       end
       return prog
     end
@@ -189,8 +219,7 @@ module Raku
     def parse
       p "first token", self.token
       res = parse_raku
-      @result << res if res
-      return @result
+      return res
     end
     
   end # class Parser

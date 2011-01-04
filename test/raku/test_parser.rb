@@ -20,17 +20,20 @@ assert { !pa01.have?(:float)  }
 assert { pa01.have?(:float, :integer)  } 
 
 prog2 = %Q{
-  map 2 2 2 2.0 {
-    layer 1 {
+# map 1
+  my.map 2 2 2 2.0 {
+    layer 1 [
       1 2
       2 1
-    }
+    ]
 
-    layer 2 {
+    layer 2 (      
       2 1
       1 2
-    }
+    )
   }
+  frobnicate "foo
+  bar"
 }
 
 prog3 = %Q{ map 2 2 2 2.0
@@ -85,7 +88,46 @@ result = nil
 assert { parser }
 assert { result = parser.parse } 
 assert { result }
-p result 
 
+ 
 
+require 'nanograph'
+graph     = Nanograph.graph(fontsize: 10, splines: true, overlap: false,
+                            rankdir: "LR")
+                            
+graph.nodeattr = { fontsize: 10, width:0, height:0, shape: :box, 
+                   style: :rounded }
+result.walk do |n| 
+  if n.parent 
+    from = graph.node(n.parent.object_id, "#{n.parent.kind} #{n.parent.value}") 
+    to   = graph.node(n.object_id, "#{n.kind} #{n.value}")
+    from >> to
+  end
+end
+
+graph.display
+
+prog4 = %Q[
+  map 2 2 2 2.0 {
+    layer 1 [
+      1 2
+      2 1
+    ]
+
+    layer 2 (      
+      2 1
+      1 2
+    )
+  
+]
+
+parser = Raku::Parser.new(prog4)
+result = nil
+assert { parser }
+begin
+  result = parser.parse 
+  rescue 
+  p $!
+end  
+assert { !result }
  

@@ -92,15 +92,15 @@ assert { res[6].kind == :eof }
 
 prog2 = %Q{
   map 2 2 2 2.0 {
-    layer 1 {
+    layer 1 [
       1 2
       2 1
-    }
+    ]
 
-    layer 2 {
+    layer 2 (
       2 1
       1 2
-    }
+    )
   }
 }
 

@@ -1,5 +1,6 @@
 # Tiny module for handling Graphviz Module DOT graphs
 # Useful when implementing parsers to visualise your AST's.
+require 'tempfile'
 
 module Nanograph
   # Helper function to process attributes
@@ -36,16 +37,19 @@ module Nanograph
       @graph      = graph
       @id         = id
       if label
-        @label      = label.gsub(/[\r\n]/,'\n').gsub('\\','\\\\') 
+        @label    = label
       else 
         @label = id.to_s
       end
+      @label.gsub!(/[\r\n]/,'\n')
+      @label.gsub!('\\','\\\\')
+      @label.gsub!('"','``')
       @attributes = attrs
     end
     
     # Converts the node id to dot format.
     def to_dot_id
-      return '  "' + id  + '"'
+      return '  "' + id.to_s  + '"'
     end
     
     # Converts the node to dot format.
@@ -183,32 +187,32 @@ module Nanograph
       return res
     end
     
-    def display()
-      # XXX: this is a security risk on multi-user systems.
-      pipe = IO.popen('dot -Tpng -o/tmp/disp.png', 'wt+')
+    # converts graph to png file usung the dot tool
+    # which must be in your path somewhere
+    def to_png(filename)
+      pipe = IO.popen("dot -Tpng -o#{filename}", 'wt+')
       pipe.write(self.to_dot)
-      pipe.close 
-      
-      if $?.exitstatus > 0
+      pipe.close
+      return nil if $?.exitstatus > 0
+      return filename 
+    end
+    
+    # displays the graph using dot and imagemogick display commands
+    def display()
+      f = Tempfile.new('nanograph_')
+      n = f.path
+      o = self.to_png(n) 
+      unless o
         puts self.to_dot
       else 
-        system('display /tmp/disp.png &')
+        system("display #{n} &")
+        sleep 2
       end
+      ensure 
+       f.close if f
     end
     
     
   end
 
-end
-
-
-if __FILE__ == $0
-  graph     = Nanograph.graph(fontsize: 10, splines: true, overlap: false,
-rankdir:
-"LR")
-  graph.nodeattr = { fontsize: 10, width:0, height:0, shape: :box, style:
-:rounded}
-  graph.node(nil , "Hello, hello") >> 'world' >> '!'
-  graph.node('node_1') >> 'world 2'
-  graph.display
 end
