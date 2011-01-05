@@ -66,6 +66,7 @@ module Zori
   autoload :Radiobutton , 'zori/radiobutton'
   autoload :Ring        , 'zori/ring'
   autoload :Sizemixin   , 'zori/sizemixin'
+  autoload :Slider      , 'zori/slider'
   autoload :Stack       , 'zori/stack'
   autoload :Stacklayout , 'zori/stacklayout'
   autoload :Style       , 'zori/style'

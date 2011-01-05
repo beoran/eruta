@@ -1,6 +1,5 @@
 # encoding: UTF-8
 require 'test_helper'
-p $:
 
 require 'gari'
 require 'fimyfi'
@@ -23,6 +22,7 @@ assert { Zori::Progress    }
 assert { Zori::Radiobutton }
 assert { Zori::Ring        }
 assert { Zori::Sizemixin   }
+assert { Zori::Slider      }
 assert { Zori::Stack       }
 assert { Zori::Stacklayout }
 assert { Zori::Style       }
@@ -88,6 +88,7 @@ menu        = Zori::Menubar.new
   label2  = Zori::Label.new("And I'm a very wide label.") 
   # "that should really not fit at all on a single line, so I added some more text to it to make really sure it would overflow.")
   # label.w = 200
+  slider  = Zori::Slider.new()      { |v| "Slider value changed #{v.value}" }
       
   button1 = Zori::Button.new("Left!") {   
     widget.style.alignment = :left
@@ -126,6 +127,7 @@ menu        = Zori::Menubar.new
   flow2  << checkb
   flow2  << radiob
   flow2  << inbox
+  flow2  << slider
   
   # Layout 
   widget.h  = 200

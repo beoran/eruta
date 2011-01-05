@@ -523,10 +523,11 @@ module Zori
     end
     
     # Called when the mouse wheel is scrolled
-    def on_mousescroll(event, scroll)
+    def on_mousescroll(event)
       widget = @hovered.first
+      
       if (widget)
-        widget.on_scroll(scroll)
+        widget.on_scroll(event.value)
       end
     end
     

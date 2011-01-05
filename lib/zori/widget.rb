@@ -660,8 +660,12 @@ module Zori
     # Simple height fitter that simply looks at the last (presumably bottom-most)
     # widget. Only works after the children are properly layout-ed
     def fit_child_high_simple()
-      newh    =  self.children.last.out_bottom + self.padding
-      self.h  = newh
+      if self.children.last
+        newh    =  self.children.last.out_bottom + self.padding
+        self.h  = newh
+      else
+        self.h = 0
+      end
       return self
     end
     
