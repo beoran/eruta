@@ -313,6 +313,14 @@ assert { audio                    }
 assert { audio.frequency == FREQ  }
 assert { audio.channels  == 2     }
 assert { audio.format > 0         }
+sound = Gari::Sound.new(test_file('test_sound.wav'))
+assert { sound }
+sound.play
+music = Gari::Music.new(test_file('test_music.ogg'))
+assert { music }
+music.fade_in(-1, 0)
+music.fade_out(10000)
+
 
 assert { Gari::Joystick.amount > -1 } 
 (0...(Gari::Joystick.amount)).each do |j|

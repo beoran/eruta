@@ -80,6 +80,14 @@ struct GariSound_ {
 };
 
 
+/** Allocates a new empty GariSound */
+GariSound * gari_sound_new() {
+  GariSound * sound = GARI_ALLOCATE(GariSound);
+  if (!sound) { return NULL; }
+  sound->chunk = NULL; /* ensure chunk is empty. */
+  return sound;
+}
+
 /** Initialises and loads sound into an existing GariSound record. */
 GariSound * gari_sound_init(GariSound * sound, char * filename) {
   if(!sound)        { return NULL; } 
@@ -92,7 +100,7 @@ GariSound * gari_sound_init(GariSound * sound, char * filename) {
 
 /** Creates a new GariSound and loads the sound from a file. */
 GariSound * gari_sound_load(char * filename) {
-  GariSound * sound = GARI_ALLOCATE(GariSound);
+  GariSound * sound = gari_sound_new();
   if (!sound) { return NULL; }
   if (!gari_sound_init(sound, filename)) {
     gari_sound_free(sound);
@@ -131,6 +139,14 @@ struct GariMusic_ {
   uint32_t    current;
 };
 
+/** Allocates a new empty GariMusic */
+GariMusic * gari_music_new() {
+  GariMusic * music = GARI_ALLOCATE(GariMusic);
+  if (!music) { return NULL; }
+  music->tune = NULL; /* ensure tune is empty. */
+  return music;
+}
+
 
 /** Initialises and loads music into an existing GariMusic record. */
 GariMusic * gari_music_init(GariMusic * music, char * filename) {  
@@ -145,8 +161,9 @@ GariMusic * gari_music_init(GariMusic * music, char * filename) {
 
 /** Creates a new GariMusic and loads the music from a file. */
 GariMusic * gari_music_load(char * filename) {
-  GariMusic * music = GARI_ALLOCATE(GariMusic);
+  GariMusic * music = gari_sound_new(); 
   if(!music)        { return NULL; }
+  music->tune       = NULL;
   if(!gari_music_init(music, filename)) {
     gari_music_free(music); 
     return NULL; 

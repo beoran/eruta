@@ -1305,8 +1305,8 @@ void Init_gari() {
   RBH_SINGLETON_METHOD(Sound, new       , rbgari_sound_new      , 1);
   RBH_METHOD(Sound          , play      , rbgari_sound_play     , 0);
   RBH_SINGLETON_METHOD(Music, new       , rbgari_music_new      , 1);
-  RBH_METHOD(Music          , fade_in   , rbgari_music_fadein   , 0);
-  RBH_METHOD(Music          , fade_out  , rbgari_music_fadeout  , 0);
+  RBH_METHOD(Music          , fade_in   , rbgari_music_fadein   , 2);
+  RBH_METHOD(Music          , fade_out  , rbgari_music_fadeout  , 1);
   
   RBH_SINGLETON_METHOD(Joystick , amount    , rbgari_joy_amount         , 0);
   RBH_SINGLETON_METHOD(Joystick , name      , rbgari_joy_nameindex      , 1);
