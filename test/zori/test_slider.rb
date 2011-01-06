@@ -10,7 +10,9 @@ assert { Zori::Slider      }
 
 
 test_widget_interactively do
-  slider  = Zori::Slider.new()      { |v| "Slider value changed #{v.value}" }
+  slider  = Zori::Slider::Vertical.new(:max => 69) do |v| 
+    puts "Slider value changed #{v.value}" 
+  end
   slider
 end
 
