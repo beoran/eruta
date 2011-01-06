@@ -111,7 +111,9 @@ module Zori
         self.put_inset(target) if self.focus?
         target.line(self.x + self.padding,  self.y, 0, self.h, fg)
         delta = (self.value - @min) * self.h_min / (@max - @min) 
-        target.slab(self.x, self.y + delta, self.w, 1, fg)
+        target.slab(self.x, self.y + delta - self.padding, 
+                    self.w, self.padding * 2, fg)
+        target.slab(self.x, self.y + delta, self.w, 1, bg)
       end    
       
       # Handle mouse clicks
