@@ -90,6 +90,10 @@ module Zori
       end
     end
     
+    # A horizontl slider, identiccal to Slider
+    class Horizontal < Slider
+    end
+    
     # A vertical slider
     class Vertical < Slider
       def calculate_size
