@@ -1,33 +1,28 @@
-Eruta, An Action RPG for ADULTS written in Ruby. Some contents may be NSFW.
+Eruta, An Action RPG in Ruby under development.
+
+Requirements:
+* Ruby MRI 1.9.x. Other Rubies untested. 
+* SDL, SDL_image, SDL_ttf, SDL_mixer 
+* For testing: the gems watchr, autowatchr and term-ansicolor.  
+
+Installation:
+
+You have to make sure that you have all the requirements. Install Ruby, 
+the SDL libraries, and the testing ruby gems. On Linux distributitions like
+Ubuntu, make sure that the development packages for all requirements are
+installed as well installed.
+
+When the requirements have been met, you first need to check out eruta
+frocompilem github. Then you should insall Gari, my C game programming extension
+library. Go to the ext/gari directory and run `ruby extconf.rb` , followed by
+`make` and `sudo make install`. If all goes well, this should install the gari
+extension in your ruby installation.
 
 How to try it:
 
-First of all, the game needs the SDL, SDL_image, SDL_ttf, SDL_mixer libraries.
-You have to make sure that you have the development packages installed too.
-
-Then install Ruby 1.9.1 and Ruby/SDL 2.1.0. Get it from here:
-http://rubyforge.org/frs/?group_id=1006
-
-You also need Chipmunk 4.1.0 . The original version is here:
-http://files.slembcke.net/chipmunk/release/
-
-Unfortunately, it doesn't compile on Ruby 1.9.1, so get it here in stead: 
-http://github.com/beoran/chipmunk/tree/master/ruby/
-
-Just do 
-ruby(1.9) extconf.rb ; make ; make install
-and it should work.
-
-Also install the gari labriary in ext/gari. It replaces rubySDL, and SGE.
-
-
-Then, check eruta out fom github, and:
-cd src
-ruby1.9 main.rb
-
-For the map editor:
-cd src
-ruby1.9 eruma.rb
+Currently I'm in a sort of a spring cleaning with this project, so not
+too much works yet. You can run the tests though, by doing 
+`watchr test/test.watchr` . 
 
 License: 
 

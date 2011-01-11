@@ -1009,9 +1009,19 @@ GariVector * gari_vector_newvector(GariVector v1);
 /** Frees a GariVector's allocated memory. Returns NULL. */
 GariVector * gari_vector_free(GariVector * vec);
 
+/** Checks if a vector is zero. Returns nonzero if it is, zero if not. */
+int gari_vector_zero_p(const GariVector v1);
+
+/** Returns a zero vector. */
+GariVector gari_vector_zero();
+
 /** Compares two vectors and sees if they are within delta of each other. */
-int gari_vector_equal(const GariVector v1, const GariVector v2, 
-                      GariFloat delta);
+int gari_vector_equal_delta(const GariVector v1, const GariVector v2, 
+                            GariFloat delta);
+                            
+/** Compares two vectors for strict equality. */
+int gari_vector_equal(const GariVector v1, const GariVector v2);
+
 /** Vector addition. */
 GariVector gari_vector_add(GariVector v1, GariVector v2); 
 

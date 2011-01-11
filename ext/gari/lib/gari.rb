@@ -4,6 +4,10 @@ require 'gari.so'
 require 'gari/image'
 
 module Gari
+  def self.vec(x, y)
+    return Gari::Vector.new(x, y)
+  end
+  
   class Color
      def <=>(other)
        res = self.a <=> other.a

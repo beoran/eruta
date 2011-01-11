@@ -23,7 +23,17 @@ assert { Gari::Screen   }
 assert { Gari::Layer    }
 assert { Gari::Sheet    }
 assert { Gari::Vector   }
- 
+
+v01 = Gari::Vector.zero
+assert { v01 } 
+assert { v01.zero? }
+v02 = Gari::Vector.zero
+assert { v02 } 
+assert { v02.zero? }
+assert { v01 == v01 }
+assert { v01.near v02, 0.0 }
+assert { v01.equal_delta?(v02, 0.0) }
+
 v1 = Gari::Vector.new(2, 3);
 v2 = Gari::Vector.new(3, 1);
 assert { v1 }

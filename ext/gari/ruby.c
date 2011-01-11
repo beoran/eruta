@@ -992,12 +992,30 @@ VALUE rbgari_vector_new(VALUE vself, VALUE vx, VALUE vy) {
   return GARI_VECTOR_WRAP(v1);
 }
 
-VALUE rbgari_vector_equal(VALUE vself, VALUE vother, VALUE vdelta) {
+VALUE rbgari_vector_zero(VALUE vself) {
+  GariVector * v1 = gari_vector_new(0.0, 0.0);
+  return GARI_VECTOR_WRAP(v1);
+}
+
+VALUE rbgari_vector_zero_p(VALUE vself) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  return RBH_TOBOOL(gari_vector_zero_p(*v1));
+}
+
+
+VALUE rbgari_vector_equal_delta(VALUE vself, VALUE vother, VALUE vdelta) {
   GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
   GariVector * v2 = GARI_VECTOR_UNWRAP(vother);
   GariFloat delta = RBH_FLOAT(vdelta);
-  return RBH_TOBOOL(gari_vector_equal(*v1, *v2, delta));
+  return RBH_TOBOOL(gari_vector_equal_delta(*v1, *v2, delta));
 }
+
+VALUE rbgari_vector_equal(VALUE vself, VALUE vother) {
+  GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
+  GariVector * v2 = GARI_VECTOR_UNWRAP(vother);
+  return RBH_TOBOOL(gari_vector_equal(*v1, *v2));
+}
+
 
 VALUE rbgari_vector_add(VALUE vself, VALUE vother) {
   GariVector * v1 = GARI_VECTOR_UNWRAP(vself);
@@ -1341,8 +1359,12 @@ void Init_gari() {
   RBH_METHOD(Layer              , draw        , rbgari_layer_draw       , 3);
   
   RBH_SINGLETON_METHOD(Vector   , new         , rbgari_vector_new       , 2);
-  RBH_SINGLETON_METHOD(Vector   , angle       , rbgari_vector_fromangle , 1);  
-  RBH_METHOD(Vector             , equal_delta?, rbgari_vector_equal     , 2);
+  RBH_SINGLETON_METHOD(Vector   , angle       , rbgari_vector_fromangle , 1);
+  RBH_SINGLETON_METHOD(Vector   , zero        , rbgari_vector_zero      , 0);
+  
+  RBH_METHOD(Vector             , zero?       , rbgari_vector_zero_p    , 0);
+  RBH_METHOD(Vector             , equal_delta?, rbgari_vector_equal_delta,2);
+  RBH_METHOD(Vector             , ==          , rbgari_vector_equal      ,1);  
   RBH_METHOD(Vector             , +           , rbgari_vector_add       , 1);
   RBH_METHOD(Vector             , -           , rbgari_vector_sub       , 1);
   RBH_METHOD(Vector             , *           , rbgari_vector_mul       , 1);

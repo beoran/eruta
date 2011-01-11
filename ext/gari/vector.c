@@ -55,6 +55,7 @@ int gari_float_equal(GariFloat f1, GariFloat f2, GariFloat delta) {
   return TRUE;
 }
 
+
 /** Returns the square root of a GariFloat. */
 GariFloat gari_float_sqrt(GariFloat f1) {
   return sqrtf(f1);
@@ -95,13 +96,27 @@ GariFloat gari_float_atan2(GariFloat y, GariFloat x) {
   return atan2f(y, x);
 }
 
+/** Checks if a vector is zero. Returns nonzero if it is, zero if not. */
+int gari_vector_zero_p(const GariVector v1) {
+  return (v1.x == 0.00) && (v1.y == 0.0);
+}
 
+/** Returns a zero vector. */
+GariVector gari_vector_zero() {
+  return gari_vector(0.0, 0.0);
+}
 
 /** Compares two vectors and sees if they are within delta of each other. */
-int gari_vector_equal(const GariVector v1, const GariVector v2, GariFloat delta)
-{
+int gari_vector_equal_delta(const GariVector v1, const GariVector v2, 
+                            GariFloat delta) {
+  if (gari_vector_equal(v1, v2)) return TRUE;
   if(!gari_float_equal(v1.x, v2.x, delta)) return FALSE;
   return (gari_float_equal(v1.y, v2.y, delta));
+}
+
+/** Compares two vectors for strict equality. */
+int gari_vector_equal(const GariVector v1, const GariVector v2) {
+  return ((v1.x == v2.x) && (v1.y == v2.y));
 }
 
 
@@ -224,9 +239,10 @@ GariFloat gari_vector_distsq(GariVector v1, GariVector v2) {
   return gari_vector_lensq(gari_vector_sub(v1, v2));
 }
 
-/** Returns true if the distance between v1 and v2 is less than d. */
+/** Returns true if the distance between v1 and v2 is less than or 
+equal to d. */
 int gari_vector_near(GariVector v1, GariVector v2, GariFloat d) {
-  return gari_vector_distsq(v1, v2) < d*d;
+  return gari_vector_distsq(v1, v2) <= d*d;
 }
 
 /** Retuns a unit vector that makes an angle a with the X axis. */
