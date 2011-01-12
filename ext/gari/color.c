@@ -24,32 +24,39 @@ ruby -pi -w -e 'gsub!(/GariRGBA/, "GariColor")' helped me here a lot. :)
 
 
 */
-
+// gets the format of the surface. Returns null if surface is null
+SDL_PixelFormat * gari_surface_format(SDL_Surface * surface) {
+  if(!surface) return NULL;
+  return surface->format;
+}
 
 
 // gets the RGB components of a color for this surface
 GariColor gari_surface_getrgb(SDL_Surface * surface, GariDye color) {
   GariColor result; 
-  SDL_GetRGB(color, surface->format, &result.r, &result.g, &result.b);
+  SDL_GetRGB(color, gari_surface_format(surface), 
+              &result.r, &result.g, &result.b);
   result.a = GARI_ALPHA_OPAQUE;
   return result;
 }
 
 // maps the rgb components of a color to a color for this surface 
 GariDye gari_surface_maprgb(SDL_Surface * surface, GariColor rgba) { 
-  return SDL_MapRGB(surface->format, rgba.r, rgba.g, rgba.b);
+  return SDL_MapRGB(gari_surface_format(surface), rgba.r, rgba.g, rgba.b);
 }
 
 // gets the RGBA components of a color for this surface
 GariColor gari_surface_getrgba(SDL_Surface * surface, GariDye color) {
   GariColor result; 
-  SDL_GetRGBA(color, surface->format, &result.r, &result.g, &result.b, &result.a);
+  SDL_GetRGBA(color, gari_surface_format(surface), 
+              &result.r, &result.g, &result.b, &result.a);
   return result;
 }
 
 // maps the rgb components of a color to a color for this surface 
 GariDye gari_surface_maprgba(SDL_Surface * surface, GariColor rgba) { 
-  return SDL_MapRGBA(surface->format, rgba.r, rgba.g, rgba.b, rgba.a);
+  return SDL_MapRGBA(gari_surface_format(surface), 
+                     rgba.r, rgba.g, rgba.b, rgba.a);
 }
 
 
@@ -134,8 +141,9 @@ GariDye gari_color_dye(GariColor color, GariImage * image) {
 
 /** Converts a GariDye to a GariColor for the given image. */
 GariColor gari_dye_color(GariDye dye, GariImage * image) {
-  SDL_Surface *surf = gari_image_surface(image);
-  if ((surf->format) && (surf->format->Amask)) {
+  SDL_Surface *surf       = gari_image_surface(image);
+  SDL_PixelFormat * format= gari_surface_format(surf);
+  if ((format) && (format->Amask)) {
     return gari_surface_getrgba(surf, dye); 
   }
   return gari_surface_getrgb(surf, dye);

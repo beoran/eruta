@@ -252,6 +252,8 @@ module Zori
       
     end
 
+    include Gari::Handler
+    
     attr_reader   :game       # Game
     attr_reader   :screen     # Screen
     attr_reader   :queue      # Event queue
@@ -286,15 +288,12 @@ module Zori
    
    
    
-    def initialize(game, queue) 
+    def initialize(game, queue)
+      super(queue)
       @game           = game
       @screen         = game.screen
-      @queue          = queue
       @defaultfont    = Hanao.load_font('dejavuserif.ttf', 12)
       @style          = Zori::Style.new(@defaultfont)
-      @handlers       = {}
-      @done           = false
-      @active         = true 
       @hovered        = []  # The widgets we are hovering over, if any.
       @pressed        = nil # The widget we are pressing down on, if any.
       @clicked        = nil # The widget we are clicking on, if any.
@@ -306,11 +305,6 @@ module Zori
       @joysticks      = [ Joystick.new ] 
       @focuscursor    = Hanao.load_image('ui', 'cursor', 'joystick_0.png')
       # Cursor for focusing             
-      # Set up handlers by name, from constants  
-      for val, sym in  Gari::Event::KIND_TO_TYPE  do
-        handler           = "on_#{sym.to_s.downcase}".to_sym
-        @handlers[val]    = handler
-      end
       @main           = nil
       @modal          = nil # Curent modal widget. 
     end
@@ -319,15 +313,7 @@ module Zori
       @main           = Zori::Mainwidget.new() # Main widget
       return self
     end
-   
-    
-    # Sets the active state of this widget. 
-    # Fails if the widget is done (quit requested).
-    def active=(a)
-      return false if @done
-      @active = a
-    end
-    
+      
     # Delegators for the dimensions of this Hanao's screen
     def_delegators :@screen, :w, :h
     def_delegator  :@screen, :w, :wide
@@ -355,16 +341,8 @@ module Zori
     # Forces the system to update itself from user input. 
     # Returns self. 
     def update()
-      return self unless @active 
-      # Do nothing unless active
-      event = @queue.poll
-      while event
-        handler = @handlers[event.kind]
-        self.send(handler, event)
-        event   = @queue.poll
-      end
-      # repeat_keys # Don't Repeat keypresses, let Gari handle it. 
-      return self
+      self.handle_events()
+      return self 
     end
     
     # Update the state of the game that hanao is connected to.
@@ -570,24 +548,15 @@ module Zori
       @pressed        = nil
       # Nothing is pressed now since button went up.
       @mouse.clicked  = @pressed
-      # Let the mouse know about the widget it clicked on 
-            
-
-      # @hovered.each   { |widget| widget.on_mouse_up(event.x, event.y, event.button) }            
+      # Let the mouse know about the widget it clicked on
+      # @hovered.each   
+      # { |widget| widget.on_mouse_up(event.x, event.y, event.button) }
       # send_to_interested(:on_mouse_up, event.x, event.y, event.button)
     end
     
     # Called when the joystick axis is moved
     def on_joyaxis(event)
       p "Joy axis: #{event}"
-    end
-    
-    # Called when the joystick ball moved
-    def on_joyball(event)
-    end
-    
-    # Called when the joystick hats is moved
-    def on_joyhat(event)
     end
     
     # Called when a joystick button is pressed
@@ -600,23 +569,6 @@ module Zori
       p "Joy button up: #{event}"
     end
     
-    # Called when the system wants to shutdown
-    def on_quit(event)
-      @done = true
-    end
-    
-    # Called when the system window manager notices a change in this application 
-    # window's state  
-    def on_syswm(event)
-    end
-    
-    # Called wghen this window is resized
-    def on_videoresize(event)
-    end
-    
-    # Called when window is exposed. May not be supported on all platforms.
-    def on_videoexpose(event)
-    end
     
     
     # Drawing helper functions.
@@ -651,6 +603,8 @@ module Zori
     
     # Draws a solid background with the given colors and given sizes
     def put_background(target, colors, x, y, w, h) 
+     # xxx: mysteriouscrash here, in the C extension in
+     # gari_surface_maprgb
       target.slab(x, y, w, h, colors.background)
     end
     

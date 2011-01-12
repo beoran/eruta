@@ -26,7 +26,7 @@ class TryBump
     @font   = self.class.load_font('dejavuserif.ttf', 12)
     @done   = false 
     @box1   = Bump::Box.new(100, 100, 50, 80)
-    @box2   = Bump::Box.new(200, 200, 70, 60)
+    @box2   = Bump::Box.new(200, 200, 30, 60)
     @cr     = Gari::Color.rgb(255, 0  , 0  )
     @cc     = Gari::Color.rgb(0  , 255, 255)    
   end
@@ -85,8 +85,10 @@ class TryBump
   
   def draw_coll
     vr = @box1.vrel(@box2)
-    draw_text(20, 40, "Coll: #{@coll} #{@how}.")
+    cn = @box1.collide_now?(@box2)
+    draw_text(20, 40, "Coll: #{@coll.map{|e| e ? e.round(3) : e}} #{@how}")
     draw_text(20, 60, "Vrel 1-2:#{vr.x} #{vr.y}")
+    draw_text(20, 80, "Now?:#{cn}")
   end
   
   def draw
@@ -100,9 +102,11 @@ class TryBump
     handle_events
     @game.nextframe
     dt = 50.0 / @game.fps
-    @box1.update dt
-    @box2.update dt
-    @coll, @how = @box1.collide_t(@box2)  
+    @box1.prepare dt
+    @box2.prepare dt
+    @box1.update
+    @box2.update
+    @coll = * @box1.collide_t(@box2)  
   end
   
   def run

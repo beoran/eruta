@@ -19,41 +19,36 @@ module Bump
   module Mobile
     attr_reader   
     
-    attr_accessor :p # position of the center of the mobile
-    attr_accessor :v # speed vector
-    attr_accessor :a # accelleration vector
-    attr_accessor :m # mass
-    attr_accessor :f # force vector
+    attr_accessor :p  # position of the center of the mobile
+    attr_accessor :dp # distance that the cengter will be moved by 
+    # in the next time step dt
+    attr_accessor :v  # speed vector
+    attr_accessor :m  # mass
     
-    def initialize
-      @f = Bump.vec0
-      @a = Bump.vec0
-      @v = Bump.vec0
-      @m = 1.0
-      @p = Bump.vec0
+    def initialize(opt={})
+      @v = Bump.vec(opt[:vx] || 0.0, opt[:vy] || 0.0)
+      @dp= Bump.vec0
+      @m = opt[:m] || 1.0
+      @p = Bump.vec(opt[:px] || 0.0, opt[:py] || 0.0)
     end
     
-    def update_a(dt)
-      return if @f.zero? || @m == 0.0
-      @a += (@f * dt) / @m
-    end
-
-    def update_v(dt)
-      return if @a.zero?
-      @v += (@a * dt)
+    
+    def prepare_p(dt)
+      @dp = (@v * dt)
     end
     
-    def update_p(dt)
-      return if @v.zero?
-      @p += (@v * dt)
+    def update_p
+      @p += @dp
     end
    
-    def update(dt)
-      update_a dt
-      update_v dt
-      update_p dt
+    def prepare(dt)
+      prepare_p dt
     end
     
+    def update
+      update_p
+    end
+ 
     # relative speed towards other mobile
     def vrel(other)
       return self.v - other.v
@@ -70,7 +65,6 @@ module Bump
     end
 
 
-
     
   end
 
@@ -78,18 +72,15 @@ module Bump
   class Box
     include Mobile
     
-    attr_reader :wv # half width of the box as a vector
-    attr_reader :hv # half height of the box as a vector
+    attr_reader :w 
+    attr_reader :h 
     
     def initialize(x, y, w, h)
-      super()
-      w2  = w / 2.0
-      h2  = h / 2.0
-      @p  = Bump.vec(x + w2, y + h2)
-      @wv = Bump.vec(w2    , 0.0   )
-      @hv = Bump.vec(0.0   , h2    )
+      super(:px => x + w / 2.0 , :py => y + h / 2.0 )
+      @w  = w
+      @h  = h
     end
-    
+  
     # x coordinate of mobile's upper left corner, for drawing
     # or blitting
     def dx
@@ -101,31 +92,21 @@ module Bump
     def dy
       return (self.py - (self.h / 2)).to_i
     end
-
-    def w
-      return (@wv + @wv).x.to_i 
-    end
-    
-    def h
-      return (@hv + @hv).y.to_i 
-    end
-    
+ 
     # time when this box would collide with another on the right side 
     # of this box. Returns nil if the collision would not happen, or 
     # a negative time if it would happen in the past.
     def collide_t_right(other) 
-      vr = self.vrel(other)
-      return nil if vr.x == (0.0)
-      return (other.p.x - self.p.x - self.w) / vr.x
+      vrx = other.v.x - self.v.x
+      return nil if vrx == (0.0)
+      return (self.p.x - other.px + self.w) / vrx
     end
 
     # time when this box would collide with another on the left side 
     # of this box. Returns nil if the collision would not happen, or 
     # a negative time if it would happen in the past.
     def collide_t_left(other)
-      vr = other.vrel(self)
-      return nil if vr.x == 0.0
-      return (self.p.x - other.p.x - other.w) / vr.x
+      return other.collide_t_right(self)
     end
     
     # time when this box would collide with another on the bottom side 
@@ -148,17 +129,28 @@ module Bump
    
     # Time at which this box would collide with the other.  
     def collide_t(other)
-      acts = [:collide_t_top, :collide_t_right,
-             :collide_t_bottom, :collide_t_left]
-      aid = []       
-      for act in acts do
-        res = self.send(act, other)
-        aid << [ res, act ] if res && res >= 0.0 
-      end
-      res = aid.sort.first
-      return nil, :none unless res
-      return * res
+      ctr = self.collide_t_right(other)
+      ctl = self.collide_t_left(other)
+      return ctl, ctr
+      # meaning of ctl (collision time left) and ctr (collision time right)
+      # ctl and ctr are negative: collision in the past, so no collision
+      # ctr and ctl are positive: collision, smallest value first
+      # opposite sign: currently colliding, positive val is exit time
+      return nil unless ctr || ctl
+      return ctr unless ctl
+      return ctl unless ctr
     end
+    
+    def collide_now?(other)
+      return false if other.dx > self.dx  + self.w 
+      return false if self.dx  > other.dx + other.w
+      return false if other.dy > self.dy  + self.h 
+      return false if self.dy  > other.dy + other.h
+      return true
+    end
+    
+    
+    
   end
 
 

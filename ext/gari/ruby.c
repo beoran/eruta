@@ -307,14 +307,24 @@ RBH_GETTER_DEFINE(gari_image_depth, Image, GariImage, RBH_INT_NUM);
 /** Drawing function wrappers */
 VALUE rbgari_image_slab(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vw  , VALUE vh, VALUE vc) {
-  gari_image_slab(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
+  GariImage * img = GARI_IMAGE_UNWRAP(self);
+  if(!img) {
+    rb_warn("Cannot draw to null image!");
+    return Qnil;
+  }
+  gari_image_slab(img, RBH_INT(vx), RBH_INT(vy), 
                   RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
   return self;
 } 
   
 VALUE rbgari_image_blendslab(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vw  , VALUE vh, VALUE vc) {
-  gari_image_blendslab(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
+  GariImage * img = GARI_IMAGE_UNWRAP(self);
+  if(!img) {
+    rb_warn("Cannot draw to null image!");
+    return Qnil;
+  }
+  gari_image_blendslab(img, RBH_INT(vx), RBH_INT(vy), 
                   RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
   return self;
 } 
