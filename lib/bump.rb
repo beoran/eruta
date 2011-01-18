@@ -153,5 +153,7 @@ module Bump
     
   end
 
+  autoload :Lookup, 'bump/lookup'
+  autoload :Space , 'bump/space'
 
 end
