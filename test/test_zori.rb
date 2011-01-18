@@ -5,6 +5,11 @@ require 'gari'
 require 'fimyfi'
 require 'zori'
 
+# FIXME Because of the way nanotest works (one ruby process for all tests, 
+# this file may crash as gari may not have
+# been cleaned up correctly before 
+# GC.start
+
 assert { Gari              }
 assert { Zori::Button      }
 assert { Zori::Checkbox    }
@@ -166,6 +171,7 @@ menu        = Zori::Menubar.new
    res = Zori::Dialog.yesno('What will it be, yes or no?')
    p res  
 
+ # GC.start 
   
   until ui.done do
     progress.advance

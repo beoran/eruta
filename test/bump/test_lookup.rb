@@ -7,3 +7,4 @@ assert { Bump }
 assert { Bump::Lookup }
 l = Bump::Lookup.new
 assert { l }
+
