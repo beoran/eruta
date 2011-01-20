@@ -5,7 +5,7 @@ require 'gari'
 require 'fimyfi'
 require 'zori'
 
-# FIXME Because of the way nanotest works (one ruby process for all tests, 
+# FIXME Because of the way autowatchr works (one ruby process for all tests, 
 # this file may crash as gari may not have
 # been cleaned up correctly before 
 # GC.start

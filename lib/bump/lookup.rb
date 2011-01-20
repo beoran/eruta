@@ -69,23 +69,38 @@ module Bump
       return result
     end
 
+    # Yields the indexes of the grid cells that an object at Space 
+    # coordinates (x, y) any with a bounding box size of w and h will "cover"  
+    def grid_overlap_yield(x, y, w, h)
+      result = []
+      xstart, ystart =  xy_to_grid(x, y)
+      xstop , ystop  =  xy_to_grid(x + w, y + w)
+      # The four grid coordinates of the corners
+      # All the grid coordinates must be between (inclusive) these 
+      for ydex in (ystart..ystop) do 
+        for xdex in (xstart..xstop) do
+          gridx, gridy = xdex, ydex
+          yield gridx, gridy
+        end
+      end  
+      return result
+    end
+
     # Stores an object in this lookup. Object must respond to .x .y .w and .h 
-    def store(object)
-      indexes = grid_overlap(object.x, object.y, object.w, object.h)
-      for index in indexes do
-        xdex, ydex           = *index
+    def <<(object)
+      grid_overlap_yield(object.x, object.y, object.w, object.h) do 
+        |xdex, ydex|
         @ygrid[ydex]       ||= [] 
         @xgrid[xdex]       ||= []
         @ygrid[ydex]        << object
-        @xgrid[ydex]        << object
+        @xgrid[xdex]        << object
       end
     end
     
     # Removes an object from the lookup. Useful when the object moves.
     def remove(object)
-      indexes = grid_overlap(object.x, object.y, object.w, object.h)
-      for index in indexes do
-        xdex, ydex           = *index
+      grid_overlap_yield(object.x, object.y, object.w, object.h) do 
+        |xdex, ydex|
         @ygrid[ydex].delete(object) if @ygrid[ydex]
         @xgrid[xdex].delete(object) if @xgrid[xdex]
       end
@@ -93,22 +108,23 @@ module Bump
     
     # Looks up any objects that may interact with the thing.
     # Thing must respond to .x .y .w and .h
-    def lookup(thing)
+    def [](thing)
       return lookup_rectangle(thing.x, thing.y, thing.w, thing.h)
     end
-    
-
 
     # Gets all objects in this lookup that may overlap with the rectangle 
     # defined by (x, y, w, h). Returns an array with the objects, or an empty 
     # array if no such objects could be found. 
     def lookup_rectangle(x, y, w, h)
       result = []  
-      indexes = grid_overlap(x, y, w, h)
-      for index in indexes do
-        xdex, ydex = *index
-        if @ygrid[ydex] && @xgrid[xdex]            
-          result += @lookup[ydex][xdex]
+      grid_overlap_yield(x, y, w, h) do |xdex, ydex|
+        xarr       = @xgrid[xdex]
+        yarr       = @ygrid[ydex]
+        if yarr && xarr
+          yarr.each do |e| 
+            next unless xarr.member?(e) 
+            result << e unless result.member?(e)
+          end  
         end   
       end
       return result
