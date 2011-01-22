@@ -10,34 +10,38 @@ module Bump
     def initialize(gridsize = 100)
       @mobiles = {}
       @fixed   = {}
-      @gridsize= gridsize
-      @xgrid   = {}
-      @ygrid   = {}
+      @grid    = Grid.new(gridsize)
     end
     
-    def add_mobile(mobile, name = nil )
-      name                ||= mobile.name
-      @mobiles[name.to_sym] = mobile
-      gridx                 = to_grid(mobile.x)
-      gridw                 = to_grid(mobile.w)
-      gridy                 = to_grid(mobile.y)
-      gridh                 = to_grid(mobile.h)
-      
-      
+    def add_mobile(mobile)
+      @mobiles << mobile    
     end
     
-    def to_grid(value)
-      return value.to_i / self.gridsize
+    def add_fixed(thing)
+       @fixed  << thing    
     end
     
-    def to_grid_x(mobile)
-      return mobile.x / self.gridsize
+    def prepare(dt)
+      @mobiles.each do |mobile|
+        mobile.prepare(dt)
+      end
     end
     
-    def to_grid_x(mobile)
-      return mobile.y / self.gridsize
+    def handle_collisions(dt)
+      to_check = @mobiles.dup
+      # check all mobiles. O(n.log(n)), since we remove a mobile 
+      # already checked 
+      @mobiles.each do |mobile|
+        mobile.collide_all(dt, to_check)
+        to_check.delete(mobile)
+      end
     end
     
+    def update(dt)
+      @mobiles.each do |mobile|
+        mobile.update(dt)
+      end
+    end
     
   end
 end
