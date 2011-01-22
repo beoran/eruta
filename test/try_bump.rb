@@ -9,7 +9,7 @@ require 'fimyfi'
 
 class TryBump
   include Gari::Handler
-
+  
   # Loads a font
   def self.load_font(name, size)
     fname = Fimyfi.join(Fimyfi.font_dir, name)
@@ -25,10 +25,13 @@ class TryBump
     @screen = @game.openscreen(640, 480, false)
     @font   = self.class.load_font('dejavuserif.ttf', 12)
     @done   = false 
-    @box1   = Bump::Box.new(100, 100, 50, 80)
-    @box2   = Bump::Box.new(200, 200, 30, 60)
+    @box1   = Bump::Box.new(x: 100, y: 100, w: 50, h: 80)
+    @box2   = Bump::Box.new(x: 200, y: 200, w: 30, h: 60)
     @cr     = Gari::Color.rgb(255, 0  , 0  )
-    @cc     = Gari::Color.rgb(0  , 255, 255)    
+    @cc     = Gari::Color.rgb(0  , 255, 255)
+    @space  = Bump::Space.new(100)
+    @space.add_mobile(@box1)
+    @space.add_mobile(@box2)    
   end
   
   def on_keydown(ev)
@@ -102,10 +105,8 @@ class TryBump
     handle_events
     @game.nextframe
     dt = 50.0 / @game.fps
-    @box1.prepare dt
-    @box2.prepare dt
-    @box1.update
-    @box2.update
+    @space.prepare(dt)
+    @space.update(dt)
     @coll = * @box1.collide_t(@box2)  
   end
   

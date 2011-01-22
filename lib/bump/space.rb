@@ -8,9 +8,9 @@ module Bump
     attr_reader :gridsize
     
     def initialize(gridsize = 100)
-      @mobiles = {}
-      @fixed   = {}
-      @grid    = Grid.new(gridsize)
+      @mobiles = []
+      @fixed   = []
+      @grid    = Lookup.new(gridsize)
     end
     
     def add_mobile(mobile)
@@ -32,12 +32,13 @@ module Bump
       # check all mobiles. O(n.log(n)), since we remove a mobile 
       # already checked 
       @mobiles.each do |mobile|
-        mobile.collide_all(dt, to_check)
+        mobile.collide_mobiles(dt, to_check)
         to_check.delete(mobile)
       end
     end
     
     def update(dt)
+      self.handle_collisions(dt)
       @mobiles.each do |mobile|
         mobile.update(dt)
       end

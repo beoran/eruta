@@ -6,10 +6,8 @@ module Bump
     attr_reader :w 
     attr_reader :h 
     
-    def initialize(x, y, w, h)
-      super(:px => x + w / 2.0, :py => y + h / 2.0)
-      @w  = w
-      @h  = h
+    def initialize(opts={})
+      super(opts)
     end
   
     # x coordinate of mobile's upper left corner, for drawing

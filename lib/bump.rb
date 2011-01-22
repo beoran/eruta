@@ -12,7 +12,7 @@ module Bump
   def self.vec0
     Gari::Vector.zero
   end
-  
+ 
   autoload :Thing,  'bump/thing'
   autoload :Mobile, 'bump/mobile' 
   autoload :Box,    'bump/box'

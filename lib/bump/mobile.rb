@@ -65,28 +65,50 @@ module Bump
         self.collide_mobile(dt, other)
       end
     end
+    
+    def dpx=(xx)
+      self.dp = Bump.vec( xx, self.dp.y)
+    end
+
+    def dpy=(yy)
+      self.dp = Bump.vec(self.dp.y, yy)
+    end
 
     def calculate_mobile_collision_x(dt, other) 
-      if other.dp.x == 0.0 return other.calculate_mobile_collision_x(other)
-      xrat = self.dp.x / other.dp.x
+      if other.dp.x == 0.0 
+        if self.dp.x == 0.0
+          return
+        else  
+          return other.calculate_mobile_collision_x(self)
+        end
+      end  
+      xrat        = self.dp.x / other.dp.x
       # other is pushed back (1 - xrat) * other.dp.x , self xrat * other.dp.x
-      self.dp.x  -= xrat * self.dp.x
-      other.dp.x -= (1.0 - xrat) * other.dp.x     
+      self.dpx    = self.dp.x - (xrat * self.dp.x)
+      other.dpx   = self.dp.x - ((1.0 - xrat) * other.dp.x)     
     end
 
     def calculate_mobile_collision_y(dt, other) 
-      xrat = self.x / other.x      
+      if other.dp.y == 0.0 
+        if self.dp.y == 0.0
+          return
+        else  
+          return other.calculate_mobile_collision_y(self)
+        end
+      end  
+      yrat        = self.dp.y / other.dp.y
+      # other is pushed back (1 - yrat) * other.dp.y , self xrat * other.dp.y
+      self.dpy    = self.dp.y - (yrat * self.dp.y)
+      other.dpy   = self.dp.y - ((1.0 - yrat) * other.dp.y)     
     end
 
-    
     def calculate_mobile_collision(dt, other) 
-      xrat = self.x / other.x
-      yrat = self.y / other.y
-      
+      calculate_mobile_collision_x(dt, other) 
+      calculate_mobile_collision_y(dt, other)
     end
  
     # Prepare a collision with the other mobile object
-    def self.collide_mobile(dt, other)
+    def collide_mobile(dt, other)
       return nil if self == other
       # FIXME: Of course this is clearny NOT swept collision detection, merely
       # simple collision detection. I implement this temorarily like this
@@ -94,19 +116,13 @@ module Bump
       return nil unless self.will_collide?(other)
       # we are colliding right now
       # calculate the relative displacement needed by self and other
-      if self.dp.zero? 
-        if other.dp.zero? 
-          # two mobiles are colliding, but the dp is zero. 
-          # this could only happen if the objects were placed in an overlapping
-          # position by direct manipiulation of p
-          # nothing much we can do here but warn?
-          warn "Objects stuck into each other"
-        else
-          # only self is zero. Handle collision symmetrically
-          other.calculate_mobile_collision(dt, self)
-        end
+      if self.dp.zero? && other.dp.zero? 
+        # two mobiles are colliding, but the dp is zero. 
+        # this could only happen if the objects were placed in an overlapping
+        # position by direct manipiulation of p
+        # nothing much we can do here but warn?
+        warn "Objects stuck into each other"
       else
-        # only other is zero. Handle collision symmetrically
         self.calculate_mobile_collision(dt, other)
       end
     end
