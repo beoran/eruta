@@ -10,9 +10,11 @@ module Bump
     attr_reader :h
     
     def initialize(opt={})
-      @p = Bump.vec(opt[:px] || 0, opt[:py] || 0)
       @w = opt[:w].to_i || 1
       @h = opt[:h].to_i || 1
+      px = opt[:px] ? opt[:px] : opt[:x] + (@w / 2)  
+      py = opt[:py] ? opt[:py] : opt[:y] + (@h / 2) 
+      @p = Bump.vec(px, py)
     end
    
     # x coordinate of the left of the thing's bounding box

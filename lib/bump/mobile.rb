@@ -11,7 +11,7 @@ module Bump
       super(opt)
       @v  = Bump.vec(opt[:vx] || 0.0, opt[:vy] || 0.0)
       @dp = Bump.vec0
-      @m  = opt[:m] || 1.0
+      @m  = opt[:m] ? opt[:m].to_f : 1.0
     end
     
     
@@ -49,6 +49,24 @@ module Bump
     end
     
     
+    # returns overlap of the bounds boxes of self and other in x direction
+    # may be zero or negative if no overlap
+    def overlap_x(other)
+#       return -1 if other.newx > self.newx  + self.w 
+#       return -1 if self.newx  > other.newx + other.w
+      return self.w - (other.newx - self.newx ) if self.x < other.x
+      return other.w - (self.newx - other.newx)
+    end
+
+    # returns overlap of the bounds boxes of self and other in y direction
+    # may be zero or negative if no overlap
+    def overlap_y(other)
+#       return -1 if other.newy > self.newy  + self.w 
+#       return -1 if self.newy  > other.newy + other.w
+      return self.h - (other.newy - self.newy ) if self.y < other.y
+      return other.h - (self.newy - other.newy)
+    end
+
     # returns true if the bounding box of the other 
     # will collide (dp is taken into account)
     def will_collide?(other)
@@ -59,6 +77,8 @@ module Bump
       return true
     end
     
+    
+    
     # Collide with all possible mobile objects
     def collide_mobiles(dt, others)
       others.each do |other|
@@ -67,7 +87,7 @@ module Bump
     end
     
     def dpx=(xx)
-      self.dp = Bump.vec( xx, self.dp.y)
+      self.dp = Bump.vec(xx, self.dp.y)
     end
 
     def dpy=(yy)
@@ -75,36 +95,49 @@ module Bump
     end
 
     def calculate_mobile_collision_x(dt, other) 
-      if other.dp.x == 0.0 
-        if self.dp.x == 0.0
+      if other.m == 0.0 
+        if self.m == 0.0
           return
         else  
           return other.calculate_mobile_collision_x(self)
         end
-      end  
-      xrat        = self.dp.x / other.dp.x
+      end 
+      xover       = self.overlap_x(other)
+      xrat        = self.m / (other.m + self.m)
       # other is pushed back (1 - xrat) * other.dp.x , self xrat * other.dp.x
-      self.dpx    = self.dp.x - (xrat * self.dp.x)
-      other.dpx   = self.dp.x - ((1.0 - xrat) * other.dp.x)     
+      self.dpx    = self.dp.x - (xrat * xover)
+      other.dpx   = self.dp.x - ((1.0 - xrat) * xover)     
     end
 
     def calculate_mobile_collision_y(dt, other) 
-      if other.dp.y == 0.0 
-        if self.dp.y == 0.0
+      if other.m == 0.0 
+        if self.m == 0.0
           return
         else  
           return other.calculate_mobile_collision_y(self)
         end
-      end  
-      yrat        = self.dp.y / other.dp.y
-      # other is pushed back (1 - yrat) * other.dp.y , self xrat * other.dp.y
-      self.dpy    = self.dp.y - (yrat * self.dp.y)
-      other.dpy   = self.dp.y - ((1.0 - yrat) * other.dp.y)     
+      end 
+      yover       = self.overlap_y(other)
+      yrat        = self.m / (other.m + self.m)
+      # other is pushed back (1 - xrat) * other.dp.x , self xrat * other.dp.x
+      self.dpy    = self.dp.y - (yrat * yover)
+      other.dpy   = self.dp.y - ((1.0 - yrat) * yover)     
     end
+    
+    def overlap_vector(other)
+      return Bump.vec(self.overlap_x(other), self.overlap_y(other))
+    end  
 
     def calculate_mobile_collision(dt, other) 
-      calculate_mobile_collision_x(dt, other) 
-      calculate_mobile_collision_y(dt, other)
+      overlap    = self.overlap_vector(other) 
+      overdot    = overlap.lensq
+      dprel      = other.dp - self.dp
+      delta      = dprel * (overlap.dot(dprel) / overdot) 
+      mratio     = self.m / (other.m + self.m)     
+      sddp       = delta * mratio
+      oddp       = delta * (1 - mratio)
+      self.dp   -= sddp
+      other.dp  += oddp
     end
  
     # Prepare a collision with the other mobile object
@@ -121,7 +154,7 @@ module Bump
         # this could only happen if the objects were placed in an overlapping
         # position by direct manipiulation of p
         # nothing much we can do here but warn?
-        warn "Objects stuck into each other"
+        #  warn "Objects stuck into each other"
       else
         self.calculate_mobile_collision(dt, other)
       end

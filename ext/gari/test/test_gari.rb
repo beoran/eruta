@@ -1,4 +1,5 @@
 # encoding: utf-8
+$: << '.' if __FILE__ == $0
 require 'test_helper.rb'
 require 'gari'
 # require 'math'
@@ -86,10 +87,9 @@ assert  {  close?(v1.lensq, v1.x**2 + v1.y**2)  }
 assert  {  close?(v1.len, v1.lensq**0.5)        }
 assert  {  close?(va.angle, Math::PI / 4.0)     }
  
+p v1.dot(v1)
 
-
-
-
+vz = Gari::Vector.zero
 
 =begin
   RBH_METHOD(Vector             , dot         , rbgari_vector_dot       , 1);

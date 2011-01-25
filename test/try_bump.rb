@@ -16,7 +16,7 @@ class TryBump
     font  = Gari::Font.new(fname, size)
     warn("Could not open font #{name} in #{fname}") if(!font)
     return font      
-  end    
+  end
 
   def initialize      
     @game   = Gari::Game.new
@@ -25,7 +25,7 @@ class TryBump
     @screen = @game.openscreen(640, 480, false)
     @font   = self.class.load_font('dejavuserif.ttf', 12)
     @done   = false 
-    @box1   = Bump::Box.new(x: 100, y: 100, w: 50, h: 80)
+    @box1   = Bump::Box.new(x: 100, y: 100, w: 50, h: 80, m: 100000.0)
     @box2   = Bump::Box.new(x: 200, y: 200, w: 30, h: 60)
     @cr     = Gari::Color.rgb(255, 0  , 0  )
     @cc     = Gari::Color.rgb(0  , 255, 255)
@@ -67,7 +67,7 @@ class TryBump
   end
   
   def draw_box(box, color)
-    @screen.slab(box.dx, box.dy, box.w, box.h, color)
+    @screen.slab(box.x, box.y, box.w, box.h, color)
   end
   
   def draw_boxes
@@ -84,13 +84,14 @@ class TryBump
     draw_text(20, 20, @game.fps)
   end
 
-  
-  
   def draw_coll
     vr = @box1.vrel(@box2)
+    dp1= @box1.dp
+    dp2= @box2.dp
     cn = @box1.collide_now?(@box2)
     draw_text(20, 40, "Coll: #{@coll.map{|e| e ? e.round(3) : e}} #{@how}")
-    draw_text(20, 60, "Vrel 1-2:#{vr.x} #{vr.y}")
+    draw_text(20, 60, "Vrel 1-2:#{vr.x} #{vr.y} 
+    #{dp1.x} #{dp1.y} #{dp1.x} #{dp1.y}")
     draw_text(20, 80, "Now?:#{cn}")
   end
   
@@ -98,7 +99,7 @@ class TryBump
     @screen.slab(0, 0, @screen.w, @screen.h, Gari::Color.rgb(128,128,255))
     draw_boxes
     draw_fps
-    draw_coll
+    draw_coll  
   end
  
   def update
