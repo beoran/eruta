@@ -132,7 +132,18 @@ module Bump
       overlap    = self.overlap_vector(other) 
       overdot    = overlap.lensq
       dprel      = other.dp - self.dp
-      delta      = dprel * (overlap.dot(dprel) / overdot) 
+      
+      xprod      = dprel.x * overlap.x
+      yprod      = dprel.y * overlap.y
+      if xprod.abs > yprod.abs
+        fact     = dprel.x < 0 ? 1 : -1  
+        delta    = Bump.vec(overlap.x * fact, 0) 
+      else
+        fact     = dprel.y < 0 ? 1 : -1
+        delta    = Bump.vec(0        ,overlap.y * fact)
+      end
+      
+      # delta      = dprel * (overlap.dot(dprel) / overdot) 
       mratio     = self.m / (other.m + self.m)     
       sddp       = delta * mratio
       oddp       = delta * (1 - mratio)

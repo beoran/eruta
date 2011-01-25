@@ -78,6 +78,7 @@ class TryBump
   def draw_text(x, y, text)
     @screen.text(x, y, text, @font, Gari.rgb(255,255,255), Gari.rgb(0,0,0))
   end  
+
   
   
   def draw_fps
@@ -88,10 +89,11 @@ class TryBump
     vr = @box1.vrel(@box2)
     dp1= @box1.dp
     dp2= @box2.dp
+    ov = @box1.overlap_vector(@box2)
     cn = @box1.collide_now?(@box2)
     draw_text(20, 40, "Coll: #{@coll.map{|e| e ? e.round(3) : e}} #{@how}")
     draw_text(20, 60, "Vrel 1-2:#{vr.x} #{vr.y} 
-    #{dp1.x} #{dp1.y} #{dp1.x} #{dp1.y}")
+    #{ov.x} #{ov.y} #{dp1.x} #{dp1.y}")
     draw_text(20, 80, "Now?:#{cn}")
   end
   
