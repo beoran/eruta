@@ -1,0 +1,35 @@
+# Comment line 
+#{ 
+  Multi line comment
+}#
+
+symbol 
+
+symbol argument
+
+symbol arg1 arg2
+
+foo.bar # 3 symbols: foo . bar
+foo=**bar # 3 symbols: foo =** bar
+
+
+symbol arg1 arg2 {
+# inside block
+[
+# alternative block
+]
+(
+# another alternative
+)
+}
+
+"A string"
+
+"A Multi line 
+string."
+
+def foo ( a b c ) { 
+  a = 10 + 20
+}
+
+
