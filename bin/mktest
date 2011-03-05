@@ -1,0 +1,17 @@
+#!/bin/bash
+
+subdir=${1-lib}
+echo "Generating tests for files in $subdir:"
+testdir=test${subdir#lib}  
+echo "Making $testdir"
+mkdir -p "$testdir"
+echo "Touching files in $testdir:"
+
+
+for each in $subdir/*.rb  
+do 
+  aid=test/${each#lib/} 
+  testfile=$(dirname $aid)/test_$(basename $aid)
+  touch "$testfile"
+  echo "$testfile"
+done
