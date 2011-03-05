@@ -1,5 +1,6 @@
 Gari is a simple, fast, cross platform game library targeted at 2D games, 
-written in plain C. For now, it uses SDL as a backend, but that might change later to use more low-level back-ends. It's goals are: 
+written in plain C. For now, it uses SDL as a backend, but that might change 
+later to use more low-level back-ends. It's goals are: 
 
 * Targeted to make writing 2D games as easy as possible.
 * A simple API, that hides the details as much as possible.
@@ -12,18 +13,29 @@ written in plain C. For now, it uses SDL as a backend, but that might change lat
 
 Rationale for creating Gari for use with the Eruta project:
  
-* In Eruta'm also wrapping SDL, in another layer, and then using this for tile maps, etc. Needless to say that this is all not very fast. To speed up things, I have to implement some lower level functionality in C. 
+* In Eruta'm also wrapping SDL, in another layer, and then using this for tile 
+maps, etc. Needless to say that this is all not very fast. To speed up things, 
+I have to implement some lower level functionality in C. 
 
-* I could wrap this low level functionality directly from Ruby as is done by e.g. Starruby, but I feel this library could aslo be useful wrapped in other languages, like OOC, the Go Language, python, or even C++ (yuck).
+* I could wrap this low level functionality directly from Ruby as is done by 
+e.g. Starruby, but I feel this library could aslo be useful wrapped in other 
+languages, like OOC, the Go Language, python, or even C++ (yuck).
     
-* I could mix-and match, only implement the functionality that SDL misses, and still wrap SDL directly using rubysdl, but that means that in ruby I have to 
-keep all sorts of dependencies. I'm using SGE for doing 2d drawing, which creates additional dependencies. It would be easiest if I has a single C library for game programming that I could wrap easily in Ruby.
+* I could mix-and match, only implement the functionality that SDL misses, 
+and still wrap SDL directly using rubysdl, but that means that in ruby I have to 
+keep all sorts of dependencies. I'm using SGE for doing 2d drawing, which 
+creates additional dependencies. It would be easiest if I has a single C library 
+for game programming that I could wrap easily in Ruby.
 
-* I'm planning to embed Ruby in C anyway, to make distributing the executable easier (in stead of doing the opposite). Might as well implement the essential low level functionality in C.
+* I'm planning to embed Ruby in C anyway, to make distributing the executable 
+easier (in stead of doing the opposite). Might as well implement the essential 
+low level functionality in C.
     
 Disadvantages of this project:
  
-* A lot of time consuming programming in C that does not directly help with the Eruta game being built. I've spent already a lot of time on writing "engine" layers, and not enough time on writing the game itself. 
+* A lot of time consuming programming in C that does not directly help with the 
+Eruta game being built. I've spent already a lot of time on writing "engine" 
+layers, and not enough time on writing the game itself. 
   
 Aside: why was I trying to wrap SDL in Go, essentially trying to create an
 identical project like Gari in Go? This was also for the same core reason: more
@@ -34,6 +46,12 @@ The crucial point here is: performance, is it worth all the extra work? If it
 was a web application, then I'd say : no. But to allow people with old 
 computers or nettops to play my games: I'd say, yes, it's worth while to give it 
 a try at least.
+
+Now that Gari is working quite well, it seems to be a good idea after all. 
+Moreso, now that Allegro 5 is shaping up and may be a better backend for this
+than SDL is.
+
+
 
 
  

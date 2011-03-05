@@ -40,5 +40,5 @@ module Gari
     def modsym
       Gari::Mod.mod2sym(self.key) 
     end
-  end
-end # gari events  
+  end # Event
+end # Gari

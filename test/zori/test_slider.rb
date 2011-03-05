@@ -14,6 +14,8 @@ test_widget_interactively do
     puts "Slider value changed #{v.value}" 
   end
   
+  assert { slider } 
+  
   slider
 end
 
