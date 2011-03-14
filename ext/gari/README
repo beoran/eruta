@@ -10,7 +10,8 @@ written in plain C. For now, it uses SDL as a backend, but that might change lat
 * Easy to embed in Ruby. 
 
 
-Gari works on MRI 1.9.x (1.8.x untested) and Rubinius 1.2 (tested)
+Gari works on MRI 1.9.x (1.8.x untested) and Rubinius 1.2 (tested), although 
+the Unicode support is obviously missing on the latter.
 
 
 Rationale for creating Gari for use with the Eruta project:
