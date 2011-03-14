@@ -34,7 +34,7 @@ module Gari
     # Gets the numerical key value for the symbol 
     # XXX: doesn't work for combined values
     def self.sym2mod(sym)
-      cname = "MOD_#{sym.upcase}".to_sym
+      cname = "MOD_#{sym.to_s.upcase}".to_sym
       return self.const_get(cname)
     end
   end

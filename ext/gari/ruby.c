@@ -61,7 +61,12 @@ rbgari
 
 // converts a ruby string to utf-8
 VALUE rb_str_to_utf8(VALUE text) { 
-  return rb_str_export_to_enc(text, rb_utf8_encoding());
+#ifdef RUBINIUS
+  /* encodings not supported */
+  return text; 
+#else
+  return rb_str_export_to_enc(text, rb_utf8_encoding()); 
+#endif 
 }
 
 
@@ -1185,21 +1190,21 @@ void Init_gari() {
   RBH_MODULE_CLASS(Gari, Vector);
   
   
-  RBH_SINGLETON_METHOD(Game, new, rbgari_game_new         , 0);
+  RBH_SINGLETON_METHOD(Game, new    , rbgari_game_new         , 0);
   
-  RBH_METHOD(Game, update       , rbgari_game_update      , 0);
-  RBH_METHOD(Game, resetframes  , rbgari_game_resetframes , 0);
-  RBH_METHOD(Game, frames       , rbgari_game_frames      , 0);
-  RBH_METHOD(Game, nextframe    , rbgari_game_nextframe   , 0);
-  RBH_METHOD(Game, startfps     , rbgari_game_startfps    , 0);
-  RBH_METHOD(Game, fps          , rbgari_game_fps         , 0);
-  RBH_METHOD(Game, openscreen   , rbgari_game_openscreen  , 3);
+  RBH_METHOD(Game, update           , rbgari_game_update      , 0);
+  RBH_METHOD(Game, resetframes      , rbgari_game_resetframes , 0);
+  RBH_METHOD(Game, frames           , rbgari_game_frames      , 0);
+  RBH_METHOD(Game, nextframe        , rbgari_game_nextframe   , 0);
+  RBH_METHOD(Game, startfps         , rbgari_game_startfps    , 0);
+  RBH_METHOD(Game, fps              , rbgari_game_fps         , 0);
+  RBH_METHOD(Game, openscreen       , rbgari_game_openscreen  , 3);
   RBH_METHOD(Game, openscreendepth  , rbgari_game_openscreendepth, 4);
-  RBH_METHOD(Game, keyrepeat    , rbgari_game_keyrepeat   , 2 );
+  RBH_METHOD(Game, keyrepeat        , rbgari_game_keyrepeat   , 2 );
   
-  RBH_METHOD(Game, screen       , rbgari_game_screen      , 0);
-  RBH_METHOD(Game, fullscreen   , rbgari_game_fullscreen  , 0);
-  RBH_METHOD(Game, fullscreen=  , rbgari_game_fullscreen_ , 1);
+  RBH_METHOD(Game, screen           , rbgari_game_screen      , 0);
+  RBH_METHOD(Game, fullscreen       , rbgari_game_fullscreen  , 0);
+  RBH_METHOD(Game, fullscreen=      , rbgari_game_fullscreen_ , 1);
   
   RBH_METHOD(Screen, showcursor , rbgari_screen_showcursor  , 0);
   RBH_METHOD(Screen, showcursor=, rbgari_screen_showcursor_ , 1);

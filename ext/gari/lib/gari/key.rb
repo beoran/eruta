@@ -265,7 +265,7 @@ module Gari
     
     # Gets the numerical key value for the symbol 
     def self.sym2key(sym)
-      cname = "KEY_#{sym.upcase}".to_sym
+      cname = "KEY_#{sym.to_s.upcase}".to_sym
       return self.const_get(cname)
     end
     

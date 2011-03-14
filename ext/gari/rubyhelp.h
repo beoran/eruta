@@ -7,8 +7,17 @@
 
 
 #include "ruby.h"
+
+#ifdef RUBINIUS
+
+#include "intern.h"
+
+#else /* MRI */
+
 #include "ruby/intern.h"
 #include "ruby/encoding.h"
+
+#endif
 
 #ifdef vsnprintf
   #undef vsnprintf
@@ -38,11 +47,20 @@ STRUCTNAME * FUNCNAME(VALUE obj)        \
 #define RBH_STATIC_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr) \
 static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 
+#ifdef RUBINIUS
+#define RBH_STRING_ENC(VAL, ENC)                   \
+  do {                                             \
+    SafeStringValue(VAL);                          \
+  } while (0)
+
+#else
+
 #define RBH_STRING_ENC(VAL, ENC)                   \
   do {                                             \
     SafeStringValue(VAL);                          \
     (VAL) = rb_str_export_to_enc((VAL),(ENC));     \
   } while (0)
+#endif
 
 #define RBH_INT2BOOL(INTVAL) ((INTVAL) ? Qtrue : Qfalse)
 
@@ -51,10 +69,21 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 #define RBH_ENCSTR_NEW(str, enc) rb_enc_str_new((str), strlen((str)), (enc))
 #define RBH_ENCSTR_NEW2(str, enc) rb_enc_str_new((str), strlen((str)), (enc))
 
+#ifdef RUBINIUS
+#define RBH_STR_ASCII(STR, LEN) rb_str_new(STR, LEN)
+#define RBH_STR_ASCII2(STR) RBH_STR_ASCII(STR, strlen(STR))
+#else
 #define RBH_STR_ASCII(STR, LEN) rb_usascii_str_new(STR, LEN)
 #define RBH_STR_ASCII2(STR) RBH_STR_ASCII(STR, strlen(STR))
+#endif
+
+#ifdef RUBINIUS
+#define RBH_STR_UTF8(STR, LEN) rb_str_new(STR, LEN)
+#define RBH_STR_UTF82(STR) RBH_STR_UTF8(STR, strlen(STR))
+#else
 #define RBH_STR_UTF8(STR, LEN) rb_enc_str_new(STR, LEN, rb_utf8_encoding())
 #define RBH_STR_UTF82(STR) RBH_STR_UTF8(STR, strlen(STR))
+#endif
 
 #define RBH_WRAPOLD(KLASS, PTR, MARK, FREE)              \
         Data_Wrap_Struct(KLASS, MARK, FREE, PTR)
@@ -202,12 +231,12 @@ static RBH_GETSTRUCT_DEFINE(struct_name, fun, klass, klassstr)
 // Converts a ruby VALUE to a double
 #define RBH_DOUBLE(DBL) ((float)NUM2DBL(DBL))
 // Converts a double to a ruby VALUE
-#define RBH_DOUBLE_NUM(DBL) DBL2NUM(DBL)
+#define RBH_DOUBLE_NUM(DBL) rb_float_new(DBL)
 
 // Converts a ruby VALUE to a float
 #define RBH_FLOAT(FLT) ((float)NUM2DBL(FLT))
 // Converts a float to a ruby VALUE
-#define RBH_FLOAT_NUM(FLT) (DBL2NUM((double)FLT))
+#define RBH_FLOAT_NUM(FLT) (RBH_DOUBLE_NUM((double)FLT))
 
 
 // Helper to define a singleton method (class method) for a class

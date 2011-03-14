@@ -10,6 +10,9 @@ written in plain C. For now, it uses SDL as a backend, but that might change lat
 * Easy to embed in Ruby. 
 
 
+Gari works on MRI 1.9.x (1.8.x untested) and Rubinius 1.2 (tested)
+
+
 Rationale for creating Gari for use with the Eruta project:
  
 * In Eruta'm also wrapping SDL, in another layer, and then using this for tile maps, etc. Needless to say that this is all not very fast. To speed up things, I have to implement some lower level functionality in C. 
@@ -34,6 +37,11 @@ The crucial point here is: performance, is it worth all the extra work? If it
 was a web application, then I'd say : no. But to allow people with old 
 computers or nettops to play my games: I'd say, yes, it's worth while to give it 
 a try at least.
+
+How about using OpenGL for acelleration? The problem is that on Linux, OpenGL
+is not always accelerated on older computers or nettops. Often it is a software
+Mesa3D which is /slower/ than straight SDL functions. Allegro 5 suffert from 
+this problem. I hope SDL 1.3 will solve the problem for me.   
 
 
  

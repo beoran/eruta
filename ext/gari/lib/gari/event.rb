@@ -18,7 +18,10 @@ module Gari
     
     # Returns the key press unicode value as a text
     def text
-      [self.unicode].pack("U*").force_encoding("utf-8")
+      aid = [self.unicode].pack("U*")
+      # for Rubinius
+      return aid.force_encoding("utf-8") if aid.respond_to?(:force_encoding)      
+      return aid
     end
     
     # This "macro" below ensures that instances of the Event class get 

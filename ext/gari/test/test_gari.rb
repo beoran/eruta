@@ -392,7 +392,7 @@ while busy
       busy = false
     elsif ev.keydown?
        
-      p ev.key, ev.text, ev.keysym
+      puts "#{ev.key}, #{ev.text}, #{ev.keysym}"
       # game.fullscreen = ! game.fullscreen
       # screen.blitscale9(go, 200, 300, 100, 150, 8, 8)
       # game.update  

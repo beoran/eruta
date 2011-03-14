@@ -181,13 +181,16 @@ p sh1.image
 screen.blitsheet(50, 50, sh1)
 
 t1 = timer do
-  1.times do
+  1000.times do
     layer.draw(screen, 77 , 77)
   end 
 end
+
+game.update
+sleep(0.5)
   
 t2 = timer do
-  1.times do
+  1000.times do
     rayer.draw(screen, 77, 77)
   end 
 end
@@ -196,6 +199,12 @@ p t1, t2
 
 # The C function is of comparable speed as the Ruby one. Goes to show Ruby 
 # 1.9.2 is much faster now than 1.8.x before, I guess.
+# In Rubinius 1.2, the C function is slightly faster, with 3.552362s for C
+# and 4.422799s for Ruby.
+# MRI values : 3.48377781 C 3.661230503 for Ruby 
+# 
+# However, the event handling seems slightly more responsive in Rubinius.
+# 
 
 game.update
 sleep(0.5)
