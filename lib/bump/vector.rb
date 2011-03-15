@@ -19,6 +19,12 @@ module Bump
       return self.new(0.0, 0.0)
     end
     
+    # Returns a zero vector for ease of use.
+    def zero
+      return self.zero
+    end
+    
+    
     # Constructs a vector with the given components, for ease of use
     def vec(x, y)
       return self.class.new(x, y)
@@ -158,7 +164,7 @@ module Bump
 
     # Returns true if the distance between self and other is less than or 
     # equal to d.
-    def near(other, d)
+    def near?(other, d)
       return self.distsq(other) <= (d*d)
     end
     
@@ -172,6 +178,23 @@ module Bump
     def angle
       return Math.atan2(self.y, self.x);
     end
+    
+    # Returns a vector with components self.x, 0
+    def vector_x
+      return vec(@x, 0.0)
+    end
+    
+    # returns the overlap of the x component of self, of other, where  
+    # self and other are centers of line pieces with width rself and rother 
+    # respectivly. Returned as a vector with only an x component with the 
+    # magnitude of overlap
+    def overlap_x(other, rself, rother) 
+      xself   = self.vector_x
+      xother  = other.vector_x
+      return zero unless xself.near(xother, rself)
+       
+    end
+      
 
 
   end # Class vector

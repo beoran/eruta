@@ -6,7 +6,7 @@ require 'gari'
 
 module Bump
   def self.vec(x, y)
-    Vector.vec(x, y)
+    Vector.new(x, y)
   end
   
   def self.vec0

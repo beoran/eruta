@@ -2,8 +2,8 @@ module Bump
   # Anything that can move with regards to collision detection.
   module Mobile
     include Thing
-    attr_accessor :dp # distance vector that the center will be moved by 
-    # in the next time step dt
+    # Distance vector that the center will be moved by in the next time step dt.
+    attr_accessor :dp
     attr_accessor :v  # speed vector
     attr_accessor :m  # mass
     
