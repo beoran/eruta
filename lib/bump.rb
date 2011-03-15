@@ -6,11 +6,11 @@ require 'gari'
 
 module Bump
   def self.vec(x, y)
-    Gari.vec(x, y)
+    Vector.vec(x, y)
   end
   
   def self.vec0
-    Gari::Vector.zero
+    Vector.zero
   end
  
   autoload :Thing,  'bump/thing'
@@ -18,5 +18,6 @@ module Bump
   autoload :Box,    'bump/box'
   autoload :Lookup, 'bump/lookup'
   autoload :Space , 'bump/space'
+  autoload :Vector, 'bump/vector'
 
 end

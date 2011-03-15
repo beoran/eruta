@@ -1,14 +1,18 @@
 # encoding: UTF-8
+if $0 == __FILE__
+%w{. .. ../lib}.each { |p| $: << p } 
+end
+
 require 'test_helper'
 
 require 'gari'
 require 'fimyfi'
 require 'zori'
 
-# FIXME Because of the way autowatchr works (one ruby process for all tests, 
+# FIXME Because of the way autowatchr works (one ruby process for all tests), 
 # this file may crash as gari may not have
-# been cleaned up correctly before 
-# GC.start
+# been cleaned up correctly before GC.start 
+#
 
 assert { Gari              }
 assert { Zori::Button      }

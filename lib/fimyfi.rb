@@ -1,7 +1,7 @@
 # encoding: UTF-8 
 # 
 # fimyfi.rb Find My Files, a module to help an application find the various
-# files needs.
+# files it needs.
  
  
 module Fimyfi
@@ -69,7 +69,7 @@ module Fimyfi
   
   def self.main(program = 'eruta')
     @main   ||= self.expand_path(__FILE__)
-    @program  = program        
+    @program  = program
   end
   
   def self.maindir
@@ -77,7 +77,10 @@ module Fimyfi
   end
   
   
-  
+  # This tries to find the settings file of the program by looking in many 
+  # different candidate directories. basically, it's trying all sorts of 
+  # plausible directories until it finds one that has the configuration file.
+  #
   def self.find_settings_file(program='eruta')
     @program  ||= program    
     tries       = []
@@ -86,19 +89,44 @@ module Fimyfi
     tries << self.join(self.maindir, :share, conffile)
     # Try based upon the main file's location in a different way.
     tries << self.join(self.maindir, '..', '..', :share, conffile)    
+    # First try based upon this file's location, alternatively named.
+    tries << self.join(self.maindir, :data, conffile)
+    # Try based upon the main file's location in a different way, alternative.
+    tries << self.join(self.maindir, '..', '..', :data, conffile)    
     # Try in a global location
     tries << self.join(:usr, :share, @program, conffile)
     # Try in a local global location
     tries << self.join(:usr, :local, :share, @program, conffile)
+    # Try in a windowsy global location
+    tries << self.join('Program Files', @program, conffile)
+    # Try in a windowsy global location
+    tries << self.join('Program Files(x86)', @program, conffile)
+    # Try in a windowsy global location
+    tries << self.join('Program Files', @program, :share, conffile)
+    # Try in a windowsy global location
+    tries << self.join('Program Files(x86)', @program, :share, conffile)
+    # Try in a windowsy global location
+    tries << self.join('Program Files', @program, :data, conffile)
+    # Try in a windowsy global location
+    tries << self.join('Program Files(x86)', @program, :data, conffile)
     # Try in a windowsy subdirectory the user's home directory
     tries << self.join(self.home,  @program, :share, conffile)
-    # Try in a unixy subdirectory the user's home directory
+    # Try in a windowsy subdirectory the user's home directory
+    tries << self.join(self.home,  @program, :data, conffile)        
+    # Try in a unixy subdirectory the user's home directory    
     tries << self.join(self.home,  ".#{@program}", :share, conffile) 
+    # Try in a unixy subdirectory the user's home directory
+    tries << self.join(self.home,  ".#{@program}", :data, conffile)     
     # Try in the current working directory 
     tries << self.join(Dir.getwd, :share, conffile) 
+    # Try in the current working directory 
+    tries << self.join(Dir.getwd, :data, conffile) 
     # Try from the current directory. 
     tries << self.join(Dir.getwd, '..', :share, conffile)
+    # Try from the current directory. 
+    tries << self.join(Dir.getwd, '..', :data, conffile)
     # Try one up from the current in a different way.
+    
          
     # Now try all of these locations in order
     for try in tries do

@@ -50,6 +50,17 @@
 module Zori
   DEBUG   = true
 
+  # We define structs for stuff that's too simple to need classes yet.
+  # Structure for mouse button info
+  MouseButtonInfo = Struct.new(:button, :pressed, :released)
+  # Structure for Click Info
+  ClickInfo       = Struct.new(:button, :widget, :when)
+  # Structure for Drag Info
+  DragInfo        = Struct.new(:button, :widget, :when)
+  # Class that models the state of a single key
+  Keyinfo = Struct.new(:pressed, :sym, :mod, :text, :repeated)
+
+
   autoload :Button      , 'zori/button'
   autoload :Checkbox    , 'zori/checkbox'
   autoload :Dialog      , 'zori/dialog'
@@ -76,6 +87,9 @@ module Zori
   autoload :Widget      , 'zori/widget'
   autoload :Shortcut    , 'zori/shortcut'
   autoload :Mapeditor   , 'zori/mapeditor'
+  autoload :Mouse       , 'zori/mouse'
+  autoload :Keyboard    , 'zori/keyboard'
+  autoload :Joystick    , 'zori/joystick'
   
   def self.open(screen, queue) 
     return Zori::Hanao.new(screen, queue)

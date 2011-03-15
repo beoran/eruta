@@ -43,12 +43,6 @@ module Zori
 # else {
 #   printf("An International Character.\n");
 # }
-    # Structure for mouse button info
-    MouseButtonInfo = Struct.new(:button, :pressed, :released)
-    # Structure for Click Info
-    ClickInfo       = Struct.new(:button, :widget, :when)
-    # Structure for Drag Info
-    DragInfo        = Struct.new(:button, :widget, :when)
     
     # Returns the directory used for the images
     def self.image_dir
@@ -73,184 +67,6 @@ module Zori
       warn("Could not open font #{name} in #{fname}") if(!font)
       return font      
     end   
-    
-    # Class that models the mouse state and constants
-    class Mouse
-      LEFT_BUTTON   = 1
-      MIDDLE_BUTTON = 2
-      RIGHT_BUTTON  = 3
-      SCROLL_UP     = 4
-      SCROLL_DOWN   = 5
-      
-      # Returns if a button is in reality a scroll or not. 
-      # Needed due to an SDL artifact which translates scrolls to 
-      # moude button presses and releases.
-      # If it is a scroll, returns -1 for a scroll up, and +1 for a scroll down.
-      # otherwise returns nil
-      def self.is_scroll?(button)
-        case button 
-        when SCROLL_UP
-          return -1
-        when SCROLL_DOWN
-          return +1
-        else
-          return nil
-        end   
-      end     
-    
-      attr_accessor :x, :y, :under, :clicked
-      
-      def initialize(xin = 0, yin = 0)
-        @x       = xin
-        @y       = yin
-        @under   = []
-        @clicked = nil
-        @pressed = {}
-        @dragged = {}
-        @visible = true
-        @cursor  = Hanao.load_image('cursor', 'mouse.png') rescue nil;
-        Hanao.screen.showcursor = false if @cursor 
-      end
-      
-      def move(xin, yin) 
-        @x = xin
-        @y = yin
-      end
-      
-      def press(button, widget)
-        # @pressed[button] ||= MouseButtonInfo.new()
-        @pressed[button] = ClickInfo.new(button, widget, Time.now) 
-      end
-      
-      def clicked?(widget)
-        return @clicked == widget
-      end
-      
-      def release(button)
-        @pressed.delete(button);
-        @clicked = nil
-        @dragged = {}
-      end
-      
-      def pressed?(button=nil)
-        return (!@pressed.empty?) unless button
-        return @pressed[button]
-      end
-      
-      # Draws the mouse cursor to the screen
-      def draw(screen)
-        color = Gari::Color::White
-        color = Gari::Color::Green if pressed?()
-        color = Gari::Color::Red   if pressed?(2)
-        if @cursor
-          screen.blit(@x, @y, @cursor)
-        else   
-          screen.disk(@x, @y, 1, color)
-        end  
-#     Uncomment these lines below to mark clicked/hovered widgets for debugging
-#         if @clicked
-#            screen.disk(@clicked.x, @clicked.y, 10, Gari::Color::Red)
-#         end
-#         if @under && (!under.empty?)
-#           for under in @under do
-#             screen.disk(under.x, under.y, 7, Gari::Color::Green)
-#           end 
-#         end
-
-        
-      end
-      
-    end  
-    
-    # Class that models the state of a single key
-    Keyinfo = Struct.new(:pressed, :sym, :mod, :text, :repeated)
-         
-    # Class that models the Keyboard state
-    class Keyboard
-      attr_reader :keys, :mods
-      def initialize
-        @keys = {}
-      end
-      
-      def press(scancode, mod, text)
-        # Reuse Keyinfo object, to lessen memory use
-        unless @keys[scancode]  
-          info            = Keyinfo.new()
-          @keys[scancode] = info
-        end
-        @keys[scancode].pressed = Time.now
-        @keys[scancode].sym     = scancode
-        @keys[scancode].mod     = mod
-        @keys[scancode].text    = text
-        @keys[scancode].repeated= nil  
-      end
-      
-      # Returns the keyinfo for the given scancode, or nil if not pressed yet.
-      def state(scancode)
-        return @keys[scancode]
-      end
-      
-      # Returns a Time when the key was last pressed
-      def pressed?(scancode) 
-        s = self.state(scancode)
-        return false unless state
-        return state.pressed
-      end
-      
-      # Registers a key release 
-      def release(scancode)
-        return unless @keys[scancode]
-        @keys[scancode].pressed = nil 
-        @keys[scancode].repeated= nil
-      end
-      
-      # Returns keys that need to be repeated
-      def to_repeat()
-        result = []
-        now   = Time.now
-        for k, value in @keys do
-          if value.pressed 
-            if ! value.repeated && ((now - value.pressed) > Hanao::REPEAT_TIME) 
-            # First key repeat 
-              result << value
-            elsif value.repeated && ((now - value.repeated) > Hanao::REPEAT_SPEED)
-            # Consecutive key repeats
-              result << value
-            end  
-          end    
-        end
-        return result
-      end
-      
-    end
-    
-    # Class that models the Joystick state
-    class Joystick
-    
-      attr_accessor :x
-      attr_accessor :y
-      attr_accessor :active
-      
-      def make_joystick_cursor
-        return Hanao.load_image('ui', 'cursor', 'joystick_0.png')
-      end
-    
-      def initialize
-        @buttons = {}
-        @axis    = {}
-        @hats    = {}
-        @balls   = {}
-        @cursor  = make_joystick_cursor
-        @x       = 100
-        @y       = 100
-        @active  = true
-      end
-      
-      def draw(screen)
-        screen.blit(@x, @y, @cursor)
-      end
-      
-    end
 
     include Gari::Handler
     
@@ -284,9 +100,6 @@ module Zori
       @current ||= nil
       return @current
     end
-    
-   
-   
    
     def initialize(game, queue)
       super(queue)
@@ -493,7 +306,7 @@ module Zori
       new_hovered.each  { |widget| widget.on_mouse_in(event.x, event.y , nil) }
       moving_over.each  { |widget| widget.on_mouse_move(event.x, event.y)     }
       if @hovered.member?(@pressed)
-        #we're above the pressed widget. Drag it
+        # Drag if the mouse is hovering above the "pressed" widget.
         @pressed.on_mouse_drag(old_x, old_y, event.x, event.y)
       end
       @mouse.under      = @hovered
@@ -502,8 +315,7 @@ module Zori
     
     # Called when the mouse wheel is scrolled
     def on_mousescroll(event)
-      widget = @hovered.first
-      
+      widget = @hovered.first      
       if (widget)
         widget.on_scroll(event.value)
       end
@@ -613,7 +425,7 @@ module Zori
       "<#{self.class.name} h: #{self.h} w: #{self.w}>"
     end
     
-      # Utility function for displaying a simple text box dialog
+    # Utility function for displaying a simple text box dialog
     def ask(message)
       return Zori::Dialog.ask(message)
     end
