@@ -7,12 +7,14 @@ end
 require 'test_helper'
 require 'gari'
 require 'nofont'
+require 'gariapp'
 
 assert { Nofont } 
 nf, i = nil 
 assert { nf = Nofont.default }
-assert { nf.wscale == 2.0    }
-assert { nf.hscale == 4.0    }
+assert { Nofont.default == Nofont.default }
+assert { nf.wscale == 1.0    }
+assert { nf.hscale == 2.0    }
 assert { i = nf.lookup("A")  }
 assert { i = nf.lookup(" ")  }
 
@@ -26,40 +28,37 @@ BLUE     = Gari::Color.rgb(128, 128, 255)
 GREEN    = Gari::Color.rgb(0  , 128, 0)
 WHITE    = Gari::Color.rgb(255, 255, 255)
 p nf.linehigh
-sentence = "The five boxing wizards jump quickly."
+SENTENCE = "The five boxing wizards jump quickly."
 wo = nil 
-assert { wo = nf.width_of(sentence) } 
+assert { wo = nf.width_of(SENTENCE) } 
 assert { wo == 222 }
+WO = wo
 
-
-@go = true
 
 ASCII = %q{!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~} 
 
 UNICODE = "äëïöüÿ ÄËÏÖÜŸ áéíóúý ÁÉÍÓÚÝ àèìòùỳ ÀÈÒÙỲ âêîôûŷ ÂÊÎÔÛŶ"
 
-start = Time.now
-while @go
-  ev = Gari::Event.poll 
-  while ev
-    if ev.quit?
-      @go = false
-    else 
-      start = Time.now  
-    end
-    ev = Gari::Event.poll
+class NofontTestApp < Gariapp
+  def initialize(nf)
+    super()
+    @nf = nf
   end
-  nf.draw_glyph(@screen, 10, 10, :A, YELLOW)
-  nf.draw(@screen, 10, 50, "A", YELLOW)
-  nf.draw(@screen, 10, 100, ASCII, YELLOW)
-  nf.draw(@screen, 10, 150, sentence, GREEN)
-  nf.draw(@screen, 10 + wo, 150, "a[2] = b ^ c / 4", ORANGE)
-  nf.draw(@screen, 10, 250, UNICODE, WHITE)
-  # @screen.text(10, 10, @game.frames.to_s, )
-  @game.update
-  # Quit if no events for 5 seconds.
-  @go = false if (Time.now - start) > 5
+  
+  def render(screen)
+    @nf.draw_glyph(@screen, 10, 10, :A, YELLOW)
+    @nf.draw(@screen, 10, 50, "A", YELLOW)
+    @nf.draw(@screen, 10, 100, ASCII, YELLOW)
+    @nf.draw(@screen, 10, 150, SENTENCE, GREEN)
+    @nf.draw(@screen, 10 + WO, 150, "a[2] = b ^ c / 4", ORANGE)
+    @nf.draw(@screen, 10, 250, UNICODE, WHITE)
+  end
 end
+
+app = NofontTestApp.new(nf)
+app.run
+
+
 
 
 
