@@ -192,7 +192,9 @@ module Bump
       xself   = self.vector_x
       xother  = other.vector_x
       return zero unless xself.near(xother, rself)
-       
+      return zero unless xother.near(xself, rother)
+      
+      
     end
       
 

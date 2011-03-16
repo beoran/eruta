@@ -13,6 +13,7 @@ module Bump
     Vector.zero
   end
  
+  autoload :Aline,  'bump/aline'
   autoload :Thing,  'bump/thing'
   autoload :Mobile, 'bump/mobile' 
   autoload :Box,    'bump/box'

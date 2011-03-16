@@ -219,19 +219,14 @@ oldy = 0
 
 while go
   ev = Gari::Event.poll 
-  if ev
-    case ev.kind
-      when Gari::Event::QUIT
-        go = false
-      when Gari::Event::MOUSEMOVE
-        screen.dot(ev.x, ev.y, blue);
-        screen.line(oldx, oldy, ev.x-oldx, ev.y-oldy, blue)
-        oldx = ev.x
-        oldy = ev.y  
-      else 
-        # p ev.kind
-    end   
-  end    
+  while ev
+    if ev.quit? 
+      go = false
+    end
+    ev = Gari::Event.poll
+  end
+  
+  
   game.update
 end
 
