@@ -8,7 +8,7 @@ class Gariapp
   
   YELLOW   = Gari::Color.rgb(255, 255, 0)
   ORANGE   = Gari::Color.rgb(255, 191, 0)
-  BLUE     = Gari::Color.rgb(128, 128, 255)
+  BLUE     = Gari::Color.rgb(0  ,   0, 255)
   GREEN    = Gari::Color.rgb(0  , 128, 0)
   WHITE    = Gari::Color.rgb(255, 255, 255)
 
@@ -26,7 +26,7 @@ class Gariapp
   end
     
   # Override this, but don't forget to call super!  
-  def handle_event(event)
+  def handle_event(ev)  
     if ev.quit?
       @go = false
     else 
@@ -42,21 +42,25 @@ class Gariapp
     end
   end
    
-   
-  # runs the app.  
+  # runs the app.
   def run
+    @game.startfps 
     @start = Time.now
     while @go
+      handle_events
       self.render(@screen)
       @game.update
+      @game.nextframe
       # Quit if no events for timeout seconds.
       @go = false if (Time.now - @start) > @timeout
     end
-  end 
-  
-  # Override this and do your drawing in here.
-  def render(screen)
   end
-
+  
+  # Override this and do your drawing in here. Call super to see FPS output.
+  # Probably best called after your rendering.
+  def render(screen)
+    @screen.slab(@screen.w - 80, 10, 80, 20, BLUE)
+    @nf.draw(@screen, @screen.w - 80, 10, "FPS: #{@game.fps}", WHITE)
+  end
   
 end

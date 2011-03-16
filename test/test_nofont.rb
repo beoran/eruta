@@ -24,9 +24,10 @@ assert { i = nf.lookup(" ")  }
 @screen  = @game.openscreen(640, 480, @full)
 YELLOW   = Gari::Color.rgb(255, 255, 0)
 ORANGE   = Gari::Color.rgb(255, 191, 0)
-BLUE     = Gari::Color.rgb(128, 128, 255)
+BLUE     = Gari::Color.rgb(0, 0, 255)
 GREEN    = Gari::Color.rgb(0  , 128, 0)
 WHITE    = Gari::Color.rgb(255, 255, 255)
+TGREEN   = Gari::Color.rgba(0, 255, 0, 127)
 p nf.linehigh
 SENTENCE = "The five boxing wizards jump quickly."
 wo = nil 
@@ -52,6 +53,10 @@ class NofontTestApp < Gariapp
     @nf.draw(@screen, 10, 150, SENTENCE, GREEN)
     @nf.draw(@screen, 10 + WO, 150, "a[2] = b ^ c / 4", ORANGE)
     @nf.draw(@screen, 10, 250, UNICODE, WHITE)
+    @screen.slab(10, 300, 400, 50, BLUE)
+    @nf.blend(@screen, 10, 300, UNICODE, TGREEN)
+    # allow fps display
+    super(screen)
   end
 end
 
