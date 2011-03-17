@@ -20,11 +20,26 @@ class Nofont
       @high = 0 
       @dots = []
       @font = font
+      @img  = nil
+      @col  = nil
     end
     
     # width of a single glyph
     def width_for_drawing()
       return (self.wide + 1 * self.font.wscale).to_i
+    end
+    
+    TRANSP = Gari::Color.rgba(0,0,0,0)
+    WHITE  = Gari::Color.rgb(255,255,255)
+    
+    # Caches the image for speedup. Does not work yet.
+    def cache(screen)
+      return nil if @img
+      @img = Gari::Image.new(ri.w, ri.h, screen.depth, :alpha)
+      return nil unless @img
+      @img.slab(0,0, self.wide, self.high, transp)
+      self.draw(@img, 0, 0, WHITE)      
+      return self
     end
     
     # Parses pixel text and fills in dots
@@ -66,13 +81,13 @@ class Nofont
       if (self.font.style & BOLD) != 0 
         itf = (self.width_for_drawing.to_f / self.font.lineskip.to_f)
       end   
-      self..dots.each do | dot |
+      self.dots.each do | dot |
        dotx, doty = dot[0], dot[1]
        dy   = (doty * self.font.hscale)
        dx   = (dotx * self.font.wscale - (itf * dy))
        outy = y + dy.to_i
        outx = x + dx.to_i
-       screen.slab(outx, outy, self.font.wscale * bof, self.font.hscale * bof, color) 
+       screen.fillrect(outx, outy, self.font.wscale * bof, self.font.hscale * bof, color) 
       end
       underline(screen, x, y, color)
       return self 

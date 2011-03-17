@@ -18,6 +18,7 @@ assert { nf.hscale == 2.0    }
 assert { i = nf.lookup("A")  }
 assert { i = nf.lookup(" ")  }
 
+
 # Check module and class existance
 @game    = Gari::Game.new
 @full    = false
@@ -44,17 +45,26 @@ class NofontTestApp < Gariapp
   def initialize(nf)
     super()
     @nf = nf
+    @dirty = false
+  end
+  
+  def handle_event(event)
+    super
+    @dirty = true
   end
   
   def render(screen)
-    @nf.draw_glyph(@screen, 10, 10, :A, YELLOW)
-    @nf.draw(@screen, 10, 50, "A", YELLOW)
-    @nf.draw(@screen, 10, 100, ASCII, YELLOW)
-    @nf.draw(@screen, 10, 150, SENTENCE, GREEN)
-    @nf.draw(@screen, 10 + WO, 150, "a[2] = b ^ c / 4", ORANGE)
-    @nf.draw(@screen, 10, 250, UNICODE, WHITE)
-    @screen.slab(10, 300, 400, 50, BLUE)
-    @nf.blend(@screen, 10, 300, UNICODE, TGREEN)
+    if @dirty
+      @nf.draw_glyph(@screen, 10, 10, :A, YELLOW)
+      @nf.draw(@screen, 10, 50, "A", YELLOW)
+      @nf.draw(@screen, 10, 100, ASCII, YELLOW)
+      @nf.draw(@screen, 10, 150, SENTENCE, GREEN)
+      @nf.draw(@screen, 10 + WO, 150, "a[2] = b ^ c / 4", ORANGE)
+      @nf.draw(@screen, 10, 250, UNICODE, WHITE)
+      @screen.slab(10, 300, 400, 50, BLUE)
+      @nf.blend(@screen, 10, 300, UNICODE, TGREEN)
+      @dirty = false
+    end  
     # allow fps display
     super(screen)
   end

@@ -310,13 +310,25 @@ RBH_GETTER_DEFINE(gari_image_h    , Image, GariImage, RBH_INT_NUM);
 RBH_GETTER_DEFINE(gari_image_depth, Image, GariImage, RBH_INT_NUM);
 
 /** Drawing function wrappers */
+
+VALUE rbgari_image_fill(VALUE self, VALUE vc) {
+  GariImage * img = GARI_IMAGE_UNWRAP(self);
+  GariColor * col = GARI_COLOR_UNWRAP(vc);
+  gari_image_fill(img,  *col); 
+}
+  
+VALUE rbgari_image_fillrect(VALUE self, VALUE vx, VALUE vy, 
+                            VALUE vw  , VALUE vh, VALUE vc) {
+  GariImage * img = GARI_IMAGE_UNWRAP(self);
+  GariColor * col = GARI_COLOR_UNWRAP(vc);
+  gari_image_fillrect(img, RBH_INT(vx), RBH_INT(vy), 
+                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc)); 
+}
+
+
 VALUE rbgari_image_slab(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vw  , VALUE vh, VALUE vc) {
   GariImage * img = GARI_IMAGE_UNWRAP(self);
-  if(!img) {
-    rb_warn("Cannot draw to null image!");
-    return Qnil;
-  }
   gari_image_slab(img, RBH_INT(vx), RBH_INT(vy), 
                   RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
   return self;
@@ -325,10 +337,6 @@ VALUE rbgari_image_slab(VALUE self, VALUE vx, VALUE vy,
 VALUE rbgari_image_blendslab(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vw  , VALUE vh, VALUE vc) {
   GariImage * img = GARI_IMAGE_UNWRAP(self);
-  if(!img) {
-    rb_warn("Cannot draw to null image!");
-    return Qnil;
-  }
   gari_image_blendslab(img, RBH_INT(vx), RBH_INT(vy), 
                   RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
   return self;
@@ -1225,6 +1233,9 @@ void Init_gari() {
   RBH_METHOD(Image, clip!     , rbgari_image_setclip    , 4);
   
   RBH_METHOD(Image, optimize  , rbgari_image_optimize   , 2);
+  RBH_METHOD(Image, fill      , rbgari_image_fill       , 1);
+  RBH_METHOD(Image, fillrect  , rbgari_image_fillrect   , 5);
+  
   RBH_METHOD(Image, slab      , rbgari_image_slab       , 5);
   RBH_METHOD(Image, box       , rbgari_image_box        , 5);
   RBH_METHOD(Image, line      , rbgari_image_line       , 5);

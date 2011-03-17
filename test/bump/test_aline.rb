@@ -23,6 +23,7 @@ assert { a1.v == 1.0 }
 assert { a2.v == 0.0 }
 assert { a3.v == 0.0 }
 
+
 # Check bump_now?
 assert { a1.bump_now?(a3)   }
 assert { a3.bump_now?(a1)   }

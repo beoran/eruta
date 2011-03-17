@@ -8,6 +8,22 @@ module Bump
     attr_reader :r
     attr_reader :v
     
+    # Equal to c - r
+    def lo
+      return  self.c - self.r
+    end
+    
+    # Equal to c + r
+    def hi
+      return self.c + self.r
+    end
+    
+    # Equal to r + r
+    def r2
+      return self.r + self.r
+    end
+    
+    
     # Unicode warning: I used unicode characters in the comments for this class
     # for deriving the maths. The characters on the next line should all be 
     # readable: Δ⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ ₀₁₂₃₄₅₆₇₈₉ ₊₋₌₍₎ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻₐₑₒₓᵅᵋᶿᶥᶲ.
@@ -178,7 +194,12 @@ module Bump
       @c    = self.c + dc
       return self
     end
-        
+    
+    # Sets the speed of the Aline.
+    def v=(newv)
+      @v = newv.to_f
+    end
+    
     
   end # class Aline
 end # module Bump      

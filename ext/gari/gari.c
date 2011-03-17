@@ -352,10 +352,33 @@ void gari_game_report(GariGame * game)  {
   fprintf(stderr, "FPS %d frames / %d ms: %lf fps.\n", game->frames, game->delta, fps);
 }
 
-/** Quickly fills the image or screen with the given color */
-void gari_image_fill(GariImage * image,  GariDye color) {
-  SDL_FillRect((SDL_Surface *) image, NULL, (Uint32) color);
+/** Quickly fills the image or screen with the given dye */
+void gari_image_filldye(GariImage * image,  GariDye dye) {
+  SDL_FillRect((SDL_Surface *) image, NULL, (Uint32) dye);
 }
+
+/** Quickly draws a rectangle with the given dye, without blending. */
+void gari_image_fillrectdye(GariImage * image, int x, int y, 
+                          int w, int h, GariDye dye) {
+   SDL_Rect rect = { x, y, w, h };
+   SDL_FillRect((SDL_Surface *) image, &rect, (Uint32) dye);
+}
+
+/** Quickly fills the image with the given color. */
+void gari_image_fill(GariImage * image,  GariColor color) {
+  GariDye dye = gari_color_dye(color, image);
+  gari_image_filldye(image, dye);  
+}
+
+/** Quickly draws a rectangle with the given dye, without blending. */
+void gari_image_fillrect(GariImage * image, int x, int y, 
+                          int w, int h, GariColor color) {
+   GariDye dye = gari_color_dye(color, image);
+   gari_image_fillrectdye(image, x, y, w, h, dye);
+}
+
+
+ 
 
 /** Returns the drawable image of the screen. */
 GariImage * gari_screen_image(GariScreen * screen) {

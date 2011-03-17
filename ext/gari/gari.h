@@ -364,8 +364,20 @@ GariImage * gari_image_setclip(GariImage * img,
 GariImage * gari_image_getclip(GariImage * img, 
               int *x, int *y, int *w, int *h);
 
-/** Fills the image with the given dye. Ignores clipping. */
-void gari_image_fill(GariImage * image,  GariDye dye);
+/** Quickly fills the image or screen with the given dye */
+void gari_image_filldye(GariImage * image,  GariDye dye);
+ 
+/** Quickly draws a rectangle with the given dye, without blending. */
+void gari_image_fillrectdye(GariImage * image, int x, int y, 
+                          int w, int h, GariDye dye);
+                          
+/** Quickly fills the image with the given color. */
+void gari_image_fill(GariImage * image,  GariColor color);
+
+/** Quickly draws a rectangle with the given dye, without blending. */
+void gari_image_fillrect(GariImage * image, int x, int y, 
+                          int w, int h, GariColor color); 
+                          
 
 /** Low level putpixel function.         */
 void gari_image_putpixel(GariImage * image, int x, int y, GariDye dye);

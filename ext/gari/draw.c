@@ -17,7 +17,7 @@ GariDraw * gari_draw_init(GariDraw          * draw,
   draw->draw  = func;
   draw->color = color;
   if(draw->image) {      
-    draw->dye         = gari_color_dye(draw->color, draw->image);
+    draw->dye        = gari_color_dye(draw->color, draw->image);
     // We use these function pointers to speed up drawing somewhat.
     // The function pointerwill match the color depth of the image, so
     // we can avoid a case statement, at the expendse of a pointer 
