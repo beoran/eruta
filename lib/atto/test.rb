@@ -2,7 +2,7 @@ module Atto
   # Tiny module for test driven deveopment. Use with include Atto::Test
   module Test
     extend self
-    @@failures, @@dots = [], []
+    @@failures, @@dots, @@messages = [], [], []
     
     # Returns the file and line of the calling context
     def parse_stack(stack=caller)
@@ -51,13 +51,20 @@ module Atto
       res, raised = run_block(delay, &block)
       @@dots     << make_dot(res, raised)
       failure     = make_failure(res, raised, msg, stack)
-      @@failures << failure if failure 
+      @@failures << failure if failure
+      if msg         
+        @@messages << ( failure ?  msg + " (failed) " : msg)   
+      end   
     end
 
     def self.results #:nodoc:
       aid = @@dots.join + "\n" + @@failures.join("\n") + "\n"
       col = @@failures.empty? ? :green : :red
       aid << Atto::Ansi.color_string(col, "=" * 78)
+    end
+    
+    def self.describe_tests
+      @@messages.join(".\n") + ".\n"
     end
   
     at_exit { puts results unless results.strip.empty?; exit @@failures.empty? }
