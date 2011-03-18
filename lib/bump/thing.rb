@@ -10,18 +10,16 @@ module Bump
     attr_reader :h
     # Radius pointer, describes size from the center of object p.
     attr_reader :r
-    # Radius in Y direction.
-    attr_reader :ry
     
     def initialize(opt={})
-      @w  = opt[:w].to_i || 1
-      @h  = opt[:h].to_i || 1
-      rx  = @w / 2.0
-      ry  = @h / 2.0
-      @r  = Bump.vec(rx, ry)
+      @w  = opt[:w]  || opt[:rx] * 2 
+      @h  = opt[:h]  || opt[:ry] * 2
+      rx  = opt[:rx] || @w / 2.0
+      ry  = opt[:rx] || @h / 2.0
+      @r  = opt[:r]  || Bump.vec(rx, ry)
       px  = opt[:px] ? opt[:px] : opt[:x] + @r.x
       py  = opt[:py] ? opt[:py] : opt[:y] + @r.y 
-      @p  = Bump.vec(px, py)
+      @p  = opt[:p] || Bump.vec(px, py)
     end
    
     # x coordinate of the left of the thing's bounding box

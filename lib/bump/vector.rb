@@ -196,6 +196,10 @@ module Bump
       
       
     end
+    
+    def to_s
+      return "[Vector #{@x} #{@y}]"
+    end
       
 
 

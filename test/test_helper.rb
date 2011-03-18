@@ -129,7 +129,6 @@ include Nanotest
 require 'atto'
 include Atto::Test
 
-assert { 1 == 1 }
 
 
 
