@@ -11,10 +11,11 @@ require 'gariapp'
 
 assert { Nofont } 
 nf, i = nil 
-assert { nf = Nofont.default }
+fw, fh = 1.0, 2.0
+assert { nf = Nofont.default(fw, fh) }
 assert { Nofont.default == Nofont.default }
-assert { nf.wscale == 1.0    }
-assert { nf.hscale == 2.0    }
+assert { nf.wscale == fw   }
+assert { nf.hscale == fh    }
 assert { i = nf.lookup("A")  }
 assert { i = nf.lookup(" ")  }
 
@@ -39,7 +40,8 @@ WO = wo
 
 ASCII = %q{!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~} 
 
-UNICODE = "äëïöüÿ ÄËÏÖÜŸ áéíóúý ÁÉÍÓÚÝ àèìòùỳ ÀÈÒÙỲ âêîôûŷ ÂÊÎÔÛŶ"
+PRIVATE = " \uEF00\uEF01\uEF02\uEF03\uEF04\uEF05\uEF06\uEF07\uEF08\uEF09"
+UNICODE = "äëïöüÿ ÄËÏÖÜŸ áéíóúý ÁÉÍÓÚÝ àèìòùỳ ÀÈÒÙỲ âêîôûŷ ÂÊÎÔÛŶ" + PRIVATE
 
 class NofontTestApp < Gariapp
   def initialize(nf)
@@ -63,6 +65,7 @@ class NofontTestApp < Gariapp
       @nf.draw(@screen, 10, 250, UNICODE, WHITE)
       @screen.slab(10, 300, 400, 50, BLUE)
       @nf.blend(@screen, 10, 300, UNICODE, TGREEN)
+      @nf.blend(@screen, 10, 320, ASCII, TGREEN)
       @dirty = false
     end  
     # allow fps display

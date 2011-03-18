@@ -367,7 +367,8 @@ void gari_image_blendhoop(GariImage * image, int x, int y, int d, GariColor colo
 }
 
 
-/* Traces a circle surface with the midpoint of the circle at x, y, and the radius being radius.  Calls gari_draw_dohline. Does not handle blends well, 
+/* Traces a circle surface with the midpoint of the circle at x, y, and the 
+radius being radius.  Calls gari_draw_dohline. Does not handle blends well, 
 and small circles are deformed. But it is faster. 
 */
 void gari_draw_dodisk_fast(GariDraw * draw, int x, int y, int radius) {  
@@ -408,7 +409,8 @@ void gari_draw_dodisk_fast(GariDraw * draw, int x, int y, int radius) {
  }
 }
 
-/* Traces a circle surface with the midpoint of the circle at x, y, and the radius being radius.  Calls gari_draw_dohline and also works fine for blends,
+/* Traces a circle surface with the midpoint of the circle at x, y, and the 
+radius being radius.  Calls gari_draw_dohline and also works fine for blends,
 and does not deform small circle, but is slower due to float math. 
 */
 
@@ -479,7 +481,7 @@ GariColor gari_image_getdot_nolock(GariImage *img, int x, int y)
 */
 
 /** Blits (a part of) an image to another one, 
-    scaling it in integer increments by simple repitition 
+    scaling it in integer increments by simple repetition 
 */
 void gari_image_iscaleblit(GariImage * dst, int dstx, int dsty, 
                                       int xmul, int ymul, GariImage * src,

@@ -78,13 +78,23 @@ class Gariapp
     @screen.fillrect(x, y, w, @font.lineskip, bg) if bg
     @font.draw(@screen, x, y, text, fg)
   end  
+  
+  # Same as draw_puts, but with blending
+  def blend_puts(x, y, text, fg = WHITE, bg = BLUE)
+    w = @font.width_of(text) 
+    @screen.fillrect(x, y, w, @font.lineskip, bg) if bg
+    @font.blend(@screen, x, y, text, fg)
+  end  
+
 
   
   # Override this and do your drawing in here. Call super to see FPS output.
   # Probably best called after your rendering.
   def render(screen)
     fpsstr = @game.fps.to_s.split('.')[0]
-    draw_puts(@screen.w - 50, 5, "FPS: #{fpsstr}")
+    str    = "FPS: #{fpsstr}"
+    wide   = @font.width_of(str)
+    draw_puts(@screen.w - wide, 5, str)
   end
   
 end
