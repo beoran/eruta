@@ -26,7 +26,7 @@ class Nofont
     
     # width of a single glyph
     def width_for_drawing()
-      return (self.wide + 1 * self.font.wscale).to_i
+      return ((self.wide + 1) * self.font.wscale).to_i
     end
     
     TRANSP = Gari::Color.rgba(0,0,0,0)
@@ -56,8 +56,14 @@ class Nofont
         self.wide = wnow if wnow > self.wide
         x         = 0
         line.each_char do |c|
-          if c =~ /[a-zA-Z0-9]/ # we found a pixel
-            dot = [x, y]
+          if c != '.' # we found a pixel if it's not a '.'
+            if c == ','
+              dot = [x, y, 0.6]
+            elsif c == "'"
+              dot = [x, y, 0.3]             
+            else
+              dot = [x, y, 1.0]
+            end  
             self.dots << dot
           end
           x       += 1
@@ -78,37 +84,54 @@ class Nofont
       # bold and italic factors. 
       bof = (self.font.style & BOLD) == 0 ? 1.0 : 1.5
       itf = 0.0
-      if (self.font.style & BOLD) != 0 
+      if (self.font.style & ITALIC) != 0 
         itf = (self.width_for_drawing.to_f / self.font.lineskip.to_f)
-      end   
+      end
+      scf = (self.font.style & SCANLINE) == 0 ? 0 : -1
       self.dots.each do | dot |
        dotx, doty = dot[0], dot[1]
        dy   = (doty * self.font.hscale)
        dx   = (dotx * self.font.wscale - (itf * dy))
        outy = y + dy.to_i
        outx = x + dx.to_i
-       screen.fillrect(outx, outy, self.font.wscale * bof, self.font.hscale * bof, color) 
+       # screen.disk(outx, outy, bof * 3.0, color) 
+       dotc = dot[2]
+       if dotc 
+        colout = Gari::Color.rgb(color.r * dotc, color.g * dotc, color.b * dotc) 
+       else 
+        colout = color
+       end 
+       screen.fillrect(outx, outy, 
+                      self.font.wscale * bof, self.font.hscale * bof + scf, colout) 
+
       end
       underline(screen, x, y, color)
       return self 
     end
     
-    # Blends a grlyph
+    # Blends a glyph
     def blend(screen, x, y, color)
       # bold and italic factors. 
       bof = (self.font.style & BOLD) == 0 ? 1.0 : 1.5
       itf = 0.0
-      if (self.font.style & BOLD) != 0 
+      if (self.font.style & ITALIC) != 0 
         itf = (self.width_for_drawing.to_f / self.font.lineskip.to_f)
-      end   
+      end
+      scf = (self.font.style & SCANLINE) == 0 ? 0 : -1
       self..dots.each do | dot |
        dotx, doty = dot[0], dot[1]
        dy   = (doty * self.font.hscale)
        dx   = (dotx * self.font.wscale - (itf * dy))
        outy = y + dy.to_i
        outx = x + dx.to_i
-       screen.blendslab(outx, outy, 
-                   self.font.wscale * bof, self.font.hscale * bof, color) 
+       dotc = dot[2]
+       if dotc 
+          colout = Gari::Color.rgba(color.r * dotc, color.g * dotc, color.b * dotc, color.a) 
+       else 
+          colout = color
+       end 
+       screen.blendslab(outx, outy,
+                    self.font.wscale * bof, self.font.hscale * bof + scf, colout) 
       end
       underline(screen, x, y, color)
       return self 
@@ -127,6 +150,8 @@ class Nofont
   ITALIC      = 1
   BOLD        = 2
   UNDERLINE   = 4
+  # fake scan lines in the font
+  SCANLINE    = 8 
   
   def self.error
     return 0
@@ -189,7 +214,8 @@ class Nofont
     @hscale   = hscale
     @linehigh = 0
     @mode     = SOLID
-    @style    = NORMAL # ITALIC  + BOLD + UNDERLINE
+    # @style    = SCANLINE + ITALIC + UNDERLINE  # + BOLD + UNDERLINE 
+    @style  = NORMAL
     instance_exec(&block) 
   end
   
@@ -216,13 +242,13 @@ class Nofont
   # Define several glyphs in one block 
   def glyphs(names, pixels)
     aid = pixels.split(/[\r\n]/).reject { |l| l.size == 0 }
-    arr = aid.map { |l| l.split(/[| \t]+/).reject { |l| l.size == 0 } } 
-    # munge the pixels, rows separated by |, spaces or tabs...
+    arr = aid.map { |l| l.split(/[ \t]+/).reject { |l| l.size == 0 } } 
+    # munge the pixels, rows separated by spaces or tabs.
     for i in (0...(names.size)) do
       name   = names[i]
       subarr = arr.map { |e| e[i] }
       onepix = subarr.join("\n")
-      # will raise exeptions if format is wrong...
+      # NOTE: will raise exceptions if format is wrong...
       self.glyph(name, onepix)
     end  
   end
@@ -328,10 +354,10 @@ class Nofont
         "
         ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
         ..x.. xxxx. .xxx. xxxx. xxxxx xxxxx .xxx. x...x xxxxx xxxxx
-        .x.x. x...x x...x x...x x.... x.... x.... x...x ..x.. ....x
-        x...x xxxx. x.... x...x xxxx. xxx.. x..xx xxxxx ..x.. ....x
+        .x,x. x...x x...x x...x x.... x.... x.... x...x ..x.. ....x
+        x,..x xxxx. x.... x...x xxxx. xxx.. x..xx xxxxx ..x.. ....x
         xxxxx x...x x...x x...x x.... x.... x...x x...x ..x.. x...x
-        x...x xxxx. .xxx. xxxx. xxxxx x.... .xxx. x...x xxxxx .xxx.
+        x,..x xxxx. .xxx. xxxx. xxxxx x.... .xxx. x...x xxxxx .xxx.
         ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
         ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
         "
@@ -340,9 +366,9 @@ class Nofont
         ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
         x...x x.... x...x x...x .xxx. xxxx. .xxx. xxxx. .xxxx xxxxx
         x..x. x.... xx.xx xx..x x...x x...x x...x x...x x.... ..x..
-        xxx.. x.... x.x.x x.x.x x...x xxxx. x...x xxxx. .xxx. ..x..
-        x..x. x.... x...x x..xx x...x x.... x..xx x...x ....x ..x..
-        x...x xxxxx x...x x...x .xxx. x.... .xxxx x...x xxxx. ..x..
+        xxx.. x.... x.x.x x.x.x x...x xxxx. x.,.x xxxx. .xxx. ..x..
+        x..x. x.... x...x x..xx x...x x.... x..x, x...x ....x ..x..
+        x...x xxxxx x...x x...x .xxx. x.... .xx,x x...x xxxx. ..x..
         ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
         ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
         "
@@ -364,7 +390,7 @@ class Nofont
         ..... x.... ..... ....x ..... ...xx ..... x.... ..x.. ...x.
         .xxxx xxxx. .xxxx .xxxx .xxx. ..x.. .xxxx xxxx. ..... .....
         x...x x...x x.... x...x x..xx ..x.. x...x x...x ..x.. ...x.
-        x...x x...x x.... x...x xxx.. xxxxx x...x x...x ..x.. ...x.
+        x...x x...x x.... x...x x,x.. xxxxx x...x x...x ..x.. ...x.
         .xxxx xxxx. .xxxx .xxxx .xxxx ..x.. .xxxx x...x ..x.. ...x.
         ..... ..... ..... ..... ..... ..x.. ....x ..... ..... x..x.
         ..... ..... ..... ..... ..... ..x.. xxxx. ..... ..... .xx..
@@ -441,7 +467,19 @@ class Nofont
         ..... ..... ..... ..... ..... ....x ..... ..... ..... ..... ..... .....
         ..... ..... ..... ..... ..... .xxx. ..... ..... ..... ..... ..... .....
         "
-                
+        
+        # Some private use characters useful for games, etc.
+        glyphs ["\uEF00", "\uEF01", "\uEF02", "\uEF03", "\uEF04", "\uEF05",
+                "\uEF06", "\uEF07", "\uEF08", "\uEF09",],
+        "
+        x.... xxxxx .xx.. ..x.. ..x.. ...x. ..x.. ..x.. .xxx. ..x..
+        .x... xxxxx .x.x. ..x.. x.x.x ..x.. .xxx. x.x.x xxxxx ..x..
+        ..x.x ..x.. .x..x .xxx. .x.x. .x... xxxxx .xxx. x.x.x .xxx.
+        ...x. ..x.. xxxxx .xxx. .x.x. xxxxx xxxxx xx.xx xx.xx x.x.x
+        ..x.x ..x.. .x..x xxxxx x.x.x ...x. .xxx. .xxx. .xxx. .xxx.
+        ..... ..x.. .x.x. xxxxx .xxx. ..x.. ..x.. x.x.x .x.x. ..x..
+        ..... ..x.. .xx.. .xxx. ..x.. .x... .xxx. ..x.. ..... ..x..
+        "
         
         
 =begin
