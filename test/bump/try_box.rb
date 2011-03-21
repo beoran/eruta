@@ -14,13 +14,13 @@ class BoxTestApp < Gariapp
   def initialize(wait = nil)
     super(wait)
     @drawy = 200
-    @a1    = Bump::Box.new( px: 100, py: 200, w: 20, h: 30, vx: 0, vy: 0)
+    @a1    = Bump::Box.new( px: 200, py: 200, w: 20, h: 30, vx: 0, vy: 0)
     @a2    = Bump::Box.new( px: 300, py: 200, w: 50, h: 70, vx: 0, vy: 0)
     @bump  = false
     @bt    = 0
     @bp    = Bump.vec(0, 0)
     @dirty = false
-    @clear = false
+    @clear = true
   end
   
   def handle_event(event)
@@ -48,9 +48,9 @@ class BoxTestApp < Gariapp
       elsif event.keysym == :j
         @a2.vx= -2.0
       elsif event.keysym == :c
-        @clear = !@clear      
+        @clear = !@clear
       elsif event.keysym == :escape
-        self.done!    
+        self.done!
       else 
         printf "#{event.keysym} "
       end
@@ -68,6 +68,7 @@ class BoxTestApp < Gariapp
   end
   
   def update_state
+    @a1.bump_with(@a2, 1.0)
     @a1.step!(1.0)
     @a2.step!(1.0)
     @bump = @a1.bump_now?(@a2)
@@ -83,6 +84,7 @@ class BoxTestApp < Gariapp
     @screen.fill(BLACK) if @clear
     draw_puts(10, 30, "Box: #{@a1.x} ; #{@a1.y} ; #{@a1.w} ; #{@a1.h}")
     draw_puts(10, 50, "Bump: #{@bump} ; #{@bt} ; #{@bp} ; #{@bh} #{@bl}")
+    draw_puts(10, 70, "Bump 2: #{@a1.dp}")
     @screen.fillrect(0, @drawy, @screen.w, 5, BLACK)
         
     @screen.fillrect(@a1.x, @a1.y, @a1.w, @a1.h, GREEN)

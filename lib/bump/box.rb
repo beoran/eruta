@@ -5,12 +5,14 @@ module Bump
     include Thing
     
     attr_reader :v
+    attr_reader :dp
     
     def initialize(opt={})
       super(opt)
-      vx = opt[:vx] || 0.0
-      vy = opt[:vx] || 0.0
-      @v = opt[:v]  || Bump.vec(vx, vy)
+      vx  = opt[:vx] || 0.0
+      vy  = opt[:vx] || 0.0
+      @v  = opt[:v]  || Bump.vec(vx, vy)
+      @dp = Bump.vec(0.0, 0.0)
     end
     
     def vx
@@ -60,8 +62,8 @@ module Bump
       vrel = self.v - other.v # Relative speed.
       crel = self.p - other.p # Relative position.
       rsum = self.r + other.r # Sum of the radiuses.
-      tbx  = vrel.x ? (rsum.x - crel.x) / vrel.x : nil
-      tby  = vrel.y ? (rsum.y - crel.y) / vrel.y : nil
+      tbx  = (vrel.x != 0.0 ? (rsum.x - crel.x) / vrel.x : nil)
+      tby  = (vrel.y != 0.0 ? (rsum.y - crel.y) / vrel.y : nil)
       return tbx, tby
     end
     
@@ -71,8 +73,8 @@ module Bump
       vrel = self.v - other.v # Relative speed.
       crel = self.p - other.p # Relative position.
       rsum = self.r + other.r # Sum of the radiuses.
-      tbx  = vrel.x ? (-(rsum.x + crel.x)) / vrel.x : nil
-      tby  = vrel.y ? (-(rsum.y + crel.y)) / vrel.y : nil
+      tbx  = (vrel.x != 0.0 ? (-(rsum.x + crel.x)) / vrel.x : nil)
+      tby  = (vrel.y != 0.0 ? (-(rsum.y + crel.y)) / vrel.y : nil)
       return tbx, tby
     end
     
@@ -94,10 +96,14 @@ module Bump
     end
     
     def bump_time(other)
+      nowy = bump_now_y?(other)
+      nowx = bump_now_x?(other)
+      return 0 if nowy && nowx
       bx, by = bump_times(other)
-#       return nil, :none , nil unless bx && by 
-#       return bx , :x    , by if bx < by 
-#       return by , :y    , bx
+      # If the boxes already overlaping in one direction, the other direction 
+      # is determining
+      return bx if nowy
+      return by if nowx
       return nil  unless bx && by 
       return bx   if bx < by && bx >= 0.0 
       return by    
@@ -113,26 +119,84 @@ module Bump
       return pb
     end
     
+    # Calculates the position of self after dt
+    def p_after(dt=1.0)
+      return (self.v * dt) + self.p  + self.dp
+    end
+      
+    # Calculates the chenge in position of self after dt, collision impulse 
+    # included
+    def dp_after(dt=1.0)
+      return (self.v * dt) + self.dp
+    end  
+
+
     # Simulates a motion that takes place during a time interval dt (Δt)
     # assuming the speed remained constant during that interval.
     # Returns a new line piece aline with it's p value updated to reflect 
     # the changed position.
     # @return [Aline] 
     def step(dt=1.0)
-      dp    = self.v * dt
-      newp  = self.p + dp
+      dp1   = self.v * dt
+      dp2   = dp
+      newp  = self.p + dp1 + dp2
       return self.class.new(:p => newp, :r => self.r, :v => self.v)
     end
     
     # Simulates a motion as per #step, but modifies self. 
     # @return [Aline]
     def step!(dt=1.0)
-      dp    = self.v * dt
-      @p    = self.p + dp
+      dp1   = self.v * dt
+      dp2   = dp
+      @p    = self.p + dp1 + dp2      
+      reset_impulse
       return self
     end
     
+    # Adds the given vector value to this object's collision motion
+    def impulse(ddp)
+      @dp = @dp + ddp
+    end
     
+    # Resets the collision motion to 0 
+    def reset_impulse()
+      @dp   = Bump.vec(0.0, 0.0)
+    end   
+    
+    # Checks if self will bump into other after dt has passed. 
+    # It returns 0.0 if already wholly colliding. 
+    # Returns the bump time if it is less than dt, otherwise returns nil.
+    def bump_after?(other, dt=1.0)
+      nowy = bump_now_y?(other)
+      nowx = bump_now_x?(other)
+      return 0.0 if nowy && nowx
+      bx, by = bump_times(other)
+      return bx if nowy && bx && bx >= 0.0 && bx <= dt 
+      return by if nowx && by && by >= 0.0 && by <= dt
+      return bx if bx && by && by <= bx && bx <= dt
+      return by if by && bx && bx <= by && by <= dt
+      return nil
+    end
+    
+    # Handles collision with another box for the step dt.
+    def bump_with(other, dt=1.0)
+      bt      = bump_after?(other, dt)
+      return nil unless bt
+      # Respective motions after collision time. 
+      spbump  = dp_after(bt)
+      opbump  = other.dp_after(bt)
+       # Position changes that self would have gone through.
+      pself   = dp_after(dt)
+      # Position changes that other would have gone through.       
+      pother  = other.dp_after(dt)
+      # Difference of what would have happened and what have happend must be 
+      # applied reciprocally to colliding object.
+      dps     = pself  - spbump
+      dpo     = pother - opbump 
+      puts "Bump #{dps} #{dpo} #{pself} #{pother} #{spbump} #{opbump}."
+      self.impulse(dpo)
+      other.impulse(dps)      
+    end
     
   end
 end
