@@ -31,37 +31,53 @@ module Bump
       @v = Bump.vec(self.vx, yv) 
     end
     
+    # Returns the position of self after collosion impulses have been added
+    def q
+      return @p + @dp
+    end
+    
+    # Returns the x position of self after cillosion impulses have been added
+    def qx
+      return self.q.x
+    end
+    
+    # Returns the y position of self after cillosion impulses have been added
+    def qy
+      return self.q.y
+    end
+    
+    
+    
     def bump_now_x?(other)
-      if self.px < other.px # positive side collision
-        return (self.px + self.rx) >= (other.px - other.rx)
+      if self.qx < other.qx # positive side collision
+        return (self.qx + self.rx) >= (other.qx - other.rx)
       else  # self.px > other.px, so negative side collision
-        return (self.px - self.rx) <= (other.px + other.rx)
+        return (self.qx - self.rx) <= (other.qx + other.rx)
       end
     end
     
     def bump_now_y?(other)
-      if self.py < other.py # positive side collision
-        return (self.py + self.ry) >= (other.py - other.ry)
+      if self.qy < other.qy # positive side collision
+        return (self.qy + self.ry) >= (other.qy - other.ry)
       else  # self.px > other.px, so negative side collision
-        return (self.py - self.ry) <= (other.py + other.ry)
+        return (self.qy - self.ry) <= (other.qy + other.ry)
       end
     end
-    
     
     
     # Returns true if self is overlapping with other right now, 
     # at the current position, fale if not 
     def bump_now?(other)      
-      return true if self.p == other.p
+      return true if self.q == other.q
       return bump_now_x?(other) && bump_now_y?(other)
     end
     
     # Calculates bump time for collisions on the positive side of self
     # for x and y. Other must be a Box.
     def positive_bump_time(other)
-      vrel = self.v - other.v # Relative speed.
-      crel = self.p - other.p # Relative position.
-      rsum = self.r + other.r # Sum of the radiuses.
+      vrel = self.v  - other.v # Relative speed.
+      crel = self.q  - other.q # Relative position.
+      rsum = self.r  + other.r # Sum of the radiuses.
       tbx  = (vrel.x != 0.0 ? (rsum.x - crel.x) / vrel.x : nil)
       tby  = (vrel.y != 0.0 ? (rsum.y - crel.y) / vrel.y : nil)
       return tbx, tby
@@ -71,7 +87,7 @@ module Bump
     # for x and y. Other must be a Box.
     def negative_bump_time(other)
       vrel = self.v - other.v # Relative speed.
-      crel = self.p - other.p # Relative position.
+      crel = self.q - other.q # Relative position.
       rsum = self.r + other.r # Sum of the radiuses.
       tbx  = (vrel.x != 0.0 ? (-(rsum.x + crel.x)) / vrel.x : nil)
       tby  = (vrel.y != 0.0 ? (-(rsum.y + crel.y)) / vrel.y : nil)
@@ -90,8 +106,8 @@ module Bump
       # will never collide with each other.
       nbx, nby = negative_bump_time(other)
       pbx, pby = positive_bump_time(other)
-      bx       = self.px < other.px  ? nbx : pbx
-      by       = self.py < other.py  ? nby : pby
+      bx       = self.qx < other.qx  ? nbx : pbx
+      by       = self.qy < other.qy  ? nby : pby
       return bx, by
     end
     
@@ -115,16 +131,16 @@ module Bump
     def bump_p(other)
       tb      = bump_time(other) 
       return nil unless tb
-      pb     = self.v * tb + self.p
+      pb      = self.v * tb + self.q
       return pb
     end
     
     # Calculates the position of self after dt
     def p_after(dt=1.0)
-      return (self.v * dt) + self.p  + self.dp
+      return (self.v * dt) + self.q
     end
       
-    # Calculates the chenge in position of self after dt, collision impulse 
+    # Calculates the change in position of self after dt, collision impulse 
     # included
     def dp_after(dt=1.0)
       return (self.v * dt) + self.dp
@@ -137,18 +153,16 @@ module Bump
     # the changed position.
     # @return [Aline] 
     def step(dt=1.0)
-      dp1   = self.v * dt
-      dp2   = dp
-      newp  = self.p + dp1 + dp2
+      deltap  = self.v * dt
+      newp    = self.q + deltap
       return self.class.new(:p => newp, :r => self.r, :v => self.v)
     end
     
     # Simulates a motion as per #step, but modifies self. 
     # @return [Aline]
     def step!(dt=1.0)
-      dp1   = self.v * dt
-      dp2   = dp
-      @p    = self.p + dp1 + dp2      
+      deltap  = self.v * dt
+      @p      = self.q + deltap      
       reset_impulse
       return self
     end
@@ -179,7 +193,10 @@ module Bump
     end
     
     # Handles collision with another box for the step dt.
-    def bump_with(other, dt=1.0)
+    # TODO: 
+    # * Fix stickyness of collision, probably due to bounds misinterpretation.
+    # * Fix multi-box collisions which someties don't work. 
+    def bump_with(other, dt=1.0, debug = false)
       bt      = bump_after?(other, dt)
       return nil unless bt
       # Respective motions after collision time. 
@@ -193,7 +210,9 @@ module Bump
       # applied reciprocally to colliding object.
       dps     = pself  - spbump
       dpo     = pother - opbump 
+      if debug
       puts "Bump #{dps} #{dpo} #{pself} #{pother} #{spbump} #{opbump}."
+      end
       self.impulse(dpo)
       other.impulse(dps)      
     end
