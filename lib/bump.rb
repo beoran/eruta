@@ -13,6 +13,16 @@ module Bump
     Vector.zero
   end
  
+  # New idea:
+  # Floats can model everything, however, they make the complications 
+  # more complex. Would it help to define speed in terms of frames?
+  # The logic could then run at say, 32 Hz. 
+  # A speed of 1 is then a motion of 32 pixels per second. 0.5 is updated only 
+  # once every 16 frames, 0.24 every 8 frames, etc.
+  # Like that, the state of the game only has to be updated a few times
+  # per second and not every frame, and also not for every object.
+ 
+ 
   autoload :Aline,  'bump/aline'
   autoload :Thing,  'bump/thing'
   autoload :Mobile, 'bump/mobile' 

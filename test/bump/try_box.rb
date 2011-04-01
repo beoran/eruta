@@ -1,12 +1,12 @@
 # interactive, visual test for alline . 
 #
 
-$: << '..'
 $: << '../../lib'
-# require 'test_helper'
+$: << '..'
+require 'test_helper'
 require 'bump'
-#require 'gari'
-#require 'gariapp'
+require 'gari'
+require 'gariapp'
 
 # Small interactive app for testing Boxes.
 @a    = Bump::Box.new(px: 200, py: 200, w: 20, h: 30, vx: 0, vy: 0)
@@ -43,7 +43,7 @@ class BoxTestApp < Gariapp
       elsif event.keysym == :down
         @a1.vy= 1.0  
       elsif event.keysym == :kp6
-        @a1.vx= 2.0
+        @a1.vx= 1.0
       elsif event.keysym == :kp4
         @a1.vx= -1.0
       elsif event.keysym == :k
@@ -51,9 +51,9 @@ class BoxTestApp < Gariapp
       elsif event.keysym == :l
         @a2.vx=  1.0
       elsif event.keysym == :m
-        @a2.vx=  2.0
+        @a2.vx=  32.0
       elsif event.keysym == :j
-        @a2.vx= -2.0
+        @a2.vx= -32.0
       elsif event.keysym == :n
         @a2.vy=  1.0
       elsif event.keysym == :i
