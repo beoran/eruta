@@ -22,3 +22,4 @@ module Bump
   autoload :Vector, 'bump/vector'
 
 end
+

@@ -3,12 +3,13 @@
 
 $: << '..'
 $: << '../../lib'
-require 'test_helper'
+# require 'test_helper'
 require 'bump'
-require 'gari'
-require 'gariapp'
+#require 'gari'
+#require 'gariapp'
 
-# Small interactive app for testing Aline. Seems to work fine now.
+# Small interactive app for testing Boxes.
+@a    = Bump::Box.new(px: 200, py: 200, w: 20, h: 30, vx: 0, vy: 0)
 
 class BoxTestApp < Gariapp
   def initialize(wait = nil)
