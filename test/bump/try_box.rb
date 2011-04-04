@@ -51,9 +51,9 @@ class BoxTestApp < Gariapp
       elsif event.keysym == :l
         @a2.vx=  1.0
       elsif event.keysym == :m
-        @a2.vx=  32.0
+        @a2.vx=  2.0
       elsif event.keysym == :j
-        @a2.vx= -32.0
+        @a2.vx= -2.0
       elsif event.keysym == :n
         @a2.vy=  1.0
       elsif event.keysym == :i
@@ -81,10 +81,18 @@ class BoxTestApp < Gariapp
   end
   
   def update_state
+    @a2.bump_with(@a3, 1.0)
+    @a1.bump_with(@a3, 1.0)    
     @a1.bump_with(@a2, 1.0)
-    @a1.bump_with(@a3, 1.0)
-    @a2.bump_with(@a3, 1.0, true)
     
+    
+    
+   
+    # @a2.bump_with(@a1, 1.0)
+    
+    
+    # @a3.bump_with(@a1, 1.0)
+    # @a3.bump_with(@a2, 1.0)
     
     @a.each { |b| b.step!(1.0) } 
     @bump = @a1.bump_now?(@a2)

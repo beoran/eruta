@@ -1,3 +1,37 @@
+=begin
+http://supertux.lethargik.org/wiki/Sweep_collision_algorithms:
+
+We have 2 rectangle r1 and r2, and a movement vector v that represents the 
+relative movement of r1 to r2. The vector v has x and y component written as 
+v.x and v.y, the rectangles have x1, y1 as their upper left point and x2, y2 as 
+the lower right point, written as r.x1, r.y1, r.x2, r.y2.
+
+2 rectangles collide if and only if they overlap on all axis. The trick of this 
+algorithm is to calculate the collision separately for each axis and then 
+combine the results to find the real collision.
+
+The position of a point on the (first) rectangle at a give time t can be 
+calculated with the formula p(t) = p + v * t.
+
+Or if we only look at the x-axis: p.x(t) = p.x + v.x * t
+
+An intersection with the 2nd rectangle on the x axis starts to happen if p 
+crossed the upper-left point of the 2nd rectangle. At this moment the x values 
+of p is the same as r2.x1. We can easily calculate the time when this happens:
+
+    p.x(t) = r2.x1 <=> p.x + v.x * t = r2.x1 <=> t = (r2.x1 - p.x) / v.x 
+
+Analogue we can calculate the time when x leaves the area of the rectangle by 
+checking for collision with r2.x2.
+
+Now we can calculate t_min_x the time when a collision on the x-axis begins and 
+t_max_x the time when the collision on the x-axis is over. We do the same for 
+t_min_y and t_max_y. The 2 rectangles abviously collide when we have on overlap 
+on both the x- and the y-axis. So if t_max_y is not smaller than t_min_x 
+and t_max_x is not smaller than t_min_y, then the time when the 2 rectangles 
+collide is t = max(t_min_x, t_min_y). 
+=end
+
 module Bump
   # A Box is an axis-oriented bounds box.
   class Box
@@ -142,8 +176,9 @@ module Bump
       
     # Calculates the change in position of self after dt, collision impulse 
     # included
-    def dp_after(dt=1.0)
-      return (self.v * dt) + self.dp
+    def dp_after(dt=1.0, use_dp = true)
+      return (self.v * dt) + self.dp if use_dp
+      return (self.v * dt)
     end  
 
 
@@ -185,17 +220,16 @@ module Bump
       nowx = bump_now_x?(other)
       return 0.0 if nowy && nowx
       bx, by = bump_times(other)
-      return bx if nowy && bx && bx >= 0.0 && bx <= dt 
-      return by if nowx && by && by >= 0.0 && by <= dt
-      return bx if bx && by && by <= bx && bx <= dt
-      return by if by && bx && bx <= by && by <= dt
+      return bx if nowy && bx && bx > 0.0 && bx < dt 
+      return by if nowx && by && by > 0.0 && by < dt
+      return bx if bx && by && by < bx && bx < dt
+      return by if by && bx && bx < by && by < dt
       return nil
     end
     
     # Handles collision with another box for the step dt.
     # TODO: 
-    # * Fix stickyness of collision, probably due to bounds misinterpretation.
-    # * Fix multi-box collisions which someties don't work. 
+    # * Fix multi-box collisions which doesn't work. 
     def bump_with(other, dt=1.0, debug = false)
       bt      = bump_after?(other, dt)
       return nil unless bt
@@ -213,8 +247,9 @@ module Bump
       if debug
       puts "Bump #{dps} #{dpo} #{pself} #{pother} #{spbump} #{opbump}."
       end
-      self.impulse(dpo)
-      other.impulse(dps)      
+      # The 0.0001 below is a fudge factor to prevent stickyness. 
+      self.impulse(dpo + dpo * 0.0001)
+      other.impulse(dps + dps * 0.0001)
     end
     
   end
