@@ -1,8 +1,0 @@
-#!/bin/bash
-COMPOSITE=/usr/local/bin/composite
-one=${1%.png}
-two=${2%.png}
-out=tileset_${one#aid_set_tile_}_${two#aid_set_tile_}.png
-if [ -z $3 ] ; then mask=blur ; else mask=$3 ; echo "Set mask to" $mask ; fi 
-maskfile=mask_tileset_${mask}.png
-$COMPOSITE -matte $1 -matte $2 $maskfile -matte $out

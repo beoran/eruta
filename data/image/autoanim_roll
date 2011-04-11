@@ -1,8 +1,0 @@
-#!/bin/bash
-CONVERT=/usr/local/bin/convert
-infile=$1
-nefile=${infile%.png}
-cp $infile ${nefile}_1.png
-$CONVERT $infile -roll +10+10 ${nefile}_2.png
-$CONVERT $infile -roll +20+20 ${nefile}_3.png
-$CONVERT $infile -roll +30+30 ${nefile}_4.png

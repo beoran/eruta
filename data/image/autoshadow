@@ -1,2 +1,0 @@
-#!/bin/bash
-composite -matte mask_shadow.png -matte $1 $2
