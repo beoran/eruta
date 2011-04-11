@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+
+
+handle = File.popen("icctrans -o '*sRGB' -i '*Lab'", 'w+')
+L_LIST = [ 10 , 30,  50, 70, 90]
+S_LIST = [-100,  0, 100]
+A_LIST = [-100, -50, 0, 50, 100]
+B_LIST = [-100, -75, -50, -25, 0, 25, 50, 75, 100]
+for l in L_LIST do
+  for a in S_LIST do
+    for b in S_LIST do
+      handle << "#{l}\n#{a}\n#{b}\n"
+    end
+  end
+end
+# end icctrans  
+handle << "q\n"
+result = handle.read
+lines  = result.split("\n").map do |l| 
+  l.strip.gsub(/[^0-9 \.]+/, '').split(" ").map do |c|
+    c.to_f.round
+  end
+end
+
+# lines.sort!.uniq!
+
+puts "GIMP Palette
+Name: eruta_lab
+Columns: 16
+#
+"
+
+lines.each do |l| 
+  r, g, b = *l
+  puts "#{r} #{g} #{b} None"
+end
+
+
+
+
