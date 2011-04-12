@@ -2,18 +2,73 @@
 
 
 
+def degree_to_radian(degree)
+  return (degree * 2.0 * Math::PI) / 360.0
+end
+
+def cielch_to_cielab(l, c, h)
+  l = l
+  a = Math.cos( degree_to_radian(h) ) * c
+  b = Math.sin( degree_to_radian(h) ) * c 
+  return l, a, b
+end
+
+def cielab_to_cielch(l, a, b)
+  begin    
+    var_h = (a == 0 && b == 0) ? 0 : Math.atan2(b, a)
+  rescue
+    warn "Failed with a: #{a}, b: #{b}" 
+    raise $!  
+  end    
+  if (var_h > 0 ) 
+    var_h = ( var_h / Math::PI ) * 180
+  else
+    var_h = 360 - ( var_h.abs() / Math::PI ) * 180
+  end 
+  c = Math.sqrt( a**2 + b**2)
+  h = var_h
+  return l, c, h
+end  
+
+colors = []
 handle = File.popen("icctrans -o '*sRGB' -i '*Lab'", 'w+')
-L_LIST = [ 10 , 30,  50, 70, 90]
-S_LIST = [-100,  0, 100]
-A_LIST = [-100, -50, 0, 50, 100]
-B_LIST = [-100, -75, -50, -25, 0, 25, 50, 75, 100]
-for l in L_LIST do
-  for a in S_LIST do
-    for b in S_LIST do
-      handle << "#{l}\n#{a}\n#{b}\n"
+H_LIST = (0...360).step(15).to_a
+C_LIST = [ 50, 100]
+
+
+L_LIST = [  5, 20, 35, 50, 65, 80, 95 ]
+
+# L_LIST = [  5, 17, 30, 43, 56, 69, 82, 95 ]
+# L_LIST = [  5, 16, 27, 38, 50, 61, 72, 83, 95 ]
+
+# L_LIST = [ 10, 30, 50, 70, 90]
+# L_LIST = [  0, 10,  30, 50, 70, 90, 100]
+# S_LIST = [-100,  0, 100]
+# A_LIST = [-100, -50, 0, 50, 100]
+# B_LIST = [-100, -50, 0, 50, 100]
+# A_LIST = [-100, -75, -50, -25, 0, 25, 50, 75, 100]
+# B_LIST = [-100, -75, -50, -25, 0, 25, 50, 75, 100]
+# A_LIST = [-100, -66, -33,   0,  33,  66, 100]
+A_LIST   = [-128, -84, -42,   0,  42,  84, 128] 
+B_LIST   = [-128, -84, -42,   0,  42,  84, 128]
+
+  for a in A_LIST do
+    for b in B_LIST do
+      for l in L_LIST do
+        l2, c, h = cielab_to_cielch(l, a, b)
+        colors << [h, c, l, a, b]
     end
   end
 end
+
+colors.sort!
+
+colors.each do |color| 
+  h, c, l, a, b = * color 
+   # l, a, b = cielch_to_cielab(l, c, h)
+  handle << "#{l}\n#{a}\n#{b}\n"
+end
+
 # end icctrans  
 handle << "q\n"
 result = handle.read
@@ -25,16 +80,52 @@ end
 
 # lines.sort!.uniq!
 
-puts "GIMP Palette
-Name: eruta_lab
-Columns: 16
-#
-"
+# puts "GIMP Palette
+# Name: eruta_lab_limited
+# Columns: 7
+# #"
 
+puts "<!doctype html>
+<html><head></head>
+<body style='font-family: monospace; background-color:#888; font-size:10px;'>"
+
+duplicates = {}
+count = 0
 lines.each do |l| 
   r, g, b = *l
-  puts "#{r} #{g} #{b} None"
+  hh, cc, ll, aa, bb = colors[count] 
+  hh = hh.to_i.to_s.rjust(3, '0')  
+  cc = cc.to_i.to_s.rjust(3, '0')
+  lo = ll
+  ll = ll.to_i.to_s.rjust(3, '0')  
+  rh = r.to_i.to_s(16).rjust(2, '0')
+  gh = g.to_i.to_s(16).rjust(2, '0')
+  bh = b.to_i.to_s(16).rjust(2, '0')
+  ar = 255 - r.to_i
+  ag = 255 - g.to_i
+  ab = 255 - b.to_i
+  rah = ar.to_s(16).rjust(2, '0')
+  gah = ag.to_s(16).rjust(2, '0')
+  bah = ab.to_s(16).rjust(2, '0')  
+  he  = "##{rh}#{gh}#{bh}"
+  ahe = (lo < 50) ? "#fff" : "#000"
+  
+  res = "#{rh}#{gh}#{bh}"
+  unless duplicates[res]
+    duplicates[res] = true  
+  puts "<span style='background-color: #{he}; color: #{ahe}'>&nbsp;&nbsp;#{he} #{hh} #{ll} #{cc} &nbsp;</span>\n"
+  else 
+    puts "<span style='background-color: #{he}; color: #{he}'>&nbsp;&nbsp;#{he} #{hh} #{ll} #{cc} &nbsp;</span>\n"
+  end
+  count +=1
+  if count % 7 == 0
+    puts "<br/>"
+  end
 end
+
+
+puts  "</body></html>"
+
 
 
 
