@@ -20,6 +20,46 @@ function getmouseclick(prompt)
   return mb, mx, my
 end
 
+-- range(a) returns an iterator from 1 to a (step = 1)
+-- range(a, b) returns an iterator from a to b (step = 1)
+-- range(a, b, step) returns an iterator from a to b, counting by step.
+function range(a, b, step)
+  if not b then
+    b = a
+    a = 1
+  end
+  step = step or 1
+  local f =
+    step > 0 and
+      function(_, lastvalue)
+        local nextvalue = lastvalue + step
+        if nextvalue <= b then return nextvalue end
+      end or
+    step < 0 and
+      function(_, lastvalue)
+        local nextvalue = lastvalue + step
+        if nextvalue >= b then return nextvalue end
+      end or
+      function(_, lastvalue) return lastvalue end
+  return f, nil, a - step
+end
+
+
+-- http://code.google.com/p/grafx2/wiki/BrushFactory
+
+function brush_wrap(dx, dy)
+  local w, h   = getbrushsize()
+  local xx, yy = 0, 0
+  for yy in range(h) do
+    for xx in range(w) do
+      local sx, sy = (sx - dx) , (sy - dy)
+      if sx < 0 then; sx = sx + w; end
+      if sy < 0 then; sy = sy + h; end
+      pix = getbrushpixel(sx, sy)
+    end
+  end
+end
+
 -- getmouseclick("Corner?")
 ok, a, b ,c, d = inputbox("Your choice",
   "A",    1, 0, 1,-1,
