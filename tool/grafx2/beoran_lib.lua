@@ -1,9 +1,6 @@
--- Grafx2 test script
+-- Grafx2 helper library
 -- Beoran (beoran@rubyforge.org) 2011.
- 
--- messagebox("Hello Grafx2!")
-statusmessage("Hello Grafx2!") 
- 
+  
 function getmouseclick(prompt)
   local moved, key, mx, my, mb = waitinput(0)
   msg = string.format("%d %d %d %d", key, mx, my, mb)
@@ -163,28 +160,5 @@ function Image.from_brush_wrap(dx, dy)
 end
 
 
--- http://code.google.com/p/grafx2/wiki/BrushFactory
-
-function brush_wrap(dx, dy)
-  local w, h   = getbrushsize()
-  local image  = Image.from_brush_wrap(dx, dy);
-  image:to_brush()
-end
-
-function brush_wrap_ui()
-  local bw, bh = getbrushsize()
-  if (bw < 2) or (bh < 2) then
-    statusmessage("Brush too small!")
-    return 
-  end
-  local ok, dx, dy = inputbox("Wrap Brush By",
-  "X", 8, 0, bw, 0,
-  "Y", 8, 0, bh, 0
-  );
-  brush_wrap(dx, dy)
-end
-  
-brush_wrap_ui()
- 
  
  
