@@ -250,6 +250,11 @@ GariImage * gari_image_loadraw(char * filename);
 /** Loads the image from the named file and tries to optimize it for display on the game's screen. This requires the game's screen to have been opened first. */
 GariImage * gari_image_load(GariGame * game, char * filename);
 
+
+/* Saves a GariImage as a to a file in filename in BMP format. Return NULL if 
+saving failed, img on success. */
+GariImage * gari_image_savebmp(GariImage * img, const char * filename);
+
 /** Optimizes the image for drawing to the screen. */
 GariImage * gari_image_optimize(GariImage * image, int mode, GariDye dyekey);
 

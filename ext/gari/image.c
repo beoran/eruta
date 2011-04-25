@@ -63,7 +63,8 @@ GariImage * gari_image_optimize(GariImage * image, int mode, GariDye colorkey) {
 
 }
 
-/** Loads the image from the named file.  */
+/** Loadss the image from the named file. Supports all formats 
+SDL_image supports. */
 GariImage * gari_image_loadraw(char * filename) {
   GariImage * result;
   result = gari_image_wrap(IMG_Load(filename));
