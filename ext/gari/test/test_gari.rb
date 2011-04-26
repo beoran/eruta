@@ -391,6 +391,10 @@ sh2.image = ri
 lay.draw(screen, -400, -130)
 game.keyrepeat(100, 10)
 
+assert  { screen.savebmp(test_file('test_out_s.bmp'));  }
+assert  { screen.savepng(test_file('test_out_s.png'));  }
+
+
 game.update
 busy  = true
 start = Time.now

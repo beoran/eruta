@@ -51,17 +51,16 @@ static int savepng_fail(const char * msg) {
 }
 
 int sdl_surface_savepng(SDL_Surface * surf, const char * filename) {
+  png_bytep       * rows  = NULL;
+  png_colorp        pale  = NULL; 
   FILE            * fout  = NULL;
   png_structp       png   = NULL;
   png_infop         info  = NULL;
   int               colortype;
   int               i     = 0;
-  png_bytep       * rows  = NULL;
-  png_colorp        pale  = NULL;
   Uint8           * tran  = NULL;
   SDL_PixelFormat * fmt   = NULL;
   SDL_Surface     * temp  = NULL;
-  
   
   if (!surf) { return savepng_fail("Surface was NULL."); }
   if (!filename) { return savepng_fail("Filename was NULL."); }
@@ -116,12 +115,16 @@ int sdl_surface_savepng(SDL_Surface * surf, const char * filename) {
     savepng_done(rows, fout, png, info, temp, pale, tran);
     return savepng_fail("Couldn't create png_infop");
   }
-
-  /* libpng rudely uses longjump to terminate on errors. Could it suck more? */  
+  
+  /* libpng rudely uses longjump to terminate on errors. 
+    This in turns causes warning of pissbli clobered variables. Could it suck 
+    more? */
   if (setjmp(png->jmpbuf)) {
+    /* This give a warning, but it seems to be unavoidable. */
     savepng_done(rows, fout, png, info, temp, pale, tran);
     return savepng_fail("Error writing png file.");
   }
+  
   /* Set file pointer. */
   png_init_io(png, fout);
   
