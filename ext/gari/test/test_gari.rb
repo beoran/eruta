@@ -161,6 +161,15 @@ assert { go }
 si      = Gari::Image.loadraw(test_file('test_sprite_1.png'))
 so      = si.optimize(:alpha)
 
+si2     = Gari::Image.loadraw(test_file('test_sprite_2.png'))
+so2     = si.optimize(:alpha)
+
+
+assert  { si.savebmp(test_file('test_out1.bmp'));   }
+assert  { si.savepng(test_file('test_out1.png'));   }
+assert  { si2.savebmp(test_file('test_out2.bmp'));  }
+assert  { si2.savepng(test_file('test_out2.png'));  }
+
 
 assert  { ni.clip? == [ 0, 0, ri.w, ri.h ]          }
 assert  { ni.clip!(5, 5, ri.w - 5, ri.h - 5 )       }
@@ -228,6 +237,7 @@ screen.blendslab(160, 0, 20, 20, chalf)
 
 screen.blit(180, 0, si)
 screen.blit(220, 0, so)
+screen.blit(320, 0, so2)
 
 screen.blit(10, 10, ni)
 # screen.blitscale(100, 100, 40, 80, go, 0, 0, go.w, go.h)
@@ -347,7 +357,7 @@ end
 assert { Gari::Key::KEY_BACKSPACE }
 assert { Gari::Key.sym2key(:backspace) == Gari::Key::KEY_BACKSPACE }
 assert { Gari::Key.key2sym(Gari::Key::KEY_BACKSPACE) == :backspace }
-assert { Gari::Mod::MOD_CAPS }
+assert { Gari::Mod::MOD_CAPS      }
 assert { Gari::Mod.sym2mod(:caps) == Gari::Mod::MOD_CAPS }
 assert { Gari::Mod.mod2sym(Gari::Mod::MOD_CAPS) == :caps }
 

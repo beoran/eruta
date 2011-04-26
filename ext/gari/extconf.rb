@@ -4,6 +4,11 @@ dir_config('gari')
 
 CFLAGS='-O3'
 
+unless find_header("png.h", "/usr/include/SDL", "/usr/local/include/SDL")
+  raise "PNG includes not found!" 
+end
+
+
 unless find_header("SDL.h", "/usr/include/SDL", "/usr/local/include/SDL")
   raise "SDL includes not found!" 
 end
@@ -22,6 +27,10 @@ end
 
 unless find_library("SDL_ttf", "TTF_Init", "/usr/lib", "/usr/local/lib")
   raise "SDL_ttf library not found!" 
+end
+
+unless find_library("png", "png_create_write_struct", "/usr/lib", "/usr/local/lib")
+  raise "PNG library not found!" 
 end
 
 

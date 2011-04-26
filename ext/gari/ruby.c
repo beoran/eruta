@@ -295,6 +295,14 @@ VALUE rbgari_image_savebmp(VALUE self, VALUE vname) {
   return RBH_TOBOOL(gari_image_savebmp(img, name));
 }
 
+/** Saves the image to the named file in PNG format. */
+VALUE rbgari_image_savepng(VALUE self, VALUE vname) {
+  GariImage * img = GARI_IMAGE_UNWRAP(self);
+  char * name     = RBH_STRING(vname);  
+  return RBH_TOBOOL(gari_image_savepng(img, name));
+}
+
+
 /* Perhaps implement this in ruby? 
 VALUE rbgari_game_loadimage(VALUE vgame, VALUE vname) {  
   GariGame * game = GARI_GAME_UNWRAP(vgame);
@@ -1263,7 +1271,8 @@ void Init_gari() {
   RBH_METHOD(Image, blitscale , rbgari_image_scaleblit  , 9);
   
   RBH_METHOD(Image, dyecolor  , rbgari_dye_color        , 1);
-  RBH_METHOD(Image, savebmp   , rbgari_image_savebmp    , 9);
+  RBH_METHOD(Image, savebmp   , rbgari_image_savebmp    , 1);
+  RBH_METHOD(Image, savepng   , rbgari_image_savepng    , 1);
   
   // RBH_METHOD(Image,   , rbgari_image_ , );
   RBH_METHOD(Screen, fullscreen, rbgari_screen_fullscreen, 0);
