@@ -27,7 +27,40 @@
   rem 'const pfres=12
   rem 'const pfrowheight=8
   
-  rem 'Commonly used NTSC Colors
+  #define PAL  
+  #ifdef PAL
+  
+  set tv pal
+  
+  rem ' PAL colors
+  const black=0
+  const gray=6
+  const white=14
+  const yellow=46
+  
+  const brown=32
+  const orange=70
+  const blue=208
+  const skyblue=186
+  const green=84
+  const darkgreen=80
+  const riverblue=212
+  rem ' XXX: there is a bug in the ompiler (or my patches to it) 
+  rem ' some of my consants like the one below are translated in stead 
+  rem ' like a dim statement: eg  const turfy=218 -> dim   turfy=218
+  rem ' a workaround seem to be to reorder the constants a bit
+  rem ' or to remove a few of them, but this only bugs out other constants :p
+  rem ' so I replaced some constants by their values, and use the cpp 
+  rem ' preprocessor in stead.    
+#define SEABLUE 210
+  const seablue = 210
+  const red   = 96
+  const pink  = 110
+  const skin  = 46
+  const sand  = 38
+  const turfy = 56
+#else   
+  rem 'Commonly used NTSC Colors  
   const black=0
   const gray=6
   const white=14
@@ -55,7 +88,7 @@
   const sand  = 230
   const turfy = 218
   rem ' const ochre=16
- 
+#endif
 
   rem 'Playfield dimensions
   const field_left=17
