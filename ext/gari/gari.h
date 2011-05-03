@@ -259,6 +259,10 @@ GariImage * gari_image_savebmp(GariImage * img, const char * filename);
 saving failed, img on success. */
 GariImage * gari_image_savepng(GariImage * img, const char * filename);
 
+/** Saves a GariImage as a to a file in filename in JPEG format. Return NULL if 
+saving failed, img on success. */
+GariImage * gari_image_savejpg(GariImage * img, const char * filename);
+
 /** Optimizes the image for drawing to the screen. */
 GariImage * gari_image_optimize(GariImage * image, int mode, GariDye dyekey);
 

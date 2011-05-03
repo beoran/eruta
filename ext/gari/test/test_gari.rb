@@ -167,8 +167,10 @@ so2     = si.optimize(:alpha)
 
 assert  { si.savebmp(test_file('test_out1.bmp'));   }
 assert  { si.savepng(test_file('test_out1.png'));   }
+assert  { si.savejpg(test_file('test_out1.jpg'));   }
 assert  { si2.savebmp(test_file('test_out2.bmp'));  }
 assert  { si2.savepng(test_file('test_out2.png'));  }
+assert  { si2.savejpg(test_file('test_out2.jpg'));  }
 
 
 assert  { ni.clip? == [ 0, 0, ri.w, ri.h ]          }
@@ -392,8 +394,8 @@ lay.draw(screen, -400, -130)
 game.keyrepeat(100, 10)
 
 assert  { screen.savebmp(test_file('test_out_s.bmp'));  }
-assert  { screen.savepng(test_file('test_out_s.png'));  }
-
+# assert  { screen.savepng(test_file('test_out_s.png'));  }  
+# assert  { screen.savejpg(test_file('test_out_s.jpg'));  }
 
 game.update
 busy  = true

@@ -1,2 +1,2 @@
 #!/bin/bash
-exec ruby -I. /lib  -r eruta
+exec ruby -I./lib -r eruta -e 'Eruta.main'

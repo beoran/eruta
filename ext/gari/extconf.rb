@@ -8,6 +8,9 @@ unless find_header("png.h", "/usr/include/SDL", "/usr/local/include/SDL")
   raise "PNG includes not found!" 
 end
 
+unless find_header("jpeglib.h", "/usr/include/SDL", "/usr/local/include/SDL")
+  raise "JPEG includes not found!" 
+end
 
 unless find_header("SDL.h", "/usr/include/SDL", "/usr/local/include/SDL")
   raise "SDL includes not found!" 
@@ -30,7 +33,11 @@ unless find_library("SDL_ttf", "TTF_Init", "/usr/lib", "/usr/local/lib")
 end
 
 unless find_library("png", "png_create_write_struct", "/usr/lib", "/usr/local/lib")
-  raise "PNG library not found!" 
+  raise "PNG library libpng not found!" 
+end
+
+unless find_library("jpeg", "jpeg_stdio_src", "/usr/lib", "/usr/local/lib")
+  raise "JPEG library libjpeg not found!" 
 end
 
 
