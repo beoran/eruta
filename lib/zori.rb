@@ -58,17 +58,20 @@ module Zori
   # Structure for Drag Info
   DragInfo        = Struct.new(:button, :widget, :when)
   # Class that models the state of a single key
-  Keyinfo = Struct.new(:pressed, :sym, :mod, :text, :repeated)
+  Keyinfo         = Struct.new(:pressed, :sym, :mod, :text, :repeated)
 
 
   autoload :Button      , 'zori/button'
   autoload :Checkbox    , 'zori/checkbox'
+  autoload :Console     , 'zori/console'
   autoload :Dialog      , 'zori/dialog'
+  autoload :Fixedlayout , 'zori/fixedlayout'
   autoload :Flow        , 'zori/flow'
   autoload :Flowlayout  , 'zori/flowlayout'
   autoload :Frame       , 'zori/frame'
   autoload :Input       , 'zori/input'
   autoload :Label       , 'zori/label'
+  autoload :Layoutmixin , 'zori/layoutmixin'
   autoload :Mainwidget  , 'zori/mainwidget'
   autoload :Menu        , 'zori/menu'
   autoload :Menubar     , 'zori/menu'

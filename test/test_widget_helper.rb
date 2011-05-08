@@ -14,8 +14,9 @@ def test_widget_interactively()
   widget  = yield(@ui)
  
   frame  << stack
-  stack  << flow1
-  flow1  << widget
+  stack  << widget
+#   flow1
+#   flow1  << 
   
   # Layout 
   frame.h  = 200

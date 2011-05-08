@@ -186,7 +186,21 @@ VALUE rbgari_game_fullscreen_(VALUE vgame, VALUE vfull) {
 }
 
 #define GARI_COLOR_WRAP(COLOR)   RBH_WRAP(Color, COLOR, gari_color_free)
-#define GARI_COLOR_UNWRAP(COLOR) RBH_UNWRAP(Color, COLOR)
+
+
+GariColor rbgari_color_unwrap(VALUE vcolor) {
+  if(TYPE(vcolor)== T_ARRAY) {
+    uint8_t rgba[4] = {0, 0, 0, 255}; int index = 0;
+    for(index = 0; index < RARRAY_LEN(vcolor) ; index++) {
+      rgba[index] =  RBH_UINT8(rb_ary_entry(vcolor, index)); 
+    } 
+    return gari_colora(rgba[0], rgba[1], rgba[2], rgba[3]);
+  } else {
+    return *(RBH_UNWRAP(Color, vcolor));
+  }
+}
+
+#define GARI_COLOR_UNWRAP(COLOR) rbgari_color_unwrap(COLOR)
 
 /** Makes a new color. */
 VALUE rbgari_color_new(VALUE self, VALUE r, VALUE g, VALUE b, VALUE a) {
@@ -222,9 +236,9 @@ GariImage * gari_screen_image(GariScreen * screen);
 * Converts a GariColor to a GariDye for the given image. 
 */
 VALUE rbgari_color_dye(VALUE vcolor, VALUE vimg)  {
-  GariColor * color = GARI_COLOR_UNWRAP(vcolor);
+  GariColor   color = GARI_COLOR_UNWRAP(vcolor);
   GariImage * image = GARI_IMAGE_UNWRAP(vimg);
-  return GARI_DYE_WRAP(gari_color_dye(*color, image));
+  return GARI_DYE_WRAP(gari_color_dye(color, image));
 }
 
 /** 
@@ -242,9 +256,9 @@ VALUE rbgari_dye_color(VALUE vimg, VALUE vdye)  {
 * Optimizes a  GariColor for the given image. 
 */
 VALUE rbgari_color_optimize(VALUE vcolor, VALUE vimg)  {
-  GariColor * color = GARI_COLOR_UNWRAP(vcolor);
+  GariColor color = GARI_COLOR_UNWRAP(vcolor);
   GariImage * image = GARI_IMAGE_UNWRAP(vimg);
-  GariColor aid = gari_color_optimize(*color, image);
+  GariColor aid = gari_color_optimize(color, image);
   GariColor * result = gari_color_rgba(aid.r, aid.g, aid.b, aid.a);    
   return GARI_COLOR_WRAP(result);
 }
@@ -328,16 +342,18 @@ RBH_GETTER_DEFINE(gari_image_depth, Image, GariImage, RBH_INT_NUM);
 
 VALUE rbgari_image_fill(VALUE self, VALUE vc) {
   GariImage * img = GARI_IMAGE_UNWRAP(self);
-  GariColor * col = GARI_COLOR_UNWRAP(vc);
-  gari_image_fill(img,  *col); 
+  GariColor   col = GARI_COLOR_UNWRAP(vc);
+  gari_image_fill(img,  col);
+  return self;
 }
   
 VALUE rbgari_image_fillrect(VALUE self, VALUE vx, VALUE vy, 
                             VALUE vw  , VALUE vh, VALUE vc) {
   GariImage * img = GARI_IMAGE_UNWRAP(self);
-  GariColor * col = GARI_COLOR_UNWRAP(vc);
+  GariColor   col = GARI_COLOR_UNWRAP(vc);
   gari_image_fillrect(img, RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc)); 
+                  RBH_INT(vw), RBH_INT(vh), col); 
+  return self;
 }
 
 
@@ -345,7 +361,7 @@ VALUE rbgari_image_slab(VALUE self, VALUE vx, VALUE vy,
                         VALUE vw  , VALUE vh, VALUE vc) {
   GariImage * img = GARI_IMAGE_UNWRAP(self);
   gari_image_slab(img, RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vw), RBH_INT(vh), GARI_COLOR_UNWRAP(vc));
   return self;
 } 
   
@@ -353,21 +369,21 @@ VALUE rbgari_image_blendslab(VALUE self, VALUE vx, VALUE vy,
                         VALUE vw  , VALUE vh, VALUE vc) {
   GariImage * img = GARI_IMAGE_UNWRAP(self);
   gari_image_blendslab(img, RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vw), RBH_INT(vh), GARI_COLOR_UNWRAP(vc));
   return self;
 } 
 
 VALUE rbgari_image_box(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vw  , VALUE vh, VALUE vc) {
   gari_image_box(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vw), RBH_INT(vh), GARI_COLOR_UNWRAP(vc));
   return self;
 }
   
 VALUE rbgari_image_blendbox(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vw  , VALUE vh, VALUE vc) {
   gari_image_blendbox(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vw), RBH_INT(vh), GARI_COLOR_UNWRAP(vc));
   return self;
 }
   
@@ -375,14 +391,14 @@ VALUE rbgari_image_blendbox(VALUE self, VALUE vx, VALUE vy,
 VALUE rbgari_image_line(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vw  , VALUE vh, VALUE vc) {
   gari_image_line(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vw), RBH_INT(vh), GARI_COLOR_UNWRAP(vc));
   return self;
 }
 
 VALUE rbgari_image_blendline(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vw  , VALUE vh, VALUE vc) {
   gari_image_blendline(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vw), RBH_INT(vh), *GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vw), RBH_INT(vh), GARI_COLOR_UNWRAP(vc));
   return self;
 }
 
@@ -390,14 +406,14 @@ VALUE rbgari_image_blendline(VALUE self, VALUE vx, VALUE vy,
 VALUE rbgari_image_disk(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vr  , VALUE vc) {
   gari_image_disk(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vr),*GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vr), GARI_COLOR_UNWRAP(vc));
   return self;
 }
  
 VALUE rbgari_image_blenddisk(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vr  , VALUE vc) {
   gari_image_blenddisk(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vr),*GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vr), GARI_COLOR_UNWRAP(vc));
   return self;
 }
  
@@ -405,7 +421,7 @@ VALUE rbgari_image_blenddisk(VALUE self, VALUE vx, VALUE vy,
 VALUE rbgari_image_hoop(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vr  , VALUE vc) {
   gari_image_hoop(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vr),*GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vr), GARI_COLOR_UNWRAP(vc));
   return self;
 }
 
@@ -413,26 +429,26 @@ VALUE rbgari_image_hoop(VALUE self, VALUE vx, VALUE vy,
 VALUE rbgari_image_blendhoop(VALUE self, VALUE vx, VALUE vy, 
                         VALUE vr  , VALUE vc) {
   gari_image_blendhoop(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  RBH_INT(vr),*GARI_COLOR_UNWRAP(vc));
+                  RBH_INT(vr), GARI_COLOR_UNWRAP(vc));
   return self;
 }
 
 VALUE rbgari_image_flood(VALUE self, VALUE vx, VALUE vy, VALUE vc) {
   gari_image_flood(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  *GARI_COLOR_UNWRAP(vc));
+                   GARI_COLOR_UNWRAP(vc));
   return self;
 }
 
 VALUE rbgari_image_blendflood(VALUE self, VALUE vx, VALUE vy, VALUE vc) {
   gari_image_flood(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  *GARI_COLOR_UNWRAP(vc));
+                   GARI_COLOR_UNWRAP(vc));
   return self;
 }
 
 
 VALUE rbgari_image_dot(VALUE self, VALUE vx, VALUE vy, VALUE vc) {
   gari_image_dot(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
-                  *GARI_COLOR_UNWRAP(vc));
+                  GARI_COLOR_UNWRAP(vc));
   return self;
 }
 
@@ -632,9 +648,9 @@ VALUE rbgari_font_draw(VALUE vimg, VALUE vx, VALUE vy, VALUE vutf8,
   int y             = RBH_INT(vy);    
   char * utf8       = RSTRING_PTR(rb_str_to_utf8(vutf8));
   GariFont  * font  = GARI_FONT_UNWRAP(vfont); 
-  GariColor * fg    = GARI_COLOR_UNWRAP(vfg);
-  GariColor * bg    = GARI_COLOR_UNWRAP(vbg);
-  gari_font_drawcolor(image, x, y, utf8, font, *fg, *bg);
+  GariColor   fg    = GARI_COLOR_UNWRAP(vfg);
+  GariColor   bg    = GARI_COLOR_UNWRAP(vbg);
+  gari_font_drawcolor(image, x, y, utf8, font, fg, bg);
   return vimg;
 } 
 
@@ -642,9 +658,9 @@ VALUE rbgari_font_render(VALUE vfont, VALUE vutf8, VALUE vfg, VALUE vbg) {
   GariImage * image = NULL;
   char * utf8       = RSTRING_PTR(rb_str_to_utf8(vutf8));
   GariFont  * font  = GARI_FONT_UNWRAP(vfont); 
-  GariColor * fg    = GARI_COLOR_UNWRAP(vfg);
-  GariColor * bg    = GARI_COLOR_UNWRAP(vbg);
-  image             = gari_font_render(font, utf8, *fg, *bg);
+  GariColor   fg    = GARI_COLOR_UNWRAP(vfg);
+  GariColor   bg    = GARI_COLOR_UNWRAP(vbg);
+  image             = gari_font_render(font, utf8, fg, bg);
   return GARI_IMAGE_WRAP(image);
 } 
 
@@ -803,11 +819,11 @@ VALUE rbgari_joy_index(VALUE self) {
    
 VALUE rbgari_style_new(VALUE self, VALUE vfore, VALUE vback, 
                      VALUE vfont, VALUE vimage) {
-  GariColor * fore = GARI_COLOR_UNWRAP(vfore);
-  GariColor * back = GARI_COLOR_UNWRAP(vback);
+  GariColor   fore = GARI_COLOR_UNWRAP(vfore);
+  GariColor   back = GARI_COLOR_UNWRAP(vback);
   GariFont  * font = GARI_FONT_UNWRAP(vfont);
   GariImage * img  = GARI_IMAGE_UNWRAP(vimage);
-  return GARI_STYLE_WRAP(gari_style_new(fore, back, font, img));  
+  return GARI_STYLE_WRAP(gari_style_new(fore, back, font, img));
 }
 
 VALUE rbgari_style_font(VALUE self) {

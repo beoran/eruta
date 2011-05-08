@@ -49,7 +49,7 @@ module Rogaru
       def initialize(color = [255,255,255 ], amount = 100, max = 200)
         @screenw= 640
         @screenh= 480
-        @color  = color
+        @color  = Gari::Color.rgb(*color)
         @amount = amount
         @timemax= max
         @vx_fudge = 0 # Compensation for map scrolling, etc
@@ -115,15 +115,15 @@ module Rogaru
       
       def render(surface, x, y)
         return if @hide # doesn't display if hidden
-        ci = surface.map_color(@color)
+        ci = @color.optimize(surface)
         # surface.auto_lock_off
-        surface.lock
+        # surface.lock
         @particles.each do | particle | 
             xx = x + particle[DUST_X]
             yy = y + particle[DUST_Y]
             render_particle(xx, yy, surface, particle, ci)
         end
-        surface.unlock
+        # surface.unlock
         # surface.auto_lock_on
       end 
       
@@ -206,7 +206,7 @@ module Rogaru
         l  = 7 + rand(3)
         w  = 1 #  + rand(2) 
         # surface.draw_line(x, y, x2, y2, ci)
-        surface.draw_rect(x, y, w, l, ci, true)
+        surface.slab(x, y, w, l, ci)
       end
     end
     
@@ -262,7 +262,7 @@ module Rogaru
       # Draws a single particle. 
       # Override this in child classes.
       def render_particle(x, y, surface, particle, ci) 
-        surface.draw_circle(x, y, 2,  ci, true, 0.5)
+        surface.disk(x, y, 2, ci)
       end
     end
 
@@ -306,9 +306,9 @@ module Rogaru
         sx = dx + particle[SLASH_SX]
         sy = dy + particle[SLASH_SY]
         sw = particle[SLASH_W]
-        surface.draw_line(x, y, sx, sy, ci, true)
-        surface.draw_line(x, y+sw, sx, sy+sw, ci, true)
-        surface.draw_line(x, y-sw, sx, sy-sw, ci, true)
+        surface.line(x, y, sx, sy, ci)
+        surface.line(x, y+sw, sx, sy+sw, ci)
+        surface.line(x, y-sw, sx, sy-sw, ci)
       end
     end
 

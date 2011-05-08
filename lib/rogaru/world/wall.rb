@@ -15,8 +15,8 @@ module Rogaru
         # self.y        = y
         @x = x ; @y = y ; @z = z
         @w = w ; @h = h
-        @color        = [0,255,127]
-        @markedcolor  = [255,0,0]
+        @color        = Gari::Color.rgb(0,255,127)
+        @markedcolor  = Gari::Color.rgb(255,0,0)
         @marked       = false
         @index        = -1
       end
@@ -30,8 +30,8 @@ module Rogaru
         y = @y + offset_y
         # puts "#@x #@y #@w #@h #@color"
         color = @marked ? @markedcolor : @color 
-        screen.put_rectangle(x, y, @w, @h, color)
-        @marked=false          
+        screen.box(x, y, @w, @h, color)
+        @marked = false
       end
     end
   end

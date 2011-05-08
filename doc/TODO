@@ -18,18 +18,17 @@ Programmed in Ruby and C:
   libraries, performance bottlenecks and wrapping up the distribution as 
   an executable.
   
-Use ruby 1.9.1 preview and up:  
+Use ruby 1.9.2 and up:  
   Rationale: Unicode support is great, faster, and when Eruta is finished, 
   Ruby 1.9.x or even 2.x will be out. We have to anticipate the future a bit.
   
-Using ruby-sdl version 2.x or higher and perhaps later ruby OpenGL, depending on
-how SDL 1.3 turns out. 
+Using SDL 1.2, wraped in Gari. Bakcend of Gari may change if needed. 
   Rationale: SDL is still the de facto standard for open source games. SFML was 
-  tried but found a bit slow and difficult to wrap in Ruby. Allegro 5 could 
-  also be used later if SDL 1.3 does not stay up to date. 
+  tried but found a bit slow and difficult to wrap in Ruby. Allegro 5 is still 
+  slow on unacellerated graphic cards.
 
 Screen resolution exactly 640x480. Color depth minimum 16bpp or better. Perhaps
-implement scaling to other resolutons trough OpenGL or 2xSai, etc later. 
+implement scaling to other resolutons trough OpenGL or 2xSai, etc later.
   Rationale: Old-style feeling and limit art requrements.
 
 Needed Functionality:

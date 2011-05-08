@@ -8,7 +8,7 @@ module Rogaru
     
     # Available directions
     DIRECTIONS  = [:north, :east, :south, :west, :any]
-    SPRITE_DIR  = File.join('..','share','image','sprite')
+    SPRITE_DIR  = File.join('data','image','sprite')
     # Default sprite directory.  XXX: use Settings to load this.
     # Generally useful poses
     # POSES       = [ :stand, :walk, :run, :strike, :pain, :kneel, :sleep ]
@@ -224,7 +224,7 @@ module Rogaru
         # Do nothing if not visible
         #return unless @visible 
         # pose MUST have been set. No time here for checking or other niceties!        
-        @pose.draw_at(screen, self.x, self.y)
+        screen.blit(self.x, self.y, screen)
       end
       
     end
@@ -370,7 +370,8 @@ module Rogaru
       part_z  = PART_Z[:any][partsym] || 0
       part    = self.new_part(partname, 0, 0, part_z)
       p filename
-      surface = Sisa::Surface.load_alpha(filename)
+      surface = Gari::Image.loadraw(filename)
+      surface = surface.optimize(:alpha)
       # We need to do load_alpha because it converts the indexed files to
       # 32 bits screen format.
       # Every file has a single part (or layer) of the sprite in it, in which 
@@ -391,7 +392,7 @@ module Rogaru
             # Does RLE acceleration help any? Difficult to say for one sprite...
             #sloframe.set_color_key(SDL::RLEACCEL, sloframe.map_rgba(0,0,0,SDL::ALPHA_TRANSPARENT))            
             # Conversion to screen format to speed up rendering 
-            frame   = sloframe.to_display_alpha()
+            frame   = sloframe.optimize(:alpha)
             frames << frame
             time   << POSE_TIME[posename]
             # On to the next frame

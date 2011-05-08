@@ -160,6 +160,7 @@ GariJoystick * gari_game_joystick(GariGame * game, int index) {
 *   or disable with delay 0. */
 GariGame * gari_game_keyrepeat(GariGame * game, int delay, int interval) { 
   SDL_EnableKeyRepeat(delay, interval);
+  return game;
 }
 
 

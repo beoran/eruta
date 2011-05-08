@@ -31,6 +31,7 @@ GariAudioInfo * gari_audioinfo_new(int freq, int form, int chan) {
 
 GariAudioInfo * gari_audioinfo_free(GariAudioInfo * info) {
   GARI_FREE(info);
+  return NULL;
 }
 
 int gari_audioinfo_frequency(GariAudioInfo * info) {
@@ -130,6 +131,7 @@ GariSound * gari_sound_free(GariSound * sound) {
 GariSound * gari_sound_play(GariSound * sound) {
   if ((!sound) || (!sound->chunk)) return NULL;
   Mix_PlayChannel(-1, sound->chunk, 0);
+  return sound;
 }
 
 
@@ -161,7 +163,7 @@ GariMusic * gari_music_init(GariMusic * music, char * filename) {
 
 /** Creates a new GariMusic and loads the music from a file. */
 GariMusic * gari_music_load(char * filename) {
-  GariMusic * music = gari_sound_new(); 
+  GariMusic * music = gari_music_new();
   if(!music)        { return NULL; }
   music->tune       = NULL;
   if(!gari_music_init(music, filename)) {
@@ -203,6 +205,7 @@ GariMusic * gari_music_fadeout(GariMusic * music, int fade) {
   if((!music) || (!music->tune)) return NULL;
   music->current = SDL_GetTicks() + fade;
   Mix_FadeOutMusic(fade);
+  return music;
 } 
 
 

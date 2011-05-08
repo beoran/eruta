@@ -5,10 +5,7 @@
  <tileset tilewide='32' tilehigh='32'>
   <names>
    <name>
-    common
-   </name>
-   <name>
-    village
+    .
    </name>
   </names>
   <tiles>

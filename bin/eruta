@@ -1,2 +1,6 @@
-#!/bin/bash
-exec ruby -I. /lib  -r eruta
+#!/usr/bin/env ruby
+$: << 'lib'
+require 'eruta'
+
+Eruta::Main.main
+

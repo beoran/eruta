@@ -14,7 +14,7 @@ module Rogaru
       end
     
       include Enumerable 
-      TILESET_DIR = File.join('..','share','image','tileset')
+      TILESET_DIR = File.join('data','image','tile')
       # Default tileset directory.  XXX: use Settings to load this.
       attr_reader :name
       attr_reader :tiles
@@ -48,7 +48,7 @@ module Rogaru
       end  
       
       # Loads all tile images forom one tile folder
-      def load_folder(folder, load_start = nil)
+     def load_folder(folder, load_start = nil)
         dir         = Dir.new(folder)   
         fileaid     =  dir.select { |f| f =~ /.png\Z/ }
         fileaid.sort! 
@@ -142,13 +142,13 @@ module Rogaru
         end
 
         @index  = @start
-        surface = Sisa::Surface.load(filename)
+        surface = Gari::Image.loadraw(filename)
         return false unless surface
         printf "Copying rectangles for tile set..."
         (0...(surface.h)).step(@tilehigh)   do |y|
           (0...(surface.w)).step(@tilewide) do |x|
             tile    = surface.copy_rectangle(x, y, @tilewide, @tilehigh)
-            oktile  = tile.to_display_alpha
+            oktile  = tile.optimize(:alpha)
             isanim  = Rogaru::Tilemap::Tile::Animation.is_animation_tile?(oktile)
             if isanim
               puts("Loading animation!")

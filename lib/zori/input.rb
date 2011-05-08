@@ -1,6 +1,7 @@
 
 module Zori
   class Input < Zori::Widget
+    include Fixedlayout
   
     # Cursor for an input object
     class Cursor 
@@ -70,7 +71,12 @@ module Zori
     end
     
     def text=(txt)
+      
+      
+      
       self.value = txt
+      @scroll    = 0
+      @cursor    = self.value.size
       @changed   = true
       update()
     end
@@ -170,18 +176,21 @@ module Zori
             update()
           end                    
         when Gari::Key::KEY_RETURN, Gari::Key::KEY_KP_ENTER
-           act
+           act(:return)
+        when Gari::Key::KEY_UP
+           act(:up)
+        when Gari::Key::KEY_DOWN
+           act(:down)
            # Call the given block if enter  is pressed.          
         when Gari::Key::KEY_LSHIFT, Gari::Key::KEY_RSHIFT
           # Ignore control keys.
         else
-          p string 
-          if string && (!string.empty?) && (self.value.size < @maxchar)            
+          if string && (!string.empty?) && string != "\0" && (self.value.size < @maxchar)            
             if ((modifier & Gari::Key::KEY_LSHIFT) > 0 or 
                 (modifier & Gari::Key::KEY_RSHIFT) > 0) 
               string.upcase! 
             end
-            self.value = self.value.insert(@cursor, string)
+            self.value.insert(@cursor, string)
             @cursor   += string.size
             update()
           end

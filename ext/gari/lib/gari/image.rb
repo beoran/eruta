@@ -141,6 +141,12 @@ module Gari
       end
     end
     
+    def copy_rectangle(x, y, w, h)
+      img = self.class.new(w, h, 16, :alpha)
+      self.blit(x, y, img)
+      return img
+    end
+    
   end # class Image  
 end # module Gari
 

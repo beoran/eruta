@@ -20,8 +20,7 @@ module Zori
       for child in self.children do
         y      += child.margin        
         x       = left + child.margin 
-        child.y = y
-        child.x = x
+        child.change_layout(x, y)
         y      += child.h + self.padding + child.margin
         child.update
       end
@@ -34,8 +33,7 @@ module Zori
         y      += child.margin
         x       = right - child.w - child.margin
         # TODO: align center and right based on style.alignment.
-        child.y = y
-        child.x = x
+        child.change_layout(x, y)
         y      += child.h + child.margin
         child.update
       end
@@ -48,8 +46,7 @@ module Zori
         y      += child.margin        
         x       = middle - (child.w / 2) 
         # TODO: align center and right based on style.alignment.
-        child.y = y
-        child.x = x
+        child.change_layout(x, y)
         y      += child.h + child.margin
         child.update
       end      

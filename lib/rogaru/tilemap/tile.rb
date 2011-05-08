@@ -14,18 +14,25 @@ module Rogaru
         NEXT        = 1 # Increase the tile index by one
         REWIND      = 2 # Rewind the tile index to the first tile animation 
         
+        # Color for animated tile info tile (it has a purplish background)
+        TILE_ANIMATION    = Gari::Color.rgba(0xaa, 0x11, 0xee, 0xff)
+        # Animation program is esxpressed as colored pixels. White means, next tile.
+        ANIMATION_NEXT    = Gari::Color.rgba(0xff, 0xff, 0xff, SDL::ALPHA_OPAQUE)
+        # Black means, rewind animation to first tile.
+        ANIMATION_REWIND  = Gari::Color.rgba(0x00, 0x00, 0x00, SDL::ALPHA_OPAQUE)
+        
         def self.is_animation_tile?(image)
-          corner = image.get_point(0,0)
-          return corner == Sisa::Color::TILE_ANIMATION
+          corner = image.getdot(0,0)
+          return corner == TILE_ANIMATION
         end
         
         def load_animation(image)
           for index in (0..31)  
-            point = image.get_point(index,1)
-            if point == Sisa::Color::ANIMATION_NEXT
+            point = image.getdot(index,1)
+            if point == ANIMATION_NEXT
               @animation << NEXT
               @size += 1 # Animation size increases by 1 if we have a next animation step
-            elsif point == Sisa::Color::ANIMATION_REWIND
+            elsif point == ANIMATION_REWIND
               @animation << REWIND
               break # all done if we get a rewind
             else # Otherwise it's a WAIT
