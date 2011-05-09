@@ -1,9 +1,7 @@
 # encoding: utf-8
 #
-# Draw text without using fonst. In stead, use a DSL to define a font's 
+# Draw text without using fonts. In stead, use a DSL to define a font's 
 # drawing based on rectangles. Designed to be mostly compatible with Gari::Font
-#
-#
 #
 class Nofont
 
