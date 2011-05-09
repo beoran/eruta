@@ -105,9 +105,9 @@ struct BrSymbol_ {
 struct BrObject {
 };
 
-BrObject * BrSymbol_new(char * string) {
+BrObject * BrSymbol_new(BrRuntime * run, char * string) {
   BrSymbol * self = (BrSymbol * )BrObject_alloc(sizeof(BrSymbol));
-  
+  BrObject_acts_(object, run->symbol_acts);
 }
 
 
