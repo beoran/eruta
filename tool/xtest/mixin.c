@@ -3,11 +3,32 @@
 #include <stddef.h>
 
 struct BrRuntime_;
-typedef BrRuntime_ BrRuntime;
+typedef struct BrRuntime_ BrRuntime;
 
 struct BrObject_;
-typedef struct BrObject BrObject;
-typedef (BrObject *) BrFunction(BrObject * self, BrObject * vm, ...);
+typedef struct BrObject_ BrObject;
+
+struct BrClosure_;
+typedef struct BrClosure_ BrClosure;
+
+
+typedef BrObject * (BrFunction)(BrObject * self, BrClosure * env, ...);
+
+typedef void * (BrAllocFunction)(BrRuntime * vm, size_t size);
+typedef void * (BrFreeFunction)(BrRuntime * vm, void *  ptr);
+
+
+/** Default malloc function. */
+void * BrMalloc(BrRuntime * vm, size_t size) {
+  return calloc(size, 1);
+}
+
+/** Default free function. */
+void *  BrFree(BrRuntime * vm, void * ptr) {
+  free(ptr);
+  return NULL;
+}
+
 
 struct BrActs_;
 typedef struct BrActs_ BrActs;
@@ -15,38 +36,43 @@ typedef struct BrActs_ BrActs;
 struct BrSymbol_;
 typedef struct BrSymbol_ BrSymbol;
 
-typeef volatile size_t BrRefcount;
+typedef volatile size_t BrRefcount;
 
-/** AContains the hidden header fields of the BrObjects. */
+/** Contains the hidden header fields of the BrObjects. */
 struct BrHeader_ {
-  BrRefcount refs
-  BrActs * acts;
+  BrRefcount    refs;
+  BrRuntime   * run;
+  BrActs      * acts;
 };
 
-typedef BrHeader_ BrHeader;
+typedef struct BrHeader_ BrHeader;
 
-BrObject * BrObject_alloc(size_t size) {
-  char * ptr = NULL;
-  size      += sizeof(BrHeader);
-  ptr        = calloc(size, 1);
-  ptr       += size;
-  return (BrObject*) ptr;
-}
+struct BrClosure_;
+typedef struct BrClosure_ BrClosure;
 
-BrObject * BrObject_free(BrObject * object) {
-  char * ptr = (char *) object;
-  if(!ptr) return NULL;
-  ptr       -= sizeof(BrHeader);
-  free(ptr);
-  return NULL;
-}
+
+struct BrRuntime_ { 
+  BrActs          * symbols;
+  BrActs          * acts_acts;
+  BrActs          * object_acts;
+  BrActs          * symbol_acts;
+  BrActs          * closure_acts;
+  BrObject        * sym_lookup;
+  BrObject        * sym_add;
+  BrObject        * sym_alloc;
+  BrObject        * sym_delegate;
+  BrClosure       * active_closure;
+  BrAllocFunction * alloc;
+  BrFreeFunction  * free;
+};
+
 
 #define BR_OBJECT_HEADER(OBJECT) (OBJECT ?               \
         ((BrHeader*)(((char *)OBJECT)-sizeof(BrHeader))) \
         : NULL )
 
-BrActs * BrObject_header(BrObject * object) {
-  return BR_OBJECT_ACTS(ptr);
+BrHeader * BrObject_header(BrObject * object) {
+  return BR_OBJECT_HEADER(object);
 }
 
 #define BR_OBJECT_ACTS(OBJECT) (OBJECT ?                       \
@@ -65,20 +91,48 @@ BrActs * BrObject_acts_(BrObject * object, BrActs * acts) {
   return BR_OBJECT_ACTS_(object, acts);
 }
 
-struct BrRuntime_ { 
-  BrActs    * symbols;
-  BrActs    * acts_acts;
-  BrActs    * object_acts;
-  BrActs    * symbol_acts;
-  BrActs    * closure_acts;
-  BrObject  * sym_lookup;
-  BrObject  * sym_add;
-  BrObject  * sym_alloc;
-  BrObject  * sym_delegate;
-};
+#define BR_OBJECT_RUNTIME(OBJECT) (OBJECT ?                       \
+        ((BrHeader*)(((char *)OBJECT)-sizeof(BrHeader)))->runtime \
+        : NULL )
+
+BrActs * BrObject_runtime(BrObject * object) {
+  return BR_OBJECT_RUNTIME(object);
+}
+
+#define BR_OBJECT_RUNTIME_(OBJECT, RUN) (OBJECT ?             \
+        ((BrHeader*)(((char *)OBJECT)-sizeof(BrHeader)))->runtime = RUN \
+        : NULL )
+
+BrActs * BrObject_runtime_(BrObject * object, BrRuntime * run) {
+  return BR_OBJECT_RUNTIME_(object, run);
+}
+
+
+BrObject * BrObject_alloc(BrRuntime * run, size_t size, BrActs * acts) {
+  char * ptr      = NULL;
+  BrObjecr * result = NULL;
+  size           += sizeof(BrHeader);
+  ptr             = (run && run->alloc) ? run->alloc(run, size) : BrMalloc(run, size);
+  if(!ptr)        return NULL;
+  result          = ptr + sizeof(BrHeader);
+  BrObject_runtime_(result, run);
+  BrObject_acts_(result, acts);
+  return (BrObject*) ptr;
+}
+
+BrObject * BrObject_free(BrRuntime * run, BrObject * object) {
+  char * ptr = (char *) object;
+  if(!ptr) return NULL;
+  ptr       -= sizeof(BrHeader);
+  if (run && run->free) run->free(run, ptr);
+  else BrFree(run, ptr);
+  return NULL;
+}
+
+
 
 BrRuntime br_runtime_default = { NULL, NULL, NULL, NULL, NULL,
-                                 NULL, NULL, NULL, NULL};
+                                 NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 /** Acts contains the lookup table in whch methods are looked up. 
 * It must be allocated with BrObject_alloc so it will have a hidden header.
@@ -93,10 +147,11 @@ struct BrActs_ {
 
 struct BrClosure_ {
   BrFunction * function;
+  int          arity;
   BrObject   * data;
 };
 
-typedef struct BrClosure_ BrClosure;
+
 
 struct BrSymbol_ {
   char * string;
@@ -106,62 +161,31 @@ struct BrObject {
 };
 
 BrObject * BrSymbol_new(BrRuntime * run, char * string) {
-  BrSymbol * self = (BrSymbol * )BrObject_alloc(sizeof(BrSymbol));
-  BrObject_acts_(object, run->symbol_acts);
+  BrObject * self = BrObject_alloc(run, sizeof(BrSymbol),  run->symbol_acts);
+  ((BrSymbol*)self)->string = string;
+  return self;
 }
 
 
-struct Mixed_ {
-  int data;
-};
+BrObject * BrClosure_new(BrRuntime * run, BrFunction * func, int arity, BrObject * data) {
+  BrObject * self = BrObject_alloc(run, sizeof(BrClosure), run->closure_acts);
+  ((BrClosure*)self)->function = func;
+  ((BrClosure*)self)->arity    = arity;
+  ((BrClosure*)self)->data     = data;
+  return self;
+}
 
-typedef struct Mixed_ Mixed;
-
-struct Parent_ {
-  int data;
-  Mixed mixed;
-};
-
-typedef struct Parent_ Parent;
+BrOject *vtable_lookup(struct closure *closure, struct vtable *self, struct object *key);
 
 
 #define MIX_PARENT(PARENT_TYPE, SELF, MEMBER) \
   ((PARENT_TYPE *)(((char *)SELF) - offsetof(PARENT_TYPE, MEMBER)))
 
-typedef struct Ref_ Ref;
-
-Ref * ref_init(Ref * ref, void (*free) (void *ptr)) {
-  ref->count = 0;
-  ref->free  = free;
-  return ref;
-}
-
-Ref * ref_use(Ref * ref) {
-  ref->count+= 1;
-  return ref;
-}
-
-Ref * ref_toss(Ref * ref) {
-  ref->count -= 1;
-  if (ref <1) {
-    return NULL;
-  }
-  return ref;
-}
-
-
-
 int main(void) {
-  Parent parent;
-  Parent * parptr = MIX_PARENT(Parent, &parent.data, data);
-  parent.data = 0;
-  parent.mixed.data = 0;
-  printf("%p %p %p\n", &parent, &parent.mixed, parptr);
-  if (parptr == &parent) puts("OK!");
   return 0;
 }
 
-#ifndef _THIS_IS_COMMENT_
+#ifdef _THIS_IS_COMMENT_
 
 /* Copyright (c) 2007 by Ian Piumarta.
  * All Rights Reserved.
