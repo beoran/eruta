@@ -61,6 +61,11 @@ module Rogaru
         end  
       end
       
+      # Looks up the sprite by name
+      def names
+        return @sprites.keys
+      end
+      
       
       # Looks up the sprite by name
       def [](name)

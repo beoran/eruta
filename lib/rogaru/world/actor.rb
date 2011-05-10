@@ -78,9 +78,9 @@ module Rogaru
       def render(screen, offset_x, offset_y)
         x = self.x + offset_x 
         y = self.y + offset_y
-        screen.fill_rectangle(x.to_i, y.to_i, @w, @h, @color)
+        screen.box(x.to_i, y.to_i, @w, @h, @color)
         p self if self.ix != 0 || self.iy != 0
-        screen.put_line(x.to_i, y.to_i, self.ix.to_i, self.iy.to_i, [255,255,255], false) 
+        screen.line(x.to_i, y.to_i, self.ix.to_i, self.iy.to_i, Gari::Color.rgb(255,255,255)) 
       end
 
 

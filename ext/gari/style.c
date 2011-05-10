@@ -5,15 +5,15 @@
 
 
 struct GariStyle_     {
-  GariColor * fore;   // foreground color
-  GariColor * back;   // font to use
+  GariColor   fore;   // foreground color
+  GariColor   back;   // font to use
   GariFont  * font;   // background color 
   GariImage * image;  // image
 };
 
 GariStyle * gari_style_init(GariStyle * style, 
-                                GariColor *fore, 
-                                GariColor * back,
+                                GariColor   fore, 
+                                GariColor   back,
                                 GariFont  * font,
                                 GariImage * image
                                 ){
@@ -30,8 +30,8 @@ GariStyle * gari_style_free(GariStyle * style) {
   return NULL;
 }
 
-GariStyle * gari_style_new(GariColor *fore, 
-                           GariColor * back,
+GariStyle * gari_style_new(GariColor   fore, 
+                           GariColor   back,
                            GariFont  * font,
                            GariImage * image
                           ){
@@ -44,13 +44,13 @@ GariFont * gari_style_font(GariStyle * style) {
   return style->font;
 }
 
-GariColor * gari_style_fore(GariStyle * style) {
-  if(!style) return NULL;
+GariColor gari_style_fore(GariStyle * style) {
+  if(!style) return gari_colora(255,0,0,255);
   return style->fore;
 }
 
-GariColor * gari_style_back(GariStyle * style) {
-  if(!style) return NULL;
+GariColor gari_style_back(GariStyle * style) {
+  if(!style) return gari_colora(255,0,0,255);
   return style->back;
 }
 

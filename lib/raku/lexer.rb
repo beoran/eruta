@@ -1,6 +1,6 @@
 #
 #
-# Lexer for the JRaku minimal parser/interpreter/compiler
+# Lexer for the Raku minimal parser/interpreter/compiler
 #
 #
 

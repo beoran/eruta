@@ -43,13 +43,16 @@ class Rogaru::Tilemap::Layer
     if (x < 0) or (y<0) or ( x >= @wide) or (y >= @high)
       raise "Index #{x} #{y} #{tile_id} not valid." 
     end  
-    if tile_id.nil? or tile_id < 0 then 
-      real_tile_id    = -1
-      real_tile       = nil
-    else
+    real_tile_id    = -1
+    real_tile       = nil
+    unless tile_id.nil? or tile_id < 0 
       real_tile       = @tileset.get_tile(tile_id)
       real_tile_id    = tile_id
-      raise "No real tile found for #{x} #{y} #{tile_id}" unless real_tile
+      unless real_tile
+        warn "No real tile found for #{x} #{y} #{tile_id}" 
+        real_tile_id    = -1
+        real_tile       = nil
+      end
     end
     @layer[y][x]      = real_tile 
     @layer_save[y][x] = real_tile_id
@@ -114,7 +117,7 @@ class Rogaru::Tilemap::Layer
         aidtile  = row[txdex]
         unless aidtile.nil? then
           aidimage    = aidtile.get
-          SDL::Surface.blit(aidimage, 0,0,0,0, screen, drawx, drawy)
+          screen.blit(drawx, drawy, aidimage)
         end
         txdex += 1
       end

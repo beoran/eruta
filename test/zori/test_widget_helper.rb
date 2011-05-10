@@ -1,6 +1,8 @@
 require 'test_helper'
 require 'zori'
 
+# XXX: edit the other file, not ths one!!!
+
 def test_widget_interactively()
 
   @game   = Gari::Game.new
@@ -12,7 +14,7 @@ def test_widget_interactively()
  
   frame  << stack
   stack  << flow1
-  flow1  << slider
+  flow1  << widget
   
   # Layout 
   frame.h  = 200

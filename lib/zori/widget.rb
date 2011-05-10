@@ -18,9 +18,12 @@ module Zori
     # include Stacklayout # stack layout
     include Sizemixin       
     # Size mixin, separated out because this file is becoming too big. 
+    include Layoutmixin
+    # Layout mixin, separated out because this file is becoming too big. 
     include Flowlayout  # Flow layout
-     
-     
+    
+    
+    
     attr_reader   :style
     attr_reader   :bounds
     attr_accessor :z
@@ -133,19 +136,19 @@ module Zori
     end
     
     # Performs the given action with the right arguments.
-    def perform_action(act)
+    def perform_action(act, *args)
       if act
         if act.arity == 0
           act.call()
         else
-          act.call(self)
+          act.call(self, *args)
         end
       end
     end
     
     # Performs our own defined action 
-    def act()
-      perform_action(@action)
+    def act(*args)
+      perform_action(@action, *args)
     end
     
     ##
@@ -649,59 +652,8 @@ module Zori
     # def layout_children
     # end
     
-    # Layout
-    def layout_all
-      for child in self.children  do
-        child.layout_children
-      end      
-      self.layout_children
-    end
-    
-    # Simple height fitter that simply looks at the last (presumably bottom-most)
-    # widget. Only works after the children are properly layout-ed
-    def fit_child_high_simple()
-      if self.children.last
-        newh    =  self.children.last.out_bottom + self.padding
-        self.h  = newh
-      else
-        self.h = 0
-      end
-      return self
-    end
-    
-    # Simple width fitter. Only works after the children are properly layout-ed
-    # and if the widget is left-aligned
-    def fit_child_wide_simple()
-      maxw    = 0
-      self.children.each { |child| maxw = child.out_right if  child.out_right > maxw } 
-      neww    = maxw + self.padding
-      self.w  = neww
-      return self
-    end
-
 
     
-    # Shrinks or grows self so it snugly fits inside the given widget's width. 
-    # If widget is nil, fits itself to widget.parent. If that is also 
-    # not set, does nothing. This method doesn't move the widget around.
-    # Always returns self for method chaining.
-    def fit_wide(widget=nil) 
-      widget ||= self.parent     
-      return self unless widget
-      self.w   = widget.w - ( widget.padding * 2) - (self.margin * 2)
-      return self
-    end
-    
-    # Shrinks or grows self so it snugly fits inside the given widget's height. 
-    # If widget is nil, fits itself to widget.parent. If that is also 
-    # not set, does nothing. This method doesn't move the widget around.
-    # Always returns self for method chaining.
-    def fit_high(widget=nil) 
-      widget ||= self.parent     
-      return self unless widget
-      self.h   = widget.h - ( widget.padding * 2) - (self.margin * 2)
-      return self
-    end
     
     def on_active()
       puts "Active"

@@ -213,6 +213,11 @@ GariScreen * gari_game_fullscreen_(GariGame * game, int fullscreen);
 *   or disable with delay 0. */
 GariGame * gari_game_keyrepeat(GariGame * game, int delay, int interval);
 
+/** Sets the system mouse cursor to invisible or visible. */
+int gari_screen_showcursor_(GariScreen * screen, int show);
+/** Gets the visibility of the system mouse cursor. */
+int gari_screen_showcursor(GariScreen * screen);
+
 
 /** Image mode, this deterines how to optimize the image for drawing to the screen, and whether the image has any transparency. */
 enum GariImageMode_ { 
@@ -259,10 +264,6 @@ GariImage * gari_image_savebmp(GariImage * img, const char * filename);
 saving failed, img on success. */
 GariImage * gari_image_savepng(GariImage * img, const char * filename);
 
-/** Saves a GariImage as a to a file in filename in JPEG format. Return NULL if 
-saving failed, img on success. */
-GariImage * gari_image_savejpg(GariImage * img, const char * filename);
-
 /** Optimizes the image for drawing to the screen. */
 GariImage * gari_image_optimize(GariImage * image, int mode, GariDye dyekey);
 
@@ -293,9 +294,10 @@ GariDye gari_image_rgba(GariImage *img,
 /** 
   Concstructs a color expressed as an RGBA quadruplet and returns it as a 
   struct.
-*/          
-GariColor gari_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a); 
-         
+*/
+GariColor gari_colora(uint8_t r, uint8_t g, uint8_t b, uint8_t a); 
+
+GariColor gari_color(uint8_t r, uint8_t g, uint8_t b);
 
 /** 
 * Converts a GariColor to a gari dye for the given image. 
@@ -716,17 +718,17 @@ typedef struct GariStyle_ GariStyle;
 
 GariStyle * gari_style_free(GariStyle * style); 
 
-GariStyle * gari_style_new(GariColor *fore, 
-                           GariColor * back,
+GariStyle * gari_style_new(GariColor   fore, 
+                           GariColor   back,
                            GariFont  * font,
                            GariImage * image
                           );
 
 GariFont * gari_style_font(GariStyle * style); 
 
-GariColor * gari_style_fore(GariStyle * style);
+GariColor gari_style_fore(GariStyle * style);
  
-GariColor * gari_style_back(GariStyle * style);
+GariColor gari_style_back(GariStyle * style);
 
 GariImage * gari_style_image(GariStyle * style); 
 

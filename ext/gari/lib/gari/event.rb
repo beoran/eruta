@@ -32,6 +32,10 @@ module Gari
       define_method(mname) do
         return self.kind == v 
       end
+    end 
+    
+    def quit?
+      self.kind == :quit
     end
     
     # Returns the key as a symbol    

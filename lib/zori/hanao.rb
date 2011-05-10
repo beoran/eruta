@@ -415,7 +415,7 @@ module Zori
     
     # Draws a solid background with the given colors and given sizes
     def put_background(target, colors, x, y, w, h) 
-     # xxx: mysteriouscrash here, in the C extension in
+     # xxx: mysterious crash here, in the C extension in
      # gari_surface_maprgb
       target.slab(x, y, w, h, colors.background)
     end

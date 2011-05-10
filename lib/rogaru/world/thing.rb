@@ -106,8 +106,8 @@ module Rogaru
         self.z        = z        
         # @x = x ; @y = y ; @z = z
         @w = w ; @h = h
-        @color = [255,255,0]
-        @markedcolor = [255,0,0]
+        @color        = Gari::Color.rgb(255,255,0)
+        @markedcolor  = Gari::Color.rgb(255,0,0)
         @marked = false
         @index = -1
         @shape.collision_type = :thing
@@ -130,7 +130,7 @@ module Rogaru
         y = self.y + offset_y
         # puts "#@x #@y #@w #@h #@color"
         color = @marked ? @markedcolor : @color 
-        screen.put_rectangle(x, y, @w, @h, color)
+        screen.box(x, y, @w, @h, color)
         @marked=false          
       end
       

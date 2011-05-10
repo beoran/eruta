@@ -11,7 +11,7 @@ module Rogaru
         super(space, x, y, z, w, h, mass, impulse)
         self.collision_type = :stair
         @direction          = direction
-        @color              = @direction == :up ?  [128,128,0] : [0,128,128]
+        @color              = @direction == :up ?  Gari::Color.rgb(128,128,0) : Gari::Color.rgb(0,128,128)
       end
       
       def render(screen, offset_x, offset_y)
@@ -19,7 +19,7 @@ module Rogaru
         y = self.y + offset_y
         # puts "#@x #@y #@w #@h #@color"
         color = @marked ? @markedcolor : @color 
-        screen.put_rectangle(x, y, @w, @h, color)
+        screen.box(x, y, @w, @h, color)
         @marked=false
       end
     end

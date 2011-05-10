@@ -33,8 +33,7 @@ module Zori
       def layout_children(x, y)
         for child in @line do
           x      += child.margin
-          child.y = y
-          child.x = x
+          child.change_layout(x, y)
           x      += child.w + child.margin 
           # Move to the left
           child.update
