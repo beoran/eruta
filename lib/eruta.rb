@@ -1,3 +1,5 @@
 module Eruta
-  autoload :Main, "eruta/main"
+  autoload :Program , "eruta/program" 
+  autoload :Main    , "eruta/main"
+  autoload :Mode    , "eruta/mode"
 end
