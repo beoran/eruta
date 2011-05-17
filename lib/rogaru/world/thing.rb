@@ -63,7 +63,7 @@ module Rogaru
         end
       end
       
-      # Helper funcition to constuct vectors
+      # Helper function to constuct vectors
       def vec(u,v)
         return CP::Vec2.new(u,v)
       end
@@ -118,7 +118,7 @@ module Rogaru
       end
       
       def apply_force(fx, fy)
-        @body.apply_force(vec(fx, fy), vec(0, 0))
+        @body.apply_force(vec(fx, fy), vec(0.0, 0.0))
       end
       
       def apply_impulse(fx, fy)

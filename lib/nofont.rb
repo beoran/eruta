@@ -27,6 +27,8 @@ class Nofont
       return ((self.wide + 1) * self.font.wscale).to_i
     end
     
+    7
+    
     TRANSP = Gari::Color.rgba(0,0,0,0)
     WHITE  = Gari::Color.rgb(255,255,255)
     
@@ -284,6 +286,10 @@ class Nofont
       w    = info ? info.wide + 1 : 1 
       dx  += (w * @wscale).to_i
     end 
+  end
+  
+  def inspect()
+    return "<Nofont: too much stuff inside>"
   end
 
 
