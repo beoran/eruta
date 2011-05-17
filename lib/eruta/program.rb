@@ -25,7 +25,12 @@ module Eruta
       @screen       = @game.openscreen(screen_w, screen_h, fullscreen)
       @queue        = Gari::Event
       @ui           = Zori.open(@game, @queue)
-      @font         = Nofont.default
+      fontname      = File.join(*%w{data font liberationserif.ttf})
+      @font         = Gari::Font.new(fontname, 8)
+      unless @font
+        warn "Could not load font #{fontname}."
+        @font       = Nofont.default
+      end
       @modes        = {} 
       @mode         = nil
       @modename     = nil

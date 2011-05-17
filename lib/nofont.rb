@@ -178,6 +178,10 @@ class Nofont
     return result
   end
   
+  def size_text(text)
+    return width_of(text), self.lineskip
+  end  
+  
   def height
     return self.lineskip
   end
@@ -270,7 +274,7 @@ class Nofont
   end
  
   
-  def draw(screen, x, y, text, color)
+  def draw(screen, x, y, text, color, bg = nil)
     dx     = 0
     text.each_char do |c|
       info = draw_glyph(screen, x + dx, y, c, color)
@@ -279,7 +283,7 @@ class Nofont
     end 
   end
   
-  def blend(screen, x, y, text, color)
+  def blend(screen, x, y, text, color, bg = nil)
     dx     = 0
     text.each_char do |c|
       info = blend_glyph(screen, x + dx, y, c, color)

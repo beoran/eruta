@@ -105,7 +105,7 @@ module Zori
       super(queue)
       @game           = game
       @screen         = game.screen
-      @defaultfont    = Hanao.load_font('dejavuserif.ttf', 12)
+      @defaultfont    = Hanao.load_font('dejavuserif.ttf', 12) || Nofont.default
       @style          = Zori::Style.new(@defaultfont)
       @hovered        = []  # The widgets we are hovering over, if any.
       @pressed        = nil # The widget we are pressing down on, if any.

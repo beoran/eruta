@@ -190,7 +190,7 @@ int savejpg_done(FILE * fout) {
 * TODO: Getting grayscaled and warped images somehow. Support screen formats. 
 */
 
-int sdl_surface_savejpg(SDL_Surface * surf, char *filename)
+int sdl_surface_savejpg(SDL_Surface * surf, const char *filename)
 {
   FILE                       * fout = NULL;
   struct jpeg_compress_struct  jpeg;

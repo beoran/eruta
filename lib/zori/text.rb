@@ -30,10 +30,11 @@ module Zori
         @h     = h if h > @h
       end
       
-      def draw(target, x, y, style = nil)
+      def draw(screen, x, y, style = nil)
         style ||= @style
-        target.text(x, y, @line, @style.font, 
-                    style.colors.text, style.colors.background)
+        
+        @style.font.draw(screen, x, y, self.to_s, style.colors.text, style.colors.background)
+        # ) target.text(x, y, @line, @style.font, 
       end
       
       

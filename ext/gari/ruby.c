@@ -654,6 +654,20 @@ VALUE rbgari_font_draw(VALUE vimg, VALUE vx, VALUE vy, VALUE vutf8,
   return vimg;
 } 
 
+VALUE rbgari_draw_font(VALUE vfont, VALUE vimg, VALUE vx, VALUE vy, VALUE vutf8,
+                        VALUE vfg, VALUE vbg) { 
+  GariImage * image = GARI_IMAGE_UNWRAP(vimg);
+  int x             = RBH_INT(vx);
+  int y             = RBH_INT(vy);    
+  char * utf8       = RSTRING_PTR(rb_str_to_utf8(vutf8));
+  GariFont  * font  = GARI_FONT_UNWRAP(vfont); 
+  GariColor   fg    = GARI_COLOR_UNWRAP(vfg);
+  GariColor   bg    = GARI_COLOR_UNWRAP(vbg);
+  gari_font_drawcolor(image, x, y, utf8, font, fg, bg);
+  return vimg;
+} 
+
+
 VALUE rbgari_font_render(VALUE vfont, VALUE vutf8, VALUE vfg, VALUE vbg) {
   GariImage * image = NULL;
   char * utf8       = RSTRING_PTR(rb_str_to_utf8(vutf8));
@@ -1352,6 +1366,7 @@ void Init_gari() {
   
   RBH_METHOD(Font , render  , rbgari_font_render, 3);
   RBH_METHOD(Font , width_of, rbgari_font_renderwidth, 1);
+  RBH_METHOD(Font , draw    , rbgari_draw_font  , 6);
   
   RBH_GETTER(Font, height   , gari_font_height);
   RBH_GETTER(Font, ascent   , gari_font_ascent);

@@ -89,7 +89,7 @@ module Eruta
       @screen.fill([0,0,0]) if @fill
       @map.draw_with_sprites(@screen, @sprites)
       # map.draw_auto(screen)
-      status = "#{@speed} (#{@map.x}, #{@map.y}) FPS: #{(@game.fps).round}" + 
+      status = "#{@speed} (#{@map.x}, #{@map.y}) FPS: #{(@game.fps).round} " + 
       "#{@game.frames} #{@pplayer.z} #{@camera.x} #{@camera.y}"
       @showstat.text = status
       @world.draw(@screen, @map.x, @map.y, @font)
@@ -102,14 +102,14 @@ module Eruta
     def handle_keydown(event)
       case event.keysym
         when :f10, :escape
-          @program.done!
+          @program.quit!
         when :left
           @vx = -@speed
         when :up
           @vy = -@speed
         when :right
           @vx =  @speed
-        when :down  
+        when :down
           @vy =  @speed
         when :b 
           # Make some blood come out of the player, just as a test/joke. :p
@@ -143,7 +143,7 @@ module Eruta
       end
     end
     
-    def handle_joybutton(event)
+    def handle_joypress(event)
       if @pplayer.z == 1
         @pplayer.z = 3
       else
@@ -151,11 +151,14 @@ module Eruta
       end  
     end
     
+    def handle_joyrelease(event)
+    end
+    
     def handle_joymove(event)
       if event.axis == 1  then
-          if @event.value > 1000 then
+          if event.value > 1000 then
             @vy = 1 
-          elsif @event.value < -1000 then
+          elsif event.value < -1000 then
             @vy = -1 
           else 
             @vy = 0
