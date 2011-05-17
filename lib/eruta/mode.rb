@@ -28,6 +28,12 @@ module Eruta
       @next = nil # to prevent locking the mode out.
     end 
     
+    # Called when the mode is loaded for the first time.
+    # if this returns fale, the load (and the program) will be halted.
+    def load(*args)
+      return true
+    end
+    
     # Called on any event that the mode should handle. 
     # bny default this dispatches to the handler handle_#{event.type} 
     def handle(event)

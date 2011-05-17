@@ -35,9 +35,10 @@ module Eruta
     end
   
     def main()
-      self.add_mode(Eruta::Mainmode, :main)
+      return 1 unless self.add_mode(Eruta::Mainmode, :main)
       self.mode = :main
       self.run
+      return 0
     end
   end
 end

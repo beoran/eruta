@@ -38,7 +38,9 @@ module Eruta
     end
     
     def add_mode(klass, name, *args)
-      m                 = klass.new(self, name.to_sym, *args)
+      m                 = klass.new(self, name.to_sym)
+      ok                = m.load(*args)
+      return false unless ok
       @modes[m.name]    = m
       return m
     end

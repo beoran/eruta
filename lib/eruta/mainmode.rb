@@ -60,7 +60,7 @@ module Eruta
       @pfollow2         = @world.new_actor(100, 400, 1, ew, eh)
       @pfollow2.goal    = @pfollow
       @pfollow.can_push = false
-      @pfollow2.color = [200,100,50]
+      @pfollow2.color   = [200,100,50]
     
       @pbox1            = @world.new_mobile(150, 200, 1, ew, eh)
       @pbox2            = @world.new_mobile(200, 200, 1, 40, 40)
@@ -89,9 +89,11 @@ module Eruta
       @screen.fill([0,0,0]) if @fill
       @map.draw_with_sprites(@screen, @sprites)
       # map.draw_auto(screen)
-      status = "#{@speed} (#{@map.x}, #{@map.y}) FPS: #{(@game.fps).round} " + 
+      if (@game.frames % 20) == 0
+        status = "#{@speed} (#{@map.x}, #{@map.y}) FPS: #{(@game.fps).round} " + 
       "#{@game.frames} #{@pplayer.z} #{@camera.x} #{@camera.y}"
-      @showstat.text = status
+        @showstat.text = status
+      end
       @world.draw(@screen, @map.x, @map.y, @font)
       @dust.render(@screen, @dust_x - @camera.x, @dust_y - @camera.y )
       @slash.render(@screen, @dust_x - @camera.x - 8, @dust_y - @camera.y - 16)
