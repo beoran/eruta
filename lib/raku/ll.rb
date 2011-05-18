@@ -74,6 +74,38 @@ module Raku
       end
       return [ nonterm ]
     end
+    
+    def follow_set_for(nonterm)
+      set = []
+      @rules.each do |name, rule|
+        if rule.is_a? And
+          ind = rule.list.index(nonterm)
+          if ind
+            rest   = rule.list[ind + 1]
+            if rest
+              follow = nil
+              follow = rest.first if rest.respond_to? :first
+              follow = rest
+              aid  = first_set_for(follow)
+              if(aid.member? :empty)
+                set += follow_set_for(name)
+              end
+              aid -= [:empty]
+              set += aid
+            else
+              set += follow_set_for(name)
+            end
+          end
+        end
+      end
+      return set
+    end
+        
+# Initialize every Fo(Ai) with the empty set
+# if there is a rule of the form Aj → wAiw' , then
+#    * if the terminal a is in Fi(w' ), then add a to Fo(Ai)
+#    * if ε is in Fi(w' ), then add Fo(Aj) to Fo(Ai)
+# repeat step 2 until all Fo sets stay the same.
   
     
   end 

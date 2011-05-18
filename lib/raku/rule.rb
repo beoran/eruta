@@ -6,7 +6,7 @@ module Raku
     attr_accessor :name
     
     def initialize(name, match = nil)
-      @name  = name.to_s
+      @name  = name.to_sym
       @match = match || name.to_sym
       # loop detection
       @loop  = false
@@ -31,7 +31,6 @@ module Raku
    def to_graph
      graph     = Nanograph.graph(fontsize: 10, splines: true, overlap: false,
                                   rankdir: "LR")
-  
       graph.nodeattr = { fontsize: 10, width:0, height:0, shape: :box, 
                         style: :rounded }
       to_graph_node(graph) 
@@ -52,7 +51,8 @@ module Raku
     
     def parse(tokens, parent = nil)
       token  = tokens.first
-      return Node.error("Lex error: #{token.inspect}") if !token || token.fail?
+      # return Node.error("Lex error: #{token.inspect}") if token.fail?
+      return nil unless token
       if token.kind == @match
         tokens.shift # on to next token
         return Node.new(self.name, token.value, parent)
@@ -101,11 +101,12 @@ module Raku
     end
    
     def parse(tokens, parent = nil)
-      if tokens.empty? || tokens.first.kind == :eof
-        return Node.error("Unexpected end of file: #{tokens.first.inspect}")
+      if tokens.empty? # || tokens.first.kind == :eof
+        return nil
+        # return Node.error("Unexpected end of file: #{tokens.first.inspect}")
       end   
       parnode = Node.new(self.name, :link, parent)
-      res     = @rule.parse(tokens, parnode)      
+      res     = @rule.parse(tokens, parnode)
       return nil unless res
       return res if res.fail?
       # No need to tokens.shift, because the linked rule will do it.
@@ -159,7 +160,7 @@ module Raku
         if res 
           return res if res.fail?
           parnode << res
-          # no neet to shift, only simple rule nodes do that tokens.shift
+          # no need to shift, only simple rule nodes do that tokens.shift
           return parnode
         end  
       end
@@ -168,11 +169,11 @@ module Raku
   end
   
   class List < Rule
-    attr_reader :list
+    attr_reader :seq
     
     def initialize(name, *list)
       super(name)
-      @list = list
+      @seq = list.to_a
       @first_set_loop = false
     end
     
@@ -182,19 +183,19 @@ module Raku
         raise "Loop detected in list!"
       else   
         @loop = true 
-        @list.each(&Proc.new)
+        @seq.each(&Proc.new)
         @loop = false
       end  
     end
     
     def >>(other)
-      list    = @list
+      seq    = @seq
       if (other.respond_to? :list)
-        list += other.list
+        seq += other.seq
       else 
-        list << other
+        seq << other
       end 
-      return List.new("#{self.name}>>#{other.name}", *list)
+      return List.new("#{self.name}>>#{other.name}", *seq)
     end
     
     def first_set
@@ -205,12 +206,18 @@ module Raku
       
     def parse(tokens, parent = nil)
       parnode = Node.new(self.name, :list, parent)
-      for rule in @list do
-        res = rule.parse(tokens, parnode)
+      p @seq.map { |ru| ru.name }
+      @seq.each do | ru |
+        res = ru.parse(tokens, parnode)
         if res 
-          return Node.error("Excpected #{rule.name}") if res.fail?
+          # p "go on"
+          if res.fail?
+            tkf = tokens.first.kind
+            return Node.error("Excpected #{ru.name}, got #{tkf} #{res.inspect} ")
+          end
           parnode << res
         else
+          p "done"
           return nil
         end  
       end

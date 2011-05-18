@@ -26,8 +26,9 @@ program = Link.new(:program, nil)
 
 value   = rule(:string) | rule(:integer) | rule(:float) | 
           rule(:symbol) | rule(:operator)
-
-do_block        = rule(:do) | program | rule(:end)
+do_rule         = rule(:do)
+end_rule        = rule(:end)
+do_block        = do_rule | program | end_rule
 do_block.name   = :do_block
 
 paren_block     = rule(:lparen)   | program | rule(:rparen)
@@ -56,9 +57,16 @@ eof             = rule(:eof)
 program.rule    = statements >> eof 
 
 
+bar       = Link.new(:bar)
+bar.rule  = rule(:integer) >> rule(:symbol) >> rule(:eof)
+
+xitem       = rule(:symbol)
+xlist       = Link.new(:xlist)
+xlist.rule  = (xitem >> xlist) | Empty.new(:empty)
+
 
 syntax          = program
-# syntax.to_graph.display
+xlist.to_graph.display
 
 prog2 = %Q{
   map 2 2 2 2.0 {
@@ -74,11 +82,25 @@ prog2 = %Q{
   }
 }
 
-p value.first_set
-p block.first_set
+res   = Raku::Lexer.lex_all(prog2, :ws, :nl)
+val   = value.parse(res)
+p val
+
+res   = Raku::Lexer.lex_all("foo bar", :ws, :nl)
+val   = xlist.parse(res)
+p val, res.count
+
+res = Raku::Lexer.lex_all(prog2, :ws, :nl)
+p res.count
+val = do_block.parse(res)
+p val, res.count
+
+
+# p value.first_set
+# p block.first_set
 
 # 
-# res = Raku::Lexer.lex_all(prog2, :ws, :nl)
+# 
 # p res.size 
 # 
 # val = program.parse(res)
