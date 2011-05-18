@@ -81,7 +81,7 @@ assert_lex_skip(prog1, 7) { |res| res.nil? }
 
 lexer  = Raku::Lexer.new(prog1)
 res    = lexer.lex_all(:ws)
-assert { res[0].value == "map" } 
+assert { res[0].value == "map" }
 assert { res[5].value == "}" }
 assert { res[6].kind == :eof }
 
@@ -104,10 +104,14 @@ prog2 = %Q{
   }
 }
 
-res = Raku::Lexer.lex_all(prog2, :ws)
+res = Raku::Lexer.lex_all(prog2, :ws, :nl)
 assert { res } 
 assert { res.size > 0 }
-res.each { |v| p v.kind } 
+res.each { |v| p v.kind }
+assert { res.first.line == 1 }
+  
+p res.last
+p res.first
 
 
 
