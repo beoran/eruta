@@ -67,6 +67,7 @@ module Raku
       if rule.is_a? Or
         result = [] 
         for sub in rule.list
+          aid = first_set_for(sub)
           result += aid
         end
         return result  
