@@ -35,6 +35,15 @@ ll.rules.each do |name, rule|
   p ll.follow_set_for(name)
 end
 
+p ll.all_terminals
+p ll.all_nonterminals
+p ll.make_parsing_table
+
+res   = Raku::Lexer.lex_all("foo bar", :ws, :nl)
+val   = ll.parse(:PROGRAM, *res)
+p res.count
+p "Parse result:", val 
+
 
 # parameter       = block | value
 # parameters      = Link.new(:parameters)

@@ -34,7 +34,7 @@ module Raku
     attr_reader :rules
     
     def initialize
-      @rules = {}
+      @rules     = {}
     end
     
     def add_rule(rule)
@@ -75,6 +75,13 @@ module Raku
       return [ nonterm ]
     end
     
+        
+# Initialize every Fo(Ai) with the empty set
+# if there is a rule of the form Aj → wAiw' , then
+#    * if the terminal a is in Fi(w' ), then add a to Fo(Ai)
+#    * if ε is in Fi(w' ), then add Fo(Aj) to Fo(Ai)
+# repeat step 2 until all Fo sets stay the same.
+
     def follow_set_for(nonterm)
       set = []
       @rules.each do |name, rule|
@@ -100,12 +107,95 @@ module Raku
       end
       return set
     end
-        
-# Initialize every Fo(Ai) with the empty set
-# if there is a rule of the form Aj → wAiw' , then
-#    * if the terminal a is in Fi(w' ), then add a to Fo(Ai)
-#    * if ε is in Fi(w' ), then add Fo(Aj) to Fo(Ai)
-# repeat step 2 until all Fo sets stay the same.
+    
+    def all_terminals()
+      result = []
+      @rules.each do |name, rule|
+        if rule.is_a?(And) || rule.is_a?(Or)
+          result += rule.list.select { |e| @rules[e].nil? } 
+          # add all terminals in every rule
+        else
+          result << rule
+        end
+      end
+      result -= [:empty]
+      return result.sort.uniq
+    end  
+
+    def all_nonterminals()
+      result = []
+      @rules.each do |name, rule|
+        if rule.is_a?(And) || rule.is_a?(Or)
+          result += rule.list.reject { |e| @rules[e].nil? } 
+          # add all terminals in every rule
+        else
+          result << rule
+        end
+      end
+      result -= [:empty]
+      return result.sort.uniq
+    end  
+    
+    
+    def make_parsing_table
+      table = {} 
+      @rules.each do |name, rule|
+        first = first_set_for(name)
+        first.each do | terminal |
+          next if terminal == :empty
+          table[name] ||= {}
+          table[name][terminal] = rule
+        end
+        if first.member? :empty
+          follow = follow_set_for(name)
+          follow.each do | terminal |
+            next if terminal == :empty
+            table[name] ||= {}
+            table[name][terminal] = rule
+          end
+        end
+      end
+      return table  
+    end 
+    
+    def parse(start = :program, *tokens)
+      result = []
+      @table = make_parsing_table
+      @stack = [ :'$' , start ]
+      token  = tokens.shift
+      last   = nil
+      node   = nil
+      top    = @stack.pop
+      while token do        
+        p token.kind, top
+        raise "Parse error: Parse stack empty." unless top
+        # Match, so store the result.
+        if token.kind == top
+          node   = Node.new(token.kind, token.value, last)
+          result << last
+          last   = node
+          top    = @stack.pop
+          p @stack
+        else
+          ruleaid = @table[top]
+          unless ruleaid
+            raise "Parse error: Unexpected #{token.inspect} for #{top}."
+          end
+          rule = ruleaid[token.kind]
+          raise "Parse error: Unexpected #{token.inspect}. (#{top})" unless rule
+           
+          if rule.is_a?(Or) || rule.is_a?(And) 
+            # push rule's list on the stack
+            rule.list.to_a.reverse.each { |e| @stack.push(e) } 
+          else
+            @stack.push(rule)
+          end 
+          p @stack
+        end
+        token  = tokens.shift
+      end
+      return result
+    end
   
     
   end 
