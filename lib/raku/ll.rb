@@ -1,35 +1,46 @@
 module Raku
   class LL
-    class Term
+    class Terminal
       attr_reader :name
       def initialize(name)
         @name   = name.to_sym 
       end
-    end
-    
-    class Or < Term
-      attr_reader :list
-      def initialize(name, *list)
-        super(name)
-        @list = list
-      end  
       
-      def inspect
-        return @list.join('|')
-      end  
-    end 
-    
-    class And < Term
-      attr_reader :list
-      def initialize(name, *list)
-        super(name)
-        @list = list
-      end  
-      
-      def inspect
-        return @list.join('&')
+      def first_set()
+        return [ @name ] 
       end
-    end 
+   end
+
+  class Nonterminal 
+    attr_reader :name
+    def initialize(name)
+      @name   = name.to_sym 
+    end
+  end
+  
+  class Alternate < Nonterminal
+    attr_reader :list
+    def initialize(name, *list)
+      super(name)
+      @list = list
+    end  
+      
+    def inspect
+      return @list.join('|')
+    end  
+  end 
+    
+  class Sequence < Nonterminal
+    attr_reader :list
+    def initialize(name, *list)
+      super(name)
+      @list = list
+    end  
+    
+    def inspect
+      return @list.join('&')
+    end
+  end 
     
     attr_reader :rules
     
@@ -144,7 +155,23 @@ module Raku
         first.each do | terminal |
           next if terminal == :empty
           table[name] ||= {}
-          table[name][terminal] = rule
+          if rule.is_a?(And)
+            table[name][terminal] = rule.list.to_a
+          elsif rule.is_a?(Or)
+            rule.list.to_a.each do |r|
+              if r == terminal
+                table[name][terminal] = r
+              else
+                first2 = first_set_for(r)
+                first.each do | terminal2 |
+                  table[name][terminal2] = r
+                end
+              end
+            end
+            # this is bugged out! :p
+          else 
+            table[name][terminal] = rule
+          end
         end
         if first.member? :empty
           follow = follow_set_for(name)
@@ -158,7 +185,7 @@ module Raku
       return table  
     end 
     
-    def parse(start = :program, *tokens)
+    def parse_old(start = :program, *tokens)
       result = []
       @table = make_parsing_table
       @stack = [ :'$' , start ]
@@ -166,7 +193,7 @@ module Raku
       last   = nil
       node   = nil
       top    = @stack.pop
-      while token do        
+      while top != :'$' && token do
         p token.kind, top
         raise "Parse error: Parse stack empty." unless top
         # Match, so store the result.
@@ -175,6 +202,7 @@ module Raku
           result << last
           last   = node
           top    = @stack.pop
+          token  = tokens.shift
           p @stack
         else
           ruleaid = @table[top]
@@ -184,18 +212,69 @@ module Raku
           rule = ruleaid[token.kind]
           raise "Parse error: Unexpected #{token.inspect}. (#{top})" unless rule
            
-          if rule.is_a?(Or) || rule.is_a?(And) 
+          if rule.respond_to? (:to_a) 
             # push rule's list on the stack
-            rule.list.to_a.reverse.each { |e| @stack.push(e) } 
+            rule.to_a.reverse.each { |e| @stack.push(e) } 
           else
             @stack.push(rule)
-          end 
+          end
           p @stack
+          top    = @stack.pop
         end
-        token  = tokens.shift
       end
       return result
     end
+    
+    def parse_or(rule, parent, tokens) 
+      node = Node.new(rule.name, nil, parent)
+      rule.list.each do | subrule | 
+        res = parse_rule(subrule, node, tokens)
+        return node if res
+      end
+      return nil
+    end
+
+    
+    def parse_and(rule, parent, tokens)
+      node = Node.new(rule.name, nil, parent)
+      ok   = true 
+      rule.list.each do | subrule | 
+        res = parse_rule(subrule, node, tokens)
+        ok ||= res
+      end
+      return node if ok
+      return nil
+    end
+    
+    def parse_rule(rule, parent, tokens)
+      if rule.is_a? And
+        return parse_and(rule, parent, tokens)
+      end
+      if rule.is_a? Or
+        return parse_or(rule, parent, tokens)
+      end
+      newrule = @rules[rule]
+      if newrule
+        return parse_rule(newrule, parent, tokens)
+      end  
+
+      token = tokens.shift
+      unless token
+        raise "Unexpected end of file! : #{rule.inspect} #{parent.inspect}"
+      end
+      # Maches the rule, so it's the right terminal
+      if token.kind == rule
+        node = Node.new(token.kind, token.value, parent)
+        return node 
+      end
+      tokens.unshift token
+      return nil
+    end
+    
+    def parse(start = :PROGRAM, *tokens)
+      rule  = @rules[start] 
+      return parse_rule(rule, nil, tokens.to_a)
+    end 
   
     
   end 

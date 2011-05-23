@@ -73,8 +73,8 @@ class NofontTestApp < Gariapp
   end
 end
 
-app = NofontTestApp.new(nf)
-app.run
+# app = NofontTestApp.new(nf)
+# app.run
 
 
 

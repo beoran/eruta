@@ -19,7 +19,7 @@ BLOCK -> do PROGRAM end | ob PROGRAM cb | ( PROGRAM ) | oa PROGRAM ca.
 NL -> nl | semicolon .
 VALUE -> string | integer | float | symbol | operator .
 
-PROGRAM -> STATEMENTS .
+PROGRAM -> STATEMENTS eof.
 STATEMENTS -> STATEMENT STATEMENTS | .
 STATEMENT -> EXPRESSION | BLOCK | EMPTY_LINE |  comment .
 EXPRESSION -> VALUE PARAMETERS NL. 
@@ -27,8 +27,8 @@ PARAMETERS_NONEMPTY -> PARAMETER PARAMETERS.
 PARAMETERS-> PARAMETERS_NONEMPTY | .
 PARAMETER -> BLOCK | VALUE .
 EMPTY_LINE -> NL .
-DO_BLOCK -> do PROGRAM end .
-BLOCK ->  DO_BLOCK | ob PROGRAM cb | ( PROGRAM ) | oa PROGRAM ca.
+DO_BLOCK -> do STATEMENTS end .
+BLOCK ->  DO_BLOCK | ob STATEMENTS cb | op STATEMENTS cp | oa STATEMENTS ca.
 NL -> nl | semicolon .
 VALUE -> string | integer | float | symbol | operator .
 

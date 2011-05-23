@@ -4,7 +4,7 @@ require 'nanograph'
 module Raku
   # A node is a result of the parser that can contain sub-results
   class Node
-    include Raku::Fail
+    include Fail
     
     attr_reader :kind
     attr_reader :value
@@ -15,6 +15,18 @@ module Raku
       @kind     = type.to_sym
       @value    = value
       @children = []
+    end
+    
+    def to_h
+      res = {}
+      if self.children.size > 0 
+        res[self.kind.to_s] = self.children.map { |c| c.to_h }.reject { |e| e.nil?} 
+      elsif self.value && !self.value.empty?  
+        res[self.kind.to_s] = self.value
+      else 
+        return nil  
+      end  
+      return res
     end
     
     def << (child)

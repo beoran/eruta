@@ -21,13 +21,16 @@ assert { nod1 }
 
 nod2 = graph.node('node_1') >> 'world 2'
 assert { nod2 } 
+assert { nod2.attributes[:color] = :green }
 
-nod3 = graph.node('!')
+nod3 = graph.node('foo')
 assert { nod3 } 
 
-nod4 = graph.node('world 2')
+nod4 = graph.node('world 3')
 assert { nod4 } 
 
+edge   = nod4.edge(nod3, true, :color => :red)
+assert { edge }
 
 assert { graph.to_png('test_graph.png') } 
 

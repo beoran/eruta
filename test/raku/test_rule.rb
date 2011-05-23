@@ -23,38 +23,49 @@ VALUE -> string | integer | float | symbol | operator .
 =end
 
 program = Link.new(:program, nil)
+statements      = Link.new(:statements)
 
 value   = rule(:string) | rule(:integer) | rule(:float) | 
           rule(:symbol) | rule(:operator)
+value.name      = :value
 do_rule         = rule(:do)
 end_rule        = rule(:end)
-do_block        = do_rule | program | end_rule
+do_block        = do_rule >> statements >> end_rule
 do_block.name   = :do_block
 
-paren_block     = rule(:lparen)   | program | rule(:rparen)
+paren_block     = rule(:lparen)   >> statements >> rule(:rparen)
 paren_block.name= :paren_block
 
-brace_block     = rule(:lbrace)   | program | rule(:rbrace)
+brace_block     = rule(:lbrace)   >> statements >> rule(:rbrace)
 brace_block.name= :brace_block
-brack_block     = rule(:lbracket) | program | rule(:rbracket)
+brack_block     = rule(:lbracket) >> statements >> rule(:rbracket)
 brack_block.name= :bracket_block
 
 block           = do_block | paren_block | brace_block | brack_block
-# block.name      = :block 
+block.name      = :block 
 # | brace_block | paren_block | bracket_block
-parameter       = block | value
+parameter       = value | block
+parameter.name  = :parameter
+empty           = Empty.new(:empty) 
 parameters      = Link.new(:parameters)
-empty           = Empty.new(:empty)
-parameters.rule = parameter >> parameters | empty 
-nl              = rule(:nl)
+parameters.rule       = parameter >> parameters | empty
+parameters.rule.name  = :parameters 
+nl              = rule(:nl) | rule(:semicolon)
+nl.name         = :nl
 expression      = value >> parameters >> nl
-empty_line      = nl
+expression.name = :expression
+empty_line      = Link.new(:empty_line)
+empty_line.rule = nl
+empty_line.rule.name = :empty_line
 statement       = expression | block | empty_line
 statement.name  = :statement
-statements      = Link.new(:statements)
-statements.rule = statement >> statements | empty
+nestats         = statement >> statements
+nestats.name    = :statements_ne
+statements.rule = nestats | empty
+statements.rule.name  = :statements
 eof             = rule(:eof)
-program.rule    = statements >> eof 
+program.rule    = statements >> eof
+program.rule.name  = :program 
 
 
 bar       = Link.new(:bar)
@@ -65,12 +76,12 @@ xlist       = Link.new(:xlist)
 xlist.rule  = (xitem >> xlist) | Empty.new(:empty)
 
 
-syntax          = program
-xlist.to_graph.display
+#syntax          = program
+#syntax.to_graph.display
 
-prog2 = %Q{
-  map 2 2 2 2.0 {
-    layer 1 [
+prog2 = %Q{  
+map "world" 2 2 2 2.0 {
+    layer 1 [ 
       1 2
       2 1
     ]
@@ -86,15 +97,23 @@ res   = Raku::Lexer.lex_all(prog2, :ws, :nl)
 val   = value.parse(res)
 p val
 
-res   = Raku::Lexer.lex_all("foo bar", :ws, :nl)
-val   = xlist.parse(res)
-p val, res.count
+# res   = Raku::Lexer.lex_all("foo bar ;", :ws, :nl)
+# val   = xlist.parse(res)
+# p val, res.count
 
-res = Raku::Lexer.lex_all(prog2, :ws, :nl)
+# p parameter.choices.map { |r| r.name }
+# p parameter.choices.count
+
+res = Raku::Lexer.lex_all(prog2, :ws)
 p res.count
-val = do_block.parse(res)
-p val, res.count
-
+val = program.parse(res)
+p "parse failed?", val.fail?
+if val.fail?
+  puts val.fail_message
+else
+  p val.to_h  
+  # val.to_graph.display
+end
 
 # p value.first_set
 # p block.first_set

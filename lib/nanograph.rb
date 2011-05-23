@@ -25,7 +25,7 @@ module Nanograph
     return Graph.new(attrs)
   end
 
-  # Aaaaa node in a graph 
+  # A node in a graph.
   class Node
     attr_accessor :attributes
     attr_accessor :graph
@@ -54,20 +54,20 @@ module Nanograph
     
     # Converts the node to dot format.
     def to_dot()
-      res         =  to_dot_id + Nanograph.attributes_to_dot(@attributes,
-@label) 
+      res         =  to_dot_id + 
+                  Nanograph.attributes_to_dot(@attributes, @label) 
       return res
     end
     
     # Looks up the node_id as a node, or adds a new node with node_id to this 
     # node's graph and links an edge from self to it
     # If dir is true, it's a directed edge, otherwise it's an undirected edge.
-    def edge(node_id, dir = true)
+    def edge(node_id, dir = true, attrs= {})
       othernode = node_id
       unless node_id.is_a? ::Nanograph::Node
         othernode = @graph.new_node(othernode.to_s)
       end
-      @graph.new_edge(self, othernode, dir)
+      @graph.new_edge(self, othernode, dir, attrs)
       return othernode 
     end
     
@@ -110,8 +110,8 @@ module Nanograph
       if directed 
         dirstring = " -> "
       end
-      
-      return @from.to_dot_id + dirstring + @to.to_dot_id + " \n  "
+      attrstr = Nanograph.attributes_to_dot(@attributes)
+      return @from.to_dot_id + dirstring + @to.to_dot_id + " #{attrstr} \n  "
     end
     
   end  

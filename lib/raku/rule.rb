@@ -5,11 +5,23 @@ module Raku
     
     attr_accessor :name
     
+    def self.parse_error(message = "", token = nil)
+      m = message
+      if token 
+        m = "#{token.line}:#{token.col}: " + message + " #{token.kind} "
+      else
+        
+      end
+      raise m 
+      return Node.error(m)
+    end 
+    
     def initialize(name, match = nil)
       @name  = name.to_sym
       @match = match || name.to_sym
       # loop detection
       @loop  = false
+      @edge_color = :black
     end
     
     def each
@@ -21,7 +33,7 @@ module Raku
       self.each do |child|
         if child
           childnode = child.to_graph_node(graph)
-          mynode >> childnode
+          mynode.edge(childnode, true, :color => @edge_color)
         end
       end
       return mynode 
@@ -51,8 +63,8 @@ module Raku
     
     def parse(tokens, parent = nil)
       token  = tokens.first
-      # return Node.error("Lex error: #{token.inspect}") if token.fail?
-      return nil unless token
+      return Rule.parse_error("Lex error", token) if token.fail?
+      return Rule.parse_error("Unexpected end of file.") unless token
       if token.kind == @match
         tokens.shift # on to next token
         return Node.new(self.name, token.value, parent)
@@ -72,8 +84,6 @@ module Raku
     def parse(tokens, parent)
       return Node.new(self.name, nil, parent)
     end
-    
-    
   end
   
   # Links to another (perhaps nonexisting) rule
@@ -102,8 +112,7 @@ module Raku
    
     def parse(tokens, parent = nil)
       if tokens.empty? # || tokens.first.kind == :eof
-        return nil
-        # return Node.error("Unexpected end of file: #{tokens.first.inspect}")
+        return Rule.parse_error("Unexpected end of file")
       end   
       parnode = Node.new(self.name, :link, parent)
       res     = @rule.parse(tokens, parnode)
@@ -122,7 +131,8 @@ module Raku
     
     def initialize(name, *choices)
       super(name)
-      @choices = choices
+      @choices    = choices
+      @edge_color = :blue
     end
     
     def each  
@@ -137,12 +147,12 @@ module Raku
     end
     
     def | (other)
-      choices    = @choices
+      choices    = @choices.to_a
       if (other.respond_to? :choices)
         choices += other.choices
       else 
         choices << other
-      end       
+      end
       return Choice.new("#{self.name}|#{other.name}", *choices)
     end
     
@@ -160,11 +170,11 @@ module Raku
         if res 
           return res if res.fail?
           parnode << res
-          # no need to shift, only simple rule nodes do that tokens.shift
           return parnode
         end  
       end
-      return nil # not matched  
+      # return Rule.parse_error("Unexpected token in #{self.name}", tokens.first)
+      return nil # not matched 
     end
   end
   
@@ -175,6 +185,7 @@ module Raku
       super(name)
       @seq = list.to_a
       @first_set_loop = false
+      @edge_color = :red
     end
     
     def each
@@ -206,20 +217,14 @@ module Raku
       
     def parse(tokens, parent = nil)
       parnode = Node.new(self.name, :list, parent)
-      p @seq.map { |ru| ru.name }
       @seq.each do | ru |
         res = ru.parse(tokens, parnode)
-        if res 
-          # p "go on"
-          if res.fail?
-            tkf = tokens.first.kind
-            return Node.error("Excpected #{ru.name}, got #{tkf} #{res.inspect} ")
-          end
-          parnode << res
-        else
-          p "done"
-          return nil
-        end  
+        return nil unless res
+        if res.fail?
+          tkf = tokens.first.kind
+          return Node.error("Excpected #{ru.name}, got #{tkf} #{res.inspect} ")
+        end
+        parnode << res
       end
       return parnode
     end
