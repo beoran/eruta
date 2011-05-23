@@ -53,7 +53,14 @@ assert_lex("map") { |res| res.kind  == :symbol }
 assert_lex("map") { |res| res.value == "map" }
 assert_lex("map") { |res, lex| lex.col == 4 }
 assert_lex("map") { |res, lex| lex.line == 1 }
+
+assert_lex('"map"') { |res| res.value == "map" }
+assert_lex('"map"') { |res| res.kind == :string }
+
 prog1             = "map { 1 2 3 }"
+
+
+
 
 assert_lex(prog1) { |res| res.value == "map" }
 assert_lex(prog1, 2) { |res| res.value == " " }

@@ -58,32 +58,13 @@ module Raku
     attr_reader :token
     attr_reader :result
     
-    # Creates a new node
-    def node(kind, value = nil)
-      return Node.new(kind, value)
-    end
-    
-    # Creates a new failiure
+    # Creates a new faiiure
     def fail_node(message)
       node = Node.new(:error, message)
       node.fail!(message)
       return node
     end
   
-    def initialize(program)
-      @lexer  = Lexer.new(program)
-      @result = node(:root)
-      @token  = nil
-      advance #advance once on initializing the parser
-    end
-    
-    # updates the current token and returns it
-    def advance
-      @token  = @lexer.lex_skip(*IGNORE)
-      return give_up("Lex error") if @token.fail?
-      return @token
-    end
-   
     # give up parsing
     def give_up(reason="")
       msg = "Parse Error: #{reason}" 
@@ -93,46 +74,22 @@ module Raku
       end
       # we use throw here in stead of exceptions since a parse error is 
       # not exceptional, but expected.
-      # throw(:parse_error, fail_node(msg))
-      return fail_node(msg)
+      throw(:parse_error, fail_node(msg))
     end
     
-    # returns the kind of the current token
-    def token_kind
-      return nil unless @token 
-      return @token.kind
+    
+    def get_token(tokens)
+      tok = tokens.first
+      give_up("Unexpected end of file.") unless tok
+      return tok
     end
     
-    # returns nil if the token's kind id not kind. 
-    # otherwise returns the current token.
-    def have?(*kinds)
-      return self.token if kinds.member?(self.token_kind)
-      return nil
-    end
-    
-    # checks if the token kind is in kinds, 
-    # if not, returns nil and does nothing else.
-    # if it is, returns a new node containing 
-    # the current token, and then advances parsing
-    # by calling advnce
-    def accept(*kinds)
-      return nil unless have?(*kinds)
-      res = node(@token.kind, @token.value)
-      self.advance
-      return res
-    end
-    
-    # calls accept, but calls give_up if accept returns nil
-    def expect(*kinds)
-      res = accept(*kinds)
-      return res if res
-      return give_up("Expected one of #{kinds}")
-    end
-    
-    def parse_value
-      aid = accept(:integer, :float, :string, :symbol, :operator, :colon,
-:comma, :period)
-      return aid if aid
+    def parse_value(tokens)
+      tok = get_token(tokens)
+      if [:integer, :float, :string, :symbol, :operator].member? tok.kind
+        tokens.shift
+        return { tok.kind => tok.value}
+      end
       return nil
     end
 
@@ -197,38 +154,36 @@ module Raku
       return result
     end
     
-    def parse_statement
+    def parse_statement(tokens, result = nil)
       aid = parse_expression || parse_block || parse_blank || accept(:comment)
       return aid if aid
       return give_up("Could not parse statement.")
     end 
+    
+    def parse_statements(tokens, result = nil)
+      result ||= { }
+      result[:statements] = []
+      subres = parse_statement(tokens, result)
+      
+      
+      
+      
   
     
-    def parse_program
-      prog = node(:program)
-      until have?(:rcurly, :rbracket, :rparen, :eof)
-        stat = parse_statement # NOT expression!
-        return give_up("Could not parse statement") unless stat
-        prog << stat unless stat.kind == :blank
-        # don't add blanks to program 
-      end
-      return prog
+    def parse_program(tokens, result = nil)
+      result ||= { }
+      result[:program] = []
+      subres = parse_statements(tokens, result[:program])       
+      result[:program] << subres if subres
+      return result
     end
     
-    def parse_raku
+    def parse(tokens, result = nil)
       error = catch(:parse_error) do
-        prog = parse_program
-        got  = expect(:eof)
-        return got if got.fail?
-        return prog
+        return parse_program(tokens, result)
       end
       warn "Parse error!"
       return error
-    end
-    
-    def parse
-      res = parse_raku
-      return res
     end
     
   end # class Parser
