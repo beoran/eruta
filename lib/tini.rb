@@ -9,7 +9,7 @@ class Tini
   
     
   STRING_RE1 = %r{\A("([^"\\]|\\.)*")}
-  STRING_RE2 = %r{\A('[^'\\]*')}
+  STRING_RE2 = %r{\A('([^'\\]|\\.)*')}
   WORD_RE    = %r{\A([^ \t]+)}
   BLANK_RE   = %r{\A([ \t]+)}
   
@@ -17,8 +17,12 @@ class Tini
   
   def match_re(line)
     for re in RE_LIST
-      part  = line.scan(re).first
-      return part.first if part 
+      aid   = line.scan(re)
+      part  = aid.first
+      if part 
+        p "part:", part, aid if re == STRING_RE1
+        return part.first
+      end    
     end 
     return nil
   end
@@ -30,10 +34,9 @@ class Tini
       raise 'Unexpected data!' if(!part || part.size < 1) 
       line = line[part.size, line.size]
       # don't store blanks
-      unless part.nil? || part.empty? || part =~ BLANK_RE
+      unless part.empty? || part =~ BLANK_RE
         # remove quotes
-        part = part[1 , part.size - 2] if part[0] == '"'
-        part = part[1 , part.size - 2] if part[0] == "'" 
+        part.gsub!(/\A"|"\Z|\A'\Z"/, '')
         parts << part
       end  
     end
