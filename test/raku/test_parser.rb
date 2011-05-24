@@ -5,25 +5,23 @@ require 'raku'
 
 assert { Raku::Parser } 
 
-def parse(method, text) 
-  parser = Raku::Parser.new
-  tokens = Raku::Lexer.lex_all(text, :ws, :esc_nl)
-  error = catch(:parse_error) do
-    res    = parser.send(method, tokens)
-    return res
+def parse(text) 
+  parser    = Raku::Parser.new
+  tokens    = Raku::Lexer.lex_all(text, :ws, :esc_nl)
+  res, err  = parser.parse(tokens)
+  if err
+    p "error :", err
+    return false 
   end
-  warn error.fail_message
-  return false
+  return res
 end
 
-def noparse(method, text) 
+def noparse(text) 
   parser = Raku::Parser.new
   tokens = Raku::Lexer.lex_all(text, :ws, :esc_nl)
-  error = catch(:parse_error) do
-    res    = parser.send(method, tokens)
-    return !res
-  end  
-  return true
+  res, err  = parser.parse(tokens)
+  return false if res
+  return err
 end
 
 
@@ -55,49 +53,49 @@ prog3 = %Q{ map 2 2 2 2.0
 # assert { result = parser.parse_value }
 # assert { result.kind == :symbol }
 # p result
-assert { parse(:parse_value, "12340.5")   } 
-assert { parse(:parse_value, "12340 5")   } 
-assert { parse(:parse_value, "a12340 ")   }
-assert { parse(:parse_value, '"Hello!"')  }
-assert { parse(:parse_value, '"Hello \" escape! "')  }
+assert { parse( "12340.5\n")   } 
+assert { parse( "12340 5\n")   } 
+assert { parse( "a12340 \n")   }
+assert { parse( '"Hello!"' + "\n")  }
+assert { parse( '"Hello \" escape! "' + "\n")  }
 # xxx: below fails with lex error
-# assert { parse(:parse_value, "'Hello!'")  }
-assert { parse(:parse_value, '>^-^<')     }
-assert { parse(:parse_value, '>^-^<')  == :'>^-^<'  }
-assert { noparse(:parse_value, "\n")      }
+# assert { parse( "'Hello!'")  }
+assert { parse( '>^-^<' + "\n")     }
+assert { parse( '>^-^<' + "\n")  ==  :'>^-^<'  }
+assert { noparse( ")\n")      }
 
-assert { parse(:parse_expression, %{  map 
+assert { parse(%{  map 
 })  } 
 
-assert { parse(:parse, %{  map 
+assert { parse(%{  map 
 })  } 
 
 
-assert { parse(:parse, %{  map 1 2 3 
+assert { parse(%{  map 1 2 3 
 })  } 
 
 # Below, a newline is needed after the 4 5 6 expression
-assert { noparse(:parse, %{  map 1 2 3 ( 4 5 6 )
+assert { noparse( %{  map 1 2 3 ( 4 5 6 )
 }) }
 
 # This will work:, a newline is needed after the 4 5 6 expression
-assert { parse(:parse, %{  map 1 2 3 ( 4 5 6 
+assert { parse( %{  map 1 2 3 ( 4 5 6 
 )
 }) }
 
-p parse(:parse, %{  map 1 2 3 ( 4 5 6 
+p parse( %{  map 1 2 3 ( 4 5 6 
 )
 })
 
 # Should not parse: 
-assert { noparse(:parse, %{  map  
+assert { noparse( %{  map  
 )
 }) }
 
-assert { parse(:parse, prog2) } 
-assert { parse(:parse, prog3) }
+assert { parse( prog2) } 
+assert { parse( prog3) }
 
-p parse(:parse, prog2) 
+p parse( prog2) 
 
 prog5 = %{ 
 map {
@@ -130,9 +128,9 @@ end else (
 
 }
 
-assert { parse(:parse, prog5) }
+assert { parse( prog5) }
 
-p parse(:parse, prog5) 
+p parse( prog5) 
 
 
 # parser = Raku::Parser.new(prog3)

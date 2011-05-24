@@ -231,7 +231,7 @@ module Raku
         # don't add blanks and comments to program
         stat = parse_statement(tokens) 
       end
-      res = res.first while res.size == 1
+      res = res.first while res.respond_to?(:first) && res.size == 1
       return res
     end
     
@@ -254,25 +254,22 @@ module Raku
       end
     end
     
-    # Parses the tokens into a program. Returns a hash.
-    # Will call throw(:parse_error) in case of a parse error so use it like this:
-    # error = catch(:parse_error) do
-    # result = parse(tokens) 
-    # # handle results here 
-    # end
-    # # handle parse error here by inspecting the error object.
+    # Parses the tokens into a program. 
+    # Returns an array of s-expressions and nil.
+    # Will return nil and an error object in case of a parse error.
+    # Get the error message with fail_message.
     def parse(tokens)
-      res = parse_program(tokens)
-      return res
+      error = catch(:parse_error) do
+        res = parse_program(tokens)
+        return res, nil
+      end
+      return nil, error 
     end
     
-    # Parses the text into a program. Returns a hash.
-    # Will call throw(:parse_error) in case of a parse error so use it like this:
-    # error = catch(:parse_error) do
-    # result = parse(tokens) 
-    # # handle results here 
-    # end
-    # # handle parse error here by inspecting the error object.
+    # Parses the text into a program. 
+    # Returns an array of s-expressions and nil.
+    # Will return nil and an error object in case of a parse error.
+    # Get the error message with fail_message.
     def self.parse_text(text)
       parser = Raku::Parser.new
       tokens = Raku::Lexer.lex_all(text, :ws, :esc_nl)
