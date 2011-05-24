@@ -99,13 +99,11 @@ p parse( prog2)
 
 prog5 = %{ 
 map {
-  name "world map" `µàlso a name` 'Also 
-  a name that continues on many lines \\"
-  until here.'
+  name "world map"
+  size 100 100 32 32
   layer {
     z 1
-    w 8
-    h 8
+    size 8 8 32 32
     data {
       row 10 20 30 40 50 60 78 80 
       row 10 20 30 40 50 60 78 80

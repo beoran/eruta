@@ -16,8 +16,12 @@ module Raku
     key   = nil
     if data.is_a?(Array)
       if data.first.is_a?(Symbol)
-        key = data.shift
-        return { key => to_hash(data) } 
+        key  = data.shift
+        res1 = {}        
+        res2 = []
+        aid  = to_hash(data)
+        res[key] = aid
+        return res
       else 
         return data.map do | e | 
            self.to_hash(e)

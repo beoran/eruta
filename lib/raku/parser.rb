@@ -205,7 +205,8 @@ module Raku
       result << val
       params = parse_paramlist(tokens)
       return give_up("Missing parameters.") unless params
-      result += params
+      params = params.first if params.size == 1
+      result << params
       ok = parse_nl(tokens)
       return give_up("Expected a newline", tokens.first) unless ok
       return result
