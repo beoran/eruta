@@ -115,7 +115,7 @@ res = Raku::Lexer.lex_all(prog2, :ws, :nl)
 assert { res } 
 assert { res.size > 0 }
 res.each { |v| p v.kind }
-assert { res.first.line == 1 }
+assert { res.first.line == 2 }
   
 p res.last
 p res.first

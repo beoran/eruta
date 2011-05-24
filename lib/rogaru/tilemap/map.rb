@@ -185,6 +185,21 @@ class Rogaru::Tilemap::Map
     return map
   end
   
+  def to_raku
+    res = StringIO.new('')
+    res.puts('map {')
+    res.puts("  backgound '#{@backname}'") if @backname
+    res << @tileset.to_raku
+    res.puts('layers {')
+    for i in (0...@layers.size)
+      res << @layers[i].to_raku(i) 
+    end
+    res.puts('}')
+    res.puts('}') 
+    return res.string
+  end  
+  
+  
   # Scopes out the animated tilmes and prepares them to be animated by adding them to moving_tiles
   def prepare_animated_tiles(tileset)
     for tile in tileset
@@ -209,6 +224,10 @@ class Rogaru::Tilemap::Map
     # Load tileset and prepare for animation
     map.prepare_animated_tiles(tileset)    
     return map
+  end
+  
+  def self.new_from_raku(raku)
+    
   end
   
   # Loads this tile map from a tmx file (www.mapeditor.org)
@@ -250,12 +269,12 @@ class Rogaru::Tilemap::Map
 
   
   # Saves this tile map to the given file name.
-  def save_to(filename) 
-    xml = self.to_xml 
+  def save_to(filename)
+    raku = self.to_raku
+    return false unless raku 
     # Do conversion first, so the map is not clobbered in case it bombs.
-    File.open(filename, 'w') do |file|
-                  formatter = REXML::Formatters::Pretty.new( 1, false )
-                  formatter.write xml, file
+    return File.open(filename, 'w') do |file|
+      file.write(raku)
     end
   end
   

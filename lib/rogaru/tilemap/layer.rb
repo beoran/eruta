@@ -203,6 +203,21 @@ class Rogaru::Tilemap::Layer
     return layer
   end
   
+  def to_raku(z)
+    res = StringIO.new('')
+    res.puts('  layer {')
+    res.puts("    z    #{z}")
+    res.puts("    size #{@wide} #{@high} #{@tilewide} #{@tilehigh}")
+    res.puts('    data {')
+    for y in (0...@high) do
+      res.puts('      ' + @layer_save[y].join(' '))
+    end
+    res.puts('    }')
+    res.puts('  }')
+    return res.string
+  end
+  
+  
   def self.new_from_xml(xml_layer, tileset)
     mw    = xml_layer.attributes['wide'].to_i
     mh    = xml_layer.attributes['high'].to_i

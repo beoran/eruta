@@ -9,4 +9,25 @@ module Raku
   autoload :Parser, 'raku/parser'
   autoload :Rule  , 'raku/rule'
   autoload :Token , 'raku/token'
+  
+  # Trasformed parsed S-expressions to a hash for easier lookup 
+  def self.to_hash(data)
+    res ||= {}
+    key   = nil
+    if data.is_a?(Array)
+      if data.first.is_a?(Symbol)
+        key = data.shift
+        return { key => to_hash(data) } 
+      else 
+        return data.map do | e | 
+           self.to_hash(e)
+        end
+      end
+    else 
+      return data 
+    end  
+  end
+  
+  
+  
 end

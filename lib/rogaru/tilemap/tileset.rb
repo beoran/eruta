@@ -1,3 +1,5 @@
+require 'stringio'
+
 module Rogaru 
   module Tilemap 
     class Tileset
@@ -266,6 +268,26 @@ module Rogaru
           xml_tiles.add_element(tile.to_xml())
         end
         return xml
+      end
+      
+      # Save to Raku format
+      def to_raku
+        res = StringIO.new('')
+        res.puts("  tileset {")
+        res.puts("    tilesize #{@tilewide} #{@tilehigh}")
+        res.puts("    names {")
+        for name in @names do
+          res.puts("      name #{name}")
+        end
+        res.puts("    }")
+        res.puts("    tiles {")
+        self.each() do | tile |
+          next unless tile
+          res << tile.to_raku
+        end
+        res.puts("    }")
+        res.puts("  }")
+        return res.string
       end
       
       # Translates a tile index from tmx to our index. 
