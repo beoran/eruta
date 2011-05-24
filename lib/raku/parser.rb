@@ -227,7 +227,7 @@ module Raku
       while stat 
          # NOT expression!
         unless stat == :blank || (stat.is_a?(Hash) && stat[:comment]) || stat.nil?
-          res << stat  
+          res << stat
         end
         # don't add blanks and comments to program
         stat = parse_statement(tokens) 
