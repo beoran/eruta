@@ -17,11 +17,11 @@ class Tini
   
   def match_re(line)
     for re in RE_LIST
-      aid   = line.scan(re)
-      part  = aid.first
-      if part 
+      aid   = line.match(re)
+      if aid
+        part = aid[0] 
         p "part:", part, aid if re == STRING_RE1
-        return part.first
+        return part
       end    
     end 
     return nil

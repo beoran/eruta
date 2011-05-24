@@ -1,5 +1,5 @@
 #
-# Parser for the Raku dta definition, scripting and  and programming
+# Parser for the Raku data definition, scripting and programming
 # language. Like Lisp or TCL but better. ;-)
 # Raku's grammar is a grammar verified to be LL(1) to guarantee parse speed.
 # An LL(1) grammar can be parsed by a predictive parser, which runs in 
@@ -8,16 +8,6 @@
 # Verified with : http://smlweb.cpsc.ucalgary.ca/start.html
 #  
 =begin
-
-PROGRAM -> STATEMENT PROGRAM | .
-STATEMENT -> EXPRESSION | BLOCK | EMPTY_LINE |  comment .
-EXPRESSION -> VALUE PARAMLIST NL. 
-PARAMLIST -> PARAMETER PARAMLIST | .
-PARAMETER -> BLOCK | VALUE .
-EMPTY_LINE -> NL .
-BLOCK -> do PROGRAM end | ob PROGRAM cb | ( PROGRAM ) | oa PROGRAM ca.
-NL -> nl | semicolon .
-VALUE -> string | integer | float | symbol | operator .
 
 PROGRAM -> STATEMENTS eof.
 STATEMENTS -> STATEMENT STATEMENTS | .
@@ -51,185 +41,243 @@ VALUE -> string | integer | float | symbol  .
 
 
 module Raku
+  # A manual predictive parser for the Raku language.
   class Parser
   
-    IGNORE = [ :ws, :esc_nl]
-  
-    attr_reader :token
-    attr_reader :result
-    
-    # Creates a new node
-    def node(kind, value = nil)
-      return Node.new(kind, value)
-    end
-    
+    IGNORE = [:ws, :esc_nl]
+
     # Creates a new failiure
     def fail_node(message)
-      node = Node.new(:error, message)
-      node.fail!(message)
+      node    = Node.new(:error, message)
+      node.fail!(message) 
       return node
     end
-  
-    def initialize(program)
-      @lexer  = Lexer.new(program)
-      @result = node(:root)
-      @token  = nil
-      advance #advance once on initializing the parser
-    end
     
-    # updates the current token and returns it
-    def advance
-      @token  = @lexer.lex_skip(*IGNORE)
-      return give_up("Lex error") if @token.fail?
-      return @token
-    end
-   
-    # give up parsing
-    def give_up(reason="")
-      msg = "Parse Error: #{reason}" 
-      if @token 
-      msg = "Parse Error in #{@token.kind} at #{@token.line}:#{@token.col}:\
-       #{reason}"
+     # give up parsing
+    def give_up(reason="", token=nil)
+      msg = "End of file: Parse Error: #{reason}" 
+      if token 
+        msg = "#{token.line}:#{token.col}: " + "Parse error in #{token.kind}: " +  
+              reason
+        if token.fail?
+          msg << " #{token.fail_message}"
+        end       
       end
       # we use throw here in stead of exceptions since a parse error is 
       # not exceptional, but expected.
-      # throw(:parse_error, fail_node(msg))
-      return fail_node(msg)
+      throw(:parse_error, fail_node(msg))
+    end
+
+  
+    def initialize()
     end
     
-    # returns the kind of the current token
-    def token_kind
-      return nil unless @token 
-      return @token.kind
+    # Gets a token from the token list. throws :parse_error if no
+    # token is on the tokens list
+    def fetch(tokens)
+      token = tokens.first
+      return give_up("Unexpected end of file") if token.nil?
+      return give_up("Lex error", token) if token.fail?
+      return token
     end
     
-    # returns nil if the token's kind id not kind. 
-    # otherwise returns the current token.
-    def have?(*kinds)
-      return self.token if kinds.member?(self.token_kind)
+    # Gets a token that has a kind in kinds
+    def accept(tokens, *kinds)
+      token = fetch(tokens)
+      if kinds.member?(token.kind)
+        tokens.shift
+        return { token.kind => token.value }
+      end
       return nil
     end
     
-    # checks if the token kind is in kinds, 
-    # if not, returns nil and does nothing else.
-    # if it is, returns a new node containing 
-    # the current token, and then advances parsing
-    # by calling advnce
-    def accept(*kinds)
-      return nil unless have?(*kinds)
-      res = node(@token.kind, @token.value)
-      self.advance
-      return res
+    # Gets a token that must be in kinds, or it will raise a parse error
+    def need(tokens, *kinds)
+      result = accept(tokens, *kinds)
+      return result if result
+      return give_up("Unexpected token!", tokens.first)
+    end
+   
+    def parse_value_of(tokens, kind, convert)
+      res = accept(tokens, kind) 
+      return res unless res
+      return res[kind].send(convert)
+    end
+   
+    def parse_integer(tokens)
+      return parse_value_of(tokens, :integer, :to_i)
     end
     
-    # calls accept, but calls give_up if accept returns nil
-    def expect(*kinds)
-      res = accept(*kinds)
-      return res if res
-      return give_up("Expected one of #{kinds}")
+    def parse_float(tokens)
+      return parse_value_of(tokens, :float, :to_f)
+    end
+
+    STRING_ESCAPES = {
+      'n' => "\n",
+      't' => "\t",
+      'r' => "\r",
+      'a' => "\a",
+      'e' => "\e",
+    }
+
+    def parse_string(tokens)
+      res = accept(tokens, :string) 
+      return res unless res
+      str = res[:string].to_s
+      str = str[1, str.size - 2]
+      str.gsub!(%r{\\.}) do |match| 
+        char = match[1] 
+        aid  = STRING_ESCAPES[char]
+        aid || char
+      end  
+      return str
     end
     
-    def parse_value
-      aid = accept(:integer, :float, :string, :symbol, :operator, :colon,
-:comma, :period)
-      return aid if aid
+    def parse_symbol(tokens)    
+      return parse_value_of(tokens, :symbol, :to_sym)
+    end
+
+    def parse_operator(tokens)
+      return parse_value_of(tokens, :operator, :to_sym)
+    end
+
+    def parse_value(tokens)
+      return parse_integer(tokens) || 
+             parse_float(tokens)   ||
+             parse_string(tokens)  ||
+             parse_symbol(tokens)  ||
+             parse_operator(tokens)
+   #   accept(tokens, :integer, :float, :string, :symbol, :operator)
+    end
+
+    def parse_nl(tokens)
+      return accept(tokens, :nl, :semicolon)
+    end
+    
+    def parse_block_in(tokens, open, close)
+      return nil unless accept(tokens, open)
+      pro = parse_statements(tokens)
+      res = pro 
+      ok  = need(tokens, close)
+      return res 
+    end
+    
+    def parse_block(tokens)
+      return parse_block_in(tokens, :do       , :end)    || 
+             parse_block_in(tokens, :lbrace   , :rbrace) || 
+             parse_block_in(tokens, :lparen   , :rparen) ||
+             parse_block_in(tokens, :lbracket , :rbracket)
+    end
+
+    def parse_parameter(tokens)
+      block = parse_block(tokens) 
+      return block if block
+      value = parse_value(tokens)
+      return value if value
+      # No parameter there. Params are optional
       return nil
     end
-
-    def parse_nl
-      return accept(:nl, :semicolon)
-    end
     
-    def parse_block_in(open, close)
-      return nil unless accept(open)
-      res = node(:block, open) 
-      pro = parse_program
-      pro.children.each { |child| res << child }
-      # was res << pro, but the above removes the useless program in the block
-      return nil unless accept(close)
-      return res
-    end
-    
-    def parse_block
-      return parse_block_in(:lcurly, :rcurly) || 
-             parse_block_in(:lparen, :rparen) ||
-             parse_block_in(:lbracket, :rbracket)
-    end
-
-    def parse_parameter
-      aid = parse_value 
-      return aid if aid
-      aid = parse_block 
-      return aid if aid
-      # Argument must be a basic or a block. If not, fail
-      return give_up("Parameter expected")
-    end
-    
-    def parse_paramlist
-      res   = node(:paramlist)
-      until have?(:nl, :semicolon)
-        return give_up("Unexpected end of file.") if have?(:eof) 
-      # end of paramlist on nl or semicolon
-        param = parse_parameter
-        return give_up("Missing parameter.") unless param
-      # if it's not the end, parse a parameter
-      # Followed by a paramlist
+    def parse_paramlist(tokens)
+      res   = []
+      loop do
+        if accept(tokens, :eof)
+          return give_up("Unexpected end of file in parameter list.", tokens.first)
+        end   
+        param = parse_parameter(tokens)
+        return res unless param
         res << param
       end  
       return res
     end  
          
-    def parse_blank
-      return node(:blank) if parse_nl
+    def parse_blank_line(tokens)
+      return :blank if parse_nl(tokens)
       return nil
     end
 
-    def parse_expression
-      result = node(:expression)
-      val = parse_value
-      return nil unless val
+    def parse_expression(tokens)
+      result = {}
+      val    = parse_value(tokens)
+      return nil unless val # expression starts with a value 
+      result = []
       result << val
-      params = parse_paramlist
+      params = parse_paramlist(tokens)
       return give_up("Missing parameters.") unless params
-      result << params
-      got = expect(:nl) # there must be an nl after all params
-      return got if got.fail?
+      result += params
+      ok     = parse_nl(tokens)
+      return give_up("Expected a newline", tokens.first) unless ok
       return result
     end
     
-    def parse_statement
-      aid = parse_expression || parse_block || parse_blank || accept(:comment)
+    def parse_statement(tokens)
+      aid = parse_expression(tokens) || 
+            parse_block(tokens)      || 
+            parse_blank_line(tokens) || 
+            accept(tokens, :comment)
       return aid if aid
-      return give_up("Could not parse statement.")
+      return nil
     end 
   
     
-    def parse_program
-      prog = node(:program)
-      until have?(:rcurly, :rbracket, :rparen, :eof)
-        stat = parse_statement # NOT expression!
-        return give_up("Could not parse statement") unless stat
-        prog << stat unless stat.kind == :blank
-        # don't add blanks to program 
+    def parse_statements(tokens)
+      res = []
+      stat = parse_statement(tokens)
+      while stat 
+         # NOT expression!
+        unless stat == :blank || (stat.is_a?(Hash) && stat[:comment])
+          res <<= stat  
+        end        
+        # don't add blanks and comments to program
+        stat = parse_statement(tokens) 
       end
-      return prog
-    end
-    
-    def parse_raku
-      error = catch(:parse_error) do
-        prog = parse_program
-        got  = expect(:eof)
-        return got if got.fail?
-        return prog
-      end
-      warn "Parse error!"
-      return error
-    end
-    
-    def parse
-      res = parse_raku
+      res = res.first while res.size == 1
       return res
     end
     
+    
+    def parse_program(tokens)
+      prog = parse_statements(tokens)
+      got  = need(tokens, :eof)
+      return prog
+    end
+    
+    def hashify(results)
+      res = {}
+      for line in results do
+        if line.is_a? Array
+          key = line.shift
+          res[key] = hashify(line)
+        else
+          
+        end
+      end
+    end
+    
+    # Parses the tokens into a program. Returns a hash.
+    # Will call throw(:parse_error) in case of a parse error so use it like this:
+    # error = catch(:parse_error) do
+    # result = parse(tokens) 
+    # # handle results here 
+    # end
+    # # handle parse error here by inspecting the error object.
+    def parse(tokens)
+      res = parse_program(tokens)
+      return res
+    end
+    
+    # Parses the text into a program. Returns a hash.
+    # Will call throw(:parse_error) in case of a parse error so use it like this:
+    # error = catch(:parse_error) do
+    # result = parse(tokens) 
+    # # handle results here 
+    # end
+    # # handle parse error here by inspecting the error object.
+    def self.parse_text(text)
+      parser = Raku::Parser.new
+      tokens = Raku::Lexer.lex_all(text, :ws, :esc_nl)
+      return parser.parse(text)
+    end  
+
   end # class Parser
 end # module Raku

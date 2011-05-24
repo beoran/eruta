@@ -22,8 +22,8 @@ module Raku
       # start with an empty scan string/
       @text   = text
       @scan   = StringScanner.new(@text)
-      @line   = 0
-      @col    = 0
+      @line   = 1
+      @col    = 1
     end
     
     
@@ -52,7 +52,7 @@ module Raku
       if aidsize > 1 # more than 1 means we had at least one newline 
         @line += aid.size - 1
         # add the amount of lines skipped 
-        @col  += aid.last.size
+        @col   = aid.last.size
         # column is advanced 
       else 
         @col  += res.size
@@ -76,6 +76,12 @@ module Raku
       return try_token(:ws, res)
     end
     
+    def lex_kw(name)
+      res = scan(%r{#{name}(?![^ \t\n\r])})
+      return try_token(name.to_sym, res) if res
+    end
+    
+    
     # Tries to lex keywords, brackets, special operators and separators
     def lex_key
       search = {
@@ -85,14 +91,16 @@ module Raku
         ']'   => :rbracket,
         '{'   => :lbrace,
         '}'   => :rbrace,
-        ':'   => :colon,
         ';'   => :semicolon,
-        ','   => :comma,
-        '.'   => :period,
       }
-      res = scan(%r{[\(\)\[\]\{\}\:\;\,\.]})
+      res  = scan(%r{[\(\)\[\]\{\}\:\;\,\.]})
       type = search[res]
       return try_token(type, res) if res
+      res = lex_kw(:do)
+      return res if res
+      res = lex_kw(:end)
+      return res if res
+      return nil
     end
     
     # Tries to lex comments
@@ -105,14 +113,14 @@ module Raku
     # Tries to lex symbols (start with a letter, and can contain letters, numbers and underscores)
     def lex_symbol
       # Symbols
-      res = scan(%r{\w[\w\d_]+})
+      res = scan(%r{\w[\w\d_]*})
       return try_token(:symbol, res)
     end
     
-    # Tries to lex operators (consist of one or more of &|@^!*%+-=/<>$
+    # Tries to lex operators (consist of one or more of &|@^!*%+-=/<>$,.:
     def lex_operator
       # Operators
-      res = scan(%r{[\&\|\@\^\!\*\%\+\-\=\/\<\>\$]+})
+      res = scan(%r{[\&\|\@\^\!\*\%\+\-\=\/\<\>\$\,\.\:]+})
       return try_token(:operator, res)
     end
     
@@ -132,7 +140,14 @@ module Raku
     # tries to lex strings
     def lex_string()
       res = scan(%r{"([^"\\]|\\.)*"})
-      return try_token(:string, res) 
+      try = try_token(:string, res)
+      return try if try
+      res = scan(%r{'([^'\\]|\\.)*'})
+      try = try_token(:string, res)
+      return try if try
+      res = scan(%r{`([^`\\]|\\.)*`})
+      try = try_token(:string, res)
+      return try if try
     end
     
     LEX_ORDER = [ 
@@ -158,7 +173,7 @@ module Raku
         # If we find something, return it.
       end
       # If we got here, it all failed. 
-      return Token.new(:fail, "Lex error text at #{@line}: #{@col}: #{@scan.peek(10)}.")
+      return Token.new(:fail, "Lex error text at #{@line}: #{@col}: #{@scan.peek(30)}...")
     end
     
     # Gets tokens until the kin is not in the skip list 
