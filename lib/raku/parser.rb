@@ -186,8 +186,9 @@ module Raku
         end   
         param = parse_parameter(tokens)
         return res unless param
-        res << param
+        res << param if res
       end  
+      res = res.first while res.is_a?(Array) && res.size == 1
       return res
     end  
          
@@ -225,13 +226,14 @@ module Raku
       stat = parse_statement(tokens)
       while stat 
          # NOT expression!
-        unless stat == :blank || (stat.is_a?(Hash) && stat[:comment])
-          res <<= stat  
-        end        
+        unless stat == :blank || (stat.is_a?(Hash) && stat[:comment]) || stat.nil?
+          res << stat  
+        end
         # don't add blanks and comments to program
         stat = parse_statement(tokens) 
       end
-      res = res.first while res.respond_to?(:first) && res.size == 1
+      # Simplify a bit
+      res = res.first while res.is_a?(Array) && res.size == 1
       return res
     end
     
@@ -270,10 +272,10 @@ module Raku
     # Returns an array of s-expressions and nil.
     # Will return nil and an error object in case of a parse error.
     # Get the error message with fail_message.
-    def self.parse_text(text)
+    def self.parse(text)
       parser = Raku::Parser.new
       tokens = Raku::Lexer.lex_all(text, :ws, :esc_nl)
-      return parser.parse(text)
+      return parser.parse(tokens)
     end  
 
   end # class Parser

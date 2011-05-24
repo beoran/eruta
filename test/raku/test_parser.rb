@@ -119,18 +119,20 @@ map {
   }
 }
 
-if foo > 10 do
-  puts "Hello world"
-  puts "All is well"
-end else (
-  puts "Foo is too small!"
-)
+# if foo > 10 do
+#   puts "Hello world"
+#   puts "All is well"
+# end else (
+#   puts "Foo is too small!"
+# )
 
 }
 
 assert { parse( prog5) }
 
-p parse( prog5) 
+res = parse(prog5)
+p res 
+p Raku.to_hash(res) 
 
 
 # parser = Raku::Parser.new(prog3)

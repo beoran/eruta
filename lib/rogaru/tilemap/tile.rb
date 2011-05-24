@@ -1,3 +1,5 @@
+require 'stringio'
+
 module Rogaru
   module Tilemap
     class Tile
@@ -188,7 +190,19 @@ module Rogaru
     xml.attributes['down']   = Tilemap::Tile.xml_set_yesno_property(self.down)
     xml.attributes['pain']   = Tilemap::Tile.xml_set_yesno_property(self.pain)
     return xml
-  end  
+  end
+    
+  def to_raku
+    res = StringIO.new('')
+    res.printf("        tile #@index")
+    list = [:walk, :swim, :jump, :ledge, :pain, :up, :down]
+    for prop in list
+      val = self.send(prop)
+      res.print(" #{prop}") if (val)
+    end
+    res.puts
+    return res.string
+  end
 
   
   def self.new_from_xml(xml)

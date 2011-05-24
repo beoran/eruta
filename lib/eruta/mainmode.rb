@@ -131,6 +131,8 @@ module Eruta
         when :f12 
           @fullscreen       = !@fullscreen
           @game.fullscreen  = @fullscreen
+        when :s
+          puts @map.save_to(File.join('data', 'map', 'map_0001.ra'))
       end
     end  
   
