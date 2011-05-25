@@ -5,14 +5,15 @@ require 'tempfile'
 module Nanograph
   # Helper function to process attributes
   def self.attributes_to_dot(attributes, label = nil)
-    if (attributes.nil? || attributes.empty?) && (label.nil? || label.empty?) 
+    if label
+      attributes[:label] = label
+    end   
+      
+    if (attributes.nil? || attributes.empty?) 
       return ""
     end
     
     res = " [ "    
-    if label && (!label.empty?)
-      res << ' ' + 'label="' + label.to_s + '"'
-    end
     for key, value in attributes do
       res << ' ' + key.to_s + '="' + value.to_s + '"'
     end    

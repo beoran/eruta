@@ -44,11 +44,16 @@ module Raku
   # A manual predictive parser for the Raku language.
   class Parser
   
+    # Parse error class
+    class Error
+      include Fail
+    end  
+  
     IGNORE = [:ws, :esc_nl]
 
     # Creates a new failiure
     def fail_node(message)
-      node = Node.new(:error, message)
+      node = Error.new
       node.fail!(message)
       return node
     end
@@ -143,9 +148,9 @@ module Raku
 
     def parse_value(tokens)
       return parse_integer(tokens) ||
-             parse_float(tokens) ||
-             parse_string(tokens) ||
-             parse_symbol(tokens) ||
+             parse_float(tokens)   ||
+             parse_string(tokens)  ||
+             parse_symbol(tokens)  ||
              parse_operator(tokens)
    # accept(tokens, :integer, :float, :string, :symbol, :operator)
     end
@@ -174,7 +179,7 @@ module Raku
       return block if block
       value = parse_value(tokens)
       return value if value
-      # No parameter there. Params are optional
+      # No parameter there. Params are optional so return nil to let caller know.
       return nil
     end
     
@@ -186,10 +191,8 @@ module Raku
         end
         param = parse_parameter(tokens)
         return res unless param
-        res << param if res
+        res << param 
       end
-      res = res.first while res.is_a?(Array) && res.size == 1
-      return res
     end
          
     def parse_blank_line(tokens)
@@ -205,9 +208,9 @@ module Raku
       result << val
       params = parse_paramlist(tokens)
       return give_up("Missing parameters.") unless params
-      params = params.first if params.size == 1
-      result << params
-      ok = parse_nl(tokens)
+      result += params
+      # ok = parse_nl(tokens)
+      ok = true
       return give_up("Expected a newline", tokens.first) unless ok
       return result
     end
@@ -233,8 +236,6 @@ module Raku
         # don't add blanks and comments to program
         stat = parse_statement(tokens)
       end
-      # Simplify a bit
-      res = res.first while res.is_a?(Array) && res.size == 1
       return res
     end
     
@@ -245,17 +246,6 @@ module Raku
       return prog
     end
     
-    def hashify(results)
-      res = {}
-      for line in results do
-        if line.is_a? Array
-          key = line.shift
-          res[key] = hashify(line)
-        else
-          
-        end
-      end
-    end
     
     # Parses the tokens into a program.
     # Returns an array of s-expressions and nil.
