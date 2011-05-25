@@ -6,13 +6,33 @@ module Raku
   # document object model (DOM) style.
   class Node
     attr_accessor :name
-    attr_reader   :data
+    # Child nodes
     attr_reader   :children
+    # Data for this node
+    attr_reader   :data
+    # Child nodes and data in order of adding
+    attr_reader   :all
+    
+    
+    class Branch < Node
+      attr_reader   :children
+      def initialize()
+      end
+    end
+    
+    class Leaf < Node
+      attr_reader   :data
+      def initialize()
+      end
+    end
+      
     
     def initialize(name = :root)
       @name       = name
       @data       = []
       @children   = []
+      @all        = []
+      @level      = 0
     end
     
     # Iterates ofver this node's children.
@@ -20,9 +40,43 @@ module Raku
       @children.each { |c| yield c }
     end
     
+    def to_s
+      return "*#@name"
+    end
+      
+    
     # Adds a child node to this node.
     def <<(child)
-      @children << child
+      if child.is_a?(Node)
+        @children << child
+        @all      << child # .name
+      else
+        @data     << child
+        @all      << child
+      end
+    end
+    
+    # Converts node to raku for saving
+    def to_raku
+      @level += 1
+      res = ""
+      res << "#{self.name} " unless self.name == :root
+      for datum in self.all do
+        if datum.respond_to?(:to_raku) || datum.is_a?(Node)
+          res << "#{@level} {\n" unless self.name == :root
+          aid  = datum.to_raku
+          p aid
+          res << aid
+          res << "\n} #{@level}\n" unless self.name == :root
+        elsif datum.is_a?(String)
+          res << "'#{datum.gsub('\'','\\\'')}' "
+        else
+          res << "#{datum} "
+        end
+      end
+      res << "\n"
+      @level -= 1
+      return res
     end
     
     # Converts the Node to a Nanograph for visualisation.
@@ -36,7 +90,9 @@ module Raku
     end
          
     def to_graph_node(graph, index = 0)
-      from = graph.node(object_id, "{#{@name}|#{@data.join(',')}}", :shape => :record)
+      # daid = @data.join(',')
+      aaid = @all.join(',')
+      from = graph.node(object_id, "{#{@name}|#{aaid}}", :shape => :record)
       jdex = 0
       self.each do |c|
         to = c.to_graph_node(graph, jdex)
@@ -101,26 +157,30 @@ module Raku
 
     
     def self.statement_to_node(line)
-      return nil, nil   unless line
+      return nil, nil unless line
       unless line.is_a? Array
         return line
       end
       if line.first.is_a?(Array)
         return program_to_n(line)
-      end    
+      end
       command          = line.shift 
       res              = Node.new(command)
       params           = []
       for arg in line
         if arg.is_a?(Array) # sub array means block parameter
           # this will be an array of substatements
-          substats   = program_to_node(arg, command)
-          res        = substats
+          substats   = program_to_node(arg, :block)
+          substats.each do |node|
+            # node << handles this by storing to res.children and res.data
+            res       << node
+          end
         else # normal parameter
-          params << arg
+          # node << handles this by storing to res.data
+          res << arg
         end 
       end
-      params.each { |p| res.data << p } 
+      # params.each { |p| res.data << p } 
       return res, command
     end
     
