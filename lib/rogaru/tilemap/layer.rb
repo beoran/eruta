@@ -210,12 +210,18 @@ class Rogaru::Tilemap::Layer
     res.puts("    size #{@wide} #{@high} #{@tilewide} #{@tilehigh}")
     res.puts('    data {')
     for y in (0...@high) do
-      res.puts('      ' + @layer_save[y].join(' '))
+      res.puts("      row #{y} " + @layer_save[y].join(' '))
     end
     res.puts('    }')
     res.puts('  }')
     return res.string
   end
+  
+  # FIXME: stub
+  def self.new_from_raku(raku)
+    return nil
+  end
+
   
   
   def self.new_from_xml(xml_layer, tileset)

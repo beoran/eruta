@@ -1,3 +1,5 @@
+require "raku"
+
 class Rogaru::Tilemap::Map
   
   attr_accessor   :camera
@@ -226,10 +228,6 @@ class Rogaru::Tilemap::Map
     return map
   end
   
-  def self.new_from_raku(raku)
-    
-  end
-  
   # Loads this tile map from a tmx file (www.mapeditor.org)
   def self.new_from_tmx(tmx)
     layers  = []    
@@ -252,17 +250,42 @@ class Rogaru::Tilemap::Map
     return map
   end
   
+  # Loads the map from a Raku file
+  def self.new_from_raku(text)
+    raku      = Raku.parse_to_node(text)
+    layers    = []
+    tileset   = Tilemap::Tileset.new.from_raku(raku)
+    bg        = raku.find_first(:map, :background)
+    backname  = bg ? bg.data[0] || nil
+    layers    = raku.find_all(:map, :layers, :layer)
+    if layers 
+      for raku_layer in layers
+        layer = Tilemap::Layer.new_from_raku(raku_layer, tileset)
+        layers << layer
+      end
+    else 
+      warn "Map has no layers!"
+    end   
+    map = Tilemap::Map.new(tileset, layers, backname)
+    map.prepare_animated_tiles(tileset)
+    return map
+  end
+  
 
   # Loads the map from the given file name
   def self.load_from(filename)
     file = File.new(filename)
-    return nil unless file
-    doc = REXML::Document.new(file)
-      if filename =~ /\.tmx\Z/       
-        result = self.new_from_tmx(doc.root)
-      else
-        result = self.new_from_xml(doc.root)
-      end
+    return nil unless file    
+    if filename =~ /\.tmx\Z/
+      doc = REXML::Document.new(file)       
+      result = self.new_from_tmx(doc.root)
+    elsif filename =~ /\.ra\Z/
+      text   = file.read
+      result = self.new_from_raku(text)
+    else
+      doc = REXML::Document.new(file)
+      result = self.new_from_xml(doc.root)
+    end
     file.close
     return result
   end

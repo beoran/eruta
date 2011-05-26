@@ -4,7 +4,10 @@
 #
 #
 
-BEGIN { $:.unshift(File.dirname(__FILE__)); }
+BEGIN { 
+  $:.unshift(File.dirname(__FILE__));
+  $:.unshift(File.join(File.dirname(__FILE__), '..')) 
+}
 # Include this script's directory in Ruby's search path.
 
 require 'gari'

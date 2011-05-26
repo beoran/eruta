@@ -56,12 +56,20 @@ module Raku
   
   # Trasformed parsed S-expressions to a hash for easier lookup 
   def self.to_hash(data)
-    return program_to_hash(data)
+    return program_to_hash(data.dup)
   end
   
   # Trasformed parsed S-expressions to a Node tree for easier lookup 
   def self.to_node(data)
-    return Node.program_to_node(data)
+    return Node.program_to_node(data.dup)
+  end
+  
+  # Calls Raku::Parser.parse followed by sel.to_node
+  # Returns the parse tree and nil if ok, nil and an error if parse error.
+  def self.parse_to_node(text)
+    res, err = Raku::Parser.parse(text)
+    return nil, err if err    
+    return Node.program_to_node(res), nil
   end
   
   

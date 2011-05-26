@@ -105,9 +105,21 @@ module Raku
     
     # Tries to lex comments
     def lex_comment
-      # Single line comment
+      # Multi line comment
+      res = scan(%r{\#\(([\r\n]|.)*?\)\#})
+      return try_token(:comment, res) if res 
+      
+      # C style multi line comment
+      res = scan(%r{\/\*([\r\n]|.)*?\*\/})
+      return try_token(:comment, res) if res 
+      
+      # C style single line comment
+      res = scan(%r{\/\/[^\r\n]+(\r\n|\r|\n)})
+      return try_token(:comment, res) if res 
+      
+      # Shell like single line comment 
       res = scan(%r{\#[^\r\n]+(\r\n|\r|\n)})
-      return try_token(:comment, res) 
+      return try_token(:comment, res)
     end
     
     # Tries to lex symbols (start with a letter, and can contain letters, numbers and underscores)
@@ -139,13 +151,13 @@ module Raku
     #
     # tries to lex strings
     def lex_string()
-      res = scan(%r{"([^"\\]|\\.)*"})
+      res = scan(%r{"([^"\\]|[\r\n]|\\.)*"})
       try = try_token(:string, res)
       return try if try
-      res = scan(%r{'([^'\\]|\\.)*'})
+      res = scan(%r{'([^'\\]|[\r\n]|\\.)*'})
       try = try_token(:string, res)
       return try if try
-      res = scan(%r{`([^`\\]|\\.)*`})
+      res = scan(%r{`([^`\\]|[\r\n]|\\.)*`})
       try = try_token(:string, res)
       return try if try
     end

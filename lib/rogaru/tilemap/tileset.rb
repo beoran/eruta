@@ -290,6 +290,11 @@ module Rogaru
         return res.string
       end
       
+      # FIXME: stub
+      def self.new_from_raku(raku)
+        return nil
+      end
+      
       # Translates a tile index from tmx to our index. 
       def index_from_tmx(tileindex)
       end

@@ -57,6 +57,9 @@ assert_lex("map") { |res, lex| lex.line == 1 }
 assert_lex('"map"') { |res| res.value == "map" }
 assert_lex('"map"') { |res| res.kind == :string }
 
+assert_lex(%{"one
+\\" two"}) { |res| res.kind == :string }
+
 prog1             = "map { 1 2 3 }"
 
 

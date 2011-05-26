@@ -1,4 +1,3 @@
-
 require 'nanograph'
 
 module Raku
@@ -27,7 +26,7 @@ module Raku
     end
       
     
-    def initialize(name = :root)
+    def initialize(name = :_root_)
       @name       = name
       @data       = []
       @children   = []
@@ -35,9 +34,20 @@ module Raku
       @level      = 0
     end
     
-    # Iterates ofver this node's children.
+    # Iterates over this node's children. Gives a data-centric view of the 
+    # subnodes, which _block_ nodes skipped.
     def each
-      @children.each { |c| yield c }
+      @children.each do |c|
+        yield c
+      end
+    end
+    
+    # Iterates over the node's subnodes in @all, revealing the _block_ subnodes.
+    # Ideal for a programming-language view of the language or for to_raku.
+    def each_block
+      @all.each do |c|
+        yield c if c.is_a?(Node)
+      end
     end
     
     def to_s
@@ -48,7 +58,13 @@ module Raku
     # Adds a child node to this node.
     def <<(child)
       if child.is_a?(Node)
-        @children << child
+        if child.block? 
+          child.each do |sub|
+            @children << sub
+          end
+        else
+          @children << child
+        end
         @all      << child # .name
       else
         @data     << child
@@ -56,48 +72,79 @@ module Raku
       end
     end
     
-    # Converts node to raku for saving
-    def to_raku
-      @level += 1
-      res = ""
-      res << "#{self.name} " unless self.name == :root
-      for datum in self.all do
+    # returns true if this is a root node, ie, a node with the name :_root_
+    def root?
+      return self.name == :_root_
+    end
+    
+    # returns true if this is a block node, ie, a node with the name :_block_
+    def block?
+      return self.name == :_block_
+    end
+    
+    
+    # indents the given string with 2 * level
+    def ind(str, level)
+      return str if level < 1
+      return (" " * (level)) + str 
+    end
+    
+    # Quotes a string for use in Raku
+    def quote_string(str)
+      return '"' + str.gsub('"', '\\"') + '"'
+    end
+    
+    # Converts node to raku for saving. Level is used for proper indenting.
+    def to_raku(level = -2)
+      level += 1
+      res    = ""
+      unless self.root? || self.block?
+        res << ind("#{self.name} ", level)
+      end  
+      if self.block?
+        res << "{\n"
+      end 
+      for datum in self.all do 
         if datum.respond_to?(:to_raku) || datum.is_a?(Node)
-          res << "#{@level} {\n" unless self.name == :root
-          aid  = datum.to_raku
-          p aid
-          res << aid
-          res << "\n} #{@level}\n" unless self.name == :root
+          res << datum.to_raku(level)
         elsif datum.is_a?(String)
-          res << "'#{datum.gsub('\'','\\\'')}' "
+          res << quote_string(datum)
+          res << ' '
         else
           res << "#{datum} "
         end
       end
-      res << "\n"
-      @level -= 1
+      if self.block?
+        res << ind("} ", level - 1)
+      else  
+        res << "\n"
+      end  
+      level -= 1
       return res
     end
     
     # Converts the Node to a Nanograph for visualisation.
-    def to_graph
+    def to_graph(iter = :each)
       graph     = Nanograph.graph(fontsize: 10, splines: true, overlap: false,
                                   rankdir: "LR")
       graph.nodeattr = { fontsize: 9, width:0, height:0, shape: :box, 
                         style: :rounded }
-      self.to_graph_node(graph)
+      self.to_graph_node(graph, iter)
       return graph
     end
-         
-    def to_graph_node(graph, index = 0)
-      # daid = @data.join(',')
+    
+    # Converts self to a graph node, not including the child nodes.
+    def to_graph_node_self(graph)
       aaid = @all.join(',')
-      from = graph.node(object_id, "{#{@name}|#{aaid}}", :shape => :record)
-      jdex = 0
-      self.each do |c|
-        to = c.to_graph_node(graph, jdex)
+      return graph.node(object_id, "{#{@name}|#{aaid}}", :shape => :record)
+    end  
+
+    # Converts self and child nodes to a graph.
+    def to_graph_node(graph, iter = :each)
+      from = to_graph_node_self(graph)
+      self.send(iter) do |c|
+        to = c.to_graph_node(graph)
         from >> to
-        jdex += 1
       end
       return from
     end
@@ -120,16 +167,15 @@ module Raku
       return nil
     end
     
-    # Deep search, returns all matches in a new node with name :result,
-    # with the results being the children. Returns nil if no results. 
+    # Deep search, returns all matches in an array. Returns nil if no results. 
     def find_all_key(key)
-      result = Node.new(:result)
+      result = []
       result << self if self.name == key
       @children.each do |c|
         res = c.find_all_key(key)
-        result << res if res && res.children.size > 0
+        result += res if res
       end 
-      return result if result.children.size > 0
+      return result if result.size > 0
       return nil
     end
     
@@ -145,12 +191,18 @@ module Raku
     end 
     
     # Deep search with multiple keys. Searches by calling find_all_key recursively.
-    def find(*keys)
-      node     = self
+    def find_all(*keys)
+      nodes       = [ self ]
+      result      = []
       for key in keys
-        result = node.find_all_key(key)
-        return nil unless result
-        node   = result
+        result    = []
+        for node in nodes
+          p "no", node, nodes
+          found   = node.find_all_key(key)
+          p "fo", found
+          result += found
+        end  
+        nodes  = result
       end   
       return result
     end 
@@ -162,29 +214,26 @@ module Raku
         return line
       end
       if line.first.is_a?(Array)
-        return program_to_n(line)
+        return program_to_node(line, :_array_)
       end
       command          = line.shift 
       res              = Node.new(command)
       params           = []
       for arg in line
         if arg.is_a?(Array) # sub array means block parameter
-          # this will be an array of substatements
-          substats   = program_to_node(arg, :block)
-          substats.each do |node|
-            # node << handles this by storing to res.children and res.data
-            res       << node
-          end
+          substats   = program_to_node(arg, :_block_)
+          # node << handles this by storing to res.children and res.all
+          res        << substats
         else # normal parameter
           # node << handles this by storing to res.data
-          res << arg
+          res       << arg
         end 
       end
       # params.each { |p| res.data << p } 
       return res, command
     end
     
-    def self.program_to_node(data, command = :root)
+    def self.program_to_node(data, command = :_root_)
       res = Node.new(command)
       for line in data
         h, command = statement_to_node(line)
