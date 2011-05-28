@@ -3,7 +3,7 @@
 # Roleplaying Game engine for Rubygames
 #
 require 'rubygems'
-require 'sdl'
+require 'gari'
 
 
 module Rogaru

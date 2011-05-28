@@ -7,6 +7,8 @@
 require 'strscan'
 
 module Raku
+   # Lexer for Raku: FIXME this lexer is way too slow, and will probably 
+   # need to be rewritten using StringIO, or such.
    class Lexer
     attr_reader :line
     attr_reader :col

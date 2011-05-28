@@ -218,7 +218,12 @@ class Rogaru::Tilemap::Layer
   end
   
   # FIXME: stub
-  def self.new_from_raku(raku)
+  def self.new_from_raku(rlayer, tileset)
+    rz = rlayer.find_first(:z) 
+    z  = rs.data[0].to_i
+    rsz= rlayer.find_first(:size)
+    wide, high, tilewide, tilehigh = *rsz.data
+    
     return nil
   end
 

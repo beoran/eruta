@@ -252,11 +252,17 @@ class Rogaru::Tilemap::Map
   
   # Loads the map from a Raku file
   def self.new_from_raku(text)
-    raku      = Raku.parse_to_node(text)
+    puts "Loading map..." 
+    raku, err  = Raku.parse_to_node(text)
+    if err
+      warn err.fail_message
+      return nil 
+    end
+    puts "Loaded!" 
     layers    = []
-    tileset   = Tilemap::Tileset.new.from_raku(raku)
+    tileset   = Tilemap::Tileset.new_from_raku(raku)
     bg        = raku.find_first(:map, :background)
-    backname  = bg ? bg.data[0] || nil
+    backname  = bg ? bg.data[0] : nil
     layers    = raku.find_all(:map, :layers, :layer)
     if layers 
       for raku_layer in layers

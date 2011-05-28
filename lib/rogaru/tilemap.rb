@@ -5,7 +5,6 @@
 #
 #
 
-require 'sdl'
 require 'rexml/document'
 require 'rogaru/image'
 

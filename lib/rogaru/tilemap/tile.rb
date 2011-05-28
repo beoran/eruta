@@ -19,9 +19,9 @@ module Rogaru
         # Color for animated tile info tile (it has a purplish background)
         TILE_ANIMATION    = Gari::Color.rgba(0xaa, 0x11, 0xee, 0xff)
         # Animation program is esxpressed as colored pixels. White means, next tile.
-        ANIMATION_NEXT    = Gari::Color.rgba(0xff, 0xff, 0xff, SDL::ALPHA_OPAQUE)
+        ANIMATION_NEXT    = Gari::Color.rgba(0xff, 0xff, 0xff, 0xff)
         # Black means, rewind animation to first tile.
-        ANIMATION_REWIND  = Gari::Color.rgba(0x00, 0x00, 0x00, SDL::ALPHA_OPAQUE)
+        ANIMATION_REWIND  = Gari::Color.rgba(0x00, 0x00, 0x00, 0xff)
         
         def self.is_animation_tile?(image)
           corner = image.getdot(0,0)
@@ -204,6 +204,16 @@ module Rogaru
     return res.string
   end
 
+  def self.new_from_raku(rtile)
+    attrs = rtile.data
+    index = attrs.shift.to_i
+    tile  = self.new(index)
+    # Set attribute that was found to true. Other attributes are false.
+    for attr in attrs do 
+      tile.send("#{attr}=".to_sym, true)
+    end
+    return tile
+  end
   
   def self.new_from_xml(xml)
     tile_dir    = Tilemap::Tile.get_tile_directory

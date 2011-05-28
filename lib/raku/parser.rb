@@ -265,8 +265,11 @@ module Raku
     # Get the error message with fail_message.
     def self.parse(text)
       parser = Raku::Parser.new
+      puts "Lex started:"
       tokens = Raku::Lexer.lex_all(text, :ws, :esc_nl)
+      puts "Parse started:"
       return parser.parse(tokens)
+      puts "Parse Done:"
     end
 
   end # class Parser

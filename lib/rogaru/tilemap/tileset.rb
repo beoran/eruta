@@ -292,7 +292,26 @@ module Rogaru
       
       # FIXME: stub
       def self.new_from_raku(raku)
-        return nil
+        rats = raku.find_first(:map, :tileset)
+        p rats
+        return nil unless rats
+        tsiz = rats.find_first(:tilesize)
+        return nil unless tsiz
+        tilewide, tilehigh = *tsiz.data
+        names  = []
+        rnames = rats.find_all(:names, :name)
+        for rname in rnames do
+          name = rname.data[0]
+          names << name if name
+        end
+        p names, tilewide, tilehigh
+        tileset = self.new(names, tilewide, tilehigh, true)
+        rtiles  = rats.find_all(:tiles, :tile)
+        for rtile in rtiles
+          tile = Tilemap::Tile.new_from_raku(rtile)
+          tileset.set_tile_info(tile.index, tile)
+        end
+        return tileset
       end
       
       # Translates a tile index from tmx to our index. 
