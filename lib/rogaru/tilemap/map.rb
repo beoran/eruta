@@ -263,10 +263,10 @@ class Rogaru::Tilemap::Map
     tileset   = Tilemap::Tileset.new_from_raku(raku)
     bg        = raku.find_first(:map, :background)
     backname  = bg ? bg.data[0] : nil
-    layers    = raku.find_all(:map, :layers, :layer)
-    if layers 
-      for raku_layer in layers
-        layer = Tilemap::Layer.new_from_raku(raku_layer, tileset)
+    rlayers   = raku.find_all(:map, :layers, :layer)
+    if rlayers 
+      for rlayer in rlayers
+        layer = Tilemap::Layer.new_from_raku(rlayer, tileset)
         layers << layer
       end
     else 

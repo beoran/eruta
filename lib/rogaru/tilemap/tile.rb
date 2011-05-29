@@ -101,8 +101,8 @@ module Rogaru
     @max      = 0
     @now      = 0
     # Below are the tile's effects.
-    @walk     = true    # The tile can be walked over.
-    @jump     = true    # The tile can be jumped over.
+    @walk     = false   # The tile can be walked over.
+    @jump     = false   # The tile can be jumped over.
     @ledge    = false   # The tile will cause a jump when walked over.
     @swim     = false   # The tile is some kind of swimmable liquid.
     @pain     = false   # Walking over the tile causes pain.
@@ -208,7 +208,7 @@ module Rogaru
     attrs = rtile.data
     index = attrs.shift.to_i
     tile  = self.new(index)
-    # Set attribute that was found to true. Other attributes are false.
+    # Set attribute that was found to true. Other attributes stay false.
     for attr in attrs do 
       tile.send("#{attr}=".to_sym, true)
     end

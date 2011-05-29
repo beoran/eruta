@@ -41,18 +41,19 @@ module Rogaru
       
       # Loads the tile images in the tile folder
       def load()
-        for name in @names do  
+        for name in @names do
           start_index = @load_start[name]
-          folder      = File.join(TILESET_DIR, name)
+          dir         = Dir.new(TILESET_DIR)
+          file        = File.join(TILESET_DIR, name)
           load_folder(folder, start_index)
           @folders << folder
         end
-      end  
+      end
       
       # Loads all tile images forom one tile folder
      def load_folder(folder, load_start = nil)
         dir         = Dir.new(folder)   
-        fileaid     =  dir.select { |f| f =~ /.png\Z/ }
+        fileaid     = dir.select { |f| f =~ /.png\Z/ }
         fileaid.sort! 
         # Sort filenames alphabetically for consistent order.
         for filename in fileaid do 

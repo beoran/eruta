@@ -219,12 +219,21 @@ class Rogaru::Tilemap::Layer
   
   # FIXME: stub
   def self.new_from_raku(rlayer, tileset)
-    rz = rlayer.find_first(:z) 
-    z  = rs.data[0].to_i
+    rz = rlayer.find_first(:z)
+    z  = rz.data[0].to_i
     rsz= rlayer.find_first(:size)
     wide, high, tilewide, tilehigh = *rsz.data
-    
-    return nil
+    layer = Tilemap::Layer.new(tileset, wide, high)
+    rrows = rlayer.find_all(:data, :row)
+    for rrow in rrows do
+      y   = rrow.data.shift.to_i
+      row = rrow.data
+      stop = row.size
+      for x in (0...stop) do
+        layer.set(x, y, row[x])
+      end
+    end
+    return layer
   end
 
   

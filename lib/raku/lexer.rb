@@ -140,13 +140,13 @@ module Raku
     
     # Tries to lex integer numbers
     def lex_int()
-      res = scan(%r{\d[\w\d_]*})
+      res = scan(%r{(\-)?\d[\w\d_]*})
       return try_token(:integer, res)
     end
     
     # Tries to lex floating point numbers
     def lex_float()
-      res = scan(%r{\d[\d_]*\.[\d_]+([eE]\d[\d_]*(\.[\d_]+)?)?})
+      res = scan(%r{(\-)?\d[\d_]*\.[\d_]+([eE]\d[\d_]*(\.[\d_]+)?)?})
       return try_token(:float, res)
     end
     
@@ -176,9 +176,46 @@ module Raku
       :lex_ws,
     ]
     
+    def lex_fail(msg)
+      return Token.new(:fail, "Lex error text at #{@line}: #{@col}: #{@scan.peek(30)}...: #{msg}")
+    end
     
+    def lex_try
+      return token(:eof) if @scan.eos?
+      ch = @scan.peek(1)
+      case ch
+        when '#'
+          return lex_comment || lex_fail("Expected comment")
+        when '/'
+          return lex_comment || lex_operator || lex_fail("Expected comment or operator")
+        when ' ', "\t"
+          return lex_ws || lex_fail("Expected whitespace")
+        when "\r", "\n", '\\'
+          return lex_nl || lex_fail("Expected escaped newline or newline")
+        when '0', '1', '2', '3', '4', '5', '6', '7' , '8', '9'
+          return lex_float || lex_int || lex_fail("Expected number")
+        when '-'
+          return lex_float || lex_int || lex_operator || 
+          lex_fail("Expected number or operator")
+        when '"', "'", '`'
+          return lex_string || lex_fail("Expected string.")
+        when '(',  ')',  '[', ']', '{', '}', ';'
+          return lex_key || lex_fail("Expected key symbol.")
+        else
+          return lex_key || lex_symbol || lex_operator ||
+          lex_fail("Expected keyword, symbol or operator, got >#{ch}<")
+      end
+    end
+    
+    def lex
+      res = lex_try
+      return res if res
+      return Token.new(:fail, "Lex error text at #{@line}: #{@col}: #{@scan.peek(30)}...")
+    end
+      
+      
     # Gets one token. Returns fail? on failure.
-    def lex()
+    def lex_rest()
       return token(:eof) if @scan.eos?
       # Try to lex the various possiblel exemes in the list. 
       for action in LEX_ORDER do 
@@ -190,7 +227,7 @@ module Raku
       return Token.new(:fail, "Lex error text at #{@line}: #{@col}: #{@scan.peek(30)}...")
     end
     
-    # Gets tokens until the kin is not in the skip list 
+    # Gets tokens until the kind is not in the skip list 
     def lex_skip(*skiplist)
       tok = lex() 
       while tok && !tok.eof? && !tok.fail? &&

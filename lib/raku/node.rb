@@ -197,9 +197,7 @@ module Raku
       for key in keys
         result    = []
         for node in nodes
-          p "no", node, nodes
           found   = node.find_all_key(key)
-          p "fo", found
           result += found
         end  
         nodes  = result
