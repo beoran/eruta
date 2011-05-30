@@ -11,18 +11,22 @@ module Tima
     attr_accessor :animation
     
     def initialize(index, images=[], newflags={})
-      @type     = type
       @index    = index
       @images   = images
-      @image    = @images.first
+      @image    = images ? @images.first : nil
       @max      = 0
       @now      = 0
       # Below are the tile's effects.
       @flags    = { :wall  => false, :jump  => false, :ledge => false,
                     :swim  => false, :pain  => false, :up    => false,
                     :down  => false, :block => false }
-      @flags.merge(newflag)
+      @flags.merge(newflags)
       @animation= nil
+    end
+    
+    # Check a flag of the tile
+    def is?(flag)
+      @flags[flag]
     end
 
     # Advances the animation of this tile. 

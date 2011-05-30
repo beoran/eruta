@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 $: << '../lib'
 $: << './lib'
-require 'timama'
+require 'eruta'
 
-Timama.main
+Eruta::Eruma.main
 

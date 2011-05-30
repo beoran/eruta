@@ -143,7 +143,7 @@ module Gari
     
     def copy_rectangle(x, y, w, h)
       img = self.class.new(w, h, 16, :alpha)
-      self.blit(x, y, img)
+      img.blitpart(0, 0, self, x, y, w, h)
       return img
     end
     

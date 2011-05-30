@@ -267,6 +267,10 @@ GariImage * gari_image_savepng(GariImage * img, const char * filename);
 /** Optimizes the image for drawing to the screen. */
 GariImage * gari_image_optimize(GariImage * image, int mode, GariDye dyekey);
 
+/** Copies a part of the source image and returns a new destination image,
+or nil it it ran out of memory or otherwise was incorrect. */
+GariImage * gari_image_copypart(GariImage *src, int x, int y, int w, int h);
+
 /** Returns the width of the image. */
 int gari_image_w(GariImage * img);
  

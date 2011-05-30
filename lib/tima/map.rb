@@ -1,3 +1,5 @@
+
+
 module Tima
   class Map
     # Width of map in tiles
@@ -5,10 +7,10 @@ module Tima
     # Height of map in tiles
     attr_reader :high_tile
     
-    def initialize(wide_tile, high_tile, layers, attributes = {})
-      @wide_tile, @high_tile = wide_tile, high_tile
+    def initialize(list, layers, attributes = {})
       @layers                = layers
       @backname              = attributes[:background]
+      @list                  = list
     end
     
     def to_raku
@@ -37,18 +39,23 @@ module Tima
           layer = Tima::Layer.new_from_raku(rlayer, list)
           layers << layer
         end
-      else 
+      else
         warn "Map has no layers!"
-      end   
-      attrs = { :background => backname } 
-      map = self.new(tileset, layers, attrs)
-      map.prepare_animated_tiles(tileset)
+      end
+      attrs = { :background => backname }
+      map   = self.new(list, layers, attrs)
+      # map.prepare_animated_tiles(list)
       return map
     end
     
+    # Draws the map to the given screen.
     def draw(screen, x, y)
-      for layer in layers do
+      stop  = @layers.size
+      index = 0
+      while index < stop          # while loops are faster than iterators.
+        layer  = @layers[index]
         layer.draw(screen, x, y)
+        index += 1
       end
     end
     
@@ -62,6 +69,24 @@ module Tima
       return nil, err unless raku
       result, err = self.new_from_raku(raku)
       return result, err
+    end
+    
+        # Returns the width of the widest layer
+    def wide
+      w = 0
+      @layers.each do | l |
+        w = l.wide if l.wide > w
+      end
+      return w
+    end
+    
+    # Returns the height of the highest layer
+    def high
+      h = 0
+      @layers.each do | l |
+        h = l.high if l.high > h
+      end
+      return h
     end
     
   end

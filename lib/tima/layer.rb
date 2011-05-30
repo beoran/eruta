@@ -37,7 +37,7 @@ module Tima
     # Sets the tile at the given tile coordinates to the one 
     def set(x_tile, y_tile, index)
       return nil if outside?(x_tile, y_tile)
-      tile                      = @list.get(index)
+      tile                      = @list.get_image(index)
       @tiles[y_tile][x_tile]    = tile
       @indexes[y_tile][x_tile]  = index
       return tile
@@ -94,6 +94,7 @@ module Tima
     
     # draws the visible part of the layer to the screen.
     def draw(screen, x, y)
+      ifake       = 0
       x_start     = ( x / TILE_WIDE )
       y_start     = ( y / TILE_HIGH )
       x_delta     = (screen.w / TILE_WIDE) + 1
@@ -112,13 +113,13 @@ module Tima
       while y_index < y_stop do
         y_draw   += TILE_HIGH
         x_draw    = -x + ((x_start - 1) * TILE_WIDE )
-        row       = @layer[y_index]
+        row       = @tiles[y_index]
         x_index   = x_start
         while x_index < x_stop
           x_draw  += TILE_WIDE
           tile     = row[x_index]
-          unless tile.nil? then
-            image  = tile.image
+          unless tile.nil?
+            image  = tile # .image
             screen.blit(x_draw, y_draw, image)
           end
           x_index += 1

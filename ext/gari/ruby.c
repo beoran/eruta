@@ -460,7 +460,7 @@ VALUE rbgari_image_getdot(VALUE self, VALUE vx, VALUE vy, VALUE vc) {
   return GARI_COLOR_WRAP(result);
 }
 
-
+/* Blits vimg to self at the given coordinates. */
 VALUE rbgari_image_blit(VALUE self, VALUE vx, VALUE vy, VALUE vimg) {
   gari_image_blit(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy), 
                   GARI_IMAGE_UNWRAP(vimg));
@@ -503,6 +503,13 @@ VALUE rbgari_image_getclip(VALUE self) {
   if(!gari_image_getclip(GARI_IMAGE_UNWRAP(self), &x, &y, &w, &h)) return Qnil;
   return rb_ary_new3(4, RBH_INT_NUM(x), RBH_INT_NUM(y), 
                         RBH_INT_NUM(w), RBH_INT_NUM(h)); 
+}
+
+VALUE rbgari_image_copypart(VALUE self, VALUE vx, VALUE vy, VALUE vw, VALUE vh) {
+  GariImage *res;
+  res = gari_image_copypart(GARI_IMAGE_UNWRAP(self), RBH_INT(vx), RBH_INT(vy),
+                            RBH_INT(vw), RBH_INT(vh));
+  return GARI_IMAGE_WRAP(res);
 }
   
 #define GARI_EVENT_WRAP(EVE) RBH_WRAP(Event, EVE, gari_event_free)
@@ -1303,6 +1310,8 @@ void Init_gari() {
   RBH_METHOD(Image, dyecolor  , rbgari_dye_color        , 1);
   RBH_METHOD(Image, savebmp   , rbgari_image_savebmp    , 1);
   RBH_METHOD(Image, savepng   , rbgari_image_savepng    , 1);
+  
+  RBH_METHOD(Image, copypart  , rbgari_image_copypart   , 4);
   
   // RBH_METHOD(Image,   , rbgari_image_ , );
   RBH_METHOD(Screen, fullscreen, rbgari_screen_fullscreen, 0);

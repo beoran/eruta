@@ -15,7 +15,7 @@ require 'fimyfi'
 require 'nofont'
 require 'zori' # GUI library
 require 'tima'
-include Rogaru
+
 
 module Eruta
   # Uses Eruta::Program and Eruta::Mainmode, etc to do the job.

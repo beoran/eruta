@@ -2,6 +2,7 @@
 # "window" of the tile map.
 module Tima
   class View
+    
     # Position vector 
     attr_reader :p
     # Size vector
@@ -11,9 +12,9 @@ module Tima
     # setting the size of the visible screen, and  
     # informing it about the maximum distance it may scroll (on the map)
     def initialize(x, y, w, h, xmax, ymax)
-      @p        = vec(x, y)
-      @size     = vec(w, h)
-      @max      = vec(wmax, umax)
+      @p        = Tima.vec(x, y)
+      @size     = Tima.vec(w, h)
+      @max      = Tima.vec(xmax, ymax)
       @speed    = 10
       @goals    = []
       @tracking = []
@@ -58,7 +59,7 @@ module Tima
 
     # Sets the center without doing any checks.
     def set_center(xnew, ynew)
-      @p = vec(xnew - self.w_half, ynew - self.h_half)   
+      @p = Tima.vec(xnew - self.w_half, ynew - self.h_half)   
     end
       
     # Lefmost position for this camera's center

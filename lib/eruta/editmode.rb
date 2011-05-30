@@ -1,32 +1,31 @@
-module Eruma
-  class Editmode < Mode
+module Eruta
+  class Editmode < Eruta::Mode
     START_MAP = 'data/map/map_0001.ra'
     
-    
-    def ask_for_new_filename()
-      if (!@filename) or @filename.empty?
-        @filename = @ui.ask('File name for new map, or name of map to load?')
-        if (!@filename) or @filename.empty?
-          @ui.textsplash('No file to load or create.', 1.0)
-          return false
-        end  
-        @filename += '.ra' unless @filename =~ /\.ra/
-      end
-      return @filename
-    end
-    
+#     
+#     def ask_for_new_filename()
+#       if (!@filename) or @filename.empty?
+#         @filename = @ui.ask('File name for new map, or name of map to load?')
+#         if (!@filename) or @filename.empty?
+#           @ui.textsplash('No file to load or create.', 1.0)
+#           return false
+#         end  
+#         @filename += '.ra' unless @filename =~ /\.ra/
+#       end
+#       return @filename
+#     end
     
     def initialize(program, name = :edit)
       super(program, name)
       @filename  = START_MAP
-      @map       = Tima::Map.load(@filename)
+      @map, err  = Tima::Map.load(@filename)
       @view      = Tima::View.new(0, 0, 
                     program.screen.w, program.screen.h,  @map.wide, @map.high)
-      @map.view  = view 
+      # @map.view  = @view
       @filename  = nil 
       @showstat  = program.ui.statusdisplay("")
     end 
-    
+  
     def mark_active_tile(screen, map, edit_x, edit_y, edit_layer, tilewide)
       x1 = map.tile_to_screen_x(edit_layer, edit_x)
       y1 = map.tile_to_screen_y(edit_layer, edit_y)
@@ -43,7 +42,6 @@ module Eruma
       return true
     end
 
-    
     def render(screen)
       @screen = screen
       @screen = @map.draw(@screen, @view.x, @view.y)
@@ -77,16 +75,15 @@ module Eruma
     end
     
     def load_new_file_if_needed
-      unless @map || @loading
+      return @map if @map || @loading
       @loading = true
       
       @filename = ask_for_new_filename if (!@filename)
-      if(!@filename)
+      @loading = false
+      unless @filename
         return @program.quit! 
       end
       return @map
-
-      @loading = false
     end
     
     def update

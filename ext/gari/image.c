@@ -40,7 +40,8 @@ GariDye gari_image_rgba(GariImage *img,
 }
 
 
-/** Optimizes the image for drawing to the screen. */
+/** Optimizes the image for drawing to the screen, possibly applying a color
+key for transparency as well. */
 GariImage * gari_image_optimize(GariImage * image, int mode, GariDye colorkey) {
   SDL_Surface * surface;
   surface = gari_image_surface(image);
@@ -100,17 +101,53 @@ void gari_image_blitpart(GariImage * dst, int dstx, int dsty, GariImage * src,
 int srcx, int srcy, int srcw, int srch) {
   SDL_Surface *sdlsrc, *sdldst;
   SDL_Rect    dstrect, srcrect;
-  dstrect.x = dstx;
-  dstrect.y = dsty;
-  srcrect.x = srcx;
-  srcrect.y = srcy;
-  srcrect.w = srcw;
-  srcrect.h = srch;  
+  dstrect.x = dstx;  dstrect.y = dsty;
+  srcrect.x = srcx;  srcrect.y = srcy;  srcrect.w = srcw;  srcrect.h = srch;  
   sdlsrc    = GARI_IMAGE_SURFACE(src);
   sdldst    = GARI_IMAGE_SURFACE(dst);
-  SDL_BlitSurface(sdlsrc, &srcrect, sdldst, &dstrect);  
+  SDL_BlitSurface(sdlsrc, &srcrect, sdldst, &dstrect);
 }
 
+
+SDL_Surface * sdl_image_copypart(SDL_Surface * src, int x, int y, int w, int h) {
+  SDL_Surface * result = NULL;
+  SDL_Rect    dstrect, srcrect;
+  SDL_PixelFormat * format = NULL;
+  Uint32 flagbase = SDL_SWSURFACE|SDL_HWSURFACE|SDL_SRCCOLORKEY|SDL_SRCALPHA;
+  Uint32 aflags   = 0;
+  Uint32 myflags  = 0;
+  if(!src) return NULL;
+  format = src->format;
+  if(!format) return NULL;
+  dstrect.x = 0;  dstrect.y = 0;
+  srcrect.x = x;  srcrect.y = y;  srcrect.w = w;  srcrect.h = h;
+  // store alpha flags
+  aflags    = src->flags & (SDL_SRCCOLORKEY | SDL_RLEACCEL);
+  SDL_SetAlpha(src, 0, format->alpha); // disable alpha on src
+  myflags   = flagbase & src->flags;
+  result    = SDL_CreateRGBSurface(myflags, w, h, format->BitsPerPixel,
+                                   format->Rmask, format->Gmask ,format->Bmask,
+                                   format->Amask);
+  
+  SDL_SetAlpha(src, aflags, format->alpha); // re-enable alpha on src
+  if(!result) return NULL;
+  // copy pixels
+  SDL_BlitSurface(src, &srcrect, result, &dstrect);
+  // copy alpha flagbase and color key
+  SDL_SetColorKey(result, src->flags & (SDL_SRCCOLORKEY|SDL_RLEACCEL), 
+                  format->colorkey);
+  SDL_SetAlpha(result, src->flags & (SDL_SRCALPHA|SDL_RLEACCEL),
+                  format->alpha);
+  return result;
+}
+
+/** Copies a part of the source image and returns a new destination image,
+or nil it it ran out of memory or otherwise was incorrect. */
+GariImage * gari_image_copypart(GariImage *src, int x, int y, int w, int h) {
+  SDL_Surface * surf = gari_image_surface(src);
+  SDL_Surface * res  = sdl_image_copypart(surf, x, y, w, h);
+  return gari_image_wrap(res);
+}
 
 
 /** Copys exactly one pixel from src to dst using SDL_BlitSurface. 
