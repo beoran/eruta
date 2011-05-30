@@ -159,6 +159,18 @@ module Fimyfi
     return join(self.dir, 'image')
   end
   
+  def self.tile_dir
+    return join(self.image_dir, 'tile')
+  end
+  
+  def self.sprite_dir
+    return join(self.image_dir, 'sprite')
+  end
+  
+  def self.map_dir
+    return join(self.dir, 'map')
+  end
+  
   def self.ui_dir
     return join(self.image_dir, 'ui')
   end

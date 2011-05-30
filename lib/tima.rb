@@ -11,6 +11,8 @@ module Tima
   autoload :Player  , 'tima/player'
   autoload :Set     , 'tima/set'
   autoload :Thing   , 'tima/thing'
+  autoload :Tile    , 'tima/tile'
+  autoload :Tilelist, 'tima/tilelist'
   autoload :View    , 'tila/view'
   
   # Convenience method that returns a 2d vector.

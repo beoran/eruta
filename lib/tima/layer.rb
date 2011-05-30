@@ -17,10 +17,10 @@ module Tima
     TILE_HIGH   = 32
     TILE_WIDE   = 32
     
-    def initialize(wide_tile, high_tile, set)
+    def initialize(wide_tile, high_tile, tilelist)
       @wide_tile  = wide_tile
       @high_tile  = high_tile
-      @set        = set
+      @list       = tilelist
       @tiles      = Array.new(@high_tile) { Array.new(@wide_tile, nil)  }
       @indexes    = Array.new(@high_tile) { Array.new(@wide_tile,  -1)  }
       @wide       = @wide_tile * TILE_WIDE
@@ -37,7 +37,7 @@ module Tima
     # Sets the tile at the given tile coordinates to the one 
     def set(x_tile, y_tile, index)
       return nil if outside?(x_tile, y_tile)
-      tile                      = @set.get(index)
+      tile                      = @list.get(index)
       @tiles[y_tile][x_tile]    = tile
       @indexes[y_tile][x_tile]  = index
       return tile
@@ -74,12 +74,12 @@ module Tima
     end
     
     # Loads a layer from a raku data source.
-    def self.new_from_raku(rlayer, set)
+    def self.new_from_raku(rlayer, list)
       rz = rlayer.find_first(:z)
       z  = rz.data[0].to_i
       rsz= rlayer.find_first(:size)
       wide, high, tilewide, tilehigh = *rsz.data
-      layer = self.new(wide, high, set)
+      layer = self.new(wide, high, list)
       rrows = rlayer.find_all(:data, :row)
       for rrow in rrows do
         y   = rrow.data.shift.to_i
