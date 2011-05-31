@@ -252,6 +252,13 @@ void gari_image_free(GariImage * image);
 /** Loads the image from the named file. */
 GariImage * gari_image_loadraw(char * filename);
 
+
+/** Loads the image from the named file, and optimizes it for display
+as a solid image on the active video surface, which must already have been 
+opened. If the acceleration fails, this returns the unaccellerated image. 
+Return NULL if the file could not be read. */
+GariImage * gari_image_loadsolid(char * filename);
+
 /** Loads the image from the named file and tries to optimize it for display on the game's screen. This requires the game's screen to have been opened first. */
 GariImage * gari_image_load(GariGame * game, char * filename);
 
@@ -270,6 +277,11 @@ GariImage * gari_image_optimize(GariImage * image, int mode, GariDye dyekey);
 /** Copies a part of the source image and returns a new destination image,
 or nil it it ran out of memory or otherwise was incorrect. */
 GariImage * gari_image_copypart(GariImage *src, int x, int y, int w, int h);
+
+/** Returns true if any pixel of the image has any per-pixel transparency, 
+lower than amin 
+false if not. */
+int gari_image_hasalpha_p(GariImage * img, unsigned char amin);
 
 /** Returns the width of the image. */
 int gari_image_w(GariImage * img);

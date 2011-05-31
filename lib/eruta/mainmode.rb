@@ -15,8 +15,8 @@ include Rogaru
 
 module Eruta
   class Mainmode < Eruta::Mode
-    # START_MAP = 'data/map/map07_test.xml'
-    START_MAP = 'data/map/map_0001.ra'
+    START_MAP = 'data/map/map07_test.xml'
+    # START_MAP = 'data/map/map_0001.ra'
     def initialize(program, name)
       super(program, name) 
       p program, name ,self

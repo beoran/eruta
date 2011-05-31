@@ -302,6 +302,13 @@ VALUE rbgari_image_loadraw(VALUE self, VALUE vname) {
   return GARI_IMAGE_WRAP(img);
 }
 
+/** Loads the image from the named file, accelllerating it for solid display. */
+VALUE rbgari_image_loadsolid(VALUE self, VALUE vname) { 
+  char * name     = RBH_STRING(vname);
+  GariImage * img = gari_image_loadsolid(name);
+  return GARI_IMAGE_WRAP(img); 
+}
+
 /** Saves the image to the named file in BMP format. */
 VALUE rbgari_image_savebmp(VALUE self, VALUE vname) {
   GariImage * img = GARI_IMAGE_UNWRAP(self);
@@ -315,6 +322,17 @@ VALUE rbgari_image_savepng(VALUE self, VALUE vname) {
   char * name     = RBH_STRING(vname);  
   return RBH_TOBOOL(gari_image_savepng(img, name));
 }
+
+/** Checks an image for transparency. */
+VALUE rbgari_image_hasalpha_p(VALUE self, VALUE vamin) {
+  GariImage * img = GARI_IMAGE_UNWRAP(self);
+  unsigned char amin = 255;
+  if (!NIL_P(vamin)) {
+    amin = RBH_UINT8(amin);
+  }
+  return RBH_TOBOOL(gari_image_hasalpha_p(img, amin));
+}
+
 
 
 /* Perhaps implement this in ruby? 
@@ -1269,8 +1287,9 @@ void Init_gari() {
   RBH_METHOD(Screen, showcursor , rbgari_screen_showcursor  , 0);
   RBH_METHOD(Screen, showcursor=, rbgari_screen_showcursor_ , 1);
   
-  RBH_SINGLETON_METHOD(Image, loadraw, rbgari_image_loadraw, 1);
-  RBH_SINGLETON_METHOD(Image, new    , rbgari_image_newdepth, 4);
+  RBH_SINGLETON_METHOD(Image, loadraw  , rbgari_image_loadraw  , 1);
+  RBH_SINGLETON_METHOD(Image, loadsolid, rbgari_image_loadsolid, 1);
+  RBH_SINGLETON_METHOD(Image, new      , rbgari_image_newdepth , 4);
     
   RBH_CLASS_NUM_CONST(Image, SOLID, GariImageSolid);
   RBH_CLASS_NUM_CONST(Image, COLORKEY, GariImageColorkey);
@@ -1312,6 +1331,7 @@ void Init_gari() {
   RBH_METHOD(Image, savepng   , rbgari_image_savepng    , 1);
   
   RBH_METHOD(Image, copypart  , rbgari_image_copypart   , 4);
+  RBH_METHOD(Image, hasalpha? , rbgari_image_hasalpha_p , 1);
   
   // RBH_METHOD(Image,   , rbgari_image_ , );
   RBH_METHOD(Screen, fullscreen, rbgari_screen_fullscreen, 0);
@@ -1327,6 +1347,7 @@ void Init_gari() {
   RBH_GETTER(Color, a, gari_color_a);
   RBH_METHOD(Color, optimize, rbgari_color_optimize, 1);
   RBH_METHOD(Color, dye     , rbgari_color_dye     , 1); 
+  
   
   
   RBH_CLASS_NUM_CONST(Event, NONE         , GARI_EVENT_NONE);

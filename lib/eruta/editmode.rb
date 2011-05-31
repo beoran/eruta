@@ -19,6 +19,9 @@ module Eruta
       super(program, name)
       @filename  = START_MAP
       @map, err  = Tima::Map.load(@filename)
+      unless @map
+        raise "Could not load map #{err.fail_message}." 
+      end
       @view      = Tima::View.new(0, 0, 
                     program.screen.w, program.screen.h,  @map.wide, @map.high)
       # @map.view  = @view

@@ -163,6 +163,10 @@ module Fimyfi
     return join(self.image_dir, 'tile')
   end
   
+  def self.background_dir
+    return join(self.image_dir, 'background')
+  end
+  
   def self.sprite_dir
     return join(self.image_dir, 'sprite')
   end

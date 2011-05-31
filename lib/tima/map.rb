@@ -9,9 +9,23 @@ module Tima
     
     def initialize(list, layers, attributes = {})
       @layers                = layers
-      @backname              = attributes[:background]
+      @background            = nil
       @list                  = list
+      @attributes            = attributes
+      load_background(@attributes[:background])
     end
+    
+    def load_background(backname)
+      p "background:", backname, @attributes
+      return nil unless backname
+      toread      = File.join(Fimyfi.background_dir, backname)
+      @background = Gari.loadsolid(toread)
+      p toread
+      p @background
+      return @background
+    end
+    
+    
     
     def to_raku
       res = StringIO.new('')
@@ -31,7 +45,9 @@ module Tima
     def self.new_from_raku(raku)
       layers    = []
       list      = Tima::Tilelist.new_from_raku(raku)
-      bg        = raku.find_first(:map, :background)
+      ma        = raku.find_first(:map)       
+      bg        = ma.find_first(:background)
+      p "bg", ma, bg
       backname  = bg ? bg.data[0] : nil
       rlayers   = raku.find_all(:map, :layers, :layer)
       if rlayers 
@@ -50,6 +66,10 @@ module Tima
     
     # Draws the map to the given screen.
     def draw(screen, x, y)
+      if @background
+        screen.blit(x, y, @background)
+      end
+      
       stop  = @layers.size
       index = 0
       while index < stop          # while loops are faster than iterators.

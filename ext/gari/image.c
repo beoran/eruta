@@ -64,13 +64,27 @@ GariImage * gari_image_optimize(GariImage * image, int mode, GariDye colorkey) {
 
 }
 
-/** Loadss the image from the named file. Supports all formats 
+/** Loads the image from the named file. Supports all formats 
 SDL_image supports. */
 GariImage * gari_image_loadraw(char * filename) {
   GariImage * result;
   result = gari_image_wrap(IMG_Load(filename));
   return result;
 }
+
+/** Loads the image from the named file, and optimizes it for display
+as a solid image on the active video surface, which must already have been 
+opened. If the acceleration fails, this returns the unaccellerated image. 
+Return NULL if the file could not be read. */
+GariImage * gari_image_loadsolid(char * filename) {
+  GariImage * normal, * faster;
+  normal = gari_image_loadraw(filename);
+  if (!normal) { return NULL ;  }
+  faster = gari_image_optimize(image, GariImageSolid, 0);
+  if (!faster) { return normal; }
+  return faster;
+}
+
 
 
 
@@ -312,4 +326,32 @@ GariImage * gari_image2image_convert(GariImage * srci,
   if((!src) || (!dst)) return NULL;
   return gari_image_wrap(SDL_ConvertSurface(src, dst->format, flags));
 }
+
+
+/** Returns true if any pixel of the image has any per-pixel transparency, 
+lower than amin 
+false if not. */
+int gari_image_hasalpha_p(GariImage * img, unsigned char amin) {
+  GariDye dye;
+  GariColor color;
+  int x, y, w, h;
+  int result = FALSE;
+  SDL_Surface * surf = gari_image_surface(img);
+  if (!surf->flags & SDL_SRCALPHA) return FALSE;
+  w = gari_image_w(img);
+  h = gari_image_h(img);
+  gari_image_lock(img);
+  for (y = 0; y < h; x++) {
+    for (x = 0; x < w; y++) {
+      dye   = gari_image_getpixel_nolock(img, x, y);
+      color = gari_dye_color(dye, img);
+      if (color.a < amin) {
+        result = TRUE;
+        break;
+      }
+    }
+  }
+  gari_image_unlock(img);
+  return result;
+} 
 
