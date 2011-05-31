@@ -44,8 +44,11 @@ module Tima
     # Loads the map from a Raku file
     def self.new_from_raku(raku)
       layers    = []
+      
+      # raku.to_graph.display
       list      = Tima::Tilelist.new_from_raku(raku)
-      ma        = raku.find_first(:map)       
+      ma        = raku.find_first(:map)
+      # ma.to_graph.display
       bg        = ma.find_first(:background)
       p "bg", ma, bg
       backname  = bg ? bg.data[0] : nil

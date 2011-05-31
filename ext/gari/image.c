@@ -80,7 +80,7 @@ GariImage * gari_image_loadsolid(char * filename) {
   GariImage * normal, * faster;
   normal = gari_image_loadraw(filename);
   if (!normal) { return NULL ;  }
-  faster = gari_image_optimize(image, GariImageSolid, 0);
+  faster = gari_image_optimize(normal, GariImageSolid, 0);
   if (!faster) { return normal; }
   return faster;
 }
