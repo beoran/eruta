@@ -116,6 +116,14 @@ GariGame * gari_game_make() {
   return NULL;  
 }
 
+/* Allow joysticks to generate events or not.
+ Call this  before calling openjoysticks */
+int gari_game_joystickevents_(GariGame * gari, int enable) {
+  int state = enable ? SDL_ENABLE : SDL_IGNORE;
+  return SDL_JoystickEventState(state);
+}
+
+
 
 // Opens all available joysticks.
 GariGame * gari_game_openjoysticks(GariGame * gari) {
@@ -181,8 +189,15 @@ GariGame * gari_game_init(GariGame * game) {
     fprintf(stderr, "TTF_Init: %s\n", TTF_GetError());
     return NULL;
   }
+  
+  
   // also enable unicode events.
   SDL_EnableUNICODE(1);
+  
+  // enable joystick events if any joystics are present 
+  if (gari_game_joysticks(game) > 0) {
+    gari_game_joystickevents_(game, TRUE);
+  }
   
   // also open all joysticks.
   gari_game_openjoysticks(game);

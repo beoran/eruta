@@ -6,6 +6,7 @@ module Tima
   # These tiles are loaded from several image files. 
   class Tilelist
     attr_reader :images
+    attr_reader :tiles
     
     TILE_WIDE = 32
     TILE_HIGH = 32
@@ -25,6 +26,16 @@ module Tima
       return nil unless m
       return nil unless m[1]
       return m[1].to_i
+    end
+    
+    # Returns the index of the last tile
+    def first
+      return self.images.keys.sort.first
+    end
+    
+    # Returns the index of the first tile
+    def last
+      return self.images.keys.sort.last
     end
     
     # Sets the image to use for an index
@@ -93,13 +104,12 @@ module Tima
       res.puts("  tileset {")
       res.puts("    tilesize #{@tilewide} #{@tilehigh}")
       res.puts("    names {")
-      for name in @names do
-        res.puts("      name #{name}")
+      for name in @filenames do
+        res.puts("      name \"#{name}\"")
       end
       res.puts("    }")
       res.puts("    tiles {")
-      self.each() do | tile |
-        next unless tile
+      for key, tile in @tiles do
         res << tile.to_raku
       end
       res.puts("    }")

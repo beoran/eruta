@@ -23,6 +23,9 @@ module Tima
     return CP::Vec2.new(x, y)
   end
   
+  # All tima maps use tles of constant 32x32 pixels.
+  TILE_WIDE = 32
+  TILE_HIGH = 32
   
 end
 

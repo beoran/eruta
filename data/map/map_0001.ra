@@ -1,318 +1,317 @@
 map {
-  background "bluesky2.jpg"
-  
+  background 'bluesky2.jpg'
   tileset {
-    tilesize 32 32
+    tilesize  
     names {
       name "tiles_village_1000.png"
     }
     tiles {
-        tile 1000 jump
-        tile 1001 jump
-        tile 1002 jump
-        tile 1003 swim jump
-        tile 1004 jump down
-        tile 1005 jump up
-        tile 1006 jump
-        tile 1007 jump
-        tile 1008 jump
-        tile 1009 jump
-        tile 1010 jump
-        tile 1011 swim jump
-        tile 1012 jump
-        tile 1013 jump
-        tile 1014 jump
-        tile 1015 jump
-        tile 1016 jump
-        tile 1017 wall jump
-        tile 1018 jump
-        tile 1019 jump
-        tile 1020 jump
-        tile 1021 jump
-        tile 1022 jump
-        tile 1023 jump
-        tile 1024 jump
-        tile 1025 jump
-        tile 1026 jump
-        tile 1027 jump
-        tile 1028 jump
-        tile 1029 jump
-        tile 1030 jump
-        tile 1031 jump
-        tile 1032 jump
-        tile 1033 jump
-        tile 1034 jump
-        tile 1035 jump
-        tile 1036 jump
-        tile 1037 jump
-        tile 1038 jump
-        tile 1039 jump
-        tile 1040 jump
-        tile 1041 jump
-        tile 1042 jump
-        tile 1043 jump
-        tile 1044 jump
-        tile 1045 jump
-        tile 1046 jump
-        tile 1047 jump
-        tile 1048 jump
-        tile 1049 jump
-        tile 1050 jump
-        tile 1051 jump
-        tile 1052 jump
-        tile 1053 jump
-        tile 1054 jump
-        tile 1055 jump
-        tile 1056 jump
-        tile 1057 jump
-        tile 1058 jump
-        tile 1059 jump
-        tile 1060 jump
-        tile 1061 jump
-        tile 1062 jump
-        tile 1063 jump
-        tile 1064 jump
-        tile 1065 jump
-        tile 1066 jump
-        tile 1067 jump
-        tile 1068 jump
-        tile 1069 jump
-        tile 1070 jump
-        tile 1071 jump
-        tile 1072 jump
-        tile 1073 jump
-        tile 1074 jump
-        tile 1075 jump
-        tile 1076 jump
-        tile 1077 jump
-        tile 1078 jump
-        tile 1079 jump
-        tile 1080 jump
-        tile 1081 jump
-        tile 1082 jump
-        tile 1083 jump
-        tile 1084 jump
-        tile 1085 jump
-        tile 1086 jump
-        tile 1087 jump
-        tile 1088 jump
-        tile 1089 jump
-        tile 1090 jump
-        tile 1091 jump
-        tile 1092 jump
-        tile 1093 jump
-        tile 1094 jump
-        tile 1095 jump
-        tile 1096 jump
-        tile 1097 jump
-        tile 1098 jump
-        tile 1099 jump
-        tile 1100 jump
-        tile 1101 jump
-        tile 1102 jump
-        tile 1103 jump
-        tile 1104 jump
-        tile 1105 jump
-        tile 1106 jump
-        tile 1107 jump
-        tile 1108 jump
-        tile 1109 jump
-        tile 1110 jump
-        tile 1111 jump
-        tile 1112 jump
-        tile 1113 jump
-        tile 1114 jump
-        tile 1115 jump
-        tile 1116 jump
-        tile 1117 jump
-        tile 1118 jump
-        tile 1119 jump
-        tile 1120 jump
-        tile 1121 jump
-        tile 1122 jump
-        tile 1123 jump
-        tile 1124 jump
-        tile 1125 jump
-        tile 1126 jump
-        tile 1127 jump
-        tile 1128 jump
-        tile 1129 jump
-        tile 1130 jump
-        tile 1131 jump
-        tile 1132 jump
-        tile 1133 jump
-        tile 1134 jump
-        tile 1135 jump
-        tile 1136 jump
-        tile 1137 jump
-        tile 1138 jump
-        tile 1139 jump
-        tile 1140 jump
-        tile 1141 jump
-        tile 1142 jump
-        tile 1143 jump
-        tile 1144 jump
-        tile 1145 jump
-        tile 1146 jump
-        tile 1147 jump
-        tile 1148 jump
-        tile 1149 jump
-        tile 1150 jump
-        tile 1151 jump
-        tile 1152 jump
-        tile 1153 jump
-        tile 1154 jump
-        tile 1155 jump
-        tile 1156 jump
-        tile 1157 jump
-        tile 1158 jump
-        tile 1159 jump
-        tile 1160 jump
-        tile 1161 jump
-        tile 1162 jump
-        tile 1163 jump
-        tile 1164 jump
-        tile 1165 jump
-        tile 1166 jump
-        tile 1167 jump
-        tile 1168 jump
-        tile 1169 jump
-        tile 1170 jump
-        tile 1171 jump
-        tile 1172 jump
-        tile 1173 jump
-        tile 1174 jump
-        tile 1175 jump
-        tile 1176 jump
-        tile 1177 jump
-        tile 1178 jump
-        tile 1179 jump
-        tile 1180 jump
-        tile 1181 jump
-        tile 1182 jump
-        tile 1183 jump
-        tile 1184 jump
-        tile 1185 jump
-        tile 1186 jump
-        tile 1187 jump
-        tile 1188 jump
-        tile 1189 jump
-        tile 1190 jump
-        tile 1191 jump
-        tile 1192 jump
-        tile 1193 jump
-        tile 1194 jump
-        tile 1195 jump
-        tile 1196 jump
-        tile 1197 jump
-        tile 1198 jump
-        tile 1199 jump
-        tile 1200 jump
-        tile 1201 jump
-        tile 1202 jump
-        tile 1203 jump
-        tile 1204 jump
-        tile 1205 jump
-        tile 1206 jump
-        tile 1207 jump
-        tile 1208 jump
-        tile 1209 jump
-        tile 1210 jump
-        tile 1211 jump
-        tile 1212 jump
-        tile 1213 jump
-        tile 1214 jump
-        tile 1215 jump
-        tile 1216 jump
-        tile 1217 jump
-        tile 1218 jump
-        tile 1219 jump
-        tile 1220 jump
-        tile 1221 jump
-        tile 1222 jump
-        tile 1223 jump
-        tile 1224 jump
-        tile 1225 jump
-        tile 1226 jump
-        tile 1227 jump
-        tile 1228 jump
-        tile 1229 jump
-        tile 1230 jump
-        tile 1231 jump
-        tile 1232 jump
-        tile 1233 jump
-        tile 1234 jump
-        tile 1235 jump
-        tile 1236 jump
-        tile 1237 jump
-        tile 1238 jump
-        tile 1239 jump
-        tile 1240 jump
-        tile 1241 jump
-        tile 1242 jump
-        tile 1243 jump
-        tile 1244 jump
-        tile 1245 jump
-        tile 1246 jump
-        tile 1247 jump
-        tile 1248 jump
-        tile 1249 jump
-        tile 1250 jump
-        tile 1251 jump
-        tile 1252 jump
-        tile 1253 jump
-        tile 1254 jump
-        tile 1255 jump
-        tile 1256 jump
-        tile 1257 jump
-        tile 1258 jump
-        tile 1259 jump
-        tile 1260 jump
-        tile 1261 jump
-        tile 1262 jump
-        tile 1263 jump
-        tile 1264 jump
-        tile 1265 jump
-        tile 1266 jump
-        tile 1267 jump
-        tile 1268 jump
-        tile 1269 jump
-        tile 1270 jump
-        tile 1271 jump
-        tile 1272 jump
-        tile 1273 jump
-        tile 1274 jump
-        tile 1275 jump
-        tile 1276 jump
-        tile 1277 jump
-        tile 1278 jump
-        tile 1279 jump
-        tile 1280 jump
-        tile 1281 jump
-        tile 1282 jump
-        tile 1283 jump
-        tile 1284 jump
-        tile 1285 jump
-        tile 1286 jump
-        tile 1287 jump
-        tile 1288 jump
-        tile 1289 jump
-        tile 1290 jump
-        tile 1291 jump
-        tile 1292 jump
-        tile 1293 jump
-        tile 1294 jump
-        tile 1295 jump
-        tile 1296 jump
-        tile 1297 jump
-        tile 1298 jump
-        tile 1299 jump
+        tile 1000
+        tile 1001
+        tile 1002
+        tile 1003
+        tile 1004
+        tile 1005
+        tile 1006
+        tile 1007
+        tile 1008
+        tile 1009
+        tile 1010
+        tile 1011
+        tile 1012
+        tile 1013
+        tile 1014
+        tile 1015
+        tile 1016
+        tile 1017
+        tile 1018
+        tile 1019
+        tile 1020
+        tile 1021
+        tile 1022
+        tile 1023
+        tile 1024
+        tile 1025
+        tile 1026
+        tile 1027
+        tile 1028
+        tile 1029
+        tile 1030
+        tile 1031
+        tile 1032
+        tile 1033
+        tile 1034
+        tile 1035
+        tile 1036
+        tile 1037
+        tile 1038
+        tile 1039
+        tile 1040
+        tile 1041
+        tile 1042
+        tile 1043
+        tile 1044
+        tile 1045
+        tile 1046
+        tile 1047
+        tile 1048
+        tile 1049
+        tile 1050
+        tile 1051
+        tile 1052
+        tile 1053
+        tile 1054
+        tile 1055
+        tile 1056
+        tile 1057
+        tile 1058
+        tile 1059
+        tile 1060
+        tile 1061
+        tile 1062
+        tile 1063
+        tile 1064
+        tile 1065
+        tile 1066
+        tile 1067
+        tile 1068
+        tile 1069
+        tile 1070
+        tile 1071
+        tile 1072
+        tile 1073
+        tile 1074
+        tile 1075
+        tile 1076
+        tile 1077
+        tile 1078
+        tile 1079
+        tile 1080
+        tile 1081
+        tile 1082
+        tile 1083
+        tile 1084
+        tile 1085
+        tile 1086
+        tile 1087
+        tile 1088
+        tile 1089
+        tile 1090
+        tile 1091
+        tile 1092
+        tile 1093
+        tile 1094
+        tile 1095
+        tile 1096
+        tile 1097
+        tile 1098
+        tile 1099
+        tile 1100
+        tile 1101
+        tile 1102
+        tile 1103
+        tile 1104
+        tile 1105
+        tile 1106
+        tile 1107
+        tile 1108
+        tile 1109
+        tile 1110
+        tile 1111
+        tile 1112
+        tile 1113
+        tile 1114
+        tile 1115
+        tile 1116
+        tile 1117
+        tile 1118
+        tile 1119
+        tile 1120
+        tile 1121
+        tile 1122
+        tile 1123
+        tile 1124
+        tile 1125
+        tile 1126
+        tile 1127
+        tile 1128
+        tile 1129
+        tile 1130
+        tile 1131
+        tile 1132
+        tile 1133
+        tile 1134
+        tile 1135
+        tile 1136
+        tile 1137
+        tile 1138
+        tile 1139
+        tile 1140
+        tile 1141
+        tile 1142
+        tile 1143
+        tile 1144
+        tile 1145
+        tile 1146
+        tile 1147
+        tile 1148
+        tile 1149
+        tile 1150
+        tile 1151
+        tile 1152
+        tile 1153
+        tile 1154
+        tile 1155
+        tile 1156
+        tile 1157
+        tile 1158
+        tile 1159
+        tile 1160
+        tile 1161
+        tile 1162
+        tile 1163
+        tile 1164
+        tile 1165
+        tile 1166
+        tile 1167
+        tile 1168
+        tile 1169
+        tile 1170
+        tile 1171
+        tile 1172
+        tile 1173
+        tile 1174
+        tile 1175
+        tile 1176
+        tile 1177
+        tile 1178
+        tile 1179
+        tile 1180
+        tile 1181
+        tile 1182
+        tile 1183
+        tile 1184
+        tile 1185
+        tile 1186
+        tile 1187
+        tile 1188
+        tile 1189
+        tile 1190
+        tile 1191
+        tile 1192
+        tile 1193
+        tile 1194
+        tile 1195
+        tile 1196
+        tile 1197
+        tile 1198
+        tile 1199
+        tile 1200
+        tile 1201
+        tile 1202
+        tile 1203
+        tile 1204
+        tile 1205
+        tile 1206
+        tile 1207
+        tile 1208
+        tile 1209
+        tile 1210
+        tile 1211
+        tile 1212
+        tile 1213
+        tile 1214
+        tile 1215
+        tile 1216
+        tile 1217
+        tile 1218
+        tile 1219
+        tile 1220
+        tile 1221
+        tile 1222
+        tile 1223
+        tile 1224
+        tile 1225
+        tile 1226
+        tile 1227
+        tile 1228
+        tile 1229
+        tile 1230
+        tile 1231
+        tile 1232
+        tile 1233
+        tile 1234
+        tile 1235
+        tile 1236
+        tile 1237
+        tile 1238
+        tile 1239
+        tile 1240
+        tile 1241
+        tile 1242
+        tile 1243
+        tile 1244
+        tile 1245
+        tile 1246
+        tile 1247
+        tile 1248
+        tile 1249
+        tile 1250
+        tile 1251
+        tile 1252
+        tile 1253
+        tile 1254
+        tile 1255
+        tile 1256
+        tile 1257
+        tile 1258
+        tile 1259
+        tile 1260
+        tile 1261
+        tile 1262
+        tile 1263
+        tile 1264
+        tile 1265
+        tile 1266
+        tile 1267
+        tile 1268
+        tile 1269
+        tile 1270
+        tile 1271
+        tile 1272
+        tile 1273
+        tile 1274
+        tile 1275
+        tile 1276
+        tile 1277
+        tile 1278
+        tile 1279
+        tile 1280
+        tile 1281
+        tile 1282
+        tile 1283
+        tile 1284
+        tile 1285
+        tile 1286
+        tile 1287
+        tile 1288
+        tile 1289
+        tile 1290
+        tile 1291
+        tile 1292
+        tile 1293
+        tile 1294
+        tile 1295
+        tile 1296
+        tile 1297
+        tile 1298
+        tile 1299
     }
   }
 layers {
   layer {
     z    0
-    size 60 60 32 32
+    size 1920 1920  
     data {
       row 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
       row 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
@@ -378,7 +377,7 @@ layers {
   }
   layer {
     z    1
-    size 60 60 32 32
+    size 1920 1920  
     data {
       row 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
       row 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
@@ -402,8 +401,8 @@ layers {
       row 19 1017 -1 -1 -1 -1 -1 1017 1017 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
       row 20 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
       row 21 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
-      row 22 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
-      row 23 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+      row 22 1017 -1 -1 -1 1016 1016 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
+      row 23 1017 -1 -1 -1 1016 1016 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
       row 24 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
       row 25 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
       row 26 1017 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 1017
@@ -444,7 +443,7 @@ layers {
   }
   layer {
     z    2
-    size 60 60 32 32
+    size 1920 1920  
     data {
       row 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
       row 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
@@ -510,7 +509,7 @@ layers {
   }
   layer {
     z    3
-    size 60 60 32 32
+    size 1920 1920  
     data {
       row 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
       row 1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
