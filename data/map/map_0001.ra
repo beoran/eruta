@@ -1,5 +1,5 @@
 map {
-  backgound "bluesky2.jpg"
+  background "bluesky2.jpg"
   
   tileset {
     tilesize 32 32
@@ -7,306 +7,306 @@ map {
       name "tiles_village_1000.png"
     }
     tiles {
-        tile 1000 walk jump
-        tile 1001 walk jump
-        tile 1002 walk jump
-        tile 1003 walk swim jump
-        tile 1004 walk jump down
-        tile 1005 walk jump up
-        tile 1006 walk jump
-        tile 1007 walk jump
-        tile 1008 walk jump
-        tile 1009 walk jump
-        tile 1010 walk jump
-        tile 1011 walk swim jump
-        tile 1012 walk jump
-        tile 1013 walk jump
-        tile 1014 walk jump
-        tile 1015 walk jump
-        tile 1016 walk jump
-        tile 1017 jump
-        tile 1018 walk jump
-        tile 1019 walk jump
-        tile 1020 walk jump
-        tile 1021 walk jump
-        tile 1022 walk jump
-        tile 1023 walk jump
-        tile 1024 walk jump
-        tile 1025 walk jump
-        tile 1026 walk jump
-        tile 1027 walk jump
-        tile 1028 walk jump
-        tile 1029 walk jump
-        tile 1030 walk jump
-        tile 1031 walk jump
-        tile 1032 walk jump
-        tile 1033 walk jump
-        tile 1034 walk jump
-        tile 1035 walk jump
-        tile 1036 walk jump
-        tile 1037 walk jump
-        tile 1038 walk jump
-        tile 1039 walk jump
-        tile 1040 walk jump
-        tile 1041 walk jump
-        tile 1042 walk jump
-        tile 1043 walk jump
-        tile 1044 walk jump
-        tile 1045 walk jump
-        tile 1046 walk jump
-        tile 1047 walk jump
-        tile 1048 walk jump
-        tile 1049 walk jump
-        tile 1050 walk jump
-        tile 1051 walk jump
-        tile 1052 walk jump
-        tile 1053 walk jump
-        tile 1054 walk jump
-        tile 1055 walk jump
-        tile 1056 walk jump
-        tile 1057 walk jump
-        tile 1058 walk jump
-        tile 1059 walk jump
-        tile 1060 walk jump
-        tile 1061 walk jump
-        tile 1062 walk jump
-        tile 1063 walk jump
-        tile 1064 walk jump
-        tile 1065 walk jump
-        tile 1066 walk jump
-        tile 1067 walk jump
-        tile 1068 walk jump
-        tile 1069 walk jump
-        tile 1070 walk jump
-        tile 1071 walk jump
-        tile 1072 walk jump
-        tile 1073 walk jump
-        tile 1074 walk jump
-        tile 1075 walk jump
-        tile 1076 walk jump
-        tile 1077 walk jump
-        tile 1078 walk jump
-        tile 1079 walk jump
-        tile 1080 walk jump
-        tile 1081 walk jump
-        tile 1082 walk jump
-        tile 1083 walk jump
-        tile 1084 walk jump
-        tile 1085 walk jump
-        tile 1086 walk jump
-        tile 1087 walk jump
-        tile 1088 walk jump
-        tile 1089 walk jump
-        tile 1090 walk jump
-        tile 1091 walk jump
-        tile 1092 walk jump
-        tile 1093 walk jump
-        tile 1094 walk jump
-        tile 1095 walk jump
-        tile 1096 walk jump
-        tile 1097 walk jump
-        tile 1098 walk jump
-        tile 1099 walk jump
-        tile 1100 walk jump
-        tile 1101 walk jump
-        tile 1102 walk jump
-        tile 1103 walk jump
-        tile 1104 walk jump
-        tile 1105 walk jump
-        tile 1106 walk jump
-        tile 1107 walk jump
-        tile 1108 walk jump
-        tile 1109 walk jump
-        tile 1110 walk jump
-        tile 1111 walk jump
-        tile 1112 walk jump
-        tile 1113 walk jump
-        tile 1114 walk jump
-        tile 1115 walk jump
-        tile 1116 walk jump
-        tile 1117 walk jump
-        tile 1118 walk jump
-        tile 1119 walk jump
-        tile 1120 walk jump
-        tile 1121 walk jump
-        tile 1122 walk jump
-        tile 1123 walk jump
-        tile 1124 walk jump
-        tile 1125 walk jump
-        tile 1126 walk jump
-        tile 1127 walk jump
-        tile 1128 walk jump
-        tile 1129 walk jump
-        tile 1130 walk jump
-        tile 1131 walk jump
-        tile 1132 walk jump
-        tile 1133 walk jump
-        tile 1134 walk jump
-        tile 1135 walk jump
-        tile 1136 walk jump
-        tile 1137 walk jump
-        tile 1138 walk jump
-        tile 1139 walk jump
-        tile 1140 walk jump
-        tile 1141 walk jump
-        tile 1142 walk jump
-        tile 1143 walk jump
-        tile 1144 walk jump
-        tile 1145 walk jump
-        tile 1146 walk jump
-        tile 1147 walk jump
-        tile 1148 walk jump
-        tile 1149 walk jump
-        tile 1150 walk jump
-        tile 1151 walk jump
-        tile 1152 walk jump
-        tile 1153 walk jump
-        tile 1154 walk jump
-        tile 1155 walk jump
-        tile 1156 walk jump
-        tile 1157 walk jump
-        tile 1158 walk jump
-        tile 1159 walk jump
-        tile 1160 walk jump
-        tile 1161 walk jump
-        tile 1162 walk jump
-        tile 1163 walk jump
-        tile 1164 walk jump
-        tile 1165 walk jump
-        tile 1166 walk jump
-        tile 1167 walk jump
-        tile 1168 walk jump
-        tile 1169 walk jump
-        tile 1170 walk jump
-        tile 1171 walk jump
-        tile 1172 walk jump
-        tile 1173 walk jump
-        tile 1174 walk jump
-        tile 1175 walk jump
-        tile 1176 walk jump
-        tile 1177 walk jump
-        tile 1178 walk jump
-        tile 1179 walk jump
-        tile 1180 walk jump
-        tile 1181 walk jump
-        tile 1182 walk jump
-        tile 1183 walk jump
-        tile 1184 walk jump
-        tile 1185 walk jump
-        tile 1186 walk jump
-        tile 1187 walk jump
-        tile 1188 walk jump
-        tile 1189 walk jump
-        tile 1190 walk jump
-        tile 1191 walk jump
-        tile 1192 walk jump
-        tile 1193 walk jump
-        tile 1194 walk jump
-        tile 1195 walk jump
-        tile 1196 walk jump
-        tile 1197 walk jump
-        tile 1198 walk jump
-        tile 1199 walk jump
-        tile 1200 walk jump
-        tile 1201 walk jump
-        tile 1202 walk jump
-        tile 1203 walk jump
-        tile 1204 walk jump
-        tile 1205 walk jump
-        tile 1206 walk jump
-        tile 1207 walk jump
-        tile 1208 walk jump
-        tile 1209 walk jump
-        tile 1210 walk jump
-        tile 1211 walk jump
-        tile 1212 walk jump
-        tile 1213 walk jump
-        tile 1214 walk jump
-        tile 1215 walk jump
-        tile 1216 walk jump
-        tile 1217 walk jump
-        tile 1218 walk jump
-        tile 1219 walk jump
-        tile 1220 walk jump
-        tile 1221 walk jump
-        tile 1222 walk jump
-        tile 1223 walk jump
-        tile 1224 walk jump
-        tile 1225 walk jump
-        tile 1226 walk jump
-        tile 1227 walk jump
-        tile 1228 walk jump
-        tile 1229 walk jump
-        tile 1230 walk jump
-        tile 1231 walk jump
-        tile 1232 walk jump
-        tile 1233 walk jump
-        tile 1234 walk jump
-        tile 1235 walk jump
-        tile 1236 walk jump
-        tile 1237 walk jump
-        tile 1238 walk jump
-        tile 1239 walk jump
-        tile 1240 walk jump
-        tile 1241 walk jump
-        tile 1242 walk jump
-        tile 1243 walk jump
-        tile 1244 walk jump
-        tile 1245 walk jump
-        tile 1246 walk jump
-        tile 1247 walk jump
-        tile 1248 walk jump
-        tile 1249 walk jump
-        tile 1250 walk jump
-        tile 1251 walk jump
-        tile 1252 walk jump
-        tile 1253 walk jump
-        tile 1254 walk jump
-        tile 1255 walk jump
-        tile 1256 walk jump
-        tile 1257 walk jump
-        tile 1258 walk jump
-        tile 1259 walk jump
-        tile 1260 walk jump
-        tile 1261 walk jump
-        tile 1262 walk jump
-        tile 1263 walk jump
-        tile 1264 walk jump
-        tile 1265 walk jump
-        tile 1266 walk jump
-        tile 1267 walk jump
-        tile 1268 walk jump
-        tile 1269 walk jump
-        tile 1270 walk jump
-        tile 1271 walk jump
-        tile 1272 walk jump
-        tile 1273 walk jump
-        tile 1274 walk jump
-        tile 1275 walk jump
-        tile 1276 walk jump
-        tile 1277 walk jump
-        tile 1278 walk jump
-        tile 1279 walk jump
-        tile 1280 walk jump
-        tile 1281 walk jump
-        tile 1282 walk jump
-        tile 1283 walk jump
-        tile 1284 walk jump
-        tile 1285 walk jump
-        tile 1286 walk jump
-        tile 1287 walk jump
-        tile 1288 walk jump
-        tile 1289 walk jump
-        tile 1290 walk jump
-        tile 1291 walk jump
-        tile 1292 walk jump
-        tile 1293 walk jump
-        tile 1294 walk jump
-        tile 1295 walk jump
-        tile 1296 walk jump
-        tile 1297 walk jump
-        tile 1298 walk jump
-        tile 1299 walk jump
+        tile 1000 jump
+        tile 1001 jump
+        tile 1002 jump
+        tile 1003 swim jump
+        tile 1004 jump down
+        tile 1005 jump up
+        tile 1006 jump
+        tile 1007 jump
+        tile 1008 jump
+        tile 1009 jump
+        tile 1010 jump
+        tile 1011 swim jump
+        tile 1012 jump
+        tile 1013 jump
+        tile 1014 jump
+        tile 1015 jump
+        tile 1016 jump
+        tile 1017 wall jump
+        tile 1018 jump
+        tile 1019 jump
+        tile 1020 jump
+        tile 1021 jump
+        tile 1022 jump
+        tile 1023 jump
+        tile 1024 jump
+        tile 1025 jump
+        tile 1026 jump
+        tile 1027 jump
+        tile 1028 jump
+        tile 1029 jump
+        tile 1030 jump
+        tile 1031 jump
+        tile 1032 jump
+        tile 1033 jump
+        tile 1034 jump
+        tile 1035 jump
+        tile 1036 jump
+        tile 1037 jump
+        tile 1038 jump
+        tile 1039 jump
+        tile 1040 jump
+        tile 1041 jump
+        tile 1042 jump
+        tile 1043 jump
+        tile 1044 jump
+        tile 1045 jump
+        tile 1046 jump
+        tile 1047 jump
+        tile 1048 jump
+        tile 1049 jump
+        tile 1050 jump
+        tile 1051 jump
+        tile 1052 jump
+        tile 1053 jump
+        tile 1054 jump
+        tile 1055 jump
+        tile 1056 jump
+        tile 1057 jump
+        tile 1058 jump
+        tile 1059 jump
+        tile 1060 jump
+        tile 1061 jump
+        tile 1062 jump
+        tile 1063 jump
+        tile 1064 jump
+        tile 1065 jump
+        tile 1066 jump
+        tile 1067 jump
+        tile 1068 jump
+        tile 1069 jump
+        tile 1070 jump
+        tile 1071 jump
+        tile 1072 jump
+        tile 1073 jump
+        tile 1074 jump
+        tile 1075 jump
+        tile 1076 jump
+        tile 1077 jump
+        tile 1078 jump
+        tile 1079 jump
+        tile 1080 jump
+        tile 1081 jump
+        tile 1082 jump
+        tile 1083 jump
+        tile 1084 jump
+        tile 1085 jump
+        tile 1086 jump
+        tile 1087 jump
+        tile 1088 jump
+        tile 1089 jump
+        tile 1090 jump
+        tile 1091 jump
+        tile 1092 jump
+        tile 1093 jump
+        tile 1094 jump
+        tile 1095 jump
+        tile 1096 jump
+        tile 1097 jump
+        tile 1098 jump
+        tile 1099 jump
+        tile 1100 jump
+        tile 1101 jump
+        tile 1102 jump
+        tile 1103 jump
+        tile 1104 jump
+        tile 1105 jump
+        tile 1106 jump
+        tile 1107 jump
+        tile 1108 jump
+        tile 1109 jump
+        tile 1110 jump
+        tile 1111 jump
+        tile 1112 jump
+        tile 1113 jump
+        tile 1114 jump
+        tile 1115 jump
+        tile 1116 jump
+        tile 1117 jump
+        tile 1118 jump
+        tile 1119 jump
+        tile 1120 jump
+        tile 1121 jump
+        tile 1122 jump
+        tile 1123 jump
+        tile 1124 jump
+        tile 1125 jump
+        tile 1126 jump
+        tile 1127 jump
+        tile 1128 jump
+        tile 1129 jump
+        tile 1130 jump
+        tile 1131 jump
+        tile 1132 jump
+        tile 1133 jump
+        tile 1134 jump
+        tile 1135 jump
+        tile 1136 jump
+        tile 1137 jump
+        tile 1138 jump
+        tile 1139 jump
+        tile 1140 jump
+        tile 1141 jump
+        tile 1142 jump
+        tile 1143 jump
+        tile 1144 jump
+        tile 1145 jump
+        tile 1146 jump
+        tile 1147 jump
+        tile 1148 jump
+        tile 1149 jump
+        tile 1150 jump
+        tile 1151 jump
+        tile 1152 jump
+        tile 1153 jump
+        tile 1154 jump
+        tile 1155 jump
+        tile 1156 jump
+        tile 1157 jump
+        tile 1158 jump
+        tile 1159 jump
+        tile 1160 jump
+        tile 1161 jump
+        tile 1162 jump
+        tile 1163 jump
+        tile 1164 jump
+        tile 1165 jump
+        tile 1166 jump
+        tile 1167 jump
+        tile 1168 jump
+        tile 1169 jump
+        tile 1170 jump
+        tile 1171 jump
+        tile 1172 jump
+        tile 1173 jump
+        tile 1174 jump
+        tile 1175 jump
+        tile 1176 jump
+        tile 1177 jump
+        tile 1178 jump
+        tile 1179 jump
+        tile 1180 jump
+        tile 1181 jump
+        tile 1182 jump
+        tile 1183 jump
+        tile 1184 jump
+        tile 1185 jump
+        tile 1186 jump
+        tile 1187 jump
+        tile 1188 jump
+        tile 1189 jump
+        tile 1190 jump
+        tile 1191 jump
+        tile 1192 jump
+        tile 1193 jump
+        tile 1194 jump
+        tile 1195 jump
+        tile 1196 jump
+        tile 1197 jump
+        tile 1198 jump
+        tile 1199 jump
+        tile 1200 jump
+        tile 1201 jump
+        tile 1202 jump
+        tile 1203 jump
+        tile 1204 jump
+        tile 1205 jump
+        tile 1206 jump
+        tile 1207 jump
+        tile 1208 jump
+        tile 1209 jump
+        tile 1210 jump
+        tile 1211 jump
+        tile 1212 jump
+        tile 1213 jump
+        tile 1214 jump
+        tile 1215 jump
+        tile 1216 jump
+        tile 1217 jump
+        tile 1218 jump
+        tile 1219 jump
+        tile 1220 jump
+        tile 1221 jump
+        tile 1222 jump
+        tile 1223 jump
+        tile 1224 jump
+        tile 1225 jump
+        tile 1226 jump
+        tile 1227 jump
+        tile 1228 jump
+        tile 1229 jump
+        tile 1230 jump
+        tile 1231 jump
+        tile 1232 jump
+        tile 1233 jump
+        tile 1234 jump
+        tile 1235 jump
+        tile 1236 jump
+        tile 1237 jump
+        tile 1238 jump
+        tile 1239 jump
+        tile 1240 jump
+        tile 1241 jump
+        tile 1242 jump
+        tile 1243 jump
+        tile 1244 jump
+        tile 1245 jump
+        tile 1246 jump
+        tile 1247 jump
+        tile 1248 jump
+        tile 1249 jump
+        tile 1250 jump
+        tile 1251 jump
+        tile 1252 jump
+        tile 1253 jump
+        tile 1254 jump
+        tile 1255 jump
+        tile 1256 jump
+        tile 1257 jump
+        tile 1258 jump
+        tile 1259 jump
+        tile 1260 jump
+        tile 1261 jump
+        tile 1262 jump
+        tile 1263 jump
+        tile 1264 jump
+        tile 1265 jump
+        tile 1266 jump
+        tile 1267 jump
+        tile 1268 jump
+        tile 1269 jump
+        tile 1270 jump
+        tile 1271 jump
+        tile 1272 jump
+        tile 1273 jump
+        tile 1274 jump
+        tile 1275 jump
+        tile 1276 jump
+        tile 1277 jump
+        tile 1278 jump
+        tile 1279 jump
+        tile 1280 jump
+        tile 1281 jump
+        tile 1282 jump
+        tile 1283 jump
+        tile 1284 jump
+        tile 1285 jump
+        tile 1286 jump
+        tile 1287 jump
+        tile 1288 jump
+        tile 1289 jump
+        tile 1290 jump
+        tile 1291 jump
+        tile 1292 jump
+        tile 1293 jump
+        tile 1294 jump
+        tile 1295 jump
+        tile 1296 jump
+        tile 1297 jump
+        tile 1298 jump
+        tile 1299 jump
     }
   }
 layers {
