@@ -65,7 +65,7 @@ module Tima
       res = StringIO.new('')
       res.puts('  layer {')
       res.puts("    z    #{z}")
-      res.puts("    size #{@wide_tile} #{@high_tile} #{TILEWIDE} #{TILEHIGH}")
+      res.puts("    size #{@wide_tile} #{@high_tile} #{TILE_WIDE} #{TILE_HIGH}")
       res.puts('    data {')
       for y in (0...@high_tile) do
         res.puts("      row #{y} " + @indexes[y].join(' '))
