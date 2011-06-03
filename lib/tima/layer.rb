@@ -65,7 +65,7 @@ module Tima
       res = StringIO.new('')
       res.puts('  layer {')
       res.puts("    z    #{z}")
-      res.puts("    size #{@wide} #{@high} #{@tilewide} #{@tilehigh}")
+      res.puts("    size #{@wide_tile} #{@high_tile} #{TILEWIDE} #{TILEHIGH}")
       res.puts('    data {')
       for y in (0...@high_tile) do
         res.puts("      row #{y} " + @indexes[y].join(' '))
@@ -87,6 +87,7 @@ module Tima
         y   = rrow.data.shift.to_i
         row = rrow.data
         stop = row.size
+        stop = wide if stop > wide
         for x in (0...stop) do
           layer.set(x, y, row[x])
         end
