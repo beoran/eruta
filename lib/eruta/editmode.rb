@@ -1,6 +1,6 @@
 module Eruta
   class Editmode < Eruta::Mode
-    START_MAP = File.join(Fimyfi.map_dir, 'map_0001.ra')
+    START_MAP = File.join(Fimyfi.map_dir, 'map_0001.rak')
     
 #     
 #     def ask_for_new_filename()
