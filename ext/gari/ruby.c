@@ -821,20 +821,21 @@ VALUE rbgari_game_numjoysticks(VALUE self) {
 VALUE rbgari_game_joystick(VALUE self, int vindex) {
   GariJoystick * joy = 
                  gari_game_joystick(GARI_GAME_UNWRAP(self), RBH_INT(vindex));
-  return GARI_JOY_WRAP_NOFREE(joy);
+  if (joy) return GARI_JOY_WRAP_NOFREE(joy);
+  return Qnil;
 }
 
 /** Returns the name of the inde'th joystick or NULL if no such joystick. */  
 VALUE rbgari_joy_nameindex(VALUE self, VALUE vindex) {
   const char * name = gari_joy_nameindex(RBH_INT(vindex));
-  if(name) return RBH_STR_UTF82(name);
+  if (name) return RBH_STR_UTF82(name);
   return Qnil;
 }
 
 /** Opens a joystick. Memory is allocated, so call gari_joy_free when done. */
 VALUE rbgari_joy_new(VALUE self, VALUE vindex) {
   GariJoystick * joy = gari_joy_open(RBH_INT(vindex));
-  if(joy) return GARI_JOY_WRAP(joy);
+  if (joy) return GARI_JOY_WRAP(joy);
   return Qnil;
 }
 

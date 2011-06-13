@@ -160,7 +160,7 @@ int gari_game_joysticks(GariGame * game) {
 
 /** Returns the n-th joystick of the game. */
 GariJoystick * gari_game_joystick(GariGame * game, int index) {
-  if (index > gari_joy_amount()) return NULL;
+  if (index >= gari_joy_amount()) return NULL;
   return game->joysticks[index];
 }
 
@@ -172,7 +172,7 @@ GariGame * gari_game_keyrepeat(GariGame * game, int delay, int interval) {
 }
 
 
-/** Initializes a gari game, opeing all joysticks, etc. */
+/** Initializes a gari game. This opens SDL, SDL_ttf, all joysticks, etc. */
 GariGame * gari_game_init(GariGame * game) {
   if (!game) { return NULL; }
   gari_game_resetframes(game);
@@ -413,7 +413,8 @@ long gari_random(long min, long max) {
 }
 
 
-/** Hides or shows the default mouse cursor over the screen. Returns the previous state of the mouse cursor.  */
+/** Hides or shows the default mouse cursor over the screen.
+Returns the previous state of the mouse cursor. */
 int gari_screen_showcursor_(GariScreen * screen, int show) {
   int toggle = show ? SDL_ENABLE : SDL_DISABLE;
   return SDL_ShowCursor(toggle) == SDL_ENABLE;
