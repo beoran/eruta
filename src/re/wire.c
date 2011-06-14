@@ -8,7 +8,7 @@ struct ReWire_ {
   size_t room;
 };
 
-
+/*
 static size_t re_strlen(char * str) {
   int res;   
   if(!str) return NULL;
@@ -39,7 +39,7 @@ ReWire * rewire_init(ReWire * self, char * str, int size, int room) {
     self->room = room;
   }
 };
-
+*/
 
 
 
