@@ -40,9 +40,9 @@ module Tima
     def to_raku
       res = StringIO.new('')
       res.printf("        tile #@index")
-      list = [:walk, :swim, :jump, :ledge, :pain, :up, :down]
+      list = [:wall, :swim, :jump, :ledge, :pain, :up, :down]
       for prop in list
-        val = self.send(prop)
+        val = @flags[prop]
         res.print(" #{prop}") if (val)
       end
       res.puts

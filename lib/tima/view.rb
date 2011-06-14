@@ -15,10 +15,18 @@ module Tima
       @p        = Tima.vec(x, y)
       @size     = Tima.vec(w, h)
       @max      = Tima.vec(xmax, ymax)
+      @bounds   = CP::BB.new(0, 0, xmax - w, ymax - h)
       @speed    = 10
       @goals    = []
       @tracking = []
       @lock     = nil
+    end
+    
+    # Moves the view by the given x and y directions
+    def move(dx, dy)
+      dp  = Tima.vec(dx, dy)
+      @p += dp
+      @p  = @bounds.clamp_vect(@p)
     end
     
     # X coordinate of camera view

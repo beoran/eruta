@@ -518,27 +518,37 @@ void gari_image_flood(GariImage * image, int x, int y, GariColor color);
 #define GARI_EVENT_MOUSESCROLL    7
 #define GARI_EVENT_JOYMOVE        8
 #define GARI_EVENT_JOYPRESS       9
-#define GARI_EVENT_JOYRELEASE    10 
-#define GARI_EVENT_RESIZE        11
-#define GARI_EVENT_EXPOSE        12
-#define GARI_EVENT_QUIT          13 
-#define GARI_EVENT_USER          14 
-#define GARI_EVENT_SYSTEM        15
+#define GARI_EVENT_JOYRELEASE    10
+#define GARI_EVENT_JOYHAT        11
+#define GARI_EVENT_JOYBALL       12
+#define GARI_EVENT_RESIZE        13
+#define GARI_EVENT_EXPOSE        14
+#define GARI_EVENT_QUIT          15
+#define GARI_EVENT_USER          16
+#define GARI_EVENT_SYSTEM        17
+#define GARI_JOYHAT_UP           SDL_HAT_UP
+#define GARI_JOYHAT_LEFT         SDL_HAT_LEFT
+#define GARI_JOYHAT_RIGHT        SDL_HAT_RIGHT
+#define GARI_JOYHAT_DOWN         SDL_HAT_DOWN
+#define GARI_JOYHAT_CENTER       SDL_HAT_CENTERED
 
 
-/** The event structiure. It's not a union for ease of wrapping in other languages, though only some of the fields may contain useful data depending on the. event.kind field. */
+/** The event structure. It's not a union for ease of wrapping in other 
+languages, though only some of the fields may contain useful data depending 
+on the event.kind field. */
 struct GariEvent_ {
   uint8_t   kind;
   uint8_t   gain;
+  uint8_t   which;
+  uint8_t   sub;
   uint16_t  key;
   uint16_t  mod;
-  uint16_t  unicode; 
+  uint16_t  unicode;
   uint16_t  x, y, xrel, yrel, w, h;
   uint16_t  button;
-  int16_t   value; 
-  uint8_t   which; 
-  uint8_t   axis;
+  int16_t   value;
 };
+
 struct GariEvent_;
 typedef struct GariEvent_ GariEvent;
 

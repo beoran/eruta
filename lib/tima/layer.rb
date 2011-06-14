@@ -43,18 +43,20 @@ module Tima
       return tile
     end
     
+    # Gets the index at the given coordinate
     def get(x_tile, y_tile)
-      return nil if outside(x_tile, y_tile)
+      return nil if outside?(x_tile, y_tile)
       return @indexes[y_tile][x_tile]
     end
     
+    # Gets the tile at the given coordinate
     def get_tile(x_tile, y_tile)
-      return nil if outside(x_tile, y_tile)
+      return nil if outside?(x_tile, y_tile)
       return @tiles[y_tile][x_tile]
     end
     
     def get_tilerow(y_tile)
-      return nil if outside(0, y_tile)
+      return nil if outside?(0, y_tile)
       return @tiles[y_tile]
     end
     
@@ -63,10 +65,10 @@ module Tima
       res = StringIO.new('')
       res.puts('  layer {')
       res.puts("    z    #{z}")
-      res.puts("    size #{@wide} #{@high} #{@tilewide} #{@tilehigh}")
+      res.puts("    size #{@wide_tile} #{@high_tile} #{TILE_WIDE} #{TILE_HIGH}")
       res.puts('    data {')
-      for y in (0...@high) do
-        res.puts("      row #{y} " + @layer_save[y].join(' '))
+      for y in (0...@high_tile) do
+        res.puts("      row #{y} " + @indexes[y].join(' '))
       end
       res.puts('    }')
       res.puts('  }')
@@ -85,6 +87,7 @@ module Tima
         y   = rrow.data.shift.to_i
         row = rrow.data
         stop = row.size
+        stop = wide if stop > wide
         for x in (0...stop) do
           layer.set(x, y, row[x])
         end

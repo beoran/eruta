@@ -630,8 +630,17 @@ VALUE rbgari_event_which(VALUE self) {
 }
 
 VALUE rbgari_event_axis(VALUE self) {
-  return RBH_UINT8_NUM(GARI_EVENT_UNWRAP(self)->axis);
+  return RBH_UINT8_NUM(GARI_EVENT_UNWRAP(self)->sub);
 }
+
+VALUE rbgari_event_ball(VALUE self) {
+  return RBH_UINT8_NUM(GARI_EVENT_UNWRAP(self)->sub);
+}
+
+VALUE rbgari_event_hat(VALUE self) {
+  return RBH_UINT8_NUM(GARI_EVENT_UNWRAP(self)->sub);
+}
+
 
 
   
@@ -812,20 +821,21 @@ VALUE rbgari_game_numjoysticks(VALUE self) {
 VALUE rbgari_game_joystick(VALUE self, int vindex) {
   GariJoystick * joy = 
                  gari_game_joystick(GARI_GAME_UNWRAP(self), RBH_INT(vindex));
-  return GARI_JOY_WRAP_NOFREE(joy);
+  if (joy) return GARI_JOY_WRAP_NOFREE(joy);
+  return Qnil;
 }
 
 /** Returns the name of the inde'th joystick or NULL if no such joystick. */  
 VALUE rbgari_joy_nameindex(VALUE self, VALUE vindex) {
   const char * name = gari_joy_nameindex(RBH_INT(vindex));
-  if(name) return RBH_STR_UTF82(name);
+  if (name) return RBH_STR_UTF82(name);
   return Qnil;
 }
 
 /** Opens a joystick. Memory is allocated, so call gari_joy_free when done. */
 VALUE rbgari_joy_new(VALUE self, VALUE vindex) {
   GariJoystick * joy = gari_joy_open(RBH_INT(vindex));
-  if(joy) return GARI_JOY_WRAP(joy);
+  if (joy) return GARI_JOY_WRAP(joy);
   return Qnil;
 }
 
@@ -1361,11 +1371,18 @@ void Init_gari() {
   RBH_CLASS_NUM_CONST(Event, JOYMOVE      , GARI_EVENT_JOYMOVE);
   RBH_CLASS_NUM_CONST(Event, JOYPRESS     , GARI_EVENT_JOYPRESS);
   RBH_CLASS_NUM_CONST(Event, JOYRELEASE   , GARI_EVENT_JOYRELEASE);
+  RBH_CLASS_NUM_CONST(Event, JOYHAT       , GARI_EVENT_JOYHAT);
+  RBH_CLASS_NUM_CONST(Event, JOYBALL      , GARI_EVENT_JOYBALL);
   RBH_CLASS_NUM_CONST(Event, RESIZE       , GARI_EVENT_RESIZE);
   RBH_CLASS_NUM_CONST(Event, EXPOSE       , GARI_EVENT_EXPOSE);
   RBH_CLASS_NUM_CONST(Event, QUIT         , GARI_EVENT_QUIT);
   RBH_CLASS_NUM_CONST(Event, USER         , GARI_EVENT_USER);
   RBH_CLASS_NUM_CONST(Event, SYSTEM       , GARI_EVENT_SYSTEM);
+  RBH_CLASS_NUM_CONST(Event, JOYHAT_UP    , GARI_JOYHAT_UP);
+  RBH_CLASS_NUM_CONST(Event, JOYHAT_RIGHT , GARI_JOYHAT_RIGHT);
+  RBH_CLASS_NUM_CONST(Event, JOYHAT_LEFT  , GARI_JOYHAT_LEFT);
+  RBH_CLASS_NUM_CONST(Event, JOYHAT_DOWN  , GARI_JOYHAT_DOWN);
+  RBH_CLASS_NUM_CONST(Event, JOYHAT_CENTER, GARI_JOYHAT_CENTER);
   
   RBH_SINGLETON_METHOD(Event, poll        , rbgari_event_poll, 0);
   RBH_METHOD(Event, kind    , rbgari_event_kind     , 0);
@@ -1383,6 +1400,8 @@ void Init_gari() {
   RBH_METHOD(Event, value   , rbgari_event_value    , 0);
   RBH_METHOD(Event, which   , rbgari_event_which    , 0);
   RBH_METHOD(Event, axis    , rbgari_event_axis     , 0);
+  RBH_METHOD(Event, ball    , rbgari_event_ball     , 0);
+  RBH_METHOD(Event, hat     , rbgari_event_hat      , 0);
   
   RBH_CLASS_NUM_CONST(Font, ALPHA_SOLID, GARI_ALPHA_SOLID);
   RBH_CLASS_NUM_CONST(Font, ALPHA_CLEAR, GARI_ALPHA_CLEAR);

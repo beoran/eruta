@@ -7,7 +7,8 @@ module Gari
                    MOUSEPRESS => :mousepress  , MOUSERELEASE => :mouserelease,
                    MOUSEMOVE  => :mousemove   , MOUSESCROLL  => :mousescroll,
                    JOYMOVE    => :joymove     , JOYPRESS     => :joypress,
-                   JOYRELEASE => :joyrelease  , RESIZE       => :resize,
+                   JOYRELEASE => :joyrelease  , JOYHAT       => :joyhat,
+                   JOYBALL    => :joyball     , RESIZE       => :resize,
                    EXPOSE     => :expose      , QUIT         => :quit,
                    USER       => :user        , SYSTEM       => :system,
                   }

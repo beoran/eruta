@@ -42,23 +42,62 @@ module Eruta
       # if self.respond_to?(callback)
     end
     
+    def handle_none(event)
+      warn "None event received: #{event.type} #{event.kind} #{event.value} #{event.axis} #{event.button} #{event.x} #{event.y}"
+    end
+    
     def handle_quit(event)
       puts "Quit!"
       @program.quit!
     end
     
+    # Override this
     def handle_active(event)
     end
     
+    # Override this
+    def handle_resize(event)
+    end
+    
+    # Override this
+    def handle_expose(event)
+    end
+    
+    # Override this
     def handle_mousemove(event)
     end
     
+    # Override this
     def handle_mousepress(event)
     end
     
+    # Override this
     def handle_mouserelease(event)
     end
     
+    # Override this
+    def handle_mousescroll(event)
+    end
+    
+    # Override this
+    def handle_joypress(event)
+    end
+    
+    # Override this
+    def handle_joyrelease(event)
+    end
+    
+    # Override this
+    def handle_joymove(event)
+    end
+    
+    # Override this
+    def handle_joyhat(event)
+    end
+    
+    # Override this
+    def handle_joyball(event)
+    end
     
     # Called whenever the screen may be drawn to 
     def render(screen)
@@ -68,9 +107,6 @@ module Eruta
     # Update mode, should also update program logic.  
     def update
     end
-    
-    
-    
     
     # Ends the current mode. 
     def next_mode!(next_mode = :quit)

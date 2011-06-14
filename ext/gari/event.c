@@ -50,7 +50,7 @@ GariEvent gari_event_fromsdl(SDL_Event ev) {
       res.mod     = ev.key.keysym.mod;
       break;
       
-   case SDL_MOUSEMOTION:
+    case SDL_MOUSEMOTION:
       res.kind    = GARI_EVENT_MOUSEMOVE;
       res.x       = ev.motion.x;
       res.y       = ev.motion.y;      
@@ -60,46 +60,62 @@ GariEvent gari_event_fromsdl(SDL_Event ev) {
       res.which   = ev.motion.which;
       break;
       
-   case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONDOWN:
       res         = gari_event_mousebutton(ev, GARI_EVENT_MOUSEPRESS);
       break;
       
-   case SDL_MOUSEBUTTONUP:
+    case SDL_MOUSEBUTTONUP:
       res         = gari_event_mousebutton(ev, GARI_EVENT_MOUSERELEASE);
       break;
       
-   case SDL_JOYBUTTONDOWN:
+    case SDL_JOYBUTTONDOWN:
       res.kind    = GARI_EVENT_JOYPRESS;
       res.which   = ev.jbutton.which;
       res.button  = ev.jbutton.button;      
       break;
    
-   case SDL_JOYBUTTONUP:
+    case SDL_JOYBUTTONUP:
       res.kind    = GARI_EVENT_JOYRELEASE;
       res.which   = ev.jbutton.which;
       res.button  = ev.jbutton.button;      
       break;
       
-   case SDL_JOYAXISMOTION:
+    case SDL_JOYAXISMOTION:
       res.kind    = GARI_EVENT_JOYMOVE;
       res.which   = ev.jaxis.which;
-      res.axis    = ev.jaxis.axis;
+      res.sub     = ev.jaxis.axis;
       res.value   = ev.jaxis.value;
       break;
       
-   case SDL_VIDEORESIZE:
-     res.kind    = GARI_EVENT_RESIZE;
-     res.w       = ev.resize.w;
-     res.h       = ev.resize.h;
-     break;
+    case SDL_JOYBALLMOTION:
+      res.kind    = GARI_EVENT_JOYBALL;
+      res.which   = ev.jball.which;
+      res.sub     = ev.jball.ball;
+      res.xrel    = ev.jball.xrel;
+      res.yrel    = ev.jball.yrel;
+      break;
+
+    case SDL_JOYHATMOTION:
+      res.kind    = GARI_EVENT_JOYHAT;
+      res.which   = ev.jhat.which;
+      res.sub     = ev.jhat.hat;
+      res.value   = ev.jhat.value;
+      break;
+
+      
+    case SDL_VIDEORESIZE:
+      res.kind    = GARI_EVENT_RESIZE;
+      res.w       = ev.resize.w;
+      res.h       = ev.resize.h;
+      break;
    
-   case SDL_VIDEOEXPOSE:
-     res.kind    = GARI_EVENT_EXPOSE;
-     break;
+    case SDL_VIDEOEXPOSE:
+      res.kind    = GARI_EVENT_EXPOSE;
+      break;
      
-   case SDL_QUIT:
-     res.kind    = GARI_EVENT_QUIT;
-     break;
+    case SDL_QUIT:
+      res.kind    = GARI_EVENT_QUIT;
+      break;
   }
   return res;
 }
