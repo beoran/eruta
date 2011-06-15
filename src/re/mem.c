@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "re/mem.h"
@@ -13,19 +14,35 @@ void * re_free(void * ptr) {
  return NULL;
 }
 
-void * re_memcpy(void * dst, void * src, size_t size) {
+
+void * re_smemcpy(void * dst, size_t dsts, size_t dsti, 
+                  void * src, size_t srcs, size_t srci, 
+                  size_t amount) {
   size_t index = 0;
   if(!dst) return NULL;
   if(!src) return NULL;
-  for (index = 0 ; index < size ; index++) {
-    ((char *)dst)[index] = ((char *)src)[index];
-  }
+  while((dsti < dsts) && (srci < srcs) && (index < amount)) {
+    uint8_t c               = ((uint8_t *)src)[srci];
+    ((uint8_t *)dst)[dsti]  = c;
+    dsti++; srci++; index++; 
+  } 
   return dst;
+}
+
+void * re_memcpy(void * dst, void * src, size_t size) {
+  return re_smemcpy(dst, size, 0 , src , size, 0, size);  
 }
 
 
 void * re_realloc(void * ptr, size_t size) {
   return realloc(ptr, size);
+}
+
+/** Allocate and copy memory. */
+void * re_copyalloc(size_t size, void * src,  size_t tocopy) {
+  void * res = re_malloc(size);
+  if(!res) return NULL;
+  return re_memcpy(res,src,tocopy); 
 }
 
 
@@ -34,7 +51,7 @@ struct ReMem_ {
   size_t size;
 };
 
-
+/*
 ReMem * remem_init(ReMem* self, size_t size) {
   if(!self) return NULL;  
   self->size = size;
@@ -60,7 +77,7 @@ ReMem * remem_free(ReMem * self);
 
 size_t remem_size(ReMem * self);
 void * remem_ptr(ReMem * self);
-
+*/
 
 
 
