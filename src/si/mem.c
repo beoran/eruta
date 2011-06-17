@@ -1,21 +1,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "re/mem.h"
+#include "si_mem.h"
 
 
-void * re_malloc(size_t size) {
+void * si_malloc(size_t size) {
   if (size < 1) return NULL;
   return calloc(size, 1);
 }
 
-void * re_free(void * ptr) {
+void * si_free(void * ptr) {
  free(ptr);
  return NULL;
 }
 
 
-void * re_smemcpy(void * dst, size_t dsts, size_t dsti, 
+void * si_smemcpy(void * dst, size_t dsts, size_t dsti, 
                   void * src, size_t srcs, size_t srci, 
                   size_t amount) {
   size_t index = 0;
@@ -29,20 +29,20 @@ void * re_smemcpy(void * dst, size_t dsts, size_t dsti,
   return dst;
 }
 
-void * re_memcpy(void * dst, void * src, size_t size) {
-  return re_smemcpy(dst, size, 0 , src , size, 0, size);  
+void * si_memcpy(void * dst, void * src, size_t size) {
+  return si_smemcpy(dst, size, 0 , src , size, 0, size);  
 }
 
 
-void * re_realloc(void * ptr, size_t size) {
+void * si_realloc(void * ptr, size_t size) {
   return realloc(ptr, size);
 }
 
 /** Allocate and copy memory. */
-void * re_copyalloc(size_t size, void * src,  size_t tocopy) {
-  void * res = re_malloc(size);
+void * si_copyalloc(size_t size, void * src,  size_t tocopy) {
+  void * res = si_malloc(size);
   if(!res) return NULL;
-  return re_memcpy(res,src,tocopy); 
+  return si_memcpy(res,src,tocopy); 
 }
 
 
