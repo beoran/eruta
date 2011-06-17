@@ -5,15 +5,23 @@ cmake_policy(SET CMP0015 NEW)
 set(CMAKE_C_FLAGS "-Wall -g")
 
 include_directories("include")
+include_directories("include/gari")
+
+link_directories("src/gari")
 link_directories("src/re")
 
+add_subdirectory("src/gari")
 add_subdirectory("src/re")
+
 
 enable_testing()
 # Let ctest run valgrind
+set(CMAKE_CTEST_OPTIONS --output-on-failure)
 set(CTEST_OUTPUT_ON_FAILURE TRUE)
 set(CTEST_MEMORYCHECK_COMMAND:FILEPATH "/usr/bin/valgrind")
 add_subdirectory("test/re")
+
+
 
 
 

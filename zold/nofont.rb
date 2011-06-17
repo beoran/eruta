@@ -295,6 +295,15 @@ class Nofont
   def inspect()
     return "<Nofont: too much stuff inside>"
   end
+  
+  def self.to_c
+    res = ""
+    arr = ""
+    text.each_char do |c|
+      res << glyph_to_c()
+    end 
+    res + arr
+  end
 
 
   def self.default(wscale = 1, hscale = 2)
@@ -505,3 +514,6 @@ class Nofont
     end 
   end
 end
+
+
+

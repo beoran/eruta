@@ -1,48 +1,67 @@
 Eruta, An Action RPG in Ruby under development.
 
 Requirements:
-* Ruby MRI 1.9.x. Other Rubies untested. 
 * SDL, SDL_image, SDL_ttf, SDL_mixer 
-* For testing: the gems watchr, autowatchr and term-ansicolor.  
-
+* For testing and compilation: cmake, ctest and valgrind
+ 
 Installation:
 
 You have to make sure that you have all the requirements. Install Ruby, 
 the SDL libraries, and the testing ruby gems. On Linux distributitions like
 Ubuntu, make sure that the development packages for all requirements are
-installed as well installed.
+installed as well installed. Then do 
 
-When the requirements have been met, you first need to check out eruta
-frocompilem github. Then you should insall Gari, my C game programming extension
-library. Go to the ext/gari directory and run `ruby extconf.rb` , followed by
-`make` and `sudo make install`. If all goes well, this should install the gari
-extension in your ruby installation.
+cmake . ; make
 
 How to try it:
 
-Currently I'm in a sort of a spring cleaning with this project, so not
-too much works yet. You can run the tests though, by doing 
-`watchr test/test.watchr` . 
+Run src/eruta (or src/eruta.exe) from the project's main directory. Once it 
+gets ready to work that is. :-)
 
 License: 
 
-Eruta is Copyright (C) 2007-2011 Beoran beoran@rubyforge.org
+Eruta is copyright (c) 2007-2011 Beoran beoran@rubyforge.org. 
+All rights reserved.
 
-This software is provided 'as-is', without any express or implied
-warranty.  In no event will the authors be held liable for any damages
-arising from the use of this software.
+Redistribution and use in source and binary forms, with or without modification, 
+are permitted provided that the following conditions are met:
 
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
+1. Redistributions of source code must retain the above copyright notice, 
+   this list of conditions and the following disclaimer.
+   
+2. Redistributions in binary form must reproduce the above copyright notice, 
+   this list of conditions and the following disclaimer in the documentation 
+   and/or other materials provided with the distribution.
+   
+3. Redistributions in any form must be accompanied by information on how to 
+   obtain complete source code for the Eruta software and any accompanying 
+   software that uses the Eruta software. The source code must either be 
+   included in the distribution or be available for no more than the cost of 
+   distribution plus a nominal fee, and must be freely redistributable under 
+   reasonable conditions. For an executable file, complete source code means 
+   the source code for all modules it contains. It does not include source code 
+   for modules or files that typically accompany the major components of the 
+   operating system on which the executable file runs.
 
-1. The origin of this software must not be misrepresented; you must not
-    claim that you wrote the original software. If you use this software
-    in a product, an acknowledgment in the product documentation would be
-    appreciated but is not required.
-2. Altered source versions must be plainly marked as such, and must not be
-    misrepresented as being the original software.
-3. This notice may not be removed or altered from any source distribution.
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT, ARE 
+DISCLAIMED. IN NO EVENT SHALL THE AUTHOR(S) BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+As you can see, above, Eruta is licenced under a "Sleepycat license", which is 
+GPL compatible, but much shorter and easier to read. Basically you're allowed 
+to use the Eruta as you like. However, if you make your own game with Eruta's 
+sources, you'll have to make the sources of your program freely available and 
+redistributable as well. If you don't like these terms, contact me for making 
+different arrangments. :)
+
+
 
 Credits: 
 
