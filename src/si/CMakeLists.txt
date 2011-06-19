@@ -1,4 +1,4 @@
-file(GLOB SI_C_FILES "*.c;*_*.c")
+file(GLOB SI_C_FILES "*.c")
 
 
 add_library(si_static STATIC ${SI_C_FILES})

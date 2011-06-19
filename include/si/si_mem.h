@@ -29,7 +29,7 @@ SI_API void * si_copyalloc(size_t size, void * src,  size_t tocopy);
 
 
 /** Shorthand for si_malloc(sizof(STRUCTNAME)) */
-#define SI_ALLOCATE(STRUCTNAME) si_malloc(sizof(STRUCTNAME))
+#define SI_ALLOCATE(STRUCTNAME) si_malloc(sizeof(STRUCTNAME))
 
 /** Shorthand for STRUCTNAME * FUNCNAME() { return si_malloc(sizof(STRUCTNAME)); } */
 #define SI_DEFINE_ALLOCATE(STRUCTNAME, FUNCNAME) \
