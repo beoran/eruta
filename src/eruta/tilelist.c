@@ -1,7 +1,8 @@
+#include "gari.h"
+#include "si_macro.h"
+#include "si_mem.h"
 #include "si_block.h"
 
-struct Tilelist_;
-typedef struct Tilelist_ Tilelist;
 
 /* 
   A tile list is a list of tiles, indexed by number.
@@ -12,6 +13,8 @@ typedef struct Tilelist_ Tilelist;
 #define TILELIST_TILE_WIDE 32
 #define TILELIST_TILE_HIGH 32
 
+struct Tilelist_;
+typedef struct Tilelist_ Tilelist;
 
 struct Tilelist_ { 
   SiBlock * images;
@@ -20,10 +23,10 @@ struct Tilelist_ {
   int tilewide;
   int tilehigh;
   int last; // last used tile index; 
-}
+};
 
 Tilelist * tilelist_alloc() {
-  SI_ALLOCATE(Tilelist);
+  return SI_ALLOCATE(Tilelist);
 }
     
 Tilelist * tilelist_init(Tilelist * self) {
@@ -32,6 +35,7 @@ Tilelist * tilelist_init(Tilelist * self) {
   self->tiles     = siblock_new(10000, sizeof(void *));
   self->filenames = NULL;
   self->last      = 0;
+  return self;
 }
 
 Tilelist * tilelist_done(Tilelist * self) {
@@ -45,20 +49,20 @@ Tilelist * tilelist_done(Tilelist * self) {
 }
 
 Tilelist * tilelist_free(Tilelist * self) {
-  si_free(tilelist_done(self));
+  return si_free(tilelist_done(self));
 }
 
 // Sets the image to use for an index
-Image * tilelist_image_(Tilelist * self, size_t index, GariImage * img) {
+GariImage * tilelist_image_(Tilelist * self, size_t index, GariImage * img) {
   return siblock_set(self->images, index, img);
 }  
 
 // Sets the tile to use for an index
-Image * tilelist_tile_(Tilelist * self, size_t index, void * tile) {
+GariImage * tilelist_tile_(Tilelist * self, size_t index, void * tile) {
   return siblock_set(self->tiles, index, tile);
 }
 
-Image * tilelist_copypart(GariImage * img, int x, int y, 
+GariImage * tilelist_copypart(GariImage * img, int x, int y, 
                                            int w, int h, int alpha) {
 // should detect alpha itself. 
 /*     result = from.copypart(x, y, w, h)
@@ -79,11 +83,12 @@ Tilelist * tilelist_load_filename(Tilelist * self, char * name, size_t start) {
   w = gari_image_w(image);
   for(y = 0; y < h; y += TILELIST_TILE_HIGH) { 
     for(x = 0; x < w; x += TILELIST_TILE_WIDE) {
-      Image * subimage = tilelist_copypart(image, x, y, w, h, FALSE);
+      GariImage * subimage = tilelist_copypart(image, x, y, w, h, FALSE);
       tilelist_image_(self, self->last, subimage);
       self->last++;
     }
   }
+  return self;
 }
 
 /*

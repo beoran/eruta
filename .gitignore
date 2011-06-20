@@ -9,3 +9,7 @@
 
 # backups
 *~
+CMakeFiles
+Testing
+CMakeCache.txt
+CMakeCache.txt
