@@ -1,6 +1,7 @@
 #ifndef SI_WIRE_H
 #define SI_WIRE_H
 
+#include <stdlib.h>
 #include "si_macro.h"
 
 /** A SiWire is a a simple byte buffer that can also hold constant C strings. */
@@ -23,6 +24,10 @@ SI_API SiWire * siwire_new(char * str);
 SI_API SiWire * siwire_new_size(char * str, size_t size);
 /** Creates a new constant wire */
 SI_API SiWire * siwire_const(const char * str);
+
+/** Duplicates a wire. Must be freed with si_wire_free */
+SI_API SiWire * siwire_dup(SiWire * self);
+
 
 /** Creates a new empty wire */
 SI_API SiWire * siwire_empty(); 
