@@ -2,7 +2,7 @@ Eruta, An Action RPG in Ruby under development.
 
 Requirements:
 * SDL, SDL_image, SDL_ttf, SDL_mixer 
-* For testing and compilation: cmake, ctest and valgrind
+* For testing and compilation: cmake 2.8, ctest and valgrind..
  
 Installation:
 
@@ -15,8 +15,8 @@ cmake . ; make
 
 How to try it:
 
-Run src/eruta (or src/eruta.exe) from the project's main directory. Once it 
-gets ready to work that is. :-)
+Run src/eruta/eruta (or src\eruta\eruta.exe) from the project's main directory. 
+Once it gets ready to work that is. :-)
 
 License: 
 
