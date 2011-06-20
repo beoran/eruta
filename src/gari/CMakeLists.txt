@@ -13,6 +13,8 @@ find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_ttf REQUIRED)
+find_package(PNG REQUIRED)
+find_package(JPEG REQUIRED)
 
 # FindSDL
 # FindSDL_image
@@ -21,10 +23,10 @@ find_package(SDL_ttf REQUIRED)
 # FindSDL_sound
 # FindSDL_ttf
 # Set include and lib dirs. 
-include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR})
+include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${JPEG_INCLUDE_DIR})
 
 set(GARI_LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY} 
-${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY})
+${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${PNG_LIBRARY} ${JPEG_LIBRARY})
 
 # configure_file("config.in.h" "config.h")
 file(GLOB GARI_CFILES "*.c")

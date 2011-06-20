@@ -25,7 +25,6 @@
 #ifndef _GARI_H_
 #define _GARI_H_
 
-#include <SDL.h>
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -369,7 +368,7 @@ struct GariDraw_ {
   GariPutPixelFunc *  putpixel; // Put pixel function (for the image)
   GariBlendPixelFunc *blendpixel; // Blend pixel function (for the image)
   GariColor           color; // Color to draw with.
-  GariDye             dye;   // Dye to draw with.
+   GariDye             dye;   // Dye to draw with.
   GariAlpha           alpha; // alpha value to be used when drawing
   void *              other; // other user-defined data.
 };
@@ -526,11 +525,12 @@ void gari_image_flood(GariImage * image, int x, int y, GariColor color);
 #define GARI_EVENT_QUIT          15
 #define GARI_EVENT_USER          16
 #define GARI_EVENT_SYSTEM        17
-#define GARI_JOYHAT_UP           SDL_HAT_UP
-#define GARI_JOYHAT_LEFT         SDL_HAT_LEFT
-#define GARI_JOYHAT_RIGHT        SDL_HAT_RIGHT
-#define GARI_JOYHAT_DOWN         SDL_HAT_DOWN
-#define GARI_JOYHAT_CENTER       SDL_HAT_CENTERED
+#define GARI_EVENT_LAST          18
+#define GARI_JOYHAT_CENTER       0x00 
+#define GARI_JOYHAT_UP           0x01
+#define GARY_JOYHAT_RIGHT        0x02
+#define GARY_JOYHAT_DOWN         0x04
+#define GARY_JOYHAT_LEFT         0x08
 
 
 /** The event structure. It's not a union for ease of wrapping in other 

@@ -7,12 +7,14 @@ set(CMAKE_C_FLAGS "-Wall -g")
 include_directories("include")
 include_directories("include/gari")
 include_directories("include/si")
+include_directories("include/eruta")
 
 link_directories("src/gari")
 link_directories("src/si")
 
 add_subdirectory("src/gari")
 add_subdirectory("src/si")
+add_subdirectory("src/eruta")
 
 
 enable_testing()

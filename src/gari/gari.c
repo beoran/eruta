@@ -113,7 +113,7 @@ GariGame * gari_game_make() {
   GariGame * game = GARI_MALLOC(sizeof(GariGame));
   if(gari_game_init(game)) { return game; }
   gari_game_free(game);
-  return NULL;  
+  return NULL;
 }
 
 /* Allow joysticks to generate events or not.
@@ -122,7 +122,6 @@ int gari_game_joystickevents_(GariGame * gari, int enable) {
   int state = enable ? SDL_ENABLE : SDL_IGNORE;
   return SDL_JoystickEventState(state);
 }
-
 
 
 // Opens all available joysticks.
@@ -145,10 +144,10 @@ GariGame * gari_game_closejoysticks(GariGame * gari) {
   if(amount<1) return NULL;
   if(!(gari->joysticks)) return NULL;
   for(index = 0; index < amount; index ++) {
-    gari_joy_free(gari->joysticks[index]);        
+    gari_joy_free(gari->joysticks[index]);
   }
   GARI_FREE(gari->joysticks);
-  gari->joysticks 	= NULL;
+  gari->joysticks = NULL;
   return gari;
 }
 
