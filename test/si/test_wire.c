@@ -27,6 +27,22 @@ TEST_FUNC(siwire_const) {
   TEST_DONE();
 }
 
+TEST_FUNC(siwire_dup) {  
+  SiWire * wire = siwire_const("Hello");
+  SiWire * wired = siwire_dup(wire);
+  TEST_NOTNULL(wire);
+  TEST_TRUE(siwire_const_p(wire));
+  TEST_FALSE(siwire_const_p(wired));
+  TEST_NOTNULL(siwire_cstr(wire));
+  TEST_NOTNULL(siwire_cstr(wired));  
+  TEST_INTEQ(siwire_size(wire), 5);
+  TEST_INTEQ(siwire_size(wired), 5);
+  siwire_free(wire);
+  siwire_free(wired);
+  TEST_DONE();
+}
+
+
 struct Mixin_ {
   size_t refs;
 };
@@ -70,6 +86,7 @@ int main(void) {
   puts(SI_OS);
   TEST_RUN(siwire_new);
   TEST_RUN(siwire_const);
+  TEST_RUN(siwire_dup);
   TEST_REPORT();
 }
 

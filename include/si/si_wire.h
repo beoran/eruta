@@ -76,7 +76,7 @@ SI_API SiWire * siwire_right(SiWire * self, size_t amount);
 SI_API int siwire_index_ok(SiWire * self, size_t index);
 
 /** Gets a character at index index from the wire. 
-Returns 0 if index if not valid. */
+Returns 0 if index is not valid. */
 SI_API char siwire_index(SiWire * self, size_t index);
 
 /** Joins a variable amount of wires together with join in between them. */

@@ -46,7 +46,6 @@ SI_API void * siblock_slice(SiBlock * block, size_t start, size_t amount);
 
 
 
-
 #endif
 
 
