@@ -3,23 +3,6 @@
 #include "si_mem.h"
 #include "raku_token.h"
 
-// Single character tokens are encoded as their character code. 
-enum RakuTokenKind_ {
-    RakuTokenFail       = 256,      
-    RakuTokenEOF        = 257,
-    RakuTokenSymbol     = 258,
-    RakuTokenDo         = 259,
-    RakuTokenEnd        = 260,
-    RakuTokenString     = 261,
-    RakuTokenInteger    = 262,
-    RakuTokenFloat      = 263,
-};
-
-typedef enum RakuTokenKind_ RakuTokenKind; 
-
-struct RakuToken_;
-typedef struct RakuToken_ RakuToken;
-
 struct RakuToken_ {
   SiWire        *  value; 
   RakuTokenKind    kind;
@@ -27,7 +10,7 @@ struct RakuToken_ {
   int              col;
 };
 
-RakuToken * rakutoken_alloc(RakuToken * self) {
+RakuToken * rakutoken_alloc() {
   return SI_ALLOCATE(RakuToken);
 }
 
@@ -36,11 +19,33 @@ RakuToken * rakutoken_init(RakuToken * self,
 {
   if(!self) return NULL;
   self->kind  = kind;
-  self->value = siwire_dup(value);    
+  if(value) self->value = siwire_dup(value); else self->value = NULL;
   self->line  = line;
   self->col   = col;
   return self;
 }
+
+RakuToken * rakutoken_new(RakuTokenKind kind, SiWire * value, int line, int col) 
+{
+  return rakutoken_init(rakutoken_alloc(), kind, value, line, col);
+}
+
+
+RakuToken * rakutoken_newfail(SiWire * value, int line, int col) {
+  return rakutoken_new(RakuTokenFail, value, line, col);
+}
+
+RakuToken * rakutoken_neweof(SiWire * value, int line, int col) {
+  return rakutoken_new(RakuTokenEof, value, line, col);
+}
+
+RakuToken * rakutoken_newsymbol(SiWire * value, int line, int col) {
+  return rakutoken_new(RakuTokenSymbol, value, line, col);
+}
+
+
+
+
 
 RakuToken * rakutoken_done(RakuToken * self) {    
   if(!self) return NULL;
@@ -54,7 +59,7 @@ RakuToken * rakutoken_free(RakuToken * self) {
 }
 
 int rakutoken_eof_p(RakuToken * self) {
-  return self->kind == RakuTokenEOF;
+  return self->kind == RakuTokenEof;
 }
 
 

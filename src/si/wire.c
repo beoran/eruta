@@ -65,6 +65,8 @@ SiWire * siwire_init(SiWire * self, char * str) {
   return siwire_init_size(self, str, si_strlen(str));
 }
 
+
+
 /** Initializes a wire from a constant string with a given length. 
 It is the caller's responsality to ensure size is correct and that str 
 is properly \0 terminated. */
@@ -182,8 +184,10 @@ SiWire * siwire_add(SiWire * self, SiWire * wire) {
   return siwire_null_terminate(self);
 }
 
-/** Duplicates the given wire. */
-SiWire * siwire_dup(SiWire *self) {
+/** Duplicates a wire. Must be freed with si_wire_free. 
+Const wires will become non-const.
+*/
+SiWire * siwire_dup(SiWire * self) {
   return siwire_new_size(self->data, self->size);
 }
 
@@ -251,7 +255,6 @@ SiWire * siwire_index_(SiWire * self, size_t index, char c) {
   self->data[index] = c;
   return self;
 }
-
 
 /** Joins a variable amount of wires together with join in between them.
 * Sisult is newly allocated and must be freed. 
