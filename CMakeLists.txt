@@ -26,6 +26,7 @@ set(CMAKE_CTEST_OPTIONS --output-on-failure)
 set(CTEST_OUTPUT_ON_FAILURE TRUE)
 set(CTEST_MEMORYCHECK_COMMAND:FILEPATH "/usr/bin/valgrind")
 add_subdirectory("test/si")
+add_subdirectory("test/gari")
 add_subdirectory("test/raku")
 
 

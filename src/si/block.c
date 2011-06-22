@@ -1,23 +1,27 @@
 #include "si_block.h"
 #include "si_mem.h"
 
+#define SI_BLOCK_ROOM 16
+
 struct SiBlock_ {
   char * data;
   size_t size;
   size_t elsz;
+  size_t room;
 };
 
-/** Frees a Block. Siturns NULL. */
+/** Frees a Block. Returns NULL. */
 SiBlock * siblock_free(SiBlock * self) {
   siblock_done(self);
   return si_free(self);
 }
 
-/** Frees the contents of a block. */
+/** Frees the contents of a block. Has the same effect as emptying the block. */
 SiBlock * siblock_done(SiBlock * self) {
   if(!self) return NULL;
   si_free(self->data);
   self->size = 0;
+  self->room = 0;
   return self;  
 }
 
@@ -25,12 +29,39 @@ SiBlock * siblock_done(SiBlock * self) {
 SiBlock * siblock_init(SiBlock * self, size_t size, size_t elsz) {
   if (!self)    return NULL;
   if (elsz < 0) return NULL;
+  self->room = SI_BLOCK_ROOM;
+  if (self->room < size) {
+    self->room = SI_BLOCK_ROOM + size;
+  }
   self->size = size;
   self->elsz = elsz;
-  self->data = si_malloc(self->size * self->elsz);
-  if (!self->data) return siblock_done(self);
-  return self;  
+  if((self->room * self->elsz) < 1) {
+    self->data = NULL;
+  } else {
+    self->data = si_malloc(self->room * self->elsz);
+    if (!self->data) return siblock_done(self);
+  }
+  return self;
 }
+
+/** Changes the room available in the SiBlock. */
+SiBlock * siblock_room_(SiBlock * self, size_t room) {
+  void * aid = NULL;
+  if(!self) return NULL;
+  aid        = si_realloc(self->data, room); 
+  if(!aid) return NULL;
+  self->room = room;
+  self->data = aid;
+  return self;
+}
+
+/** Grows the SiBlock if needed. */
+SiBlock * siblock_room_grow(SiBlock * self, size_t newroom) {
+  if(!self) return NULL;
+  if (newroom >= self->room) return siblock_room_(self, newroom + SI_BLOCK_ROOM);
+  return self;
+}
+
 
 /** Allocates a new empty Block.  */
 SiBlock * siblock_alloc() {
@@ -46,6 +77,11 @@ SiBlock * siblock_new(size_t size, size_t elsz) {
   }
   return res;
 } 
+
+/** Allocates a new empty Block for elements of size elsz each. */
+SiBlock * siblock_newempty(size_t elsz) {
+  return siblock_new(0, elsz);
+}
 
 
 /** Gets the  block's size. */
@@ -90,15 +126,19 @@ SiBlock * siblock_xcopy(SiBlock * self , size_t selfi,
 }
 
  
-/** Siturns the index-th element of the block. */
+/** Returns the index-th element of the block. */
 void * siblock_get(SiBlock * self, size_t index) {
   if(!siblock_index_ok(self, index)) return NULL;
   return (void *)(self->data + (index * self->elsz));
 }
 
-/** Copies elsz of the the data in ptr to the index-th element of the block. */
+/** Copies elsz of the the data in ptr to the index-th element of the block.
+* This may grow the block if the index is out of range. 
+*/
 void * siblock_set(SiBlock * self, size_t index, void * ptr) {
-  void * dst = siblock_get(self, index);
+  void * dst;
+  if(!siblock_room_grow(self, index)) return NULL; // make space if needed.
+  dst = siblock_get(self, index);
   if(!dst) return NULL;
   si_memcpy(dst, ptr, self->elsz);
   return dst;
@@ -117,6 +157,13 @@ void * siblock_slice(SiBlock * self, size_t start, size_t amount) {
 SiBlock * siblock_dup(SiBlock * self) {
   return siblock_slice(self, 0, siblock_size(self));
 }
+
+/** Adds a new item to the block, at the last available index. */
+SI_API void * siblock_add(SiBlock * self, void * ptr) {
+  size_t last = siblock_size(self);
+  return siblock_set(self, last, ptr); 
+}
+
 
 
 

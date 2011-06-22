@@ -1,0 +1,1 @@
+git add src/*/*.c test/*/*.c include/*/*.h test/*/CMakeLists.txt src/*/CMakeLists.txt

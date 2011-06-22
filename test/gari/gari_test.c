@@ -1,5 +1,5 @@
 #include "gari.h"
-#include "re/test.h"
+#include "si_test.h"
 #include <unistd.h>
 #include <stdio.h>
 
@@ -54,16 +54,16 @@ TEST_FUNC(game) {
   c4      = gari_colora(0   ,   0, 0  , 0   );
   cg      = gari_colora(127 , 127, 127, 127 );
   gari_image_slab(sim, 0, 0, 640, 480, yellow);
-  font    = gari_font_load("../../share/font/liberationserif.ttf", 14);
+  font    = gari_font_load("../../data/font/liberationserif.ttf", 14);
   TEST_NOTNULL(font);
   gari_font_mode_(font, GariFontBlended);
   TEST_INTEQ(GariFontBlended,  gari_font_mode(font));
   
-  tim     = gari_image_loadraw("../../share/image/tile_aqua.png");
+  tim     = gari_image_loadraw("../../data/image/tile_aqua.png");
   
   TEST_NOTNULL(tim);
   
-  bim     = gari_image_loadraw("../../share/image/ui/background/blue.png");
+  bim     = gari_image_loadraw("../../data/image/ui/background/blue.png");
   TEST_NOTNULL(bim);
   
   
@@ -180,64 +180,7 @@ TEST_FUNC(game) {
 }
 
 
-int gari_ruby_do(const char * cmd) { 
-  int result;
-  rb_protect((VALUE (*)())rb_eval_string, (VALUE) cmd,
-	     &result);
-  if (result != 0) {
-    VALUE lasterr, m;
-    lasterr = rb_gv_get("$!");  
-    m = rb_obj_as_string(lasterr);
-    fprintf(stderr, "Ruby error: %s\n", RSTRING_PTR(m));
-  }
-  ruby_cleanup(result);
-  return result;
-}
-
-
-//RUBY_GLOBAL_SETUP
-
 int main(int argc, char * argv[]) {
-  int result;
-  GariColor red, green;
-/*  RUBY_INIT_STACK
-  ruby_init();
-  // ruby_script(argv[0]);
-  // ruby_init_loadpath();
-  
-  {
-  	//	Ruby Options are just like /usr/bin/ruby
-	//	interpreter name, script name, argv ...
-	char*	options[]	=	{ "", "-e", "puts 'hello'"  };
-	void*	node		=	ruby_options( 2, options );
-	char*	options2[]	=	{ "", "-e", "puts 'world'"  };
-	void*	node2; 
-        result = ruby_run_node( node  );
-        ruby_cleanup(result);
-        node2 =	ruby_options( 2, options2 );	
-        ruby_run_node( node2 );
-  }
-  //	Ruby Options are just like /usr/bin/ruby
-  //	interpreter name, script name, argv ...
-  /*
-  { 	  
-    char*	options[]	=	{ "", "-e", "puts 'hello';"  };
-    void*	node		=	ruby_options( 2, options);
-    char*	options2[]	=	{ "", "-e", "puts 'world';"  };
-    void*	node2		=	ruby_options( 2, options);        
-    ruby_run_node( node );
-    ruby_run_node( node2 );
-  }  
-  /*ruby_init();
-  { 	  
-    char*	options[]	=	{ "", "-e", "puts 'world';"  };
-    void*	node		=	ruby_options( 2, options);
-    ruby_run_node( node );
-  }  
-*/
-
- 
-  
   TEST_INIT(); 
   TEST_RUN(game);
   TEST_REPORT();
