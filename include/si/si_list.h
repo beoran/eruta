@@ -9,8 +9,17 @@ typedef struct SiList_ SiList;
 /** Links one list to the other. Returns the first list. */
 SiList * silist_linkto(SiList * self, SiList * next);
 
+/** Allocates a list. */
+SiList * silist_alloc();
+
+/** Initializes an empty linklist. */
+SiList * silist_new(void * data);
+
 /** Initializes self as an empty linklist. */
 SiList * silist_init(SiList * self, void * data);
+
+/** Gets the data item associated with this list node. */
+void * silist_data(SiList * self);
 
 /** Gets the next item on the list */
 SiList * silist_next(SiList * self);

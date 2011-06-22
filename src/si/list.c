@@ -61,9 +61,12 @@ SiList * silist_free(SiList * self) {
 
 /** Frees all forwardly linked links only. */
 SiList * silist_done(SiList * self) {
-  SiList * index;
-  for(index = silist_next(self); index; index = silist_next(index)) {
+  SiList * next; 
+  SiList * index = silist_next(self);   
+  while(index) { 
+    next = silist_next(index);
     silist_free_self(index);
+    index = next;
   }
   return self;
 }

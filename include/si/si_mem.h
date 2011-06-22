@@ -18,8 +18,8 @@ SI_API void * si_memcpy(void * dst, void * src, size_t size);
 SI_API void * si_realloc(void * ptr, size_t size);
 
 /* Safely copies memory between src and dst. dsts and srcs are the sizes of 
-src and dst, dsti and srci are the indexes at chich to start copying, 
-amount s the amount of data to copy.  */
+src and dst, dsti and srci are the indexes at which to start copying, 
+amount is the amount of data to copy.  */
 SI_API void * si_smemcpy(void * dst, size_t dsts, size_t dsti, 
                   void * src, size_t srcs, size_t srci, 
                   size_t amount);

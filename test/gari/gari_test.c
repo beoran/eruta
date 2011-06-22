@@ -99,7 +99,7 @@ TEST_FUNC(game) {
   while (!done) { 
     while (gari_event_fetch(&ev)) {
       fprintf(stderr, "Got event: kind: %d .\n", ev.kind);
-      done = (ev.kind == GARI_EVENT_QUIT);
+      if(ev.kind == GARI_EVENT_QUIT) done = TRUE;
       if(done) break;
     }
  
@@ -151,6 +151,7 @@ TEST_FUNC(game) {
     
     gari_game_nextframe(game);
     gari_game_update(game);
+    break; // only do draw one time when testing.
   }
   
   gari_game_update(game);

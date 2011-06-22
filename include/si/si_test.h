@@ -32,15 +32,17 @@ struct Test_ {
 #define TEST_ANSI_Y(S) (S)
 #endif
 
+#define TEST_UNUSED(x) ((void)(x))
+
 
 /** Initializes the test. */
-Test * test_init(Test * test) {
+static Test * test_init(Test * test) {
   test->failed = test->ok = test->count = 0;
   return test; 
 }
 
 /** Adds one OK test.*/
-Test * test_ok(Test * test) {
+static Test * test_ok(Test * test) {
   test->count ++;
   test->ok    ++;
   return test;  
@@ -163,17 +165,20 @@ static Test * test_false(Test * test, int boole, const char * explain) {
 
 /** This only exists to supress spurious compiler warnings. */
 static Test * warning_supressor(Test * test) {
+  if(!test) return NULL;
   test_streq(test, "", "", "");
   test_streqn(test, "", 0, "", "");
   test_memeq(test, "", 0, "", "");
+  test_inteq(test, 0, 0, "");
   test_intneq(test, 0, 0, "");
   test_true(test, 0, "");
   test_false(test, 0, "");
   test_null(test, 0, "");
-  // ditto for useless and eternal recursion
-  warning_supressor(test); 
+  TEST_UNUSED(warning_supressor);
   return test_fail(test, "");
 }
+
+
 
 /* Macros to help with calling tested functions.
 * Important notice: these macros assume that a Test * _t exists.
