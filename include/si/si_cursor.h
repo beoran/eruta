@@ -12,7 +12,8 @@ typedef struct SiCursorClass_ SiCursorClass;
 
 typedef SiCursor * (SiCursorNextFunc)(SiCursor * cursor);
 typedef void *     (SiCursorDataFunc)(SiCursor * cursor);
-typedef SiCursor * (SiCursorFunc)(SiCursor * cursor, void * extra);
+typedef void *     (SiCursorFunc)(SiCursor * cursor, void * extra);
+
 
 /** Stuct for the flexible methods of the SiCursor. */
 struct SiCursorClass_ {
@@ -46,6 +47,10 @@ void * sicursor_collection(SiCursor * self);
 /** Returns the currently active element of the cursor. */
 void * sicursor_active(SiCursor * self);
 
+/** Gets the current active element for this iterator, cast to the given type.*/
+#define SICURSOR_ACTIVE(CURSOR, TYPE) ((TYPE*)sicursor_active(CURSOR))
+
+
 /** Sets the currently active element of the cursor. 
 * Only for use in collection SiCursorClass methods. 
 */
@@ -67,11 +72,16 @@ size_t sicursor_index_(SiCursor * self, size_t index);
 SiCursor * sicursor_next(SiCursor * self);
 
 /** Gets the current active data for this iterator. */
-SiCursor * sicursor_data(SiCursor * self); 
+void * sicursor_data(SiCursor * self); 
+
+/** Gets the current active data for this iterator, cast to the given type. */
+#define SICURSOR_DATA(CURSOR, TYPE) ((TYPE*)sicursor_data(CURSOR))
 
 /** Iterates over the colllection that the cursor is for, 
 calling func(cursor) each time until the end is reached. */
 void * sicursor_each(SiCursor * cursor, SiCursorFunc * func, void * extra); 
+
+
 
 
 #endif

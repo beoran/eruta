@@ -11,7 +11,8 @@ struct RakuNode_ {
 
 RakuNode * rakunode_init(RakuNode * self, RakuNodeKind kind) { 
   self->kind     = kind;
-  self->node     = sitree_new(NULL, self);
+  self->node     = sitree_new(self);
+  return self;
 }
 
 /*

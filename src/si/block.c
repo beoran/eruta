@@ -3,64 +3,50 @@
 
 #define SI_BLOCK_ROOM 16
 
-struct SiBlock_ {
-  char * data;
-  size_t size;
-  size_t elsz;
-  size_t room;
-};
+   struct SiBlock_ {
+      char * data;
+      size_t size;
+      size_t elsz;
+      size_t room;
+   };
+
 
 /** Frees a Block. Returns NULL. */
-SiBlock * siblock_free(SiBlock * self) {
-  siblock_done(self);
-  return si_free(self);
-}
+   SiBlock * siblock_free(SiBlock * self) {
+      siblock_done(self);
+      return si_free(self);
+   }
 
 /** Frees the contents of a block. Has the same effect as emptying the block. */
-SiBlock * siblock_done(SiBlock * self) {
-  if(!self) return NULL;
-  si_free(self->data);
-  self->size = 0;
-  self->room = 0;
-  return self;  
-}
+   SiBlock * siblock_done(SiBlock * self) {
+      if(!self) 
+         return NULL;
+      si_free(self->data);
+      self->size = 0;
+      self->room = 0;
+      return self;  
+   }
 
 /** Initializes a new Block with size elements of size elsz each. */
-SiBlock * siblock_init(SiBlock * self, size_t size, size_t elsz) {
-  if (!self)    return NULL;
-  if (elsz < 0) return NULL;
+ SiBlock * siblock_init(SiBlock * self, size_t size, size_t elsz) {
+  if(!self)  return NULL;
+  if(elsz < 0) return NULL;
   self->room = SI_BLOCK_ROOM;
-  if (self->room < size) {
+  if(self->room < size) {
     self->room = SI_BLOCK_ROOM + size;
   }
   self->size = size;
   self->elsz = elsz;
   if((self->room * self->elsz) < 1) {
-    self->data = NULL;
+     self->data = NULL;
   } else {
     self->data = si_malloc(self->room * self->elsz);
-    if (!self->data) return siblock_done(self);
+    if (!self->data) 
+    return siblock_done(self);
   }
   return self;
 }
 
-/** Changes the room available in the SiBlock. */
-SiBlock * siblock_room_(SiBlock * self, size_t room) {
-  void * aid = NULL;
-  if(!self) return NULL;
-  aid        = si_realloc(self->data, room); 
-  if(!aid) return NULL;
-  self->room = room;
-  self->data = aid;
-  return self;
-}
-
-/** Grows the SiBlock if needed. */
-SiBlock * siblock_room_grow(SiBlock * self, size_t newroom) {
-  if(!self) return NULL;
-  if (newroom >= self->room) return siblock_room_(self, newroom + SI_BLOCK_ROOM);
-  return self;
-}
 
 
 /** Allocates a new empty Block.  */
@@ -72,8 +58,8 @@ SiBlock * siblock_alloc() {
 SiBlock * siblock_new(size_t size, size_t elsz) {
   SiBlock * res = siblock_alloc();
   if(!siblock_init(res, size, elsz)) {
-    siblock_free(res);
-    return NULL;
+      siblock_free(res);
+      return NULL;
   }
   return res;
 } 
@@ -84,31 +70,43 @@ SiBlock * siblock_newempty(size_t elsz) {
 }
 
 
-/** Gets the  block's size. */
+/** Gets the  block's size. Returns 0 if self is NULL. */
 size_t siblock_size(SiBlock * self) {
-  return self->size;
+    if(!self) return 0;
+    return self->size;
 }
 
-/** Gets the block's element size. */
+/** Gets the block's element size.  Returns 0 if self is NULL. */
 size_t siblock_elementsize(SiBlock * self) {
+  if(!self) return 0;
   return self->elsz;
 }
 
-/** Sisizes the block. Data is preserved. */
+/** Sizes the block. Data is preserved. */
 size_t siblock_size_(SiBlock * self, size_t size);
 
 /** Checks if the index is ok. */
 int siblock_index_ok(SiBlock * self, size_t index) {
+  if(!self) return FALSE;
   return index < self->size;
 }
+
+/** Checks if the int index is ok. */
+int siblock_intindex_ok(SiBlock * self, int index) {
+  if(!self) return FALSE;
+  if (index < 0) return FALSE;
+  return (size_t)(index) < self->size;
+ }
  
 
 /** Copies size elements of data from ptr into the block starting at index. */
 SiBlock * siblock_xcopyptr(SiBlock * self, size_t selfi, 
-                        void * ptr, size_t ptrs, size_t ptri, size_t amount) {
-  if((!self) || (!self->data)) return NULL;
-  si_smemcpy(self->data, self->size, selfi, ptr, ptrs, ptri, amount * self->elsz);
-  return self;
+                      void * ptr, size_t ptrs, size_t ptri, size_t amount) {
+    if((!self) || (!self->data)) 
+        return NULL;
+    si_smemcpy(self->data, self->size, selfi, ptr, ptrs, ptri, amount *
+    self->elsz);
+    return self;
 }
 
 /** Copies elemetrs from one block to the next, starting at the given indexes.
@@ -116,20 +114,45 @@ Element size must be identical. */
 SiBlock * siblock_xcopy(SiBlock * self , size_t selfi,
                         SiBlock * block, size_t blocki, 
                         size_t amount) {
-  if((!self)  || (!self->data))   return NULL;
-  if((!block) || (!block->data))  return NULL;
-  if(block->elsz != self->elsz)   return NULL;
-  si_smemcpy(self->data , self->size , selfi  * self->elsz, 
+      if((!self)  || (!self->data))         return NULL;
+      if((!block) || (!block->data))        return NULL;
+      if(block->elsz != self->elsz)         return NULL;
+      si_smemcpy(self->data , self->size , selfi  * self->elsz, 
              block->data, block->size, blocki * block->elsz, 
              amount * self->elsz);
+      return self;
+}
+
+/** Returns the index-th element of the block. 
+Performs no range checking */
+void * siblock_getraw(SiBlock * self, size_t index) { 
+  return (void *)(self->data + (index * self->elsz));
+}
+ 
+/** Returns the index-th element of the block. 
+Performs a range check and returns NULL if out of range. */
+void * siblock_get(SiBlock * self, size_t index) {
+  if(!siblock_index_ok(self, index)) return NULL;
+  return siblock_getraw(self, index);
+}
+
+/** Changes the room available in the SiBlock. */
+SiBlock * siblock_room_(SiBlock* self, size_t newroom) {
+  void * aid = NULL;
+  if(!self) return NULL;
+  aid        = si_realloc(self->data, newroom); 
+  if(!aid) return NULL;
+  self->room = newroom;
+  self->data = aid;
   return self;
 }
 
- 
-/** Returns the index-th element of the block. */
-void * siblock_get(SiBlock * self, size_t index) {
-  if(!siblock_index_ok(self, index)) return NULL;
-  return (void *)(self->data + (index * self->elsz));
+/** Grows the SiBlock if needed. */
+SiBlock * siblock_room_grow(SiBlock * self, size_t newroom) {
+  if(!self) return NULL;
+  if (newroom >= self->room)
+      return siblock_room_(self, newroom + SI_BLOCK_ROOM);
+  return self;
 }
 
 /** Copies elsz of the the data in ptr to the index-th element of the block.
@@ -137,10 +160,15 @@ void * siblock_get(SiBlock * self, size_t index) {
 */
 void * siblock_set(SiBlock * self, size_t index, void * ptr) {
   void * dst;
-  if(!siblock_room_grow(self, index)) return NULL; // make space if needed.
-  dst = siblock_get(self, index);
+  if(!siblock_room_grow(self, index)) return NULL; 
+  // make space if needed.
+  dst = siblock_getraw(self, index);
   if(!dst) return NULL;
-  si_memcpy(dst, ptr, self->elsz);
+  memmove(dst, ptr, self->elsz);
+  if (index >= self->size) { 
+    // Also grow size if needed. 
+    self->size = index +1;
+  } 
   return dst;
 }
 
@@ -150,7 +178,7 @@ void * siblock_slice(SiBlock * self, size_t start, size_t amount) {
   if(!self) return NULL;
   res = siblock_new(amount, self->elsz);
   if(!res) return NULL;
-  return siblock_xcopy(res , 0, self, start, amount); 
+  return siblock_xcopy(res , 0, self, start, amount);
 }
 
 /** Duplicates the block. */
@@ -159,9 +187,10 @@ SiBlock * siblock_dup(SiBlock * self) {
 }
 
 /** Adds a new item to the block, at the last available index. */
-SI_API void * siblock_add(SiBlock * self, void * ptr) {
+void * siblock_add(SiBlock * self, void * ptr) {
   size_t last = siblock_size(self);
-  return siblock_set(self, last, ptr); 
+  void * ok   = siblock_set(self, last, ptr);
+  if(!ok) return NULL;
 }
 
 

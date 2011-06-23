@@ -22,8 +22,7 @@ SI_API SiBlock * siblock_init(SiBlock * self, size_t size, size_t elsz);
 SI_API SiBlock * siblock_new(size_t size, size_t elsz);
  
  /** Allocates a new empty Block with size elements of size elsz each. */
-SI_API SiBlock * siblock_newempty(size_t elsz); 
-
+SI_API SiBlock * siblock_newempty(size_t elsz);
 
 /** Duplicates the block. */
 SI_API SiBlock * siblock_dup(SiBlock * block);
@@ -36,6 +35,8 @@ SI_API size_t siblock_size_(SiBlock * block, size_t size);
 
 /** Checks if the index is ok. */
 SI_API int siblock_index_ok(SiBlock * block, size_t index);
+
+SI_API int siblock_intindex_ok(SiBlock * self, int index);
  
 /** Returns the index-th element of the block. */
 SI_API void * siblock_get(SiBlock * block, size_t index);

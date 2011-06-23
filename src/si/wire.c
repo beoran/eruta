@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "si_macro.h"
 #include "si_wire.h"
 #include "si_mem.h"
 

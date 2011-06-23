@@ -82,14 +82,15 @@ SiList * silist_last(SiList * self) {
   return last;
 }
 
-/** Add a list to the end of a list */
+/** Add a list to the end of a list. Returns next.  */
 SiList * silist_addlist(SiList * self, SiList * next) {
   SiList * last = silist_last(self);
-  return silist_linkto(last, next);
+  silist_linkto(last, next);
+  return next;
 }
 
 /** Creates a new link, stores a pointer to data in it, 
-and appends it to this list. */
+and appends it to this list. Returns the newly added wrapping list. */
 SiList * silist_add(SiList * self, void * data) {
   SiList * next = silist_new(data);  
   return silist_addlist(self, next);
@@ -118,7 +119,30 @@ static SiCursorClass list_cursor_klass = {
   silist_cursor_data,
 };
 
+/** Generate a new cursor. */
 SiCursor * silist_cursor(SiList * self) {
   return sicursor_new(self, self, 0,  &list_cursor_klass);
 }
+
+/** Gets the index-th element in the list. This is an O(index) operation.
+* Returns NULL if the list does not have index items in it.  
+*/
+SiList * silist_getlist(SiList * self, size_t index) {
+  size_t   sub  = 0;
+  SiList * next = self;
+  while(next) {
+    if(sub == index) return next;
+    next = silist_next(next);
+    index ++;
+  }
+  return NULL;
+}
+
+/** Gets the data of index-th element in the list. This is an O(index)
+operation. Returns NULL if the list does not have index items in it. */
+SiList * silist_get(SiList * self, size_t index) {
+  return silist_data(silist_getlist(self, index));
+}
+
+
 

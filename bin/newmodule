@@ -1,0 +1,25 @@
+#!/bin/bash
+package=$(dirname $1)
+file=$(basename $1)
+echo Creating new $file in $package
+src="src/$package"
+test="test/$package"
+incl="include/$package"
+tpl="tool/template/" 
+
+mkdir $incl
+mkdir $src
+mkdir $test
+
+function use_template {
+  if  [ -f $2 ] ; 
+  then echo "Output file $2 already exists, skipping..." ; 
+  else sed -e s/\$file\\$/$file/g -e s/\$package\\$/$package/g $1 > $2 ;
+  fi ;
+}
+ 
+
+use_template $tpl/template.c $src/${file}.c
+use_template $tpl/template.h $incl/${package}_${file}.h
+use_template $tpl/test_template.c $test/test_${file}.c
+

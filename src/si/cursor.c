@@ -68,7 +68,7 @@ SiCursor * sicursor_next(SiCursor * self) {
   return sicursor_free(self);
 }
 
-SiCursor * sicursor_data(SiCursor * self) {
+void * sicursor_data(SiCursor * self) {
   if(!self) return NULL;
   return self->klass->data(self);
 }

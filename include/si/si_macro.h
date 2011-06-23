@@ -14,8 +14,6 @@
   #define SI_OS "POSIX"
 #endif
   
-
-
 /** Macros for a very simple mixin system. Use it as follows: 
  define the mixin:
  struct Mixin_ { ... } ; typedef struct Mixin_ Mixin;
@@ -61,6 +59,8 @@
 #define FALSE (0)
 #endif
 
+/** some syntactic macros that ease very common cases */
+#define SI_RETURN_IF(FOO) do { if(FOO) return (FOO); } while (0))
 
 
 

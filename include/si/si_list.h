@@ -49,4 +49,15 @@ SiList * silist_add(SiList * self, void * data);
 /** Gets a cursor to traverse the list. */
 SiCursor * silist_cursor(SiList * self);
 
+/** Gets the index-th element in the list. This is an O(index) operation.
+* Returns NULL if the list does not have index items in it.  
+*/
+SiList * silist_getlist(SiList * self, size_t index); 
+
+/** Gets the data of index-th element in the list. This is an O(index)
+operation. Returns NULL if the list does not have index items in it. */
+SiList * silist_get(SiList * self, size_t index);
+
+
+
 #endif
