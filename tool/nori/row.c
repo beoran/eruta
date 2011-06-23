@@ -68,7 +68,7 @@ NORI_FUNC(NoriRow *) nori_row_init(NoriRow * row, NoriSize cap, NoriSize esz) {
 */
 NORI_FUNC(NoriRow *) nori_row_done(NoriRow * row) {
   if(row->ptr) {
-    NORI_FREE(row);
+    NORI_FREE(row->ptr);
     row->ptr = NULL;
     row->cap = 0;
     row->len = 0;    

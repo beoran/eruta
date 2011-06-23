@@ -51,7 +51,26 @@ SI_API void * siblock_slice(SiBlock * block, size_t start, size_t amount);
 SI_API void * siblock_add(SiBlock * block, void * ptr);
 
 
+#ifdef SIBLOCK_EXTRA
+/** Adds a new item to the block, at the last available index. */
+SI_API void * siblock_addcopy(SiBlock * block, void * ptr);
 
+/** Adds a new item to the block, at the last available index. */
+SI_API void * siblock_addptr(SiBlock * block, void * ptr);
+
+/** Returns the index-th element of the block. */
+SI_API void * siblock_getcopy(SiBlock * block, size_t index);
+
+/** Returns the index-th element of the block. */
+SI_API void * siblock_getptr(SiBlock * block, size_t index);
+
+/** Copies elsz of the the data in ptr to the index-th element of the block. */
+SI_API void * siblock_set(SiBlock * block, size_t index, void * ptr);
+
+/** Copies elsz of the the data in ptr to the index-th element of the block. */
+SI_API void * siblock_setptr(SiBlock * block, size_t index, void * ptr);
+
+#endif
 
 #endif
 

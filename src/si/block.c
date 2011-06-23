@@ -160,8 +160,8 @@ SiBlock * siblock_room_grow(SiBlock * self, size_t newroom) {
 */
 void * siblock_set(SiBlock * self, size_t index, void * ptr) {
   void * dst;
-  if(!siblock_room_grow(self, index)) return NULL; 
-  // make space if needed.
+  if(!siblock_room_grow(self, index + 1)) return NULL; 
+  // make space if needed. We need index + 1 space since 
   dst = siblock_getraw(self, index);
   if(!dst) return NULL;
   memmove(dst, ptr, self->elsz);

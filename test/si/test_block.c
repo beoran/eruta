@@ -21,6 +21,7 @@ TEST_FUNC(si_block) {
   TEST_STREQ(*((char **)siblock_get(b, 1)), s[1]);
   TEST_STREQ(*((char **)siblock_get(b, 0)), s[0]);
   TEST_NOTNULL(siblock_set(b, 301, s + 3));
+  TEST_NOTNULL(siblock_get(b, 301));
   TEST_STREQ(*((char **)siblock_get(b, 301)), s[3]);
   siblock_free(b);
   TEST_DONE();
