@@ -30,6 +30,11 @@ TEST_FUNC(silist) {
       okindex++;
     }
   }   
+  { 
+    char * res = (char *)sicursor_each(silist_cursor(list), cursor_search, "is");
+    TEST_NOTNULL(res);
+    TEST_STREQ(res, "me");
+  }
   silist_free(list);
   TEST_DONE();
 }
