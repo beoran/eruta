@@ -12,9 +12,9 @@ typedef struct SiCursorClass_ SiCursorClass;
 
 typedef SiCursor * (SiCursorNextFunc)(SiCursor * cursor);
 typedef void *     (SiCursorDataFunc)(SiCursor * cursor);
-typedef SiCursor * (SiCursorFunc)(SiCursor * cursor);
+typedef SiCursor * (SiCursorFunc)(SiCursor * cursor, void * extra);
 
-
+/** Stuct for the flexible methods of the SiCursor. */
 struct SiCursorClass_ {
   SiCursorNextFunc * next;
   SiCursorDataFunc * data;
@@ -71,7 +71,7 @@ SiCursor * sicursor_data(SiCursor * self);
 
 /** Iterates over the colllection that the cursor is for, 
 calling func(cursor) each time until the end is reached. */
-void * sicursor_each(SiCursor * cursor, SiCursorFunc * func); 
+void * sicursor_each(SiCursor * cursor, SiCursorFunc * func, void * extra); 
 
 
 #endif

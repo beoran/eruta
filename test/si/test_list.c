@@ -3,6 +3,13 @@
 #include "si_test.h"
 #include "si_list.h"
 
+void * cursor_search(SiCursor * cursor, void * extra) {
+  char * data   = (char *) sicursor_data(cursor);
+  char * tofind = (char *) extra;
+  if (strcmp(data, tofind) == 1) return tofind;
+  return NULL;
+}
+
 TEST_FUNC(silist) {
   SiList * list  = silist_new("Hello");
   TEST_NOTNULL(list);
@@ -12,6 +19,17 @@ TEST_FUNC(silist) {
   TEST_NOTNULL(silist_add(list, "me"));
   TEST_NOTNULL(silist_last(list));
   TEST_STREQ(silist_data(silist_last(list)), "me");
+  { 
+    SiCursor * index = silist_cursor(list);
+    int okindex = 0;
+    TEST_NOTNULL(index);
+    while(index) {
+      TEST_INTEQ(okindex, sicursor_index(index));
+      puts((char *)sicursor_data(index));
+      index = sicursor_next(index);
+      okindex++;
+    }
+  }   
   silist_free(list);
   TEST_DONE();
 }

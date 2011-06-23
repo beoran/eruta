@@ -59,7 +59,10 @@ size_t sicursor_index_(SiCursor * self, size_t index) {
 SiCursor * sicursor_next(SiCursor * self) {
   if(!self) return NULL;
   SiCursor * next = self->klass->next(self);
-  if(next) return next;
+  if(next) { 
+    next->index += 1; // increment the cursor's index
+    return next;
+  }  
   // If next is NULL, we're at the end of the iteration. 
   // Automatically free self and return null.
   return sicursor_free(self);
@@ -70,11 +73,11 @@ SiCursor * sicursor_data(SiCursor * self) {
   return self->klass->data(self);
 }
 
-void * sicursor_each(SiCursor * cursor, SiCursorFunc * func) {
+void * sicursor_each(SiCursor * cursor, SiCursorFunc * func, void * extra) {
   do { 
     cursor = sicursor_next(cursor);
     if(cursor) { 
-      void * aid = func(cursor);
+      void * aid = func(cursor, extra);
       if(aid) return aid; 
     }
   } while(cursor);
