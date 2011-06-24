@@ -14,7 +14,11 @@ SI_API void * si_free(void * ptr);
 /** Copy memory. */ 
 SI_API void * si_memcpy(void * dst, void * src, size_t size);
 
-/** Re allocate memory. */
+/** Copy overlapping memory. */ 
+SI_API void * si_memmove(void * dst, void * src, size_t size);
+
+
+/** Reallocate memory. */
 SI_API void * si_realloc(void * ptr, size_t size);
 
 /* Safely copies memory between src and dst. dsts and srcs are the sizes of 

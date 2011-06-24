@@ -33,6 +33,12 @@ void * si_memcpy(void * dst, void * src, size_t size) {
   return si_smemcpy(dst, size, 0 , src , size, 0, size);  
 }
 
+/** Copy overlapping memory. */ 
+void * si_memmove(void * dst, void * src, size_t size) {
+  return memmove(dst, src, size);
+}
+
+
 
 void * si_realloc(void * ptr, size_t size) {
   return realloc(ptr, size);
