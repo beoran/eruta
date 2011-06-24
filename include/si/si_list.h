@@ -2,6 +2,7 @@
 #define SI_LIST_H
 
 #include "si_cursor.h"
+#include "si_walker.h"
 
 struct SiList_;
 typedef struct SiList_ SiList;
@@ -56,7 +57,10 @@ SiList * silist_getlist(SiList * self, size_t index);
 
 /** Gets the data of index-th element in the list. This is an O(index)
 operation. Returns NULL if the list does not have index items in it. */
-SiList * silist_get(SiList * self, size_t index);
+void * silist_get(SiList * self, size_t index);
+
+/** Walks over the list using a SiWalker callback. */
+void * silist_walk(SiList * self, SiWalker * walker, void * extra);
 
 
 

@@ -59,7 +59,7 @@ TEST_FUNC(game) {
   gari_font_mode_(font, GariFontBlended);
   TEST_INTEQ(GariFontBlended,  gari_font_mode(font));
   
-  tim     = gari_image_loadraw("../../data/image/tile_aqua.png");
+  tim     = gari_image_loadraw("tile_aqua.png");
   
   TEST_NOTNULL(tim);
   

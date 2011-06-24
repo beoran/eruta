@@ -32,9 +32,10 @@ size_t siblock_room(SiBlock * self) {
 SiBlock * siblock_done(SiBlock * self) {
   if(!self)  return NULL;
   si_free(self->data);
+  self->data = NULL;
   self->size = 0;
   self->room = 0;
-  return self;  
+  return self;
 }
 
 /** Frees a Block. Returns NULL. */
@@ -170,7 +171,7 @@ void * siblock_getraw(SiBlock * self, size_t index) {
  
 /** Returns the index-th element of the block. 
 Performs a range check and returns NULL if out of range. */
-void * siblock_get(SiBlock * self, size_t index) {
+void * siblock_getdata(SiBlock * self, size_t index) {
   if(!siblock_index_ok(self, index)) return NULL;
   return siblock_getraw(self, index);
 }
@@ -179,13 +180,12 @@ void * siblock_get(SiBlock * self, size_t index) {
 /** Copies elsz of the the data in ptr to the index-th element of the block.
 * This may grow the block if the index is out of range. 
 */
-void * siblock_set(SiBlock * self, size_t index, void * ptr) {
+void * siblock_setdata(SiBlock * self, size_t index, void * ptr) {
   void * dst;  
   if(!siblock_size_(self, index+1)) return NULL; 
   // Set the size to index + 1 if needed.
   dst = siblock_getraw(self, index);
   if(!dst) return NULL;
-  printf("siblock_set memmove: %p, %p %d\n", dst, ptr, self->elsz);
   si_memmove(dst, ptr, self->elsz);
   if (index >= self->size) { 
     // Also grow size if needed.
@@ -194,9 +194,23 @@ void * siblock_set(SiBlock * self, size_t index, void * ptr) {
   return dst;
 }
 
+/** Stores a pointer at index index. elementize should be sizeof(void *) */
 void * siblock_setptr(SiBlock * self, size_t index, void * ptr) {
-  return siblock_set(self, index, ptr);
+  return siblock_setdata(self, index, &ptr);
 }
+
+/** Retrieves a pointer at index index. elementize should be sizeof(void *) */
+void * siblock_getptr(SiBlock * self, size_t index) {
+  void ** aid = siblock_getdata(self, index);
+  if(!aid) return NULL;
+  return *(aid);
+}
+
+/** Adds a new pointer to self, at the last available index. */
+void * siblock_addptr(SiBlock * self, void * ptr) {
+  return siblock_adddata(self, &ptr);
+}
+
 
 /** Siturns a new block that contains a slice of the elements of self. */
 void * siblock_slice(SiBlock * self, size_t start, size_t amount) {
@@ -213,12 +227,39 @@ SiBlock * siblock_dup(SiBlock * self) {
 }
 
 /** Adds a new item to the block, at the last available index. */
-void * siblock_add(SiBlock * self, void * ptr) {
+void * siblock_adddata(SiBlock * self, void * ptr) {
   size_t last = siblock_size(self);
-  void * ok   = siblock_set(self, last, ptr);
+  void * ok   = siblock_setdata(self, last, ptr);
   if(!ok) return NULL;
   return self;
 }
+
+/** Walks over the Block using the walker interface, accessing 
+the data as pointers. */
+void * siblock_walkptr(SiBlock * self, SiWalker * walker, void * extra) {
+  size_t index;
+  size_t size = siblock_size(self);  
+  for(index = 0; index < size ; index++) {
+    void * ptr = siblock_getptr(self, index); 
+    void * aid = walker(ptr, &index, self, extra);
+    if (aid) return aid;
+  }
+  return NULL;
+}
+
+/** Walks over the Block using the walker interface, accessing 
+the data as stored structs. */
+void * siblock_walkdata(SiBlock * self, SiWalker * walker, void * extra) {
+  size_t index;
+  size_t size = siblock_size(self);  
+  for(index = 0; index < size ; index++) {
+    void * ptr = siblock_getdata(self, index); 
+    void * aid = walker(ptr, &index, self, extra);
+    if (aid) return aid;
+  }
+  return NULL;
+}
+
 
 
 

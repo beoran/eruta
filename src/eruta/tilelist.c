@@ -54,12 +54,12 @@ Tilelist * tilelist_free(Tilelist * self) {
 
 // Sets the image to use for an index
 GariImage * tilelist_image_(Tilelist * self, size_t index, GariImage * img) {
-  return siblock_set(self->images, index, img);
+  return siblock_setptr(self->images, index, img);
 }  
 
 // Sets the tile to use for an index
 GariImage * tilelist_tile_(Tilelist * self, size_t index, void * tile) {
-  return siblock_set(self->tiles, index, tile);
+  return siblock_setptr(self->tiles, index, tile);
 }
 
 GariImage * tilelist_copypart(GariImage * img, int x, int y, 

@@ -1,23 +1,71 @@
 #include "raku_node.h"
-#include "si_block.h"
+#include "si_mem.h"
 #include "si_tree.h"
 
 
 
 struct RakuNode_ { 
   RakuNodeKind   kind;
-  SiTree       * node;
+  SiTree       * tree;
 };
 
-RakuNode * rakunode_init(RakuNode * self, RakuNodeKind kind) { 
-  self->kind     = kind;
-  self->node     = sitree_new(self);
+/** Cleans up node, making it unusable. */
+RakuNode * rakunode_done(RakuNode * self) {
+  if(!self) return NULL;
+  sitree_free(self->tree);
+  self->tree = NULL;
   return self;
 }
 
+/** Frees node. */
+RakuNode * rakunode_free(RakuNode * self) {
+  rakunode_done(self);
+  return si_free(self);
+}
+
+/** Initializes a RakuNode of the given kind. */
+RakuNode * rakunode_init(RakuNode * self, RakuNodeKind kind) { 
+  if(!self) return NULL;
+  self->kind     = kind;
+  self->tree     = NULL;
+  return self;
+}
+
+/** Allocates a new, unusable RakuNode. */
+RakuNode * rakunode_alloc() {
+  return SI_ALLOCATE(RakuNode);
+}
+
+/** Allocates a RakuNode of the given kind. Frees it with rakunode_free().*/
+RakuNode * rakunode_new(RakuNodeKind kind) {
+  return rakunode_init(rakunode_alloc(), kind);
+}
+
+SiTree * rakunode_tree(RakuNode * self) {
+  if(!self) return NULL;
+  return self->tree;
+}
+
+RakuNodeKind rakunode_kind(RakuNode * self) {
+  return self->kind;
+} 
+
+RakuTree rakunode_tree_(RakuNode * self, RakuTree * tree) {
+}
+
+RakuNode * rakunode_add(RakuNode * self) {
+  return NULL;
+}
+
+void * rakunode_walk(RakuNode * self,  SiWalker walk, void * extra) {
+  SiTree tree = rakunode_tree(self); 
+  return sitree_walk(tree, walk, extra);
+} 
+
+
+
+
 /*
-  
-  
       @data       = []
       @children   = []
       @all        = []

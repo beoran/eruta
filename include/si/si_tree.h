@@ -50,8 +50,6 @@ SiTree * sitree_get(SiTree * self, size_t index);
 /* Gets the amount of children this Tree node has. */
 size_t sitree_size(SiTree * self);
 
-typedef void * (SiTreeWalker)(SiTree * tree, SiTree * index, void * extra);
-
 SiCursor * sitree_cursor(SiTree * self);
 
 SiCursor * sitree_next(SiCursor * self);

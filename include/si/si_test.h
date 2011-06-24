@@ -122,14 +122,14 @@ static Test * test_notnull(Test * test, void * ptr, const char * explain) {
 /** Tests if two strings are equal according to strcmp. */
 static Test * test_streq(Test * test, char * s1, char * s2, const char * explain) {
   return test_assert(test, strcmp(s1, s2) == 0, 
-  "Strings should be equal: %s %s; %s ", s1, s2, explain);
+  "Strings should be equal: >%s< >%s<; %s ", s1, s2, explain);
 }
 
 /** Tests if two strings are equal according to strncmp. */
 static Test * test_streqn(Test * test, char * s1, size_t n, char * s2, 
                           const char * explain) {
   return test_assert(test, strncmp(s1, s2, n) == 0, 
-  "Strings should be equal: %s %s; %s ", s1, s2, explain);
+  "Strings should be equal: >%s< >%s<; %s ", s1, s2, explain);
 }
 
 /** Tests if two memory areas are equal according to memcmp. */

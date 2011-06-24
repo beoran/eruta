@@ -56,18 +56,36 @@ SiList * silist_free_self(SiList * self) {
 
 SiList * silist_free(SiList * self) {
   silist_done(self);
-  return si_free(self);
+  return silist_free_self(self);
+}
+
+/** Unlinks the node in the list after self, and links self to the
+next-nextnode if any. Returns a pointer to the node thus removed, or NULL if
+no such node.*/
+SiList * silist_unlinknext(SiList * self) {
+  SiList * nextnext = NULL;  
+  SiList * next     = silist_next(self);
+  if(!next) return NULL;
+  nextnext = silist_next(next);
+  silist_linkto(self, nextnext);
+  return next;  
+}
+
+/** Unlinks the next node and frees it (and it alone) */
+SiList * silist_freenext(SiList * self) {
+  return silist_free_self(silist_unlinknext(self)); 
 }
 
 /** Frees all forwardly linked links only. */
 SiList * silist_done(SiList * self) {
-  SiList * next; 
-  SiList * index = silist_next(self);   
-  while(index) { 
-    next = silist_next(index);
-    silist_free_self(index);
-    index = next;
+  SiList * next   = NULL; 
+  SiList * remove = silist_unlinknext(self);
+  while(remove) {
+    silist_free_self(remove);
+    remove = silist_unlinknext(self);
   }
+  self->next = NULL;
+  self->back = NULL;   
   return self;
 }
 
@@ -140,9 +158,20 @@ SiList * silist_getlist(SiList * self, size_t index) {
 
 /** Gets the data of index-th element in the list. This is an O(index)
 operation. Returns NULL if the list does not have index items in it. */
-SiList * silist_get(SiList * self, size_t index) {
+void * silist_get(SiList * self, size_t index) {
   return silist_data(silist_getlist(self, index));
 }
 
+/** Walks over the list using the walker interface. */
+void * silist_walk(SiList * self, SiWalker * walker, void * extra) {
+  SiList * index = self;
+  while(index) {
+    void * data = silist_data(index);
+    void * aid  = walker(data, index, self, extra);
+    if (aid) return aid;
+    index = silist_next(index);
+  }  
+  return NULL;
+}
 
 

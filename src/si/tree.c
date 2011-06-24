@@ -53,12 +53,12 @@ SiTree * sitree_new(void * data) {
   return sitree_newparent(NULL, data);
 }
 
-/** Initializes a si tree node with a parent. */
+/** Initializes a SiTree node with a parent. */
 SiTree * sitree_initparent(SiTree * self, SiTree * parent, void * data) {
-  if(!self) return NULL;
-  self->children = NULL;
+  if(!self) return NULL;  
   self->parent   = parent;
   self->data     = data;
+  self->children = NULL;
   return self;
 }
 
@@ -88,7 +88,7 @@ SiTree * sitree_addchild(SiTree * self, SiTree * child) {
   if(!self->children) {
     self->children = siblock_newempty(sizeof(SiTree *));  
   }
-  siblock_add(self->children, child);
+  siblock_addptr(self->children, child);
   sitree_parent_(child, self);
   return child; 
 }
@@ -101,7 +101,7 @@ SiTree * sitree_add(SiTree * self, void * data) {
 
 /* Gets the index-th child  node of self. */
 SiTree * sitree_get(SiTree * self, size_t index) {
-  return (SiTree *) siblock_get(self->children, index);
+  return (SiTree *) siblock_getptr(self->children, index);
 }
 
 /* Gets the amount of children this Tree node has. */
@@ -125,6 +125,7 @@ void * sitree_walk(SiTree * self, SiWalker walker, void * data) {
   }  
   return NULL;
 }
+
 
 
 SiCursor * sitreecursor_next(SiCursor * self) {
