@@ -3,7 +3,6 @@
 #include "si_tree.h"
 
 
-
 struct RakuNode_ { 
   RakuNodeKind   kind;
   SiTree       * tree;
@@ -50,7 +49,8 @@ RakuNodeKind rakunode_kind(RakuNode * self) {
   return self->kind;
 } 
 
-RakuTree rakunode_tree_(RakuNode * self, RakuTree * tree) {
+SiTree * rakunode_tree_(RakuNode * self, SiTree * tree) {
+  return NULL;
 }
 
 RakuNode * rakunode_add(RakuNode * self) {
@@ -58,7 +58,7 @@ RakuNode * rakunode_add(RakuNode * self) {
 }
 
 void * rakunode_walk(RakuNode * self,  SiWalker walk, void * extra) {
-  SiTree tree = rakunode_tree(self); 
+  SiTree * tree = rakunode_tree(self); 
   return sitree_walk(tree, walk, extra);
 } 
 

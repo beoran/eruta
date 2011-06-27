@@ -1,7 +1,7 @@
 #ifndef SI_WIRE_H
 #define SI_WIRE_H
 
-#include <stdlib.h>
+#include "si.h"
 #include "si_macro.h"
 
 /** A SiWire is a a simple byte buffer that can also hold constant C strings. */
