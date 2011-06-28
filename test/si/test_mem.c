@@ -44,7 +44,6 @@ TEST_FUNC(si_smemcpy) {
   TEST_DONE();
 }
 
-
 TEST_FUNC(si_realloc) {
   char * aid = si_malloc(10);
   char * new = NULL;  

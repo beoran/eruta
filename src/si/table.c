@@ -5,7 +5,11 @@
 #include <string.h>
 
 
-/* Jenkins hash. */
+#define SITABLE_ROOM_DEFAULT 128
+#define SITABLE_CELLAR_DEFAULT 16
+
+
+/* Jenkins hash function. */
 uint32_t sihash_jenkins(char *key, size_t len) {
   uint32_t hash, i;
 
@@ -41,31 +45,38 @@ struct SiTableClass_ {
 
 typedef struct SiTableClass_ SiTableClass; 
 
+struct SiHashBucket_;
+typedef struct SiHashBucket_ SiHashBucket;
+
 /** Hash bucket */
-struct SiBucket_ {
-  void      * key;
-  void      * value;
-  uint32_t    hash;
+struct SiHashBucket_ {
+  void          * key;
+  void          * value;
+  uint32_t        hash;
+  SiHashBucket  * next;
 };
 
-typedef struct SiBucket_ SiBucket;
 
-/** The algorithm implemented is a Coalesced hash table. */
+/** The algorithm implemented is a coalesced hash table. */
 struct SiTable_  {
-  SiBlock     *  block;
+  SiBlock      * block;
   uint32_t       room;
-  uint32_t       cellar;
+  uint32_t       cellar;  
+  uint32_t       bindex; // Bucket index
+  uint32_t       cindex; // Cellar index
   SiTableClass * klass;
 };
 
 
-static SiTableClass sitable_defaultclass = { sitable_hash_cstr, 
-        (SiTableKeyHasher *)strcmp };
+static SiTableClass sitable_defaultclass = { 
+        sitable_hash_cstr, 
+        (SiTableKeyHasher *) strcmp
+};
 
 SiTable * sitable_done(SiTable * self) {
   siblock_free(self->block);
   self->block = NULL;
-  self->room  = self->cellar = 0;
+  self->room  = self->cellar = self->bindex = self->cindex = 0;
   return self;
 }
 
@@ -74,19 +85,42 @@ SiTable * sitable_free(SiTable * self) {
   return si_free(self);
 }
 
-SiTable * sitable_initr(SiTable * self, uint32_t room, SiTableClass * klass) {
+SiTable * sitable_initr(SiTable * self, SiTableClass * klass, uint32_t room) {
   if(!self) return NULL;
   self->klass   = klass ? klass : (&sitable_defaultclass);
-  self->room    = room  ? room  : 128;
+  self->room    = room ? room  : SITABLE_ROOM_DEFAULT;
   self->cellar  = room / 8;
-  if(self->cellar < 16) self->cellar  = 16;
+  if(self->cellar < SITABLE_CELLAR_DEFAULT)
+  self->cellar = SITABLE_CELLAR_DEFAULT;
+
+  self->bindex  = self->cindex = 0;
   self->block   = NULL;
-  self->block   = siblock_new(self->room + self->cellar,sizeof(SiBucket));
+  self->block   = siblock_new(self->room + self->cellar,sizeof(SiHashBucket));
   if(!self->block) return sitable_done(self);
   return self;
 }
 
 
+SiTable * sitable_alloc() {
+  return SI_ALLOCATE(SiTable);
+}
+
+SiTable * sitable_init(SiTable * self, SiTableClass * klass) {
+  return sitable_initr(self, 128, klass);
+}
+
+SiTable * sitable_newr(SiTableClass * klass, uint32_t room) {
+  SiTable * aid;
+  SiTable * self = sitable_alloc();
+  if(!self) return NULL;
+  aid = sitable_initr(self, klass, room);
+  if(!aid) return sitable_free(self);
+  return self;
+}
+
+SiTable * sitable_new(SiTableClass * klass) {
+  
+}
 
 
  
