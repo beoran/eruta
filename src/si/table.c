@@ -253,11 +253,13 @@ void * sitable_drop(SiTable * self, void * key) {
   return NULL;
 }
 
-
 SiTable * sitable_grow(SiTable * self) {
   // double the size of the mem block...
-  SiMem * aid = simem_newelement(sitable_room(self), sizeof(SiTablePail));
+  SiMem * aid = simem_realloc(self->mem, sitable_room(self) * 2 * sizeof(SiTablePail));
+  if(!aid) return NULL;
+  return self;
 }
+
 
 /** Stores a value in the hash table. */
 void * sitable_set(SiTable * self, void * key, void * value) {
