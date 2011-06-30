@@ -139,6 +139,20 @@ static Test * test_memeq(Test * test, void * m1, size_t n, void * m2,
   "Memory should be equal: %p %p; %s ", m1, m2, explain);
 }
 
+/** Tests if two pointers are equal */
+static Test * test_ptreq(Test * test, void *p1, void * p2, const char * explain)
+{
+  return test_assert(test, p1 == p2, 
+  "Pointers should be equal: %p %p; %s ", p1, p2, explain);
+}
+
+/** Tests if two pointers are unequal */
+static Test * test_ptrneq(Test * test, void *p1, void * p2, 
+              const char * explain) {
+  return test_assert(test, p1 != p2, 
+  "Pointers should not be equall: %p %p; %s ", p1, p2, explain);
+}
+
 /** Tests if two integers are equal */
 static Test * test_inteq(Test * test, int i1, int i2, const char * explain) {
   return test_assert(test, i1 == i2, 
@@ -207,9 +221,12 @@ static Test * warning_supressor(Test * test) {
         test_streq(_t,  (char *)STR, (char *)TEST_CALL(CALL))
 #define TEST_STREQN(STR, SIZE, CALL)  \
         test_streqn(_t, (char *)STR, SIZE, (char *)TEST_CALL(CALL))
-#define TEST_MEMEQ(MEM, SIZE, CALL)   test_memeq(_t,  MEM, SIZE, TEST_CALL(CALL))
+#define TEST_MEMEQ(MEM, SIZE, CALL)   test_memeq(_t,  MEM, SIZE,TEST_CALL(CALL))
+#define TEST_PTREQ(PTR, CALL)         test_ptreq(_t,  PTR, TEST_CALL(CALL))
+#define TEST_PTRNEQ(PTR, CALL)        test_ptrneq(_t,  PTR, TEST_CALL(CALL))
 #define TEST_INTEQ(INT, CALL)         test_inteq(_t,  INT, TEST_CALL(CALL))
 #define TEST_INTNEQ(INT, CALL)        test_intneq(_t, INT, TEST_CALL(CALL))
+#define TEST_ZERO(CALL)               TEST_INTEQ(0, CALL)
 
 /* Other utility macros. They are syntactic, so you may dislike them.
    But, they are very handy for unit testing C. :) 

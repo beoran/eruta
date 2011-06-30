@@ -52,37 +52,244 @@ void * si_copyalloc(size_t size, void * src,  size_t tocopy) {
 }
 
 
-struct ReMem_ {
-  void * data;
-  size_t size;
-};
 
-/*
-ReMem * remem_init(ReMem* self, size_t size) {
-  if(!self) return NULL;  
-  self->size = size;
-  self->data = re_malloc(size);  
+SiMem * simem_done(SiMem * self) {
+  si_free(self->data); 
+  self->data = NULL;
+  self->room = 0;
+  return self;
+}
+
+SiMem * simem_free(SiMem * self) {
+  simem_done(self);
+  return si_free(self); 
+}
+
+SiMem * simem_init(SiMem* self, size_t room) {
+  if(!self) return NULL;
+  self->room = room;
+  self->data = (char *) si_malloc(self->room);  
   if(self->data) return self;
   return NULL;
 }
 
-ReMem * remem_new(size_t size) {
-  ReMem * res = re_malloc(sizeof(ReMem));
-  void * ptr  = NULL; 
-  if(!res) return NULL;
-  ptr         = re_malloc(size); // allocate pointer. 
-  if (ptr) return remem_init(res, ptr, size);
-  
+/** Initializes a new memory block. Room must be greater than 0. */
+SiMem * simem_new(size_t room) {
+  SiMem * self  = (SiMem *) si_malloc(sizeof(SiMem));
+  if(!self) return NULL;
+  if(simem_init(self, room)) return self; // if init ok return self. 
+  return si_free(self); // if we get here init failed. 
 }
 
-ReMem * remem_resize(ReMem * self, size_t size);
-ReMem * remem_dup(ReMem * self);
-ReMem * remem_copy(ReMem * self, ReMem * mem, size_t size);
-ReMem * remem_xcopy(ReMem * self, ReMem * mem, size_t iself, size_t imem, size_t size);
-ReMem * remem_free(ReMem * self);
+/** Initializes a new memory block with amount elements the size of elementsize.
+Amount must be greater than 0. */
+SiMem * simem_newelement(size_t amount, size_t elementsize) {
+  return simem_new(amount * elementsize);
+}
 
-size_t remem_size(ReMem * self);
-void * remem_ptr(ReMem * self);
+/** Initializes a new memory block that can store amount void * pointers.
+Amount must be greater than 0. */
+SiMem * simem_newptr(size_t amount) {
+  return simem_newelement(amount, sizeof(void *));
+}
+
+
+/** Nondestructive resize of the memory as per realloc. Room must be > 0. */
+SiMem * simem_realloc(SiMem * self, size_t room) {
+  char * aid = (char *) si_realloc(self->data, room);
+  if (aid) {
+    self->data = aid;
+    self->room = room;
+    return self; 
+  }
+  return NULL; 
+  // if we get here, change nothing but return NULL to signal the
+  // realloc error.
+} 
+
+/** Room available in the memory block. */
+size_t simem_room(SiMem * self) {
+  return self->room;
+}
+
+
+/** Returns true if ndex is in range for self->data, false if not.*/
+int simem_indexok(SiMem * self, size_t index) {
+  if(!self) return FALSE;
+  return (index < self->room);
+}
+
+
+/** Gets a character from the given index. Returns 0 if out of bounds. */
+char simem_getc(SiMem * self, size_t index) {
+  if(!simem_indexok(self, index)) return 0;
+  return self->data[index];
+}
+
+
+/** Compares a character from the given index with ch. 
+Returns -2 if out of bounds,  -1 if the char at location is less, 0 if 
+equal 1 if it is more. */
+int simem_cmpc(SiMem * self, size_t index, char compare) {
+  char ch;
+  if(!simem_indexok(self, index)) return -2;
+  ch = self->data[index];
+  if (ch == compare) return 0;
+  if (ch < compare) return -1;
+  return 1;
+}
+
+
+/** Puts a character at the given index. */
+char simem_putc(SiMem * self, size_t index, char c) {
+  if(!simem_indexok(self, index)) return 0;
+  return self->data[index] = c;
+}
+
+/** Compares a data block with the data  ptr points to, starting at index,
+with size size */
+SiMem * simem_cmpdata(SiMem * self, size_t index, void * ptr, size_t size) {
+  char * cptr = (char *) ptr;  
+  size_t room, pdex = 0;  
+  room = simem_room(self);
+  for(pdex = 0; (index < room) && (pdex < size); index++, pdex++) {
+    int aid = simem_cmpc(self, index, cptr[pdex]);
+    if(aid) return aid; 
+  }
+  return 0;
+}
+
+/** Copies size bytes data from a void pointer to the SiMem, starting at index. 
+Returns amount of bytes actually copied. */
+int simem_putdata(SiMem * self, size_t index,  void * ptr, size_t size) {
+  char * cptr = (char *) ptr;
+  size_t room, pdex;
+  if((!self) || (!ptr)) return 0;
+  room = self->room;
+  for(pdex = 0 ; (index < room) && (pdex < size); index ++, pdex++) {
+    self->data[index] = cptr[pdex];
+  }
+  return pdex;
+}
+
+/** Copies size bytes data to a void pointer to the SiMem, starting at index. 
+Returns amount of bytes actually copied. */
+int simem_getdata(SiMem * self, size_t index,  void * ptr, size_t size) {
+  char * cptr = (char *) ptr;
+  size_t room, pdex;
+  if((!self) || (!ptr)) return 0;
+  room = self->room;
+  for(pdex = 0 ; (index < room) && (pdex < size); index ++, pdex++) {
+    cptr[pdex] = self->data[index];
+  }
+  return pdex;
+}
+
+
+/** Copies data from SiMem src to Simem dst, starting at srci and dsti,
+copying size bytes.  Returns amount of bytes actually copied.  */
+int simem_copy(SiMem * dst, size_t dsti, SiMem * src, size_t srci, size_t size)
+{
+  size_t srcroom, dstroom, index;  
+  if(!simem_indexok(dst, dsti)) { return 0; }    
+  if(!simem_indexok(src, srci)) { return 0; }
+  srcroom = simem_room(src); 
+  dstroom = simem_room(dst);
+  for(  index = 0 ; 
+        (srci < srcroom) && (dsti < dstroom) && (index < size); 
+        index ++, srci++, dsti++) {
+        dst->data[dsti] = src->data[srci];
+  }
+  return index;
+}
+
+/** Copies all data from src to dst starting at indexes 0,0 */
+int simem_copyall(SiMem *dst, SiMem *src) {
+  return simem_copy(dst, 0, src, 0, simem_room(src));
+}
+
+/** Fills a data block with the character value, starting at index, with size
+size */
+SiMem * simem_fill(SiMem * self, char value, size_t index, size_t size) {
+  size_t room, pdex;
+  if(!self) return NULL;
+  room = simem_room(self);
+  for(pdex = 0 ; (index < room) && (pdex < size); index ++, pdex++) {
+    self->data[index] = value;
+  }
+  return self;
+}
+
+/** Fills a data block completely with the character value*/
+SiMem * simem_fillall(SiMem * self, char value) {
+  return simem_fill(self, value, 0, simem_room(self));
+}
+
+
+/** Duplicates a data block. */
+SiMem * simem_dup(SiMem * self) {
+  SiMem * res = simem_new(simem_room(self));
+  if(!res) return NULL;
+  simem_copyall(res, self);
+  return res;
+}
+
+/** returns the head pointer of the memory block. */
+size_t simem_ptr(SiMem * self) {
+  return self->data;
+}
+
+
+/** Stores elemsize of data at index * elsize. */
+void * simem_putelement(SiMem * self, size_t index, void * ptr, size_t elsize) {
+  size_t real = index * elsize;
+  if(!(simem_indexok(self, real + elsize - 1))) return NULL;
+  simem_putdata(self, real, ptr, elsize);
+  return ptr;
+}
+
+/** Gets a pointer to the data at index * elsize. */
+void * simem_getelement(SiMem * self, size_t index, size_t elsize) {
+  size_t real = index * elsize;
+  if(!(simem_indexok(self, real))) return NULL;
+  return self->data + (index * elsize);
+}
+
+
+/** Stores a pointer at index * sizeof(void *). */
+void * simem_putptr(SiMem * self, size_t index, void * ptr) {
+  size_t real = index * sizeof(ptr);
+  if(!(simem_indexok(self, real + sizeof(ptr) - 1))) return NULL;
+  simem_putdata(self, real, &ptr, sizeof(ptr));
+  return ptr;
+}
+
+/** retrieves a pointer from the memeory block self at 
+index * sizeof(void *). */
+void * simem_getptr(SiMem * self, size_t index) {
+  void * ptr;
+  size_t real = index * sizeof(ptr);
+  if(!(simem_indexok(self, real + sizeof(ptr) - 1))) return NULL;
+  simem_getdata(self, real, &ptr, sizeof(ptr));
+  return ptr;
+}
+
+
+
+
+#ifdef _COMMENT
+
+#endif
+
+/*
+SiMem * simem_dup(SiMem * self);
+SiMem * simem_copy(SiMem * self, SiMem * mem, size_t size);
+SiMem * simem_xcopy(SiMem * self, SiMem * mem, size_t iself, size_t imem, size_t
+size);
+SiMem * simem_free(SiMem * self);
+
+size_t simem_size(SiMem * self);
+void * simem_ptr(SiMem * self);
 */
 
 
