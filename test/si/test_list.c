@@ -29,9 +29,9 @@ TEST_FUNC(silist) {
   TEST_NOTNULL(silist_add(list, s[4]));
   TEST_NOTNULL(silist_last(list));
   TEST_STREQ(silist_data(silist_last(list)), s[4]);
-  aid = (char *) silist_walk(list, walker_search, "Me");
+  aid = (char *) silist_walk(list, walker_search, "Is");
   TEST_NOTNULL(aid);
-  TEST_STREQ(aid, "Me");
+  TEST_STREQ(aid, "Is");
 
 /*
   { 

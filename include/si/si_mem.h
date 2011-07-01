@@ -131,5 +131,20 @@ void * simem_putptr(SiMem * self, size_t index, void * ptr);
 index * sizeof(void *). */
 void * simem_getptr(SiMem * self, size_t index);
 
+/** Nondestructive resize of the memory as per realloc, so that the mem
+will be able to contain amount elements of elementsize. Both must be > 0. */
+SiMem * simem_reallocelement(SiMem * self, size_t amount, size_t elementsize);
+
+/** Nondestructive resize of the memory as per realloc, so that the mem
+will be able to contain amount void* pointers */
+SiMem * simem_reallocptr(SiMem * self, size_t amount);
+
+/** Returns the amount of elements of elementsize this mem block can contain.*/
+size_t simem_roomelement(SiMem * self, size_t elementsize);
+
+/** Returns the amount of void * pointers this mem block can contain.*/
+size_t simem_roomptr(SiMem * self);
+
+
 
 #endif
