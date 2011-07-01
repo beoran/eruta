@@ -3,9 +3,6 @@
 
 #define SI_ARRAY_ROOM 16
 
-struct SiArray_; 
-typedef struct SiArray_ SiArray;
-
 struct SiArray_ {
   SiMem * mem;
   size_t size;
@@ -24,10 +21,11 @@ size_t siarray_elementsize(SiArray * self) {
   return self->elsz;
 }
 
-/** Gets the array's croom ( capacity).  Returns 0 if self is NULL. */
+/** Gets the array's room (capacity) in amount of elemnts. 
+ Returns 0 if self is NULL. */
 size_t siarray_room(SiArray * self) {
   if(!self) return 0;
-  return simem_room(self->mem);
+  return simem_roomelement(self->mem, self->elsz);
 }
 
 /** Frees the contents of an array. Has the same effect as emptying the array.
@@ -71,35 +69,42 @@ SiArray * siarray_newempty(size_t elsz) {
   return res;
 }
 
-
 /** Changes the room available in the SiArray. */
 SiArray * siarray_room_(SiArray* self, size_t newroom) {
+  size_t elsz = siarray_elementsize(self);
   if(!self) return NULL; 
   if(!self->mem) { 
-    self->mem  = simem_new(newroom);
+    self->mem  = simem_newelement(newroom, elsz);
     if(!self->mem) return NULL;
     return self;
   } 
-  simem_realloc(self->mem, newroom);   
+  if(!simem_reallocelement(self->mem, newroom, elsz)) return NULL;
   return self;
-}
+} 
 
-/** Grows the SiArray if needed. */
-SiArray * siarray_grow(SiArray * self, size_t newroom) {
+/** Grows the SiArray if needed so it will be able to contain amount elements.*/
+SiArray * siarray_grow(SiArray * self, size_t amount) {
   if(!self) return NULL;
-  if (newroom > siarray_room(self)) { 
-    return siarray_room_(self, newroom);
+  if (amount > siarray_room(self)) { 
+    return siarray_room_(self, amount);
   }
   return self;
 }
 
-/** Initializes a new array with a capacity of room elements of size 
+/** Initializes a new array with a capacity of amount elements of size 
 elsz each. The initial size of the array will be 0.*/
-SiArray * siarray_init(SiArray * self, size_t room, size_t elsz) {
+SiArray * siarray_init(SiArray * self, size_t amount, size_t elsz) {
   SiArray * aid = siarray_initempty(self, elsz);
   if(!aid) return NULL;
-  if(!siarray_grow(self, room)) return NULL;
+  amount = ( amount < 1  ? SI_ARRAY_ROOM : amount );
+  if(!siarray_grow(self, amount)) return NULL;
   return self;
+}
+
+/** Initializes a new array with a capacity to store amount void* pointers. 
+The initial size of the array will be 0.*/
+SiArray * siarray_initptr(SiArray * self, size_t amount) {
+  return siarray_init(self, amount, sizeof(void *));
 }
 
 /** Allocates a new array with size elements of size elsz each. */
@@ -109,25 +114,29 @@ SiArray * siarray_new(size_t size, size_t elsz) {
       return siarray_free(res);
   }
   return res;
-} 
+}
 
-/** Sets the size of the array. This will grow the room also if size <= room.
-* Returns NULL if the resizing failed, otherwise returns self. 
-* This cannot shrink the size, though.
+/** Allocates a new array that will be able to contain amount void * pointers.*/
+SiArray * siarray_newptr(size_t amount) {
+  return siarray_new(amount, sizeof(void *));
+}
+ 
+
+/** Sets the size of the array. This will grow fail if there is not 
+* enough room for the given size. 
+* Returns NULL if there is not enough room, otherwise returns self.
 */
 SiArray * siarray_size_(SiArray * self, size_t size) {
-  // need at least one more room than size, 
-  // but generously give even more
-  SiArray * aid = siarray_grow(self, size + SI_ARRAY_ROOM);
-  if(!aid) return NULL;
+  size_t room = siarray_room(self);
+  if (size >= room) return NULL;
   self->size = size;
   return self;
 }
 
-/** Checks if the index is smaller than the array's available room. */
+/** Checks if the index is smaller than the array's available room . */
 int siarray_index_ok(SiArray * self, size_t index) {
   if(!self) return FALSE;
-  return index < self->size;
+  return index < siarray_room(self);
 }
 
 /** Checks if the int index is smaller than the array's available room. */
@@ -137,6 +146,25 @@ int siarray_intindex_ok(SiArray * self, int index) {
   return (size_t)(index) < siarray_room(self);
 }
 
+/** Returns a pointer to the index-th element of the array. */
+void * siarray_getraw(SiArray * self, size_t index) { 
+  return simem_getelement(self->mem, index, siarray_elementsize(self));
+}
+
+/** Returns a pointer that was stored at the index index of the array. */
+void * siarray_getptr(SiArray * self, size_t index) { 
+  return simem_getptr(self->mem, index);
+}
+
+/** Copies the element that *ptr points to into index */
+void * siarray_setdata(SiArray * self, size_t index, void * ptr) {
+  return simem_putelement(self->mem, index, ptr, siarray_elementsize(self));
+}
+
+/** Returns a pointer to the index-th element of the array. */
+void * siarray_getdata(SiArray * self, size_t index) {
+  return simem_getelement(self->mem, index, siarray_elementsize(self));
+}
 
 
 

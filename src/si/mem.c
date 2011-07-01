@@ -107,6 +107,29 @@ SiMem * simem_realloc(SiMem * self, size_t room) {
   // realloc error.
 } 
 
+/** Nondestructive resize of the memory as per realloc, so that the mem
+will be able to contain amount and elementsize must be > 0. */
+SiMem * simem_reallocelement(SiMem * self, size_t amount, size_t elementsize) {
+  return simem_realloc(self, amount * elementsize); 
+}
+
+/** Nondestructive resize of the memory as per realloc, so that the mem
+will be able to contain amount void* pointers */
+SiMem * simem_reallocptr(SiMem * self, size_t amount) {
+  return simem_reallocelement(self, amount, sizeof(void*)); 
+}
+
+/** Returns the amount of elements of elementsize this mem block can contain.*/
+size_t simem_roomelement(SiMem * self, size_t elementsize) {
+  return self->room / elementsize;
+}
+
+/** Returns the amount of void * pointers this mem block can contain.*/
+size_t simem_roomptr(SiMem * self) {
+  return simem_roomelement(self, sizeof(void *));
+}
+
+
 /** Room available in the memory block. */
 size_t simem_room(SiMem * self) {
   return self->room;
