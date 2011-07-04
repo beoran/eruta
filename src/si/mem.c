@@ -119,8 +119,12 @@ SiMem * simem_reallocptr(SiMem * self, size_t amount) {
   return simem_reallocelement(self, amount, sizeof(void*)); 
 }
 
-/** Returns the amount of elements of elementsize this mem block can contain.*/
+/** Returns the amount of elements of elementsize this mem block can contain.
+* elementsize must be greater than 0. Returns 0 on error.
+*/
 size_t simem_roomelement(SiMem * self, size_t elementsize) {
+  if(!self)        return 0;
+  if(!elementsize) return 0;
   return self->room / elementsize;
 }
 

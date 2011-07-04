@@ -122,16 +122,39 @@ SiArray * siarray_newptr(size_t amount) {
 }
  
 
-/** Sets the size of the array. This will grow fail if there is not 
-* enough room for the given size. 
+/** Sets the size of the array. This fails if the array's room is less than 
+* or size, and return null. Otherwise sets size and returns self 
+* if there enough room for the given size. 
 * Returns NULL if there is not enough room, otherwise returns self.
 */
 SiArray * siarray_size_(SiArray * self, size_t size) {
   size_t room = siarray_room(self);
-  if (size >= room) return NULL;
+  if (size > room) return NULL;
   self->size = size;
   return self;
 }
+
+/** Sets the size of the array, but ony if size is bigger than the current size.
+* Returns NULL if there is not enough room, otherwise returns self.
+*/
+SiArray * siarray_biggersize(SiArray * self, size_t size) {
+  size_t mysize = siarray_size(self);
+  if (mysize >= size) return NULL;  
+  return siarray_size_(self, size);
+}
+
+/** Increments the size of the array by one. Does not grow the array. */
+SiArray * siarray_sizeup(SiArray * self) {
+  size_t mysize = siarray_size(self);  
+  return siarray_size_(self, mysize + 1);
+}
+
+/** Decrements the size of the array by one. Does not shrink the array. */
+SiArray * siarray_sizedown(SiArray * self) {
+  size_t mysize = siarray_size(self);  
+  return siarray_size_(self, mysize - 1);
+}
+
 
 /** Checks if the index is smaller than the array's available room . */
 int siarray_index_ok(SiArray * self, size_t index) {
@@ -151,13 +174,18 @@ void * siarray_getraw(SiArray * self, size_t index) {
   return simem_getelement(self->mem, index, siarray_elementsize(self));
 }
 
+/** Stores a pointer that was stored at the index index of the array. */
+void * siarray_putptr(SiArray * self, size_t index, void * ptr) { 
+  return simem_putptr(self->mem, index, ptr);
+}
+
 /** Returns a pointer that was stored at the index index of the array. */
 void * siarray_getptr(SiArray * self, size_t index) { 
   return simem_getptr(self->mem, index);
 }
 
 /** Copies the element that *ptr points to into index */
-void * siarray_setdata(SiArray * self, size_t index, void * ptr) {
+void * siarray_putdata(SiArray * self, size_t index, void * ptr) {
   return simem_putelement(self->mem, index, ptr, siarray_elementsize(self));
 }
 
@@ -166,7 +194,11 @@ void * siarray_getdata(SiArray * self, size_t index) {
   return simem_getelement(self->mem, index, siarray_elementsize(self));
 }
 
-
+/** Returns nonzero if the array is "full", that isn, it's size is 
+equal to the available room.  Zero if it isn't. */
+int siarray_full_p(SiArray *self) {
+  return siarray_size(self) == siarray_room(self);
+}
 
 #ifdef _COMMENT  
 

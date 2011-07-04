@@ -24,8 +24,12 @@ TEST_FUNC(si_table) {
   TEST_STREQ(sitable_get(tab, k2), v2);
   TEST_STREQ(sitable_get(tab, k3), v3);
   TEST_STREQ(sitable_drop(tab, k3), v3);
+  TEST_NULL(sitable_get(tab, k3));
   TEST_NOTNULL(sitable_set(tab, k3, v3));
   TEST_NOTNULL(sitable_get(tab, k3));
+  TEST_NOTNULL(sitable_grow(tab, 1024));
+  TEST_NOTNULL(sitable_get(tab, k3));
+  TEST_STREQ(sitable_drop(tab, k3), v3);
   TEST_DONE();
 }
 
