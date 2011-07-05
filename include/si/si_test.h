@@ -190,6 +190,9 @@ static Test * warning_supressor(Test * test) {
   test_true(test, 0, "");
   test_false(test, 0, "");
   test_null(test, 0, "");
+  test_notnull(test, 0, "");
+  test_ptreq(test, NULL, NULL, "");
+  test_ptrneq(test, NULL, NULL, "");
   TEST_UNUSED(warning_supressor);
   return test_fail(test, "");
 }

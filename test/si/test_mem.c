@@ -97,13 +97,13 @@ TEST_FUNC(si_mem) {
   TEST_ZERO(simem_cmpdata(mem, 0, "xHi!\0", 5));
   TEST_NOTNULL(simem_realloc(mem, 32));
   TEST_INTEQ(simem_room(mem), 32);
-  TEST_ZERO(simem_cmpdata(mem, 0, "xHi!\0", 5));
+  TEST_NULL(simem_cmpdata(mem, 0, "xHi!\0", 5));
   TEST_ZERO(simem_cmpc(mem, 15, 'H'));
   me2   = simem_dup(mem);
   simem_fillall(mem, 0);
   TEST_ZERO(simem_cmpc(mem, 0, 0));
-  TEST_ZERO(simem_cmpdata(me2, 0, "xHi!\0", 5));
-  TEST_ZERO(simem_cmpdata(me2, 15, "H", 1));
+  TEST_NULL(simem_cmpdata(me2, 0, "xHi!\0", 5));
+  TEST_NULL(simem_cmpdata(me2, 15, "H", 1));
   me3   = simem_newptr(64); 
   TEST_NOTNULL(simem_putptr(me3, 6, me2));
   TEST_NOTNULL(simem_putptr(me3, 7, me3));

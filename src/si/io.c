@@ -7,17 +7,17 @@
 
 #include <stdio.h>
 
-typedef int (SiIoReader)(SiIo * self, void * data, size_t size);
-typedef int (SiIoWriter)(SiIo * self, void * data, size_t size);
-typedef int (SiIoCloser)(SiIo * self);
 
-struct SiIoClass_ {
-  SiIoReader * read;
-  SiIoWriter * write;
-  SiIoCloser * close;
-};
-
-typedef struct SiIoClass_ SiIoClass;
+SiIoClass * siioclass_init( SiIoClass * klass, 
+                            SiIoReader * read, SiIoWriter * write,
+                            SiIoSelfer * close, SiIoSelfer * end_p) {
+  if(!klass) return NULL;
+  klass->read  = read;
+  klass->write = write;
+  klass->close = close;
+  klass->end_p = end_p;
+  return klass;
+}
 
 struct SiIo_ {
   SiIoClass * klass;
@@ -82,6 +82,13 @@ int siio_write(SiIo * self, void * data, size_t size) {
   return res;
 }
 
+int siio_end_p(SiIo * self) {
+  if(!self) return TRUE;
+  if(!self->klass) return TRUE;
+  if(!self->klass->end_p) return TRUE;
+  return self->klass->end_p(self);
+}
+
 
 FILE * siio_file(SiIo * self) {
   return (FILE *)self->data;
@@ -99,7 +106,14 @@ int siio_fwrite(SiIo * self, void * data, size_t size) {
   return fwrite(data, size, 1, siio_file(self));
 }
 
-static SiIoClass SiIoFileClass = { siio_fread, siio_fwrite, siio_fclose };
+int siio_feof(SiIo * self) {
+  return feof(siio_file(self));
+}
+
+
+static SiIoClass SiIoFileClass = { 
+  siio_fread, siio_fwrite, siio_fclose, siio_feof
+};
 
 
 SiIo * siio_fopen(char * filename, char * flags) {
@@ -107,8 +121,6 @@ SiIo * siio_fopen(char * filename, char * flags) {
   if(!data) return NULL;
   return siio_newgeneric(data, &SiIoFileClass);
 }
-
-
 
 
 SiWire * siio_wire(SiIo * self) {
