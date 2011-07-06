@@ -65,4 +65,23 @@ watch('src/(.*)/(.*\.c\Z)') do |md|
   end
 end
  
+def build_eruta
+  msg, stat  = run("cmake .")
+  puts msg
+  msg, stat  = run("make eruta")
+  if (stat > 0)
+    notify("Parse Error", msg, stat) 
+  else
+    puts msg
+    notify("Eruta Build OK", msg, stat)
+  end
+end
+
+watch('src/eruta/(.*\.c\Z)') do
+  build_eruta
+end
+
+watch('include/eruta/(.*\.h\Z)') do
+  build_eruta
+end
 
