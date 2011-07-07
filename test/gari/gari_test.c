@@ -173,10 +173,8 @@ TEST_FUNC(game) {
   gari_font_free(font);
   gari_layer_free(layer);
   gari_audio_done(game);
-  gari_game_free(game);
   TEST_NULL(gari_color_free(cdyn));
-  
-  
+  gari_game_free(game);
   TEST_DONE();
 }
 
