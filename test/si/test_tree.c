@@ -31,7 +31,7 @@ TEST_FUNC(sitree) {
   TEST_STREQ(sitree_data(t1), s1);
   TEST_NOTNULL(t3);
   TEST_STREQ(sitree_data(t3), s3);
-  sitree_free(t1);  
+  sitree_free(t1);
   TEST_DONE();
 }
 

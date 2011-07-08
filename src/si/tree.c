@@ -19,7 +19,7 @@ struct SiTree_ {
 
 /** Cleans up a sitree, removing and freeing it's children. */
 SiTree * sitree_done(SiTree * self) {
-  size_t index, size;     
+  size_t index, size;
   if(!self) return NULL;
   if(self->children) { 
     size = sitree_size(self);

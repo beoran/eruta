@@ -1,17 +1,17 @@
 /**
-* This is a test for $file$ in $package$
+* This is a test for io in si
 */
 #include "si_test.h"
 
 
-TEST_FUNC($package$_$file$) {
+TEST_FUNC(si_io) {
   TEST_DONE();
 }
 
 
 int main(void) {
   TEST_INIT();
-  TEST_RUN($file$);
+  TEST_RUN(si_io);
   TEST_REPORT();
 }
 

@@ -135,6 +135,8 @@ static Test * test_streqn(Test * test, char * s1, size_t n, char * s2,
 /** Tests if two memory areas are equal according to memcmp. */
 static Test * test_memeq(Test * test, void * m1, size_t n, void * m2,  
                   const char * explain) {
+  if(!m2) return test_fail(test, 
+"Memory should be equal but pointer was null: %p %p; %s", m1, m2, explain);
   return test_assert(test, memcmp(m1, m2, n) == 0, 
   "Memory should be equal: %p %p; %s ", m1, m2, explain);
 }
@@ -188,6 +190,9 @@ static Test * warning_supressor(Test * test) {
   test_true(test, 0, "");
   test_false(test, 0, "");
   test_null(test, 0, "");
+  test_notnull(test, 0, "");
+  test_ptreq(test, NULL, NULL, "");
+  test_ptrneq(test, NULL, NULL, "");
   TEST_UNUSED(warning_supressor);
   return test_fail(test, "");
 }
