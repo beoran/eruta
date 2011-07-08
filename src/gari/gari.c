@@ -209,8 +209,8 @@ GariGame * gari_game_done(GariGame * game) {
   gari_game_closejoysticks(game);
   // also close all joysticks.
   game->screen = NULL;
-  // if (TTF_WasInit()) TTF_Quit();
-  // don't quit ttf, so fonts can still be deallocated
+  if (TTF_WasInit()) TTF_Quit();
+  // ?don't quit ttf, so fonts can still be deallocated
   SDL_Quit();
   return game;
 }

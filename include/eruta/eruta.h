@@ -1,6 +1,15 @@
 #ifndef ERUTA_H
 #define ERUTA_H
 
+/** Commnly used includes. */
+#include "gari.h"
+#include "lua.h"
+#include "lauxlib.h"
+#include "chipmunk.h"
+
+
+
+
 /** Commonly used types and typedefs. */
 
 struct Program_;
