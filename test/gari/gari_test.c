@@ -136,9 +136,6 @@ TEST_FUNC(game) {
     gari_image_blendline(sim, 0, 480, 640, -480, *cdyn);
   
   
-    gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
-    gari_font_printf(sim, 20, 20, font, white, black,  
-                     "FPS: %ld", (int)gari_game_fps(game));
     gari_flow_activate(flow, 10, GariFlowSnow, 0, 0, white, oim, NULL);
     gari_flow_update(flow, 1);
   
@@ -149,10 +146,13 @@ TEST_FUNC(game) {
     } else {
       gari_sheet_image_(mov2, oim);
     } 
+    gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
+    gari_font_printf(sim, 20, 20, font, white, black,  
+                     "FPS: %ld", (int)gari_game_fps(game));
     
     gari_game_nextframe(game);
     gari_game_update(game);
-    break; // only do draw one time when testing.
+    // break; // only do draw one time when testing.
   }
   
   gari_game_update(game);
