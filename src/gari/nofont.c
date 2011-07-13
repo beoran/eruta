@@ -1,4 +1,6 @@
-
+#include "gari.h"
+#define GARI_INTERN_ONLY
+#include "gari_intern.h"
 
 typedef struct NoFontGlyph_ {
   int  index;
@@ -33,46 +35,64 @@ NoFontGlyph nofont_glyphs2[] = {
 
 };
 
+#define NOFONT_GLYPHINFO_GLYPHS   10
+#define NOFONT_GLYPHINFO_ROWS     7
+#define NOFONT_GLYPHINFO_SUBCOLS  6
+#define NOFONT_GLYPHINFO_COLS     60
+#define NOFONT_GLYPHINFO_SPACE    500
+
 
 struct NofontGlyphinfo_ {
-  char glyph[12];  
-  char pixels[100][100]; 
+  int  glyphs[NOFONT_GLYPHINFO_GLYPHS];  
+  char pixels[NOFONT_GLYPHINFO_SPACE]; 
 };
 
 struct NofontGlyphinfo_ nofont_glyphs[20] = {  
 {
-  " !#$%&'()*",
+  {' ', '!', '#', '$', '%', '&', '(', ')', '\'', '*'},
   {
-  "..... ..x.. ..... ..x.. .x..x .xxx. ..x.. ..x.. ..x.. .....",
-  "..... ..x.. .x.x. .xxxx x.x.x x.... ..x.. .x... ...x. ..x..",
-  "..... ..x.. xxxxx x.x.. .x.x. .x... ..... x.... ....x x.x.x",
-  "..... ..x.. .x.x. .xxx. ..x.. x.x.x ..... x.... ....x .xxx.",
-  "..... ..... xxxxx ..x.x .x.x. x..x. ..... x.... ....x x.x.x",
-  "..... ..x.. .x.x. xxxx. x.x.x .xx.x ..... .x... ...x. ..x..",
-  "..... ..x.. ..... ..x.. x..x. ..... ..... ..x.. ..x.. .....",
-  } 
+  "..... ..x.. ..... ..x.. .x..x .xxx. ..x.. ..x.. ..x.. ....."
+  "..... ..x.. .x.x. .xxxx x.x.x x.... ..x.. .x... ...x. ..x.."
+  "..... ..x.. xxxxx x.x.. .x.x. .x... ..... x.... ....x x.x.x"
+  "..... ..x.. .x.x. .xxx. ..x.. x.x.x ..... x.... ....x .xxx."
+  "..... ..... xxxxx ..x.x .x.x. x..x. ..... x.... ....x x.x.x"
+  "..... ..x.. .x.x. xxxx. x.x.x .xx.x ..... .x... ...x. ..x.."
+  "..... ..x.. ..... ..x.. x..x. ..... ..... ..x.. ..x.. ....."
+  }
 }, 
 
 { 
-  "+-./01234",
+  {'+','-','.','/','0','1','2','3','4'},
   { 
-  "..... ..... ..... ..... ....x ..... ..... ..... ..... .....",
-  "..x.. ..... ..... ..... ....x .xxx. ..x.. .xxx. xxxx. ...x.",
-  "..x.. ..... ..... ..... ....x x...x .xx.. x...x ....x ..xx.",
-  "xxxxx ..... xxxxx ..... ...x. x.x.x x.x.. ...x. xxxx. .x.x.",
-  "..x.. ..... ..... ..... ..x.. x...x ..x.. ..x.. ....x xxxxx",
-  "..x.. ..... ..... ..... .x... .xxx. xxxxx xxxxx xxxx. ...x.",
-  "..... ...x. ..... ..x.. x.... ..... ..... ..... ..... .....",
-  "..... ..x.. ..... ..x.. x.... ..... ..... ..... ..... .....",
+  "..... ..... ..... ..... ....x ..... ..... ..... ..... ....."
+  "..x.. ..... ..... ..... ....x .xxx. ..x.. .xxx. xxxx. ...x."
+  "..x.. ..... ..... ..... ....x x...x .xx.. x...x ....x ..xx."
+  "xxxxx ..... xxxxx ..... ...x. x.x.x x.x.. ...x. xxxx. .x.x."
+  "..x.. ..... ..... ..... ..x.. x...x ..x.. ..x.. ....x xxxxx"
+  "..x.. ..... ..... ..... .x... .xxx. xxxxx xxxxx xxxx. ...x."
+  "..... ...x. ..... ..x.. x.... ..... ..... ..... ..... ....."
+  "..... ..x.. ..... ..x.. x.... ..... ..... ..... ..... ....."
   }
 },
 
+
 {
   { 0, 0, 0, 0, 0 , 0 , 0, 0, 0 },
-  { "", "", "", "", "", "", ""  } 
+  { "" } 
 }
 
 } ;
+
+int arr[77] =  {
+  0x00000,
+  0x00100,
+  0x00100,
+  0x11111,
+  0x00100,
+  0x00100,
+  0x00000,
+  0x00000
+};
 
 /*
   
@@ -234,4 +254,101 @@ struct NofontGlyphinfo_ nofont_glyphs[20] = {
         
         
 */
+
+typedef struct GariNofont_ GariNofont;
+
+struct GariNofont_ {
+  GariFontStyle style;
+  GariFontMode  mode;
+  int           ptsize;
+  int           scale;
+}; 
+
+/** Gets the drawing mode of the font. */
+int gari_nofont_mode(GariNofont * self) {
+  if(!self) return -1;
+  return self->mode;
+}
+
+
+/** Sets the drawing mode of the font. */
+GariNofont * gari_nofont_mode_(GariNofont * self, int mode) {
+  if (!self) return NULL;
+  self->mode = mode; 
+  return self;
+}
+
+/** Returns the style of the font.  */
+int gari_nofont_style(GariNofont * self) {
+  if(!self) return -1;
+  return self->style;
+}
+
+/** Sets the style effect of the font. */
+GariNofont * gari_nofont_style_(GariNofont * self, int style) {
+  if (!self) return NULL;
+  self->style = style; 
+  return self;
+}
+
+
+/** Loads a built in font. scale is the scale factor. */
+GariNofont * gari_nofont_load(int scale) {
+  GariNofont * self = GARI_MALLOC(sizeof(GariNofont));
+  if(!self) return NULL;
+  self->scale  = scale;
+  self->ptsize = NOFONT_GLYPHINFO_ROWS * scale;
+  gari_nofont_mode_(self, GariFontSolid);
+  return gari_nofont_style_(self, GariFontNormal);
+}
+
+/** Frees the memory allocated by the font. */
+GariFont * gari_nofont_free(GariNofont *font) {
+  GARI_FREE(font);
+  return NULL;
+}
+
+/** Renders the font to a surface, depending on the font's settings. */
+GariImage * gari_nofont_render(GariNofont * font, char * utf8, 
+    GariColor fgrgba, GariColor bgrgba);
+
+/** Draws font with given colors. */
+void gari_nofont_drawcolor(GariImage * image, int x, int y, char * utf8, 
+                         GariNofont  * font , GariColor fg, GariColor bg); 
+
+/** Draws font with given color components. */
+void gari_nofont_draw(GariImage * image, int x, int y, char * utf8, GariNofont *
+font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_b,
+uint8_t bg_a);
+
+/** Draws font in printf style. Won't work on platforms that lack vsnprintf.
+* Will draw up to 2000 bytes of characters.  
+*/
+void gari_nofont_printf(GariImage * image, int x, int y, GariNofont * font,
+GariColor fg, GariColor bg, char * format, ...);
+
+/** Returns a text with details about the last error in loading or 
+handling a font. */
+char * gari_nofont_error();
+
+/** Returns the width that the given UTF-8 encoded text would be if it was
+rendered using gari_fonr_render. */
+int gari_nofont_renderwidth(GariNofont * font, char * utf8); 
+
+/** Returns the font's max height */
+int gari_nofont_height(GariNofont * font); 
+
+/** Returns the font's font max ascent (y above origin)*/
+int gari_nofont_ascent(GariNofont * font); 
+
+/** Returns the font's min descent (y below origin)*/
+int gari_nofont_descent(GariNofont * font);
+
+/** Returns the font's recommended line spacing. */
+int gari_nofont_lineskip(GariNofont * font);
+
+int gari_fontstyle_tottf(int style);
+
+int gari_fontstyle_fromttf(int style); 
+
 

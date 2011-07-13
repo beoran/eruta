@@ -587,6 +587,8 @@ enum GariFontMode_ {
   GariFontBlended,
 };
 
+typedef enum GariFontMode_ GariFontMode;
+
 /** Font styles and effects like, bold, italic, underline. */
 enum GariFontStyle_ {
   GariFontNormal    = 0,
@@ -594,6 +596,9 @@ enum GariFontStyle_ {
   GariFontBold      = 2, 
   GariFontUnderline = 4,
 };
+
+typedef enum GariFontStyle_ GariFontStyle;
+
 
 /** Loads one of the fonts in a font file. */
 GariFont * gari_font_loadindex(char * filename, int ptsize, long index);
@@ -1031,6 +1036,11 @@ int gari_game_joysticks(GariGame * game);
 /** Returns the n-th joystick of the game. */
 GariJoystick * gari_game_joystick(GariGame * game, int index);
 
+
+/** Time specific funtions.  */
+/** Milliseconds since gari_game_make was called */
+uint32_t gari_game_ticks(GariGame * game);
+
 /** 2d vectors, for speedy vector math.  */
 
 typedef float GariFloat; 
@@ -1156,6 +1166,7 @@ GariVector gari_vector_fromangle(GariFloat f);
 direction in radians */
 GariFloat gari_vector_angle(GariVector v1);
  
+
 
 
 

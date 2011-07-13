@@ -91,7 +91,7 @@ GariJoystick * gari_joy_close(GariJoystick * stick) {
 } 
 
 void gari_joy_free(GariJoystick * stick) {
-  GARI_FREE(gari_joy_close(stick));   
+  GARI_FREE(gari_joy_close(stick));
 }
 
 
@@ -346,9 +346,13 @@ uint32_t gari_game_frames(GariGame * game) {
   return game->frames;
 }
 
+uint32_t gari_game_ticks(GariGame * game) {
+  return (uint32_t) SDL_GetTicks();
+}  
+
 /** Starts FPS counter. */
 GariGame * gari_game_startfps(GariGame * game) {
-  game->framestart = SDL_GetTicks();   
+  game->framestart = gari_game_ticks(game);
   return game;
 }
 
@@ -403,7 +407,7 @@ GariImage * gari_screen_image(GariScreen * screen) {
 
 /** Initializes the random number generator. */
 void gari_random_init() {
-  srandom(((long)clock()));
+  srandom(((long)time(NULL)));
 }
 
 /** Gets a random number between min and max. */
@@ -422,5 +426,6 @@ int gari_screen_showcursor_(GariScreen * screen, int show) {
 /** Returns true if the cursor is shown, false if not. */
 int gari_screen_showcursor(GariScreen * screen) {  
   return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE;
-}  
+}
+
 
