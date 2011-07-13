@@ -53,6 +53,32 @@ char * gari_font_error() {
 
 #define GARI_FONT_TTF(FONT) ((FONT)->ttf)
 
+/** Loads font from data in memory */
+GariFont * gari_font_dataindex(const unsigned char * data, int datasize, 
+                               int ptsize, long index) {
+  GariFont * font;
+  TTF_Font * ttf;  
+  SDL_RWops * rw;
+
+  gari_font_ttf_start(); // start ttf lib in case it wasn't started.
+  rw  = SDL_RWFromConstMem((const void *)data, datasize);
+  if (!rw)  { return NULL; }                               
+  ttf = TTF_OpenFontIndexRW(rw, 1, ptsize, index);
+  // SDL_RWclose(rw);
+  if (!ttf) { return NULL; }  
+  font         = GARI_ALLOCATE(GariFont);
+  // If malloc failed, free ttf and get out of here.
+  if (!font) {  TTF_CloseFont(ttf); return NULL; }
+  return gari_font_init(font, ttf, "<data>", ptsize, index); 
+}
+
+/** Loads font from data in memory */
+GariFont * gari_font_data(const unsigned char * data, int datasize, int ptsize){
+  return gari_font_dataindex(data, datasize, ptsize, 0);  
+} 
+
+
+
 GariFont * gari_font_loadindex(char * filename, int ptsize, long index) {
   GariFont * font;
   TTF_Font * ttf;

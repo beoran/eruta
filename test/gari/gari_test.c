@@ -54,7 +54,8 @@ TEST_FUNC(game) {
   c4      = gari_colora(0   ,   0, 0  , 0   );
   cg      = gari_colora(127 , 127, 127, 127 );
   gari_image_slab(sim, 0, 0, 640, 480, yellow);
-  font    = gari_font_load("../../data/font/liberationserif.ttf", 14);
+  //font    = gari_font_load("../../data/font/liberationserif.ttf", 14);
+  font    = gari_font_data(data_font_tuffy_ttf, data_font_tuffy_ttf_size, 14);
   TEST_NOTNULL(font);
   gari_font_mode_(font, GariFontBlended);
   TEST_INTEQ(GariFontBlended,  gari_font_mode(font));
