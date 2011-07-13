@@ -94,6 +94,8 @@ int arr[77] =  {
   0x00000
 };
 
+/** I think BDF could be converted to C.... */
+
 /*
   
         glyphs %w{5 6 7 8 9 : ; < = >},
