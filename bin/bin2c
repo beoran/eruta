@@ -10,11 +10,11 @@ def bin2c
   data      = IO.read(inname, :mode => 'rb')
   name      = inname.gsub(/[^A-Za-z0-9_]+/,'_')   
   size      = data.size
-  constname = name.upcase
+  constname = name.upcase + '_SIZE'
   varname   = name.downcase
-  outfile.printf("#define %s_SIZE %d\n", constname, size)      
+  outfile.printf("#define %s %d\n", constname, size)
   outfile.printf("const int %s_size = %s;\n", varname, constname)  
-  outfile.printf("const unsigned char %s[%s] = \n", name.downcase, constname)
+  outfile.printf("const unsigned char * %s = \n", name.downcase, constname)
   step      = 0 
   data.each_byte do |b| 
     outfile.printf('"')  if(step == 0)        
