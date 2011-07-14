@@ -88,6 +88,11 @@ struct GariColor_ {
 
 typedef struct GariColor_ GariColor;
 
+/** A few default colors. */
+extern const GariColor GariWhite;
+extern const GariColor GariBlack;
+
+
 /** Frees the memory associated with a GariColor allocated though
 *   gari_color_rgba or gari_color_rgb.  Returns NULL (guaranteed).
 */
@@ -573,11 +578,25 @@ GariEvent * gari_event_pollnew();
 /** Frees memory associated with a Garievent alloctated by gari_event_pollnew.*/
 void gari_event_free(GariEvent * event);
 
-
 /* Fonts and text rendering. */
 
+/** BDF font loading: */
+typedef struct GariBdfGlyph_ GariBdfGlyph; 
+typedef struct GariBdf_ GariBdf;
+
+/** Loads a bdf font. */
+GariBdf * gari_bdf_load(char * filename); 
+
+/** Frees the memory allocated by the font. */
+GariBdf * gari_bdf_free(GariBdf * font);
+
+/** Draws a single utf8 character to a surface at the given coordinates 
+using the font to a surface, depending on the font's settings. */
+void gari_bdf_putc(GariImage * image, int x, int y, int utf8, GariBdf * font,  
+              GariColor fg, GariColor bg);
+
 struct GariFont_;
-/** Opaque struct for font handling. */
+/** Opaque struct for TTF font handling. */
 typedef struct GariFont_ GariFont;
 
 /** Ways to render the font.  Default is GariFontSolid */
@@ -1178,8 +1197,40 @@ direction in radians */
 GariFloat gari_vector_angle(GariVector v1);
  
 
+/** Time related functions, including a timer. */
+struct GariTimer_;
+typedef struct GariTimer_ GariTimer;
+
+/** allocates a GariTimer. */
+GariTimer * gari_timer_alloc();
+
+/** Frees the timer. */
+GariTimer * gari_timer_free(GariTimer * self);
+
+uint32_t gari_timer_ticks();
+
+/** Starts or resets the timer. */
+GariTimer * gari_timer_start(GariTimer * self);
+
+/** Sets the delay (wait time) of the timer. */
+GariTimer * gari_timer_delay_(GariTimer * self, uint32_t delay);
+
+/** Gets the delay (wait time) of the timer. Returns 0 if self is NULL.*/
+uint32_t gari_timer_delay(GariTimer * self);
+
+/** Initializes the timer with a delay in ms. */
+GariTimer * gari_timer_init(GariTimer * self, uint32_t delay);
+
+/** Creates a new timer with the given delay. */
+GariTimer * gari_timer_new(uint32_t delay);
+
+/** Returns amount of ticks (in ms) passed since the timer was started. */
+uint32_t gari_timer_passed(GariTimer * self);
 
 
+/** Returns true if the delay of the timer has passed since 
+gari_timer_start was called, false if not. */
+int gari_timer_ring(GariTimer * self);
 
 
 #endif

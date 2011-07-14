@@ -175,6 +175,11 @@ int gari_color_cmp(GariColor c1, GariColor c2) {
 } 
 
 
+extern const GariColor GariWhite = { 255, 255, 255, 255 };
+extern const GariColor GariBlack = {   0,   0,   0, 255 };
+
+
+
 
 
 

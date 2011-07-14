@@ -2,352 +2,493 @@
 #define GARI_INTERN_ONLY
 #include "gari_intern.h"
 
-typedef struct NoFontGlyph_ {
-  int  index;
-  char name[16];
-  char pixels[16][16];
-} NoFontGlyph;
 
-char * str = " ";
+/** GariBdf supports bitmapz up to 32x32 pixels. */
+#define GARI_BDF_MAXWIDE 32
+#define GARI_BDF_MAXHIGH 32
 
-#define NFGLYPH7(INDEX, NAME, L0, L1, L2, L3, L4, L5, L6) \
-  { INDEX , #NAME, { #L0, #L1, #L2, #L3, #L4, #L5, #L6} }
-
-
-NoFontGlyph nofont_glyphs2[] = {
-  { ' ', "space",
-   { ".....",
-   ".....",
-   ".....",
-   ".....",
-   ".....",
-   ".....",
-   } 
-  },
-  NFGLYPH7('!', bang,
-  ..x..,
-  ..x..,
-  ..x..,
-  .....,
-  ..x..,
-  ..x.., 
-  ),
-
+/** Struct that models a glyph. */
+struct GariBdfGlyph_ {
+  int bbx, bby, bbxoff, bbyoff; // bounding box.
+  uint32_t encoding; 
+  uint32_t pixels[GARI_BDF_MAXHIGH];
 };
 
-#define NOFONT_GLYPHINFO_GLYPHS   10
-#define NOFONT_GLYPHINFO_ROWS     7
-#define NOFONT_GLYPHINFO_SUBCOLS  6
-#define NOFONT_GLYPHINFO_COLS     60
-#define NOFONT_GLYPHINFO_SPACE    500
+/** GariBdf supports up to this amount of glyphs. */
+#define GARI_BDF_GLYPHS 65536
 
 
-struct NofontGlyphinfo_ {
-  int  glyphs[NOFONT_GLYPHINFO_GLYPHS];  
-  char pixels[NOFONT_GLYPHINFO_SPACE]; 
+/** Loading and drawing of BDF fonts. The font should have a unicode encoding */
+struct GariBdf_ {
+  int bbx, bby, bbxoff, bbyoff; // bounding box. 
+  int high;
+  GariFontStyle   style;
+  GariFontMode    mode;
+  int             ptsize;
+  int             scale;
+  size_t          nglyphs; /* Amount of glyphs. */
+  GariBdfGlyph *  glyphs; /* Glyphs.  */
 };
 
-struct NofontGlyphinfo_ nofont_glyphs[20] = {  
-{
-  {' ', '!', '#', '$', '%', '&', '(', ')', '\'', '*'},
-  {
-  "..... ..x.. ..... ..x.. .x..x .xxx. ..x.. ..x.. ..x.. ....."
-  "..... ..x.. .x.x. .xxxx x.x.x x.... ..x.. .x... ...x. ..x.."
-  "..... ..x.. xxxxx x.x.. .x.x. .x... ..... x.... ....x x.x.x"
-  "..... ..x.. .x.x. .xxx. ..x.. x.x.x ..... x.... ....x .xxx."
-  "..... ..... xxxxx ..x.x .x.x. x..x. ..... x.... ....x x.x.x"
-  "..... ..x.. .x.x. xxxx. x.x.x .xx.x ..... .x... ...x. ..x.."
-  "..... ..x.. ..... ..x.. x..x. ..... ..... ..x.. ..x.. ....."
-  }
-}, 
-
-{ 
-  {'+','-','.','/','0','1','2','3','4'},
-  { 
-  "..... ..... ..... ..... ....x ..... ..... ..... ..... ....."
-  "..x.. ..... ..... ..... ....x .xxx. ..x.. .xxx. xxxx. ...x."
-  "..x.. ..... ..... ..... ....x x...x .xx.. x...x ....x ..xx."
-  "xxxxx ..... xxxxx ..... ...x. x.x.x x.x.. ...x. xxxx. .x.x."
-  "..x.. ..... ..... ..... ..x.. x...x ..x.. ..x.. ....x xxxxx"
-  "..x.. ..... ..... ..... .x... .xxx. xxxxx xxxxx xxxx. ...x."
-  "..... ...x. ..... ..x.. x.... ..... ..... ..... ..... ....."
-  "..... ..x.. ..... ..x.. x.... ..... ..... ..... ..... ....."
-  }
-},
-
-
-{
-  { 0, 0, 0, 0, 0 , 0 , 0, 0, 0 },
-  { "" } 
-}
-
-} ;
-
-int arr[77] =  {
-  0x00000,
-  0x00100,
-  0x00100,
-  0x11111,
-  0x00100,
-  0x00100,
-  0x00000,
-  0x00000
-};
-
-/** I think BDF could be converted to C.... */
-
-/*
-  
-        glyphs %w{5 6 7 8 9 : ; < = >},
-        "
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        xxxxx .xxxx xxxxx .xxx. .xxx. ..x.. ...x. ...x. ..... .x...
-        x.... x.... ...x. x...x x...x ..x.. ...x. ..x.. xxxxx ..x..
-        xxxx. xxxx. xxxxx .xxx. .xxxx ..... ..... .x... ..... ...x.
-        ....x x...x .x... x...x ....x ..... ..... x.... ..... ....x
-        xxxx. .xxx. .x... .xxx. xxxx. ..... ..... .x... xxxxx ...x.
-        ..... ..... ..... ..... ..... ..x.. ...x. ..x.. ..... ..x..
-        ..... ..... ..... ..... ..... ..x.. ..x.. ...x. ..... .x...
-        "
-        
-        glyphs %w{? @}, 
-         "
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        .xxx. .xxx. ..... ..... ..... ..... ..... ..... ..... .....
-        x...x x..xx ..... ..... ..... ..... ..... ..... ..... .....
-        ...x. x.x.x ..... ..... ..... ..... ..... ..... ..... .....
-        ..x.. x.x.x ..... ..... ..... ..... ..... ..... ..... .....
-        ..... x..xx ..... ..... ..... ..... ..... ..... ..... .....
-        ..x.. x.... ..... ..... ..... ..... ..... ..... ..... .....
-        ..... .xxxx ..... ..... ..... ..... ..... ..... ..... .....
-        "
-
-
-       glyphs %w{A B C D E F G H I J}, 
-        "
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        ..x.. xxxx. .xxx. xxxx. xxxxx xxxxx .xxx. x...x xxxxx xxxxx
-        .x,x. x...x x...x x...x x.... x.... x.... x...x ..x.. ....x
-        x,..x xxxx. x.... x...x xxxx. xxx.. x..xx xxxxx ..x.. ....x
-        xxxxx x...x x...x x...x x.... x.... x...x x...x ..x.. x...x
-        x,..x xxxx. .xxx. xxxx. xxxxx x.... .xxx. x...x xxxxx .xxx.
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        "
-       glyphs %w{K L M N O P Q R S T}, 
-        "
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        x...x x.... x...x x...x .xxx. xxxx. .xxx. xxxx. .xxxx xxxxx
-        x..x. x.... xx.xx xx..x x...x x...x x...x x...x x.... ..x..
-        xxx.. x.... x.x.x x.x.x x...x xxxx. x.,.x xxxx. .xxx. ..x..
-        x..x. x.... x...x x..xx x...x x.... x..x, x...x ....x ..x..
-        x...x xxxxx x...x x...x .xxx. x.... .xx,x x...x xxxx. ..x..
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        "
-       glyphs %w{U V W X Y Z [ \\ ] ^}, 
-        "
-        ..... ..... ..... ..... ..... ..... xxxx. x.... .xxxx ..x..
-        x...x x...x x...x x...x x...x xxxxx x.... x.... ....x .x.x.
-        x...x x...x x...x .x.x. .x.x. ...x. x.... .x... ....x x...x
-        x...x x...x x...x ..x.. ..x.. ..x.. x.... ..x.. ....x .....
-        x...x .x.x. x.x.x .x.x. ..x.. .x... x.... ...x. ....x .....
-        .xxx. ..x.. .x.x. x...x ..x.. xxxxx x.... ....x ....x .....
-        ..... ..... ..... ..... ..... ..... x.... ....x ....x .....
-        ..... ..... ..... ..... ..... ..... xxxx. ....x .xxxx .....
-        "
-        
-        glyphs %w{a b c d e f g h i j}, 
-        "
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        ..... x.... ..... ....x ..... ...xx ..... x.... ..x.. ...x.
-        .xxxx xxxx. .xxxx .xxxx .xxx. ..x.. .xxxx xxxx. ..... .....
-        x...x x...x x.... x...x x..xx ..x.. x...x x...x ..x.. ...x.
-        x...x x...x x.... x...x x,x.. xxxxx x...x x...x ..x.. ...x.
-        .xxxx xxxx. .xxxx .xxxx .xxxx ..x.. .xxxx x...x ..x.. ...x.
-        ..... ..... ..... ..... ..... ..x.. ....x ..... ..... x..x.
-        ..... ..... ..... ..... ..... ..x.. xxxx. ..... ..... .xx..
-        "
-        glyphs %w{k l m n o p q r s t}, 
-        "
-        ..... ..... ..... ..... ..... ..... ..... ..... ..... .....
-        x.... ..x.. ..... ..... ..... ..... ..... ..... ..... .x...
-        x..x. ..x.. xx.x. xxxx. .xxx. xxxx. .xxxx xxxx. .xxx. xxxxx
-        xxx.. ..x.. x.x.x x...x x...x x...x x...x x...x xx... .x...
-        x..x. ..x.. x.x.x x...x x...x x...x x...x x.... ..xxx .x..x
-        x...x ..x.. x.x.x x...x .xxx. xxxx. .xxxx x.... xxxx. ..xx.
-        ..... ...x. ..... ..... ..... x.... ....x ..... ..... .....
-        ..... ..... ..... ..... ..... x.... ....x ..... ..... .....
-        "
-        
-        glyphs %w{u v w x y z { | } ~}, 
-        "
-        ..... ..... ..... ..... ..... ..... ...xx ..x.. xx... .....
-        ..... ..... ..... ..... ..... ..... ..x.. ..x.. ..x.. .....
-        x...x x...x x...x x..x. x...x xxxxx ..x.. ..x.. ..x.. .....
-        x...x x...x x.x.x .xx.. x...x ...x. xx... ..x.. ...xx .x.x.
-        x...x .x.x. x.x.x .xx.. x...x ..x.. xx... ..x.. ...xx x.x..
-        .xxxx ..x.. .x.x. x..x. .xxxx xxxxx ..x.. ..x.. ..x.. .....
-        ..... ..... ..... ..... ....x ..... ..x.. ..x.. ..x.. .....
-        ..... ..... ..... ..... xxxx. ..... ...xx ..x.. xx... .....
-        "
-        
-        # Some utf8 encoded accented letters
-        glyphs %w{ä ë ï ö ü ÿ Ä Ë Ï Ö Ü Ÿ}, 
-        "
-        .x.x. .x.x. .x.x. .x.x. .x.x. .x.x. .x.x. .x.x. .x.x. .x.x. .x.x. .x.x.
-        ..... ..... ..... ..... ..... ..... ..x.. xxxxx xxxxx .xxx. x...x x...x
-        .xxxx .xxx. ..... .xxx. x...x x...x .x.x. x.... ..x.. x...x x...x .x.x.
-        x...x x..xx ..x.. x...x x...x x...x x...x xxxxx ..x.. x...x x...x ..x..
-        x...x xxx.. ..x.. x...x x...x x...x xxxxx x.... ..x.. x...x x...x ..x..
-        .xxxx .xxxx ..x.. .xxx. .xxxx .xxxx x...x xxxxx xxxxx .xxx. .xxx. ..x..
-        ..... ..... ..... ..... ..... ....x ..... ..... ..... ..... ..... .....
-        ..... ..... ..... ..... ..... .xxx. ..... ..... ..... ..... ..... .....
-        "
-        
-        glyphs %w{á é í ó ú ý Á É Í Ó Ú Ý}, 
-        "
-        ...x. ...x. ...x. ...x. ...x. ...x. ...x. ...x. ...x. ...x. ...x. ...x.
-        ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. xxxxx xxxxx .xxx. x.x.x x.x.x
-        .xxxx .xxx. ..... .xxx. x...x x...x .x.x. x.... ..x.. x...x x...x .x.x.
-        x...x x..xx ..x.. x...x x...x x...x x...x xxxxx ..x.. x...x x...x ..x..
-        x...x xxx.. ..x.. x...x x...x x...x xxxxx x.... ..x.. x...x x...x ..x..
-        .xxxx .xxxx ..x.. .xxx. .xxxx .xxxx x...x xxxxx xxxxx .xxx. .xxx. ..x..
-        ..... ..... ..... ..... ..... ....x ..... ..... ..... ..... ..... .....
-        ..... ..... ..... ..... ..... .xxx. ..... ..... ..... ..... ..... .....
-        "
-        
-        glyphs %w{à è ì ò ù ỳ À È Ò Ù Ỳ}, 
-        "
-        .x... .x... .x... .x... .x... .x... .x... .x... .x... .x... .x... .x...
-        ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. xxxxx xxxxx .xxx. x.x.x x.x.x
-        .xxxx .xxx. ..... .xxx. x...x x...x .x.x. x.... ..x.. x...x x...x .x.x.
-        x...x x..xx ..x.. x...x x...x x...x x...x xxxxx ..x.. x...x x...x ..x..
-        x...x xxx.. ..x.. x...x x...x x...x xxxxx x.... ..x.. x...x x...x ..x..
-        .xxxx .xxxx ..x.. .xxx. .xxxx .xxxx x...x xxxxx xxxxx .xxx. .xxx. ..x..
-        ..... ..... ..... ..... ..... ....x ..... ..... ..... ..... ..... .....
-        ..... ..... ..... ..... ..... .xxx. ..... ..... ..... ..... ..... .....
-        "
-
-        glyphs %w{â ê î ô û ŷ Â Ê Î Ô Û Ŷ}, 
-        "
-        ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. ..x.. ..x..
-        .x.x. .x.x. .x.x. .x.x. .x.x. .x.x. .x.x. xxxxx xxxxx .xxx. xx.xx xx.xx
-        .xxxx .xxx. ..... .xxx. x...x x...x .xxx. x.... ..x.. x...x x...x .x.x.
-        x...x x..xx ..x.. x...x x...x x...x x...x xxxxx ..x.. x...x x...x ..x..
-        x...x xxx.. ..x.. x...x x...x x...x xxxxx x.... ..x.. x...x x...x ..x..
-        .xxxx .xxxx ..x.. .xxx. .xxxx .xxxx x...x xxxxx xxxxx .xxx. .xxx. ..x..
-        ..... ..... ..... ..... ..... ....x ..... ..... ..... ..... ..... .....
-        ..... ..... ..... ..... ..... .xxx. ..... ..... ..... ..... ..... .....
-        "
-        
-        # Some private use characters useful for games, etc.
-        glyphs ["\uEF00", "\uEF01", "\uEF02", "\uEF03", "\uEF04", "\uEF05",
-                "\uEF06", "\uEF07", "\uEF08", "\uEF09",],
-        "
-        x.... xxxxx .xx.. ..x.. ..x.. ...x. ..x.. ..x.. .xxx. ..x..
-        .x... xxxxx .x.x. ..x.. x.x.x ..x.. .xxx. x.x.x xxxxx ..x..
-        ..x.x ..x.. .x..x .xxx. .x.x. .x... xxxxx .xxx. x.x.x .xxx.
-        ...x. ..x.. xxxxx .xxx. .x.x. xxxxx xxxxx xx.xx xx.xx x.x.x
-        ..x.x ..x.. .x..x xxxxx x.x.x ...x. .xxx. .xxx. .xxx. .xxx.
-        ..... ..x.. .x.x. xxxxx .xxx. ..x.. ..x.. x.x.x .x.x. ..x..
-        ..... ..x.. .xx.. .xxx. ..x.. .x... .xxx. ..x.. ..... ..x..
-        "
-        
-        
+/* GariBdf stores the exact amount of glyphs that the font contains to 
+save space. However, this means that the glyph will have to be found
+by doing a binary search over the glyphs. So in short, this implementation
+is slower to save space.
 */
 
-typedef struct GariNofont_ GariNofont;
 
-struct GariNofont_ {
-  GariFontStyle style;
-  GariFontMode  mode;
-  int           ptsize;
-  int           scale;
-}; 
+/* fgetc equivalent for SDL_RWops */
+int SDL_RWgetc(SDL_RWops *rw) {
+  char c;
+  int res = SDL_RWread(rw, &c, 1, 1);
+  return  res == 1 ? c : EOF;
+}
+
+/* fgets equivalent for SDL_rwops. Only accepts '\n' as a newline.  */
+char * SDL_RWgets(char *buf, int count, SDL_RWops *rw) {
+  int index;
+  buf[count - 1] = '\0'; // null terminate buffer.
+  for (index = 0; index < count - 1; index++)  {
+    int ch = SDL_RWgetc(rw);
+    if (ch == EOF) {
+      if (index == 0) return NULL;
+      else break; // don't store eof.
+    }
+    buf[index] = ch; // Store character.
+    if(ch == '\n') {
+      break;
+    }
+  }
+  if((index+1) <= (count-1)) {   
+    buf[index+1] = '\0'; // null terminate buffer.
+  }  
+  return buf;
+}
+
+
+// The BDF font file can use lines up to this length
+#define GARI_BDF_LINE_SIZE 1024
+typedef struct GariBdfValue_ GariBdfValue;
+
+#define GARI_BDF_MAXVALUES 8
+#define GARI_BDF_MAXKEY    512
+#define GARI_BDF_MAXSTR    512
+
+struct GariBdfValue_ {
+  char    key[GARI_BDF_MAXKEY];
+  int     type;
+  int     size;
+  char    str[GARI_BDF_MAXSTR];
+  long    values[GARI_BDF_MAXVALUES];
+  double  number; 
+};
+
+enum GariBdfValueType_ {
+  GariBdfNone    = 0 ,  
+  GariBdfString  = 1 ,
+  GariBdfInteger = 2 ,
+  GariBdfNumber  = 3 
+};
+
+/* Perses  a line into a bdf key/value pair.  */
+GariBdfValue * gari_bdfvalue_line(GariBdfValue * self, char * line) {
+  char * p = strchr(line, ' ');
+  char * s = NULL, * e = NULL;
+  int index  = 0;
+  self->type = GariBdfNone;
+  size_t len = p - line;
+  if(!p) len = strlen(line) - 1; // no space in line
+  // fail if key too long 
+  if (len >= GARI_BDF_MAXKEY) len = GARI_BDF_MAXKEY - 1;
+  memset(self, 0, sizeof(GariBdfValue)); // wipe all values. 
+  strncpy(self->key, line, len); self->key[len] = '\0';
+  if(!p) return self;
+  s = strchr(p, '"');
+  if(s) { // string value
+    self->type = GariBdfString;
+    e     = strrchr(p, '"');
+    self->size  = e-s;
+    if (self->size >= GARI_BDF_MAXSTR) self->size = GARI_BDF_MAXSTR - 1;
+    strncpy(self->str, s, self->size); self->key[self->size] = '\0';
+    return self;
+  }
+  s = strchr(p, '.');
+  // double value 
+  if(s) {
+    self->type    = GariBdfNumber;
+    self->number  = atof(p); 
+    return self;
+  }
+  // values not found
+  self->size = 0;
+  // try to fetch numbers 
+  while(p && self->size < GARI_BDF_MAXVALUES) {
+    self->values[self->size] = strtol(p +1 , &e, 10);
+    if((!e) || e==p) return self; 
+    // if this happens integer conversion failed, so give up. 
+    self->type = GariBdfInteger;
+    self->size++;
+    p = e; // move to next position.  
+  }
+  return self;  
+} 
+ 
+/*
+static void ParseChar(Kanji_Font* font, int index, FILE* fp, int shift) {
+  char buf[GARI_BDF_LINE_SIZE], *p;
+  int y;
+
+  if (font->moji[index] != 0) return;
+
+  font->moji[index] = (Uint32*)malloc(sizeof(Uint32)*font->k_size);
+
+  for (y = 0; y < font->k_size; y++) {
+    fgets(buf, BUF, fp);
+    font->moji[index][y] = (strtol(buf, 0, 16) >> shift);
+  }
+}
+*/
+
+GariBdfGlyph * gari_bdfglyph_parse(GariBdfGlyph * self, SDL_RWops* rw) {
+  int index;
+  char buf[GARI_BDF_LINE_SIZE];
+  
+  for (index = 0; index < self->bby; index++) { 
+    if (SDL_RWgets(buf, GARI_BDF_LINE_SIZE, rw) == NULL) return NULL;
+    self->pixels[index] = strtol(buf, NULL, 16);
+  }
+  return self;
+}
+
+GariBdf * gari_bdf_parsechar(GariBdf * self, SDL_RWops* rw, int index) {
+  char buf[GARI_BDF_LINE_SIZE];
+  GariBdfValue value;
+  GariBdfGlyph * glyph = self->glyphs + index;
+  while (1) {
+    if (SDL_RWgets(buf, GARI_BDF_LINE_SIZE, rw) == NULL) return self;
+    if(!gari_bdfvalue_line(&value, buf)) return NULL; 
+    if (!strcmp(value.key, "ENDCHAR")) return self; // end of character
+    if (!strcmp(value.key, "ENCODING")) { // encoding 
+      glyph->encoding    = value.values[0];
+    }  
+    if (!strcmp(value.key, "BBX")) { 
+      // read glyph bound box
+      glyph->bbx    = value.values[0];
+      glyph->bby    = value.values[1];
+      glyph->bbxoff = value.values[2];
+      glyph->bbyoff = value.values[3];
+    }
+    if (!strcmp(value.key, "BITMAP")) {
+      if(!gari_bdfglyph_parse(glyph, rw)) return NULL;
+    }
+  }
+  return self;
+}
+
+
+GariBdf * gari_bdf_parse(GariBdf * self, SDL_RWops* rw) {
+  char buf[GARI_BDF_LINE_SIZE];
+  GariBdfValue value; 
+  
+  uint32_t index = 0, size = 0, encoding = 0;
+  int k_rshift, a_rshift;
+  int s;
+  self->glyphs = NULL;
+  while (1) {
+    if (SDL_RWgets(buf, GARI_BDF_LINE_SIZE, rw) == NULL) goto return_ok;
+    if(!gari_bdfvalue_line(&value, buf)) goto return_error; 
+    if (strstr(value.key, "CHARS")) {
+      self->nglyphs = value.values[0];
+      self->glyphs  = GARI_MALLOC(self->nglyphs * sizeof(GariBdfGlyph));
+      if(!self->glyphs) return NULL;
+    }
+    
+    if (strstr(value.key, "FONTBOUNDINGBOX")) {
+      self->bbx    = value.values[0];
+      self->bby    = value.values[1];
+      self->bbxoff = value.values[2];
+      self->bbyoff = value.values[3];
+    }
+
+    if (strstr(value.key, "STARTCHAR")) {
+      if(!gari_bdf_parsechar(self, rw, index)) goto return_error;
+      index ++;
+      // On to the next index; if too much return ok
+      if (index >= self->nglyphs) goto return_ok;
+    }
+  }
+  return_ok: // normal return. 
+  return self;   
+  return_error: // error return  
+  GARI_FREE(self->glyphs);
+  return NULL;
+}
+
 
 /** Gets the drawing mode of the font. */
-int gari_nofont_mode(GariNofont * self) {
+int gari_bdf_mode(GariBdf * self) {
   if(!self) return -1;
   return self->mode;
 }
 
-
 /** Sets the drawing mode of the font. */
-GariNofont * gari_nofont_mode_(GariNofont * self, int mode) {
+GariBdf * gari_bdf_mode_(GariBdf * self, int mode) {
   if (!self) return NULL;
   self->mode = mode; 
   return self;
 }
 
+
 /** Returns the style of the font.  */
-int gari_nofont_style(GariNofont * self) {
+int gari_bdf_style(GariBdf * self) {
   if(!self) return -1;
   return self->style;
 }
 
 /** Sets the style effect of the font. */
-GariNofont * gari_nofont_style_(GariNofont * self, int style) {
+GariBdf * gari_bdf_style_(GariBdf * self, int style) {
   if (!self) return NULL;
   self->style = style; 
   return self;
 }
 
+GariBdf * gari_bdf_newrw(SDL_RWops * rw) {
+  if(!rw) return NULL;
+  GariBdf * self = GARI_MALLOC(sizeof(GariBdf));
+  if(!self) { return NULL;} 
+  // self->ptsize = NOFONT_GLYPHINFO_ROWS * scale;
+  gari_bdf_mode_(self, GariFontSolid);
+  gari_bdf_style_(self, GariFontNormal);  
+  return gari_bdf_parse(self, rw);
+}
 
-/** Loads a built in font. scale is the scale factor. */
-GariNofont * gari_nofont_load(int scale) {
-  GariNofont * self = GARI_MALLOC(sizeof(GariNofont));
-  if(!self) return NULL;
-  self->scale  = scale;
-  self->ptsize = NOFONT_GLYPHINFO_ROWS * scale;
-  gari_nofont_mode_(self, GariFontSolid);
-  return gari_nofont_style_(self, GariFontNormal);
+/** Loads a bdf font. */
+GariBdf * gari_bdf_load(char * filename) {
+  SDL_RWops * rw = SDL_RWFromFile(filename, "rb");
+  GariBdf * res = gari_bdf_newrw(rw);
+  SDL_RWclose(rw); 
+  return res;
 }
 
 /** Frees the memory allocated by the font. */
-GariFont * gari_nofont_free(GariNofont *font) {
+GariBdf * gari_bdf_free(GariBdf *font) {
   GARI_FREE(font);
   return NULL;
 }
 
+/** Gets the glyph at index index. Has noting to do with the encoding!  */
+GariBdfGlyph * gari_bdf_glyph(GariBdf * font, int index) {
+  if(!font) return NULL;
+  if(!font->glyphs) return NULL;
+  if(index < 0) return NULL;
+  if(index >= font->nglyphs) return NULL;
+  return font->glyphs + index;
+}
+
+/** Finds the glyph to be used for drawing the character encoded as encoding,
+* recursively though a binary search. 
+*/
+GariBdfGlyph * gari_bdf_findr(GariBdf * self, int encoding, int index, int low, int high) {
+  GariBdfGlyph * glyph = gari_bdf_glyph(self, index);
+  if (!glyph) return NULL;
+  if (glyph->encoding == encoding) return glyph;
+  if (low==high) return NULL; // not found  
+  if(glyph->encoding < encoding) { // we chose an index that is too low
+    low  = index;
+    index = low + (high - low) / 2;
+    return gari_bdf_findr(self, encoding, index, low, high);    
+  } else { // an index mid that is too high
+    high  = index;
+    index = low + (high - low) / 2;     
+    return gari_bdf_findr(self, encoding, index, low, high);
+  } 
+  return NULL; // can't happen.
+} 
+
+
+/** Finds the glyph to be used for drawing the character encoded as encoding. 
+*/
+GariBdfGlyph * gari_bdf_find(GariBdf * self, int encoding) {
+  int low, high, mid; 
+  if(!self) return NULL;
+  low  = 0 ; high = self->nglyphs;
+  return gari_bdf_findr(self, encoding, high / 2, low, high);
+}
+
+/** Calculate nex tpower of two */
+uint32_t gari_nextpower2(uint32_t v) { 
+  v--;
+  v |= v >> 1;
+  v |= v >> 2;
+  v |= v >> 4;
+  v |= v >> 8;
+  v |= v >> 16;
+  v++;
+  return v;
+}
+
+uint32_t gari_nextmultiple(uint32_t v, uint32_t of) {
+  return (v+(of-1))&~(of-1);
+}
+
+/** Utf8 decoder */
+// Copyright (c) 2008-2010 Bjoern Hoehrmann <bjoern@hoehrmann.de>
+// See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.
+/*
+License
+
+Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+#define UTF8_ACCEPT 0
+#define UTF8_REJECT 12
+
+static const uint8_t utf8d[] = {
+  // The first part of the table maps bytes to character classes that
+  // to reduce the size of the transition table and create bitmasks.
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+   1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,  9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
+   7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+   8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+  10,3,3,3,3,3,3,3,3,3,3,3,3,4,3,3, 11,6,6,6,5,8,8,8,8,8,8,8,8,8,8,8,
+
+  // The second part is a transition table that maps a combination
+  // of a state of the automaton and a character class to a state.
+   0,12,24,36,60,96,84,12,12,12,48,72, 12,12,12,12,12,12,12,12,12,12,12,12,
+  12, 0,12,12,12,12,12, 0,12, 0,12,12, 12,24,12,12,12,12,12,24,12,24,12,12,
+  12,12,12,12,12,12,12,24,12,12,12,12, 12,24,12,12,12,12,12,12,12,24,12,12,
+  12,12,12,12,12,12,12,36,12,36,12,12, 12,36,12,12,12,12,12,36,12,36,12,12,
+  12,36,12,12,12,12,12,12,12,12,12,12, 
+};
+
+uint32_t utf8_decoder(uint32_t* state, uint32_t* codep, uint32_t byte) {
+  uint32_t type = utf8d[byte];
+
+  *codep = (*state != UTF8_ACCEPT) ?
+    (byte & 0x3fu) | (*codep << 6) :
+    (0xff >> type) & (byte);
+
+  *state = utf8d[256 + *state + type];
+  return *state;
+}
+
+uint32_t utf8_decode(char * str, int * ok) {
+  uint32_t codepoint;
+  uint32_t state = UTF8_ACCEPT;
+  int      count;
+
+  for ( ; str ; str++) { 
+    utf8_decoder(&state, &codepoint, *str);
+    if(state == UTF8_ACCEPT) {
+      (*ok) = 1;
+      return codepoint; 
+    }
+    if(state == UTF8_REJECT) {
+      (*ok) = 0;
+      return 0; 
+    }
+  }
+  (*ok) = 0;
+  return 0; 
+}
+
+
+
+
+/** Draws a signle glyph from the font. Does not lock the image, 
+call ! */
+void gari_bdf_putglyph(GariImage * image, int x, int y, GariBdfGlyph * glyph,                            GariBdf * font, GariColor fg, GariColor bg) {
+  int xindex, yindex, wide, high;
+  int xdraw;
+  int ydraw; 
+  uint32_t pixwide;
+  GariDye fgdye        = gari_color_dye(fg, image);
+  GariDye bgdye        = gari_color_dye(bg, image);
+  GariColor red        = { 255, 0, 0, 255};
+  GariDye reddye       = gari_color_dye(red, image);
+  if(!glyph) return;
+  wide  = glyph->bbx;
+  high  = glyph->bby;
+  xdraw = x - glyph->bbxoff;
+  ydraw = y - glyph->bbyoff;
+  pixwide = gari_nextmultiple(wide, 8);
+     
+    
+  for(yindex = 0; yindex < high; yindex++, ydraw++) {
+    for(xindex = 0; xindex <= wide; xindex++, xdraw++) {
+      if((1<<(pixwide-xindex)) & glyph->pixels[yindex]) {
+        gari_image_putpixel_nolock(image, xdraw, ydraw, fgdye);
+      } else if(font->mode == GariFontShaded) {
+        gari_image_putpixel_nolock(image, xdraw, ydraw, bgdye);
+      }
+    }
+    xdraw = x - glyph->bbxoff;
+  }
+  gari_image_putpixel_nolock(image, x, y, reddye);
+  gari_image_putpixel_nolock(image, x + wide, y + wide, reddye);
+  
+}
+
+
+/** Draws a single utf8 character to a surface at the given coordinates 
+using the font to a surface, depending on the font's settings. */
+void gari_bdf_putc(GariImage * image, int x, int y, int utf8, GariBdf * font,  
+              GariColor fg, GariColor bg) {
+  GariBdfGlyph * glyph = gari_bdf_find(font, utf8);
+  gari_image_lock(image);
+  gari_bdf_putglyph(image, x, y, glyph, font, fg, bg); 
+  gari_image_unlock(image);
+}
+
+
+
 /** Renders the font to a surface, depending on the font's settings. */
-GariImage * gari_nofont_render(GariNofont * font, char * utf8, 
+GariImage * gari_bdf_render(GariBdf * font, char * utf8, 
     GariColor fgrgba, GariColor bgrgba);
 
 /** Draws font with given colors. */
-void gari_nofont_drawcolor(GariImage * image, int x, int y, char * utf8, 
-                         GariNofont  * font , GariColor fg, GariColor bg); 
+void gari_bdf_drawcolor(GariImage * image, int x, int y, char * utf8, 
+                         GariBdf  * font , GariColor fg, GariColor bg); 
 
 /** Draws font with given color components. */
-void gari_nofont_draw(GariImage * image, int x, int y, char * utf8, GariNofont *
+void gari_bdf_draw(GariImage * image, int x, int y, char * utf8, GariBdf *
 font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_b,
 uint8_t bg_a);
 
 /** Draws font in printf style. Won't work on platforms that lack vsnprintf.
 * Will draw up to 2000 bytes of characters.  
 */
-void gari_nofont_printf(GariImage * image, int x, int y, GariNofont * font,
+void gari_bdf_printf(GariImage * image, int x, int y, GariBdf * font,
 GariColor fg, GariColor bg, char * format, ...);
 
 /** Returns a text with details about the last error in loading or 
 handling a font. */
-char * gari_nofont_error();
+char * gari_bdf_error();
 
 /** Returns the width that the given UTF-8 encoded text would be if it was
 rendered using gari_fonr_render. */
-int gari_nofont_renderwidth(GariNofont * font, char * utf8); 
+int gari_bdf_renderwidth(GariBdf * font, char * utf8); 
 
 /** Returns the font's max height */
-int gari_nofont_height(GariNofont * font); 
+int gari_bdf_height(GariBdf * font); 
 
 /** Returns the font's font max ascent (y above origin)*/
-int gari_nofont_ascent(GariNofont * font); 
+int gari_bdf_ascent(GariBdf * font); 
 
 /** Returns the font's min descent (y below origin)*/
-int gari_nofont_descent(GariNofont * font);
+int gari_bdf_descent(GariBdf * font);
 
 /** Returns the font's recommended line spacing. */
-int gari_nofont_lineskip(GariNofont * font);
+int gari_bdf_lineskip(GariBdf * font);
 
 int gari_fontstyle_tottf(int style);
 
