@@ -6,54 +6,30 @@ later to use more low-level back-ends. It's goals are:
 * A simple API, that hides the details as much as possible.
 * Fast, giving good performance everywhere possible.
 * Cross platform. Enough said.
-* Complete. All you need to write games, but nothing more.
+* Complete. All you need to write games.
 * Release under Zlib license (or similar permissive).
-* Easy to embed in Ruby. 
-
-
-Gari works on MRI 1.9.x (1.8.x untested) and Rubinius 1.2 (tested), although 
-the Unicode support is obviously missing on the latter.
+* Easy to embed in other languages such as Ruby. 
 
 
 Rationale for creating Gari for use with the Eruta project:
+* SDL by itself lacks some functionality, especially with regards to drawing.
+  It's also not that easy to use in some cases.
+   
+* Reduce external dependencies as much as possible. No need for drawing 
+  libraries, as Gari has drawing built-in.
+   
+* It makes it pssible to switch to a different backend (Allegro, SDL 1.3, ...)
+  without too much of a hassle.
  
-* In Eruta'm also wrapping SDL, in another layer, and then using this for tile 
-maps, etc. Needless to say that this is all not very fast. To speed up things, 
-I have to implement some lower level functionality in C. 
+* The crucial point here is: performance, is it worth all the extra work? If it 
+  was a web application, then I'd say : no. But to allow people with old 
+  computers or nettops to play my games: I say: yes, it matters.
 
-* I could wrap this low level functionality directly from Ruby as is done by 
-e.g. Starruby, but I feel this library could aslo be useful wrapped in other 
-languages, like OOC, the Go Language, python, or even C++ (yuck).
-    
-* I could mix-and match, only implement the functionality that SDL misses, 
-and still wrap SDL directly using rubysdl, but that means that in ruby I have to 
-keep all sorts of dependencies. I'm using SGE for doing 2d drawing, which 
-creates additional dependencies. It would be easiest if I has a single C library 
-for game programming that I could wrap easily in Ruby.
-
-* I'm planning to embed Ruby in C anyway, to make distributing the executable 
-easier (in stead of doing the opposite). Might as well implement the essential 
-low level functionality in C.
-    
-Disadvantages of this project:
- 
-* A lot of time consuming programming in C that does not directly help with the 
-Eruta game being built. I've spent already a lot of time on writing "engine" 
-layers, and not enough time on writing the game itself. 
-  
-Aside: why was I trying to wrap SDL in Go, essentially trying to create an
-identical project like Gari in Go? This was also for the same core reason: more
-performance. However, CGO is a letdown there, we still have to drop down to C 
-for tile maps, etc. So why not use all C for the basic library, then?
-
-The crucial point here is: performance, is it worth all the extra work? If it 
-was a web application, then I'd say : no. But to allow people with old 
-computers or nettops to play my games: I'd say, yes, it's worth while to give it 
-a try at least.
+Ideas: 
 
 How about using OpenGL for acelleration? The problem is that on Linux, OpenGL
 is not always accelerated on older computers or nettops. Often it is a software
-Mesa3D which is /slower/ than straight SDL functions. Allegro 5 suffers from 
-this problem. I hope SDL 1.3 will solve the problem for me.  
+Mesa3D which is /a lot slower/ than straight SDL software rendering functions. 
+Allegro 5 suffers from this problem as well. I hope SDL 1.3 will solve the 
+problem for me whenever that's ready for prime time.
 
- 
