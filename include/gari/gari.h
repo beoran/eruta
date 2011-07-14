@@ -661,6 +661,17 @@ by the underlaying implementation. Use a suitably pre-modified font for
 better effects. */
 void gari_font_style_(GariFont * font, int style); 
 
+/** Loads font from a data buffer in memory */
+GariFont * gari_font_dataindex(const unsigned char * data, int datasize, 
+                               int ptsize, long index);
+
+/** Loads font from a data buffer in memory */
+GariFont * gari_font_data(const unsigned char * data, int datasize, int ptsize);
+
+/** Built in public domain font data and size (tuffy) by Ulrich Tatcher. */
+extern const int              data_font_tuffy_ttf_size;
+extern const unsigned char *  data_font_tuffy_ttf;
+
 /** Music and sound. */
 
 #define GARI_AUDIO_LOWFREQENCY 8000

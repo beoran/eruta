@@ -54,7 +54,8 @@ TEST_FUNC(game) {
   c4      = gari_colora(0   ,   0, 0  , 0   );
   cg      = gari_colora(127 , 127, 127, 127 );
   gari_image_slab(sim, 0, 0, 640, 480, yellow);
-  font    = gari_font_load("../../data/font/liberationserif.ttf", 14);
+  //font    = gari_font_load("../../data/font/liberationserif.ttf", 14);
+  font    = gari_font_data(data_font_tuffy_ttf, data_font_tuffy_ttf_size, 14);
   TEST_NOTNULL(font);
   gari_font_mode_(font, GariFontBlended);
   TEST_INTEQ(GariFontBlended,  gari_font_mode(font));
@@ -135,9 +136,6 @@ TEST_FUNC(game) {
     gari_image_blendline(sim, 0, 480, 640, -480, *cdyn);
   
   
-    gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
-    gari_font_printf(sim, 20, 20, font, white, black,  
-                     "FPS: %ld", (int)gari_game_fps(game));
     gari_flow_activate(flow, 10, GariFlowSnow, 0, 0, white, oim, NULL);
     gari_flow_update(flow, 1);
   
@@ -148,10 +146,13 @@ TEST_FUNC(game) {
     } else {
       gari_sheet_image_(mov2, oim);
     } 
+    gari_font_drawcolor(sim, 50, 50, "日本語　This is ök!", font, white, black); 
+    gari_font_printf(sim, 20, 20, font, white, black,  
+                     "FPS: %ld", (int)gari_game_fps(game));
     
     gari_game_nextframe(game);
     gari_game_update(game);
-    break; // only do draw one time when testing.
+    // break; // only do draw one time when testing.
   }
   
   gari_game_update(game);

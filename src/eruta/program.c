@@ -55,8 +55,9 @@ Program * program_init(Program * self, int screen_w, int screen_h, int full) {
   // fontname      = File.join(*%w{data font liberationserif.ttf})
   self->font    = gari_font_load(PROGRAM_FONTPATH, PROGRAM_FONTSIZE);
   if (!self->font) {
-    perror("Could not load font");
-    return NULL; 
+    perror("Could not load font, falling back to builtin");
+    self->font  = gari_font_data(data_font_tuffy_ttf, data_font_tuffy_ttf_size, PROGRAM_FONTSIZE);
+    if (!self->font) return NULL; 
   } 
   // clear modes
   for (index = 0; index < PROGRAM_MODES; index ++) { 

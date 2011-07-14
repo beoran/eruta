@@ -357,7 +357,6 @@ void * sitable_drop(SiTable * self, void * key) {
   return NULL;
 }
 
-
 SiTable * sitable_grow(SiTable * self) {
   // double the size of the cellar block and the pails block, so collisions 
   // can be handled 
@@ -368,6 +367,8 @@ SiTable * sitable_grow(SiTable * self) {
   // if(!cok) return NULL; // XXX: rehash the table here!  
   return self;
 }
+
+
 
 /** Stores a value in the hash table. */
 void * sitable_set(SiTable * self, void * key, void * value) {
