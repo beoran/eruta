@@ -18,7 +18,7 @@
 * Speed of writing depends, I guess. 
 * 
 * Useful ruby already written : +- 7k SLOC
-* Ruby bindings to Gari: +- 1k SLOC + +- 500 SLOC Ruby support code.
+* Ruby bindings to Gy: +- 1k SLOC + +- 500 SLOC Ruby support code.
 * Rchipmunk ruby bindings: +- 1k SLOC +  300 SLOC Ruby support. 
 *
 * I checked so many languages, but as for now, only Ruby is and C are to my 
@@ -33,7 +33,7 @@
 * 
 */
 
-#include "gari.h"
+#include "gy.h"
 #include "program.h"
 
 int main(int argc, char* argv[]) {

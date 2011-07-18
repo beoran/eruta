@@ -1,74 +1,74 @@
-#include "gari.h"
+#include "gy.h"
 
-#define GARI_INTERN_ONLY
-#include "gari_intern.h"
+#define GY_INTERN_ONLY
+#include "gy_intern.h"
 
 
-GariImage * gari_image_wrap(SDL_Surface * surface) {
-  return (GariImage *)(surface);
+GyImage * gyimage_wrap(SDL_Surface * surface) {
+  return (GyImage *)(surface);
 }
 
-void gari_image_free(GariImage * image) {
+void gyimage_free(GyImage * image) {
   if (!image) {return;} 
-  SDL_FreeSurface(GARI_IMAGE_SURFACE(image));
+  SDL_FreeSurface(GY_IMAGE_SURFACE(image));
 }
 
 
-GariDye gari_image_maprgb(GariImage *img, GariColor rgba) {
-  return  gari_surface_maprgb(GARI_IMAGE_SURFACE(img), rgba);
+GyDye gyimage_maprgb(GyImage *img, GyColor rgba) {
+  return  gysurface_maprgb(GY_IMAGE_SURFACE(img), rgba);
 }
 
-GariDye gari_image_maprgba(GariImage *img, GariColor rgba) {
-  return  gari_surface_maprgba(GARI_IMAGE_SURFACE(img), rgba);
+GyDye gyimage_maprgba(GyImage *img, GyColor rgba) {
+  return  gysurface_maprgba(GY_IMAGE_SURFACE(img), rgba);
 }
 
-GariColor gari_image_getrgb(GariImage *img, GariDye color) {
-  return gari_surface_getrgb(GARI_IMAGE_SURFACE(img), color);
+GyColor gyimage_getrgb(GyImage *img, GyDye color) {
+  return gysurface_getrgb(GY_IMAGE_SURFACE(img), color);
 }
 
-GariColor gari_image_getrgba(GariImage *img, GariDye color) {
-  return gari_surface_getrgba(GARI_IMAGE_SURFACE(img), color);
+GyColor gyimage_getrgba(GyImage *img, GyDye color) {
+  return gysurface_getrgba(GY_IMAGE_SURFACE(img), color);
 }
 
-GariDye gari_image_rgb(GariImage *img, uint8_t r, uint8_t g, uint8_t b) {
-  return SDL_MapRGB(GARI_IMAGE_FORMAT(img), r, g, b); 
+GyDye gyimage_rgb(GyImage *img, uint8_t r, uint8_t g, uint8_t b) {
+  return SDL_MapRGB(GY_IMAGE_FORMAT(img), r, g, b); 
 }
 
-GariDye gari_image_rgba(GariImage *img, 
+GyDye gyimage_rgba(GyImage *img, 
           uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-  return  SDL_MapRGBA(GARI_IMAGE_FORMAT(img), r, g, b, a); 
+  return  SDL_MapRGBA(GY_IMAGE_FORMAT(img), r, g, b, a); 
 }
 
 
 /** Optimizes the image for drawing to the screen, possibly applying a color
 key for transparency as well. */
-GariImage * gari_image_optimize(GariImage * image, int mode, GariDye colorkey) {
+GyImage * gyimage_optimize(GyImage * image, int mode, GyDye colorkey) {
   SDL_Surface * surface;
-  surface = gari_image_surface(image);
+  surface = gyimage_surface(image);
   if (!SDL_GetVideoSurface()) {
     return NULL; 
     // SDL_DisplayFormat won't work unless there is an active video surface.
   };
   
   switch (mode) {
-    case GariImageAlpha:  
-      return gari_image_wrap(SDL_DisplayFormatAlpha(surface));
+    case GyImageAlpha:  
+      return gyimage_wrap(SDL_DisplayFormatAlpha(surface));
       
-    case GariImageColorkey:
+    case GyImageColorkey:
       SDL_SetColorKey(surface, SDL_SRCCOLORKEY | SDL_RLEACCEL, colorkey);
-      return gari_image_wrap(SDL_DisplayFormat(surface));
-    case GariImageSolid:
+      return gyimage_wrap(SDL_DisplayFormat(surface));
+    case GyImageSolid:
     default:  
-      return gari_image_wrap(SDL_DisplayFormat(surface));
+      return gyimage_wrap(SDL_DisplayFormat(surface));
   }
 
 }
 
 /** Loads the image from the named file. Supports all formats 
 SDL_image supports. */
-GariImage * gari_image_loadraw(char * filename) {
-  GariImage * result;
-  result = gari_image_wrap(IMG_Load(filename));
+GyImage * gyimage_loadraw(char * filename) {
+  GyImage * result;
+  result = gyimage_wrap(IMG_Load(filename));
   return result;
 }
 
@@ -76,11 +76,11 @@ GariImage * gari_image_loadraw(char * filename) {
 as a solid image on the active video surface, which must already have been 
 opened. If the acceleration fails, this returns the unaccellerated image. 
 Return NULL if the file could not be read. */
-GariImage * gari_image_loadsolid(char * filename) {
-  GariImage * normal, * faster;
-  normal = gari_image_loadraw(filename);
+GyImage * gyimage_loadsolid(char * filename) {
+  GyImage * normal, * faster;
+  normal = gyimage_loadraw(filename);
   if (!normal) { return NULL ;  }
-  faster = gari_image_optimize(normal, GariImageSolid, 0);
+  faster = gyimage_optimize(normal, GyImageSolid, 0);
   if (!faster) { return normal; }
   return faster;
 }
@@ -91,34 +91,34 @@ GariImage * gari_image_loadsolid(char * filename) {
 /** Loads the image from the named file, and optimizes it for display 
 on the active video sorface if it was already set. */
 /*
-GariImage * gari_image_load(char * filename) {
-  GariImage * normal, * faster;
-  normal = gari_image_loadraw(filename);
+GyImage * gyimage_load(char * filename) {
+  GyImage * normal, * faster;
+  normal = gyimage_loadraw(filename);
   if (!normal) { return NULL ; }
-  faster = gari_image_optimize(   
+  faster = gyimage_optimize(   
 }
 */
 
 /** Blits one image to another one with the given coordinates. */
-void gari_image_blit(GariImage * dst, int dstx, int dsty, GariImage * src) {
+void gyimage_blit(GyImage * dst, int dstx, int dsty, GyImage * src) {
   SDL_Surface *sdlsrc, *sdldst;
   SDL_Rect    dstrect;
   dstrect.x = dstx;
   dstrect.y = dsty;
-  sdlsrc    = GARI_IMAGE_SURFACE(src);
-  sdldst    = GARI_IMAGE_SURFACE(dst);
+  sdlsrc    = GY_IMAGE_SURFACE(src);
+  sdldst    = GY_IMAGE_SURFACE(dst);
   SDL_BlitSurface(sdlsrc, NULL, sdldst, &dstrect);  
 }
 
 /** Blits a part of one image to another one with the given coordinates. Takes the indicated parts of the image, as specified by srcx, srcy, srcw and srch  */
-void gari_image_blitpart(GariImage * dst, int dstx, int dsty, GariImage * src,
+void gyimage_blitpart(GyImage * dst, int dstx, int dsty, GyImage * src,
 int srcx, int srcy, int srcw, int srch) {
   SDL_Surface *sdlsrc, *sdldst;
   SDL_Rect    dstrect, srcrect;
   dstrect.x = dstx;  dstrect.y = dsty;
   srcrect.x = srcx;  srcrect.y = srcy;  srcrect.w = srcw;  srcrect.h = srch;  
-  sdlsrc    = GARI_IMAGE_SURFACE(src);
-  sdldst    = GARI_IMAGE_SURFACE(dst);
+  sdlsrc    = GY_IMAGE_SURFACE(src);
+  sdldst    = GY_IMAGE_SURFACE(dst);
   SDL_BlitSurface(sdlsrc, &srcrect, sdldst, &dstrect);
 }
 
@@ -157,18 +157,18 @@ SDL_Surface * sdl_image_copypart(SDL_Surface * src, int x, int y, int w, int h) 
 
 /** Copies a part of the source image and returns a new destination image,
 or nil it it ran out of memory or otherwise was incorrect. */
-GariImage * gari_image_copypart(GariImage *src, int x, int y, int w, int h) {
-  SDL_Surface * surf = gari_image_surface(src);
+GyImage * gyimage_copypart(GyImage *src, int x, int y, int w, int h) {
+  SDL_Surface * surf = gyimage_surface(src);
   SDL_Surface * res  = sdl_image_copypart(surf, x, y, w, h);
-  return gari_image_wrap(res);
+  return gyimage_wrap(res);
 }
 
 
 /** Copys exactly one pixel from src to dst using SDL_BlitSurface. 
 Hence, neither src nor dst may be locked according to SDL_BlitSurface's
 documentation. */
-void gari_image_copypixel(GariImage * dst, int dstx, int dsty, 
-                                 GariImage * src, int srcx, int srcy) {
+void gyimage_copypixel(GyImage * dst, int dstx, int dsty, 
+                                 GyImage * src, int srcx, int srcy) {
   SDL_Surface *sdlsrc, *sdldst;
   SDL_Rect    dstrect, srcrect;
   dstrect.x = dstx;
@@ -177,36 +177,36 @@ void gari_image_copypixel(GariImage * dst, int dstx, int dsty,
   srcrect.y = srcy;
   srcrect.w = 1;
   srcrect.h = 1;  
-  sdlsrc    = GARI_IMAGE_SURFACE(src);
-  sdldst    = GARI_IMAGE_SURFACE(dst);
+  sdlsrc    = GY_IMAGE_SURFACE(src);
+  sdldst    = GY_IMAGE_SURFACE(dst);
   SDL_BlitSurface(sdlsrc, &srcrect, sdldst, &dstrect);  
 }
 
 
 /* Make new images for various colour depths. */
 
-GariImage * gari_image_make8(int w, int h, int mode) {
+GyImage * gyimage_make8(int w, int h, int mode) {
     SDL_Surface* result = NULL;
     result = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 8, 3 << 5, 3 << 2, 3, 0);    
-    return gari_image_wrap(result);
+    return gyimage_wrap(result);
 }
 
-GariImage * gari_image_make12(int w, int h, int mode) {
+GyImage * gyimage_make12(int w, int h, int mode) {
     SDL_Surface* result = NULL;
     result = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 12, 15 << 8, 15 << 4, 15, 0);    
-    return gari_image_wrap(result);
+    return gyimage_wrap(result);
 }
 
-GariImage * gari_image_make15(int w, int h, int mode) {
+GyImage * gyimage_make15(int w, int h, int mode) {
     SDL_Surface* result = NULL;
     result = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 15, 3 << 5, 3 << 2, 3, 0);    
-    return gari_image_wrap(result);
+    return gyimage_wrap(result);
 }
 
 
-GariImage * gari_image_make16(int w, int h, int mode) {
+GyImage * gyimage_make16(int w, int h, int mode) {
     SDL_Surface* result = NULL;
-    if (mode == GariImageAlpha) {
+    if (mode == GyImageAlpha) {
      // 4 - 4 - 4 - 4 
     #if SDL_BYTEORDER == SDL_BIG_ENDIAN
       result = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 16, 0xf000, 0x0f00, 0x00f0, 0x000f);
@@ -219,11 +219,11 @@ GariImage * gari_image_make16(int w, int h, int mode) {
       result = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 16, 31 << 10, 31 << 5, 31, 0);
     }    
     SDL_SetAlpha(result, 0, SDL_ALPHA_OPAQUE);
-    return gari_image_wrap(result);
+    return gyimage_wrap(result);
 }
 
 
-GariImage * gari_image_make24(int w, int h, int mode) {
+GyImage * gyimage_make24(int w, int h, int mode) {
     SDL_Surface* result = NULL;
     #if SDL_BYTEORDER == SDL_BIG_ENDIAN
       result = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 24, 0xff0000, 0x00ff00, 0x0000ff, 0);
@@ -231,10 +231,10 @@ GariImage * gari_image_make24(int w, int h, int mode) {
       result = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 24, 0x0000ff, 0x00ff00, 0xff0000, 0);
     #endif
     // SDL_SetAlpha(result, 0, SDL_ALPHA_OPAQUE);
-    return gari_image_wrap(result);
+    return gyimage_wrap(result);
 }
 
-GariImage * gari_image_make32(int w, int h, int mode) {
+GyImage * gyimage_make32(int w, int h, int mode) {
     SDL_Surface* result = NULL;
     #if SDL_BYTEORDER == SDL_BIG_ENDIAN
       result = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff000000, 
@@ -244,44 +244,44 @@ GariImage * gari_image_make32(int w, int h, int mode) {
 					0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
     #endif
     // SDL_SetAlpha(result, 0, SDL_ALPHA_OPAQUE);
-    return gari_image_wrap(result);
+    return gyimage_wrap(result);
 }
 
 
-/** Makes an empty gari image with the given color depth and alpha mode. 
+/** Makes an empty gy image with the given color depth and alpha mode. 
 The video mode must have been set and the screen must have been opened. 
 */
-GariImage * gari_image_makedepth(int w, int h, int depth, int mode) {
-  GariImage * result;
+GyImage * gyimage_makedepth(int w, int h, int depth, int mode) {
+  GyImage * result;
   SDL_Surface * aid;
   switch(depth) {
-    case 8: return gari_image_make8(w, h, mode);
-    case 12: return gari_image_make12(w, h, mode);
-    case 15: return gari_image_make15(w, h, mode);
-    case 16: return gari_image_make16(w, h, mode);
-    case 24: return gari_image_make24(w, h, mode);
+    case 8: return gyimage_make8(w, h, mode);
+    case 12: return gyimage_make12(w, h, mode);
+    case 15: return gyimage_make15(w, h, mode);
+    case 16: return gyimage_make16(w, h, mode);
+    case 24: return gyimage_make24(w, h, mode);
     case 32: 
     default:   
-	    return gari_image_make32(w, h, mode);
+	    return gyimage_make32(w, h, mode);
   }
 } 
 
 
-/** Transforms a GariDye from one kind of image to another. */
-GariDye gari_image_mapcolor(GariImage * dst, 
-                              GariImage * src, GariDye color) {
-  GariColor rgba;
-  if (GARI_IMAGE_FORMAT(dst)  == GARI_IMAGE_FORMAT(src)) {
+/** Transforms a GyDye from one kind of image to another. */
+GyDye gyimage_mapcolor(GyImage * dst, 
+                              GyImage * src, GyDye color) {
+  GyColor rgba;
+  if (GY_IMAGE_FORMAT(dst)  == GY_IMAGE_FORMAT(src)) {
     return color; // no mappping if format identical.
   } 
-  rgba = gari_image_getrgba(src, color);
-  return gari_image_maprgba(dst, rgba);
+  rgba = gyimage_getrgba(src, color);
+  return gyimage_maprgba(dst, rgba);
 }
 
 /** Sets the clipping rectangle of the image to the given parameters. */
-GariImage * gari_image_setclip(GariImage * img, int x, int y, 
+GyImage * gyimage_setclip(GyImage * img, int x, int y, 
   int w, int h) {
-  SDL_Surface * surf = gari_image_surface(img);
+  SDL_Surface * surf = gyimage_surface(img);
   SDL_Rect     rect  = { 0, 0, 0, 0 } ;
   if(!surf) return NULL;
   
@@ -294,9 +294,9 @@ GariImage * gari_image_setclip(GariImage * img, int x, int y,
 } 
 
 /* Gets the clipping array parameters. */
-GariImage * gari_image_getclip(GariImage * img, 
+GyImage * gyimage_getclip(GyImage * img, 
   int *x, int *y, int *w, int *h) {
-  SDL_Surface * surf = gari_image_surface(img);
+  SDL_Surface * surf = gyimage_surface(img);
   SDL_Rect      rect = { 0, 0, 0, 0 } ;
   if(!surf || !x || !y ||!w || !h) return NULL;
   SDL_GetClipRect(surf, &rect);
@@ -311,47 +311,47 @@ GariImage * gari_image_getclip(GariImage * img,
 /** Gets the color depth in bits per pixels of this image.
 * Returns -1 on error.
 */
-int gari_image_depth(GariImage * img) {
-  SDL_Surface * surf = gari_image_surface(img);
+int gyimage_depth(GyImage * img) {
+  SDL_Surface * surf = gyimage_surface(img);
   if(!surf)         return -1;  
   if(!surf->format) return -1;
   return surf->format->BitsPerPixel;
 }
 
 
-GariImage * gari_image2image_convert(GariImage * srci, 
-                               GariImage * dsti, Uint32 flags) {
-  SDL_Surface * src = gari_image_surface(srci);
-  SDL_Surface * dst = gari_image_surface(dsti);
+GyImage * gyimage2image_convert(GyImage * srci, 
+                               GyImage * dsti, Uint32 flags) {
+  SDL_Surface * src = gyimage_surface(srci);
+  SDL_Surface * dst = gyimage_surface(dsti);
   if((!src) || (!dst)) return NULL;
-  return gari_image_wrap(SDL_ConvertSurface(src, dst->format, flags));
+  return gyimage_wrap(SDL_ConvertSurface(src, dst->format, flags));
 }
 
 
 /** Returns true if any pixel of the image has any per-pixel transparency, 
 lower than amin 
 false if not. */
-int gari_image_hasalpha_p(GariImage * img, unsigned char amin) {
-  GariDye dye;
-  GariColor color;
+int gyimage_hasalpha_p(GyImage * img, unsigned char amin) {
+  GyDye dye;
+  GyColor color;
   int x, y, w, h;
   int result = FALSE;
-  SDL_Surface * surf = gari_image_surface(img);
+  SDL_Surface * surf = gyimage_surface(img);
   if (!surf->flags & SDL_SRCALPHA) return FALSE;
-  w = gari_image_w(img);
-  h = gari_image_h(img);
-  gari_image_lock(img);
+  w = gyimage_w(img);
+  h = gyimage_h(img);
+  gyimage_lock(img);
   for (y = 0; y < h; x++) {
     for (x = 0; x < w; y++) {
-      dye   = gari_image_getpixel_nolock(img, x, y);
-      color = gari_dye_color(dye, img);
+      dye   = gyimage_getpixel_nolock(img, x, y);
+      color = gydye_color(dye, img);
       if (color.a < amin) {
         result = TRUE;
         break;
       }
     }
   }
-  gari_image_unlock(img);
+  gyimage_unlock(img);
   return result;
 } 
 

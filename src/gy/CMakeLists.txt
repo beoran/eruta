@@ -25,17 +25,14 @@ find_package(JPEG REQUIRED)
 # Set include and lib dirs. 
 include_directories(${SDL_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${JPEG_INCLUDE_DIR})
 
-set(GARI_LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY} 
+set(GY_LIBS ${LIBS} ${SDL_LIBRARY} ${SDLTTF_LIBRARY} 
 ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${PNG_LIBRARY} ${JPEG_LIBRARY})
 
 # configure_file("config.in.h" "config.h")
-file(GLOB GARI_CFILES "*.c")
-# set(GARI_CFILES gari.c audio.c image.c font.c pixel.c draw.c color.c tile.c 
-#            layer.c map.c script.c sprite.c event.c camera.c particle.c
-#            style.c ruby.c)
-add_library(gari_static STATIC ${GARI_CFILES})
-add_library(gari SHARED ${GARI_CFILES})
-target_link_libraries(gari ${GARI_LIBS})
-set(GARI_TEST_LIBS ${GARI_LIBS} gari)
+file(GLOB GY_CFILES "*.c")
+add_library(gy_static STATIC ${GY_CFILES})
+add_library(gy SHARED ${GY_CFILES})
+target_link_libraries(gy ${GY_LIBS})
+set(GY_TEST_LIBS ${GY_LIBS} gy)
 
 

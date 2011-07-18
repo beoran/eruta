@@ -1,16 +1,16 @@
 
-#include "gari.h"
-#define GARI_INTERN_ONLY
-#include "gari_intern.h"
+#include "gy.h"
+#define GY_INTERN_ONLY
+#include "gy_intern.h"
 
 #include <stdlib.h>
 #include <png.h>
 #include <jpeglib.h>
 
-/* Saves a GariImage as a to a file in filename in BMP format. 
+/* Saves a GyImage as a to a file in filename in BMP format. 
 Return NULL if it failed, img on success. */
-GariImage * gari_image_savebmp(GariImage * img, const char * filename) {
-  SDL_Surface * surf = gari_image_surface(img);
+GyImage * gyimage_savebmp(GyImage * img, const char * filename) {
+  SDL_Surface * surf = gyimage_surface(img);
   int res            = SDL_SaveBMP(surf, filename);
   if (res < 0) return NULL;
   return img;
@@ -32,9 +32,9 @@ static int sdl_surface_pngcolortype(SDL_Surface *surface) {
 static int savepng_done(png_bytep * rows, FILE * fout, png_structp png,
                         png_infop info, SDL_Surface * temp, 
                         png_colorp  pale, Uint8  * trns) {
-  if(rows) gari_free(rows);
-  if(pale) gari_free(pale);
-  if(trns) gari_free(trns);
+  if(rows) gyfree(rows);
+  if(pale) gyfree(pale);
+  if(trns) gyfree(trns);
   if(temp) SDL_FreeSurface(temp);
   if(fout) fclose(fout);
   if(info) {
@@ -68,7 +68,7 @@ int sdl_surface_savepng(SDL_Surface * surf, const char * filename) {
   if (!surf) { return save_fail("Surface was NULL."); }
   if (!filename) { return save_fail("Filename was NULL."); }
     
-  rows  =  gari_malloc(sizeof(png_bytep)*surf->h);
+  rows  =  gymalloc(sizeof(png_bytep)*surf->h);
   if (!rows) { return save_fail("Out of memory."); }
   
   for (i = 0; i < surf->h; i++) { 
@@ -161,19 +161,19 @@ int sdl_surface_savepng(SDL_Surface * surf, const char * filename) {
 
 
 
-/* Saves a GariImage as a to a file in filename in PNG format. 
+/* Saves a GyImage as a to a file in filename in PNG format. 
 Return NULL if it failed, img on success. */
-GariImage * gari_image_savepng(GariImage * img, const char * filename) {
-  SDL_Surface * surf = gari_image_surface(img);
+GyImage * gyimage_savepng(GyImage * img, const char * filename) {
+  SDL_Surface * surf = gyimage_surface(img);
   int res            = sdl_surface_savepng(surf, filename);
   if (res < 0) return NULL;
   return img;
 }
 
 int savejpg_done(FILE * fout) {
-/*  if(rows) gari_free(rows);
-  if(pale) gari_free(pale);
-  if(trns) gari_free(trns);
+/*  if(rows) gyfree(rows);
+  if(pale) gyfree(pale);
+  if(trns) gyfree(trns);
   if(temp) SDL_FreeSurface(temp); */
   if(fout) fclose(fout);
 /*  if(info) {
@@ -225,10 +225,10 @@ int sdl_surface_savejpg(SDL_Surface * surf, const char *filename)
 }
 
 
-/* Saves a GariImage as a to a file in filename in JPG format. 
+/* Saves a GyImage as a to a file in filename in JPG format. 
 Return NULL if it failed, img on success. */
-GariImage * gari_image_savejpg(GariImage * img, const char * filename) {
-  SDL_Surface * surf = gari_image_surface(img);
+GyImage * gyimage_savejpg(GyImage * img, const char * filename) {
+  SDL_Surface * surf = gyimage_surface(img);
   int res            = sdl_surface_savejpg(surf, filename);
   if (res < 0) return NULL;
   return img;

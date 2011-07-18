@@ -10,9 +10,9 @@
 
 struct Program_ {
   Mode       *  mode                ; // Active mode
-  GariScreen *  screen              ; // Shortcut to screen
-  GariGame   *  game                ; // Game info and frames drawn 
-  GariFont   *  font                ; // Default font
+  GyScreen *  screen              ; // Shortcut to screen
+  GyGame   *  game                ; // Game info and frames drawn 
+  GyFont   *  font                ; // Default font
   void *        ui                  ; // Shortcut to user interface
 
   ProgramMode   modeid              ; // ID of active mode
@@ -37,8 +37,8 @@ Program * program_free(Program * self) {
   for (index = 0; index < PROGRAM_MODES; index ++) { 
     mode_free(self->modes[index]);
   }
-  gari_font_free(self->font); // Free font
-  gari_game_free(self->game); // Free game, and also screen.
+  gyfont_free(self->font); // Free font
+  gygame_free(self->game); // Free game, and also screen.
   return si_free(self);
 }
 
@@ -49,14 +49,14 @@ Program * program_free(Program * self) {
 Program * program_init(Program * self, int screen_w, int screen_h, int full) {  
   int index = 0;
   if(!self) return NULL;
-  self->game    = gari_game_make(); 
-  self->screen  = gari_game_openscreen(self->game, screen_w, screen_h, full);
+  self->game    = gygame_make(); 
+  self->screen  = gygame_openscreen(self->game, screen_w, screen_h, full);
   self->ui      = NULL;  //Zori.open(@game, @queue)
   // fontname      = File.join(*%w{data font liberationserif.ttf})
-  self->font    = gari_font_load(PROGRAM_FONTPATH, PROGRAM_FONTSIZE);
+  self->font    = gyfont_load(PROGRAM_FONTPATH, PROGRAM_FONTSIZE);
   if (!self->font) {
     perror("Could not load font, falling back to builtin");
-    self->font  = gari_font_data(data_font_tuffy_ttf, data_font_tuffy_ttf_size, PROGRAM_FONTSIZE);
+    self->font  = gyfont_data(data_font_tuffy_ttf, data_font_tuffy_ttf_size, PROGRAM_FONTSIZE);
     if (!self->font) return NULL; 
   } 
   // clear modes
@@ -131,18 +131,18 @@ int program_runonce(Program * self) {
 // XXX :coordinate this with the UI?
   ProgramMode   modeid;
   Mode        * mode;
-  GariEvent     event;
+  GyEvent     event;
   mode        = program_mode(self);
   if(!mode)     return -1;
-  event       = gari_event_poll();
-  while (event.kind != GARI_EVENT_NONE) {
+  event       = gyevent_poll();
+  while (event.kind != GY_EVENT_NONE) {
     // Let the mode handle events.
     mode_event(mode, event);
   } 
   // Let the active mode draw to the screen.
   mode_draw(mode, self->screen);  
   // Update game FPS and screen.
-  gari_game_update(self->game);
+  gygame_update(self->game);
   mode_update(mode);
   // Update mode, should also update program logic, whatever that may be.
   // Check if the mode is done. If it is, go to the next mode.
@@ -152,7 +152,7 @@ int program_runonce(Program * self) {
 /** Runs the program, switching between active modes. 
 A mode must have been installed and selected befiore calling this. */
 int program_run(Program * self) {   
-  gari_game_startfps(self->game);
+  gygame_startfps(self->game);
   while (program_busy(self)) { 
     program_runonce(self);
   }
@@ -160,11 +160,11 @@ int program_run(Program * self) {
 }
 
 // Readers for game, screen, ui and font
-GariGame * program_game(Program * self) { 
+GyGame * program_game(Program * self) { 
   return self->game;
 }
 
-GariScreen * program_screen(Program * self) { 
+GyScreen * program_screen(Program * self) { 
   return self->screen;
 }
  
@@ -172,7 +172,7 @@ void * program_ui(Program * self) {
   return self->ui;
 }
 
-GariFont * program_font(Program * self) { 
+GyFont * program_font(Program * self) { 
   return self->font;
 }
 

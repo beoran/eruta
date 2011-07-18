@@ -1,6 +1,6 @@
-Gari is a simple, fast, cross platform game library targeted at 2D games, 
+Gy is is a simple, fast, cross platform game library targeted at 2D games, 
 written in plain C. For now, it uses SDL as a backend, but that might change 
-later to use more low-level back-ends. It's goals are: 
+later to use other back-ends like opengl, openvg, etc... It's goals are: 
 
 * Targeted to make writing 2D games as easy as possible.
 * A simple API, that hides the details as much as possible.
@@ -11,14 +11,14 @@ later to use more low-level back-ends. It's goals are:
 * Easy to embed in other languages such as Ruby. 
 
 
-Rationale for creating Gari for use with the Eruta project:
+Rationale for creating Gy for use with the Eruta project:
 * SDL by itself lacks some functionality, especially with regards to drawing.
   It's also not that easy to use in some cases.
    
 * Reduce external dependencies as much as possible. No need for drawing 
-  libraries, as Gari has drawing built-in.
+  libraries, as Gy has drawing built-in.
    
-* It makes it pssible to switch to a different backend (Allegro, SDL 1.3, ...)
+* It makes it possible to switch to a different backend (Allegro, SDL 1.3, ...)
   without too much of a hassle.
  
 * The crucial point here is: performance, is it worth all the extra work? If it 

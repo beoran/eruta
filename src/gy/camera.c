@@ -1,22 +1,22 @@
 /**
-GariCamera simulates a virtual 2D camera, which is a viewport on a scrollable 
+GyCamera simulates a virtual 2D camera, which is a viewport on a scrollable 
 game map.
 */
 
-#include "gari.h"
+#include "gy.h"
 
-#define GARI_INTERN_ONLY
-#include "gari_intern.h"
+#define GY_INTERN_ONLY
+#include "gy_intern.h"
 
 // Wind simulation, influences most particle motions and may affect tile 
 // animations.
-struct GariWind_ {
+struct GyWind_ {
   int vx; 
   int vy;
 };
 
 
-struct GariCamera_ {
+struct GyCamera_ {
   int x, y, w, h, xmax, ymax;
   int xclamp, yclamp; // clamping values, taking h and w into consideration.
   int speed; // scrolling speed, if any.
@@ -24,7 +24,7 @@ struct GariCamera_ {
 
 
 
-GariCamera * gari_camera_init(GariCamera * cam, int x, int y, int w, int h, 
+GyCamera * gycamera_init(GyCamera * cam, int x, int y, int w, int h, 
                  int xmax, int ymax) {
   if(!cam) { return NULL ; }
   cam->x      = x;
@@ -38,26 +38,26 @@ GariCamera * gari_camera_init(GariCamera * cam, int x, int y, int w, int h,
   return cam;
 };
 
-GariCamera * gari_camera_make(int x, int y, int w, int h, int xmax, int ymax) {
-  GariCamera * cam = GARI_ALLOCATE(GariCamera);  
-  return gari_camera_init(cam, x, y, w, h, xmax, ymax);  
+GyCamera * gycamera_make(int x, int y, int w, int h, int xmax, int ymax) {
+  GyCamera * cam = GY_ALLOCATE(GyCamera);  
+  return gycamera_init(cam, x, y, w, h, xmax, ymax);  
 } 
 
-void gari_camera_free(GariCamera * cam) {
-  GARI_FREE(cam);
+void gycamera_free(GyCamera * cam) {
+  GY_FREE(cam);
 }
 
 /**
 * Returns X coordinate of camera. 
 */
-int gari_camera_x(GariCamera * cam) {
+int gycamera_x(GyCamera * cam) {
   return cam->x;
 }
 
 /**
 * Returns Y coordinate of camera. 
 */
-int gari_camera_y(GariCamera * cam) {
+int gycamera_y(GyCamera * cam) {
   return cam->y;
 }
 
@@ -68,10 +68,10 @@ int gari_camera_y(GariCamera * cam) {
 * out of bounds.
 */
 
-void gari_camera_setxy(GariCamera * cam, int newx, int newy) {
+void gycamera_setxy(GyCamera * cam, int newx, int newy) {
   int result = TRUE;
-  cam->x = GARI_CLAMP(newx, 0, cam->xclamp);
-  cam->y = GARI_CLAMP(newy, 0, cam->yclamp);
+  cam->x = GY_CLAMP(newx, 0, cam->xclamp);
+  cam->y = GY_CLAMP(newy, 0, cam->yclamp);
 }; 
 
 
@@ -79,9 +79,9 @@ void gari_camera_setxy(GariCamera * cam, int newx, int newy) {
 * Moves the camera instantly by the given increments, but will clamp 
 * any motions that would go out of range. 
 */
-void gari_camera_move(GariCamera * cam, int dx, int dy) {
+void gycamera_move(GyCamera * cam, int dx, int dy) {
   int result = TRUE;
-  gari_camera_setxy(cam, cam->x + dx, cam->y + dy);
+  gycamera_setxy(cam, cam->x + dx, cam->y + dy);
 }; 
 
 

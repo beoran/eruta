@@ -13,7 +13,7 @@ struct Mode_ {
 
 ModeClass * modeclass_init(ModeClass * self) {
   int index;
-  for (index = 0; index < GARI_EVENT_LAST; index ++) { 
+  for (index = 0; index < GY_EVENT_LAST; index ++) { 
     self->events[index] = NULL;
   }  
   self->start   = NULL;
@@ -34,11 +34,11 @@ Mode * mode_init(Mode * self, Program * program, ProgramMode id) {
 };
 
 // Game for this mode .
-GariGame * mode_game(Mode * self) { 
+GyGame * mode_game(Mode * self) { 
   return program_game(self->program);
 }  
 
-GariScreen * mode_screen(Mode * self) { 
+GyScreen * mode_screen(Mode * self) { 
   return program_screen(self->program);
 }
   
@@ -46,7 +46,7 @@ void * mode_ui(Mode * self) {
   return program_ui(self->program);
 }
 
-GariFont * mode_font(Mode * self) { 
+GyFont * mode_font(Mode * self) { 
   return program_font(self->program);
 }
 
@@ -64,7 +64,7 @@ Mode * mode_free(Mode * self) {
 
 /** 
 * A mode can register a sqeparate event handler for every different 
-* GariEvent.kind, so keyboard inpout can be separated from mouse input, etc.   
+* GyEvent.kind, so keyboard inpout can be separated from mouse input, etc.   
 */
 Mode * mode_eventmethod_(Mode * self, uint8_t type, ModeEventFunction * func) {
   self->klass.events[type] = func;
@@ -93,10 +93,10 @@ Mode * mode_stopmethod_(Mode * self, ModeUpdateFunction * func) {
 }
 
 /** Handle the given event. */
-Mode * mode_event(Mode *self, GariEvent event) {
+Mode * mode_event(Mode *self, GyEvent event) {
   ModeEventFunction * func;
-  if((!self) || (event.kind <= GARI_EVENT_NONE)) return NULL;
-  if((event.kind >= GARI_EVENT_LAST)) return NULL;
+  if((!self) || (event.kind <= GY_EVENT_NONE)) return NULL;
+  if((event.kind >= GY_EVENT_LAST)) return NULL;
   func = self->klass.events[event.kind];
   // Ignore unhandled event 
   if(!func) return self;
@@ -105,7 +105,7 @@ Mode * mode_event(Mode *self, GariEvent event) {
 }
 
 /** Draw the mode. */
-Mode * mode_draw(Mode * self, GariScreen * screen) {
+Mode * mode_draw(Mode * self, GyScreen * screen) {
   ModeDrawFunction * func;
   func = self->klass.draw;
   // Can't draw now. 

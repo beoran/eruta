@@ -5,22 +5,22 @@
 #ifndef MODE_H
 #define MODE_H
 
-#include "gari.h"
+#include "gy.h"
 #include "eruta.h"
 #include "program.h"
 
 
 /** Game for this mode. */
-GariGame * mode_game(Mode * self);
+GyGame * mode_game(Mode * self);
  
 /** Screen for this mode. */
-GariScreen * mode_screen(Mode * self);
+GyScreen * mode_screen(Mode * self);
 
 /** UI for this mode. */
 void * mode_ui(Mode * self); 
 
 /** Font for this mode. */
-GariFont * mode_font(Mode * self);
+GyFont * mode_font(Mode * self);
 
 /** Allocate a new, unusable mode. */
 Mode * mode_alloc();
@@ -34,10 +34,10 @@ Mode * mode_new(Program * program, ProgramMode id);
 Mode * mode_free(Mode * self);
 
 /** Event handler function. */
-typedef Mode * (ModeEventFunction)(Mode * self, GariEvent event);
+typedef Mode * (ModeEventFunction)(Mode * self, GyEvent event);
 
 /** Draw function. */
-typedef Mode * (ModeDrawFunction)(Mode * self, GariScreen * screen); 
+typedef Mode * (ModeDrawFunction)(Mode * self, GyScreen * screen); 
  
 /** Update function, when logic is updated. Also used on start. */
 typedef Mode * (ModeUpdateFunction)(Mode * self); 
@@ -52,13 +52,13 @@ struct ModeClass_ {
   ModeUpdateFunction * update;
   ModeUpdateFunction * start;
   ModeUpdateFunction * stop;
-  ModeEventFunction  * events[GARI_EVENT_LAST];
+  ModeEventFunction  * events[GY_EVENT_LAST];
 };
 
 
 /** 
 * A mode can register a sqeparate event handler for every different 
-* GariEvent.kind, so keyboard inpout can be separated from mouse input, etc.   
+* GyEvent.kind, so keyboard inpout can be separated from mouse input, etc.   
 */
 Mode * mode_eventmethod_(Mode * self, uint8_t type, ModeEventFunction * func);
 /** Other handlers. */
@@ -68,10 +68,10 @@ Mode * mode_startmethod_(Mode * self, ModeUpdateFunction * func);
 Mode * mode_stopmethod_(Mode * self, ModeUpdateFunction * func);
 
 /** Handle the given event. */
-Mode * mode_event(Mode *self, GariEvent event);
+Mode * mode_event(Mode *self, GyEvent event);
 
 /** Draw the mode. */
-Mode * mode_draw(Mode * self, GariScreen * screen);
+Mode * mode_draw(Mode * self, GyScreen * screen);
 
 /** Update the mode. */
 Mode * mode_update(Mode * self);

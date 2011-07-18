@@ -1,88 +1,88 @@
 #include <stdlib.h>
 
-#include "gari.h"
-#define GARI_INTERN_ONLY
-#include "gari_intern.h"
+#include "gy.h"
+#define GY_INTERN_ONLY
+#include "gy_intern.h"
 #include <time.h>
 
 
 
-struct GariImage_ {
+struct GyImage_ {
   SDL_Surface screen;
 };
 
-struct GariScreen_ {
-  GariImage image;
+struct GyScreen_ {
+  GyImage image;
 };
 
 
-struct GariJoystick_ {
+struct GyJoystick_ {
   int             index;
   SDL_Joystick *  handle;
 };
 
 /** Returns the amount of joysticks connected to this system. */
-int gari_joy_amount() {
+int gyjoy_amount() {
   return SDL_NumJoysticks();
 }
 
 
-const char * gari_joy_nameindex(int index) {  
+const char * gyjoy_nameindex(int index) {  
   return SDL_JoystickName(index);
 } 
  
-const char * gari_joy_name(GariJoystick * joy) {
+const char * gyjoy_name(GyJoystick * joy) {
   if(!joy) return NULL;
-  return gari_joy_nameindex(joy->index);
+  return gyjoy_nameindex(joy->index);
 } 
 
-int gari_joy_axes(GariJoystick * joy) {
+int gyjoy_axes(GyJoystick * joy) {
   if(!joy) return -1;
   return SDL_JoystickNumAxes(joy->handle);
 }
 
-int gari_joy_buttons(GariJoystick * joy) {
+int gyjoy_buttons(GyJoystick * joy) {
   if(!joy) return -1;
   return SDL_JoystickNumAxes(joy->handle);
 }
 
-int gari_joy_balls(GariJoystick * joy) {
+int gyjoy_balls(GyJoystick * joy) {
   if(!joy) return -1;
   return SDL_JoystickNumBalls(joy->handle);
 }
 
-int gari_joy_index(GariJoystick * joy) {
+int gyjoy_index(GyJoystick * joy) {
   if(!joy) return -1;
   return (joy->index);
 }
 
 
 /** describes a joystick. */
-void gari_joy_describe(GariJoystick * joy) { 
+void gyjoy_describe(GyJoystick * joy) { 
   if(!joy) { return;}  
-  fprintf(stderr, "Joystick Name: %s ", gari_joy_name(joy));
-  fprintf(stderr, "Axes: %d ", gari_joy_axes(joy));
-  fprintf(stderr, "Buttons: %d ", gari_joy_buttons(joy));
-  fprintf(stderr, "Balls: %d \n", gari_joy_balls(joy));
+  fprintf(stderr, "Joystick Name: %s ", gyjoy_name(joy));
+  fprintf(stderr, "Axes: %d ", gyjoy_axes(joy));
+  fprintf(stderr, "Buttons: %d ", gyjoy_buttons(joy));
+  fprintf(stderr, "Balls: %d \n", gyjoy_balls(joy));
 }
 
 
 
-GariJoystick * gari_joy_alloc() {
-  return GARI_MALLOC(sizeof(GariJoystick));
+GyJoystick * gyjoy_alloc() {
+  return GY_MALLOC(sizeof(GyJoystick));
 }
 
-GariJoystick * gari_joy_open(int index) {
-  GariJoystick * joy = gari_joy_alloc();
+GyJoystick * gyjoy_open(int index) {
+  GyJoystick * joy = gyjoy_alloc();
   if(!joy) return NULL;  
   joy->index  = index; 
   joy->handle = SDL_JoystickOpen(index);
   if(joy->handle) return joy;
-  gari_joy_free(joy);
+  gyjoy_free(joy);
   return NULL;
 } 
 
-GariJoystick * gari_joy_close(GariJoystick * stick) {
+GyJoystick * gyjoy_close(GyJoystick * stick) {
   if(!stick) return NULL;
   SDL_JoystickClose(stick->handle);
   stick->handle = NULL;
@@ -90,14 +90,14 @@ GariJoystick * gari_joy_close(GariJoystick * stick) {
   return stick;
 } 
 
-void gari_joy_free(GariJoystick * stick) {
-  GARI_FREE(gari_joy_close(stick));
+void gyjoy_free(GyJoystick * stick) {
+  GY_FREE(gyjoy_close(stick));
 }
 
 
 
-struct GariGame_ {
-  GariScreen * screen;
+struct GyGame_ {
+  GyScreen * screen;
   int          error;
   char *       message;
   /* For FPS calculation. */  
@@ -105,76 +105,76 @@ struct GariGame_ {
   uint32_t     framestart;
   uint32_t     framestop;
   uint32_t     delta;
-  GariJoystick **joysticks;
+  GyJoystick **joysticks;
 };
 
 
-GariGame * gari_game_make() {
-  GariGame * game = GARI_MALLOC(sizeof(GariGame));
-  if(gari_game_init(game)) { return game; }
-  gari_game_free(game);
+GyGame * gygame_make() {
+  GyGame * game = GY_MALLOC(sizeof(GyGame));
+  if(gygame_init(game)) { return game; }
+  gygame_free(game);
   return NULL;
 }
 
 /* Allow joysticks to generate events or not.
  Call this  before calling openjoysticks */
-int gari_game_joystickevents_(GariGame * gari, int enable) {
+int gygame_joystickevents_(GyGame * gy, int enable) {
   int state = enable ? SDL_ENABLE : SDL_IGNORE;
   return SDL_JoystickEventState(state);
 }
 
 
 // Opens all available joysticks.
-GariGame * gari_game_openjoysticks(GariGame * gari) {
+GyGame * gygame_openjoysticks(GyGame * gy) {
   int index;
-  int amount = gari_joy_amount();
+  int amount = gyjoy_amount();
   if(amount<1) return NULL;
-  gari->joysticks = GARI_MALLOC(sizeof(GariJoystick *) * amount);
+  gy->joysticks = GY_MALLOC(sizeof(GyJoystick *) * amount);
   for(index = 0; index < amount; index ++) {
-    gari->joysticks[index] = gari_joy_open(index);
-    // gari_joy_describe(gari->joysticks[index]);
+    gy->joysticks[index] = gyjoy_open(index);
+    // gyjoy_describe(gy->joysticks[index]);
   }
-  return gari;
+  return gy;
 }
 
 // Closes and deallocates all available joysticks.
-GariGame * gari_game_closejoysticks(GariGame * gari) {
+GyGame * gygame_closejoysticks(GyGame * gy) {
   int index;
-  int amount = gari_joy_amount();
+  int amount = gyjoy_amount();
   if(amount<1) return NULL;
-  if(!(gari->joysticks)) return NULL;
+  if(!(gy->joysticks)) return NULL;
   for(index = 0; index < amount; index ++) {
-    gari_joy_free(gari->joysticks[index]);
+    gyjoy_free(gy->joysticks[index]);
   }
-  GARI_FREE(gari->joysticks);
-  gari->joysticks = NULL;
-  return gari;
+  GY_FREE(gy->joysticks);
+  gy->joysticks = NULL;
+  return gy;
 }
 
 
 /** Returns how many joysticks are available. */
-int gari_game_joysticks(GariGame * game) {
-  return gari_joy_amount();
+int gygame_joysticks(GyGame * game) {
+  return gyjoy_amount();
 }
 
 /** Returns the n-th joystick of the game. */
-GariJoystick * gari_game_joystick(GariGame * game, int index) {
-  if (index >= gari_joy_amount()) return NULL;
+GyJoystick * gygame_joystick(GyGame * game, int index) {
+  if (index >= gyjoy_amount()) return NULL;
   return game->joysticks[index];
 }
 
 /** Sets the keyboard repeat delay and interval in ms, 
 *   or disable with delay 0. */
-GariGame * gari_game_keyrepeat(GariGame * game, int delay, int interval) { 
+GyGame * gygame_keyrepeat(GyGame * game, int delay, int interval) { 
   SDL_EnableKeyRepeat(delay, interval);
   return game;
 }
 
 
-/** Initializes a gari game. This opens SDL, SDL_ttf, all joysticks, etc. */
-GariGame * gari_game_init(GariGame * game) {
+/** Initializes a gy game. This opens SDL, SDL_ttf, all joysticks, etc. */
+GyGame * gygame_init(GyGame * game) {
   if (!game) { return NULL; }
-  gari_game_resetframes(game);
+  gygame_resetframes(game);
   game->error  		= 0;
   game->screen 		= NULL;
   game->joysticks 	= NULL;
@@ -194,19 +194,19 @@ GariGame * gari_game_init(GariGame * game) {
   SDL_EnableUNICODE(1);
   
   // enable joystick events if any joystics are present 
-  if (gari_game_joysticks(game) > 0) {
-    gari_game_joystickevents_(game, TRUE);
+  if (gygame_joysticks(game) > 0) {
+    gygame_joystickevents_(game, TRUE);
   }
   
   // also open all joysticks.
-  gari_game_openjoysticks(game);
+  gygame_openjoysticks(game);
   
   return game;
 } 
 
-GariGame * gari_game_done(GariGame * game) {
+GyGame * gygame_done(GyGame * game) {
   if (!game) { return NULL; } 
-  gari_game_closejoysticks(game);
+  gygame_closejoysticks(game);
   // also close all joysticks.
   game->screen = NULL;
   if (TTF_WasInit()) TTF_Quit();
@@ -215,48 +215,48 @@ GariGame * gari_game_done(GariGame * game) {
   return game;
 }
 
-void gari_game_free(GariGame * game) {  
-  gari_free(gari_game_done(game));  
+void gygame_free(GyGame * game) {  
+  gyfree(gygame_done(game));  
 }
 
-GariScreen * gari_game_screen(GariGame * game) {
+GyScreen * gygame_screen(GyGame * game) {
   return game->screen;
 }
 
-// Converts between GariScreen and SDL_Surface
-SDL_Surface * gari_screen_surface(GariScreen * screen) {
+// Converts between GyScreen and SDL_Surface
+SDL_Surface * gyscreen_surface(GyScreen * screen) {
   return  (SDL_Surface *)(screen);
 }
 
-// Converts between SDL_Surface and GariScreen
-GariScreen * gari_surface_screen(SDL_Surface * surf) {
-  return  (GariScreen *)(surf);
+// Converts between SDL_Surface and GyScreen
+GyScreen * gysurface_screen(SDL_Surface * surf) {
+  return  (GyScreen *)(surf);
 }
 
 // Checks if a screen is the fullscreen screen or not
-int gari_screen_fullscreen(GariScreen * screen) {
+int gyscreen_fullscreen(GyScreen * screen) {
   if(!screen) return 0;
-  return gari_screen_surface(screen)->flags & SDL_FULLSCREEN;
+  return gyscreen_surface(screen)->flags & SDL_FULLSCREEN;
 }
 
 // Checks if the main game  window is in fullscreen mode. 
-int gari_game_fullscreen(GariGame * game) {
-  return gari_screen_fullscreen(gari_game_screen(game));
+int gygame_fullscreen(GyGame * game) {
+  return gyscreen_fullscreen(gygame_screen(game));
 }
 
 // Opens the game screen with the given parameters.
-GariScreen * gari_game_openscreendepth(GariGame * game, int wide, int high, int fullscreen, int depth) {
+GyScreen * gygame_openscreendepth(GyGame * game, int wide, int high, int fullscreen, int depth) {
   int new_depth = 0;
   SDL_Surface * screen = NULL;
   Uint32  flags = 0;  
   if (game->screen) { return game->screen; }
-  if(depth < 1)     { depth = GARI_DEFAULT_DEPTH; } 
+  if(depth < 1)     { depth = GY_DEFAULT_DEPTH; } 
   flags             = SDL_HWSURFACE;
   if (fullscreen)   { flags     |= SDL_FULLSCREEN; }
   new_depth  = SDL_VideoModeOK(wide, high, depth, flags);
   if (!new_depth )  { 
     flags           |= SDL_ANYFORMAT;
-    new_depth        = SDL_VideoModeOK(wide, high, GARI_DEFAULT_DEPTH, flags);
+    new_depth        = SDL_VideoModeOK(wide, high, GY_DEFAULT_DEPTH, flags);
     if(!new_depth) {
       fprintf(stderr, "\nUnable to open screen: %dx%d@%d : %s\n", wide, high, new_depth, SDL_GetError());
       return NULL;
@@ -267,97 +267,97 @@ GariScreen * gari_game_openscreendepth(GariGame * game, int wide, int high, int 
       fprintf(stderr, "\nUnable to open screen: %dx%d@%d : %s\n", wide, high, new_depth, SDL_GetError());
       return NULL;
   }
-  game->screen = (GariScreen *) screen;
+  game->screen = (GyScreen *) screen;
   return game->screen;
 }
 
 
-GariScreen * gari_game_openscreen(GariGame * game, int wide, int high, 
+GyScreen * gygame_openscreen(GyGame * game, int wide, int high, 
                                   int fullscreen) {
-  return gari_game_openscreendepth(game, wide, high, 
-            fullscreen, GARI_DEFAULT_DEPTH);  
+  return gygame_openscreendepth(game, wide, high, 
+            fullscreen, GY_DEFAULT_DEPTH);  
 }
 
 
 /**
 / Tries to change screen resolution or flags. 
 */
-GariScreen * gari_game_changescreen(GariGame * game, int w, int h, int depth, uint32_t flags) {
-  GariScreen * screen = gari_game_screen(game);
-  SDL_Surface * surf  = gari_screen_surface(screen);
+GyScreen * gygame_changescreen(GyGame * game, int w, int h, int depth, uint32_t flags) {
+  GyScreen * screen = gygame_screen(game);
+  SDL_Surface * surf  = gyscreen_surface(screen);
   SDL_Surface * newsurf;
   int oldflags = surf->flags;
   if (!screen) { return NULL; }  
   newsurf = SDL_SetVideoMode(w, h, depth, flags);
   if(!newsurf) newsurf = SDL_SetVideoMode(0, 0, 0, oldflags);
   if(!newsurf) { return NULL; }  
-  game->screen = gari_surface_screen(newsurf);
+  game->screen = gysurface_screen(newsurf);
   return game->screen;
 } 
 
-GariScreen * gari_game_fullscreen_set(GariGame * game) {
-  GariScreen * screen = gari_game_screen(game);
-  SDL_Surface * surf  = gari_screen_surface(screen); 
-  return gari_game_changescreen(game, 0 ,0, 0, surf->flags | SDL_FULLSCREEN);
+GyScreen * gygame_fullscreen_set(GyGame * game) {
+  GyScreen * screen = gygame_screen(game);
+  SDL_Surface * surf  = gyscreen_surface(screen); 
+  return gygame_changescreen(game, 0 ,0, 0, surf->flags | SDL_FULLSCREEN);
 }
 
 
-GariScreen * gari_game_fullscreen_unset(GariGame * game) {
-  GariScreen * screen = gari_game_screen(game);
-  SDL_Surface * surf  = gari_screen_surface(screen); 
-  return gari_game_changescreen(game, 0 ,0, 0, surf->flags & (~SDL_FULLSCREEN));
+GyScreen * gygame_fullscreen_unset(GyGame * game) {
+  GyScreen * screen = gygame_screen(game);
+  SDL_Surface * surf  = gyscreen_surface(screen); 
+  return gygame_changescreen(game, 0 ,0, 0, surf->flags & (~SDL_FULLSCREEN));
 }
 
 
 /** Can be used to set or unset fullscreen after opening the screen. */
-GariScreen * gari_game_fullscreen_(GariGame * game, int fullscreen) {    
-  if (fullscreen && !(gari_game_fullscreen(game))) {
-    return gari_game_fullscreen_set(game);
-  } else if (!fullscreen && (gari_game_fullscreen(game))) {
-    return gari_game_fullscreen_unset(game);
+GyScreen * gygame_fullscreen_(GyGame * game, int fullscreen) {    
+  if (fullscreen && !(gygame_fullscreen(game))) {
+    return gygame_fullscreen_set(game);
+  } else if (!fullscreen && (gygame_fullscreen(game))) {
+    return gygame_fullscreen_unset(game);
   }
-  return gari_game_screen(game);
+  return gygame_screen(game);
 }
 
 
 /** Advances the frame counter of the game. */
-GariGame * gari_game_nextframe(GariGame * game) {
+GyGame * gygame_nextframe(GyGame * game) {
   game->frames++;
   return game;
 }
 
 /** Updates the game screen, FPS, etc. */
-GariGame * gari_game_update(GariGame * game) {
+GyGame * gygame_update(GyGame * game) {
   if(game->screen) SDL_Flip((SDL_Surface *)game->screen);
-  gari_game_nextframe(game);
+  gygame_nextframe(game);
   return game;
 }
 
 /** Sets the frames of the game back to 0 and starts the FPS counter.*/
-GariGame * gari_game_resetframes(GariGame * game) {  
+GyGame * gygame_resetframes(GyGame * game) {  
   game->frames = 0;
-  gari_game_startfps(game);
+  gygame_startfps(game);
   return game;
 }
 
 /** Gets the total amount of frames displayed since the start of the game, 
-   or since gari_game_resetframes was called. */
-uint32_t gari_game_frames(GariGame * game) {
+   or since gygame_resetframes was called. */
+uint32_t gygame_frames(GyGame * game) {
   return game->frames;
 }
 
-uint32_t gari_game_ticks(GariGame * game) {
+uint32_t gygame_ticks(GyGame * game) {
   return (uint32_t) SDL_GetTicks();
 }  
 
 /** Starts FPS counter. */
-GariGame * gari_game_startfps(GariGame * game) {
-  game->framestart = gari_game_ticks(game);
+GyGame * gygame_startfps(GyGame * game) {
+  game->framestart = gygame_ticks(game);
   return game;
 }
 
 /** Retuns calculated fps after calling startfps . */
-double gari_game_fps(GariGame * game) {
+double gygame_fps(GyGame * game) {
   double dd, df;
   game->framestop   = SDL_GetTicks();
   game->delta       = game->framestop - game->framestart;
@@ -366,65 +366,65 @@ double gari_game_fps(GariGame * game) {
   return (1000.0 * df) / dd ;
 }
 
-void gari_game_report(GariGame * game)  {
-  double fps         = gari_game_fps(game);
+void gygame_report(GyGame * game)  {
+  double fps         = gygame_fps(game);
   fprintf(stderr, "FPS %d frames / %d ms: %lf fps.\n", game->frames, game->delta, fps);
 }
 
 /** Quickly fills the image or screen with the given dye */
-void gari_image_filldye(GariImage * image,  GariDye dye) {
+void gyimage_filldye(GyImage * image,  GyDye dye) {
   SDL_FillRect((SDL_Surface *) image, NULL, (Uint32) dye);
 }
 
 /** Quickly draws a rectangle with the given dye, without blending. */
-void gari_image_fillrectdye(GariImage * image, int x, int y, 
-                          int w, int h, GariDye dye) {
+void gyimage_fillrectdye(GyImage * image, int x, int y, 
+                          int w, int h, GyDye dye) {
    SDL_Rect rect = { x, y, w, h };
    SDL_FillRect((SDL_Surface *) image, &rect, (Uint32) dye);
 }
 
 /** Quickly fills the image with the given color. */
-void gari_image_fill(GariImage * image,  GariColor color) {
-  GariDye dye = gari_color_dye(color, image);
-  gari_image_filldye(image, dye);  
+void gyimage_fill(GyImage * image,  GyColor color) {
+  GyDye dye = gycolor_dye(color, image);
+  gyimage_filldye(image, dye);  
 }
 
 /** Quickly draws a rectangle with the given dye, without blending. */
-void gari_image_fillrect(GariImage * image, int x, int y, 
-                          int w, int h, GariColor color) {
-   GariDye dye = gari_color_dye(color, image);
-   gari_image_fillrectdye(image, x, y, w, h, dye);
+void gyimage_fillrect(GyImage * image, int x, int y, 
+                          int w, int h, GyColor color) {
+   GyDye dye = gycolor_dye(color, image);
+   gyimage_fillrectdye(image, x, y, w, h, dye);
 }
 
 
  
 
 /** Returns the drawable image of the screen. */
-GariImage * gari_screen_image(GariScreen * screen) {
+GyImage * gyscreen_image(GyScreen * screen) {
   return &(screen->image);
 }
 
 
 /** Initializes the random number generator. */
-void gari_random_init() {
+void gyrandom_init() {
   srandom(((long)time(NULL)));
 }
 
 /** Gets a random number between min and max. */
-long gari_random(long min, long max) {
+long gyrandom(long min, long max) {
   return (random() % (max - min)) + min;
 }
 
 
 /** Hides or shows the default mouse cursor over the screen.
 Returns the previous state of the mouse cursor. */
-int gari_screen_showcursor_(GariScreen * screen, int show) {
+int gyscreen_showcursor_(GyScreen * screen, int show) {
   int toggle = show ? SDL_ENABLE : SDL_DISABLE;
   return SDL_ShowCursor(toggle) == SDL_ENABLE;
 }  
 
 /** Returns true if the cursor is shown, false if not. */
-int gari_screen_showcursor(GariScreen * screen) {  
+int gyscreen_showcursor(GyScreen * screen) {  
   return SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE;
 }
 

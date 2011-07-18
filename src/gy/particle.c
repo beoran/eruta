@@ -1,42 +1,42 @@
-/** Gari particle engine for all sorts of glitzy effects. :) */
-#include "gari.h"
+/** Gy particle engine for all sorts of glitzy effects. :) */
+#include "gy.h"
 
-#define GARI_INTERN_ONLY
-#include "gari_intern.h"
+#define GY_INTERN_ONLY
+#include "gy_intern.h"
 
 
 
 // Speed and accelleration of particles is expressed 
 // in units of 1 / 1024 th of a pixel per frame time, (or >> 10) 
 // or 1/1024th of pixel per frame time squared (for accellerations)
-#ifndef GARI_DROP_SHIFT
-#define GARI_DROP_SHIFT 10 
+#ifndef GY_DROP_SHIFT
+#define GY_DROP_SHIFT 10 
 #endif
 
 // macro to scale speeds and accellerations.
-#define GARI_DROP_DIVIDE(VAL) 	((VAL) / 1024.0)
+#define GY_DROP_DIVIDE(VAL) 	((VAL) / 1024.0)
 // macro to scale speeds and accellerations.
-#define GARI_DROP_MULTIPLY(VAL) ((VAL) * 1024.0)
+#define GY_DROP_MULTIPLY(VAL) ((VAL) * 1024.0)
 
-typedef float GariNumber; 
-
-
+typedef float GyNumber; 
 
 
-struct GariDropClass_;
-typedef struct GariDropClass_ GariDropClass;
 
-struct GariDropClass_ {
-  GariDropInitFunction    * init;
-  GariDropDrawFunction    * draw;  
-  GariDropUpdateFunction  * update;
+
+struct GyDropClass_;
+typedef struct GyDropClass_ GyDropClass;
+
+struct GyDropClass_ {
+  GyDropInitFunction    * init;
+  GyDropDrawFunction    * draw;  
+  GyDropUpdateFunction  * update;
 };
 
 
-GariDropClass * gari_dropclass_init(GariDropClass * klass, 
-                                    GariDropUpdateFunction  * update,
-                                    GariDropDrawFunction    * draw,  
-                                    GariDropInitFunction    * init
+GyDropClass * gydropclass_init(GyDropClass * klass, 
+                                    GyDropUpdateFunction  * update,
+                                    GyDropDrawFunction    * draw,  
+                                    GyDropInitFunction    * init
                                    ){
   if (!klass) return NULL;
   klass->update = update; 
@@ -47,48 +47,48 @@ GariDropClass * gari_dropclass_init(GariDropClass * klass,
 
 
 
-struct GariDrop_ {
-  GariFlow                * flow;
-  GariColor                 color;
-  GariImage               * image;
+struct GyDrop_ {
+  GyFlow                * flow;
+  GyColor                 color;
+  GyImage               * image;
   char                    * text;
-  GariDropDrawFunction    * draw;
-  GariDropUpdateFunction  * update;
+  GyDropDrawFunction    * draw;
+  GyDropUpdateFunction  * update;
   int                       kind;
   int                       lifetime;
-  GariNumber                x, y;
-  GariNumber                vx, vy;
-  GariNumber                ax, ay;
+  GyNumber                x, y;
+  GyNumber                vx, vy;
+  GyNumber                ax, ay;
 };
 
 /** Returns TRUE if this drop is idle(unused) or NULL, FALSE if not. */
-int gari_drop_idle(GariDrop * drop) { 
+int gydrop_idle(GyDrop * drop) { 
   if (!drop) return TRUE;
   if (drop->lifetime < 1) return TRUE;
   return FALSE;
 }  
 
 /** Returns TRUE if this drop is still active, FALSE if not. */
-int gari_drop_active(GariDrop * drop) { 
-  return !gari_drop_idle(drop);
+int gydrop_active(GyDrop * drop) { 
+  return !gydrop_idle(drop);
 }  
 
 /** Deactivates a drop. */
-void gari_drop_disable(GariDrop * drop) {
+void gydrop_disable(GyDrop * drop) {
   if(!drop) return;
   drop->lifetime = 0;
 }
 
 /** Deactivates a drop if it is of the given kind. */
-void gari_drop_disablekind(GariDrop * drop, int kind) {
+void gydrop_disablekind(GyDrop * drop, int kind) {
   if (!drop) return;
   if (drop->kind != kind) return;
-  gari_drop_disable(drop);
+  gydrop_disable(drop);
 }
 
 
 
-GariDrop * gari_drop_init(GariDrop * drop, GariFlow * flow) {
+GyDrop * gydrop_init(GyDrop * drop, GyFlow * flow) {
   if(!drop) return NULL  ;
   drop->flow      = flow;
   drop->lifetime  = 0;
@@ -105,8 +105,8 @@ GariDrop * gari_drop_init(GariDrop * drop, GariFlow * flow) {
 
 
 
-GariDrop * gari_drop_update(GariDrop * drop, int time) {
-  if (gari_drop_idle(drop)) return NULL;
+GyDrop * gydrop_update(GyDrop * drop, int time) {
+  if (gydrop_idle(drop)) return NULL;
   // automatically reduce lifetime
   drop->lifetime -= time;
   
@@ -120,33 +120,33 @@ GariDrop * gari_drop_update(GariDrop * drop, int time) {
 }
 
 // Draws the drop as a small filled rectangle
-GariDrop * gari_drop_drawslab(GariDrop * drop, GariImage * im) {
-  gari_image_slab(im, drop->x, drop->y, 5, 5, drop->color);
+GyDrop * gydrop_drawslab(GyDrop * drop, GyImage * im) {
+  gyimage_slab(im, drop->x, drop->y, 5, 5, drop->color);
   return drop;
 }
 
 // Draws the drop as a small filled circle
-GariDrop * gari_drop_drawdisk(GariDrop * drop, GariImage * im) {
-  gari_image_slab(im, drop->x, drop->y, 3, 3, drop->color);
+GyDrop * gydrop_drawdisk(GyDrop * drop, GyImage * im) {
+  gyimage_slab(im, drop->x, drop->y, 3, 3, drop->color);
   return drop;
 }
 
 // Draws the drop as snow
-GariDrop * gari_drop_drawsnow(GariDrop * drop, GariImage * im) {
-  gari_image_disk(im, drop->x, drop->y, 3, drop->color);
-  // gari_image_slab(im, drop->x, drop->y, 3, 3, drop->color);
+GyDrop * gydrop_drawsnow(GyDrop * drop, GyImage * im) {
+  gyimage_disk(im, drop->x, drop->y, 3, drop->color);
+  // gyimage_slab(im, drop->x, drop->y, 3, 3, drop->color);
   return drop;
 }
 
 
 // Draws a generic drop.
-GariDrop * gari_drop_draw(GariDrop * drop, GariImage * im) {
+GyDrop * gydrop_draw(GyDrop * drop, GyImage * im) {
   // Skip drops that are not active or not set up correctly.
-  if (gari_drop_idle(drop)) return NULL;
+  if (gydrop_idle(drop)) return NULL;
   
   // Draw images for drops that have an image
   if (drop->image) {
-    gari_image_blit(im, drop->x, drop->y, drop->image); 
+    gyimage_blit(im, drop->x, drop->y, drop->image); 
     return drop;
   }  
   // Use the draw function for drops that have one
@@ -155,125 +155,125 @@ GariDrop * gari_drop_draw(GariDrop * drop, GariImage * im) {
      return drop;
   }
   // Otherwise just draw a filled rectangle. 
-  gari_drop_drawslab(drop, im);
+  gydrop_drawslab(drop, im);
   return drop; 
 }
 
 
-/* GariWell is a a point location source where particles are generated. 
+/* GyWell is a a point location source where particles are generated. 
  It's in other words a kind of initial configuration for particles. */
-struct GariWell_ {
+struct GyWell_ {
   int                         kind;
-  GariColor                   color;  
-  GariNumber                  x, y;  
-  GariImage               *   image;
+  GyColor                   color;  
+  GyNumber                  x, y;  
+  GyImage               *   image;
   char                    *   text;
-  GariDropDrawFunction    *   draw;
-  GariDropUpdateFunction  *   update;
-  GariDropInitFunction    *   init;
+  GyDropDrawFunction    *   draw;
+  GyDropUpdateFunction  *   update;
+  GyDropInitFunction    *   init;
 };
 
 
-/* GariFlow models a particle engine. */
-struct GariFlow_ {
-  GariCamera   * camera;
+/* GyFlow models a particle engine. */
+struct GyFlow_ {
+  GyCamera   * camera;
   size_t 	       size;
-  GariDrop     * particles;
+  GyDrop     * particles;
   size_t	       active;
   int screenw, screenh;
 };
 
-GariFlow * gari_flow_init(GariFlow * flow, size_t size) {
+GyFlow * gyflow_init(GyFlow * flow, size_t size) {
   int index;
   if(!flow) return NULL;
   flow->size      = size;
   flow->active    = 0;
   flow->screenw   = 640;
   flow->screenh   = 480;
-  flow->particles = GARI_MALLOC(sizeof(GariDrop) * flow->size);
+  flow->particles = GY_MALLOC(sizeof(GyDrop) * flow->size);
   if(!flow->particles) {
     flow->size = 0;
     return NULL;
   }
   for(index = 0; index < flow->size; index++) {
-    gari_drop_init(flow->particles+index, flow);
+    gydrop_init(flow->particles+index, flow);
   }
   
   return flow;
 }
 
 
-GariFlow * gari_flow_done(GariFlow * flow) {
+GyFlow * gyflow_done(GyFlow * flow) {
   if(!flow) { return NULL; }  
   flow->size   = 0;
   flow->active = 0;
-  GARI_FREE(flow->particles);
+  GY_FREE(flow->particles);
   flow->particles = NULL;
   return flow;  
 }
 
-GariFlow * gari_flow_make(size_t size) {
-  GariFlow * flow = GARI_ALLOCATE(GariFlow);
-  return gari_flow_init(flow, size);
+GyFlow * gyflow_make(size_t size) {
+  GyFlow * flow = GY_ALLOCATE(GyFlow);
+  return gyflow_init(flow, size);
 }
 
-void gari_flow_free(GariFlow * flow) {
-  gari_flow_done(flow);
-  GARI_FREE(flow);
+void gyflow_free(GyFlow * flow) {
+  gyflow_done(flow);
+  GY_FREE(flow);
 }
 
-void gari_flow_update(GariFlow * flow, int time) {
+void gyflow_update(GyFlow * flow, int time) {
   int index;
   // XXX: should perhaps be limited to active particles only?
   for(index = 0; index < flow->size ; index++) {
-    gari_drop_update(flow->particles+index, time);
+    gydrop_update(flow->particles+index, time);
   }
 }
  
-void gari_flow_draw(GariFlow * flow, GariImage * im) {
+void gyflow_draw(GyFlow * flow, GyImage * im) {
   int index;
   for(index = 0; index < flow->size; index++) {
-    gari_drop_draw(flow->particles+index, im);
+    gydrop_draw(flow->particles+index, im);
   }
 }
 
 
 // Automatically integrate motion based upon speed
 // To be called in your custom callback, etc. 
-GariDrop * gari_drop_updatespeed(GariDrop * drop, int time) { 
-  drop->x               += GARI_DROP_DIVIDE(drop->vx * time);
-  drop->y               += GARI_DROP_DIVIDE(drop->vy * time);
+GyDrop * gydrop_updatespeed(GyDrop * drop, int time) { 
+  drop->x               += GY_DROP_DIVIDE(drop->vx * time);
+  drop->y               += GY_DROP_DIVIDE(drop->vy * time);
   return drop;
 }
 
 // Automatically update speed based on accelleration
 // To be called in your custom callback, etc. 
-GariDrop * gari_drop_updateaccell(GariDrop * drop, int time) { 
-  drop->vx              += GARI_DROP_DIVIDE(drop->ax * time);
-  drop->vy              += GARI_DROP_DIVIDE(drop->ay * time);
+GyDrop * gydrop_updateaccell(GyDrop * drop, int time) { 
+  drop->vx              += GY_DROP_DIVIDE(drop->ax * time);
+  drop->vy              += GY_DROP_DIVIDE(drop->ay * time);
   return drop;
 }
 
 
-GariDrop * gari_drop_initsnow(GariDrop * drop, GariWell * well) { 
-  drop->x         = gari_random(0, drop->flow->screenw);
-  drop->y         = gari_random(0, drop->flow->screenh);
+GyDrop * gydrop_initsnow(GyDrop * drop, GyWell * well) { 
+  drop->x         = gyrandom(0, drop->flow->screenw);
+  drop->y         = gyrandom(0, drop->flow->screenh);
   drop->ax	      = 0;
-  drop->ay	      = GARI_DROP_MULTIPLY(100);
+  drop->ay	      = GY_DROP_MULTIPLY(100);
   drop->vx        = 0;
-  drop->vy        = gari_random(GARI_DROP_MULTIPLY(1), GARI_DROP_MULTIPLY(3));
-  drop->lifetime  = gari_random(10, 100);
+  drop->vy        = gyrandom(GY_DROP_MULTIPLY(1), GY_DROP_MULTIPLY(3));
+  drop->lifetime  = gyrandom(10, 100);
   return drop;
 }  
       
-GariDrop * gari_drop_updatesnow(GariDrop * drop, int time) {
+GyDrop * gydrop_updatesnow(GyDrop * drop, int time) {
   if (!(drop->lifetime % 5)) { 
-    drop->vx = GARI_DROP_MULTIPLY(gari_random(-1, 1));
+    drop->vx = GY_DROP_MULTIPLY(gyrandom(-1, 1));
   } else {
     drop->vx = 0;
   }
-  gari_drop_updateaccell(drop, time);
-  return gari_drop_updatespeed(drop, time);
+  gydrop_updateaccell(drop, time);
+  return gydrop_updatespeed(drop, time);
 }
       
 /*  
@@ -385,9 +385,9 @@ GariDrop * gari_drop_updatesnow(GariDrop * drop, int time) {
 
 
 
-GariWell * gari_well_init(GariWell * well, int kind,  
-                          int x, int y, GariColor color, 
-                          GariImage * im, char * text) {
+GyWell * gywell_init(GyWell * well, int kind,  
+                          int x, int y, GyColor color, 
+                          GyImage * im, char * text) {
   if(!well) return NULL; 
   well->x       = x;
   well->y       = y;
@@ -395,14 +395,14 @@ GariWell * gari_well_init(GariWell * well, int kind,
   well->kind    = kind;
   well->text    = text;
   well->image   = im;
-  well->draw    = gari_drop_drawslab;
-  well->update  = gari_drop_updatespeed;
-  well->init    = gari_drop_initsnow;
+  well->draw    = gydrop_drawslab;
+  well->update  = gydrop_updatespeed;
+  well->init    = gydrop_initsnow;
   
   switch(well->kind) {
-    case GariFlowSnow:
-      well->draw   = gari_drop_drawsnow;
-      well->update = gari_drop_updatesnow;
+    case GyFlowSnow:
+      well->draw   = gydrop_drawsnow;
+      well->update = gydrop_updatesnow;
       return well;
     default:  
       fprintf(stderr, "Unknown effect type.");
@@ -412,9 +412,9 @@ GariWell * gari_well_init(GariWell * well, int kind,
 } 
 
 /** Initializes a drop with info from a Well */
-GariDrop * gari_drop_initwell(GariDrop * drop, GariFlow * flow, GariWell *well)
+GyDrop * gydrop_initwell(GyDrop * drop, GyFlow * flow, GyWell *well)
 {
-  if(!gari_drop_init(drop, flow)) return NULL;
+  if(!gydrop_init(drop, flow)) return NULL;
   if(!well) return NULL;
   drop->x         = well->x;
   drop->y         = well->y;
@@ -436,37 +436,37 @@ GariDrop * gari_drop_initwell(GariDrop * drop, GariFlow * flow, GariWell *well)
 * Gets the next idle (unused) drop from the particle engine. 
 * Returns NULL if no idle drop is available. 
 */
-GariDrop * gari_flow_idle(GariFlow * flow) {
+GyDrop * gyflow_idle(GyFlow * flow) {
   int index;
   if(!flow) return NULL;
   for (index = 0; index < flow->size; index++) {
-    GariDrop * drop = flow->particles + index;
-    if(gari_drop_idle(drop)) return drop;
+    GyDrop * drop = flow->particles + index;
+    if(gydrop_idle(drop)) return drop;
   } 
   return NULL;
 } 
 
 /**
-* Activates amount Drops (particles) in the GariFlow flow. 
+* Activates amount Drops (particles) in the GyFlow flow. 
 * The particle will be of kind kind, and will be placed, depending on the 
 * kind, at x a,d y, and displayed using given color, image or text 
 */
-GariFlow * gari_flow_activate(GariFlow * flow, 
-  int amount, int kind, int x, int y, GariColor color, 
-  GariImage * im, char * text) {
+GyFlow * gyflow_activate(GyFlow * flow, 
+  int amount, int kind, int x, int y, GyColor color, 
+  GyImage * im, char * text) {
   int index;
-  GariWell well;
-  if(!gari_well_init(&well, kind, x, y, color, im, text)) { 
+  GyWell well;
+  if(!gywell_init(&well, kind, x, y, color, im, text)) { 
     return NULL; 
   } 
   for(index = 0; index < amount; index++) {
-    GariDrop  * drop;
-    drop = gari_flow_idle(flow);
+    GyDrop  * drop;
+    drop = gyflow_idle(flow);
     if(!drop) {
       // fprintf(stderr, "No idle drops: %d!\n", amount ); 
       return NULL;
     }  
-    gari_drop_initwell(drop, flow, &well);
+    gydrop_initwell(drop, flow, &well);
   } 
   return flow;
 }
@@ -476,11 +476,11 @@ GariFlow * gari_flow_activate(GariFlow * flow,
 /**
 * Deactivates all Drops of the given kind of effect.
 */
-GariFlow * gari_flow_disablekind(GariFlow * flow, int kind) {  
+GyFlow * gyflow_disablekind(GyFlow * flow, int kind) {  
   int index;
   for (index = 0; index < flow->size; index++) {
-    GariDrop * drop = flow->particles + index;
-    gari_drop_disablekind(drop, kind);    
+    GyDrop * drop = flow->particles + index;
+    gydrop_disablekind(drop, kind);    
   }   
   return flow;
 }

@@ -27,10 +27,10 @@ int program_run(Program * self);
 /** Program loop, called once for every redraw. */
 int program_run_once(Program * self);
 
-GariGame * program_game(Program * self);
-GariScreen * program_screen(Program * self);
+GyGame * program_game(Program * self);
+GyScreen * program_screen(Program * self);
 void * program_ui(Program * self);
-GariFont * program_font(Program * self);
+GyFont * program_font(Program * self);
 
 
 

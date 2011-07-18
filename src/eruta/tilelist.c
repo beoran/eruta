@@ -1,4 +1,4 @@
-#include "gari.h"
+#include "gy.h"
 #include "si_macro.h"
 #include "si_mem.h"
 #include "si_block.h"
@@ -31,7 +31,7 @@ Tilelist * tilelist_alloc() {
     
 Tilelist * tilelist_init(Tilelist * self) {
   if(!self) return NULL;
-  self->images    = siblock_new(10000, sizeof(GariImage *));
+  self->images    = siblock_new(10000, sizeof(GyImage *));
   self->tiles     = siblock_new(10000, sizeof(void *));
   self->filenames = NULL;
   self->last      = 0;
@@ -53,16 +53,16 @@ Tilelist * tilelist_free(Tilelist * self) {
 }
 
 // Sets the image to use for an index
-GariImage * tilelist_image_(Tilelist * self, size_t index, GariImage * img) {
+GyImage * tilelist_image_(Tilelist * self, size_t index, GyImage * img) {
   return siblock_setptr(self->images, index, img);
 }  
 
 // Sets the tile to use for an index
-GariImage * tilelist_tile_(Tilelist * self, size_t index, void * tile) {
+GyImage * tilelist_tile_(Tilelist * self, size_t index, void * tile) {
   return siblock_setptr(self->tiles, index, tile);
 }
 
-GariImage * tilelist_copypart(GariImage * img, int x, int y, 
+GyImage * tilelist_copypart(GyImage * img, int x, int y, 
                                            int w, int h, int alpha) {
 // should detect alpha itself. 
 /*     result = from.copypart(x, y, w, h)
@@ -74,16 +74,16 @@ GariImage * tilelist_copypart(GariImage * img, int x, int y,
 the last index if start = -1. */
 Tilelist * tilelist_load_filename(Tilelist * self, char * name, size_t start) {
   int x, y, h, w;
-  GariImage * image;
+  GyImage * image;
   if (start < 0) start = self->last;
   self->last           = start;
-  image = gari_image_loadraw(name);
+  image = gyimage_loadraw(name);
   if(!image) return NULL;
-  h = gari_image_h(image);
-  w = gari_image_w(image);
+  h = gyimage_h(image);
+  w = gyimage_w(image);
   for(y = 0; y < h; y += TILELIST_TILE_HIGH) { 
     for(x = 0; x < w; x += TILELIST_TILE_WIDE) {
-      GariImage * subimage = tilelist_copypart(image, x, y, w, h, FALSE);
+      GyImage * subimage = tilelist_copypart(image, x, y, w, h, FALSE);
       tilelist_image_(self, self->last, subimage);
       self->last++;
     }

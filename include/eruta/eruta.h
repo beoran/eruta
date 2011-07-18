@@ -2,7 +2,7 @@
 #define ERUTA_H
 
 /** Commnly used includes. */
-#include "gari.h"
+#include "gy.h"
 #include "lua.h"
 #include "lauxlib.h"
 #include "chipmunk.h"

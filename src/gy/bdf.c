@@ -1,36 +1,36 @@
-#include "gari.h"
-#define GARI_INTERN_ONLY
-#include "gari_intern.h"
+#include "gy.h"
+#define GY_INTERN_ONLY
+#include "gy_intern.h"
 
 
-/** GariBdf supports bitmapz up to 32x32 pixels. */
-#define GARI_BDF_MAXWIDE 32
-#define GARI_BDF_MAXHIGH 32
+/** GyBdf supports bitmapz up to 32x32 pixels. */
+#define GY_BDF_MAXWIDE 32
+#define GY_BDF_MAXHIGH 32
 
 /** Struct that models a glyph. */
-struct GariBdfGlyph_ {
+struct GyBdfGlyph_ {
   int bbx, bby, bbxoff, bbyoff; // bounding box.
   uint32_t encoding; 
-  uint32_t pixels[GARI_BDF_MAXHIGH];
+  uint32_t pixels[GY_BDF_MAXHIGH];
 };
 
-/** GariBdf supports up to this amount of glyphs. */
-#define GARI_BDF_GLYPHS 65536
+/** GyBdf supports up to this amount of glyphs. */
+#define GY_BDF_GLYPHS 65536
 
 
 /** Loading and drawing of BDF fonts. The font should have a unicode encoding */
-struct GariBdf_ {
+struct GyBdf_ {
   int bbx, bby, bbxoff, bbyoff; // bounding box. 
   int high;
-  GariFontStyle   style;
-  GariFontMode    mode;
+  GyFontStyle   style;
+  GyFontMode    mode;
   int             ptsize;
   int             scale;
   size_t          nglyphs; /* Amount of glyphs. */
-  GariBdfGlyph *  glyphs; /* Glyphs.  */
+  GyBdfGlyph *  glyphs; /* Glyphs.  */
 };
 
-/* GariBdf stores the exact amount of glyphs that the font contains to 
+/* GyBdf stores the exact amount of glyphs that the font contains to 
 save space. However, this means that the glyph will have to be found
 by doing a binary search over the glyphs. So in short, this implementation
 is slower to save space.
@@ -67,66 +67,66 @@ char * SDL_RWgets(char *buf, int count, SDL_RWops *rw) {
 
 
 // The BDF font file can use lines up to this length
-#define GARI_BDF_LINE_SIZE 1024
-typedef struct GariBdfValue_ GariBdfValue;
+#define GY_BDF_LINE_SIZE 1024
+typedef struct GyBdfValue_ GyBdfValue;
 
-#define GARI_BDF_MAXVALUES 8
-#define GARI_BDF_MAXKEY    512
-#define GARI_BDF_MAXSTR    512
+#define GY_BDF_MAXVALUES 8
+#define GY_BDF_MAXKEY    512
+#define GY_BDF_MAXSTR    512
 
-struct GariBdfValue_ {
-  char    key[GARI_BDF_MAXKEY];
+struct GyBdfValue_ {
+  char    key[GY_BDF_MAXKEY];
   int     type;
   int     size;
-  char    str[GARI_BDF_MAXSTR];
-  long    values[GARI_BDF_MAXVALUES];
+  char    str[GY_BDF_MAXSTR];
+  long    values[GY_BDF_MAXVALUES];
   double  number; 
 };
 
-enum GariBdfValueType_ {
-  GariBdfNone    = 0 ,  
-  GariBdfString  = 1 ,
-  GariBdfInteger = 2 ,
-  GariBdfNumber  = 3 
+enum GyBdfValueType_ {
+  GyBdfNone    = 0 ,  
+  GyBdfString  = 1 ,
+  GyBdfInteger = 2 ,
+  GyBdfNumber  = 3 
 };
 
 /* Perses  a line into a bdf key/value pair.  */
-GariBdfValue * gari_bdfvalue_line(GariBdfValue * self, char * line) {
+GyBdfValue * gybdfvalue_line(GyBdfValue * self, char * line) {
   char * p = strchr(line, ' ');
   char * s = NULL, * e = NULL;
   int index  = 0;
-  self->type = GariBdfNone;
+  self->type = GyBdfNone;
   size_t len = p - line;
   if(!p) len = strlen(line) - 1; // no space in line
   // fail if key too long 
-  if (len >= GARI_BDF_MAXKEY) len = GARI_BDF_MAXKEY - 1;
-  memset(self, 0, sizeof(GariBdfValue)); // wipe all values. 
+  if (len >= GY_BDF_MAXKEY) len = GY_BDF_MAXKEY - 1;
+  memset(self, 0, sizeof(GyBdfValue)); // wipe all values. 
   strncpy(self->key, line, len); self->key[len] = '\0';
   if(!p) return self;
   s = strchr(p, '"');
   if(s) { // string value
-    self->type = GariBdfString;
+    self->type = GyBdfString;
     e     = strrchr(p, '"');
     self->size  = e-s;
-    if (self->size >= GARI_BDF_MAXSTR) self->size = GARI_BDF_MAXSTR - 1;
+    if (self->size >= GY_BDF_MAXSTR) self->size = GY_BDF_MAXSTR - 1;
     strncpy(self->str, s, self->size); self->key[self->size] = '\0';
     return self;
   }
   s = strchr(p, '.');
   // double value 
   if(s) {
-    self->type    = GariBdfNumber;
+    self->type    = GyBdfNumber;
     self->number  = atof(p); 
     return self;
   }
   // values not found
   self->size = 0;
   // try to fetch numbers 
-  while(p && self->size < GARI_BDF_MAXVALUES) {
+  while(p && self->size < GY_BDF_MAXVALUES) {
     self->values[self->size] = strtol(p +1 , &e, 10);
     if((!e) || e==p) return self; 
     // if this happens integer conversion failed, so give up. 
-    self->type = GariBdfInteger;
+    self->type = GyBdfInteger;
     self->size++;
     p = e; // move to next position.  
   }
@@ -135,7 +135,7 @@ GariBdfValue * gari_bdfvalue_line(GariBdfValue * self, char * line) {
  
 /*
 static void ParseChar(Kanji_Font* font, int index, FILE* fp, int shift) {
-  char buf[GARI_BDF_LINE_SIZE], *p;
+  char buf[GY_BDF_LINE_SIZE], *p;
   int y;
 
   if (font->moji[index] != 0) return;
@@ -149,24 +149,24 @@ static void ParseChar(Kanji_Font* font, int index, FILE* fp, int shift) {
 }
 */
 
-GariBdfGlyph * gari_bdfglyph_parse(GariBdfGlyph * self, SDL_RWops* rw) {
+GyBdfGlyph * gybdfglyph_parse(GyBdfGlyph * self, SDL_RWops* rw) {
   int index;
-  char buf[GARI_BDF_LINE_SIZE];
+  char buf[GY_BDF_LINE_SIZE];
   
   for (index = 0; index < self->bby; index++) { 
-    if (SDL_RWgets(buf, GARI_BDF_LINE_SIZE, rw) == NULL) return NULL;
+    if (SDL_RWgets(buf, GY_BDF_LINE_SIZE, rw) == NULL) return NULL;
     self->pixels[index] = strtol(buf, NULL, 16);
   }
   return self;
 }
 
-GariBdf * gari_bdf_parsechar(GariBdf * self, SDL_RWops* rw, int index) {
-  char buf[GARI_BDF_LINE_SIZE];
-  GariBdfValue value;
-  GariBdfGlyph * glyph = self->glyphs + index;
+GyBdf * gybdf_parsechar(GyBdf * self, SDL_RWops* rw, int index) {
+  char buf[GY_BDF_LINE_SIZE];
+  GyBdfValue value;
+  GyBdfGlyph * glyph = self->glyphs + index;
   while (1) {
-    if (SDL_RWgets(buf, GARI_BDF_LINE_SIZE, rw) == NULL) return self;
-    if(!gari_bdfvalue_line(&value, buf)) return NULL; 
+    if (SDL_RWgets(buf, GY_BDF_LINE_SIZE, rw) == NULL) return self;
+    if(!gybdfvalue_line(&value, buf)) return NULL; 
     if (!strcmp(value.key, "ENDCHAR")) return self; // end of character
     if (!strcmp(value.key, "ENCODING")) { // encoding 
       glyph->encoding    = value.values[0];
@@ -179,27 +179,27 @@ GariBdf * gari_bdf_parsechar(GariBdf * self, SDL_RWops* rw, int index) {
       glyph->bbyoff = value.values[3];
     }
     if (!strcmp(value.key, "BITMAP")) {
-      if(!gari_bdfglyph_parse(glyph, rw)) return NULL;
+      if(!gybdfglyph_parse(glyph, rw)) return NULL;
     }
   }
   return self;
 }
 
 
-GariBdf * gari_bdf_parse(GariBdf * self, SDL_RWops* rw) {
-  char buf[GARI_BDF_LINE_SIZE];
-  GariBdfValue value; 
+GyBdf * gybdf_parse(GyBdf * self, SDL_RWops* rw) {
+  char buf[GY_BDF_LINE_SIZE];
+  GyBdfValue value; 
   
   uint32_t index = 0, size = 0, encoding = 0;
   int k_rshift, a_rshift;
   int s;
   self->glyphs = NULL;
   while (1) {
-    if (SDL_RWgets(buf, GARI_BDF_LINE_SIZE, rw) == NULL) goto return_ok;
-    if(!gari_bdfvalue_line(&value, buf)) goto return_error; 
+    if (SDL_RWgets(buf, GY_BDF_LINE_SIZE, rw) == NULL) goto return_ok;
+    if(!gybdfvalue_line(&value, buf)) goto return_error; 
     if (strstr(value.key, "CHARS")) {
       self->nglyphs = value.values[0];
-      self->glyphs  = GARI_MALLOC(self->nglyphs * sizeof(GariBdfGlyph));
+      self->glyphs  = GY_MALLOC(self->nglyphs * sizeof(GyBdfGlyph));
       if(!self->glyphs) return NULL;
     }
     
@@ -211,7 +211,7 @@ GariBdf * gari_bdf_parse(GariBdf * self, SDL_RWops* rw) {
     }
 
     if (strstr(value.key, "STARTCHAR")) {
-      if(!gari_bdf_parsechar(self, rw, index)) goto return_error;
+      if(!gybdf_parsechar(self, rw, index)) goto return_error;
       index ++;
       // On to the next index; if too much return ok
       if (index >= self->nglyphs) goto return_ok;
@@ -220,19 +220,19 @@ GariBdf * gari_bdf_parse(GariBdf * self, SDL_RWops* rw) {
   return_ok: // normal return. 
   return self;   
   return_error: // error return  
-  GARI_FREE(self->glyphs);
+  GY_FREE(self->glyphs);
   return NULL;
 }
 
 
 /** Gets the drawing mode of the font. */
-int gari_bdf_mode(GariBdf * self) {
+int gybdf_mode(GyBdf * self) {
   if(!self) return -1;
   return self->mode;
 }
 
 /** Sets the drawing mode of the font. */
-GariBdf * gari_bdf_mode_(GariBdf * self, int mode) {
+GyBdf * gybdf_mode_(GyBdf * self, int mode) {
   if (!self) return NULL;
   self->mode = mode; 
   return self;
@@ -240,44 +240,44 @@ GariBdf * gari_bdf_mode_(GariBdf * self, int mode) {
 
 
 /** Returns the style of the font.  */
-int gari_bdf_style(GariBdf * self) {
+int gybdf_style(GyBdf * self) {
   if(!self) return -1;
   return self->style;
 }
 
 /** Sets the style effect of the font. */
-GariBdf * gari_bdf_style_(GariBdf * self, int style) {
+GyBdf * gybdf_style_(GyBdf * self, int style) {
   if (!self) return NULL;
   self->style = style; 
   return self;
 }
 
-GariBdf * gari_bdf_newrw(SDL_RWops * rw) {
+GyBdf * gybdf_newrw(SDL_RWops * rw) {
   if(!rw) return NULL;
-  GariBdf * self = GARI_MALLOC(sizeof(GariBdf));
+  GyBdf * self = GY_MALLOC(sizeof(GyBdf));
   if(!self) { return NULL;} 
   // self->ptsize = NOFONT_GLYPHINFO_ROWS * scale;
-  gari_bdf_mode_(self, GariFontSolid);
-  gari_bdf_style_(self, GariFontNormal);  
-  return gari_bdf_parse(self, rw);
+  gybdf_mode_(self, GyFontSolid);
+  gybdf_style_(self, GyFontNormal);  
+  return gybdf_parse(self, rw);
 }
 
 /** Loads a bdf font. */
-GariBdf * gari_bdf_load(char * filename) {
+GyBdf * gybdf_load(char * filename) {
   SDL_RWops * rw = SDL_RWFromFile(filename, "rb");
-  GariBdf * res = gari_bdf_newrw(rw);
+  GyBdf * res = gybdf_newrw(rw);
   SDL_RWclose(rw); 
   return res;
 }
 
 /** Frees the memory allocated by the font. */
-GariBdf * gari_bdf_free(GariBdf *font) {
-  GARI_FREE(font);
+GyBdf * gybdf_free(GyBdf *font) {
+  GY_FREE(font);
   return NULL;
 }
 
 /** Gets the glyph at index index. Has noting to do with the encoding!  */
-GariBdfGlyph * gari_bdf_glyph(GariBdf * font, int index) {
+GyBdfGlyph * gybdf_glyph(GyBdf * font, int index) {
   if(!font) return NULL;
   if(!font->glyphs) return NULL;
   if(index < 0) return NULL;
@@ -288,19 +288,19 @@ GariBdfGlyph * gari_bdf_glyph(GariBdf * font, int index) {
 /** Finds the glyph to be used for drawing the character encoded as encoding,
 * recursively though a binary search. 
 */
-GariBdfGlyph * gari_bdf_findr(GariBdf * self, int encoding, int index, int low, int high) {
-  GariBdfGlyph * glyph = gari_bdf_glyph(self, index);
+GyBdfGlyph * gybdf_findr(GyBdf * self, int encoding, int index, int low, int high) {
+  GyBdfGlyph * glyph = gybdf_glyph(self, index);
   if (!glyph) return NULL;
   if (glyph->encoding == encoding) return glyph;
   if (low==high) return NULL; // not found  
   if(glyph->encoding < encoding) { // we chose an index that is too low
     low  = index;
     index = low + (high - low) / 2;
-    return gari_bdf_findr(self, encoding, index, low, high);    
+    return gybdf_findr(self, encoding, index, low, high);    
   } else { // an index mid that is too high
     high  = index;
     index = low + (high - low) / 2;     
-    return gari_bdf_findr(self, encoding, index, low, high);
+    return gybdf_findr(self, encoding, index, low, high);
   } 
   return NULL; // can't happen.
 } 
@@ -308,15 +308,15 @@ GariBdfGlyph * gari_bdf_findr(GariBdf * self, int encoding, int index, int low, 
 
 /** Finds the glyph to be used for drawing the character encoded as encoding. 
 */
-GariBdfGlyph * gari_bdf_find(GariBdf * self, int encoding) {
+GyBdfGlyph * gybdf_find(GyBdf * self, int encoding) {
   int low, high, mid; 
   if(!self) return NULL;
   low  = 0 ; high = self->nglyphs;
-  return gari_bdf_findr(self, encoding, high / 2, low, high);
+  return gybdf_findr(self, encoding, high / 2, low, high);
 }
 
 /** Calculate nex tpower of two */
-uint32_t gari_nextpower2(uint32_t v) { 
+uint32_t gynextpower2(uint32_t v) { 
   v--;
   v |= v >> 1;
   v |= v >> 2;
@@ -327,7 +327,7 @@ uint32_t gari_nextpower2(uint32_t v) {
   return v;
 }
 
-uint32_t gari_nextmultiple(uint32_t v, uint32_t of) {
+uint32_t gynextmultiple(uint32_t v, uint32_t of) {
   return (v+(of-1))&~(of-1);
 }
 
@@ -406,92 +406,92 @@ uint32_t utf8_decode(char * str, int * ok) {
 
 /** Draws a signle glyph from the font. Does not lock the image, 
 call ! */
-void gari_bdf_putglyph(GariImage * image, int x, int y, GariBdfGlyph * glyph,                            GariBdf * font, GariColor fg, GariColor bg) {
+void gybdf_putglyph(GyImage * image, int x, int y, GyBdfGlyph * glyph,                            GyBdf * font, GyColor fg, GyColor bg) {
   int xindex, yindex, wide, high;
   int xdraw;
   int ydraw; 
   uint32_t pixwide;
-  GariDye fgdye        = gari_color_dye(fg, image);
-  GariDye bgdye        = gari_color_dye(bg, image);
-  GariColor red        = { 255, 0, 0, 255};
-  GariDye reddye       = gari_color_dye(red, image);
+  GyDye fgdye        = gycolor_dye(fg, image);
+  GyDye bgdye        = gycolor_dye(bg, image);
+  GyColor red        = { 255, 0, 0, 255};
+  GyDye reddye       = gycolor_dye(red, image);
   if(!glyph) return;
   wide  = glyph->bbx;
   high  = glyph->bby;
   xdraw = x - glyph->bbxoff;
   ydraw = y - glyph->bbyoff;
-  pixwide = gari_nextmultiple(wide, 8);
+  pixwide = gynextmultiple(wide, 8);
      
     
   for(yindex = 0; yindex < high; yindex++, ydraw++) {
     for(xindex = 0; xindex <= wide; xindex++, xdraw++) {
       if((1<<(pixwide-xindex)) & glyph->pixels[yindex]) {
-        gari_image_putpixel_nolock(image, xdraw, ydraw, fgdye);
-      } else if(font->mode == GariFontShaded) {
-        gari_image_putpixel_nolock(image, xdraw, ydraw, bgdye);
+        gyimage_putpixel_nolock(image, xdraw, ydraw, fgdye);
+      } else if(font->mode == GyFontShaded) {
+        gyimage_putpixel_nolock(image, xdraw, ydraw, bgdye);
       }
     }
     xdraw = x - glyph->bbxoff;
   }
-  gari_image_putpixel_nolock(image, x, y, reddye);
-  gari_image_putpixel_nolock(image, x + wide, y + wide, reddye);
+  gyimage_putpixel_nolock(image, x, y, reddye);
+  gyimage_putpixel_nolock(image, x + wide, y + wide, reddye);
   
 }
 
 
 /** Draws a single utf8 character to a surface at the given coordinates 
 using the font to a surface, depending on the font's settings. */
-void gari_bdf_putc(GariImage * image, int x, int y, int utf8, GariBdf * font,  
-              GariColor fg, GariColor bg) {
-  GariBdfGlyph * glyph = gari_bdf_find(font, utf8);
-  gari_image_lock(image);
-  gari_bdf_putglyph(image, x, y, glyph, font, fg, bg); 
-  gari_image_unlock(image);
+void gybdf_putc(GyImage * image, int x, int y, int utf8, GyBdf * font,  
+              GyColor fg, GyColor bg) {
+  GyBdfGlyph * glyph = gybdf_find(font, utf8);
+  gyimage_lock(image);
+  gybdf_putglyph(image, x, y, glyph, font, fg, bg); 
+  gyimage_unlock(image);
 }
 
 
 
 /** Renders the font to a surface, depending on the font's settings. */
-GariImage * gari_bdf_render(GariBdf * font, char * utf8, 
-    GariColor fgrgba, GariColor bgrgba);
+GyImage * gybdf_render(GyBdf * font, char * utf8, 
+    GyColor fgrgba, GyColor bgrgba);
 
 /** Draws font with given colors. */
-void gari_bdf_drawcolor(GariImage * image, int x, int y, char * utf8, 
-                         GariBdf  * font , GariColor fg, GariColor bg); 
+void gybdf_drawcolor(GyImage * image, int x, int y, char * utf8, 
+                         GyBdf  * font , GyColor fg, GyColor bg); 
 
 /** Draws font with given color components. */
-void gari_bdf_draw(GariImage * image, int x, int y, char * utf8, GariBdf *
+void gybdf_draw(GyImage * image, int x, int y, char * utf8, GyBdf *
 font, uint8_t fg_r, uint8_t fg_g, uint8_t fg_b, uint8_t bg_r, uint8_t bg_b,
 uint8_t bg_a);
 
 /** Draws font in printf style. Won't work on platforms that lack vsnprintf.
 * Will draw up to 2000 bytes of characters.  
 */
-void gari_bdf_printf(GariImage * image, int x, int y, GariBdf * font,
-GariColor fg, GariColor bg, char * format, ...);
+void gybdf_printf(GyImage * image, int x, int y, GyBdf * font,
+GyColor fg, GyColor bg, char * format, ...);
 
 /** Returns a text with details about the last error in loading or 
 handling a font. */
-char * gari_bdf_error();
+char * gybdf_error();
 
 /** Returns the width that the given UTF-8 encoded text would be if it was
-rendered using gari_fonr_render. */
-int gari_bdf_renderwidth(GariBdf * font, char * utf8); 
+rendered using gyfonr_render. */
+int gybdf_renderwidth(GyBdf * font, char * utf8); 
 
 /** Returns the font's max height */
-int gari_bdf_height(GariBdf * font); 
+int gybdf_height(GyBdf * font); 
 
 /** Returns the font's font max ascent (y above origin)*/
-int gari_bdf_ascent(GariBdf * font); 
+int gybdf_ascent(GyBdf * font); 
 
 /** Returns the font's min descent (y below origin)*/
-int gari_bdf_descent(GariBdf * font);
+int gybdf_descent(GyBdf * font);
 
 /** Returns the font's recommended line spacing. */
-int gari_bdf_lineskip(GariBdf * font);
+int gybdf_lineskip(GyBdf * font);
 
-int gari_fontstyle_tottf(int style);
+int gyfontstyle_tottf(int style);
 
-int gari_fontstyle_fromttf(int style); 
+int gyfontstyle_fromttf(int style); 
 
 
