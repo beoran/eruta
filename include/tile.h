@@ -74,6 +74,10 @@ enum TILE_ANIME_OPCODE_ {
 // Updates all tiles in a tile set so they all get animated.
 void tileset_update(Tileset * set);
 
+/** Draw a tile to the current active drawing target at the given coordinates */
+void tile_draw(Tile * tile, int x, int y);
+
+
 
 
 #endif

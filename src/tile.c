@@ -113,7 +113,7 @@ Tile * tile_init(Tile * tile, Tileset * set, int index) {
   tile->framlen = 0;
   tile->anime   = 0;
   tile->offset  = 0; 
-  tile->active  = -1;
+  tile->active  = index;
   return tile;
 }
 
@@ -234,22 +234,28 @@ void tileset_update(Tileset * set) {
   }  
 } 
 
-/*
-#define TILE_SHEET_Y(TILE, SET)\
-        (TILE->active / (32*)
 
+#define TILE_SHEET_Y(TILE, SET)\
+        ((TILE->active * TILE_H) / ((SET)->w))
+
+#define TILE_SHEET_X(TILE, SET)\
+        ((TILE->active * TILE_W) % ((SET)->w))
+        
 // Draw a tile to the current active drawing target at the given coordinates
 void tile_draw(Tile * tile, int x, int y) {
-  Image * sheet = tile->set->sheet;
+  Tileset * set = tile->set;
+  Image * sheet = set->sheet;
   float dx      = (float) x;
   float dy      = (float) y; 
-  float sw      = (float) (tile->active), float sh, float dx, float dy, int flags
-  
-  al_draw_bitmap_region(sheet, 
-  float sx, float sy, float sw, float sh, float dx, float dy, int flags)
-  
+  float sx      = (float) TILE_SHEET_X(tile, set);
+  float sy      = (float) TILE_SHEET_Y(tile, set);
+  float sw      = (float) TILE_W;
+  float sh      = (float) TILE_H;
+  // printf("%f %f\n", sx, sy);
+  al_draw_bitmap_region(sheet, sx, sy, sw, sh, dx, dy, 0);
+  // al_draw_bitmap(sheet, dx, dy, 0);
 }
-*/
+
 
 
 
