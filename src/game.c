@@ -6,6 +6,7 @@
 
 struct Game_ {
   BOOL                  busy;
+  BOOL                  fullscreen;
   int32_t               modeno;
   ALLEGRO_FONT        * font;
   ALLEGRO_COLOR         colors[GAME_COLORS];
@@ -14,10 +15,6 @@ struct Game_ {
   ALLEGRO_EVENT_QUEUE * queue;
   char                * errmsg; 
 };
-
-
-typedef struct Game_ Game;
-
 
 
 Game * game_alloc() {
@@ -62,9 +59,10 @@ ALLEGRO_COLOR game_color_f(Game * game, int color,
 /** Initializes the game. It opens the screen, keyboards,
 lua interpreter, etc. Get any error with game_errmsg if
 this returns NULL. */
-Game * game_init(Game * self) {
+Game * game_init(Game * self, BOOL fullscreen) {
   if(!self) return NULL;
   self->busy = TRUE;
+  self->fullscreen = fullscreen;
   game_errmsg_(self, "OK!");
   // Initialize Allegro 5 and addons
   if (!al_init()) {
@@ -83,9 +81,11 @@ Game * game_init(Game * self) {
     return game_errmsg_(self, "Error installing mouse.\n");
   }
   
-
-  al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_GENERATE_EXPOSE_EVENTS);
-  // Create a window to display things on: 640x480 pixels
+  // Use full screen mode if needed.
+  if(self->fullscreen) { 
+    al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_GENERATE_EXPOSE_EVENTS);
+  } 
+  // Create a window to display things on: 640x480 pixels.
   self->display = al_create_display(SCREEN_W, SCREEN_H);
   if (!self->display) {
     return game_errmsg_(self, "Error creating display.\n");

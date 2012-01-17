@@ -16,7 +16,7 @@ typedef struct Game_ Game;
 
 /** Initializes the game. It opens the screen, keyboards,
 lua interpreter, etc. */
-Game * game_init(Game * game);
+Game * game_init(Game * game, BOOL fullscreen);
 
 /** Closes the game when it's done. */
 Game * game_kill(Game * game);
@@ -39,19 +39,8 @@ char * game_errmsg(Game * game);
 /** Registers an event source for this game */
 Game * game_eventsource(Game * game, ALLEGRO_EVENT_SOURCE * src);
 
-/** Initializes the game. It opens the screen, keyboards,
-lua interpreter, etc. Get any error with game_errmsg if
-this returns NULL. */
-Game * game_init(Game * self);
-
-/** Closes the game when it's done. */
-Game * game_kill(Game * self);
-
 /** Sets the game's busy status to false */
 BOOL game_done(Game * game);
-
-/** Returns true if the game is busy false if not. */
-BOOL game_busy(Game * self);
 
 /** Polls the game's event queue, and gets the next event and stores it in
 * event. if it is available. Returns true if there is an event of false if

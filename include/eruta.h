@@ -33,7 +33,6 @@
 #define STR ALLEGRO_USTR
 #endif
 
-
 /** Commonly used types and typedefs. */
 
 struct Program_;

@@ -14,7 +14,7 @@ ALLEGRO_COLOR   solid_white;
 int main(void) {
     Game * game;
     game = game_alloc();
-    if(!game_init(game)) {
+    if(!game_init(game, FALSE)) {
       perror(game_errmsg(game));
       return 1;
     }
