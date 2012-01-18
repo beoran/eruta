@@ -28,8 +28,9 @@ int main(void) {
     Tile     * tile;
     Game     * game;
     Music    * music;
-    Tilepane * tilepane;
+    Tilepane * tilepane = NULL;
     game = game_alloc();
+    Point      mp = { -100, -100}, mv = {0, 0};
     if(!game_init(game, FALSE)) {
       perror(game_errmsg(game));
       return 1;
@@ -44,27 +45,71 @@ int main(void) {
     }
     tileset = tileset_new(sheet);
     tile    = tileset_tile(tileset);
-    tilepane= tilepane_new(tileset, 100, 100);
-    tilepane_set(tilepane, 0, 0, tile); 
     tile_addframe(tile, 2);
+    
+    tilepane= tilepane_new(tileset, 100, 100);
+    // tilepane_set(tilepane, 0, 0, tile);
+    // tilepane_set(tilepane, 1, 1, tile);
+    tilepane_fill(tilepane, tile);
     // tile_addframe(tile, 3);
     //tile_addanime(tile, TILE_ANIME_NEXT);
-    //tile_addanime(tile, TILE_ANIME_REWIND);    
+    //tile_addanime(tile, TILE_ANIME_REWIND);
     while (game_busy(game)) {
       ALLEGRO_EVENT event;
-      while(game_poll(game, &event)) {        
+      while(game_poll(game, &event)) {
         switch (event.type) {
           case ALLEGRO_EVENT_DISPLAY_CLOSE:
-          case ALLEGRO_EVENT_KEY_DOWN:  {
             game_done(game);
             break;
-           }
-        } 
+            
+          case ALLEGRO_EVENT_KEY_DOWN:
+            switch(event.keyboard.keycode) {
+              case ALLEGRO_KEY_UP:
+                mv.y = -1;
+              break;
+              case ALLEGRO_KEY_DOWN:
+                mv.y = +1;
+              break;
+              case ALLEGRO_KEY_LEFT:
+                mv.x = -1;
+              break;
+              case ALLEGRO_KEY_RIGHT:
+                mv.x = +1;
+              break;
+              default:
+                game_done(game);
+              break;
+            }
+            break;
+         
+        case ALLEGRO_EVENT_KEY_UP: 
+          switch(event.keyboard.keycode) {
+              case ALLEGRO_KEY_UP:
+                mv.y = 0;
+              break;
+              case ALLEGRO_KEY_DOWN:
+                mv.y = 0;
+              break;
+              case ALLEGRO_KEY_LEFT:
+                mv.x = 0;
+              break;
+              case ALLEGRO_KEY_RIGHT:
+                mv.x = 0;
+              break;
+              default:
+              break;
+          }
+          break;
+          
+        default:
+            break;
+        }  
       }
       al_clear_to_color(game_color(game, ERUTA_BLACK));
       al_draw_line(0, 0, SCREEN_W, SCREEN_H, game_color(game, ERUTA_WHITE), 7);
       
-      tilepane_draw(tilepane, 100, 200);
+      tilepane_draw(tilepane, mp.x, mp.y);
+      mp = cpvadd(mp, mv);
       tile_draw(tile, 200, 300);
       tile_update(tile);
       al_flip_display();

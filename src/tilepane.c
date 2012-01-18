@@ -22,8 +22,10 @@ struct Tilepane_ {
 };
 
 
-// Cleans up a pane by freeing the memory references it holds internally,
-// but does not free the pane itself.
+/** 
+* Cleans up a pane by freeing the memory references it holds internally,
+* but does not free the pane itself.
+*/
 Tilepane * tilepane_done(Tilepane * pane) {
   int index;
   // First free the rows.
@@ -41,7 +43,7 @@ Tilepane * tilepane_done(Tilepane * pane) {
   return pane;
 }
 
-/** Deallocates gy pane. */
+/** Deallocates a Tilepane. */
 Tilepane * tilepane_free(Tilepane * pane) {
   tilepane_done(pane);
   mem_free(pane);
@@ -53,7 +55,7 @@ Tilepane * tilepane_free(Tilepane * pane) {
 Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
                            int gridwide, int gridhigh) {
   int index, jdex;
-  if((!pane)) return NULL;
+  if (!pane) return NULL;
   tilepane_tileset_(pane, set);
   pane->gridwide   = gridwide;
   pane->gridhigh   = gridhigh;
@@ -63,30 +65,31 @@ Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
   
   // Precalculate dimensions...  
   // And allocate space for the tiles and tile indices.
-  pane->tiles    = mem_alloc(sizeof(Tile**) * pane->gridhigh);
+  
+  pane->tiles    = (Tile***) mem_calloc(pane->gridhigh, sizeof(Tile**));
   if(!pane->tiles) {
     return NULL;
-  }   
+  }
+  
   // First empty...
-  /*for (index = 0; index < pane->gridhigh ; index ++) {
+  for (index = 0; index < pane->gridhigh ; index ++) {
     pane->tiles[index] = NULL;
   }
-  */
   
   // Then allocate column rows, calling gypane done on failiure
   // that's why we need to null everything first) 
   for (index = 0; index < pane->gridhigh ; index ++) {
-    size_t size = sizeof(Tile*) * pane->gridwide;
-    pane->tiles[index] = mem_calloc(pane->gridwide, sizeof(Tile*));
+    pane->tiles[index] = (Tile**) mem_calloc(pane->gridwide, sizeof(Tile*));
     if(!pane->tiles[index]) {
       tilepane_done(pane);
       return NULL;
     }
     // set all tile pointers to NULL
-    for(jdex = 0; jdex < size ; jdex ++) { 
+    for(jdex = 0; jdex < pane->gridwide ; jdex++) {
       pane->tiles[index][jdex] = NULL;
     }
   }
+  
   return pane;
 }
 
@@ -161,6 +164,29 @@ Tile * tilepane_get(Tilepane * pane, int gridx, int gridy) {
   return pane->tiles[gridy][gridx];
 }  
 
+/** Sets the tile in the given rectangle  to the given Tile pointer,
+* which may be NULL. Returns the pane, or NULL on error.
+*/
+Tilepane * tilepane_rect(Tilepane * pane,
+                             int gridx, int gridy, int gridw, int gridh, 
+                             Tile * tile) {
+  int ii, jj;
+  for (jj = gridy; jj < (gridy + gridh) ; jj++){
+    for (ii = gridx; ii < (gridx + gridw) ; ii++) {
+      tilepane_set(pane, ii, jj, tile);
+    }
+  }
+  return pane;
+}
+
+/** Fills the while tile pane with the given tile */
+Tilepane * tilepane_fill(Tilepane * pane, Tile * tile) {
+  int ww = tilepane_gridwide(pane);
+  int hh = tilepane_gridhigh(pane);
+  return tilepane_rect(pane, 0, 0, ww, hh, tile);
+}
+
+
 /** Draws the tile pane, with x and y as the top left corner,
 * to the current active display  X and y may be negative.
 */
@@ -204,7 +230,7 @@ void tilepane_draw(Tilepane * pane, int x, int y) {
       tile        = row[tx_index];
       if(tile) {
         tile_draw(tile, drawx, drawy);
-      }
+      } 
     }
   }
   // Let go of hold 
@@ -214,20 +240,20 @@ void tilepane_draw(Tilepane * pane, int x, int y) {
 
 /** Sets this Tilepane's tile set. */
 Tileset * tilepane_tileset_(Tilepane * pane, Tileset * set) {
-  if(!pane) return NULL;
+  if (!pane) return NULL;
   return pane->set = set;
 }
 
 /** Gets this Tilepane's tile set. */
 Tileset * tilepane_tileset(Tilepane * pane) {
-  if(!pane) return NULL;
+  if (!pane) return NULL;
   return pane->set;
 }
 
 /** Gets a tile from a the tilepane's tile set by it's tile id. **/
 Tile * tilepane_getfromset(Tilepane * pane, int index) {  
   Tileset * set = tilepane_tileset(pane);
-  if(!set) return NULL;
+  if (!set) return NULL;
   if (index < 0) return NULL;
   return tileset_get(set, index);
 }
@@ -240,50 +266,6 @@ Tilepane * tilepane_setindex(Tilepane * pane,
   Tile * tile = tilepane_getfromset(pane, index);
   return tilepane_set(pane, gridx, gridy, tile);
 }
-
-
-
-/*
-  def draw(screen, x, y)
-    txstart     = ( x / @tilewide )
-    tystart     = ( y / @tilehigh )
-    xtilestop   = (screen.w / @tilewide) + 1
-    ytilestop   = (screen.h / @tilehigh) + 1
-    txstop      = xtilestop + txstart
-    tystop      = ytilestop + tystart
-    drawx       = 0
-    drawy       = 0
-    row         = nil
-    aidimage    = nil
-    nilcount    = 0
-    return if (txstart >= @wide or tystart >= @high) 
-    txstart = 0    if (txstart < 0) 
-    tystart = 0    if (tystart < 0)
-    txstop  = @wide if (txstop > @wide) 
-    tystop  = @high if (tystop > @high) 
-    drawy   = -y + ( (tystart-1) * @tilehigh )
-    tydex   = tystart
-    # for tydex in (tystart...tystop)
-    while tydex < tystop do 
-      drawy   += @tilehigh;
-      drawx   = -x + ( (txstart-1) * @tilewide )
-      row     = @pane[tydex]
-      # for txdex in (txstart...txstop) do
-      txdex = txstart
-      while txdex < txstop
-        drawx   += @tilewide        
-        aidtile  = row[txdex]
-        unless aidtile.nil? then
-          aidimage    = aidtile.get
-          SDL::Surface.blit(aidimage, 0,0,0,0, screen, drawx, drawy)
-        end
-        txdex += 1
-      end
-      tydex  += 1
-    end
-  end
-*/
-
 
 
 
