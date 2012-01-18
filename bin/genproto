@@ -1,10 +1,21 @@
 #!/usr/bin/env ruby
-
+#
+# Genproto by beoran 2012. Licensed under a Sleepycat-style license.
+# Genproto generates function prototypes from C files
+# but only for prototype preceded by a /** comment.
+# The comment is included verbatim.
+# It also generates forward declarations for structs if they are preceded
+# by a /** comment.
+# A comment that ends in **/ will be included verbatim, but will not
+# generate any prototypes.
+# functions that are nort preceded by a /** comment are ignored.
+#
+#
 fin       = File.open(ARGV[0], 'rt')
 inproto   = nil;
 instruct  = nil;
 incomm    = nil; 
-STRUCT_RE = %r{struct ([A-Za-z0-9]+\_)}
+STRUCT_RE = %r{struct ([A-Za-z0-9]+)}
 COMM_RE   = %r(\/\*\*)
 FUNC_RE   = %r(\{)
 COMMEND_RE= %r(\*\*\/)
@@ -18,7 +29,7 @@ fin.each_line do |line|
     done    = line.match(FUNC_RE)
     struct  = line.match(STRUCT_RE)    
     if struct
-      name = struct[1].chop # remove _
+      name = struct[1].chop # remove last character, should be _
       puts "struct #{name}_;"
       puts "typedef struct #{name}_ #{name};"
     else
