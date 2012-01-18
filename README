@@ -16,7 +16,7 @@ premake4 gmake ; make
 How to try it:
 
 Run bin/eruta from the project's main directory.
-Expect to be unerwhelemd for now. :-)
+Expect to be underwhelmed for now. :-)
 
 License: 
 
@@ -66,7 +66,7 @@ different arrangments. :)
 Credits and third party licenses: 
 
 File:
-ext/gari/test/test_music.ogg 
+ext/gari/test/test_music.ogg, data/music/musictest.ogg
 Original title: : Town in ruins loop
 Artist: Brandon Morris
 License: CC-BY 3.0

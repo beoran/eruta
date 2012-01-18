@@ -1,5 +1,6 @@
 #include "mem.h"
 #include "game.h"
+#include "sound.h"
 
 
 
@@ -7,6 +8,7 @@
 struct Game_ {
   BOOL                  busy;
   BOOL                  fullscreen;
+  BOOL                  audio;
   int32_t               modeno;
   ALLEGRO_FONT        * font;
   ALLEGRO_COLOR         colors[GAME_COLORS];
@@ -61,8 +63,9 @@ lua interpreter, etc. Get any error with game_errmsg if
 this returns NULL. */
 Game * game_init(Game * self, BOOL fullscreen) {
   if(!self) return NULL;
-  self->busy = TRUE;
+  self->busy       = TRUE;
   self->fullscreen = fullscreen;
+  self->audio      = FALSE;
   game_errmsg_(self, "OK!");
   // Initialize Allegro 5 and addons
   if (!al_init()) {
@@ -79,6 +82,10 @@ Game * game_init(Game * self, BOOL fullscreen) {
 
   if (!al_install_mouse()) {
     return game_errmsg_(self, "Error installing mouse.\n");
+  }
+
+  if(!audio_start()) {
+    perror("Sound not started.");
   }
   
   // Use full screen mode if needed.

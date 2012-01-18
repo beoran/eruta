@@ -14,6 +14,11 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
+/** Screen size wich will always be 640x480 (real or virtually). */
+#define SCREEN_W      640
+#define SCREEN_H      480
+
+
 
 #ifndef TRUE
 #define TRUE (!0)
@@ -32,6 +37,14 @@
 #ifndef STR
 #define STR ALLEGRO_USTR
 #endif
+
+
+/** Use the chipmunk vector as the Point type.
+Allegro also uses floats now for it's drawing. */
+typedef cpVect Point;
+
+/** Wrapper macros */
+#define point(X, Y) cpv(X, Y);
 
 /** Commonly used types and typedefs. */
 

@@ -1,0 +1,2 @@
+#!/bin/bash
+cproto -I include -I /usr/local/include/chipmunk -I /usr/local/include $1

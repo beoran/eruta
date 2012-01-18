@@ -41,6 +41,8 @@ struct Tile_ {
   int           offset;
   /** Index of currently active image pointer for this tile. */
   int           active;
+  /** Sub-position in the sheet of the currently active frame. */
+  Point         now;
 };
 
 
@@ -103,6 +105,24 @@ Tileset * tileset_new(Image * sheet) {
   return result;
 }
 
+/*Macros thta calculate the position of a tile in a tile set's sheet. */
+#define TILE_SHEET_Y(TILE, SET)\
+        ((TILE->active * TILE_H) / ((SET)->w))
+
+#define TILE_SHEET_X(TILE, SET)\
+        ((TILE->active * TILE_W) % ((SET)->w))
+  
+/** Recalculates the tile's position (now) in it's tile set. */
+Tile * tile_recalculate(Tile * tile) {
+  int x, y;
+  if(!tile) return NULL;
+  if(!tile->set) return NULL;
+  x = TILE_SHEET_X(tile, tile->set);
+  y = TILE_SHEET_Y(tile, tile->set);
+  tile->now = point(x, y); 
+  return tile;
+}
+
 /** Initializes a tile to belong to a given tile set. */
 Tile * tile_init(Tile * tile, Tileset * set, int index) {
   if(!tile) return NULL;
@@ -114,6 +134,7 @@ Tile * tile_init(Tile * tile, Tileset * set, int index) {
   tile->anime   = 0;
   tile->offset  = 0; 
   tile->active  = index;
+  tile_recalculate(tile);
   return tile;
 }
 
@@ -212,8 +233,7 @@ void tile_update(Tile * tile) {
       tile->anime++;
     break;	
   }  
- // Rewind active tile index if too far. Yes, this is defensive programming, 
- // but it's better like this. :)
+ // Rewind active tile index if too far. Yes, this is defensive programming, but it's better like this. :)
   if (tile->offset >= tile->framlen) {
       tile_rewindanime(tile);
   } 
@@ -221,6 +241,8 @@ void tile_update(Tile * tile) {
   if (tile->anime >= tile->proglen) {   
     tile->anime = 0;
   }
+  // Finally recalculate tile position.
+  tile_recalculate(tile);
 }
 
 // Updates all tiles in a tile set so they all get animated.
@@ -235,20 +257,16 @@ void tileset_update(Tileset * set) {
 } 
 
 
-#define TILE_SHEET_Y(TILE, SET)\
-        ((TILE->active * TILE_H) / ((SET)->w))
-
-#define TILE_SHEET_X(TILE, SET)\
-        ((TILE->active * TILE_W) % ((SET)->w))
         
-// Draw a tile to the current active drawing target at the given coordinates
+/** Draw a tile to the current active drawing target at the
+given coordinates */
 void tile_draw(Tile * tile, int x, int y) {
   Tileset * set = tile->set;
   Image * sheet = set->sheet;
   float dx      = (float) x;
   float dy      = (float) y; 
-  float sx      = (float) TILE_SHEET_X(tile, set);
-  float sy      = (float) TILE_SHEET_Y(tile, set);
+  float sx      = (float) tile->now.x;
+  float sy      = (float) tile->now.y;
   float sw      = (float) TILE_W;
   float sh      = (float) TILE_H;
   // printf("%f %f\n", sx, sy);
