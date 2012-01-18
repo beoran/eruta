@@ -15,7 +15,7 @@ fin       = File.open(ARGV[0], 'rt')
 inproto   = nil;
 instruct  = nil;
 incomm    = nil; 
-STRUCT_RE = %r{struct ([A-Za-z0-9]+)}
+STRUCT_RE = %r{struct ([A-Za-z0-9_]+)}
 COMM_RE   = %r(\/\*\*)
 FUNC_RE   = %r(\{)
 COMMEND_RE= %r(\*\*\/)
@@ -29,9 +29,11 @@ fin.each_line do |line|
     done    = line.match(FUNC_RE)
     struct  = line.match(STRUCT_RE)    
     if struct
-      name = struct[1].chop # remove last character, should be _
-      puts "struct #{name}_;"
-      puts "typedef struct #{name}_ #{name};"
+      name = struct[1]
+      defi = name.chop
+      puts "struct #{name};"
+      puts "typedef struct #{name} #{defi};"
+      puts 
     else
       if done
         if commend

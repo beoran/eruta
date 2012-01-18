@@ -68,15 +68,16 @@ Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
     return NULL;
   }   
   // First empty...
-  for (index = 0; index < pane->gridhigh ; index ++) {
+  /*for (index = 0; index < pane->gridhigh ; index ++) {
     pane->tiles[index] = NULL;
   }
+  */
   
   // Then allocate column rows, calling gypane done on failiure
   // that's why we need to null everything first) 
   for (index = 0; index < pane->gridhigh ; index ++) {
-    int size = sizeof(Tile*) * pane->gridwide;
-    pane->tiles[index] = mem_alloc(size);
+    size_t size = sizeof(Tile*) * pane->gridwide;
+    pane->tiles[index] = mem_calloc(pane->gridwide, sizeof(Tile*));
     if(!pane->tiles[index]) {
       tilepane_done(pane);
       return NULL;
