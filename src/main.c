@@ -23,15 +23,13 @@ if Allegro is compiled in the default RelWithDbg mode.
 
 
 int main(void) {
-    Image    * sheet;
-    Tileset  * tileset;
-    Tile     * tile;
-    Game     * game;
-    Music    * music;
-    Camera   * camera;
-    Tilepane * tilepane = NULL;
-    int        frames;
-    double     fpstime, fps; 
+    Image    * sheet    = NULL;
+    Tileset  * tileset  = NULL;
+    Tile     * tile     = NULL;
+    Game     * game     = NULL;
+    Music    * music    = NULL;
+    Camera   * camera   = NULL;
+    Tilepane * tilepane = NULL;    
     game = game_alloc();
     Point      mp = { -100, -100}, mv = {0, 0};
     if(!game_init(game, FALSE)) {
@@ -39,9 +37,11 @@ int main(void) {
       return 1;      
     }
     camera = camera_new(-100, -100, SCREEN_W, SCREEN_H);
-    if(!camera) 
-    music = music_load(ERUTA_TEST_MUSIC);
-    if(!music) perror(ERUTA_TEST_MUSIC);
+    if(!camera) {
+      perror("Could not allocate Camera.");
+     } 
+    //music = music_load(ERUTA_TEST_MUSIC);
+    //if(!music) perror(ERUTA_TEST_MUSIC);
     
     sheet = image_load(ERUTA_TEST_SHEET);
     if(!sheet) {
@@ -61,19 +61,8 @@ int main(void) {
     // tile_addframe(tile, 3);
     //tile_addanime(tile, TILE_ANIME_NEXT);
     //tile_addanime(tile, TILE_ANIME_REWIND);
-    fpstime = al_get_time();
-    fps     = 0;
-    frames  = 0;
     while (game_busy(game)) {    
       ALLEGRO_EVENT event;
-      double now = al_get_time();
-      if (now > (fpstime + 1.0)) {
-        fps    = ((double)frames) / (now - fpstime);
-        fpstime= now;
-        frames = 0;
-      } else {
-        frames++;
-      }  
       
       while(game_poll(game, &event)) {
         switch (event.type) {
@@ -127,11 +116,11 @@ int main(void) {
       al_clear_to_color(game_color(game, ERUTA_BLACK));
       al_draw_line(0, 0, SCREEN_W, SCREEN_H, game_color(game, ERUTA_WHITE), 7);
       
-      /*tilepane_draw(tilepane, camera);
       tilepane_draw(tilepane, camera);
       tilepane_draw(tilepane, camera);
-      tilepane_draw(tilepane, camera);
-      */
+      //tilepane_draw(tilepane, camera);
+      //tilepane_draw(tilepane, camera);
+      
       camera_speed_(camera, mv);
       camera_update(camera);
       

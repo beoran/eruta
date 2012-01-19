@@ -1,4 +1,8 @@
 #!/bin/bash
+# This little tool calls genproto for all C files in the src directory
+# And outputs function prototypes in the include directory (the xxx_proto.h files)
+# Very handy, saves time because prototypes don't need to be written by hand anymore.
+#
 export PATH=.:./bin:$PATH
 for each in src/*.c 
 do
