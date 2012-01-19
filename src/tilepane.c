@@ -1,7 +1,9 @@
 #include "eruta.h"
 #include "mem.h"
 #include "tile.h"
+#include "camera.h"
 #include "tilepane.h"
+#include "dynar.h"
 
 /**
 This comment is copied verbatim to the header but no prototype is generated.
@@ -51,7 +53,9 @@ Tilepane * tilepane_free(Tilepane * pane) {
 }
 
 
-/** Initializes a tile pane. */
+/** Initializes a tile pane.
+* The pane will not clean up the tile set itself!
+*/
 Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
                            int gridwide, int gridhigh) {
   int index, jdex;
@@ -187,20 +191,26 @@ Tilepane * tilepane_fill(Tilepane * pane, Tile * tile) {
 }
 
 
+// Since tile size is 32, shifts can be used in stead of multiplications.
+#define TIMES_TILEWIDE(V) ((V) << 5)
+#define TIMES_TILEHIGH(V) ((V) << 5)
+
 /** Draws the tile pane, with x and y as the top left corner,
 * to the current active display  X and y may be negative.
 */
-void tilepane_draw(Tilepane * pane, int x, int y) {
+void tilepane_draw(Tilepane * pane, Camera * camera) {
   // Copy everything to the stack since that should be faster than always
   // referring to pointers.
   int gridwide    = pane->gridwide;
   int gridhigh    = pane->gridhigh;
   int tilewide    = TILE_W;
   int tilehigh    = TILE_H;
+  int x           = (int) camera_at_x(camera);
+  int y           = (int) camera_at_y(camera);  
   int txstart     = x / tilewide;
   int tystart     = y / tilehigh;
-  int xtilestop   = (SCREEN_W / tilewide) + 1;
-  int ytilestop   = (SCREEN_H / tilehigh) + 1;
+  int xtilestop   = (camera_w(camera) / tilewide) + 1;
+  int ytilestop   = (camera_h(camera) / tilehigh) + 1;
   int txstop      = xtilestop + txstart;
   int tystop      = ytilestop + tystart;
   int drawx       = 0;
@@ -219,18 +229,18 @@ void tilepane_draw(Tilepane * pane, int x, int y) {
   tystart         = (tystart < 0) ? 0 : tystart;
   txstop          = (txstop > gridwide) ? gridwide : txstop;
   tystop          = (tystop > gridhigh) ? gridhigh : tystop;  
-  drawy           = -y + ((tystart-1) * tilehigh);  
+  drawy           = -y + TIMES_TILEHIGH(tystart-1);
   for (ty_index = tystart; ty_index < tystop ; ty_index++) {
     drawy        += tilehigh;
-    drawx         = -x + ((txstart-1) * tilewide);
+    drawx         = -x + TIMES_TILEWIDE(txstart-1);
     row           = pane->tiles[ty_index];
-    if(!row) continue; 
+    if(!row) continue;
     for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
       drawx      += tilewide;
       tile        = row[tx_index];
-      if(tile) {
-        tile_draw(tile, drawx, drawy);
-      } 
+       if(tile) {
+         tile_draw(tile, drawx, drawy);
+       }
     }
   }
   // Let go of hold 

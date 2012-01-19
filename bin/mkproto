@@ -1,0 +1,9 @@
+#!/bin/bash
+export PATH=.:./bin:$PATH
+for each in src/*.c 
+do
+	base=$(basename $each)
+	out=include/${base%.c}_proto.h
+	echo "Generating:" $out
+	genproto $each > $out
+done

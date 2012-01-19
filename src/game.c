@@ -4,7 +4,7 @@
 
 
 
-
+/** The game struct containsall game data. */
 struct Game_ {
   BOOL                  busy;
   BOOL                  fullscreen;
@@ -15,14 +15,19 @@ struct Game_ {
   ALLEGRO_DISPLAY     * display;
   ALLEGRO_BITMAP      * bkg;
   ALLEGRO_EVENT_QUEUE * queue;
-  char                * errmsg; 
+  char                * errmsg;  
+  double                fpsnow, fpstime, fps;
+  int                   frames;    
 };
 
+/***/
 
+/** Allocates a game struct */
 Game * game_alloc() {
   return STRUCT_ALLOC(Game);
 }
 
+/** Frees a game struct */
 void game_free(Game * game) {
   STRUCT_FREE(game);
 }
@@ -113,7 +118,11 @@ Game * game_init(Game * self, BOOL fullscreen) {
   game_eventsource(self, al_get_keyboard_event_source());
   game_eventsource(self, al_get_display_event_source(self->display));
   game_eventsource(self, al_get_mouse_event_source());
-  al_set_window_title(self->display, "Eruta!");  
+  al_set_window_title(self->display, "Eruta!");
+  // set up fps counter. 
+  self->fps     = 0.0;
+  self->fpstime = al_get_time();
+  self->frames  = 0;  
   return self;
 }
 
@@ -138,10 +147,40 @@ BOOL game_busy(Game * self) {
 * event. if it is available. Returns true if there is an event of false if
 * not.
 */
-
 int game_poll(Game * game,  ALLEGRO_EVENT * event) {
   return al_get_next_event(game->queue, event);
 }  
+
+/** Return the game's default font. */
+ALLEGRO_FONT * game_font(Game * game) {
+  if(!game) return NULL;
+  return game->font;
+}
+
+
+/** Call this every frame to update the FPS and frames value */
+void game_frames_update(Game * game) {
+  double now = al_get_time();
+  // tthis algoritm gives a
+  game->frames++;
+  if(game->frames < 0)  { // oops, overflow, so handle it.
+    game->frames  = 0;
+    game->fps     = 0;
+    game->fpstime = now;
+  } else { 
+    game->fps     = ((double)game->frames) / (now - game->fpstime);
+  }   
+}
+
+/** Returns the amount of frames rendered during this second. */
+int game_frames(Game * game) {
+  return game->frames;
+}
+
+/** Returns the FPS value. */
+double game_fps(Game * game) {
+  return game->fps;
+}
 
 
 

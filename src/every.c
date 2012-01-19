@@ -1,9 +1,11 @@
+#include "mem.h"
 #include "every.h"
+
 
 
 /** Allocates an uninitialized every object. */
 Every * every_alloc() {
-  return STRUCT_ALLOC(every);
+  return STRUCT_ALLOC(Every);
 }
 
 /** Deinitializes an every object.  */
@@ -16,14 +18,15 @@ return self;
 Every * every_free(Every * self) {
   every_done(self);
   mem_free(self);
+  return NULL;
 }
 
 /** Initializes an every object. */
 Every * every_init(Every * self, EveryActs * acts) {
   if(!self) return NULL;
   self->acts    = acts;
-  if(self->acts.init)
-    return self->acts.init(self);
+  if(self->acts->init)
+    return self->acts->init(self);
   return self;
 }
 
@@ -44,8 +47,8 @@ void * every_get(Every * self) {
 */
 void * every_put(Every * self, void * data) {
   if(!self) return NULL;
-  if(self->acts.put) {
-    return self->acts.put(self, data);
+  if(self->acts->put) {
+    return self->acts->put(self, data);
   }
   return NULL;
 }
@@ -54,9 +57,9 @@ void * every_put(Every * self, void * data) {
 * Return NULL if no next object.
 */
 Every * every_next(Every * self, void * data) {
-  if(self->acts.next) {
-    self->acts.next(self);
-    return every_get(every);
+  if(self->acts->next) {
+    self->acts->next(self);
+    return every_get(self);
   }
   return NULL;
 }

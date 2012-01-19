@@ -39,7 +39,7 @@ void * mem_resize(void ** ptr, size_t newsize) {
 }
 
 /** Wrapper for memmove, for consistency */
-void * mem_move(void * dest, void * src; size_t size) {
+void * mem_move(void * dest, void * src, size_t size) {
   return memmove(dest , src, size);
 }
 

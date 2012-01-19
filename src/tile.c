@@ -45,6 +45,12 @@ struct Tile_ {
   Point         now;
 };
 
+/* NOTE: Tiles could be implemented using sub bitmaps as they seem to be
+* slightly faster if they are preallocated. however the speed gain would
+* be around 2%, so it's not a priority yet. It could simplify some of
+* the code, though, but I'll use sub-bitmaps for spites first.
+*/
+
 
 /** Cleans up a tileset, and empties it.  */
 void tileset_done(Tileset * set) {

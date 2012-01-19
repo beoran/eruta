@@ -1,4 +1,4 @@
-#include "array.h"
+#include "dynar.h"
 #include "mem.h"
 
 #define ARRAY_ROOM 16
@@ -118,17 +118,6 @@ Dynar * dynar_newptr(size_t amount) {
   return dynar_new(amount, sizeof(void *));
 }
  
-/** Sets the size of the array. This fails if the array's room is less than 
-* or size, and return null. Otherwise sets size and returns self 
-* if there enough room for the given size. 
-* Returns NULL if there is not enough room, otherwise returns self.
-*/
-Dynar * dynar_size_(Dynar * self, size_t size) {
-  size_t room = dynar_room(self);
-  if (size > room) return NULL;
-  self->size = size;
-  return self;
-}
 
 /** Sets the amount of elements of the the array, but ony if
 * amount bigger than the bigger than the current size.
@@ -165,7 +154,7 @@ dynar_elementsize(self). Does no bounds checking!
 Returns NULL on failure, out on success.
 */
 void * dynar_getcopy_unsafe(Dynar * self, int index, void * out) {
-  char * cptr = (char *) dynar_getraw_unsafe(self);
+  char * cptr = (char *) dynar_getraw_unsafe(self, index);
   size_t size = dynar_elementsize(self);
   if((!self) || (!out) || (!cptr)) return NULL;
   mem_move(out, cptr, size);
@@ -177,7 +166,7 @@ void * dynar_getcopy_unsafe(Dynar * self, int index, void * out) {
 * Does no bounds checking!
 */
 Dynar * dynar_putraw_unsafe(Dynar * self, int index, void * ptr) {
-  char * cptr = (char *) dynar_getraw_unsafe(self);
+  char * cptr = (char *) dynar_getraw_unsafe(self, index);
   size_t size = dynar_elementsize(self);
   if((!self) || (!ptr) || (!cptr)) return NULL;
   mem_move(cptr, ptr, size);
@@ -257,13 +246,13 @@ Every * dynar_everynow_ptr(Every * every) {
 /* Iterator helpers: init */
 Every  * dynar_everyinit_data(Every * every) {
   every->index = 0;
-  return dynar_everynow_data(Every * every);
+  return dynar_everynow_data(every);
 }
 
 /* Iterator helpers: next */
 Every  * dynar_everynext_data(Every * every) {
   every->index++;
-  return dynar_everynow_data(Every * every);
+  return dynar_everynow_data(every);
 }
 
 /* Iterator helpers: put. */
@@ -279,13 +268,13 @@ void  * dynar_everydone(Every * every) {
 /* Iterator helpers: init pointers */
 Every  * dynar_everyinit_ptr(Every * every) {
   every->index = 0;
-  return dynar_everynow_ptr(Every * every);
+  return dynar_everynow_ptr(every);
 }
 
 /* Iterator helpers: next pointers */
 Every  * dynar_everynext_ptr(Every * every) {
   every->index++;
-  return dynar_everynow_ptr(Every * every);
+  return dynar_everynow_ptr(every);
 }
 
 /* Iterator helpers: put pointers. */
@@ -294,16 +283,16 @@ void  * dynar_everyput_ptr(Every * every, void * data) {
 }
 
 
-/** Iterator helper table. */
-EveryActs dynar_every_data_acts_ = {
+/* Iterator helper table. */
+static EveryActs dynar_every_data_acts_ = {
   dynar_everydone,
   dynar_everyinit_data,
   dynar_everynext_data,
   dynar_everyput_data  
 };
 
-/** Iterator helper table. */
-EveryActs dynar_every_ptr_acts_ = {
+/* Iterator helper table. */
+static EveryActs dynar_every_ptr_acts_ = {
   dynar_everydone,
   dynar_everyinit_ptr,
   dynar_everynext_ptr,
@@ -317,13 +306,13 @@ Every * dynar_every_data(Dynar * dynar) {
 }
 
 /** Iterates over the pointers in this array. Call every_free when done. */
-Every * dynar_every_data(Dynar * dynar) {
+Every * dynar_every_ptr(Dynar * dynar) {
   return every_new(&dynar_every_ptr_acts_);
 }
 
 
 
-#ifndef COMMENT_
+#ifdef COMMENT_
 
 /* Walks over the array using the walker interface, accessing
 the data as pointers. */
