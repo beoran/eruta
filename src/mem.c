@@ -1,6 +1,8 @@
 /* Memory handling, malloc wrapers, etc */
 
 #include <stdlib.h>
+#include <string.h>
+#include "mem.h"
 
 /** Wrapper for calloc/malloc */
 void * mem_calloc(size_t amount, size_t size) {
@@ -34,6 +36,11 @@ void * mem_resize(void ** ptr, size_t newsize) {
     }
   }  
   return NULL;
+}
+
+/** Wrapper for memmove, for consistency */
+void * mem_move(void * dest, void * src; size_t size) {
+  return memmove(dest , src, size);
 }
 
 

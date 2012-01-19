@@ -19,6 +19,9 @@ void * mem_realloc(void *ptr, size_t newsize);
 fails. */
 void * mem_resize(void ** ptr, size_t newsize);
 
+/** Wrapper for memmove, for consistency */
+void * mem_move(void * dest, void * src, size_t size);
+
 /** Handy macros. */
 /*
 #define STRUCT_NALLOC(STRUCT, AMOUNT) \
