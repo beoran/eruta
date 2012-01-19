@@ -86,7 +86,7 @@ Tileset * tileset_init(Tileset * set, Image * sheet) {
   } 
   set->w        = image_w(set->sheet);
   set->h        = image_h(set->sheet);
-  set->size     = (set->w / 32) * (set->h / 32); 
+  set->size     = (set->w / TILE_W) * (set->h / TILE_H);
   set->last     = 0;
   set->tiles    = mem_alloc(sizeof(Tile) * set->size);
   if (!set->tiles) {

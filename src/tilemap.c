@@ -1,12 +1,78 @@
-#include "eruta.h"
+#include "image.h"
+
+#define TILEMAP_LAYERS 4
+
+/** A tile map is a game map that uses tiled layers for it's 
+display and physics. */
+struct Tilemap_ {
+  Image     * texture;
+  int         textureid;
+  int         gridw;
+  int         gridh;
+  Tileset   * set;
+  Tilepane  * layers[TILMAP_LAYERS];
+
+}
+
+
+
+#define TEXTURE_TILE    "tile"
+#define TEXTURE_PLAYER  "play"
+#define TEXTURE_GEAR    "gear"
+#define TEXTURE_WEAPON  "arms"
+#define TEXTURE_FOE     "foes"
+#define TEXTURE_ITEM    "item"
+
+/** Loads an image of the given category and index as a texture. */
+Image * image_loadtexture(const char * category, int index) {
+  char buf[1024];
+  Image   * image;
+  sprintf(buf, "data/image/%s_%03d.png", category, index);
+  image   = image_load(buf);
+  return image;
+}
+
+/** Cleans up a tilemap. */
+Tilemap * tilemap_done(Tilemap * self) {
+  int index;
+  if(!self) return NULL;
+  for(index = 0; index < TILEMAP_LAYERS; index++) {
+    tilepane_free(self->layers[index]);
+  }  
+  // cpSpaceFree(self->space);
+  tileset_free(self->set);
+  // bamap_initempty(self);
+  return self;
+}
+
+
+/** Initializes a tile map */
+Tilemap* tilemap_init(Tilemap * self, int textureid, int w, int h) {
+  int index, tilesize;
+  self->texture   = batexture_load(TEXTURE_TILE, textureid);
+  if(!self->texture) return NULL;
+  self->gridw     = w;
+  self->gridh     = h;
+  self->textureid = textureid;
+  self->set       = tileset_new(self->texture);
+  if(!self->set) {  bamap_done(self); return NULL; } 
+   
+  for(index = 0; index < BAMAP_LAYERS; index++) {
+    self->layers[index] = gylayer_new(self->texture, w, h, 32, 32);
+  }
+  self->space = cpSpaceNew();
+  return self;
+}
+
 
 #ifdef COMMENT_
 
-#define BATEXTURE_TILE    "tile"
-#define BATEXTURE_PLAYER  "play"
-#define BATEXTURE_WEAPON  "arms"
-#define BATEXTURE_FOE     "foes"
-#define BATEXTURE_ITEM    "item"
+#define TEXTURE_TILE    "tile"
+#define TEXTURE_PLAYER  "play"
+#define TEXTURE_WEAPON  "arms"
+#define TEXTURE_FOE     "foes"
+#define TEXTURE_ITEM    "item"
+
 #define BAMAP_TILEW       32
 #define BAMAP_TILEH       32
 
@@ -59,18 +125,6 @@ BaMap* bamap_init(BaMap * self, int textureid, int w, int h) {
     self->layers[index] = gylayer_new(self->texture, w, h, 32, 32);
   }
   self->space = cpSpaceNew();
-  return self;
-}
-
-BaMap * bamap_done(BaMap * self) {
-  int index;
-  if(!self) return NULL;
-  for(index = 0; index < BAMAP_LAYERS; index++) {
-    gylayer_free(self->layers[index]);
-  }  
-  cpSpaceFree(self->space);
-  gytiledata_free(self->tiledata);
-  bamap_initempty(self);
   return self;
 }
 
