@@ -17,7 +17,12 @@
 		kind        "WindowedApp"
 		flags       { "ExtraWarnings"}
 		
-		includedirs { "include", "/usr/include", "/usr/local/include/allegro5" , "/usr/local/include/lua", "/usr/local/include/chipmunk", "/usr/include/SDL" }
+		includedirs { "include", 
+                  "/usr/local/include/lua", "/usr/local/include/chipmunk",
+                  "/usr/local/include"    , "/usr/local/include/allegro5" ,                  
+                  "/usr/include"          , "/usr/include/lua", 
+                  "/usr/include/chipmunk" , "/usr/include/allegro5" 
+                  }
 
 		libdirs     { "/usr/lib/i386-linux-gnu" }
 		links       { "m",
@@ -28,6 +33,7 @@
                   "allegro_audio"     , "allegro_dialog",
                   "allegro_memfile"   , "allegro_acodec",
                   "allegro_color"     , "allegro_physfs",
+                  "chipmunk"          , "lua"
                  }
 		
 		files {
@@ -36,7 +42,7 @@
 
 		configuration "Debug"
 			targetdir   "bin"
-			defines     "_DEBUG"
+			defines     "CONFIG_DEBUG"
 			flags       { "Symbols" }
 			
 		configuration "Release"
