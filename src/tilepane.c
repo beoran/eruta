@@ -151,13 +151,13 @@ int tilepane_outsidegrid(Tilepane * pane, int gridx, int gridy) {
 }
 
 /** Sets the tile at the given location to the given Tile pointer,
-* which may be NULL. Returns the pane, or NULL on error.
+* which may be NULL. Returns the tile thus set, or NULL on error.
 */
-Tilepane * tilepane_set(Tilepane * pane,
+Tile * tilepane_set(Tilepane * pane,
                           int gridx, int gridy, Tile * tile) {
   if (tilepane_outsidegrid(pane, gridx, gridy)) return NULL;
   pane->tiles[gridy][gridx]    = tile;
-  return pane;
+  return tile;
 }  
 
 /** Returns the sheet in the pane's grid at the given grid coordinates,
@@ -169,26 +169,28 @@ Tile * tilepane_get(Tilepane * pane, int gridx, int gridy) {
 }  
 
 /** Sets the tile in the given rectangle  to the given Tile pointer,
-* which may be NULL. Returns the pane, or NULL on error.
+* which may be NULL. Returns the tuile set, or NULL on error.
 */
-Tilepane * tilepane_rect(Tilepane * pane,
-                             int gridx, int gridy, int gridw, int gridh, 
-                             Tile * tile) {
+Tile * tilepane_rect(Tilepane * pane,
+                     int gridx, int gridy, int gridw, int gridh,
+                     Tile * tile) {
   int ii, jj;
   for (jj = gridy; jj < (gridy + gridh) ; jj++){
     for (ii = gridx; ii < (gridx + gridw) ; ii++) {
       tilepane_set(pane, ii, jj, tile);
     }
   }
-  return pane;
+  return tile;
 }
 
-/** Fills the while tile pane with the given tile */
-Tilepane * tilepane_fill(Tilepane * pane, Tile * tile) {
+/** Fills the while tile pane with the given tile.
+Returns tile if ok, or NULL on error. */
+Tile * tilepane_fill(Tilepane * pane, Tile * tile) {
   int ww = tilepane_gridwide(pane);
   int hh = tilepane_gridhigh(pane);
   return tilepane_rect(pane, 0, 0, ww, hh, tile);
 }
+
 
 
 // Since tile size is 32, shifts can be used in stead of multiplications.
@@ -269,13 +271,30 @@ Tile * tilepane_getfromset(Tilepane * pane, int index) {
 }
 
 /** Sets the tile at the given location to tile at index index in the
-* Tilepane's Tileset, in index < 0, sets NULL; 
+* Tilepane's Tileset, in index < 0, sets NULL; Returns the Tile * object
+* thus set.
 */
-Tilepane * tilepane_setindex(Tilepane * pane,
+Tile* tilepane_setindex(Tilepane * pane,
                              int gridx, int gridy, int index) {
   Tile * tile = tilepane_getfromset(pane, index);
   return tilepane_set(pane, gridx, gridy, tile);
 }
 
+
+/** Sets the tile in the given rectangle to the given Tile index,
+* Returns the tile thus set, or NULL on error or if the index was negative.
+*/
+Tile * tilepane_rectindex(Tilepane * pane,
+                         int gridx, int gridy, int gridw, int gridh,
+                         int index) {
+  Tile * tile = tilepane_getfromset(pane, index);
+  return tilepane_rect(pane, gridx, gridy, gridw, gridh, tile);
+}
+
+/** Fills the while tile pane with the given tile index */
+Tilepane * tilepane_fill(Tilepane * pane, int index) {
+  Tile * tile = tilepane_getfromset(pane, index);
+  return tilepane_fill(pane, 0, 0, ww, hh, tile);
+}
 
 
