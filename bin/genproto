@@ -43,7 +43,7 @@ fin.each_line do |line|
           puts 
         end
       else
-        printf line
+        printf "%s", line
       end
     end
     if done

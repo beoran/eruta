@@ -8,6 +8,11 @@ for each in src/*.c
 do
 	base=$(basename $each)
 	out=include/${base%.c}_proto.h
+	if [ $each -nt $out ]
+	then 
 	echo "Generating:" $out
 	genproto $each > $out
+	else
+	echo "Skipping:" $out
+	fi
 done

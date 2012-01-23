@@ -1,5 +1,5 @@
 #include "eruta.h"
-#include "game.h"
+#include "state.h"
 #include "image.h"
 #include "tile.h"
 #include "tilepane.h"
@@ -26,14 +26,14 @@ int main(void) {
     Image    * sheet    = NULL;
     Tileset  * tileset  = NULL;
     Tile     * tile     = NULL;
-    Game     * game     = NULL;
+    State     * state     = NULL;
     Music    * music    = NULL;
     Camera   * camera   = NULL;
     Tilepane * tilepane = NULL;    
-    game = game_alloc();
+    state = state_alloc();
     Point      mp = { -100, -100}, mv = {0, 0};
-    if(!game_init(game, FALSE)) {
-      perror(game_errmsg(game));
+    if(!state_init(state, FALSE)) {
+      perror(state_errmsg(state));
       return 1;      
     }
     camera = camera_new(-100, -100, SCREEN_W, SCREEN_H);
@@ -61,13 +61,13 @@ int main(void) {
     // tile_addframe(tile, 3);
     //tile_addanime(tile, TILE_ANIME_NEXT);
     //tile_addanime(tile, TILE_ANIME_REWIND);
-    while (game_busy(game)) {    
+    while (state_busy(state)) {    
       ALLEGRO_EVENT event;
       
-      while(game_poll(game, &event)) {
+      while(state_poll(state, &event)) {
         switch (event.type) {
           case ALLEGRO_EVENT_DISPLAY_CLOSE:
-            game_done(game);
+            state_done(state);
             break;
             
           case ALLEGRO_EVENT_KEY_DOWN:
@@ -85,7 +85,7 @@ int main(void) {
                 mv.x = +1;
               break;
               default:
-                game_done(game);
+                state_done(state);
               break;
             }
             break;
@@ -113,8 +113,8 @@ int main(void) {
             break;
         }  
       }
-      al_clear_to_color(game_color(game, ERUTA_BLACK));
-      al_draw_line(0, 0, SCREEN_W, SCREEN_H, game_color(game, ERUTA_WHITE), 7);
+      al_clear_to_color(state_color(state, STATE_BLACK));
+      al_draw_line(0, 0, SCREEN_W, SCREEN_H, state_color(state, STATE_WHITE), 7);
       
       tilepane_draw(tilepane, camera);
       tilepane_draw(tilepane, camera);
@@ -126,16 +126,16 @@ int main(void) {
       
       tile_draw(tile, 200, 300);
       tile_update(tile);
-      game_frames_update(game);
-      al_draw_textf(game_font(game), game_color(game, ERUTA_WHITE),
-                        10, 10, 0, "FPS: %lf, %d", game_fps(game), game_frames(game));
+      state_frames_update(state);
+      al_draw_textf(state_font(state), state_color(state, STATE_WHITE),
+                        10, 10, 0, "FPS: %lf, %d", state_fps(state), state_frames(state));
    
       al_flip_display();
    }
    tilepane_free(tilepane);
    tileset_free(tileset);
    camera_free(camera);
-   game_done(game);
-   game_free(game);
+   state_done(state);
+   state_free(state);
    return 0;
 }

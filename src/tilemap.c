@@ -1,10 +1,10 @@
+#include <chipmunk.h>
 #include "image.h"
-#include "tile.h"
-#include "tilepane.h"
+#include "tilemap.h"
 
 #define TILEMAP_PANES 4
 
-/** A tile map is a game map that uses tiled layers for it's 
+/** A tile map is a game map that uses tiled panes for it's 
 display and physics. */
 struct Tilemap_ {
   Image     * texture;
@@ -13,6 +13,7 @@ struct Tilemap_ {
   int         gridh;
   Tileset   * set;
   Tilepane  * panes[TILEMAP_PANES];
+  cpSpace   * space;
 };
 
 #define TEXTURE_TILE    "tile"
@@ -36,7 +37,7 @@ Tilemap * tilemap_done(Tilemap * self) {
   int index;
   if(!self) return NULL;
   for(index = 0; index < TILEMAP_PANES; index++) {
-    tilepane_free(self->layers[index]);
+    tilepane_free(self->panes[index]);
   }  
   // cpSpaceFree(self->space);
   tileset_free(self->set);
@@ -47,8 +48,8 @@ Tilemap * tilemap_done(Tilemap * self) {
 
 /** Initializes a tile map */
 Tilemap* tilemap_init(Tilemap * self, int textureid, int w, int h) {
-  int index, tilesize;
-  self->texture   = batexture_load(TEXTURE_TILE, textureid);
+  int index;
+  self->texture   = image_loadtexture(TEXTURE_TILE, textureid);
   if(!self->texture) return NULL;
   self->gridw     = w;
   self->gridh     = h;
@@ -57,7 +58,7 @@ Tilemap* tilemap_init(Tilemap * self, int textureid, int w, int h) {
   if(!self->set) {  tilemap_done(self); return NULL; }
    
   for(index = 0; index < TILEMAP_PANES; index++) {
-    self->panes[index] = tilepane_new(self->texture, w, h);
+    self->panes[index] = tilepane_new(self->set, w, h);
   }
   self->space = cpSpaceNew();
   return self;
@@ -65,18 +66,25 @@ Tilemap* tilemap_init(Tilemap * self, int textureid, int w, int h) {
 
 
 /** Returns a pointer to the pane at index or NULL if out of range. */
-Tilepane * tilemap_layer(Tilemap * self, int layer) {
+Tilepane * tilemap_pane(Tilemap * self, int pane) {
   if(!self) return NULL;
-  if(layer < 0) return NULL;
-  if(layer >= TILEMAP_PANES) return NULL;
-  return self->panes[layer];
+  if(pane < 0) return NULL;
+  if(pane >= TILEMAP_PANES) return NULL;
+  return self->panes[pane];
+}
+
+/** Returns the tile in the tile map in the given lyer at the goiven coords. */
+Tile * tilemap_get(Tilemap * self, int l, int x, int y) {
+  Tilepane * pane = tilemap_pane(self, l);
+  if(!pane) return NULL;
+  return tilepane_get(pane, x, y);
 }
 
 /** Sets a tile in the tile map to the given tile. */
-Tilemap * tilemap_settile(TileMap * self, int l, int x, int y, Tile * tile) {
-  Tilepane * pane = tilemap_layer(self, l);
-  if(!layer) return NULL;
-  if(!tilepane_set(layer, x, y, tile)) return NULL;
+Tile * tilemap_settile(Tilemap * self, int l, int x, int y, Tile * tile) {
+  Tilepane * pane = tilemap_pane(self, l);
+  if(!pane) return NULL;
+  if(!tilepane_set(pane, x, y, tile)) return NULL;
   // TODO: Add physical wall if it's a wall.
   /*
   if(tilemap_tilewall(self, tile)) {
@@ -87,11 +95,11 @@ Tilemap * tilemap_settile(TileMap * self, int l, int x, int y, Tile * tile) {
 }
 
 /** Sets a tile in the tile map to the tile with the given index. */
-Tilemap * tilemap_settile(TileMap * self, int l, int x, int y, int index) {
-  Tilepane * pane = tilemap_layer(self, l);
+Tile * tilemap_setindex(Tilemap * self, int l, int x, int y, int index) {
+  Tilepane * pane = tilemap_pane(self, l);
   Tile     * tile = NULL;
-  if(!layer) return NULL;
-  tile            = tilepane_setindex(layer, x, y, index);
+  if(!pane) return NULL;
+  tile            = tilepane_setindex(pane, x, y, index);
   if(!tile) return NULL;
   // TODO: Add physical wall if it's a wall.
   /*
@@ -102,88 +110,47 @@ Tilemap * tilemap_settile(TileMap * self, int l, int x, int y, int index) {
   return tile;
 }
 
-
-#ifdef COMMENT_
-
-
-int tilemap_set(TileMap * self, int l, int x, int y, int tile) {
-  Tilepane * layer = tilemap_layer(self, l);
-  if(!layer) return BAMAP_ERROR;
-  if(!gylayer_set(layer, x, y, (GyTileindex) tile)) return BAMAP_ERROR;
-  // Add physical wall if it's a wall.
-  if(tilemap_tilewall(self, tile)) {
-    tilemap_makewall(self, x, y);
-  }
-  return tile;
+/** Sets a rectangle area in the tile map to the given tile. */
+Tile * tilemap_rect(Tilemap * self, int l, 
+                       int x, int y, int w, int h, Tile * tile) {
+  Tilepane * pane = tilemap_pane(self, l);
+  if(!pane) return NULL;
+  return tilepane_rect(pane, x, y, w, h, tile);
 }
 
-
-
-#define BAMAP_ERROR -2
-
-
-int tilemap_setslab(TileMap * self, int l, int x, int y, int w, int h, int tile) {
-  Tilepane * layer = tilemap_layer(self, l);
-  if(!layer) return BAMAP_ERROR;
-  if(!gylayer_setslab(layer, x, y, w, h, (GyTileindex) tile)) return BAMAP_ERROR;
-  return tile;
+/** Sets a rectangle area in the tile map to the given tile. */
+Tile * tilemap_fill(Tilemap * self, int l, Tile * tile) {
+  Tilepane * pane = tilemap_pane(self, l);
+  return tilepane_fill(pane, tile);
 }
 
-int tilemap_fill(TileMap * self, int l, int tile) {
-  Tilepane * layer = tilemap_layer(self, l);
-  gylayer_fill(layer, (GyTileindex) tile);
-  return tile;
-}
-
-int tilemap_get(TileMap * self, int l, int x, int y) {
-  Tilepane * layer = tilemap_layer(self, l);
-  return (int) gylayer_get(layer, x, y);
-}
-
-/** Sets tile info for given the map and tile. */
-int tilemap_tileinfo_(TileMap * self, int tile, int info) {
-  GyTileinfo ginfo = (GyTileinfo) info;
-  if (tile < 0) return -1;
-  if (info < 0) return -1;
-  if (!self)    return -1;
-  gytiledata_info_(self->tiledata, tile, ginfo);
-  return info;
-}
-
-/** Gets tile info for given the map and tile. */
-int tilemap_tileinfo(TileMap * self, int tile) {
-  if (tile < 0) return -1;
-  if (!self)    return -1;
-  return gytiledata_info(self->tiledata, tile);
-}
-
-/** Checks if a tile index is a wall tile. */
-int tilemap_tilewall(TileMap * self, int tile) {
-  return gytiledata_wall(self->tiledata, tile);
+/** Gets the index of the tile at the given location in the tilemap. */
+int tilemap_getindex(Tilemap * self, int l, int x, int y) {
+  Tilepane * pane = tilemap_pane(self, l);
+  return (int) tilepane_getindex(pane, x, y);
 }
 
 /** Makees a physical wall in the chipmunk space of the map at the given 
 tile coordinates. Returns the wall shape. */
-cpShape * tilemap_makewall(TileMap * self, int tx, int ty) {
-  cpFloat x     = (cpFloat)(tx * BAMAP_TILEW);
-  cpFloat y     = (cpFloat)(ty * BAMAP_TILEW);
-  cpFloat w     = (cpFloat)(BAMAP_TILEW);
-  cpFloat h     = (cpFloat)(BAMAP_TILEH);
-  cpBody *body  = cpSpaceGetStaticBody(self->space);  
+cpShape * tilemap_makewall(Tilemap * self, int tx, int ty) {
+  cpFloat x     = (cpFloat)(tx * TILE_W);
+  cpFloat y     = (cpFloat)(ty * TILE_H);
+  cpFloat w     = (cpFloat)(TILE_W);
+  cpFloat h     = (cpFloat)(TILE_H);
+  cpBody *body  = cpSpaceGetStaticBody(self->space);
   cpVect  p[4]  = { 
                     cpv(x   , y  ), 
                     cpv(x   , y+h), 
                     cpv(x+w , y+h), 
                     cpv(x+w , y)
                    }; 
-  cpShape * wall= cpPolyShapeNew(body, 4, p, cpvzero); 
+  cpShape * wall= cpPolyShapeNew(body, 4, p, cpvzero);
   cpSpaceAddShape(self->space, wall);
   return wall;
 }
 
-
-
-TileMap * tilemap_load(lua_State * lua, int index) {
+#ifdef COMMENT_
+Tilemap * tilemap_load(lua_State * lua, int index) {  
   char buf[1024];
   sprintf(buf, "data/script/map_%04d.lua", index);
   if(luaL_dofile(lua, buf)) {
@@ -197,32 +164,34 @@ TileMap * tilemap_load(lua_State * lua, int index) {
   }
   return tilemap_getcurrent();
 }
+#endif
 
-Tilepane * gylayer_savefile(Tilepane *layer, int layerid, FILE *fout) {
+Tilepane * tilepane_savefile(Tilepane *pane, int paneid, FILE *fout) {
   int xx, yy, gw, gh;
-  gw = gylayer_gridwide(layer);
-  gh = gylayer_gridhigh(layer);
+  gw = tilepane_gridwide(pane);
+  gh = tilepane_gridhigh(pane);
   for(yy = 0; yy < gh; yy++) {
-    fprintf(fout, "mapsetrow{ %d, %d ", layerid, yy);    
+    fprintf(fout, "mapsetrow{ %d, %d ", paneid, yy);    
     for(xx = 0; xx < gw; xx++) {
-      int tile = (int) gylayer_get(layer, xx, yy);
+      int tile = (int) tilepane_get(pane, xx, yy);
       fprintf(fout, ", %d", tile);
     }
     fprintf(fout, "}\n");
   }
-  return layer;
+  return pane;
 }
 
-TileMap * tilemap_savefile(TileMap * map, FILE * fout) {
+Tilemap * tilemap_savefile(Tilemap * map, FILE * fout) {
   int index, tds;
   if(!fout) return NULL;
   fprintf(fout, "-- Automatical save of map, DO NOT HAND EDIT.\n");
   fprintf(fout, "-- In stead, edit mex_xxxx.lua .\n--\n");  
   fprintf(fout, "-- Initialize map.\n");
   fprintf(fout, "map = mapinit(%d, %d, %d)\n", 
-          map->texture_id, map->gridw, map->gridh);
+          map->textureid, map->gridw, map->gridh);
   /* save tile info */
   fprintf(fout, "-- Tile info.\n");
+  /*
   tds = gytiledata_size(map->tiledata);
   fprintf(fout, "maptiledata { ");
   for (index = 0; index < tds; index++) {
@@ -232,21 +201,22 @@ TileMap * tilemap_savefile(TileMap * map, FILE * fout) {
       //fprintf(fout, "maptileinfo(%d, %d)\n", index, info);
     } 
   }
+  */
   fprintf(fout, "}\n");
   fprintf(fout, "-- Layer data.\n");        
-  for(index = 0; index < BAMAP_LAYERS; index++) {
+  for(index = 0; index < TILEMAP_PANES; index++) {
     fprintf(fout, "-- Layer nr %d.\n", index);
     fprintf(fout, "mapfill(%d, %d)\n", index, -1);
-    gylayer_savefile(tilemap_layer(map, index), index, fout);
+    tilepane_savefile(tilemap_pane(map, index), index, fout);
   }
   return map;
 }
 
 
-TileMap * tilemap_save(TileMap * map, int index) {
+Tilemap * tilemap_save(Tilemap * map, int index) {
   char buf[1024];
   FILE * fout;
-  TileMap * res;
+  Tilemap * res;
   sprintf(buf, "data/script/map_%04d.lua", index);
   fout = fopen(buf, "wt");
   res  = tilemap_savefile(map, fout);
@@ -254,12 +224,11 @@ TileMap * tilemap_save(TileMap * map, int index) {
   return res;
 }
 
-void tilemap_draw(TileMap * map, GyWindow * window, int x, int y) {
+void tilemap_draw(Tilemap * map, Camera * camera) {
   int index;
-  for(index = 0; index < BAMAP_LAYERS; index++) {
-    gylayer_draw(tilemap_layer(map, index), window, x, y);
+  for(index = 0; index < TILEMAP_PANES; index++) {
+    tilepane_draw(tilemap_pane(map, index), camera);
   }
 }
 
 
-#endif

@@ -160,13 +160,23 @@ Tile * tilepane_set(Tilepane * pane,
   return tile;
 }  
 
-/** Returns the sheet in the pane's grid at the given grid coordinates,
+/** Returns the tile in the pane's grid at the given grid coordinates,
 * returns NULL if the fcoordinates are out of bounds or if it was an empty tile.
 */
 Tile * tilepane_get(Tilepane * pane, int gridx, int gridy) {
   if (tilepane_outsidegrid(pane, gridx, gridy)) return NULL;
   return pane->tiles[gridy][gridx];
 }  
+
+/** Returns the ile index in the pane's grid at the given grid coordinates,
+* Returns -1  on error or if no tile is there, and a nonnegative index if a 
+* tile was found.
+*/
+int tilepane_getindex(Tilepane * pane, int gridx, int gridy) {
+  Tile * tile = tilepane_get(pane, gridx, gridy);
+  return tile_index(tile);
+}
+
 
 /** Sets the tile in the given rectangle  to the given Tile pointer,
 * which may be NULL. Returns the tuile set, or NULL on error.
@@ -292,9 +302,9 @@ Tile * tilepane_rectindex(Tilepane * pane,
 }
 
 /** Fills the while tile pane with the given tile index */
-Tilepane * tilepane_fill(Tilepane * pane, int index) {
+Tile * tilepane_fillindex(Tilepane * pane, int index) {
   Tile * tile = tilepane_getfromset(pane, index);
-  return tilepane_fill(pane, 0, 0, ww, hh, tile);
+  return tilepane_fill(pane, tile);
 }
 
 

@@ -32,16 +32,16 @@ struct Tile_ {
   size_t        framlen;
   Tileset     * set;
   int           index;
-  /** Tileset this tile belongs to + index. */
+  /* Tileset this tile belongs to + index. */
   int           flags;
-  /** Information about the tile's properties. */
+  /* Information about the tile's properties. */
   int           kind;
-  /** Index of currently active animation pointer for this tile. */
+  /* Index of currently active animation pointer for this tile. */
   int           anime;
   int           offset;
-  /** Index of currently active image pointer for this tile. */
+  /* Index of currently active image pointer for this tile. */
   int           active;
-  /** Sub-position in the sheet of the currently active frame. */
+  /* Sub-position in the sheet of the currently active frame. */
   Point         now;
 };
 
@@ -167,8 +167,9 @@ Tile * tileset_get(Tileset * set, int index) {
 }
 
 
-// Adds an image to this tile. May return NULL if not enough space, etc. 
-// Otherwise returns the tile itself. 
+/** Adds an image to this tile. May return NULL if not enough space, etc. 
+* Otherwise returns the tile itself. 
+*/
 Tile * tile_addframe(Tile * tile, int index) {
   if((!tile)) return NULL;
   if(tile->framlen >= TILE_FRAMES) return NULL;
@@ -179,9 +180,10 @@ Tile * tile_addframe(Tile * tile, int index) {
   return tile;
 }
 
-// Adds an "animation program" step to this tile. The program is consisted of a list 
-// of a single byte instructions. Of these bytes, he lower nybble is the opcode 
-// and the higher nybble the operand. 
+/** Adds an "animation program" step to this tile. The program is consisted of a list 
+* of a single byte instructions. Of these bytes, he lower nybble is the opcode 
+* and the higher nybble the operand.
+*/
 Tile * tile_addanime(Tile * tile, char program) {
   if(!tile) return NULL;
   if(tile->proglen >= TILE_PROGRAMS) return NULL;
@@ -190,20 +192,20 @@ Tile * tile_addanime(Tile * tile, char program) {
   return tile;
 }
 
-// Gets the value of the flags of a tile.
-int tile_getflag(Tile * tile) {
+/** Gets the value of the flags of a tile. */
+int tile_flags(Tile * tile) {
   if(!tile) return 0;
   return tile->flags;
 }
 
-// Sets the flags on a tile.
-Tile * tile_setflag(Tile * tile, int flag) {
+/** Sets the flags on a tile. */
+Tile * tile_flags_(Tile * tile, int flag) {
   if(!tile) return NULL;
   tile->flags = flag;
   return tile;
 }
 
-// Rewinds a tile's animations
+/** Rewinds a tile's animations */
 void tile_rewindanime(Tile * tile) {
   if (!tile) return;
   tile->anime  = 0;
@@ -211,7 +213,7 @@ void tile_rewindanime(Tile * tile) {
   tile->active = tile->frames[tile->offset];
 }
 
-// Move on to next frame of the animation.  
+/** Move on to next frame of the animation. */
 void tile_nextanime(Tile * tile) {
   if (!tile) return;
   tile->anime++;
@@ -219,7 +221,7 @@ void tile_nextanime(Tile * tile) {
   tile->active = tile->frames[tile->offset];
 }
 
-// Updates a tile to animate it
+/** Updates a tile to animate it */
 void tile_update(Tile * tile) {
   char program, opcode, operand;
   if (!tile) return;
@@ -251,7 +253,7 @@ void tile_update(Tile * tile) {
   tile_recalculate(tile);
 }
 
-// Updates all tiles in a tile set so they all get animated.
+/** Updates all tiles in a tile set so they all get animated. */
 void tileset_update(Tileset * set) {
   int index;
   if (!set) return;
@@ -263,7 +265,6 @@ void tileset_update(Tileset * set) {
 } 
 
 
-        
 /** Draw a tile to the current active drawing target at the
 given coordinates */
 void tile_draw(Tile * tile, int x, int y) {
@@ -280,7 +281,17 @@ void tile_draw(Tile * tile, int x, int y) {
   // al_draw_bitmap(sheet, dx, dy, 0);
 }
 
+/** Tile's index. Returns -1 if tile is NULL; */
+int tile_index(Tile * tile) { 
+  if (!tile) return -1;
+  return tile->index;
+}
 
+/**  Information about the tile's properties. Return -1 if tile is NULL. */
+int tile_kind(Tile * tile) { 
+  if (!tile) return -1;
+  return tile->kind;
+}
 
 
 
