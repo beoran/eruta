@@ -11,21 +11,26 @@
 
 Eruta will be a 2D or 2.5D game. 
   Rationale: I like the old-school 2D look. 3D games are more resource hungry 
-  and time-consuming to implement.  
+  and time-consuming to implement, so that's a later project, if ever.
 
-Programmed in Ruby and C: 
-  Rationale: Ruby is used generaly for speed and ease of development. C for
-  libraries, performance bottlenecks and wrapping up the distribution as 
-  an executable.
+Programmed in C with lua scripting:
+  Rationale: I tried many other things but no matter how easy Ruby is to use,
+  I ended up wrining a lot of C anyway to support it. For gaming, speed is
+  essential since a slow game is hard to enjoy, especially for an action game.
+  Lua is much faster and lighter there, too. Too bad the Rite idea (light ruby)
+  didn't seem to have come through. And no, Don't even dare mention C++, it
+  complicates matters  withou being actuall yhelpful. And too bad that Objective
+  C is not well supported on Windows and messy on Linux.  Lua is not the
+  most flexible language to use, but it's popular, lightweight and very fast.
   
-Use ruby 1.9.2 and up:  
-  Rationale: Unicode support is great, faster, and when Eruta is finished, 
-  Ruby 1.9.x or even 2.x will be out. We have to anticipate the future a bit.
-  
-Using SDL 1.2, wraped in Gari. Bakcend of Gari may change if needed. 
-  Rationale: SDL is still the de facto standard for open source games. SFML was 
-  tried but found a bit slow and difficult to wrap in Ruby. Allegro 5 is still 
-  slow on unacellerated graphic cards.
+Using Allegro 5.x. 
+  Rationale: SDL may be the de facto standard for open source games, but it's
+  very poor in functionality. So I ended up having to write a lof of
+  functionality myself. And SDL 1.3 is not as mature as allegro 5 is. I thought
+  alegro 5 was slower, but when  using plain C, and taking care to
+  load the image after openig the screen, Allegro 5 was actually plenty
+  fast enough. Allegro has so much nice functionality built in, it would be a
+  waste not to use it when using plain C.  
 
 Screen resolution exactly 640x480. Color depth minimum 16bpp or better. Perhaps
 implement scaling to other resolutons trough OpenGL or 2xSai, etc later.
@@ -53,23 +58,26 @@ to accelerate with OpenGL later, and fits the resolution well.
 
 Tile map distinguishes between tile layers wich dictate rendering and world
 layers which dictate gameplay (ie, on which levels the sprites can “be”).
-Tile map has optimally 2, 4, or sometimes 6  drawing layers of tiles. Testing
-shows 4 is optimal for speed, but 6 may be OK if the layers are largely empty.
+Tile map has 4 drawing layers of tiles. Testing shows 4 is optimal for speed.
 Layers are usually grouped in pairs for the “world layers”. Layer 1 is the first
 floor, layer 2 is anything that stands on that floor and any fringes/overlaps
-from one kind of floor to another. Layers 1 and 2 are always under al sprites.
+from one kind of floor to another. Layers 1 and 2 are always under all sprites.
 Layer 3 and 4 are normally the “floor above” the player, however, the player may
 walk there in case of bridges, overlays, or parallax.
 
-Option for parallax scrolling background bitmap, or for any layer to do parallax
-scrolling. Scrolling can be locked or unlocked in x and y directions. Although
-only one bitmap background can be displayed at once, it's possible for a map to
-change the background depending on what's needed. (night/day/scripting/etc). The
-background bitmap width and height must also have a size that is an integer 
-multiple of 32 pixels.
+Every layer may have a background image that is drawn before the tiles of the layer are drawn. the tiles can also be made invisible if the background layer by itself is enough visually. In that case the tiles influence the gameplay and physics only. Although only one bitmap background can be displayed per layer, it's possible for a layer to change the background depending on what's needed. (night/day/scripting/etc). The background bitmap width and height must also
+have a size that is an integer multiple of 32 pixels.
 
-Every maps uses one or more sets. Sets are files in .png format with a width and 
-height that are integer multiples of 32, and that contain many individual tiles.
+There will be options for parallax scrolling of the backkground bitmap versus the tiles in a layer, or, for paralax vbetween the layers in total. Scrolling
+can be locked or unlocked in x and y directions though scripts or by using
+special "scroll lock" tiles.
+
+Culling will be possible, in that, if enabled, only the direct area around the player sprite will be shown, and anything outside a rectangle set buy special culling tiles will not be drawn. This to allow inside areas to be stored more compactly.
+
+Everymap layer uses exactly one tile set based on a tile image. Tile images are
+are files in .png format with a width and height that are integer multiples of
+32, and that contain many individual tiles.
+
 Keeping with convention over configuration, the tile maps are read in, split up
 in 32x32 tiles and interpreted according to the following rules:
 
@@ -106,7 +114,76 @@ well with the camera. Perhaps this belongs in the physics, though.
 Physics
 
 Use Chipmunk anyway, but tweaked it. My own system was way too unwieldy and 
-difficult to use. 
+difficult to use.
+
++---------+
+| Modules |
++---------+
+
+According to the requirements, the following modules will be needed, each
+in one C file (although smaller modules may be joined tohgether into one c
+file if appropriate)
+Although
+only one bitmap background can be displayed at once, it's possible for a map to
+change the background depending on what's needed. (night/day/scripting/etc). The
+background bitmap width and height must also have a size that is an integer
+multiple of 32 pixels.
+
+camera.c  : Camera, active view of current area.
+cph.c     : Chipmunk physics helpers.
+dynar.c   : Dynamic arrays.
+effect.c  : Graphical effects using particle engine and likewise.
+every.c   : Iterator for dunamic arrays, etc.
+forlua.c  : Functions that will be used in te lua scripts
+glh.c     : OpenGL helper functionality.
+lh.c      : Lua helpers.
+main.c    : Main function of program.
+mem.c     : Memory management and malloc wrappers.
+mobile.c  : Mobile entities 
+sound.c   : Sound and music helpers.
+state.c   : Program state, and also, high level functionality.
+tile.c    : Tile functionality.
+tilemap.c : Tile map functionality.
+tilepane.c: Tile Layer functionality.
+sprite.c  : Sprites on the tile map.
+mode.c    : Different game modes (menu, normal, ect)
+menumode.c: Menu mode
+playmode.c: Play mode
+openmode.c: Opening (intro) mode
+confmode.c: Configuration/settings mode.
+editmode.c: Edit mode for built in editor.
+goal.c    : Goal of motion of mobile or camera.
+player.c  : Player control and data.
+ncp.c     : Npc control and data.
+foe.c     : Foe control and data.
+switch.c  : Switches.
+treasure.c: Treasures.
+door.c    : Doors.
+obstacle.c: Obstacles, pushblocks, etc.
+route.c   : Path finding and planning.
+item.c    : Items player can have.
+gear.c    : Equippable items.
+useable.c : Useable items.
+being.c   : Logical and play-related information about beings.
+inmap.c   : Input mapping (links input to in-game action).
+ai.c      : AI for npc's and foes.
+saveload.c: Saving and loading state.
+initfile.c: Loading and saving settings.
+react.c   : Map events and NPC/Item/Foe reactions.
+world.c   : World state.
+ui.c      : UI.
+widget.c  : Ui widget.
+wimenu.c  : Ui menu widget.    
+wibox.c   : Ui text box widget (more widgets needed).
+
+(Probably more...)
+
+Maybe     : 
+intmap.c  : Maps game objects to integers and vice versa for easy lua wrapping?
+
+47 modules/c files -> upper estimate 80 modules.
+80 * 1000lines per file (upper limit) = 80kloc.
+
   
 +------+
 | TODO |

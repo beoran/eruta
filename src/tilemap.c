@@ -164,7 +164,7 @@ Tilemap * tilemap_load(lua_State * lua, int index) {
   }
   return tilemap_getcurrent();
 }
-#endif
+
 
 Tilepane * tilepane_savefile(Tilepane *pane, int paneid, FILE *fout) {
   int xx, yy, gw, gh;
@@ -231,4 +231,4 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
   }
 }
 
-
+#endif

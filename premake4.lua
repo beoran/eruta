@@ -25,7 +25,7 @@
                   }
 
 		libdirs     { "/usr/lib/i386-linux-gnu" }
-		links       { "m",
+		links       { 
                   "allegro"           , "allegro_main"  ,
                   "allegro_font"      , 
                   "allegro_image"     , "allegro_acodec",
@@ -33,7 +33,8 @@
                   "allegro_audio"     , "allegro_dialog",
                   "allegro_memfile"   , "allegro_acodec",
                   "allegro_color"     , "allegro_physfs",
-                  "chipmunk"          , "lua"
+                  "chipmunk"          , "lua"           ,
+                  "m"
                  }
 		
 		files {

@@ -1,9 +1,14 @@
+
+
+
 #include "eruta.h"
 #include "state.h"
 #include "image.h"
 #include "tile.h"
 #include "tilepane.h"
 #include "sound.h"
+#include "glh.h"
+
 
 #define SCREEN_W 640
 #define SCREEN_H 480
@@ -12,6 +17,7 @@ ALLEGRO_TRANSFORM identity;
 ALLEGRO_BITMAP* buffer;
 ALLEGRO_BITMAP* texture;
 ALLEGRO_COLOR   solid_white;
+
 
 #define abort_example perror
 #define ERUTA_TEST_SHEET "data/image/tile/tiles_village_1000.png"
@@ -22,7 +28,7 @@ if Allegro is compiled in the default RelWithDbg mode.
 #define ERUTA_TEST_MUSIC "data/music/musictest.ogg"
 
 
-int main(void) {
+int main(void) {    
     Image    * sheet    = NULL;
     Tileset  * tileset  = NULL;
     Tile     * tile     = NULL;
@@ -30,8 +36,8 @@ int main(void) {
     Music    * music    = NULL;
     Camera   * camera   = NULL;
     Tilepane * tilepane = NULL;    
-    state = state_alloc();
-    Point      mp = { -100, -100}, mv = {0, 0};
+    state               = state_alloc();
+    Point      mp       = { -100, -100}, mv = {0, 0};
     if(!state_init(state, FALSE)) {
       perror(state_errmsg(state));
       return 1;      
@@ -56,7 +62,6 @@ int main(void) {
     // tilepane_set(tilepane, 0, 0, tile);
     // tilepane_set(tilepane, 1, 1, tile);
     tilepane_fill(tilepane, tile);
-    
     
     // tile_addframe(tile, 3);
     //tile_addanime(tile, TILE_ANIME_NEXT);
@@ -129,6 +134,7 @@ int main(void) {
       state_frames_update(state);
       al_draw_textf(state_font(state), state_color(state, STATE_WHITE),
                         10, 10, 0, "FPS: %lf, %d", state_fps(state), state_frames(state));
+                        
    
       al_flip_display();
    }

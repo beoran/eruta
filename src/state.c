@@ -100,6 +100,7 @@ lua interpreter, etc. Get any error with state_errmsg if
 this returns NULL. */
 State * state_init(State * self, BOOL fullscreen) {
   if(!self) return NULL;
+  int flags        = 0;
   self->busy       = TRUE;
   self->fullscreen = fullscreen;
   self->audio      = FALSE;
@@ -127,8 +128,11 @@ State * state_init(State * self, BOOL fullscreen) {
   
   // Use full screen mode if needed.
   if(self->fullscreen) { 
-    al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_GENERATE_EXPOSE_EVENTS);
-  } 
+    flags = ALLEGRO_FULLSCREEN | ALLEGRO_GENERATE_EXPOSE_EVENTS;
+  } else
+  flags |= ALLEGRO_OPENGL;
+ 
+  al_set_new_display_flags(flags);
   // Create a window to display things on: 640x480 pixels.
   self->display = al_create_display(SCREEN_W, SCREEN_H);
   if (!self->display) {
