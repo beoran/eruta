@@ -1,4 +1,5 @@
 #include "mem.h"
+#include "dynar.h"
 #include "tile.h"
 
 #ifndef TILE_MAXFRAME
@@ -13,9 +14,10 @@
 * A tile set 
 */
 struct Tileset_ {
-  Tile     * tiles;
+  Dynar    * tiles;   
+  // Tile     * tiles;
   Image    * sheet;
-  size_t     size;
+  // size_t     size;
   size_t     last;
   int        w;
   int        h;
@@ -41,7 +43,7 @@ struct Tile_ {
   int           offset;
   /* Index of currently active image pointer for this tile. */
   int           active;
-  /* Sub-position in the sheet of the currently active frame. */
+  /* Sub-position in the tile sheet image of the tileset. */
   Point         now;
 };
 
@@ -54,10 +56,9 @@ struct Tile_ {
 
 /** Cleans up a tileset, and empties it.  */
 void tileset_done(Tileset * set) {
-  if ((set->size > 0) && (set->tiles)) {
-    mem_free(set->tiles);
+  if (set->tiles) {
+    dynar_free(set->tiles);
     set->tiles = NULL;
-    set->size  = 0;
     set->w      = -1;
     set->h      = -1;
   }
@@ -69,14 +70,19 @@ void tileset_free(Tileset * set) {
   mem_free(set);
 }
 
+/** Retuns the amount of tiles in the tile set. */
+int tileset_size(Tileset * set) {
+  return dynar_size(set->tiles);
+}
+
 /** Initializes a given tileset with a given bitmap tile sheet */
 Tileset * tileset_init(Tileset * set, Image * sheet) {
+  int size = 0, index = 0;
   if(!set)      return NULL;
   set->sheet    = sheet;
   if(!set->sheet)    {
     set->w      = -1;
-    set->h      = -1;
-    set->size   = 0;
+    set->h      = -1;    
     set->tiles  = NULL;
     return NULL;
   }
@@ -86,15 +92,19 @@ Tileset * tileset_init(Tileset * set, Image * sheet) {
   } 
   set->w        = image_w(set->sheet);
   set->h        = image_h(set->sheet);
-  set->size     = (set->w / TILE_W) * (set->h / TILE_H);
+  size          = (set->w / TILE_W) * (set->h / TILE_H);
+  set->tiles    = dynar_new(size, sizeof(Tile));
   set->last     = 0;
-  set->tiles    = mem_alloc(sizeof(Tile) * set->size);
+  // set->tiles    = mem_alloc(sizeof(Tile) * set->size);
   if (!set->tiles) {
     set->w      = -1;
-    set->h      = -1;
-    set->size   = 0;
+    set->h      = -1;    
     return NULL;
   }
+  // now set up the tiles
+  for(index = 0; index < dynar_size(set->tiles); index ++) {
+    tile_init(tileset_get(set, index), set, index);
+  }    
   return set;
 }
 
@@ -144,26 +154,11 @@ Tile * tile_init(Tile * tile, Tileset * set, int index) {
   return tile;
 }
 
-/** Returns a new, unused tile in this tileset and returns it. 
-Retuns NULL if the tile could not be added (due to lack of space, etc). */
-Tile * tileset_tile(Tileset * set) {
-  Tile * tile = NULL;
-  if(!set) return NULL;
-  if (set->last >= set->size) return NULL; // no more space
-  tile = set->tiles + set->last; // Get free tile from end of tile array.  
-  tile_init(tile, set, set->last);
-  set->last++;
-  return tile;
-} 
-
 /** Gets a tile from a tile set by it's tile id. **/ 
 Tile * tileset_get(Tileset * set, int index) {
   if(!set) return NULL;
   if (index < 0) return NULL;
-  if (set->last >= ((size_t)index)) { // tile id out of bounds
-    return NULL;
-  }
-  return set->tiles + index;
+  return dynar_getdata(set->tiles, index);
 }
 
 
@@ -258,7 +253,7 @@ void tileset_update(Tileset * set) {
   int index;
   if (!set) return;
   if (!set->tiles) return;
-  for (index = 0; index < set->size ; index++) {
+  for (index = 0; index < tileset_size(set) ; index++) {
     Tile * tile = tileset_get(set, index); 
     tile_update(tile);
   }  

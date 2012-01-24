@@ -80,7 +80,7 @@ Dynar * dynar_size_(Dynar* self, size_t newsize) {
   if(!self) return NULL;
   // don't allow a newsize of 0, since that will make realloc call
   // free on self->data, which we don't want.
-  if(!newsize < 1) return NULL;
+  if(newsize < 1) return NULL;
   newd = mem_realloc(self->data, newsize * elsz);
   if(!newd) return NULL;
   // if we get here realloc was successful, so it should be safe to reassign
@@ -182,7 +182,7 @@ void * dynar_getraw(Dynar * self, size_t index) {
 }
 
 /** Returns a pointer to the index-th element of the array.
-Does bounds checking and return NULL if ouut of bounds */
+Does bounds checking and return NULL if out of bounds */
 void * dynar_getcopy(Dynar * self, int index, void * ptr) {
   // Bounds check
   if(!dynar_index_ok(self, index)) { return NULL; }

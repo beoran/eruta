@@ -55,13 +55,15 @@ int main(void) {
       return 1;
     }
     tileset = tileset_new(sheet);
-    tile    = tileset_tile(tileset);
+    tile    = tileset_get(tileset, 0);
     tile_addframe(tile, 2);
     
     tilepane= tilepane_new(tileset, 100, 100);
     // tilepane_set(tilepane, 0, 0, tile);
     // tilepane_set(tilepane, 1, 1, tile);
     tilepane_fill(tilepane, tile);
+    tilepane_setindex(tilepane, 1, 1, 3);
+    
     
     // tile_addframe(tile, 3);
     //tile_addanime(tile, TILE_ANIME_NEXT);
