@@ -1,5 +1,7 @@
-#ifndef $package$_$file$_H
-#define $package$_$file$_H
+#ifndef $file$_H_INCLUDED
+#define $file$_H_INCLUDED
+
+#include "$file$_proto.h"
 
 
 #endif
