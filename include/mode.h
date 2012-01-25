@@ -5,10 +5,44 @@
 #ifndef MODE_H
 #define MODE_H
 
-#include "gy.h"
 #include "eruta.h"
-#include "program.h"
 
+/**
+* A Mode is a mode of the program in which the display and controls may 
+* be different. Examples of this may be a menu mode, play mode,
+* edit mode, intro mode, etc.
+* 
+*/
+struct Mode_;
+typedef struct Mode_ Mode;
+
+
+/**
+* ModeActs contains the actions , that is the function poMode *ers of a mode.
+* These consist of start, enter, leave, done, event and paMode *
+*/
+struct ModeActs_;
+typedef struct ModeActs_ ModeActs;
+
+
+typedef Mode * (ModeActEvent)(Mode * self, ALLEGRO_EVENT   * event);
+typedef Mode * (ModeActPaint)(Mode * self, ALLEGRO_DISPLAY * display);
+typedef Mode * (ModeActMove)(Mode * self, Mode * other);
+typedef Mode * (ModeActSelf)(Mode * self);
+
+struct ModeActs_ {
+  ModeActSelf   * start;
+  ModeActMove   * enter;
+  ModeActMove   * leave;
+  ModeActPaint  * paint;
+  ModeActSelf   * stop;
+};
+
+
+
+#include "mode_proto.h"
+
+#ifdef COMMENT_
 
 /** Game for this mode. */
 GyGame * mode_game(Mode * self);
@@ -91,7 +125,7 @@ ProgramMode mode_nextmode(Mode * self);
 /** Set requested mode ID. */
 ProgramMode mode_nextmode_(Mode * self, ProgramMode mode);
 
-
+#endif
 
 
 #endif
