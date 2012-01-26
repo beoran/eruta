@@ -15,6 +15,7 @@ struct Mode_ {
   ModeActs *  acts;
   int         id;
   int         busy;
+  Mode     *  prev; // mode left to enter this mode, if any
   Mode     *  next; // mode to leave to, if any
 };
 
@@ -51,8 +52,12 @@ Mode * mode_event(Mode * self, ALLEGRO_EVENT * event) {
 }
 
 
-Mode * mode_init(Mode * self, ModeActs * acts) {
+Mode * mode_init(Mode * self, ModeActs * acts, int id) {
   self->acts = acts;
+  self->next = NULL;
+  self->prev = NULL;
+  self->id   = id;
+  self->busy = true;  
   return mode_start(self);
 }
 
@@ -62,10 +67,12 @@ Mode * elsemode_start(Mode * self) {
 }
 
 Mode * elsemode_enter(Mode * self, Mode * other) {
+  self->prev = other;
   return other;
 }
 
 Mode * elsemode_leave(Mode * self, Mode * other) {
+  self->next = other;
   return other;
 }
 

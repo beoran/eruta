@@ -2,6 +2,8 @@
 #include "state.h"
 #include "sound.h"
 #include "tilemap.h"
+#include "mode.h"
+#include "dynar.h"
 
 
 
@@ -22,6 +24,8 @@ struct State_ {
   int                   frames;
   Tilemap             * nowmap;  // active tile map
   Tilemap             * loadmap; // new tile map that's being loaded.  
+  Dynar               * modes;
+  Mode                * mode;
 };
 
 
@@ -93,7 +97,7 @@ ALLEGRO_COLOR state_color_f(State * state, int color,
   return state->colors[color] = al_map_rgba_f(r, g, b, a);
 }
 
-
+#define STATE_MODES 10
 
 /** Initializes the state. It opens the screen, keyboards,
 lua interpreter, etc. Get any error with state_errmsg if
@@ -161,6 +165,11 @@ State * state_init(State * self, BOOL fullscreen) {
   self->frames  = 0;  
   self->loadmap = NULL;
   self->nowmap  = NULL;
+  
+  // set up modes
+  self->modes   = dynar_new(STATE_MODES, sizeof(Mode *));
+  
+  
   return self;
 }
 
@@ -172,6 +181,7 @@ BOOL state_done(State * state) {
 
 /** Closes the state when it's done. */
 State * state_kill(State * self) {
+  dynar_free(self->modes);
   STRUCT_FREE(self);
   return self;
 }
