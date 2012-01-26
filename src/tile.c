@@ -121,6 +121,7 @@ Tileset * tileset_new(Image * sheet) {
   return result;
 }
 
+
 /*Macros thta calculate the position of a tile in a tile set's sheet. */
 #define TILE_SHEET_Y(TILE, SET)\
         ((TILE->active * TILE_H) / ((SET)->w))

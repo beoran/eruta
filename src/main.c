@@ -3,6 +3,8 @@
 #include "image.h"
 #include "tile.h"
 #include "tilepane.h"
+#include "tilemap.h"
+#include "tileio.h"
 #include "sound.h"
 
 #define SCREEN_W 640
@@ -20,7 +22,7 @@ It seems there is a bug in init_dynlib() in the ogg driver nbut only
 if Allegro is compiled in the default RelWithDbg mode.
 ***/
 #define ERUTA_TEST_MUSIC "data/music/musictest.ogg"
-
+#define ERUTA_MAP_TEST "data/map/map_0001.tmx"
 
 int main(void) {
     Image    * sheet    = NULL;
@@ -29,10 +31,12 @@ int main(void) {
     State    * state    = NULL;
     Music    * music    = NULL;
     Camera   * camera   = NULL;
-    Tilepane * tilepane = NULL;    
+    Tilepane * tilepane = NULL;
+    Tilemap  * map      = NULL;
+    
     state = state_alloc();
     Point      mp = { -100, -100}, mv = {0, 0};
-    if(!state_init(state, FALSE)) {
+    if((!(state)) || (!state_init(state, FALSE))) {
       perror(state_errmsg(state));
       return 1;      
     }
@@ -56,6 +60,12 @@ int main(void) {
     // tilepane_set(tilepane, 0, 0, tile);
     // tilepane_set(tilepane, 1, 1, tile);
     tilepane_fill(tilepane, tile);
+
+    map = tilemap_load(ERUTA_MAP_TEST);
+    if(!map) {
+      puts("Map is NULL!");
+    }
+
     
     
     // tile_addframe(tile, 3);

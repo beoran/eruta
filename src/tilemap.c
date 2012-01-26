@@ -1,6 +1,9 @@
 #include <chipmunk.h>
+#include <mxml.h>
+#include "mem.h"
 #include "image.h"
 #include "tilemap.h"
+#include "dynar.h"
 
 #define TILEMAP_PANES 4
 
@@ -12,7 +15,7 @@ struct Tilemap_ {
   int         gridw;
   int         gridh;
   Tileset   * set;
-  Tilepane  * panes[TILEMAP_PANES];
+  Dynar     * panes;
   cpSpace   * space;
 };
 
@@ -37,9 +40,10 @@ Tilemap * tilemap_done(Tilemap * self) {
   int index;
   if(!self) return NULL;
   for(index = 0; index < TILEMAP_PANES; index++) {
-    tilepane_free(self->panes[index]);
-  }  
-  // cpSpaceFree(self->space);
+    tilepane_free(dynar_getptr(self->panes, index));
+  }
+  dynar_free(self->panes);
+  cpSpaceFree(self->space);
   tileset_free(self->set);
   // tilemap_initempty(self);
   return self;
@@ -47,31 +51,58 @@ Tilemap * tilemap_done(Tilemap * self) {
 
 
 /** Initializes a tile map */
-Tilemap* tilemap_init(Tilemap * self, int textureid, int w, int h) {
+Tilemap* tilemap_init(Tilemap * self, Tileset * set, int w, int h) {
   int index;
-  self->texture   = image_loadtexture(TEXTURE_TILE, textureid);
-  if(!self->texture) return NULL;
+  if(!self) return NULL;
   self->gridw     = w;
   self->gridh     = h;
-  self->textureid = textureid;
-  self->set       = tileset_new(self->texture);
-  if(!self->set) {  tilemap_done(self); return NULL; }
-   
+  self->set       = set;
+  if(!self->set)   { return NULL; }
+  self->panes     = dynar_new(TILEMAP_PANES, sizeof(Tilepane *));
+  if(!self->panes) { return NULL; }   
   for(index = 0; index < TILEMAP_PANES; index++) {
-    self->panes[index] = tilepane_new(self->set, w, h);
+    dynar_putptr(self->panes, index, NULL);
   }
   self->space = cpSpaceNew();
   return self;
 }
 
+/** Frees the tile map and initializes it. */
+Tilemap * tilemap_free(Tilemap * map) {
+  tilemap_done(map);
+  mem_free(map);
+  return NULL;
+}
+
+/** Allocates a new tile map and initializes it. */
+Tilemap * tilemap_new(Tileset * set, int w, int h) {
+  Tilemap * map = STRUCT_ALLOC(Tilemap);
+  if(!tilemap_init(map, set, w, h)) {
+    return tilemap_free(map);
+  }
+  return map;
+}
+
+
+
 
 /** Returns a pointer to the pane at index or NULL if out of range. */
-Tilepane * tilemap_pane(Tilemap * self, int pane) {
-  if(!self) return NULL;
-  if(pane < 0) return NULL;
-  if(pane >= TILEMAP_PANES) return NULL;
-  return self->panes[pane];
+Tilepane * tilemap_pane(Tilemap * self, int index) {
+  return dynar_getptr(self->panes, index);
 }
+
+/** Makes a new tile pane for the pane at indedx index of the tile map. */
+Tilepane * tilemap_panenew(Tilemap * self, int index, int w, int h) {
+  Tilepane * pane;
+  pane = tilemap_pane(self, index);
+  // Replace old pane, so free it.
+  tilepane_free(pane);
+  pane = tilepane_new(self->set, w, h);
+  dynar_putptr(self->panes, index, pane);
+  return pane;
+}
+
+
 
 /** Returns the tile in the tile map in the given lyer at the goiven coords. */
 Tile * tilemap_get(Tilemap * self, int l, int x, int y) {
@@ -148,6 +179,10 @@ cpShape * tilemap_makewall(Tilemap * self, int tx, int ty) {
   cpSpaceAddShape(self->space, wall);
   return wall;
 }
+
+
+
+
 
 #ifdef COMMENT_
 Tilemap * tilemap_load(lua_State * lua, int index) {  
@@ -230,5 +265,8 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
     tilepane_draw(tilemap_pane(map, index), camera);
   }
 }
+
+
+
 
 #endif

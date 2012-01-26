@@ -35,6 +35,7 @@ struct ModeActs_ {
   ModeActMove   * enter;
   ModeActMove   * leave;
   ModeActPaint  * paint;
+  ModeActEvent  * event;
   ModeActSelf   * stop;
 };
 

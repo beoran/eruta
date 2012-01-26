@@ -46,14 +46,15 @@ Mode * mode_paint(Mode * self, ALLEGRO_DISPLAY * display) {
 }
 
 Mode * mode_event(Mode * self, ALLEGRO_EVENT * event) {
-  if(!ACT_OK(self, leave)) return NULL;
-  return self->acts->leave(self, event);
+  if(!ACT_OK(self, event)) return NULL;
+  return self->acts->event(self, event);
 }
 
 
 Mode * mode_init(Mode * self, ModeActs * acts) {
   self->acts = acts;
   mode_start(self);
+  return self;
 }
 
 

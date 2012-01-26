@@ -34,7 +34,7 @@
                   "allegro_memfile"   , "allegro_acodec",
                   "allegro_color"     , "allegro_physfs",
                   "chipmunk"          , "lua"           ,
-                  "m"
+                  "mxml"              , "m"
                  }
 		
 		files {

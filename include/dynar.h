@@ -1,5 +1,5 @@
-#ifndef ERUTA_TILEPANE_H
-#define ERUTA_TILEPANE_H
+#ifndef ERUTA_DYNAR_H
+#define ERUTA_DYNAR_H
 
 #include <stdlib.h> // need size_t
 // can use with every, so include the header 
