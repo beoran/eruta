@@ -53,9 +53,49 @@ Mode * mode_event(Mode * self, ALLEGRO_EVENT * event) {
 
 Mode * mode_init(Mode * self, ModeActs * acts) {
   self->acts = acts;
-  mode_start(self);
+  return mode_start(self);
+}
+
+/* default "else" mode. */
+Mode * elsemode_start(Mode * self) {
   return self;
 }
+
+Mode * elsemode_enter(Mode * self, Mode * other) {
+  return other;
+}
+
+Mode * elsemode_leave(Mode * self, Mode * other) {
+  return other;
+}
+
+Mode * elsemode_stop(Mode * self) {  
+  return self;
+}
+
+Mode * elsemode_paint(Mode * self, ALLEGRO_DISPLAY * display) {
+  return NULL;
+}
+
+Mode * elsemode_event(Mode * self, ALLEGRO_EVENT * event) {
+  return NULL;
+}
+
+ModeActs elsemode_acts_ = {
+  elsemode_start,
+  elsemode_enter,
+  elsemode_leave,
+  elsemode_paint,
+  elsemode_event,
+  elsemode_stop
+};
+
+ModeActs * elsemode_getacts() {
+  return &elsemode_acts_;
+};
+
+
+
 
 
 

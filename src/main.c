@@ -43,7 +43,7 @@ int main(void) {
     camera = camera_new(-100, -100, SCREEN_W, SCREEN_H);
     if(!camera) {
       perror("Could not allocate Camera.");
-     } 
+    } 
     //music = music_load(ERUTA_TEST_MUSIC);
     //if(!music) perror(ERUTA_TEST_MUSIC);
     
