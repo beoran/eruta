@@ -1,18 +1,18 @@
 /**
-* This is a test for $file$ in $package$
+* This is a test for mode in $package$
 */
 #include "si_test.h"
-#include "$file$.h"
+#include "mode.h"
 
 
-TEST_FUNC($file$) {
+TEST_FUNC(mode) {
   TEST_DONE();
 }
 
 
 int main(void) {
   TEST_INIT();
-  TEST_RUN($file$);
+  TEST_RUN(mode);
   TEST_REPORT();
 }
 

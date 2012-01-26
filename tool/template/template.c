@@ -1,5 +1,5 @@
 
-#include "$package$_$file$.h"
+#include "$file$.h"
 
 
 

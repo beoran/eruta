@@ -51,8 +51,6 @@ typedef cpVect Point;
 struct Program_;
 typedef struct Program_ Program;
 
-struct Mode_;
-typedef struct Mode_ Mode;
 
 enum ProgramMode_ {
   // Negatieve modes are special.
