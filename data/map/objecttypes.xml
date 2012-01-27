@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objecttypes>
+ <objecttype name="door" color="#ffff00"/>
+ <objecttype name="npc" color="#00ff00"/>
+ <objecttype name="warp" color="#ff00ff"/>
+ <objecttype name="foe" color="#ff0000"/>
+ <objecttype name="treasure" color="#ffaa00"/>
+ <objecttype name="start" color="#00ffa2"/>
+ <objecttype name="stair" color="#550000"/>
+</objecttypes>
