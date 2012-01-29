@@ -69,7 +69,7 @@ Image * tileset_image_load(const char * filename) {
   ALLEGRO_PATH * path;
   Image        * image;
   path  = data_tileset_filename(filename);
-  printf("Loading tile set: %s\n", PATH_CSTR(path));
+  printf("Loading tile set: %s for %s\n", PATH_CSTR(path), filename);
   image = image_load(PATH_CSTR(path));  
   al_destroy_path(path);
   return image;  
@@ -84,7 +84,7 @@ Tileset * tileset_loadxml(XML * xml) {
   XML     * node;
   const char * imgn;
   Image * image;    
-  imgn  = mxmlFindPathGetAttr(xml, "map/tileset/image", "source");
+  imgn  = mxmlFindPathGetAttr(xml, "map/tileset", "source");
   image = tileset_image_load(imgn);
   if(!image) return NULL;
   set   = tileset_new(image);    
@@ -96,12 +96,16 @@ Tileset * tileset_loadxml(XML * xml) {
 * Loads the panes from a tmx document.
 */
 Tilemap * tilemap_loadxmlpanes(Tilemap * map, XML * xml) {
-  XML * node;
+  XML * node, * dnod, * tnode;
   for (node = mxmlTagIterator(xml, "layer");
        node != NULL;
        node = mxmlTagIterate(node, xml, "layer")) {
-       
-      // Tilepane * 
+      for (tnode = mxmlTagIterator(node, "tile");
+           tnode != NULL;
+           tnode = mxmlTagIterate(tnode, node, "tile")) {
+        int gid = mxmlElementGetAttrInt(tnode, "gid");
+        printf("%d ", gid);
+      }
   }
   return NULL;
 }
@@ -123,6 +127,8 @@ Tilemap * tilemap_loadxml(XML * xml) {
   map = tilemap_new(set, w, h);
   if(!map) goto fail;
   printf("map: %p, %d, %d\n", map, w, h);
+  if(!(tilemap_loadxmlpanes(map, xml))) goto fail;
+  printf("\n tiles loaded.\n");
   
   return map;
   fail:
