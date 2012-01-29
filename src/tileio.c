@@ -84,7 +84,13 @@ Tileset * tileset_loadxml(XML * xml) {
   XML     * node;
   const char * imgn;
   Image * image;    
-  imgn  = mxmlFindPathGetAttr(xml, "map/tileset", "source");
+  imgn  = mxmlFindPathGetAttr(xml, "map/tileset/image", "source");
+  if(!imgn) // external tile map reference, need to load it
+  { // but loading like that not implemented yet.
+    fprintf(stderr, "Cannot load tile maps with external tile sets.\n");
+    return NULL;
+  }
+    
   image = tileset_image_load(imgn);
   if(!image) return NULL;
   set   = tileset_new(image);    
