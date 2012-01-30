@@ -98,6 +98,7 @@ exml * exml_ref(exml * self) {
 exml * exml_toss(exml * self) {
   self->refs--;
   if(self->refs == 0 ) {
+    self->refs = -1;
     return exml_free(self);
   }
   return self;
