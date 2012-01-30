@@ -1,7 +1,5 @@
 #include <mxml.h>
-#include "tile.h"
-#include "tilepane.h"
-#include "tilemap.h"
+
 #include "tileio.h"
 
 /* Shorthand for mxml_node_t */
@@ -10,21 +8,54 @@
 /* Functions for loading and saving tile maps, grouped here to limit the use
 of xml, etc. */
 
+#define TILEIO_BAD -0xbad
+
+const char * mxmlNameForType(mxml_type_t type) {
+  switch(type) {
+    case MXML_CUSTOM  : return "custom";
+    case MXML_ELEMENT : return "element";
+    case MXML_IGNORE  : return "ignore";
+    case MXML_INTEGER : return "integer";
+    case MXML_OPAQUE  : return "opaque";
+    case MXML_REAL    : return "real";
+    case MXML_TEXT    : return "text";
+    default           : return "unknown";
+  }
+}
+
+const char * mxmlTypeName(mxml_node_t * node) {
+   mxml_type_t type = mxmlGetType(node);
+   return mxmlNameForType(type);
+}
+    
 int mxmlElementGetAttrInt(mxml_node_t * node, const char * name) {
-   const char * attr =  mxmlElementGetAttr(node, name);
-   if(!attr) return -0xbad;
+   const char * attr =  mxmlElementGetAttr(node, name);   
+   if(!attr) {
+     fprintf(stderr, "attribute %s not found in %s %s\n", name,
+     mxmlGetElement(node), mxmlTypeName(node));
+     return TILEIO_BAD;
+   }  
    return atoi(attr);
 }
 
 const char * mxmlFindPathGetAttr
             (XML * xml, const char * path, const char * name) {
   XML * node  = mxmlFindPath(xml, path);
-  if(!node) return NULL;
+  if(!node) {
+    fprintf(stderr, "node %s not found\n", path); return NULL;
+  } else {    
+    fprintf(stderr, "node %s found\n", path);
+  } 
   return mxmlElementGetAttr(node, name);
 }
 
 int mxmlFindPathGetAttrInt(XML * xml, const char * path, const char * name) {
-  XML * node  = mxmlFindPath(xml, path);  
+  XML * node  = mxmlFindPath(xml, path);
+  if(!node) {
+    fprintf(stderr, "node %s not found\n", path); return TILEIO_BAD;
+  } else {
+    fprintf(stderr, "node %s found: %s\n", path, mxmlGetElement(node));
+  } 
   return mxmlElementGetAttrInt(node, name);  
 }
 
@@ -35,6 +66,18 @@ XML * mxmlTagIterator(XML * xml, const char * tagname) {
 XML * mxmlTagIterate(XML * node, XML * xml, const char * tagname) {
   return mxmlFindElement(node, xml, tagname, NULL, NULL, MXML_DESCEND);
 }
+
+char * csv_next(char * index, int * value) {
+  char * aid;
+  if(!value) return NULL;
+  aid = strchr(index, ',');
+  if(!aid) {
+    (*value) = TILEIO_BAD;
+    return NULL;
+  }
+  (*value) = atoi(index);
+  return index;  
+} 
 
 
 ALLEGRO_PATH * data_path_ = NULL;
@@ -98,20 +141,30 @@ Tileset * tileset_loadxml(XML * xml) {
   return set;
 }
 
-/**
+/*
 * Loads the panes from a tmx document.
 */
 Tilemap * tilemap_loadxmlpanes(Tilemap * map, XML * xml) {
-  XML * node, * dnod, * tnode;
+  XML * node, * dnode, * tnode;
+  char * enc, * index, * csv;
+  int value   = 0;
   for (node = mxmlTagIterator(xml, "layer");
-       node != NULL;
-       node = mxmlTagIterate(node, xml, "layer")) {
-      for (tnode = mxmlTagIterator(node, "tile");
-           tnode != NULL;
-           tnode = mxmlTagIterate(tnode, node, "tile")) {
-        int gid = mxmlElementGetAttrInt(tnode, "gid");
-        printf("%d ", gid);
-      }
+       node  != NULL;
+       node   = mxmlTagIterate(node, xml, "layer")) {
+       dnode  =  mxmlFindPath(node, "data");
+       enc    = mxmlElementGetAttr(dnode, "encoding");
+       if(strcmp(enc, "csv")) {
+          fprintf(stderr, "Can only read CSV encoded map file.\n");
+          return NULL;          
+       }
+       csv = mxmlGetCDATA(dnode);
+       if(!csv) {
+          fprintf(stderr, "No CSV in map file.\n");
+          return NULL;
+       }
+       for(index = csv; index ; index = csv_next(index, &value)) {
+          printf("%d ", value);
+       }
   }
   return NULL;
 }
@@ -129,6 +182,7 @@ Tilemap * tilemap_loadxml(XML * xml) {
   if(!set) return NULL;
   w   = mxmlFindPathGetAttrInt(xml, "map", "width");
   h   = mxmlFindPathGetAttrInt(xml, "map", "height");
+  printf("size: %d, %d\n", w, h);
   if ((w < 0) || (h<0)) goto fail;
   map = tilemap_new(set, w, h);
   if(!map) goto fail;
@@ -138,6 +192,7 @@ Tilemap * tilemap_loadxml(XML * xml) {
   
   return map;
   fail:
+  fprintf(stderr, "Failed to load map.\n");
   tilemap_free(map);
   tileset_free(set);
   return NULL;
@@ -150,7 +205,7 @@ Tilemap * tilemap_loadxml(XML * xml) {
 Tilemap * tilemap_loadtmx(FILE * fin) {
   Tilemap * result;
   XML * xml;  
-  xml = mxmlLoadFile(NULL, fin, MXML_INTEGER_CALLBACK);
+  xml = mxmlLoadFile(NULL, fin, MXML_NO_CALLBACK);
   if(!xml) return NULL;
   result = tilemap_loadxml(xml);
   mxmlRelease(xml);
