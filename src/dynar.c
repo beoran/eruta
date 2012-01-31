@@ -174,7 +174,7 @@ Dynar * dynar_putraw_unsafe(Dynar * self, int index, void * ptr) {
 }
 
 /** Returns a pointer to the index-th element of the array.
-Does bounds checking and return NULL if ouut of bounds */
+Does bounds checking and return NULL if out of bounds */
 void * dynar_getraw(Dynar * self, size_t index) {
   // Bounds check
   if(!dynar_index_ok(self, index)) { return NULL; }
@@ -311,17 +311,19 @@ Every * dynar_every_ptr(Dynar * dynar) {
 }
 
 
-
-#ifdef COMMENT_
-
-/* Walks over the array using the walker interface, accessing
-the data as pointers. */
-void * dynar_walkptr(Dynar * self, Walker * walker, void * extra) {
+/* Walks over the array using the each interface, accessing
+the data as pointers. eachdo should return non-null to break the iteration,
+the data thus found is returned bu this function. */
+void * dynar_each_ptr(Dynar * self, EachDo * eachdo, void * extra) {
+  Each each;
   size_t index;
-  size_t size = dynar_size(self);
+  size_t size = dynar_size(self);  
+  each_init(&each, self, extra); 
   for(index = 0; index < size ; index++) {
-    void * ptr = dynar_getptr(self, index);
-    void * aid = walker(ptr, &index, self, extra);
+    void * aid;
+    void * ptr = dynar_getptr(self, index);    
+    each_next(&each, ptr);
+    aid = walker(&each);
     if (aid) return aid;
   }
   return NULL;
@@ -329,16 +331,22 @@ void * dynar_walkptr(Dynar * self, Walker * walker, void * extra) {
 
 /* Walks over the array using the walker interface, accessing
 the data as stored structs. */
-void * dynar_walkdata(Dynar * self, Walker * walker, void * extra) {
+void * dynar_walkdata(Dynar * self, EachDo * eachdo, void * extra) {
+  Each each;
   size_t index;
   size_t size = dynar_size(self);
+  each_init(&each, self, extra);
   for(index = 0; index < size ; index++) {
+    void * aid;
     void * ptr = dynar_getdata(self, index);
-    void * aid = walker(ptr, &index, self, extra);
+    each_next(&each, ptr);
+    aid = eachdo(&each);
     if (aid) return aid;
   }
   return NULL;
 }
+
+
 
 #endif
 

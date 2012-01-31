@@ -65,6 +65,48 @@ Every * every_next(Every * self, void * data) {
 }
 
 
+/** Initializes an EachElement */
+Each * each_init(Each * self, void * on, void * data) {
+  if(!self) return NULL;
+  self->on    = on;
+  self->extra = data;
+  self->now   = NULL;
+  self->index = -1;  
+  return self;
+}
+
+/** Moves on to next element, incrementing index. */
+Each * each_next(Each * self, void * now) {
+  if(!self) return NULL;
+  self->now = now;
+  self->index++;
+  return self;
+}
+
+/** Gets now pointer of each struct */
+void * each_now(Each * self) {
+  if(!self) return NULL;
+  return self->now;
+}  
+
+/** Gets on pointer of each struct */
+void * each_on(Each * self) {
+  if(!self) return NULL;
+  return self->on;
+}
+
+/** Gets extra data pointer of each struct */
+void * each_extra(Each * self) {
+  if(!self) return NULL;
+  return self->extra;
+}
+
+/** Gets index pointer of each struct, -1 if the struct is NULL. */
+int each_index(Each * self) {
+  if(!self) return -1;
+  return self->index;
+}
+
 
 
 

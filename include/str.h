@@ -2,7 +2,6 @@
 but wrap it a bit with macros to have to do less typing. */
 #ifndef STR_H_
 #define STR_H_
-
 #include <allegro5/allegro.h>
 
 /** String type */
@@ -44,7 +43,7 @@ but wrap it a bit with macros to have to do less typing. */
 #define str_insertch(STR, POS, CH)        al_ustr_insert_ch(STR, POS, CH)
 #define str_append(STR, STR2)             al_ustr_append(STR, STR2)
 #define str_appendcstr(STR, CS)           al_ustr_append_cstr(STR, CS)
-#define str_appendch(STR, CH)             al_ustr_append_ch(STR, CH)
+#define str_appendch(STR, CH)             al_ustr_append_chr(STR, CH)
 #define str_appendf(STR, FMT, ...)        al_ustr_appendf(STR, FMT, __VA_ARGS__)
 #define str_vappendf(STR, FMR, AP)        al_ustr_vappendf(STR, FMT, AP)
 #define str_removechr(STR, INDEX)         al_ustr_remove_chr(STR, INDEX)
