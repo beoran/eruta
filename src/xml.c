@@ -40,7 +40,7 @@ exml * exml_done(exml * self) {
   exml * attr;
   if(!self) return NULL;
   str_free(self->name);
-  str_free(self->text);
+  str_free(self->value);
   // recursively free attributes
   exml_free(self->attrs);
   self->attrs = NULL;
@@ -139,7 +139,9 @@ enum exml_state_ {
   EXML_STATE_DECLARE_END  = 10,
   EXML_STATE_COMMENT_END  = 11,
   EXML_STATE_COMMENT_END2 = 12,
-  EXML_STATE_SIZE         = 13,
+  EXML_STATE_ANY          = 13,
+  
+  // EXML_STATE_SIZE         = 13,
 };
 
 typedef enum exml_state_ exml_state;
@@ -160,7 +162,63 @@ struct exmlparser_ {
   int col;
   int last;
   int error;
-  exml_state state;  
+  exml_state state;
+  char            * storage;
+  // storage for characters parsed  
+
+};
+
+enum exml_action_ {
+  EXML_ACTION_NONE,
+  EXML_ACTION_STORE,
+  EXML_ACTION_TAGNAME,
+  EXML_ACTION_ATTRNAME,
+  EXML_ACTION_ATTRVALUE,
+  EXML_ACTION_TEXT,
+  EXML_ACTION_ENTITY,
+};
+
+typedef enum exml_action_ exml_action;
+
+struct exmlrule_;
+typedef struct exmlrule_ exmlrule;
+
+struct exmlrule_ {
+  exml_state  state;
+  char      * input;
+  exml_action action;
+  exml_state  next;  
+};
+
+#define EXML_BLANK " \t\n\r\v"
+#define EXML_ANY   NULL
+#define EXML_NAME "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-+"
+
+/** The rule table, every rule consists of repectively the state where the rule
+applies, the input for which the rule applies as a string of accepted
+characters, or NULL as a catch-all wildcard, the action to take for this rule,
+and the new state reached after this rule. */
+static exmlrule exml_rules[] = {
+  // When in start state skip all blanks
+  { EXML_STATE_START, EXML_BLANK, EXML_ACTION_NONE    , EXML_STATE_START    },
+  // When in start state go to tag state if we get a < character
+  { EXML_STATE_START, "<"       , EXML_ACTION_NONE    , EXML_STATE_TAG      },
+  // any other character we see in start state is an error.
+  { EXML_STATE_START, EXML_ANY  , EXML_ACTION_NONE    , EXML_STATE_ERROR    },
+
+  // When in tag state and there is a ! input, go to comment state
+  { EXML_STATE_TAG  , "!"       , EXML_ACTION_NONE    , EXML_STATE_COMMENT  },
+  // When in tag state and there is a ? input, go to declare state
+  { EXML_STATE_TAG  , "?"       , EXML_ACTION_NONE    , EXML_STATE_DECLARE  },
+  // When in tag state, and we see a name, store the name characters. 
+  { EXML_STATE_TAG  , EXML_NAME , EXML_ACTION_STORE   , EXML_STATE_TAG      },
+  // When in tag state, and we see a blank, the name is complete
+  // next, we expect an attribute name
+  { EXML_STATE_TAG  , EXML_BLANK , EXML_ACTION_TAGNAME, EXML_STATE_ATTR_NAME},
+  // When in comment state
+
+  // Final catch all state
+  { EXML_STATE_ANY , EXML_ANY    , EXML_ACTION_NONE, EXML_STATE_ERROR       },
 };
 
 int exmlparser_getc(exmlparser * parser) {
@@ -190,10 +248,10 @@ STR * exmlparser_getname(exmlparser * parser) {
   while(ch != EOF) {
     if(isalnum(ch) || strchr("_:.", ch)) {
       str_appendch(result, ch);
-    } else if (isspace(ch) || strchr("=")) {
+    } else if (isspace(ch) || strchr("=", ch)) {
       return result;
     } else { // unknown chars not allowed. 
-      break
+      break;
     }
   }
   str_free(result);
@@ -209,12 +267,12 @@ exml* exml_parser_newnode(exmlparser * self) {
 exml * exml_parse_tag(exmlparser * self) {
   exml * result = exml_parser_newnode(self);
   // skip any blanks, and see what we get.
-  int ch = exmlparser_getskip(self, EXML_PARSE_BLANK);
+  int ch = exmlparser_getskip(self, " \t\n\r\v");
   if(ch == '<') {
     self->now = result;
-    exml_parse_tagname(self);
-    exml_parse_attributes(self);
-    exml_parse_tagname(self);
+   // exml_parse_tagname(self);
+   // exml_parse_attributes(self);
+   // exml_parse_tagname(self);
     
   } else {
     return exml_free(result);
@@ -222,10 +280,10 @@ exml * exml_parse_tag(exmlparser * self) {
 }
 
 exml * exml_parse_start(exmlparser * self) {
-  exml * result;  
+  exml * result = NULL;  
   // parse a tag (which may be an <? ?> or a <! --> as well,
   // and may have some blanks before it.
-  result = exmlparser_parse_tag(  
+  // result = exmlparser_parse_tag(  
   return result;
 }
 
@@ -395,7 +453,7 @@ exmlparser * exmlparser_init(exmlparser * parser,
   parser->col     =  1;
   parser->last    = -1;
   parser->error   =  0;
-  parser->state   = EXML_STATE_BEGIN;
+  parser->state   = EXML_STATE_START;
   parser->root    = NULL;
   parser->now     = NULL;
   return parser;  
@@ -431,7 +489,7 @@ static int exml_lex_upto(exmlparser * parser, const char * stop) {
 
 
 static int exml_lex_findsb(exmlparser * parser, const int wanted) {
-  return exml_lex_find(parser, wanted, EXML_PARSE_BLANK);
+  return exml_lex_find(parser, wanted, " \t\n\r\v");
 }
 
 /*

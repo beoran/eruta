@@ -151,13 +151,17 @@ Tilemap * tilemap_loadxmlpanes(Tilemap * map, XML * xml) {
   for (node = mxmlTagIterator(xml, "layer");
        node  != NULL;
        node   = mxmlTagIterate(node, xml, "layer")) {
-       dnode  =  mxmlFindPath(node, "data");
+       dnode  = mxmlFindPath(node, "data");
+       if(!dnode) {
+          fprintf(stderr, "Data node not found!\n");
+          return NULL;          
+       }
        enc    = mxmlElementGetAttr(dnode, "encoding");
-       if(strcmp(enc, "csv")) {
+       if((!enc) || strcmp(enc, "csv")) {
           fprintf(stderr, "Can only read CSV encoded map file.\n");
           return NULL;          
        }
-       csv = mxmlGetCDATA(dnode);
+       csv = mxmlGetText(dnode, 0);
        if(!csv) {
           fprintf(stderr, "No CSV in map file.\n");
           return NULL;
@@ -199,13 +203,74 @@ Tilemap * tilemap_loadxml(XML * xml) {
 }
 
 
+
+/*
+ * mxmlElementGetNumAttr() Returns number of attributes.
+ *
+ * This function returns -1 if the node is not an element.
+ */
+
+int mxmlElementGetNumAttrs(mxml_node_t *node) {
+  if (!node || node->type != MXML_ELEMENT)  return -1;
+  return node->value.element.num_attrs;
+}
+
+/* Returns the name for the n-th attribute of this element. */
+char * mxmlElementGetAttrName(mxml_node_t *node, int index) {
+  if (!node || node->type != MXML_ELEMENT)  return NULL;
+  if(index < 0)                               return NULL;
+  if (index >= mxmlElementGetNumAttrs(node))  return NULL;  
+  return node->value.element.attrs[index].name;
+}
+
+/* Returns the value for the n-th attribute of this element. */
+char * mxmlElementGetAttrValue(mxml_node_t *node, int index) {
+  if (!node || node->type != MXML_ELEMENT)    return NULL;
+  if(index < 0)                               return NULL;
+  if (index >= mxmlElementGetNumAttrs(node))  return NULL;
+  return node->value.element.attrs[index].value;
+}
+
+#define MXML_NODETEXT_SIZE 1024
+static char mxmlNodeTextBuffer[MXML_NODETEXT_SIZE];
+
+const char * mxmlNode2Cstr(mxml_node_t * node) {
+  const char *type, *name;
+  int index, amount;
+  mxmlNodeTextBuffer[0] = '\0'; 
+  name = mxmlGetElement(node);
+  type = mxmlTypeName(node);
+  snprintf(mxmlNodeTextBuffer, MXML_NODETEXT_SIZE, "xml node: %s %s [", name, type);
+  // XXX not safe but this is a debugging function only.
+  amount = mxmlElementGetNumAttrs(node);
+  for (index = 0; index < amount; index ++) {
+    strcat(mxmlNodeTextBuffer, " ");
+    strcat(mxmlNodeTextBuffer, mxmlElementGetAttrName(node, index));
+    strcat(mxmlNodeTextBuffer, "=");
+    strcat(mxmlNodeTextBuffer, mxmlElementGetAttrValue(node, index));
+    strcat(mxmlNodeTextBuffer, ", ");
+  }
+  strcat(mxmlNodeTextBuffer, "]");
+  return mxmlNodeTextBuffer;
+}
+
+static mxml_type_t mxml_load_callback(mxml_node_t *node) {
+  const char *type, *name;
+  type = mxmlTypeName(node);
+  name = mxmlGetElement(node);
+  printf("xml load: %s\n", mxmlNode2Cstr(node));
+  if(strcmp(name, "data") != 0)  return MXML_ELEMENT;
+  return MXML_TEXT;
+}
+
+
 /**
 * Loads a tile map from a tmx file.
 */
 Tilemap * tilemap_loadtmx(FILE * fin) {
   Tilemap * result;
   XML * xml;  
-  xml = mxmlLoadFile(NULL, fin, MXML_NO_CALLBACK);
+  xml = mxmlLoadFile(NULL, fin, mxml_load_callback);
   if(!xml) return NULL;
   result = tilemap_loadxml(xml);
   mxmlRelease(xml);

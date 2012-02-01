@@ -323,7 +323,7 @@ void * dynar_each_ptr(Dynar * self, EachDo * eachdo, void * extra) {
     void * aid;
     void * ptr = dynar_getptr(self, index);    
     each_next(&each, ptr);
-    aid = walker(&each);
+    aid = eachdo(&each);
     if (aid) return aid;
   }
   return NULL;
@@ -348,7 +348,7 @@ void * dynar_walkdata(Dynar * self, EachDo * eachdo, void * extra) {
 
 
 
-#endif
+
 
 
 
