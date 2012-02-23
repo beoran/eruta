@@ -8,10 +8,11 @@ fn main(args: [str]) {
 use std;
 
 
-native mod crypto {    
-    fn SHA1(src: *u8, sz: ctypes::c_uint, out: *u8) -> *u8;
+native mod allegro {
+    
 }
 
+/*
 fn as_hex(data: [u8]) -> str {
     let acc = "";
     for byte in data { acc += #fmt("%02x", byte as uint); }
@@ -28,4 +29,4 @@ fn sha1(data: str) -> str unsafe {
 fn main(args: [str]) {
     std::io::println(sha1(args[1]));
 }
-
+*/

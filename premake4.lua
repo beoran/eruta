@@ -11,7 +11,7 @@
 	solution "Eruta"
 		configurations { "Debug", "Release", "Static" }
 	
-	project "Eruta"
+	project "Eruta"	  
 		targetname  "eruta"
 		language    "C"
 		kind        "WindowedApp"
