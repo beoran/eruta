@@ -6,6 +6,7 @@
 #include "tilemap.h"
 #include "tileio.h"
 #include "sound.h"
+#include "xml.h"
 
 #define SCREEN_W 640
 #define SCREEN_H 480
@@ -23,8 +24,36 @@ if Allegro is compiled in the default RelWithDbg mode.
 ***/
 #define ERUTA_TEST_MUSIC "data/music/musictest.ogg"
 #define ERUTA_MAP_TEST "data/map/map_0001.tmx"
+#define RUN_TESTS
 
-int main(void) {
+#ifdef RUN_TESTS
+
+int test_xml(void) {
+  Xml * xml, *xml1, *xml2, *xml3, *xml4, *xml5, *xml6, *xml7, *xml8;
+  xml  = xml_newcstr("map", "");
+  xml1 = xml_newcstr("high", "200");
+  xml2 = xml_newcstr("wide", "100");
+  xml3 = xml_newcstr("layer", "");
+  xml4 = xml_newcstr("#text", "A Text node");
+  xml5 = xml_newcstr("tileset", "");
+  xml_addattribute(xml, xml1);
+  xml_addattribute(xml, xml2);
+  xml_addchild(xml, xml3);
+  xml_addchild(xml, xml5);
+  xml_addchild(xml3, xml4);  
+  xml_free(xml); // Should free all the linked rest too.
+  // and again
+  xml = xml_newcstr("map", NULL);
+  xml_newattributecstr(xml, "high",  "400");
+  xml_newattributecstr(xml, "wide",  "500");
+  xml_free(xml); // Should free all the linked rest too.
+  
+  return 0;
+}
+
+#endif
+
+int real_main(void) {
     Image    * sheet    = NULL;
     Tileset  * tileset  = NULL;
     Tile     * tile     = NULL;
@@ -61,7 +90,7 @@ int main(void) {
     // tilepane_set(tilepane, 1, 1, tile);
     tilepane_fill(tilepane, tile);
 
-    map = tilemap_load(ERUTA_MAP_TEST);
+    // map = tilemap_load(ERUTA_MAP_TEST);
     if(!map) {
       puts("Map is NULL!");
     }
@@ -75,7 +104,7 @@ int main(void) {
       ALLEGRO_EVENT event;
       
       while(state_poll(state, &event)) {
-        switch (event.type) {
+      switch (event.type) {
           case ALLEGRO_EVENT_DISPLAY_CLOSE:
             state_done(state);
             break;
@@ -148,4 +177,13 @@ int main(void) {
    state_done(state);
    state_free(state);
    return 0;
+}
+
+
+int main(void) {
+#ifdef RUN_TESTS
+  if(!test_xml()) return 0;
+#else
+  return real_main();
+#endif
 }

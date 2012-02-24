@@ -9,9 +9,9 @@ but wrap it a bit with macros to have to do less typing. */
 #define STR ALLEGRO_USTR
 #endif
 
-/** Static String type */
-#ifndef STR
-#define STRINFO ALLEGRO_USTR_INFO
+/** Static String info helper type */
+#ifndef STR_INFO
+#define STR_INFO ALLEGRO_USTR_INFO
 #endif
 
 #define str_new(STR)                      al_ustr_new(STR)
@@ -81,6 +81,8 @@ but wrap it a bit with macros to have to do less typing. */
 #define str_prefixcstr(STR, CS)           al_ustr_has_prefix(STR, CS)
 #define str_suffixcstr(STR, CS)           al_ustr_has_suffix(STR, CS)
 
+#define str_const(NAME, CSTR)             \
+        STR_INFO info_##NAME; STR * NAME = str_refcstr(&info_##NAME, CSTR);
 
 #include "str_proto.h"
 

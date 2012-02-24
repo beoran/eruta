@@ -59,6 +59,14 @@ Xml * xml_new(STR * tag, STR * value) {
   return xml_init(xml, tag, value);
 }
 
+/** Allocates a new XML document, attribute or node. */
+Xml * xml_newcstr(const char * tag, const char * value) {
+  STR_INFO tagi, valuei; STR * tags = NULL,  * values = NULL;
+  if (tag)   tags   = str_refcstr(&tagi  , tag);
+  if (value) values = str_refcstr(&valuei, value);  
+  return xml_new(tags, values);
+}
+
 /** Frees an XML document recursively */
 Xml * xml_free(Xml * xml) {
   xml_done(xml);
@@ -117,9 +125,94 @@ Xml * xml_addattribute(Xml * xml, Xml * attr) {
   return attr;
 }
 
+/** Creates a new attribute for this node and returns it.
+Returns NULL if out of memory. */
+Xml * xml_newattribute(Xml * xml, STR * name, STR * value) {
+  Xml * attr = xml_new(name, value);
+  if (!attr) return NULL;
+  return xml_addattribute(xml, attr);
+}
+
+/** Creates a new attribute for this node and returns it.
+Returns NULL if out of memory. */
+Xml * xml_newattributecstr(Xml * xml, const char * name, const char * value) {
+  Xml * attr = xml_newcstr(name, value);
+  if (!attr) return NULL;
+  return xml_addattribute(xml, attr);
+}
 
 
+/** Creates a new child node for this node and returns it.
+Returns NULL if out of memory. */
+Xml * xml_newchild(Xml * xml, STR * name) {
+  Xml * attr = xml_new(name, NULL);
+  if (!attr) return NULL;
+  return xml_addchild(xml, attr);
+}
 
+/** Creates a new child node for this node and returns it.
+Returns NULL if out of memory. */
+Xml * xml_newchildcstr(Xml * xml, const char * name) {
+  Xml * attr = xml_newcstr(name, NULL);
+  if (!attr) return NULL;
+  return xml_addchild(xml, attr);
+}
+
+/** Creates a new text node child for this node and returns it.
+Returns NULL if out of memory. */
+Xml * xml_newtext(Xml * xml, STR * text) {
+  str_const(name, "#text"); // string constant for the #text header
+  Xml * attr = xml_new(name, text);
+  if (!attr) return NULL;
+  return xml_addchild(xml, attr);
+}
+
+/** Creates a new text child node for this node and returns it.
+Returns NULL if out of memory. */
+Xml * xml_newtextcstr(Xml * xml, const char * text) {
+  Xml * attr = xml_newcstr("#text", text);
+  if (!attr) return NULL;
+  return xml_addchild(xml, attr);
+}
+
+/** Iterates over each sibling node of this xml node using the EachDo walker
+interface */
+Xml * xml_eachsibling(Xml * xml, EachDo * todo, void * data) {
+  Xml * res = NULL;
+  Xml * aid = xml;
+  Each each;
+  if (!xml) return NULL;
+  /** Initializes an EachElement */
+  each_init(&each, (void *) aid, data);
+  while(aid) {
+    res = todo(&each);
+    if (res) return res; // break if something was "found".
+    aid = aid->sibling;
+    each_next(&each, (void *) aid);
+  }
+  return NULL;
+}
+
+/** Iterates over each direct child node of this xml node using the EachDo
+walker interface, breadth-only. */
+Xml * xml_eachchild(Xml * xml, EachDo * todo, void * data) {
+  xml_eachsibling(xml->child, todo, data);
+  // Children are in the siblings of the children.
+}
+
+/** Iterates over each attibute node of this xml node using the EachDo
+walker interface, breadth-only. */
+Xml * xml_eachattribute(Xml * xml, EachDo * todo, void * data) {
+  xml_eachsibling(xml->attribute, todo, data);
+  // Children are in the siblings of the children.
+}
+
+/* helper for findattribute */
+static void * findattibute_each(EachDo * each) {
+  
+}
+
+/** Find a given attribute and returns it's STR * value, or NULL if not found. */
 
 
 
