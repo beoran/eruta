@@ -28,24 +28,52 @@ if Allegro is compiled in the default RelWithDbg mode.
 
 #ifdef RUN_TESTS
 
+const char * xml_test_doc = 
+"<?xml ?> "
+"<!-- Comment should be ignored -->"
+"<map high=\"100\" wide=\"200\">"
+"<layer>"
+"0,1,2,3\n"
+"0,1,0,0\n"
+"0,0,1,0\n"
+"</layer>"
+"</map>";
+
 int test_xml(void) {
   Xml * xml, *xml1, *xml2, *xml3, *xml4, *xml5, *xml6, *xml7, *xml8;
   xml  = xml_newcstr("map", "");
-  xml1 = xml_newcstr("high", "200");
-  xml2 = xml_newcstr("wide", "100");
-  xml3 = xml_newcstr("layer", "");
-  xml4 = xml_newcstr("#text", "A Text node");
-  xml5 = xml_newcstr("tileset", "");
-  xml_addattribute(xml, xml1);
-  xml_addattribute(xml, xml2);
-  xml_addchild(xml, xml3);
-  xml_addchild(xml, xml5);
-  xml_addchild(xml3, xml4);  
+  // xml1 = xml_newcstr();
+  // xml2 = xml_newcstr("wide", "100");
+  // xml3 = xml_newcstr("layer", "");
+  // xml4 = xml_newcstr("#text", "A Text node");
+  // xml5 = xml_newcstr("tileset", "");
+  // xml_addchild(xml, xml5);
+  
+  xml1 = xml_newattributecstr(xml, "high", "200");
+  xml2 = xml_newattributecstr(xml, "wide", "100");
+  xml3 = xml_newchildcstr(xml, "layer");
+  xml4 = xml_newtextcstr(xml3, "A Text Node.");
+  xml5 = xml_newchildcstr(xml3, "tileset");
+  xml6 = xml_newchildcstr(xml3, "tileset");
+  
+  xml8 = xml_findchild_cstr(xml, "layer");
+  printf("%p %p %d\n", xml3, xml8, xml3 == xml8);
+  xml7 = xml_findchild_cstr(xml8, "tileset");
+  printf("%p %p %d\n", xml5, xml7, xml5 == xml7);
+  xml8 = xml_findsibling_cstr(xml7, "tileset");
+  printf("%p %p %d\n", xml6, xml8, xml6 == xml8);
+  
+  
+  
   xml_free(xml); // Should free all the linked rest too.
   // and again
   xml = xml_newcstr("map", NULL);
-  xml_newattributecstr(xml, "high",  "400");
   xml_newattributecstr(xml, "wide",  "500");
+  xml_newattributecstr(xml, "high",  "400");
+  printf("%s\n", xml_findattribute_cstrcstr(xml, "wide"));
+  printf("%s\n", xml_findattribute_cstrcstr(xml, "high"));
+  printf("%p\n", xml_findattribute_cstrcstr(xml, "blah"));
+  
   xml_free(xml); // Should free all the linked rest too.
   
   return 0;

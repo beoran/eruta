@@ -21,15 +21,6 @@ struct Xml_ {
 };
 
 
-/**
-* Xmlparser is an XML parser.
-*/
-struct Xmlparser_ {
-  Xml * result; /* Top level node. */
-  Xml * last;   /* Last parsed node */
-  STR * tag;      /* Tag name currently parsing */
-  STR * value;    /* value currently parsing */
-};
 
 /* Functionality for XML */
 
@@ -182,13 +173,13 @@ Xml * xml_eachsibling(Xml * xml, EachDo * todo, void * data) {
   Xml * aid = xml;
   Each each;
   if (!xml) return NULL;
-  /** Initializes an EachElement */
+  // Initialize the each Each struct that holds iteration info.
   each_init(&each, (void *) aid, data);
   while(aid) {
+    each_next(&each, (void *) aid); // aid is the next element 
     res = todo(&each);
     if (res) return res; // break if something was "found".
     aid = aid->sibling;
-    each_next(&each, (void *) aid);
   }
   return NULL;
 }
@@ -196,27 +187,98 @@ Xml * xml_eachsibling(Xml * xml, EachDo * todo, void * data) {
 /** Iterates over each direct child node of this xml node using the EachDo
 walker interface, breadth-only. */
 Xml * xml_eachchild(Xml * xml, EachDo * todo, void * data) {
-  xml_eachsibling(xml->child, todo, data);
+  return xml_eachsibling(xml->child, todo, data);
   // Children are in the siblings of the children.
 }
 
 /** Iterates over each attibute node of this xml node using the EachDo
 walker interface, breadth-only. */
 Xml * xml_eachattribute(Xml * xml, EachDo * todo, void * data) {
-  xml_eachsibling(xml->attribute, todo, data);
+  return xml_eachsibling(xml->attribute, todo, data);
   // Children are in the siblings of the children.
 }
 
-/* helper for findattribute */
-static void * findattibute_each(EachDo * each) {
-  
+/* helper for finding functions, finds a tag or atribute by name */
+static void * findtag_each(Each * each) {
+  Xml * xml  = (Xml *)each_now(each);
+  STR * name = (STR *)each_extra(each);
+  if(!name) return NULL;
+  if(str_equal(name, xml->tag)) return xml;
+  return NULL;
 }
 
-/** Find a given attribute and returns it's STR * value, or NULL if not found. */
+/** Find an attribute with the given name and returns it's STR * value,
+or NULL if not found. */
+STR * xml_findattribute_strstr(Xml * xml, STR * name) {  
+  Xml * attr = xml_eachattribute(xml, findtag_each, name);
+  if(attr) return attr->value;
+  return NULL;
+}
+
+/** Find a attribute with given name returns it's STR * value, 
+or NULL if not found. */
+STR * xml_findattribute_cstrstr(Xml * xml, const char * cname) {
+  str_const(name, cname); // string constant for the nam header
+  return xml_findattribute_strstr(xml, name);
+}
+
+/** Find a given attribute and returns it's const char * value, 
+or NULL if not found. */
+const char * xml_findattribute_cstrcstr(Xml * xml, const char * cname) {  
+  STR * res = xml_findattribute_cstrstr(xml, cname);
+  if(res) return str_cstr(res);
+  return NULL;
+}
+
+/** Finds the first child with the given tag name. */
+Xml * xml_findchild_str(Xml * xml, STR * name) {
+  return xml_eachchild(xml, findtag_each, name);
+}
+
+/** Finds the first child with the given tag name. */
+Xml * xml_findchild_cstr(Xml * xml, const char * cname) {
+  str_const(name, cname); // string constant for the name header
+  return xml_findchild_str(xml, name);
+}
+
+
+/** Finds the first sibling with the given tag name. */
+Xml * xml_findsibling_str(Xml * xml, STR * name) {
+  if(!xml) return NULL;
+  return xml_eachsibling(xml->sibling, findtag_each, name);
+}
+
+/** Finds the first sibling with the given tag name. */
+Xml * xml_findsibling_cstr(Xml * xml, const char * cname) {
+  str_const(name, cname); // string constant for the name header
+  return xml_findsibling_str(xml, name);
+}
 
 
 
+/**
+* Xmlparser is an XML parser.
+*/
+struct Xmlparser_ {
+  Xml * result; /* Top level node. */
+  Xml * last;   /* Last parsed node */
+  STR * tag;    /* Tag name currently parsing */
+  STR * value;  /* value currently parsing */
+};
 
+Xmlparser * xmlparser_init(Xmlparser * self) {
+  if(!self) return NULL;
+  self->result = NULL;
+  self->last   = NULL;
+  self->tag    = str_empty;
+  self->value  = str_empty;
+  return self;
+}
+
+Xmlparser * xmlparser_new() {
+  Xmlparser * self = MEM_ALLOCATE(Xmlparser);
+  return xmlparser_init(self);
+}
 
 
 

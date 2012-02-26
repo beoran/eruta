@@ -1,4 +1,5 @@
-#ifndef EVERY_H
+#ifndef EVERY_H_INCLUDED
+#define EVERY_H_INCLUDED
 
 /**
 * Every is an iterator that allows to iterate over every element of

@@ -2,7 +2,7 @@
 #define xml_H_INCLUDED
 
 #include "str.h"
-#include "each.h"
+#include "every.h"
 #include "xml_proto.h"
 
 
