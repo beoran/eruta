@@ -16,6 +16,7 @@ inproto   = nil;
 instruct  = nil;
 incomm    = nil; 
 STRUCT_RE = %r{struct ([A-Za-z0-9_]+)}
+ENUM_RE   = %r{enum ([A-Za-z0-9_]+)}
 COMM_RE   = %r(\/\*\*)
 FUNC_RE   = %r(\{)
 COMMEND_RE= %r(\*\*\/)
@@ -28,12 +29,19 @@ fin.each_line do |line|
     commend = line.match(COMMEND_RE)
     done    = line.match(FUNC_RE)
     struct  = line.match(STRUCT_RE)    
+    enum    = line.match(ENUM_RE)    
     if struct
       name = struct[1]
       defi = name.chop
       puts "struct #{name};"
       puts "typedef struct #{name} #{defi};"
-      puts 
+      puts
+    elsif enum
+      name = enum[1]
+      defi = name.chop
+      puts "enum #{name};"
+      puts "typedef enum #{name} #{defi};"
+      puts
     else
       if done
         if commend

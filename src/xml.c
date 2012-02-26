@@ -255,16 +255,89 @@ Xml * xml_findsibling_cstr(Xml * xml, const char * cname) {
 }
 
 
+/** Parser states */
+enum Xmlstate_ {
+  XMLSTATE_START,
+  XMLSTATE_ENTITY,
+  XMLSTATE_COMMENT,
+  XMLSTATE_COMMENTSTART1,
+  XMLSTATE_COMMENTSTART2,
+  XMLSTATE_COMMENTEND1,
+  XMLSTATE_COMMENTEND2,
+  XMLSTATE_HEADER,
+  XMLSTATE_HEADEREND,
+  XMLSTATE_TAGOPEN,
+  XMLSTATE_TAGBETWEEN,
+  XMLSTATE_TAGCLOSE,
+  XMLSTATE_ATTRNAME,
+  XMLSTATE_ATTRVALUE,
+  XMLSTATE_TEXT,
+  XMLSTATE_ERROR,
+  XMLSTATE_DONE,
+  XMLSTATE_KEEP
+};
+
+/** Parser actions */
+enum Xmlstate_ {
+  XMLACT_NONE,
+  XMLACT_NEWTAG,
+  XMLACT_TAGDONE,
+  XMLACT_KEEPTAG,
+  XMLACT_KEEPVALUE,
+  XMLACT_KEEPENTITY,
+  XMLACT_ATTRDONE,
+  XMLACT_ATTRDONE,
+  XMLACT_ERROR
+};
+
 
 /**
 * Xmlparser is an XML parser.
 */
 struct Xmlparser_ {
-  Xml * result; /* Top level node. */
-  Xml * last;   /* Last parsed node */
-  STR * tag;    /* Tag name currently parsing */
-  STR * value;  /* value currently parsing */
+  Xml         * result; /* Top level node. */
+  Xml         * last;   /* Last parsed node */
+  STR         * tag;    /* Tag name currently parsing */
+  STR         * value;  /* Value currently parsing */
+  STR         * entity; /* & entity currently parsing if any */
+  int           state;  /* Current parser state */
 };
+
+/* Parsing table entry */
+struct Xmlentry_ { 
+  int     state;  /* State the parser must be in to trigger this entry. */
+  char *  str;    /* Characters that trigger this entry. NULL Is catch-all. */
+  int     action; /* Action to be taken. */
+  int     result; /* Resulting state. Set to XML_STATE_KEEP to kep unchanged. */
+};
+
+typedef struct Xmlentry_ Xmlentry;
+
+Xmlentry xmlparser_table[] = {
+  { XMLSTATE_START    , "<"       , XMLACT_NONE   , XMLSTATE_TAGOPEN        } ,
+  { XMLSTATE_START    , " \n\t\r" , XMLACT_NONE   , XMLSTATE_START          } ,
+  { XMLSTATE_START    , NULL      , XMLACT_NONE   , XMLSTATE_ERROR          } ,
+
+  { XMLSTATE_TAGOPEN  , "!"       , XMLACT_NONE   , XMLSTATE_COMMENTSTART1  } ,
+  { XMLSTATE_TAGOPEN  , "?"       , XMLACT_NONE   , XMLSTATE_HEADER         } ,
+  
+  { XMLSTATE_HEADER   , "?"       , XMLACT_NONE   , XMLSTATE_HEADEREND      } ,
+  { XMLSTATE_HEADER   , NULL      , XMLACT_NONE   , XMLSTATE_ERROR          } ,
+  { XMLSTATE_HEADEREND, "?"       , XMLACT_NONE   , XMLSTATE_HEADEREND      } ,
+  { XMLSTATE_HEADEREND, ">"       , XMLACT_NONE   , XMLSTATE_ERROR          } ,
+  
+  { XMLSTATE_COMMENTSTART1, "-"   , XMLACT_NONE   , XMLSTATE_COMMENTSTART2  } ,
+  { XMLSTATE_COMMENTSTART1, NULL  , XMLACT_NONE   , XMLSTATE_ERROR          } ,
+  
+  { XMLSTATE_COMMENTSTART2, "-"   , XMLACT_NONE   , XMLSTATE_COMMENT        } ,
+  { XMLSTATE_COMMENTSTART2, NULL  , XMLACT_NONE   , XMLSTATE_ERROR          } ,
+  
+
+}
+
+
+
+
 
 Xmlparser * xmlparser_init(Xmlparser * self) {
   if(!self) return NULL;
@@ -272,6 +345,8 @@ Xmlparser * xmlparser_init(Xmlparser * self) {
   self->last   = NULL;
   self->tag    = str_empty;
   self->value  = str_empty;
+  self->entity = NULL;
+  self->state  = XML_STATE_START;
   return self;
 }
 
@@ -280,5 +355,91 @@ Xmlparser * xmlparser_new() {
   return xmlparser_init(self);
 }
 
+#ifdef COMMENT_
 
+// Callback called with the new input character, 
+// returns new state to switch to.
+typedef int (XmlStateAct)(Xmlparser * self, int ch);
+
+int xmlstate_start(Xmlparser * self, int ch) {
+  switch(ch) {
+    case '<': return XML_STATE_TAGOPEN;
+    default: // nothing;
+  }
+  return self->state;
+} 
+
+int xmlstate_entity(Xmlparser * self, int ch) {
+  return self->state;
+} 
+
+int xmlstate_comment(Xmlparser * self, int ch) {
+  return self->state;
+} 
+
+int xmlstate_heading(Xmlparser * self, int ch) {
+  return self->state;
+} 
+
+
+int xmlstate_tagopen(Xmlparser * self, int ch) {
+  switch(ch) {
+    case '?': return XML_STATE_HEADING;
+    case '!': return XML_STATE_COMMENT;
+    default: // nothing;
+  }
+  return self->state;
+} 
+
+int xmlstate_tagbetween(Xmlparser * self, int ch) {
+  return self->state;
+} 
+
+int xmlstate_tagclose(Xmlparser * self, int ch) {
+  return self->state;
+} 
+
+int xmlstate_attrname(Xmlparser * self, int ch) {
+  return self->state;
+} 
+
+int xmlstate_attrvalue(Xmlparser * self, int ch) {
+  return self->state;
+} 
+
+int xmlstate_text(Xmlparser * self, int ch) {
+  return self->state;
+} 
+
+
+/* Parse table. */
+XmlStateAct * xmlparser_table[XML_STATE_DONE+1] = {
+  xmlstate_start, 
+  xmlstate_entity,
+  xmlstate_comment,
+  xmlstate_heading,
+  xmlstate_tagopen,
+  xmlstate_tagbetween,
+  xmlstate_tagclose,
+  xmlstate_attrname,
+  xmlstate_attrvalue,
+  NULL,
+  NULL,
+  NULL,
+};
+*/
+
+/** Parses a single character, changing the state of the parser and it's results 
+as it goes. */
+Xmlparser * xmlparser_parsech(Xmlparser * self, int ch) {
+  int res;
+  XmlStateAct * act = xmlparser_table[self->state];
+  if(!act) return NULL;
+  res = act(self, ch);
+  if((res < 0) || (res > XML_STATE_DONE)) return NULL;
+  self->state = res;
+  return self;
+}
+
+#endif
 
