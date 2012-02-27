@@ -21,7 +21,8 @@
                   "/usr/local/include/lua", "/usr/local/include/chipmunk",
                   "/usr/local/include"    , "/usr/local/include/allegro5" ,                  
                   "/usr/include"          , "/usr/include/lua", 
-                  "/usr/include/chipmunk" , "/usr/include/allegro5" 
+                  "/usr/include/chipmunk" , "/usr/include/allegro5",
+                  "/usr/include/libxml2"
                   }
 
 		libdirs     { "/usr/lib/i386-linux-gnu" }
@@ -34,7 +35,7 @@
                   "allegro_memfile"   , "allegro_acodec",
                   "allegro_color"     , "allegro_physfs",
                   "chipmunk"          , "lua"           ,
-                  "mxml"              , "m"
+                  "xml2"              , "m"
                  }
 		
 		files {

@@ -6,7 +6,7 @@
 #include "tilemap.h"
 #include "tileio.h"
 #include "sound.h"
-#include "xml.h"
+#include <libxml/parser.h>
 
 #define SCREEN_W 640
 #define SCREEN_H 480
@@ -24,7 +24,7 @@ if Allegro is compiled in the default RelWithDbg mode.
 ***/
 #define ERUTA_TEST_MUSIC "data/music/musictest.ogg"
 #define ERUTA_MAP_TEST "data/map/map_0001.tmx"
-#define RUN_TESTS
+#undef RUN_TESTS
 
 #ifdef RUN_TESTS
 
@@ -118,7 +118,7 @@ int real_main(void) {
     // tilepane_set(tilepane, 1, 1, tile);
     tilepane_fill(tilepane, tile);
 
-    // map = tilemap_load(ERUTA_MAP_TEST);
+    map = tilemap_load(ERUTA_MAP_TEST);
     if(!map) {
       puts("Map is NULL!");
     }
@@ -209,9 +209,13 @@ int real_main(void) {
 
 
 int main(void) {
+  // init xml parser
+  LIBXML_TEST_VERSION
 #ifdef RUN_TESTS
   if(!test_xml()) return 0;
 #else
   return real_main();
 #endif
+  // cleanup xml parser
+  xmlCleanupParser();
 }

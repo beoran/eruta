@@ -91,7 +91,7 @@ Tilepane * tilemap_pane(Tilemap * self, int index) {
   return dynar_getptr(self->panes, index);
 }
 
-/** Makes a new tile pane for the pane at indedx index of the tile map. */
+/** Makes a new tile pane for the pane at indexeth index of the tile map. */
 Tilepane * tilemap_panenew(Tilemap * self, int index, int w, int h) {
   Tilepane * pane;
   pane = tilemap_pane(self, index);
@@ -104,7 +104,7 @@ Tilepane * tilemap_panenew(Tilemap * self, int index, int w, int h) {
 
 
 
-/** Returns the tile in the tile map in the given lyer at the goiven coords. */
+/** Returns the tile in the tile map in the given layer at the given coords. */
 Tile * tilemap_get(Tilemap * self, int l, int x, int y) {
   Tilepane * pane = tilemap_pane(self, l);
   if(!pane) return NULL;

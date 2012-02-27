@@ -4,7 +4,7 @@ Requirements:
 * Allegro 5.x
 * Lua 5.2.x
 * Chipmunk 6.x,
-* Mini-XML 2.7 (www.minixml.org)
+* libxml2 (www.xmlsoft.org)
 * For testing and compilation: premake4, and valgrind.
 * For map editing: tiled (www.mapeditor.org)
  

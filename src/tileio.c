@@ -1,71 +1,62 @@
-#include <mxml.h>
-
+#include <stdio.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include "tilemap.h"
 #include "tileio.h"
-
-/* Shorthand for mxml_node_t */
-#define XML mxml_node_t
 
 /* Functions for loading and saving tile maps, grouped here to limit the use
 of xml, etc. */
 
-#define TILEIO_BAD -0xbad
 
-const char * mxmlNameForType(mxml_type_t type) {
-  switch(type) {
-    case MXML_CUSTOM  : return "custom";
-    case MXML_ELEMENT : return "element";
-    case MXML_IGNORE  : return "ignore";
-    case MXML_INTEGER : return "integer";
-    case MXML_OPAQUE  : return "opaque";
-    case MXML_REAL    : return "real";
-    case MXML_TEXT    : return "text";
-    default           : return "unknown";
+/**
+ * print_element_names:
+ * @a_node: the initial xml node to consider.
+ *
+ * Prints the names of the all the xml elements
+ * that are siblings or children of a given xml node.
+ */
+static void print_element_names(xmlNode * node) {
+  xmlNode *now = NULL;
+  static level = 0;
+  for(now = node; now; now = now->next) {
+    if (now->type == XML_ELEMENT_NODE) {
+      printf("node type: Element, %d, name: %s\n", level, now->name);
+    }
+    level++;
+    print_element_names(now->children);
+    level--;
   }
 }
 
-const char * mxmlTypeName(mxml_node_t * node) {
-   mxml_type_t type = mxmlGetType(node);
-   return mxmlNameForType(type);
-}
-    
-int mxmlElementGetAttrInt(mxml_node_t * node, const char * name) {
-   const char * attr =  mxmlElementGetAttr(node, name);   
-   if(!attr) {
-     fprintf(stderr, "attribute %s not found in %s %s\n", name,
-     mxmlGetElement(node), mxmlTypeName(node));
-     return TILEIO_BAD;
-   }  
-   return atoi(attr);
-}
-
-const char * mxmlFindPathGetAttr
-            (XML * xml, const char * path, const char * name) {
-  XML * node  = mxmlFindPath(xml, path);
-  if(!node) {
-    fprintf(stderr, "node %s not found\n", path); return NULL;
-  } else {    
-    fprintf(stderr, "node %s found\n", path);
-  } 
-  return mxmlElementGetAttr(node, name);
+xmlNode * xmlFindChild(xmlNode * node, const char * name) {
+  xmlNode *now = node->children;
+  printf("Child node: %p (of %p)\n", now, node);
+  for(now = node; now; now = now->next) {
+    printf("searching %s, now : %d, %s\n", name, now->type, now->name);
+    if (now->type == XML_ELEMENT_NODE) {      
+      if(!strcmp((char *)now->name, name)) return now;
+    }
+    // also recurse to look a level deeper...
+    if(now->children) {
+      return xmlFindChild(now->children, name);
+    }
+  }
+  return NULL;
 }
 
-int mxmlFindPathGetAttrInt(XML * xml, const char * path, const char * name) {
-  XML * node  = mxmlFindPath(xml, path);
-  if(!node) {
-    fprintf(stderr, "node %s not found\n", path); return TILEIO_BAD;
-  } else {
-    fprintf(stderr, "node %s found: %s\n", path, mxmlGetElement(node));
-  } 
-  return mxmlElementGetAttrInt(node, name);  
+#define TILEIO_BAD -0xbad
+#define XML_GET_PROP(NODE, STR)\
+        ((char *) xmlGetProp(NODE, (const xmlChar *)STR))
+        
+/* Gets an integer property from the libxml2 node, or negative if not found. */
+int xmlGetPropInt(xmlNode * node, const char * name) {
+  char * prop = XML_GET_PROP(node, name);
+  if(!prop) return TILEIO_BAD;
+  return atoi(prop);
 }
 
-XML * mxmlTagIterator(XML * xml, const char * tagname) {
-  return mxmlFindElement(xml, xml, tagname, NULL, NULL, MXML_DESCEND);
-}
 
-XML * mxmlTagIterate(XML * node, XML * xml, const char * tagname) {
-  return mxmlFindElement(node, xml, tagname, NULL, NULL, MXML_DESCEND);
-}
+
 
 char * csv_next(char * index, int * value) {
   char * aid;
@@ -118,162 +109,66 @@ Image * tileset_image_load(const char * filename) {
   return image;  
 }
 
-
-/*
-* Loads a tile set from a tmx xml document.
-*/
-Tileset * tileset_loadxml(XML * xml) {
-  Tileset * set = NULL;
-  XML     * node;
-  const char * imgn;
-  Image * image;    
-  imgn  = mxmlFindPathGetAttr(xml, "map/tileset/image", "source");
-  if(!imgn) // external tile map reference, need to load it
-  { // but loading like that not implemented yet.
-    fprintf(stderr, "Cannot load tile maps with external tile sets.\n");
+Tileset * tileset_loadxml(xmlNode * node) {
+  xmlNode * xima = NULL;
+  Image   * image;
+  const char * iname;
+  xima  = xmlFindChild(node, "image"); /* Image data is in image tag. */
+  if(!xima) {    
     return NULL;
   }
-    
-  image = tileset_image_load(imgn);
-  if(!image) return NULL;
-  set   = tileset_new(image);    
-  printf("Tile set %p\n", set);
-  return set;
-}
-
-/*
-* Loads the panes from a tmx document.
-*/
-Tilemap * tilemap_loadxmlpanes(Tilemap * map, XML * xml) {
-  XML * node, * dnode, * tnode;
-  char * enc, * index, * csv;
-  int value   = 0;
-  for (node = mxmlTagIterator(xml, "layer");
-       node  != NULL;
-       node   = mxmlTagIterate(node, xml, "layer")) {
-       dnode  = mxmlFindPath(node, "data");
-       if(!dnode) {
-          fprintf(stderr, "Data node not found!\n");
-          return NULL;          
-       }
-       enc    = mxmlElementGetAttr(dnode, "encoding");
-       if((!enc) || strcmp(enc, "csv")) {
-          fprintf(stderr, "Can only read CSV encoded map file.\n");
-          return NULL;          
-       }
-       csv = mxmlGetText(dnode, 0);
-       if(!csv) {
-          fprintf(stderr, "No CSV in map file.\n");
-          return NULL;
-       }
-       for(index = csv; index ; index = csv_next(index, &value)) {
-          printf("%d ", value);
-       }
-  }
-  return NULL;
-}
-
-/*
-* Loads a tile map from a tmx xml document.
-*/
-Tilemap * tilemap_loadxml(XML * xml) {
-  XML     * node;
-  Tilemap * map = NULL;
-  Tileset * set = NULL;
-  int w, h;
-  puts("Tree loaded OK!");
-  set = tileset_loadxml(xml);
-  if(!set) return NULL;
-  w   = mxmlFindPathGetAttrInt(xml, "map", "width");
-  h   = mxmlFindPathGetAttrInt(xml, "map", "height");
-  printf("size: %d, %d\n", w, h);
-  if ((w < 0) || (h<0)) goto fail;
-  map = tilemap_new(set, w, h);
-  if(!map) goto fail;
-  printf("map: %p, %d, %d\n", map, w, h);
-  if(!(tilemap_loadxmlpanes(map, xml))) goto fail;
-  printf("\n tiles loaded.\n");
-  
-  return map;
-  fail:
-  fprintf(stderr, "Failed to load map.\n");
-  tilemap_free(map);
-  tileset_free(set);
-  return NULL;
-}
-
-
-
-/*
- * mxmlElementGetNumAttr() Returns number of attributes.
- *
- * This function returns -1 if the node is not an element.
- */
-
-int mxmlElementGetNumAttrs(mxml_node_t *node) {
-  if (!node || node->type != MXML_ELEMENT)  return -1;
-  return node->value.element.num_attrs;
-}
-
-/* Returns the name for the n-th attribute of this element. */
-char * mxmlElementGetAttrName(mxml_node_t *node, int index) {
-  if (!node || node->type != MXML_ELEMENT)  return NULL;
-  if(index < 0)                               return NULL;
-  if (index >= mxmlElementGetNumAttrs(node))  return NULL;  
-  return node->value.element.attrs[index].name;
-}
-
-/* Returns the value for the n-th attribute of this element. */
-char * mxmlElementGetAttrValue(mxml_node_t *node, int index) {
-  if (!node || node->type != MXML_ELEMENT)    return NULL;
-  if(index < 0)                               return NULL;
-  if (index >= mxmlElementGetNumAttrs(node))  return NULL;
-  return node->value.element.attrs[index].value;
-}
-
-#define MXML_NODETEXT_SIZE 1024
-static char mxmlNodeTextBuffer[MXML_NODETEXT_SIZE];
-
-const char * mxmlNode2Cstr(mxml_node_t * node) {
-  const char *type, *name;
-  int index, amount;
-  mxmlNodeTextBuffer[0] = '\0'; 
-  name = mxmlGetElement(node);
-  type = mxmlTypeName(node);
-  snprintf(mxmlNodeTextBuffer, MXML_NODETEXT_SIZE, "xml node: %s %s [", name, type);
-  // XXX not safe but this is a debugging function only.
-  amount = mxmlElementGetNumAttrs(node);
-  for (index = 0; index < amount; index ++) {
-    strcat(mxmlNodeTextBuffer, " ");
-    strcat(mxmlNodeTextBuffer, mxmlElementGetAttrName(node, index));
-    strcat(mxmlNodeTextBuffer, "=");
-    strcat(mxmlNodeTextBuffer, mxmlElementGetAttrValue(node, index));
-    strcat(mxmlNodeTextBuffer, ", ");
-  }
-  strcat(mxmlNodeTextBuffer, "]");
-  return mxmlNodeTextBuffer;
-}
-
-static mxml_type_t mxml_load_callback(mxml_node_t *node) {
-  const char *type, *name;
-  type = mxmlTypeName(node);
-  name = mxmlGetElement(node);
-  printf("xml load: %s\n", mxmlNode2Cstr(node));
-  if(strcmp(name, "data") != 0)  return MXML_ELEMENT;
-  return MXML_TEXT;
+  iname = XML_GET_PROP(xima, "source");
+  image = tileset_image_load(iname);
+  printf("Loaded tile set: %s, %p\n", iname, image);  
+  if(!image) { return NULL; } 
+  return tileset_new(image);
 }
 
 
 /**
 * Loads a tile map from a tmx file.
 */
-Tilemap * tilemap_loadtmx(FILE * fin) {
+Tilemap * tilemap_loadtmx(const char * filename) {
   Tilemap * result;
-  XML * xml;  
-  xml = mxmlLoadFile(NULL, fin, mxml_load_callback);
-  if(!xml) return NULL;
-  result = tilemap_loadxml(xml);
-  mxmlRelease(xml);
+  Tileset * set;
+  xmlDoc  *xml  = NULL;
+  xmlNode *root = NULL;
+  xmlNode *xset = NULL;  
+  int wide, high;
+  /*parse the file and get the DOM */
+  xml = xmlReadFile(filename, NULL, 0);
+  if (xml == NULL) {
+    printf("error: could not parse file %s\n", filename);
+    return NULL;
+  }  
+  root = xmlDocGetRootElement(xml);
+  /* Get the root element node, which should be map. */
+  if (strcmp((char *) root->name, "map")) {
+    xmlFreeDoc(xml);
+    return NULL;
+  }
+  wide   = xmlGetPropInt(root, "width");
+  high   = xmlGetPropInt(root, "height");
+  printf("Map: %d %d\n", wide, high);
+  // Use the first tile set (and that one only) as the map's tile set.
+  xset   = xmlFindChild(root, "tileset");
+  
+  if(!xset) { // check if tileset was found
+    perror("Tile set not found.");
+    print_element_names(root);
+    xmlFreeDoc(xml);
+    return NULL; 
+  }  
+  
+  set    = tileset_loadxml(xset);
+  // load the tile set 
+  result = tilemap_new(set, wide, high);
+  printf("Loaded map %p %p\n", result, set);
+
+  
+  // 
+  /*free the document */
+  xmlFreeDoc(xml);
   return result;
 }
 
@@ -285,10 +180,10 @@ Tilemap * tilemap_loadtmx(FILE * fin) {
 Tilemap * tilemap_load(char * filename) {
   Tilemap * result;
   FILE        * fin;
-  fin = fopen(filename, "r");
-  if(!fin) return NULL;
-  result = tilemap_loadtmx(fin);
-  fclose(fin);
+  //fin = fopen(filename, "r");
+  //if(!fin) return NULL;
+  result = tilemap_loadtmx(filename);
+  //fclose(fin);
   return result;
 }
 
