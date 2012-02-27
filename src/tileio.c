@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include "tile.h"
 #include "tilemap.h"
 #include "tileio.h"
 
@@ -17,7 +19,7 @@ of xml, etc. */
  */
 static void print_element_names(xmlNode * node) {
   xmlNode *now = NULL;
-  static level = 0;
+  static int level = 0;
   for(now = node; now; now = now->next) {
     if (now->type == XML_ELEMENT_NODE) {
       printf("node type: Element, %d, name: %s\n", level, now->name);
@@ -28,21 +30,52 @@ static void print_element_names(xmlNode * node) {
   }
 }
 
-xmlNode * xmlFindChild(xmlNode * node, const char * name) {
-  xmlNode *now = node->children;
-  printf("Child node: %p (of %p)\n", now, node);
+/* Finds a sibling node. If name is not null 
+or type is strictly positive, return matching nodes. Also searches node itself
+,so pass node->next if you don't want that.*/
+xmlNode * xmlFindNextType(xmlNode * node, const char * name, int type) {
+  xmlNode * now;
   for(now = node; now; now = now->next) {
-    printf("searching %s, now : %d, %s\n", name, now->type, now->name);
-    if (now->type == XML_ELEMENT_NODE) {      
-      if(!strcmp((char *)now->name, name)) return now;
-    }
-    // also recurse to look a level deeper...
-    if(now->children) {
-      return xmlFindChild(now->children, name);
+    /*printf("searching %s, %d, now : %d, %s\n", name, type, now->type,
+           now->name);
+    */
+    if ((type < 1) || (now->type == type)) {
+      if ((!name) || (!strcmp((char *)now->name, name))) { 
+        return now;
+      }
     }
   }
   return NULL;
 }
+
+/* shorthand for xmlFindNextType(node, name, XML_ELEMENT_NODE */
+xmlNode * xmlFindNext(xmlNode * node, const char * name) {
+  return xmlFindNextType(node, name, XML_ELEMENT_NODE);
+}
+  
+/* nonrecursively finds a child node with the given name, including self. */
+xmlNode * xmlFindChild(xmlNode * node, const char * name) {
+  xmlNode * aid = xmlFindNext(node->children, name);  
+  if(aid) return aid;
+  return NULL;
+}
+
+/* Finds a child node with the given paths, pass null as last one  */
+xmlNode * xmlFindChildDeep(xmlNode * node, ...) {
+  va_list args;  
+  const char * name = NULL;
+  xmlNode * res     = NULL;
+  xmlNode * aid     = node;
+  va_start(args, node);
+  for(name = va_arg(args, const char *); name && aid; 
+      name = va_arg(args, const char *)) {
+    aid = xmlFindChild(aid, name);
+  }
+  res = aid;
+  va_end(args);
+  return res;
+}
+
 
 #define TILEIO_BAD -0xbad
 #define XML_GET_PROP(NODE, STR)\
@@ -109,19 +142,43 @@ Image * tileset_image_load(const char * filename) {
   return image;  
 }
 
+Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
+  xmlNode * xprop, *xaid;
+  int id = xmlGetPropInt(xtil, "id");
+  Tile  * tile = tileset_get(set, id); 
+  if (!tile) return NULL;
+  printf("Tile id: %d %p\n", id, tile);  
+  for(xprop = xmlFindChildDeep(xtil, "properties", "property", NULL);
+      xprop;
+      xprop = xmlFindNext(xprop->next, "property")) { 
+    printf("Property: %s, %s\n", XML_GET_PROP(xprop, "name"),
+           XML_GET_PROP(xprop, "value"));
+  }
+  
+  
+}
+
 Tileset * tileset_loadxml(xmlNode * node) {
   xmlNode * xima = NULL;
+  xmlNode * xtil = NULL;
   Image   * image;
+  Tileset * set;
   const char * iname;
-  xima  = xmlFindChild(node, "image"); /* Image data is in image tag. */
+  xima  = xmlFindChild(node, "image"); /* Image data is in image tag. */  
   if(!xima) {    
     return NULL;
   }
   iname = XML_GET_PROP(xima, "source");
   image = tileset_image_load(iname);
-  printf("Loaded tile set: %s, %p\n", iname, image);  
-  if(!image) { return NULL; } 
-  return tileset_new(image);
+  printf("Loaded tile set: %s, %p\n", iname, image);
+  if(!image) { return NULL; }
+  set = tileset_new(image);
+  if(!set)   { return NULL; }
+  for (xtil = xmlFindChild(node, "tile"); xtil;
+       xtil = xmlFindNext(xtil->next, "tile")) {
+    tile_loadxml(xtil, set);
+  }
+  return set;
 }
 
 
@@ -161,6 +218,11 @@ Tilemap * tilemap_loadtmx(const char * filename) {
   }  
   
   set    = tileset_loadxml(xset);
+  if(!set) {
+    perror("Tile set not loaded");
+    xmlFreeDoc(xml);
+    return NULL;  
+  }
   // load the tile set 
   result = tilemap_new(set, wide, high);
   printf("Loaded map %p %p\n", result, set);
