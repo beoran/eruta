@@ -14,6 +14,18 @@ enum TILE_ANIME_OPCODE_ {
   TILE_ANIME_WAIT   = 3,
 };
 
+/* Tile flags. */ 
+enum TILE_FLAGS_ {
+  TILE_WALL         = 1 << 1,
+  TILE_WATER        = 1 << 2,
+  TILE_PUSH         = 1 << 3,
+  TILE_NORTH        = 1 << 4,
+  TILE_SOUTH        = 1 << 5,
+  TILE_EAST         = 1 << 6,
+  TILE_WEST         = 1 << 7,
+};
+
+
 #define TILE_FRAMES   32
 #define TILE_PROGRAMS 32
 

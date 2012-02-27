@@ -188,6 +188,17 @@ Tile * tile_addanime(Tile * tile, char program) {
   return tile;
 }
 
+/* Helper for the tile flag names */
+static const char * tile_flagnames[] = {
+  "wall", "water"
+  TILE_PUSH         = 1 << 3,
+  TILE_NORTH        = 1 << 4,
+  TILE_SOUTH        = 1 << 5,
+  TILE_EAST         = 1 << 6,
+  TILE_WEST         = 1 << 7,
+
+}
+
 /** Gets the value of the flags of a tile. */
 int tile_flags(Tile * tile) {
   if(!tile) return 0;
