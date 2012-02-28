@@ -31,8 +31,8 @@ static void print_element_names(xmlNode * node) {
 }
 
 /* Finds a sibling node. If name is not null 
-or type is strictly positive, return matching nodes. Also searches node itself
-,so pass node->next if you don't want that.*/
+or type is strictly positive, return matching nodes.
+Also searches node itself, so pass node->next if you don't want that.*/
 xmlNode * xmlFindNextType(xmlNode * node, const char * name, int type) {
   xmlNode * now;
   for(now = node; now; now = now->next) {
@@ -142,20 +142,46 @@ Image * tileset_image_load(const char * filename) {
   return image;  
 }
 
-Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
-  xmlNode * xprop, *xaid;
-  int id = xmlGetPropInt(xtil, "id");
-  Tile  * tile = tileset_get(set, id); 
-  if (!tile) return NULL;
-  printf("Tile id: %d %p\n", id, tile);  
-  for(xprop = xmlFindChildDeep(xtil, "properties", "property", NULL);
-      xprop;
-      xprop = xmlFindNext(xprop->next, "property")) { 
-    printf("Property: %s, %s\n", XML_GET_PROP(xprop, "name"),
-           XML_GET_PROP(xprop, "value"));
+/* Helper to load property values for a given property name. Pass in the
+first propery tag.  */
+char * xmlPropertyValue(xmlNode * firstprop, char * name) {
+  xmlNode * xprop;
+  for(xprop = firstprop ; xprop; xprop = xmlFindNext(xprop->next, "property")) {
+    char * propname = XML_GET_PROP(xprop, "name");
+    if(!propname) continue;
+    if(!strcmp(propname, name)) return  XML_GET_PROP(xprop, "value");
   }
+  return NULL;  
+}
+
+/* Helper to load integer property values. */
+int * xmlPropertyValueInt(xmlNode * firstprop, char * name, int * result) {
+  char * aid = xmlPropertyValue(firstprop, name);
+  if(!aid) return NULL;
+  (*result) = atoi(aid);
+  return result;
+}  
+ 
+
+Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
+  char * sflags = NULL;
+  int ianim = 0, iwait = 0;
+  xmlNode * firstprop, *xaid;
+  int id = xmlGetPropInt(xtil, "id");
+  Tile  * tile = tileset_get(set, id);  
+  if (!tile) return NULL;
+  printf("Tile id: %d %p\n", id, tile);
+  // use properties of tile...
+  firstprop = xmlFindChildDeep(xtil, "properties", "property", NULL);
+  // get type, animation and wait
+  sflags    = xmlPropertyValue(firstprop, "type");  
+  xmlPropertyValueInt(firstprop, "anim", &ianim);
+  xmlPropertyValueInt(firstprop, "wait", &iwait);
+  tile_property_(tile, sflags);
+  printf("Tile type: %s, anim: %d, wait: %d, flags:%d\n", sflags, ianim, iwait,
+    tile_flags(tile));
   
-  
+  return tile;  
 }
 
 Tileset * tileset_loadxml(xmlNode * node) {

@@ -1,5 +1,7 @@
+#include "eruta.h"
 #include "mem.h"
 #include "dynar.h"
+#include "silut.h"
 #include "tile.h"
 
 #ifndef TILE_MAXFRAME
@@ -122,7 +124,7 @@ Tileset * tileset_new(Image * sheet) {
 }
 
 
-/*Macros thta calculate the position of a tile in a tile set's sheet. */
+/*Macros that calculate the position of a tile in a tile set's sheet. */
 #define TILE_SHEET_Y(TILE, SET)\
         ((TILE->active * TILE_H) / ((SET)->w))
 
@@ -188,16 +190,19 @@ Tile * tile_addanime(Tile * tile, char program) {
   return tile;
 }
 
-/* Helper for the tile flag names */
-static const char * tile_flagnames[] = {
-  "wall", "water"
-  TILE_PUSH         = 1 << 3,
-  TILE_NORTH        = 1 << 4,
-  TILE_SOUTH        = 1 << 5,
-  TILE_EAST         = 1 << 6,
-  TILE_WEST         = 1 << 7,
-
-}
+/* Helper lookup table for the tile flag names */
+static Silut tile_flagnames[] = {
+  { TILE_WALL   , "wall"    },
+  { TILE_WATER  , "water"   },
+  { TILE_LEDGE  , "ledge"   },
+  { TILE_STAIR  , "stair"   },
+  { TILE_PUSH   , "push"    },
+  { TILE_NORTH  , "north"   },
+  { TILE_SOUTH  , "south"   },
+  { TILE_EAST   , "east"    },
+  { TILE_WEST   , "west"    },
+  SILUT_DONE  
+};
 
 /** Gets the value of the flags of a tile. */
 int tile_flags(Tile * tile) {
@@ -206,13 +211,48 @@ int tile_flags(Tile * tile) {
 }
 
 /** Sets the flags on a tile. */
-Tile * tile_flags_(Tile * tile, int flag) {
+Tile * tile_flags_(Tile * tile, int flags) {
   if(!tile) return NULL;
-  tile->flags = flag;
+  tile->flags = flags;
   return tile;
 }
 
-/** Rewinds a tile's animations */
+/** Sets a single flag on a tile. */
+Tile * tile_setflag(Tile * tile, int flag) {
+  if(!tile) return NULL;
+  tile->flags = BIT_SETFLAG(tile->flags, flag);
+  return tile;
+}
+
+/** Removes a single flag on a tile. */
+Tile * tile_unflag(Tile * tile, int flag) {
+  if(!tile) return NULL;
+  tile->flags = BIT_UNFLAG(tile->flags, flag);
+  return tile;
+}
+
+/** Checks a single flag on a tile. */
+int tile_isflag(Tile * tile, int flag) {
+  if(!tile) return NULL;
+  return BIT_ISFLAG(tile->flags, flag);
+}
+
+/** Sets a tile's flags from a property string.
+* This uses an internal lookup table.
+*/
+Tile * tile_property_(Tile * tile, char * property) {
+  if(!tile) return NULL;
+  Silut * aid = silut_lsearchcstr(tile_flagnames, property);
+  if(!aid) return NULL;  
+  return tile_setflag(tile, aid->integer);
+}
+
+
+
+
+
+
+/** Rewinds a tile's animations. */
 void tile_rewindanime(Tile * tile) {
   if (!tile) return;
   tile->anime  = 0;

@@ -1,3 +1,5 @@
+#include <libxml/parser.h>
+
 #include "eruta.h"
 #include "state.h"
 #include "image.h"
@@ -6,7 +8,9 @@
 #include "tilemap.h"
 #include "tileio.h"
 #include "sound.h"
-#include <libxml/parser.h>
+#include "silut.h"
+#include "assert.h"
+
 
 #define SCREEN_W 640
 #define SCREEN_H 480
@@ -80,6 +84,31 @@ int test_xml(void) {
 }
 
 #endif
+
+int test_silut(void) {
+  Silut * aid;
+  static Silut lut[] = {
+    { 0, "zero"},
+    { 2, "two" },
+    { 1, "one" },
+    SILUT_DONE
+  };
+  
+  aid = silut_lsearchi(lut, 55);
+  assert(!aid);
+  aid = silut_lsearchcstr(lut, "banana");
+  assert(!aid);
+  aid = silut_lsearchi(lut, 2);
+  assert(aid);
+  assert(aid->integer == 2);
+  assert(!strcmp(aid->string, "two"));
+  aid = silut_lsearchcstr(lut, "two");
+  assert(aid);
+  assert(aid->integer == 2);
+  assert(!strcmp(aid->string, "two"));
+  return 0;  
+}
+
 
 int real_main(void) {
     Image    * sheet    = NULL;
@@ -214,6 +243,7 @@ int main(void) {
 #ifdef RUN_TESTS
   if(!test_xml()) return 0;
 #else
+  test_silut();
   return real_main();
 #endif
   // cleanup xml parser

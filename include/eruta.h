@@ -18,6 +18,14 @@
 #define SCREEN_W      640
 #define SCREEN_H      480
 
+/** Bitwise operations helpers. */
+#define BIT_ISFLAG(NUM, FLAG)     ((NUM) & (FLAG))
+#define BIT_ISBIT(NUM, BIT)       BIT_ISFLAG(NUM, (1 << BIT))
+#define BIT_SETFLAG(NUM, FLAG)    ((NUM) | (FLAG))
+#define BIT_UNFLAG(NUM, FLAG)     ((NUM) & (~(FLAG)))
+#define BIT_SETBIT(NUM, BIT)      BIT_SETFLAG(NUM, (1 << BIT))
+#define BIT_UNBIT(NUM, BIT)       BIT_UNFLAG(NUM, (1 << BIT))
+
 
 
 #ifndef TRUE
