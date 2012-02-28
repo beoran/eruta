@@ -59,7 +59,7 @@ Tilepane * tilepane_free(Tilepane * pane) {
 Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
                            int gridwide, int gridhigh) {
   int index, jdex;
-  if (!pane) return NULL;
+  if (!pane) { perror("Could not allocate pane "); return NULL; }
   tilepane_tileset_(pane, set);
   pane->gridwide   = gridwide;
   pane->gridhigh   = gridhigh;
@@ -72,6 +72,7 @@ Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
   
   pane->tiles    = (Tile***) mem_calloc(pane->gridhigh, sizeof(Tile**));
   if(!pane->tiles) {
+    perror("Could not allocate tiles array ");
     return NULL;
   }
   
@@ -85,6 +86,7 @@ Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
   for (index = 0; index < pane->gridhigh ; index ++) {
     pane->tiles[index] = (Tile**) mem_calloc(pane->gridwide, sizeof(Tile*));
     if(!pane->tiles[index]) {
+      perror("Could not allocate tiles sub-array ");
       tilepane_done(pane);
       return NULL;
     }

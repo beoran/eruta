@@ -29,6 +29,11 @@ Tilemap * tilemap_new(Tileset * set, int w, int h);
 /** Returns a pointer to the pane at index or NULL if out of range. */
 Tilepane * tilemap_pane(Tilemap * self, int index);
 
+/** Sets a new tile pane for the pane at indexeth index of the tile map.
+* the old pane, if any, will be deleted with tilepane_free
+*/
+Tilepane * tilemap_pane_(Tilemap * self, int index, Tilepane * pane);
+
 /** Makes a new tile pane for the pane at indexeth index of the tile map. */
 Tilepane * tilemap_panenew(Tilemap * self, int index, int w, int h);
 

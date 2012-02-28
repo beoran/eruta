@@ -26,25 +26,34 @@ struct Tileset_ {
 };
 
 /** 
-* A single tile from a tile map. 
+* A single tile from a tile map.
+* Tiles can be animated. This works like this: a tile has an animation
+* pointer and offset which points to the next tile to be drawn in the tileset.
+*
 * A tile can only hold up to TILE_FRAMES tiles pointers in itself.
 */
 struct Tile_ {
-  int           frames[TILE_FRAMES];
-  char          program[TILE_PROGRAMS];
-  size_t        proglen;
-  size_t        framlen;
-  Tileset     * set;
+  Tileset     * set;  
   int           index;
-  /* Tileset this tile belongs to + index. */
+  /* Tileset this tile belongs to + index in the tile set. */  
   int           flags;
   /* Information about the tile's properties. */
   int           kind;
   /* Index of currently active animation pointer for this tile. */
-  int           anime;
-  int           offset;
-  /* Index of currently active image pointer for this tile. */
+  int           anim;
+  /* Offset to the tile to skip to when animating. If this is
+  0 the tile is not animated. If nonzero, the tile will skip to
+  the tile in the same tile set set with index index + anim.
+  May be negative to "roll back" an animation to it's begin. */
+  int           wait;
+  /* Time in ms to wait before jumping to the next frame of this tile. */  
   int           active;
+  /* For unanimated tiles, now is set to the index of the tile itself.
+   For animated tiles, it is set to the index of tile that currently should
+   be displayed in stead of this tile due to animation.
+  */
+  int           time;
+  /* Time since last animation in ms. */
   /* Sub-position in the tile sheet image of the tileset. */
   Point         now;
 };
@@ -126,7 +135,7 @@ Tileset * tileset_new(Image * sheet) {
 
 /*Macros that calculate the position of a tile in a tile set's sheet. */
 #define TILE_SHEET_Y(TILE, SET)\
-        ((TILE->active * TILE_H) / ((SET)->w))
+        (((TILE->active * TILE_W) / ((SET)->w)) * TILE_H)
 
 #define TILE_SHEET_X(TILE, SET)\
         ((TILE->active * TILE_W) % ((SET)->w))
@@ -148,10 +157,9 @@ Tile * tile_init(Tile * tile, Tileset * set, int index) {
   if(!set) return NULL;
   tile->index   = index;
   tile->set     = set;
-  tile->proglen = 0;
-  tile->framlen = 0;
-  tile->anime   = 0;
-  tile->offset  = 0; 
+  tile->anim    = 0;
+  tile->time    = 0;
+  tile->wait    = 250;
   tile->active  = index;
   tile_recalculate(tile);
   return tile;
@@ -164,31 +172,32 @@ Tile * tileset_get(Tileset * set, int index) {
   return dynar_getdata(set->tiles, index);
 }
 
-
-/** Adds an image to this tile. May return NULL if not enough space, etc. 
-* Otherwise returns the tile itself. 
-*/
-Tile * tile_addframe(Tile * tile, int index) {
-  if((!tile)) return NULL;
-  if(tile->framlen >= TILE_FRAMES) return NULL;
-  tile->frames[tile->framlen] 	= index;
-  // Make last added frame active.
-  tile->active = tile->frames[tile->framlen];
-  tile->framlen++;
-  return tile;
-}
-
-/** Adds an "animation program" step to this tile. The program is consisted of a list 
-* of a single byte instructions. Of these bytes, he lower nybble is the opcode 
-* and the higher nybble the operand.
-*/
-Tile * tile_addanime(Tile * tile, char program) {
+/** Sets the animation parameter of this tile */
+Tile * tile_anim_(Tile * tile, int anim) {
   if(!tile) return NULL;
-  if(tile->proglen >= TILE_PROGRAMS) return NULL;
-  tile->program[tile->proglen] = program;
-  tile->proglen++;
+  tile->anim = anim;
   return tile;
 }
+
+/** Gets the animation parameter of this tile, or 0 if NULL */
+int tile_anim(Tile * tile) {
+  if(!tile) return 0;
+  return tile->anim;
+}
+
+/** Sets the wait parameter of this tile */
+Tile * tile_wait_(Tile * tile, int wait) {
+  if(!tile) return NULL;
+  tile->wait = wait;
+  return tile;
+}
+
+/** Gets the wait parameter of this tile, or -1 if NULL */
+int tile_wair(Tile * tile) {
+  if(!tile) return -1;
+  return tile->wait;
+}
+
 
 /* Helper lookup table for the tile flag names */
 static Silut tile_flagnames[] = {
@@ -247,55 +256,29 @@ Tile * tile_property_(Tile * tile, char * property) {
   return tile_setflag(tile, aid->integer);
 }
 
-
-
-
-
-
 /** Rewinds a tile's animations. */
 void tile_rewindanime(Tile * tile) {
   if (!tile) return;
-  tile->anime  = 0;
-  tile->offset = 0;
-  tile->active = tile->frames[tile->offset];
+  tile->active  = tile->index;
+  // Finally recalculate tile position.
+  tile_recalculate(tile);
 }
 
-/** Move on to next frame of the animation. */
-void tile_nextanime(Tile * tile) {
-  if (!tile) return;
-  tile->anime++;
-  tile->offset++;
-  tile->active = tile->frames[tile->offset];
-}
-
-/** Updates a tile to animate it */
+/** Updates a tile to animate it. Ignores wait for now. */
 void tile_update(Tile * tile) {
-  char program, opcode, operand;
-  if (!tile) return;
-  if (tile->proglen < 1) return; // no anim program means no animation;
-  // next animation step. 
-  program = tile->program[tile->anime];
-  opcode  = program &  31;
-  operand = program >> 5;
-  switch (opcode) {
-    case TILE_ANIME_REWIND: // Back to first tile
-      tile_rewindanime(tile); // Rewind animation.
-      break;
-    case TILE_ANIME_NEXT: // Move to next tile in animation
-      tile_nextanime(tile);
-      break;
-    default:  // Wait, only increasing the anmation index
-      tile->anime++;
-    break;	
-  }  
- // Rewind active tile index if too far. Yes, this is defensive programming, but it's better like this. :)
-  if (tile->offset >= tile->framlen) {
-      tile_rewindanime(tile);
-  } 
-  // Also rewind anime index if too far.
-  if (tile->anime >= tile->proglen) {   
-    tile->anime = 0;
-  }
+  int active = 0;
+  Tile * aidtile = NULL;
+  Tile * nowtile = tileset_get(tile->set, tile->active);
+  // nowtile is the tile that is currently active, that is shown.
+  // in stead of ourself, but it also may be ourself.
+  if(!nowtile) return;
+  // take the animation parameter a,nd add it to the active  
+  active  = tile->active + nowtile->anim;
+  aidtile = tileset_get(tile->set, active);
+  // Check if there is such a tile.
+  if(!aidtile) return;
+  // If there is no such tile, don't change the active tile of this tile.
+  tile->active = active;  
   // Finally recalculate tile position.
   tile_recalculate(tile);
 }

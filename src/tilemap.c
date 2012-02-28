@@ -84,24 +84,28 @@ Tilemap * tilemap_new(Tileset * set, int w, int h) {
 }
 
 
-
-
 /** Returns a pointer to the pane at index or NULL if out of range. */
 Tilepane * tilemap_pane(Tilemap * self, int index) {
   return dynar_getptr(self->panes, index);
 }
 
-/** Makes a new tile pane for the pane at indexeth index of the tile map. */
-Tilepane * tilemap_panenew(Tilemap * self, int index, int w, int h) {
-  Tilepane * pane;
-  pane = tilemap_pane(self, index);
+/** Sets a new tile pane for the pane at indexeth index of the tile map.
+* the old pane, if any, will be deleted with tilepane_free
+*/
+Tilepane * tilemap_pane_(Tilemap * self, int index, Tilepane * pane) {
+  Tilepane * oldpane;
+  oldpane = tilemap_pane(self, index);
   // Replace old pane, so free it.
-  tilepane_free(pane);
-  pane = tilepane_new(self->set, w, h);
+  tilepane_free(oldpane);  
   dynar_putptr(self->panes, index, pane);
   return pane;
 }
 
+/** Makes a new tile pane for the pane at indexeth index of the tile map. */
+Tilepane * tilemap_panenew(Tilemap * self, int index, int w, int h) {
+  Tilepane * pane = tilepane_new(self->set, w, h);
+  return tilemap_pane_(self, index, pane);
+}
 
 
 /** Returns the tile in the tile map in the given layer at the given coords. */
@@ -181,6 +185,19 @@ cpShape * tilemap_makewall(Tilemap * self, int tx, int ty) {
 }
 
 
+void tilemap_draw(Tilemap * map, Camera * camera) {
+  int index;
+  Tilepane * pane;
+  for(index  = 0; index < TILEMAP_PANES; index++) {
+    pane     = tilemap_pane(map, index);
+    if(pane) {
+      tilepane_draw(pane, camera);
+    } else {
+      // fprintf(stderr, "pane missing: %d", index);
+    }
+  }
+}
+
 
 
 
@@ -257,16 +274,8 @@ Tilemap * tilemap_save(Tilemap * map, int index) {
   res  = tilemap_savefile(map, fout);
   fclose(fout);
   return res;
+  
 }
-
-void tilemap_draw(Tilemap * map, Camera * camera) {
-  int index;
-  for(index = 0; index < TILEMAP_PANES; index++) {
-    tilepane_draw(tilemap_pane(map, index), camera);
-  }
-}
-
-
 
 
 #endif

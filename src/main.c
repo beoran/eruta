@@ -139,8 +139,10 @@ int real_main(void) {
       return 1;
     }
     tileset = tileset_new(sheet);
+    tile    = tileset_get(tileset, 4);
+    tile_anim_(tile, -4);
     tile    = tileset_get(tileset, 0);
-    tile_addframe(tile, 2);
+    tile_anim_(tile, 4);
     
     tilepane= tilepane_new(tileset, 100, 100);
     // tilepane_set(tilepane, 0, 0, tile);
@@ -212,8 +214,9 @@ int real_main(void) {
       al_clear_to_color(state_color(state, STATE_BLACK));
       al_draw_line(0, 0, SCREEN_W, SCREEN_H, state_color(state, STATE_WHITE), 7);
       
-      tilepane_draw(tilepane, camera);
-      tilepane_draw(tilepane, camera);
+      if(map) tilemap_draw(map, camera);
+      // tilepane_draw(tilepane, camera);
+      // tilepane_draw(tilepane, camera);
       //tilepane_draw(tilepane, camera);
       //tilepane_draw(tilepane, camera);
       
@@ -221,7 +224,7 @@ int real_main(void) {
       camera_update(camera);
       
       tile_draw(tile, 200, 300);
-      tile_update(tile);
+      // tile_update(tile);
       state_frames_update(state);
       al_draw_textf(state_font(state), state_color(state, STATE_WHITE),
                         10, 10, 0, "FPS: %lf, %d", state_fps(state), state_frames(state));

@@ -13,7 +13,10 @@ struct Tileset_;
 typedef struct Tileset_ Tileset;
 
 /** 
-* A single tile from a tile map. 
+* A single tile from a tile map.
+* Tiles can be animated. This works like this: a tile has an animation
+* pointer and offset which points to the next tile to be drawn in the tileset.
+*
 * A tile can only hold up to TILE_FRAMES tiles pointers in itself.
 */
 struct Tile_;
@@ -43,16 +46,17 @@ Tile * tile_init(Tile * tile, Tileset * set, int index);
 /** Gets a tile from a tile set by it's tile id. **/ 
 Tile * tileset_get(Tileset * set, int index);
 
-/** Adds an image to this tile. May return NULL if not enough space, etc. 
-* Otherwise returns the tile itself. 
-*/
-Tile * tile_addframe(Tile * tile, int index);
+/** Sets the animation parameter of this tile */
+Tile * tile_anim_(Tile * tile, int anim);
 
-/** Adds an "animation program" step to this tile. The program is consisted of a list 
-* of a single byte instructions. Of these bytes, he lower nybble is the opcode 
-* and the higher nybble the operand.
-*/
-Tile * tile_addanime(Tile * tile, char program);
+/** Gets the animation parameter of this tile, or 0 if NULL */
+int tile_anim(Tile * tile);
+
+/** Sets the wait parameter of this tile */
+Tile * tile_wait_(Tile * tile, int wait);
+
+/** Gets the wait parameter of this tile, or -1 if NULL */
+int tile_wair(Tile * tile);
 
 /** Gets the value of the flags of a tile. */
 int tile_flags(Tile * tile);
@@ -69,7 +73,7 @@ Tile * tile_unflag(Tile * tile, int flag);
 /** Checks a single flag on a tile. */
 int tile_isflag(Tile * tile, int flag);
 
-/** Sets a tile's property from a property string.
+/** Sets a tile's flags from a property string.
 * This uses an internal lookup table.
 */
 Tile * tile_property_(Tile * tile, char * property);
@@ -77,10 +81,7 @@ Tile * tile_property_(Tile * tile, char * property);
 /** Rewinds a tile's animations. */
 void tile_rewindanime(Tile * tile);
 
-/** Move on to next frame of the animation. */
-void tile_nextanime(Tile * tile);
-
-/** Updates a tile to animate it */
+/** Updates a tile to animate it. Ignores wait for now. */
 void tile_update(Tile * tile);
 
 /** Updates all tiles in a tile set so they all get animated. */

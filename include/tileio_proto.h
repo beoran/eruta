@@ -15,6 +15,16 @@ Please do not hand edit.
  */
 static void print_element_names(xmlNode * node);
 
+/** Loads a single tile pane of the tile map from xml (tmx). */
+Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count);
+
+/** Loads the tile panes of the tile map from xml (tmx). */
+Tilemap * tilemap_loadpanesxml(Tilemap * map, xmlNode * xlayer);
+
+/** Loads a tile map from a tmx xml document
+*/
+Tilemap * tilemap_loadxml(xmlDoc * xml);
+
 /**
 * Loads a tile map from a tmx file.
 */
