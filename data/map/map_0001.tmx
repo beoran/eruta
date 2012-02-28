@@ -275,7 +275,11 @@
 </data>
  </layer>
  <objectgroup name="object_0" width="100" height="100">
-  <object name="start" type="start" gid="35" x="96" y="128"/>
+  <object name="start" type="start" gid="35" x="96" y="128">
+   <properties>
+    <property name="script" value="particle_burst(3, 4, 10)"/>
+   </properties>
+  </object>
   <object name="warp_1" type="warp" gid="35" x="416" y="416">
    <properties>
     <property name="id" value="1"/>
