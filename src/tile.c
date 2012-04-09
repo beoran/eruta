@@ -242,7 +242,7 @@ Tile * tile_unflag(Tile * tile, int flag) {
 
 /** Checks a single flag on a tile. */
 int tile_isflag(Tile * tile, int flag) {
-  if(!tile) return NULL;
+  if(!tile) return 0;
   return BIT_ISFLAG(tile->flags, flag);
 }
 

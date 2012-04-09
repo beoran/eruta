@@ -4,10 +4,11 @@
 
 
 GLuint glh_shader_make(GLenum type, char * data) {
+  const GLchar * gldata = (const GLchar *) data;
   GLint status;
   GLuint shader = glCreateShader(type);
   
-  glShaderSource(shader, 1, &data, NULL);
+  glShaderSource(shader, 1, &gldata, NULL);
   glCompileShader(shader);
   glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
   
