@@ -4,8 +4,8 @@
 #include "mem.h"
 
 /**
-* The Camera is one  (or moreif using split screen) of the
-* rectangular view that the player has on the game world.
+* The Camera is one  (or more if using split screen) of the
+* rectangular views that the player has on the game world.
 */
 struct Camera_ {
   Point at;
@@ -104,7 +104,6 @@ float camera_center_x(Camera * self) {
 float camera_center_y(Camera * self) {
   return self->at.y + (self->size.y / 2);;
 }
-
 
 
 /** Sets speed by individual components. */

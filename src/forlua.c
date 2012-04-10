@@ -1,4 +1,4 @@
-/* Functions that extend lua for se with application. */
+/* Functions that extend lua for use with Eruta. */
 #include "lh.h" 
 #include "eruta.h"
 

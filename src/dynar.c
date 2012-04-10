@@ -22,7 +22,7 @@ size_t dynar_size(Dynar * self) {
   return self->size;
 }
 
-/** Gets the amount of elements in the vectore. Returns 0 if self is NULL. */
+/** Gets the amount of elements in the vector. Returns 0 if self is NULL. */
 size_t dynar_amount(Dynar * self) {
   if(!self) return 0;
   return self->size;

@@ -1,9 +1,9 @@
 #include "mem.h"
 #include "every.h"
 
-/** This ifle contains two iterator or iterator interfaces,
+/** This file contains two iterator or iterator interfaces,
 namely Every and Each. Every uses a struct to
-keep track of it's state, while Each uses */
+keep track of it's state, while Each uses a callback function. */
 
 /** Allocates an uninitialized every object. */
 Every * every_alloc() {

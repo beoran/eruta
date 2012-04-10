@@ -31,7 +31,7 @@ struct Effects_ {
   struct Particle_ particles[ERUTA_PARTICLES];
 };
 
-
+// XXX: todo, implement this when we're ready to do so.
 
 #ifdef COMMENT_
 
