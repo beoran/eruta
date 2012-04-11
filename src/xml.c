@@ -1,5 +1,6 @@
 /* Xml helper functions that extend the functionality of libxml2.  */
 #include "xml.h"
+#include <string.h>
 
 /* Functions for loading and saving tile maps, grouped here to limit the use
 of xml, etc. */
