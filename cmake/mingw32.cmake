@@ -1,6 +1,6 @@
 # Mingw toolchain file for CMake and Ubuntu
 # The name of the target operating system
-SET(CMAKE_SYSTEM_NAME MINGW)
+SET(CMAKE_SYSTEM_NAME Windows)
 
 # which compilers to use for C and C++
 SET(CMAKE_C_COMPILER /usr/bin/i586-mingw32msvc-gcc)
