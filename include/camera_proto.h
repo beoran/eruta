@@ -7,8 +7,8 @@ Please do not hand edit.
 */
 
 /**
-* The Camera is one  (or moreif using split screen) of the
-* rectangular view that the player has on the game world.
+* The Camera is one  (or more if using split screen) of the
+* rectangular views that the player has on the game world.
 */
 struct Camera_;
 typedef struct Camera_ Camera;

@@ -6,11 +6,11 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/** This ifle contains two iterator or iterator interfaces,
+/** This file contains two iterator or iterator interfaces,
 struct to;
 typedef struct to t;
 
-keep track of it's state, while Each uses */
+keep track of it's state, while Each uses a callback function. */
 
 /** Allocates an uninitialized every object. */
 Every * every_alloc();

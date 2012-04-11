@@ -58,6 +58,11 @@ void * lh_checkdata(lua_State *L, const char * name, int index) {
   return data;
 }
 
+/** Makes it easier to parse the arguments a Lua dfunction has received.
+* Works in the spirit of scanf(), but with different specifiers.
+* d : double *, i: int *, l : long *, s : char **, S strdupped char **, p
+* userdata pointer.
+*/
 int lh_scanargs(lua_State *L, char * format, ...) {
   va_list args; 
   char * c;

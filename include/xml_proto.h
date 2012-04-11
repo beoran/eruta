@@ -7,93 +7,32 @@ Please do not hand edit.
 */
 
 /**
-* Xml is both an XML node and an xml document.
+ * print_element_names:
+ * @a_node: the initial xml node to consider.
+ *
+ * Prints the names of the all the xml elements
+ * that are siblings or children of a given xml node.
+ */
+void print_element_names(xmlNode * node);
+
+/**
+* print_all_attributes: a debugging function to print all xml attributes
 */
-struct Xml_;
-typedef struct Xml_ Xml;
+void print_all_attributes(xmlNode * node);
 
-/** Allocates a new XML document, attribute or node. */
-Xml * xml_new(STR * tag, STR * value);
+/** Finds a sibling node. If name is not null
+or type is strictly positive, return matching nodes.
+Also searches node itself, so pass node->next if you don't want that.*/
+xmlNode * xmlFindNextType(xmlNode * node, const char * name, int type);
 
-/** Allocates a new XML document, attribute or node. */
-Xml * xml_newcstr(const char * tag, const char * value);
+/** shorthand for xmlFindNextType(node, name, XML_ELEMENT_NODE */
+xmlNode * xmlFindNext(xmlNode * node, const char * name);
 
-/** Frees an XML document recursively */
-Xml * xml_free(Xml * xml);
+/** nonrecursively finds a child node with the given name, including self. */
+xmlNode * xmlFindChild(xmlNode * node, const char * name);
 
-/** Deallocates an XML document recursively.
-   Children, siblings and attributes will be freed.  */
-Xml * xml_done(Xml * xml);
-
-/** Adds a sibling to an existing xml node and returns it.
-* It will scan through the sibling list and append it to the end. */
-Xml * xml_addsibling(Xml * xml, Xml * sibling);
-
-/** Adds a child to an existing xml node. */
-Xml * xml_addchild(Xml * xml, Xml * child);  
-
-/** Adds an attribute attr to an existing xml node. */
-Xml * xml_addattribute(Xml * xml, Xml * attr);
-
-/** Creates a new attribute for this node and returns it.
-Returns NULL if out of memory. */
-Xml * xml_newattribute(Xml * xml, STR * name, STR * value);
-
-/** Creates a new attribute for this node and returns it.
-Returns NULL if out of memory. */
-Xml * xml_newattributecstr(Xml * xml, const char * name, const char * value);
-
-/** Creates a new child node for this node and returns it.
-Returns NULL if out of memory. */
-Xml * xml_newchild(Xml * xml, STR * name);
-
-/** Creates a new child node for this node and returns it.
-Returns NULL if out of memory. */
-Xml * xml_newchildcstr(Xml * xml, const char * name);
-
-/** Creates a new text node child for this node and returns it.
-Returns NULL if out of memory. */
-Xml * xml_newtext(Xml * xml, STR * text);
-
-/** Creates a new text child node for this node and returns it.
-Returns NULL if out of memory. */
-Xml * xml_newtextcstr(Xml * xml, const char * text);
-
-/** Iterates over each sibling node of this xml node using the EachDo walker
-interface */
-Xml * xml_eachsibling(Xml * xml, EachDo * todo, void * data);
-
-/** Iterates over each direct child node of this xml node using the EachDo
-walker interface, breadth-only. */
-Xml * xml_eachchild(Xml * xml, EachDo * todo, void * data);
-
-/** Iterates over each attibute node of this xml node using the EachDo
-walker interface, breadth-only. */
-Xml * xml_eachattribute(Xml * xml, EachDo * todo, void * data);
-
-/** Find an attribute with the given name and returns it's STR * value,
-or NULL if not found. */
-STR * xml_findattribute_strstr(Xml * xml, STR * name);  
-
-/** Find a attribute with given name returns it's STR * value, 
-or NULL if not found. */
-STR * xml_findattribute_cstrstr(Xml * xml, const char * cname);
-
-/** Find a given attribute and returns it's const char * value, 
-or NULL if not found. */
-const char * xml_findattribute_cstrcstr(Xml * xml, const char * cname);  
-
-/** Finds the first child with the given tag name. */
-Xml * xml_findchild_str(Xml * xml, STR * name);
-
-/** Finds the first child with the given tag name. */
-Xml * xml_findchild_cstr(Xml * xml, const char * cname);
-
-/** Finds the first sibling with the given tag name. */
-Xml * xml_findsibling_str(Xml * xml, STR * name);
-
-/** Finds the first sibling with the given tag name. */
-Xml * xml_findsibling_cstr(Xml * xml, const char * cname);
+/** Finds a child node with the given paths, pass null as last one  */
+xmlNode * xmlFindChildDeep(xmlNode * node, ...);
 
 #endif // XML_PROTO_H
 

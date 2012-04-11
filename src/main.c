@@ -110,6 +110,18 @@ int test_silut(void) {
 }
 
 
+/* Testing function for al_get_standard_path */
+void puts_standard_path(int path, char * name) {
+  ALLEGRO_PATH * testpath;
+  testpath =  al_get_standard_path(path);
+  puts(name);
+  puts(al_path_cstr(testpath, ALLEGRO_NATIVE_PATH_SEP));
+  al_destroy_path(testpath);
+}
+  
+
+
+
 int real_main(void) {
     Image    * sheet    = NULL;
     Tileset  * tileset  = NULL;
@@ -121,11 +133,15 @@ int real_main(void) {
     Tilemap  * map      = NULL;
     
     state = state_alloc();
-    Point      mp = { -100, -100}, mv = {0, 0};
+    Point      mp = { -100, -100};
+    Point      mv = {0    , 0};
     if((!(state)) || (!state_init(state, FALSE))) {
       perror(state_errmsg(state));
-      return 1;      
+      return 1;
     }
+
+    puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
+
     camera = camera_new(-100, -100, SCREEN_W, SCREEN_H);
     if(!camera) {
       perror("Could not allocate Camera.");

@@ -1,4 +1,4 @@
-Eruta, An Action RPG under development.
+Eruta, a futuristic jRPG under development.
 
 Requirements:
 * Allegro 5.x
@@ -24,7 +24,10 @@ Expect to be underwhelmed for now. :-)
 
 License: 
 
-Eruta is copyright (c) 2007-2012 Beoran beoran@rubyforge.org.
+Eruta is copyright (c)
+2007-2012 Beoran beoran@rubyforge.org.
+2012 Alexbond45
+2012 LunarKnite
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, 
