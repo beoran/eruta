@@ -7,7 +7,7 @@ to be the a guard record.
 struct Silut_;
 typedef struct Silut_ Silut;
 
-/** A Silut record  (String Integer LookUp Table consists of an integer and a constant character string. A Silut with string geing NULL is considered
+/** A Silut record  (String Integer LookUp Table consists of an integer and a constant character string. A Silut with string set to NULL is considered
 to be the a guard record.
 */
 struct Silut_ {

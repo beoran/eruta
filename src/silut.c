@@ -5,7 +5,7 @@
 
 /* This file contails lookup helper functions that
 * look up an integer based on a string or a string based on an integer,
-* making use of a lookup table of Stroitos records.
+* making use of a lookup table of Silut records.
 */
 
 

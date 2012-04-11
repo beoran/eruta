@@ -6,15 +6,6 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/**
- * print_element_names:
- * @a_node: the initial xml node to consider.
- *
- * Prints the names of the all the xml elements
- * that are siblings or children of a given xml node.
- */
-static void print_element_names(xmlNode * node);
-
 /** Loads a single tile pane of the tile map from xml (tmx). */
 Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count);
 
