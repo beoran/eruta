@@ -37,10 +37,11 @@ int test_xml(void);
     puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
 
     camera = state_camera(state);
-    //music = music_load(ERUTA_TEST_MUSIC);
-    //if(!music) perror(ERUTA_TEST_MUSIC);
+    music = music_load("musictest.ogg");
+    if(!music) perror("musictest.ogg");
     
-    sheet = image_load(ERUTA_TEST_SHEET);
+    sheet = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
+    // image_load(ERUTA_TEST_SHEET);
     if(!sheet);
 
 #endif // MAIN_PROTO_H

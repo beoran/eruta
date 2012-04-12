@@ -7,7 +7,7 @@
 #include "mode.h"
 
 
-/** The data struct contains all global state and other data of the application.
+/* The data struct contains all global state and other data of the application.
 */
 struct State_ {
   BOOL                  busy;
@@ -145,9 +145,14 @@ State * state_init(State * self, BOOL fullscreen) {
   }
   
   al_resize_display(self->display, SCREEN_W, SCREEN_H);
+  
+  // initialize the file finder, so we can start to loaded
+  if(!fifi_init()) { 
+    return state_errmsg_(self, "Could not find data folder!\n");
+  }
 
 
-  self->font = al_load_font("data/font/fixed_font.tga", 0, 0);
+  self->font = fifi_loadfont("fixed_font.tga", 0, 0);
   if (!self->font) {
     return state_errmsg_(self, "Error loading data/font/fixed_font.tga");
   }
@@ -189,6 +194,7 @@ BOOL state_done(State * state) {
 
 /** Closes the state when it's done. */
 State * state_kill(State * self) {
+  camera_free(self->camera);
   dynar_free(self->modes);
   STRUCT_FREE(self);
   return self;

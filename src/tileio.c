@@ -12,10 +12,13 @@
 Image * tileset_image_load(const char * filename) {
   ALLEGRO_PATH * path;
   Image        * image;
-  path  = fifi_tileset_filename(filename);
-  printf("Loading tile set: %s for %s\n", PATH_CSTR(path), filename);
-  image = image_load(PATH_CSTR(path));  
-  al_destroy_path(path);
+  // path  = fifi_tileset_filename(filename);
+  // printf("Loading tile set: %s for %s\n", PATH_CSTR(path), filename);
+  image = (Image*) fifi_loadsimple(
+                    (FifiSimpleLoader*)al_load_bitmap, filename, "map", NULL);
+  
+  // image = image_load(PATH_CSTR(path));  
+  // al_destroy_path(path);
   return image;  
 }
 

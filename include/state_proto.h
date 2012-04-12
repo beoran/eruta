@@ -6,11 +6,6 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/** The data struct contains all global state and other data of the application.
-*/
-struct State_;
-typedef struct State_ State;
-
 /** Gets the global state data, or NULL if not set. */
 State * state_get();
 

@@ -11,6 +11,11 @@
 /** Amount of samples that can be played at the same time. */
 #define STATE_SAMPLES 16
 
+/** The data struct contains all global state and other data of the application.
+*/
+struct State_;
+typedef struct State_ State;
+
 #include "state_proto.h"
 
 

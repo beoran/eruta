@@ -3,7 +3,6 @@
 
 #include "eruta.h"
 
-typedef struct State_ State;
 
 typedef struct React_ React;
 

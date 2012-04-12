@@ -6,7 +6,7 @@
 
 
 
-/**
+/*
 * A Mode is a mode of the program in which the display and controls may 
 * be different. Examples of this may be a menu mode, play mode,
 * edit mode, intro mode, etc.

@@ -6,14 +6,5 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/**
-* A Mode is a mode of the program in which the display and controls may 
-* be different. Examples of this may be a menu mode, play mode,
-* edit mode, intro mode, etc.
-* 
-*/
-struct Mode_;
-typedef struct Mode_ Mode;
-
 #endif // MODE_PROTO_H
 

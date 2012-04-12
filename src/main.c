@@ -145,6 +145,7 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
       state_done(state);
     break;
   }
+  return self;
 }
 
 
@@ -153,7 +154,7 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
   State * state = (State *) self->data;
   Camera * camera = NULL;
   if (!state) return NULL;
-  camera = state_camera(state);  
+  camera = state_camera(state);
   if (!camera) return NULL;
   os = camera_speed(camera);
   switch(event->keycode) {
@@ -173,6 +174,7 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
       state_done(state);
     break;
   }
+  return self;
 }
 
 
@@ -205,10 +207,11 @@ int real_main(void) {
     puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
 
     camera = state_camera(state);
-    //music = music_load(ERUTA_TEST_MUSIC);
-    //if(!music) perror(ERUTA_TEST_MUSIC);
+    music = music_load("musictest.ogg");
+    if(!music) perror("musictest.ogg");
     
-    sheet = image_load(ERUTA_TEST_SHEET);
+    sheet = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
+    // image_load(ERUTA_TEST_SHEET);
     if(!sheet) {
       perror(ERUTA_TEST_SHEET);
       return 1;
@@ -224,7 +227,8 @@ int real_main(void) {
     // tilepane_set(tilepane, 1, 1, tile);
     tilepane_fill(tilepane, tile);
 
-    map = tilemap_load(ERUTA_MAP_TEST);
+    // map = tilemap_load(ERUTA_MAP_TEST);
+    map = fifi_loadsimple(tilemap_load, "map_0001.tmx", "map", NULL);
     if(!map) {
       puts("Map is NULL!");
     }
