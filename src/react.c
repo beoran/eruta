@@ -93,10 +93,10 @@ React * react_react(React * self, ALLEGRO_EVENT * event) {
 
 
 /** Polls for allegro events and reacts to them. */
-React * react_poll(React * self, State * state) {
+React * react_poll(React * self, void * state) {
   ALLEGRO_EVENT event;
   if(!self) return NULL;
-  while(state_poll(state, &event)) {
+  while(state_poll((State *)state, &event)) {
     // React to all incoming events.
     react_react(self, &event);
   }

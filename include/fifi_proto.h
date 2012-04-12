@@ -6,17 +6,90 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Initializes the file finding dir  */
+ALLEGRO_PATH * fifi_init(void);
+
 /** Returns a pointer to the data path. Must be cloned before use.*/
-ALLEGRO_PATH * fifi_data_path(void);
+ALLEGRO_PATH * fifi_data_path(void);  
 
 /** Returns a pointer to the data path converted to a c string. */
 const char * fifi_data_path_cstr(void);
 
 /**
-* returns an ALLEGRO_PATH that pooints to the tileset image for the given
+* Returns an ALLEGRO_PATH path concatenated with the 
+* const char * strings in args, of which the last one should be NULL.
+* modifies * path
+*/
+ALLEGRO_PATH * path_append_va(ALLEGRO_PATH * path, va_list args);
+
+/**
+* Returns an ALLEGRO_PATH path concatednated with the 
+* const char * strings, of which the last one should be NULL.
+*/
+ALLEGRO_PATH * path_append(ALLEGRO_PATH * path, ...);
+
+/**
+* Loads file  that is in the data directory using the given loader.
+* returns NULL if the file doesn't exist or wasn't loaded correctly.
+*/
+void * fifi_loadsimple_va(FifiSimpleLoader * load, const char * filename, 
+                          va_list args);
+
+/**
+* Loads file  that is in the data directory using the given loader.
+* the filename is specified first, then the directories under which 
+* it should be, one by one, ended with NULL
+* returns NULL if the file doesn't exist or wasn't loaded correctly.
+*/
+void * fifi_loadsimple(FifiSimpleLoader * load, const char * filename, ...);
+
+/**
+* Loads a font from the data directory, with the given filename, size and 
+* flags. No directory name is needed, the fonts must be in te data/font dir.
+*/
+ALLEGRO_FONT * fifi_loadfont(const char * filename, int size, int flags);
+
+/**
+* Loads a bitmap with the given filename under the NULL-terminated list 
+* of subdirectory names
+*/
+ALLEGRO_BITMAP * fifi_loadbitmap_va(const char * filename, va_list args);
+
+/**
+* Loads a bitmap with the given filename under the NULL-terminated list 
+* of subdirectory names
+*/
+ALLEGRO_BITMAP * fifi_loadbitmap(const char * filename, ...);
+
+/** Loads an audio stream from the data directory. Since audi streams are usually music, no there's no nedto inicatet hedi, but all music must go under 
+data/music */
+ALLEGRO_AUDIO_STREAM * fifi_loadaudiostream(const char *filename,
+                        size_t buffer_count, unsigned int samples); 
+
+/**
+* returns an ALLEGRO_PATH that points to the tileset image for the given
 * file name. Must be destroyed after use. 
 */
-ALLEGRO_PATH * fifi_tileset_filename(const char * name);
+ALLEGRO_PATH * fifi_tileset_filename(const char * name);  
+
+/** The follwoing loadable objects exist: 
+* 1) maps
+* 2) map scripts
+* 3) tilesets
+* 4) sound effects
+* 4) music
+* 5) tiles
+* 6) gui elements
+* 7) backgrounds
+*/
+
+
+
+
+
+
+
+
 
 #endif // FIFI_PROTO_H
 

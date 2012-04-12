@@ -3,6 +3,7 @@
 
 #include "sound.h"
 #include "mem.h"
+#include "fifi.h"
 
 struct Sound_ {
   ALLEGRO_SAMPLE    * handle;
@@ -124,9 +125,8 @@ Music * music_load(char * filename)  {
   Music * music = STRUCT_ALLOC(Music);
   if(!music) return NULL;
   // printf("Audio status: %d, %p, %p\n", audio_.ok, audio_.voice, audio_.mixer);
-
-  music->handle =
-      al_load_audio_stream(filename, 2, MUSIC_BUFSIZE);
+  // load audi stream from data dir
+  music->handle = fifi_loadaudiostream(filename, 2, MUSIC_BUFSIZE);
       
   if(!music->handle) {
     perror("could not load music file");

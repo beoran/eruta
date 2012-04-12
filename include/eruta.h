@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include <chipmunk.h>
@@ -13,6 +14,8 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 
 /** Screen size wich will always be 640x480 (real or virtually). */
 #define SCREEN_W      640
@@ -56,7 +59,9 @@ typedef cpVect Point;
 
 /** Shorthand macros. */
 #define PATH_CSTR(PATH)    al_path_cstr(PATH, ALLEGRO_NATIVE_PATH_SEP)
-#define PATH_EXISTS(PATH) (al_filename_exists(PATH_CSTR(path)));
+#define PATH_EXISTS(PATH) (al_filename_exists(PATH_CSTR(PATH)))
+
+
 
 /** Commonly used types and typedefs. */
 
