@@ -25,7 +25,7 @@
                   "/usr/include/libxml2"
                   }
 
-		libdirs     { "/usr/lib/i386-linux-gnu" }
+		libdirs     { "/usr/lib/i386-linux-gnu", "/usr/local/lib" }
 		links       { 
                   "allegro"           , "allegro_main"  ,
                   "allegro_font"      , 
