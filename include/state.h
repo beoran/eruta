@@ -1,8 +1,9 @@
-#ifndef ERUTA_GAME_H
-#define ERUTA_GAME_H
+#ifndef ERUTA_STATE_H
+#define ERUTA_STATE_H
 
 #include "eruta.h"
 #include "tilemap.h"
+#include "mode.h"
 
 #define STATE_COLORS   16
 #define STATE_BLACK   0

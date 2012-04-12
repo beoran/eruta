@@ -29,5 +29,19 @@ const char * xml_test_doc =
 
 int test_xml(void);
 
+    /** Initialises the reactor, the game state is it's data. */
+    react_initempty(&react, state);
+    react.keyboard_key_up = main_react_key_up;
+    react.keyboard_key_down = main_react_key_down;
+    
+    puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
+
+    camera = state_camera(state);
+    //music = music_load(ERUTA_TEST_MUSIC);
+    //if(!music) perror(ERUTA_TEST_MUSIC);
+    
+    sheet = image_load(ERUTA_TEST_SHEET);
+    if(!sheet);
+
 #endif // MAIN_PROTO_H
 

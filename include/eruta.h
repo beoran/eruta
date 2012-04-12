@@ -54,6 +54,10 @@ typedef cpVect Point;
 /** Wrapper macros */
 #define point(X, Y) cpv(X, Y);
 
+/** Shorthand macros. */
+#define PATH_CSTR(PATH)    al_path_cstr(PATH, ALLEGRO_NATIVE_PATH_SEP)
+#define PATH_EXISTS(PATH) (al_filename_exists(PATH_CSTR(path)));
+
 /** Commonly used types and typedefs. */
 
 struct Program_;
@@ -76,6 +80,7 @@ enum ProgramMode_ {
 };
 
 typedef enum ProgramMode_ ProgramMode;
+
 
 
 

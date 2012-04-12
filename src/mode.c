@@ -1,17 +1,19 @@
 
 #include "eruta.h"
+#include "react.h"
+#include "state.h"
 #include "mode.h"
 
 
 
-/*
+/**
 * A Mode is a mode of the program in which the display and controls may 
 * be different. Examples of this may be a menu mode, play mode,
 * edit mode, intro mode, etc.
 * 
 */
-
 struct Mode_ {
+  React       react; // reactions to (possibly) use in this mode.
   ModeActs *  acts;
   int         id;
   int         busy;
@@ -51,13 +53,14 @@ Mode * mode_event(Mode * self, ALLEGRO_EVENT * event) {
   return self->acts->event(self, event);
 }
 
-
-Mode * mode_init(Mode * self, ModeActs * acts, int id) {
+/* Initializes a mode. */
+Mode * mode_init(Mode * self, State * state, ModeActs * acts, int id) {
   self->acts = acts;
   self->next = NULL;
   self->prev = NULL;
   self->id   = id;
-  self->busy = true;  
+  self->busy = true;
+  react_initempty(&self->react, state);
   return mode_start(self);
 }
 
@@ -101,7 +104,11 @@ ModeActs * elsemode_getacts() {
   return &elsemode_acts_;
 };
 
-
+/* Returns the mode's react struct for event handling. */
+React * mode_react(Mode * self) {
+  if(!self) return NULL;
+  return &self->react;
+}
 
 
 

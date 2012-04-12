@@ -2,6 +2,7 @@
 
 #include "eruta.h"
 #include "state.h"
+#include "react.h"
 #include "image.h"
 #include "tile.h"
 #include "tilepane.h"
@@ -21,7 +22,8 @@ ALLEGRO_BITMAP* texture;
 ALLEGRO_COLOR   solid_white;
 
 #define abort_example perror
-#define ERUTA_TEST_SHEET "data/image/tile/tiles_village_1000.png"
+#define ERUTA_TEST_SHEET      "data/image/tile/tiles_village_1000.png"
+#define ERUTA_MAINMENU_IMAGE  "data/image/background/eruta_mainmenu.png"
 /** For some reason, onlt wav music plays?
 It seems there is a bug in init_dynlib() in the ogg driver nbut only
 if Allegro is compiled in the default RelWithDbg mode.
@@ -120,6 +122,59 @@ void puts_standard_path(int path, char * name) {
 }
   
 
+React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {  
+  State * state = (State *) self->data;
+  Camera * camera = NULL;
+  if (!state) return NULL;
+  camera = state_camera(state);
+  if (!camera) return NULL;
+  switch(event->keycode) {
+    case ALLEGRO_KEY_UP:
+      camera_speed_xy_(camera,  0, -1);
+    break;
+    case ALLEGRO_KEY_DOWN:
+      camera_speed_xy_(camera,  0, +1);
+    break;
+    case ALLEGRO_KEY_LEFT:
+      camera_speed_xy_(camera, -1,  0);
+    break;
+    case ALLEGRO_KEY_RIGHT:
+      camera_speed_xy_(camera, +1,  0);
+    break;
+    default:
+      state_done(state);
+    break;
+  }
+}
+
+
+React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
+  Point os;
+  State * state = (State *) self->data;
+  Camera * camera = NULL;
+  if (!state) return NULL;
+  camera = state_camera(state);  
+  if (!camera) return NULL;
+  os = camera_speed(camera);
+  switch(event->keycode) {
+    case ALLEGRO_KEY_UP:
+      camera_speed_xy_(camera, os.x, 0);
+    break;
+    case ALLEGRO_KEY_DOWN:
+      camera_speed_xy_(camera, os.x, 0);
+    break;
+    case ALLEGRO_KEY_LEFT:
+      camera_speed_xy_(camera, 0,  os.y);
+    break;
+    case ALLEGRO_KEY_RIGHT:
+      camera_speed_xy_(camera, 0,  os.y);
+    break;
+    default:
+      state_done(state);
+    break;
+  }
+}
+
 
 
 int real_main(void) {
@@ -131,21 +186,25 @@ int real_main(void) {
     Camera   * camera   = NULL;
     Tilepane * tilepane = NULL;
     Tilemap  * map      = NULL;
+    React    react;
+    
     
     state = state_alloc();
-    Point      mp = { -100, -100};
-    Point      mv = {0    , 0};
+    /*Point      mp = { -100, -100};
+    Point      mv = {0    , 0};*/
     if((!(state)) || (!state_init(state, FALSE))) {
       perror(state_errmsg(state));
       return 1;
     }
 
+    /** Initialises the reactor, the game state is it's data. */
+    react_initempty(&react, state);
+    react.keyboard_key_up = main_react_key_up;
+    react.keyboard_key_down = main_react_key_down;
+    
     puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
 
-    camera = camera_new(-100, -100, SCREEN_W, SCREEN_H);
-    if(!camera) {
-      perror("Could not allocate Camera.");
-    } 
+    camera = state_camera(state);
     //music = music_load(ERUTA_TEST_MUSIC);
     //if(!music) perror(ERUTA_TEST_MUSIC);
     
@@ -171,62 +230,12 @@ int real_main(void) {
     }
 
     
-    
+  while(state_busy(state)) { 
     // tile_addframe(tile, 3);
     //tile_addanime(tile, TILE_ANIME_NEXT);
     //tile_addanime(tile, TILE_ANIME_REWIND);
-    while (state_busy(state)) {    
-      ALLEGRO_EVENT event;
+      react_poll(&react, state);
       
-      while(state_poll(state, &event)) {
-      switch (event.type) {
-          case ALLEGRO_EVENT_DISPLAY_CLOSE:
-            state_done(state);
-            break;
-            
-          case ALLEGRO_EVENT_KEY_DOWN:
-            switch(event.keyboard.keycode) {
-              case ALLEGRO_KEY_UP:
-                mv.y = -1;
-              break;
-              case ALLEGRO_KEY_DOWN:
-                mv.y = +1;
-              break;
-              case ALLEGRO_KEY_LEFT:
-                mv.x = -1;
-              break;
-              case ALLEGRO_KEY_RIGHT:
-                mv.x = +1;
-              break;
-              default:
-                state_done(state);
-              break;
-            }
-            break;
-         
-        case ALLEGRO_EVENT_KEY_UP: 
-          switch(event.keyboard.keycode) {
-              case ALLEGRO_KEY_UP:
-                mv.y = 0;
-              break;
-              case ALLEGRO_KEY_DOWN:
-                mv.y = 0;
-              break;
-              case ALLEGRO_KEY_LEFT:
-                mv.x = 0;
-              break;
-              case ALLEGRO_KEY_RIGHT:
-                mv.x = 0;
-              break;
-              default:
-              break;
-          }
-          break;
-          
-        default:
-            break;
-        }  
-      }
       al_clear_to_color(state_color(state, STATE_BLACK));
       al_draw_line(0, 0, SCREEN_W, SCREEN_H, state_color(state, STATE_WHITE), 7);
       
@@ -236,7 +245,7 @@ int real_main(void) {
       //tilepane_draw(tilepane, camera);
       //tilepane_draw(tilepane, camera);
       
-      camera_speed_(camera, mv);
+      // camera_speed_(camera, mv);
       camera_update(camera);
       
       tile_draw(tile, 200, 300);

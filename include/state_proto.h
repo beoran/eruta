@@ -79,5 +79,8 @@ int state_frames(State * state);
 /** Returns the FPS value. */
 double state_fps(State * state);
 
+/** Returns the camera of the state. */
+Camera * state_camera(State * state);
+
 #endif // STATE_PROTO_H
 

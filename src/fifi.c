@@ -46,15 +46,45 @@ int fifi_path_exists(ALLEGRO_PATH * path) {
   return al_filename_exists(fifi_path_cstr(path));
 }
 
-/* This is the path where the resources of Eruta are stored.  */
-static ALLEGRO_PATH * fifi_data_path = NULL;
-
 /*
 static ALLEGRO_PATH * fifi_try_path(ALLEGRO_PATH base, char * name) {
   al_
 
 } 
 */
+
+/* This is the path where the resources of Eruta are stored.  */
+ALLEGRO_PATH * fifi_data_path_ = NULL;
+
+static ALLEGRO_PATH * fifi_make_data_path(void) {
+  ALLEGRO_PATH * path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
+  al_replace_path_component(path, -1, "data");
+  return path;
+}
+
+/** Returns a pointer to the data path. Must be cloned before use.*/
+ALLEGRO_PATH * fifi_data_path(void) {
+  if (fifi_data_path_) return fifi_data_path_;
+  fifi_data_path_ = fifi_make_data_path();
+  return fifi_data_path_;
+}
+
+/** Returns a pointer to the data path converted to a c string. */
+const char * fifi_data_path_cstr(void) {
+  return al_path_cstr(fifi_data_path(), ALLEGRO_NATIVE_PATH_SEP);
+}
+
+#define DATA_PATH_BUFSIZE 1024
+/**
+* returns an ALLEGRO_PATH that pooints to the tileset image for the given
+* file name. Must be destroyed after use. 
+*/
+ALLEGRO_PATH * fifi_tileset_filename(const char * name) {
+  ALLEGRO_PATH * path = al_clone_path(fifi_data_path());
+  al_append_path_component(path, "map");
+  al_set_path_filename(path, name);
+  return path;
+}
 
 
 

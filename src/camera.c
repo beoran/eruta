@@ -25,8 +25,8 @@ Camera * camera_free(Camera * self) {
 
 Camera * camera_init(Camera * self, float x, float y, float w, float h) {
   if(!self) return NULL;
-  self->at.x = x;
-  self->at.y = y;
+  self->at.x    = x;
+  self->at.y    = y;
   self->size.x  = w;
   self->size.y  = h;
   self->speed.x = 0;
@@ -105,6 +105,14 @@ float camera_center_y(Camera * self) {
   return self->at.y + (self->size.y / 2);;
 }
 
+/** Modifies speed by individual components. */
+Point camera_speed_deltaxy(Camera * self, float dx, float dy) {
+  self->speed.x += dx;
+  self->speed.y += dy;
+  return self->speed;
+}
+
+
 
 /** Sets speed by individual components. */
 Point camera_speed_xy_(Camera * self, float x, float y) {
@@ -124,6 +132,14 @@ Point camera_speed_(Camera * self, Point speed) {
   return self->speed;
 }
 
+/** Prints camera descriiption for debug */
+Camera * camera_debugprint(Camera * self) {
+  if(!self) { puts("Camera is NULL!"); return NULL; }
+  printf("Camera at (%f, %f), size (%f, %f), speed(%f, %f)\n",
+        self->at.x, self->at.y, self->size.x,  self->size.y,
+        self->speed.x,  self->speed.y);
+  return self;
+}
 
 
 

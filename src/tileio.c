@@ -4,42 +4,15 @@
 #include "tilemap.h"
 #include "tileio.h"
 #include "silut.h"
+#include "fifi.h"
 #include "xml.h"
 
 
 
-ALLEGRO_PATH * data_path_ = NULL;
-
-static ALLEGRO_PATH * make_data_path(void) {
-  ALLEGRO_PATH * path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
-  al_replace_path_component(path, -1, "data");
-  return path;
-}
-
-ALLEGRO_PATH * data_path(void) {
-  if (data_path_) return data_path_;
-  data_path_ = make_data_path();
-  return data_path_;
-}
-
-#define PATH_CSTR(PATH) al_path_cstr(PATH, ALLEGRO_NATIVE_PATH_SEP)
-
-const char * data_path_cstr(void) {
-  return al_path_cstr(data_path(), ALLEGRO_NATIVE_PATH_SEP);
-}
-
-#define DATA_PATH_BUFSIZE 1024
-ALLEGRO_PATH * data_tileset_filename(const char * name) {
-  ALLEGRO_PATH * path = al_clone_path(data_path());
-  al_append_path_component(path, "map");
-  al_set_path_filename(path, name);
-  return path;  
-}
-
 Image * tileset_image_load(const char * filename) {
   ALLEGRO_PATH * path;
   Image        * image;
-  path  = data_tileset_filename(filename);
+  path  = fifi_tileset_filename(filename);
   printf("Loading tile set: %s for %s\n", PATH_CSTR(path), filename);
   image = image_load(PATH_CSTR(path));  
   al_destroy_path(path);

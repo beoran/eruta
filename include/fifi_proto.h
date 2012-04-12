@@ -6,5 +6,17 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Returns a pointer to the data path. Must be cloned before use.*/
+ALLEGRO_PATH * fifi_data_path(void);
+
+/** Returns a pointer to the data path converted to a c string. */
+const char * fifi_data_path_cstr(void);
+
+/**
+* returns an ALLEGRO_PATH that pooints to the tileset image for the given
+* file name. Must be destroyed after use. 
+*/
+ALLEGRO_PATH * fifi_tileset_filename(const char * name);
+
 #endif // FIFI_PROTO_H
 

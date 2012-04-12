@@ -55,6 +55,9 @@ float camera_center_x(Camera * self);
 /** Return y position of camera bottom center */
 float camera_center_y(Camera * self);
 
+/** Modifies speed by individual components. */
+Point camera_speed_deltaxy(Camera * self, float dx, float dy);
+
 /** Sets speed by individual components. */
 Point camera_speed_xy_(Camera * self, float x, float y);
 
@@ -63,6 +66,9 @@ Point camera_speed(Camera * self);
 
 /** Sets speed.  */
 Point camera_speed_(Camera * self, Point speed);
+
+/** Prints camera descriiption for debug */
+Camera * camera_debugprint(Camera * self);
 
 #endif // CAMERA_PROTO_H
 

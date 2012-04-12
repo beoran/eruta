@@ -1,10 +1,10 @@
 #include "mem.h"
 #include "state.h"
+#include "camera.h"
 #include "sound.h"
 #include "tilemap.h"
-#include "mode.h"
 #include "dynar.h"
-
+#include "mode.h"
 
 
 /** The data struct contains all global state and other data of the application.
@@ -23,9 +23,10 @@ struct State_ {
   double                fpsnow, fpstime, fps;
   int                   frames;
   Tilemap             * nowmap;  // active tile map
-  Tilemap             * loadmap; // new tile map that's being loaded.  
+  Tilemap             * loadmap; // new tile map that's being loaded.
+  Mode                * mode; // active mode
   Dynar               * modes;
-  Mode                * mode;
+  Camera              * camera;
 };
 
 
@@ -167,9 +168,16 @@ State * state_init(State * self, BOOL fullscreen) {
   self->nowmap  = NULL;
   
   // set up modes
-  self->modes   = dynar_new(STATE_MODES, sizeof(Mode *));
+  self->modes   = dynar_new(ERUTA_MODE_MAX, sizeof(Mode *));
+  if(!self->modes) {
+    return state_errmsg_(self, "Out of memory when allocating modes.");
+  }
   
-  
+  // set up camera
+  self->camera = camera_new(-100, -100, SCREEN_W, SCREEN_H);
+  if(!self->camera) {
+      return state_errmsg_(self, "Out of memory when allocating camera.");
+  }
   return self;
 }
 
@@ -231,5 +239,39 @@ double state_fps(State * state) {
 }
 
 
+/** Returns the camera of the state. */
+Camera * state_camera(State * state) {
+  if(!state) return NULL;
+  return state->camera;
+}
 
+#ifdef _COMMENT
 
+/* Returns the active mode of the state if any. */
+Mode * state_mode(State * state) {
+  if(!state) return NULL;
+  return (state->mode);
+}
+
+/* Sets the active mode of the state to the one with the given index.
+* returns the mode set or NULL if not set.
+*/
+Mode * state_modeindex_(State * state, int index) {
+  State * old, * next;
+  if(!state) return NULL;
+  if((index<0) || (index > ERUTA_MODE_MAX)) return NULL;
+  old  = state->mode;
+  next = state->modes[index];
+  // try to leave old mode 
+  if(!mode_leave(old)) return NULL;
+  // couldn't enter next mode, return to previous mode.
+  if(!mode_enter(next)) {
+    mode_enter(old);
+    return NULL;
+  }
+  // If we get here the mode was entered correctly.
+  state->mode = next;  
+  return state->mode;
+}
+
+#endif
