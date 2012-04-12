@@ -1,0 +1,12 @@
+RECORD=$1
+while true 
+do
+read -e -p \?$(pwd)\> COMMAND
+if [ "$COMMAND" == "exit" ] 
+then
+  break	
+else
+	echo "$COMMAND" >> $RECORD
+	$COMMAND
+fi	
+done

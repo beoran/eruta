@@ -1,0 +1,5 @@
+
+sudo cp libz.a /usr/i586-mingw32msvc/lib/
+cp z* /usr/i586-mingw32msvc/include
+./configure --host=i586-mingw32msvc --target=i586-mingw32msvc --build=i386-linux --prefix=/home/bjmey/arch/src/eruta/vendor/mingw
+make install

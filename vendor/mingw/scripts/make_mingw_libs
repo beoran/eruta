@@ -1,0 +1,13 @@
+tar -xzf ../lua-5.2.0.tar.gz 
+export CROSS=i586-mingw32msvc-
+export AR=i586-mingw32msvc-ar
+export CC=i586-mingw32msvc-gcc
+export RANLIB=i586-mingw32msvc-ranlib
+export MINGW_INSTALL=/home/bjmey/arch/src/eruta/vendor/mingw
+export PREFIX=$MINGW_INSTALL
+cp scripts/lua-5.2.0_Makefile lua-5.2.0/Makefile
+cp scripts/lua-5.2.0_src_Makefile lua-5.2.0/src/Makefile
+cd lua-5.2.0/
+make
+make install
+

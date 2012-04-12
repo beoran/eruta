@@ -1,0 +1,89 @@
+tar -xzf ../allegro-5.0.6.tar.gz
+cd allegro-5.0.6
+cd allegro-5.0.6/
+ls
+cmake -D
+
+
+
+
+
+
+
+
+cmake . -DCMAKE_TOOLCHAIN_FILE=../../../cmake/mingw32.cmake
+cmakemake .
+less CMakeLists.txt
+nano -w ../scripts/make_mingw_libs
+cd ..
+unzip -vM ../dx80_mgw.zip
+unzip -d dx80 ../dx80_mgw.zip
+cd dx80
+ls
+less dx80/lib/src/readme.txt
+less lib/src/readme.txt
+echo $CROSS
+cp -a * /usr/i586-mingw32msvc/
+sudo cp -a * /usr/i586-mingw32msvc/
+cd ..
+cd allegro-5.0.6/
+cmake -DCMAKE_TOOLCHAIN_FILE=../../../cmake/mingw32.cmake .
+cd ..
+mv ~/arch/dl/gdiplus_includes.zip ..
+ls ~/arch/dl/gdiplus_includes.zip
+
+unzip -d gdiplus ../gdiplus_includes.zip
+cd gdiplus/
+ls
+rm -r __MACOSX
+cd gdiplus_includes/
+ls
+cp -a include /usr/i586-mingw32msvc/.
+cp -a lib /usr/i586-mingw32msvc/.
+cd ..
+cd ..
+cd allegro-5.0.6/
+cmake -DCMAKE_TOOLCHAIN_FILE=../../../cmake/mingw32.cmake .
+cd ..
+tar -xzf ../zlib-1.2.6.tar.gz
+cd zlib-1.2.6/
+ls
+./configure --help
+./configure
+make
+./configure
+./configure --help
+less configure
+nano -w Makefile
+nano -w ../scripts/lua-5.2.0_src_Makefile
+less ../scripts/lua-5.2.0_src_Makefile
+nano -w Makefile
+cd ..
+rm -r zlib-1.2.6/
+tar -xzf ../zlib-1.2.6.tar.gz
+cd zlib-1.2.6/
+./configure --static
+make
+make install
+./configure
+./configure --help
+/configure --static --prefix=$MINGW_INSTALL
+./configure --static --prefix=$MINGW_INSTALL
+make
+make install
+/configure --static --prefix=${MINGW_INSTALL}
+./configure --static --prefix=${MINGW_INSTALL}
+make install
+cd ..
+tar -xzf ../libpng-1.5.10.tar.gz
+cd libpng-1.5.10/
+./configure --help
+./configure --host=mingw32 --prefix=${MINGW_INSTALL}
+./configure
+./configure --host=mingw32 --prefix=${MINGW_INSTALL}
+
+
+
+./configure --help
+./configure --host=mingw32 --prefix=${MINGW_INSTALL} --with-zlib-prefix=${MINGW_INSTALL}
+
