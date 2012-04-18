@@ -9,6 +9,7 @@ struct Widget_ {
   int x, y, h, w;
   int z;
   /* Related widgets. */
+  PACHI_DECLARE();
   Widget        * parent;     /* parent widget */
   Widget        * child;      /* child widget */
   Widget        * next;       /* next sibling, logical order  */
@@ -20,12 +21,15 @@ struct Widget_ {
   ALLEGRO_FONT  * font;
   ALLEGRO_BITMAP* background;
 
+  
   /* Status Flags. */
   int can_focus, focus, closed, hidden, active, mouse_over, mouse_down;
 };
 
 
-
+struct WidgetBox_ {
+  struct Widget_ widget;
+};
 
 
 
