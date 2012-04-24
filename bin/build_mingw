@@ -1,4 +1,5 @@
 #!/bin/bash
+# ssome settings variables
 MXE=~/arch/opt/mxe
 MXE_USR=$MXE/usr
 MXE_MAIN=$MXE_USR/i686-pc-mingw32
@@ -11,10 +12,13 @@ CC=i686-pc-mingw32-gcc
 INCLUDES="-I $MXE_INCLUDE/libxml2 -I $MXE_INCLUDE/chipmunk -I include"
 # -I $MXE_INCLUDE/allegro5
 echo $INCLUDES
-LIBS="-lallegro_main -lallegro_dialog -lallegro_acodec -lallegro_primitives -lallegro_ttf -lallegro_image -lallegro_color -lallegro_physfs -lallegro_font -lallegro_audio -lallegro -lxml2 -lchipmunk -llua -lm"
+LIBS="-lallegro_main -lallegro_dialog -lallegro_acodec -lallegro_primitives -lallegro_ttf -lallegro_image -lallegro_color -lallegro_physfs -lallegro_font -lallegro_audio -lallegro -lxml2 -liconv -lws2_32 -lchipmunk -lz -llua -lm"
 
+# get rid of old crap to be sure it doesn't bother anything
+rm build/mingw/eruta.exe
+rm build/mingw/*.obj
 
-
+# Build all objects, even if they're not out of date.
 for each in src/*.c
 do 
 base=$(basename $each)
@@ -26,10 +30,23 @@ echo $MXE_INCLUDE
 $CC -c $INCLUDES $each -o $objp
 done
 
-echo $CC -L$MKE_LIB $LIBS build/mingw/*.obj -o build/mingw/eruta.exe
+# Build exe
+echo $CC build/mingw/*.obj $LIBS -o build/mingw/eruta.exe
 # $CC -L$MKE_LIB $LIBS build/mingw/*.obj -o build/mingw/eruta.exe
 
-# i686-pc-mingw32-gcc *.obj -lallegro_main -lallegro_dialog -lallegro_acodec -lallegro_primitives -lallegro_ttf -lallegro_image -lallegro_color -lallegro_physfs -lallegro_font -lallegro_audio -lallegro -lxml2 -liconv -lws2_32 -lchipmunk -lz -llua -lm -o eruta.exe
+# Package in a zip file
+mkdir build/eruta
+cp -a data build/eruta
+cp build/mingw/eruta.exe build/eruta/.
+cp $MKE_BIN/allegro*.dll build/eruta/.
+# date of today
+TODAY=$(date +%Y_%m_%d)
+cd build
+zip -r eruta-${TODAY}.zip eruta
+cd -
+
+
+# $CC *.obj -lallegro_main -lallegro_dialog -lallegro_acodec -lallegro_primitives -lallegro_ttf -lallegro_image -lallegro_color -lallegro_physfs -lallegro_font -lallegro_audio -lallegro -lxml2 -liconv -lws2_32 -lchipmunk -lz -llua -lm -o eruta.exe
 
 
 
