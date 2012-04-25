@@ -45,21 +45,13 @@
 *
 */
 
+
+
 /** UI manages the graphical user interface and menus. */
 struct UI_ {
    Widget * widget; /* The top level widget, and all it's children. */
   
 };
-
-/* For later refactoring. */
-void image_blitscale9_part(Image * image) {
-
-
-
-}
-
-
-
 
 
 /** Draws an image on the current target bitmap according to a 9 part scaling

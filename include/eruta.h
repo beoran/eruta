@@ -36,6 +36,8 @@
   (SET) =  ((value___ > max___ ) ? (max___) : (value___));  \
 } while(0) 
 
+/** */
+
 
 #ifndef TRUE
 #define TRUE (!0)

@@ -3,6 +3,7 @@
 #define ERUTA_IMAGE_H
 
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
 
 /** An image type. Useful as a shorthand to Allegro's long names. */
 typedef ALLEGRO_BITMAP Image;
@@ -10,8 +11,12 @@ typedef ALLEGRO_BITMAP Image;
 /** A color type. Useful as a shorthand to Allegro's long names. */
 typedef ALLEGRO_COLOR Color;
 
+/** A font type. Useful as a shorthand to Allegro's long names. */
+typedef ALLEGRO_FONT Font;
 
-/** Some utility macros. */
+
+
+/** Some utility macros, that wrap around allegro functions. */
 #define image_w(IMAGE) al_get_bitmap_width(IMAGE)
 #define image_h(IMAGE) al_get_bitmap_height(IMAGE)
 #define image_load(FILENAME) al_load_bitmap(FILENAME)
