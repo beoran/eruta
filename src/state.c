@@ -167,7 +167,7 @@ State * state_init(State * self, BOOL fullscreen) {
   }
 */ // Tuffy.ttf
  // "OpenBaskerville-0.0.53.otf"
-  #define STATE_FONTNAME "TranscendsGames.otf"
+  #define STATE_FONTNAME "GranaPadano.ttf"
   
   self->font = fifi_loadfont(STATE_FONTNAME, 16, 0);
   if (!self->font) {

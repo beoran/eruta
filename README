@@ -89,6 +89,12 @@ derivative works for any purpose, please go ahead.
 
 -Thatcher Ulrich <tu@tulrich.com> http://tulrich.com
 
+GranaPadano.ttf:  licensed under the Open Font License (OFL). Contributors:
+Daniel Johnson (font maintainer)
+il.basso.buffo at gmail dot com
+http://io.debian.net/~danielj/
+
+
 
 Remarks for developers:
 
@@ -109,3 +115,6 @@ bin/newmodule bar
 and automatically, empty src/bar.c and include/bar.h will be generated.
 
 As for why I use plain C and not, say C++: it's to keep the code simple, tight and focused, and easy to interface wth the Lua scripts. C is a very simple language, but it can do everything. And to save time, quite a bit of the programming will happen on the Lua side.
+
+
+
