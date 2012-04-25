@@ -6,6 +6,7 @@
 #include "tilemap.h"
 #include "dynar.h"
 #include "mode.h"
+#include "fifi.h"
 
 
 

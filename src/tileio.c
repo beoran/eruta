@@ -10,11 +10,8 @@
 
 
 Image * tileset_image_load(const char * filename) {
-  ALLEGRO_PATH * path;
-  Image        * image;
-  image = (Image*) fifi_loadsimple(
-                    (FifiSimpleLoader*)al_load_bitmap, filename, "map", NULL);  
-  return image;
+  return (Image*) fifi_loadsimple(
+                    (FifiSimpleLoader*)al_load_bitmap, filename, "map", NULL);
 }
 
 
@@ -23,7 +20,7 @@ Image * tileset_image_load(const char * filename) {
 Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   char * sflags = NULL;
   int ianim = 0, iwait = 0;
-  xmlNode * firstprop, *xaid;
+  xmlNode * firstprop;
   int id = xmlGetPropInt(xtil, "id");
   Tile  * tile = tileset_get(set, id);  
   if (!tile) return NULL;
@@ -109,7 +106,7 @@ char * csv_next(char * csv, int * value) {
 
 /** Loads a single tile pane of the tile map from xml (tmx). */
 Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
-  int w, h, code;
+  int w, h;
   char * name, * csv, * senc;
   Silut * laid;
   Tilepane * pane;
@@ -153,7 +150,7 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
   }
   
   // Only accept csv for now...
-  csv = xmlNodeGetContent(xdata);
+  csv = (char *) xmlNodeGetContent(xdata);
   // printf("data: %s\n", );  
   for(yindex = 0; yindex < h; yindex ++) {
     for(xindex = 0; xindex < w; xindex ++) {
@@ -185,8 +182,9 @@ Tilemap * tilemap_loadpanesxml(Tilemap * map, xmlNode * xlayer) {
   for(index = xlayer, count = 0; index ;
       index = xmlFindNext(index->next, "layer"), count++) {
       print_all_attributes(index);
-      Tilepane * pane = tilemap_loadpanexml(map, index, count);
+      tilemap_loadpanexml(map, index, count);
   }
+  return map;
 }
 
 
@@ -268,7 +266,6 @@ Tilemap * tilemap_loadtmx(const char * filename) {
 */
 Tilemap * tilemap_load(char * filename) {
   Tilemap * result;
-  FILE        * fin;
   //fin = fopen(filename, "r");
   //if(!fin) return NULL;
   result = tilemap_loadtmx(filename);

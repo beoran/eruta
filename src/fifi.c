@@ -80,7 +80,7 @@ static ALLEGRO_PATH * fifi_find_data_path(void) {
 }
 
 
-static ALLEGRO_PATH * fifi_make_data_path(void) {
+ALLEGRO_PATH * fifi_make_data_path(void) {
   ALLEGRO_PATH * path = al_get_standard_path(ALLEGRO_RESOURCES_PATH);
   al_replace_path_component(path, -1, "data");
   return path;
@@ -153,7 +153,7 @@ char *help_strncpy(char * dest, const char * src, size_t amount, size_t space){
 /**
 * Helper function to split up character strings with a separator.
 */
-char * help_strsplit(char * in, int ch, char * store, size_t space) {
+char * help_strsplit(const char * in, int ch, char * store, size_t space) {
   char * aid = strchr(in, ch);
   if (aid) {
     help_strncpy(store, in, aid - in, space);
@@ -174,7 +174,6 @@ char * help_strsplit(char * in, int ch, char * store, size_t space) {
 **/
 ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath) {
   char part[PATH_APPEND_VPATH_SIZE], * aid;
-  char * done = strchr(vpath, '\0');
   aid = strchr(vpath, '/');
   aid = help_strsplit(vpath, '/', part, PATH_APPEND_VPATH_SIZE); 
   while(aid) {
@@ -225,7 +224,7 @@ void * fifi_loadsimple_vpath(FifiSimpleLoader * load, const char * vpath) {
   path          = fifi_data_vpath(vpath);
   if(!path) return NULL;
   if(!al_get_path_filename(path)) {
-    printf("Filename not set for path: ", PATH_CSTR(path));
+    printf("Filename not set for path: %s.\n", PATH_CSTR(path));
     goto cleanup;  
   }
   printf("Loading: %s for %s\n", PATH_CSTR(path), vpath);

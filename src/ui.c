@@ -77,7 +77,7 @@ void image_blitscale9(Image * img, int xx, int yy,
 
   int mid_src_w, mid_src_h, mid_dst_w, mid_dst_h;
   int left_x, right_x, middle_x;
-  int dst_y, dst_x, src_y, src_x, part_w, part_h;
+  int dst_y, src_y, part_w;
   int src_w = image_w(img);
   int src_h = image_h(img);
   corner_w  = (corner_w > 0) ? (corner_w) :  src_w / 16;

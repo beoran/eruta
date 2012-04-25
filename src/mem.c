@@ -94,7 +94,6 @@ Handle handle_make(uint16_t offset, uint8_t usage, uint8_t type) {
 Handle memlist_add(Memlist * self, void * ptr, uint8_t type) {
   Meminfo * aid;
   if(self->nextfree >= self->size) {
-    Meminfo * big = NULL;
     if(!mem_resize((void **)&self->info, sizeof(Meminfo) * self->size * 2)) {
       return 0;
     }

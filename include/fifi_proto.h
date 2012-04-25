@@ -38,7 +38,7 @@ char *help_strncpy(char * dest, const char * src, size_t amount, size_t space);
 /**
 * Helper function to split up character strings with a separator.
 */
-char * help_strsplit(char * in, int ch, char * store, size_t space);
+char * help_strsplit(const char * in, int ch, char * store, size_t space);
 
 /**
 * Returns an ALLEGRO_PATH path concatenated with the path in vpath.

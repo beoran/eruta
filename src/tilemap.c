@@ -184,7 +184,7 @@ cpShape * tilemap_makewall(Tilemap * self, int tx, int ty) {
   return wall;
 }
 
-
+/** Draws a tile map. */
 void tilemap_draw(Tilemap * map, Camera * camera) {
   int index;
   Tilepane * pane;

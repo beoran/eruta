@@ -34,6 +34,10 @@ xmlNode * xmlFindChild(xmlNode * node, const char * name);
 /** Finds a child node with the given paths, pass null as last one  */
 xmlNode * xmlFindChildDeep(xmlNode * node, ...);
 
+/** Gets an integer property from the libxml2 node,
+or XML_BAD_VALUE if not found. */
+int xmlGetPropInt(xmlNode * node, const char * name);
+
 /** Helper to load property values for a given property name. Pass in the
 first propery tag.  */
 char * xmlPropertyValue(xmlNode * firstprop, char * name);

@@ -60,5 +60,8 @@ int tilemap_getindex(Tilemap * self, int l, int x, int y);
 tile coordinates. Returns the wall shape. */
 cpShape * tilemap_makewall(Tilemap * self, int tx, int ty);
 
+/** Draws a tile map. */
+void tilemap_draw(Tilemap * map, Camera * camera);
+
 #endif // TILEMAP_PROTO_H
 

@@ -83,7 +83,7 @@ xmlNode * xmlFindChildDeep(xmlNode * node, ...) {
   return res;
 }
 
-/* Gets an integer property from the libxml2 node,
+/** Gets an integer property from the libxml2 node,
 or XML_BAD_VALUE if not found. */
 int xmlGetPropInt(xmlNode * node, const char * name) {
   char * prop = XML_GET_PROP(node, name);
