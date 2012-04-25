@@ -29,6 +29,42 @@ ALLEGRO_PATH * path_append_va(ALLEGRO_PATH * path, va_list args);
 ALLEGRO_PATH * path_append(ALLEGRO_PATH * path, ...);
 
 /**
+* helper like strncpy, but null terminates. Takes space and size
+* amount is actual characters to copy , space is space available.
+* Does nothing if space is less than 1.
+*/
+char *help_strncpy(char * dest, const char * src, size_t amount, size_t space);
+
+/**
+* Helper function to split up character strings with a separator.
+*/
+char * help_strsplit(char * in, int ch, char * store, size_t space);
+
+/**
+* Returns an ALLEGRO_PATH path concatenated with the path in vpath.
+* The const char * vpath is split on '/' characters, and the path
+* is constructed like that. .. or . is not supported.
+* if the last part contains a . it will be added as a file part.
+**/
+ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath);
+
+/** Returns a path to data which has the given virtual path.
+*  you need to free this with al_destroy_path.
+*/
+ALLEGRO_PATH * fifi_data_vpath(const char * vpath);
+
+/**
+* simple test function
+*/
+void fifi_data_vpath_print(const char * vpath);
+
+/**
+* Loads file  that is in the data directory using the given loader.
+* returns NULL if the file doesn't exist or wasn't loaded correctly.
+*/
+void * fifi_loadsimple_vpath(FifiSimpleLoader * load, const char * vpath);
+
+/**
 * Loads file  that is in the data directory using the given loader.
 * returns NULL if the file doesn't exist or wasn't loaded correctly.
 */
@@ -60,6 +96,11 @@ ALLEGRO_BITMAP * fifi_loadbitmap_va(const char * filename, va_list args);
 * of subdirectory names
 */
 ALLEGRO_BITMAP * fifi_loadbitmap(const char * filename, ...);
+
+/**
+* Loads a bitmap with the given vpath
+*/
+ALLEGRO_BITMAP * fifi_loadbitmap_vpath(const char * vpath);  
 
 /** Loads an audio stream from the data directory. Since audi streams are usually music, no there's no nedto inicatet hedi, but all music must go under 
 data/music */

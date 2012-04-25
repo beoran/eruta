@@ -81,15 +81,15 @@ Original title: : Town in ruins loop
 Artist: Brandon Morris
 License: CC-BY 3.0
 
+data/font/Tuffy.ttf
 Tuffy fonts License: 
-
 I have placed these fonts in the Public Domain. This is all 100% my
 own work. Usage is totally unrestricted. If you want to make
 derivative works for any purpose, please go ahead.
 
 -Thatcher Ulrich <tu@tulrich.com> http://tulrich.com
 
-GranaPadano.ttf:  licensed under the Open Font License (OFL). Contributors:
+data/font/GranaPadano.ttf:  licensed under the Open Font License (OFL). Contributors:
 Daniel Johnson (font maintainer)
 il.basso.buffo at gmail dot com
 http://io.debian.net/~danielj/

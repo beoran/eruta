@@ -12,35 +12,12 @@
 Image * tileset_image_load(const char * filename) {
   ALLEGRO_PATH * path;
   Image        * image;
-  // path  = fifi_tileset_filename(filename);
-  // printf("Loading tile set: %s for %s\n", PATH_CSTR(path), filename);
   image = (Image*) fifi_loadsimple(
-                    (FifiSimpleLoader*)al_load_bitmap, filename, "map", NULL);
-  
-  // image = image_load(PATH_CSTR(path));  
-  // al_destroy_path(path);
-  return image;  
+                    (FifiSimpleLoader*)al_load_bitmap, filename, "map", NULL);  
+  return image;
 }
 
-/* Helper to load property values for a given property name. Pass in the
-first propery tag.  */
-char * xmlPropertyValue(xmlNode * firstprop, char * name) {
-  xmlNode * xprop;
-  for(xprop = firstprop ; xprop; xprop = xmlFindNext(xprop->next, "property")) {
-    char * propname = XML_GET_PROP(xprop, "name");
-    if(!propname) continue;
-    if(!strcmp(propname, name)) return  XML_GET_PROP(xprop, "value");
-  }
-  return NULL;  
-}
 
-/* Helper to load integer property values. */
-int * xmlPropertyValueInt(xmlNode * firstprop, char * name, int * result) {
-  char * aid = xmlPropertyValue(firstprop, name);
-  if(!aid) return NULL;
-  (*result) = atoi(aid);
-  return result;
-}  
  
 
 Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {

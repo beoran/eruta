@@ -63,7 +63,7 @@ void image_blitscale9_part(Image * image) {
 
 
 /** Draws an image on the current target bitmap according to a 9 part scaling
-alorithm. This splits the bitmap in 9 parts, keeps the 4 corners unscaled, but
+algorithm. This splits the bitmap in 9 parts, keeps the 4 corners unscaled, but
 scales the 4 edges and the center according to the desired size.
 The 4 corners should be rectangles of identical size corner_w by corner_h in
 the original image. Pass a nonpositive number to have the corner sizes automatically calculated.
@@ -71,7 +71,7 @@ new_w and new_h are the new dimensions the new image should have.
 This is useful for GUI backgrounds.
 */
 
-int image_blitscale9(Image * img, int xx, int yy,
+void image_blitscale9(Image * img, int xx, int yy,
                                   int new_w, int new_h,
                                   int corner_w, int corner_h) {
 
@@ -93,7 +93,7 @@ int image_blitscale9(Image * img, int xx, int yy,
   right_x   = xx    + mid_dst_w + corner_w; // right side
   middle_x  = xx    + corner_w ; // middle
   dst_y     = yy; // y is he drawing location for the top 3 draws
-  // width of the first corner and middle. the second cornerstarts here
+  // width of the first corner and middle. the second corner starts here
   part_w    = src_w - corner_w;
   // draw, take from the top corner left of the image
   image_drawpart(img, 0, 0, corner_w, corner_h, left_x, dst_y, 0);

@@ -137,6 +137,112 @@ ALLEGRO_PATH * path_append(ALLEGRO_PATH * path, ...) {
 
 
 /**
+* helper like strncpy, but null terminates. Takes space and size
+* amount is actual characters to copy , space is space available.
+* Does nothing if space is less than 1.
+*/
+char *help_strncpy(char * dest, const char * src, size_t amount, size_t space){
+  if (space < 1) return NULL; 
+  if (amount > (space-1)) amount = space - 1;
+  strncpy(dest, src, amount);
+  dest[amount] = '\0';
+  return dest;
+}
+
+
+/**
+* Helper function to split up character strings with a separator.
+*/
+char * help_strsplit(char * in, int ch, char * store, size_t space) {
+  char * aid = strchr(in, ch);
+  if (aid) {
+    help_strncpy(store, in, aid - in, space);
+  } else {   
+    help_strncpy(store, in, strlen(in), space);
+  }
+  return aid;
+}
+
+
+
+#define PATH_APPEND_VPATH_SIZE 256
+/**
+* Returns an ALLEGRO_PATH path concatenated with the path in vpath.
+* The const char * vpath is split on '/' characters, and the path
+* is constructed like that. .. or . is not supported.
+* if the last part contains a . it will be added as a file part.
+**/
+ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath) {
+  char part[PATH_APPEND_VPATH_SIZE], * aid;
+  char * done = strchr(vpath, '\0');
+  aid = strchr(vpath, '/');
+  aid = help_strsplit(vpath, '/', part, PATH_APPEND_VPATH_SIZE); 
+  while(aid) {
+    printf("append_vpath : %s\n", part);
+    al_append_path_component(path, part);
+    vpath = aid + 1;
+    aid = help_strsplit(vpath, '/', part, PATH_APPEND_VPATH_SIZE); 
+  }
+  size_t len = strlen(part);
+  if (len > 0) {
+    printf("append_vpath last: %s\n", part);
+    if(strchr(part, '.')) { // it's a file name
+      al_set_path_filename(path, part);
+    } else {     
+      al_append_path_component(path, part);
+    }  
+  }
+  return path;  
+}
+
+
+/** Returns a path to data which has the given virtual path.
+*  you need to free this with al_destroy_path.
+*/
+ALLEGRO_PATH * fifi_data_vpath(const char * vpath) {
+  ALLEGRO_PATH * path = al_clone_path(fifi_data_path());
+  return path_append_vpath(path, vpath);
+}
+
+/**
+* simple test function
+*/
+void fifi_data_vpath_print(const char * vpath) {
+  ALLEGRO_PATH * path = fifi_data_vpath(vpath);
+  printf("Fifi data vpath: %s\n", PATH_CSTR(path));
+  al_destroy_path(path);
+}
+
+
+/**
+* Loads file  that is in the data directory using the given loader.
+* returns NULL if the file doesn't exist or wasn't loaded correctly.
+*/
+void * fifi_loadsimple_vpath(FifiSimpleLoader * load, const char * vpath) {
+  void * data   = NULL;
+  ALLEGRO_PATH * path;
+  if(!load) return NULL;
+  path          = fifi_data_vpath(vpath);
+  if(!path) return NULL;
+  if(!al_get_path_filename(path)) {
+    printf("Filename not set for path: ", PATH_CSTR(path));
+    goto cleanup;  
+  }
+  printf("Loading: %s for %s\n", PATH_CSTR(path), vpath);
+  if(PATH_EXISTS(path)) {
+    data = load(PATH_CSTR(path)); // load the data
+  } else {
+   printf("File %s does not exist!?", PATH_CSTR(path));
+  }  
+  cleanup:
+  // if we get here, we must destroy the path any way.
+  al_destroy_path(path);
+  // return the data anyway.
+  return data;
+}
+
+
+/**
 * Loads file  that is in the data directory using the given loader.
 * returns NULL if the file doesn't exist or wasn't loaded correctly.
 */
@@ -198,7 +304,8 @@ ALLEGRO_FONT * fifi_loadfont(const char * filename, int size, int flags) {
 * of subdirectory names
 */
 ALLEGRO_BITMAP * fifi_loadbitmap_va(const char * filename, va_list args) {
-  return fifi_loadsimple_va(al_load_bitmap, filename, args);
+  return fifi_loadsimple_va(
+    (FifiSimpleLoader *)al_load_bitmap, filename, args);
 }
 
 /**
@@ -209,10 +316,20 @@ ALLEGRO_BITMAP * fifi_loadbitmap(const char * filename, ...) {
   void * result;
   va_list args;
   va_start(args, filename);
-  return fifi_loadsimple_va(al_load_bitmap, filename, args);
+  result = fifi_loadsimple_va(
+            (FifiSimpleLoader *)al_load_bitmap, filename, args);
   va_end(args);
   return result;
 }
+
+/**
+* Loads a bitmap with the given vpath
+*/
+ALLEGRO_BITMAP * fifi_loadbitmap_vpath(const char * vpath) {  
+  return fifi_loadsimple_vpath(
+            (FifiSimpleLoader *)al_load_bitmap, vpath);
+}
+
 
 
 /** Loads an audio stream from the data directory. Since audi streams are usually music, no there's no nedto inicatet hedi, but all music must go under 

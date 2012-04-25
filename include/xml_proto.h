@@ -34,5 +34,12 @@ xmlNode * xmlFindChild(xmlNode * node, const char * name);
 /** Finds a child node with the given paths, pass null as last one  */
 xmlNode * xmlFindChildDeep(xmlNode * node, ...);
 
+/** Helper to load property values for a given property name. Pass in the
+first propery tag.  */
+char * xmlPropertyValue(xmlNode * firstprop, char * name);
+
+/** Helper to load integer property values. */
+int * xmlPropertyValueInt(xmlNode * firstprop, char * name, int * result);
+
 #endif // XML_PROTO_H
 

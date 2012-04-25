@@ -16,18 +16,9 @@ if Allegro is compiled in the default RelWithDbg mode.
 
 #ifdef RUN_TESTS
 
-const char * xml_test_doc = 
-"<?xml ?> "
-"<!-- Comment should be ignored -->"
-"<map high=\"100\" wide=\"200\">"
-"<layer>"
-"0,1,2,3\n"
-"0,1,0,0\n"
-"0,0,1,0\n"
-"</layer>"
-"</map>";
+#endif
 
-int test_xml(void);
+int test_silut(void);
 
     /** Initialises the reactor, the game state is it's data. */
     react_initempty(&react, state);
@@ -39,7 +30,11 @@ int test_xml(void);
     camera = state_camera(state);
     music = music_load("musictest.ogg");
     if(!music) perror("musictest.ogg");
-    
+
+    border = fifi_loadbitmap("border_004.png",
+                            "image", "ui", "background", NULL);
+
+    border = fifi_loadbitmap_vpath("image/ui/background/border_004.png");
     sheet = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
     // image_load(ERUTA_TEST_SHEET);
     if(!sheet);

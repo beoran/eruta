@@ -2,8 +2,8 @@
 #include "xml.h"
 #include <string.h>
 
-/* Functions for loading and saving tile maps, grouped here to limit the use
-of xml, etc. */
+/* Exrra XML functions that exxtend libxml2's capabilities or
+make it easier to use. */
 
 /**
  * print_element_names:
@@ -46,9 +46,6 @@ Also searches node itself, so pass node->next if you don't want that.*/
 xmlNode * xmlFindNextType(xmlNode * node, const char * name, int type) {
   xmlNode * now;
   for(now = node; now; now = now->next) {
-    /*printf("searching %s, %d, now : %d, %s\n", name, type, now->type,
-           now->name);
-    */
     if ((type < 1) || (now->type == type)) {
       if ((!name) || (!strcmp((char *)now->name, name))) {
         return now;
@@ -93,4 +90,28 @@ int xmlGetPropInt(xmlNode * node, const char * name) {
   if(!prop) return XML_BAD_VALUE;
   return atoi(prop);
 }
+
+
+/** Helper to load property values for a given property name. Pass in the
+first propery tag.  */
+char * xmlPropertyValue(xmlNode * firstprop, char * name) {
+  xmlNode * xprop;
+  for(xprop = firstprop ; xprop; xprop = xmlFindNext(xprop->next, "property")) {
+    char * propname = XML_GET_PROP(xprop, "name");
+    if(!propname) continue;
+    if(!strcmp(propname, name)) return  XML_GET_PROP(xprop, "value");
+  }
+  return NULL;
+}
+
+/** Helper to load integer property values. */
+int * xmlPropertyValueInt(xmlNode * firstprop, char * name, int * result) {
+  char * aid = xmlPropertyValue(firstprop, name);
+  if(!aid) return NULL;
+  (*result) = atoi(aid);
+  return result;
+}  
+
+
+
 
