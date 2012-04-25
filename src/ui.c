@@ -144,8 +144,8 @@ void draw_frame(int xx, int yy, int ww, int hh, int tt, Color fg, Color bg)  {
 * border color is fg, background color is bg.
 */
 void draw_roundframe(int xx, int yy, int ww, int hh, int tt, Color fg, Color bg)  {
-  int rx = 8;
-  int ry = 8;
+  int rx = 4;
+  int ry = 4;
   // draw inner frame in bg color.
   al_draw_filled_rounded_rectangle(xx, yy, xx+ww, yy+hh, rx, ry, bg);
   // draw outer frame in fg color with the given thickness.

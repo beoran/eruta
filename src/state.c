@@ -1,3 +1,4 @@
+#include "eruta.h"
 #include "mem.h"
 #include "state.h"
 #include "camera.h"
@@ -7,6 +8,8 @@
 #include "mode.h"
 
 
+
+
 /* The data struct contains all global state and other data of the application.
 */
 struct State_ {
@@ -14,7 +17,10 @@ struct State_ {
   BOOL                  fullscreen;
   BOOL                  audio;
   int32_t               modeno;
+  // there are two fonts for now, ttf and font. Font is a plain font
+  // for emergency use, ttf is the normal font.
   ALLEGRO_FONT        * font;
+  ALLEGRO_FONT        * ttf;
   ALLEGRO_COLOR         colors[STATE_COLORS];
   ALLEGRO_DISPLAY     * display;
   ALLEGRO_BITMAP      * bkg;
@@ -117,6 +123,9 @@ State * state_init(State * self, BOOL fullscreen) {
   al_init_image_addon();
   al_init_font_addon();
   al_init_primitives_addon();
+  if(!al_init_ttf_addon()) {
+    return state_errmsg_(self, "Could not init TTF extension.\n");
+  }
 
   // Install the keyboard handler
   if (!al_install_keyboard()) {
@@ -151,11 +160,20 @@ State * state_init(State * self, BOOL fullscreen) {
     return state_errmsg_(self, "Could not find data folder!\n");
   }
 
-
+/*
   self->font = fifi_loadfont("fixed_font.tga", 0, 0);
   if (!self->font) {
     return state_errmsg_(self, "Error loading data/font/fixed_font.tga");
   }
+*/ // Tuffy.ttf
+ // "OpenBaskerville-0.0.53.otf"
+  #define STATE_FONTNAME "TranscendsGames.otf"
+  
+  self->font = fifi_loadfont(STATE_FONTNAME, 16, 0);
+  if (!self->font) {
+    return state_errmsg_(self, "Error loading " STATE_FONTNAME);
+  }
+
 
   state_color_f(self, STATE_WHITE, 1, 1, 1, 1);
   state_color_f(self, STATE_BLACK, 0, 0, 0, 1);

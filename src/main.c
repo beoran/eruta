@@ -261,7 +261,8 @@ int real_main(void) {
       tile_draw(tile, 200, 300);
       // tile_update(tile);
       state_frames_update(state);
-      draw_roundframe(2, 2, 630, 30, 1, COLOR_WHITE, COLOR_BLUE);
+      draw_roundframe(2, 2, 630, 30, 2,
+      COLOR_WHITE, color_rgba(0, 0, 64, 192));
 
       
       if (border) { 
@@ -270,7 +271,7 @@ int real_main(void) {
       }
       
       al_draw_textf(state_font(state), COLOR_WHITE,
-                        10, 10, 0, "FPS: %lf, %d", state_fps(state), state_frames(state));
+                        10, 10, 0, "FPS: question p? %lf, %d", state_fps(state), state_frames(state));
                         
    
       al_flip_display();
