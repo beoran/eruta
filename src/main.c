@@ -10,6 +10,8 @@
 #include "tileio.h"
 #include "sound.h"
 #include "silut.h"
+#include "fifi.h"
+#include "ui.h"
 #include "assert.h"
 
 
@@ -180,6 +182,7 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
 
 
 int real_main(void) {
+    Image    * border   = NULL;
     Image    * sheet    = NULL;
     Tileset  * tileset  = NULL;
     Tile     * tile     = NULL;
@@ -209,7 +212,9 @@ int real_main(void) {
     camera = state_camera(state);
     music = music_load("musictest.ogg");
     if(!music) perror("musictest.ogg");
-    
+
+    border = fifi_loadbitmap("border_004.png",
+                            "image", "ui", "background", NULL);
     sheet = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
     // image_load(ERUTA_TEST_SHEET);
     if(!sheet) {
@@ -228,7 +233,8 @@ int real_main(void) {
     tilepane_fill(tilepane, tile);
 
     // map = tilemap_load(ERUTA_MAP_TEST);
-    map = fifi_loadsimple(tilemap_load, "map_0001.tmx", "map", NULL);
+    map = fifi_loadsimple((FifiSimpleLoader*) tilemap_load,
+                          "map_0001.tmx", "map", NULL);
     if(!map) {
       puts("Map is NULL!");
     }
@@ -240,8 +246,8 @@ int real_main(void) {
     //tile_addanime(tile, TILE_ANIME_REWIND);
       react_poll(&react, state);
       
-      al_clear_to_color(state_color(state, STATE_BLACK));
-      al_draw_line(0, 0, SCREEN_W, SCREEN_H, state_color(state, STATE_WHITE), 7);
+      al_clear_to_color(COLOR_BLACK);
+      al_draw_line(0, 0, SCREEN_W, SCREEN_H, COLOR_WHITE, 7);
       
       if(map) tilemap_draw(map, camera);
       // tilepane_draw(tilepane, camera);
@@ -255,8 +261,17 @@ int real_main(void) {
       tile_draw(tile, 200, 300);
       // tile_update(tile);
       state_frames_update(state);
-      al_draw_textf(state_font(state), state_color(state, STATE_WHITE),
+      draw_roundframe(2, 2, 630, 30, 1, COLOR_WHITE, COLOR_BLUE);
+
+      
+      if (border) { 
+        image_blitscale9(border, 10, 400, 200, 30, -1, -1);
+        image_blitscale9(border, 220, 300, 400, 150, -1, -1);
+      }
+      
+      al_draw_textf(state_font(state), COLOR_WHITE,
                         10, 10, 0, "FPS: %lf, %d", state_fps(state), state_frames(state));
+                        
    
       al_flip_display();
    }

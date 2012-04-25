@@ -29,6 +29,11 @@
 #define BIT_SETBIT(NUM, BIT)      BIT_SETFLAG(NUM, (1 << BIT))
 #define BIT_UNBIT(NUM, BIT)       BIT_UNFLAG(NUM, (1 << BIT))
 
+/** Clamping */
+#define CLAMP_MAX(SET, VALUE, MAX) do {                     \
+  int value___ = (VALUE), max___ = (MAX);                   \
+  (SET) =  ((value___ > max___ ) ? (max___) : (value___));  \
+} while(0) 
 
 
 #ifndef TRUE
