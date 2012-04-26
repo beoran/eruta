@@ -160,8 +160,8 @@ int real_main(void) {
     puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
 
     camera  = state_camera(state);
-    music   = music_load("musictest.ogg");
-    if(!music) perror("musictest.ogg");
+    //music   = music_load("musictest.ogg");
+    // if(!music) perror("musictest.ogg");
 
     border  = fifi_loadbitmap("border_004.png",
                             "image", "ui", "background", NULL);

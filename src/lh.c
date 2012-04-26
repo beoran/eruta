@@ -28,7 +28,9 @@ Lua * lh_free(Lua * lua) {
 }
 
 
-/** Creates lua user data in which the pointer to data will be stored. */
+/** Creates lua user data in which the pointer to data will be stored.
+* You must set up the metatable first thoug lh_datainit and lh_datamethod
+*/
 void ** lh_pushdata(Lua *L, const char * name, void * data) {
   void ** ptr = lua_newuserdata(L, sizeof(void*));
   (*ptr)      = data;
@@ -143,9 +145,11 @@ int lh_scanargs(Lua *L, char * format, ...) {
 
 /**
 * Executes a file in Eruta's data/script directory.
+* Returns -1 if the file ws not found.
 */
 int lh_dofile(Lua *L, const char * filename) {
   ALLEGRO_PATH * path = fifi_data_pathargs(filename, "script", NULL);
+  if(!path) return -1;
   int res =  luaL_dofile(L, PATH_CSTR(path));
   al_destroy_path(path);
   return res;
@@ -155,11 +159,13 @@ int lh_dofile(Lua *L, const char * filename) {
 * shows an error to stderr if res is nonzero
 */
 int lh_showerror_stderr(Lua * lua, int res) {
-  if(res) {
+  if(res>0) {
     char * message;
     lh_scanargs(lua, "D", &message);
     fprintf(stderr, "%s\n", message);
     free(message);
+  } else if (res<0) {
+    fprintf(stderr, "File not found.\n");
   }
   return res;
 }
@@ -412,7 +418,7 @@ int lh_geti(Lua *L, int index, int key) {
 }
 
 
-/** Makes a new metatable for the given type name, and prepares it so the data will be able to given methods usin gthe lh_datamethod function. If fun is not NULL, it sets the __gc value in the metatable to fun, so data of the given type will be correctly garbage collected. Must be called before calling
+/** Makes a new metatable for the given type name, and prepares it so the data will be able to given methods using the lh_datamethod function. If fun is not NULL, it sets the __gc value in the metatable to fun, so data of the given type will be correctly garbage collected. Must be called before calling
 lh_datamethod.
 */
 void lh_datainit(Lua *L, char * name, lua_CFunction fun) {

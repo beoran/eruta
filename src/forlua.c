@@ -1,6 +1,8 @@
 /* Functions that extend lua for use with Eruta. */
 #include "lh.h" 
 #include "eruta.h"
+#include "fifi.h"
+
 
 /* All functions have a fl prefix that stands for "Function for Lua" */
 
@@ -125,10 +127,45 @@ int fl_test(lua_State * lua) {
   return 0;
 }
 
+int fl_Path_gc(Lua * lua) {
+  ALLEGRO_PATH * path = NULL;
+  lh_scanargs(lua, "p", &path);
+  printf("fl_Path_gc : %s\n", PATH_CSTR(path));
+  al_destroy_path(path);
+  return 0;
+}
+
+int fl_Path_to_s(Lua * lua) {
+  ALLEGRO_PATH * path = NULL;
+  lh_scanargs(lua, "p", &path);  
+  printf("fl_Path_to_s : %s\n", PATH_CSTR(path));
+  if(!path) { lua_pushnil(lua); }
+  else { lua_pushstring(lua, PATH_CSTR(path)); }
+  return 1;
+}
+
+void fl_Path_initclass(Lua *lua) { 
+  lh_datainit(lua, "Path", fl_Path_gc);
+  lh_datamethod(lua, "Path", "to_s"  , fl_Path_to_s);
+}
+
+int fl_Path_data(Lua * lua) {
+  ALLEGRO_PATH * path = NULL;
+  const char * vpath = NULL;
+  lh_scanargs(lua, "s", &vpath);
+  path = fifi_data_vpath(vpath);
+  printf("fl_Path_data : %s (for %s)\n", PATH_CSTR(path), vpath);
+  lh_pushdata(lua, "Path", path);
+  return 1;
+}
+
+
 /** Initializes the functionality that Eruta exposes to lua. */
 int fl_init(lua_State * lua) {
   // luaL_dostring(lua, "print 'Hello!' ");
   lua_register(lua, "test"        , fl_test);
+  fl_Path_initclass(lua);
+  lua_register(lua, "PathForData" , fl_Path_data);
   lh_globalint(lua, "TILE_WALL"   , 1);
   return 0;
 }

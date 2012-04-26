@@ -126,7 +126,7 @@ char * xmlPropertyValue(xmlNode * firstprop, char * name) {
     char * propname = xmlGetAttr(xprop, "name");
     if(!propname) continue;
     if(!strcmp(propname, name)) {
-      xmlFree(propname);
+      // xmlFree(propname);
       return xmlGetAttr(xprop, "value");
     }  
   }

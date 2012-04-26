@@ -19,21 +19,21 @@ Image * tileset_image_load(const char * filename) {
 
 Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   char * sflags = NULL;
-  int ianim = 0, iwait = 0;
+  int ianim     = 0, iwait = 0;
   xmlNode * firstprop;
-  int id = xmlGetPropInt(xtil, "id");
-  Tile  * tile = tileset_get(set, id);  
+  int id        = xmlGetPropInt(xtil, "id");
+  Tile  * tile  = tileset_get(set, id);
   if (!tile) return NULL;
-  printf("Tile id: %d %p\n", id, tile);
+  // printf("Tile id: %d %p\n", id, tile);
   // use properties of tile...
-  firstprop = xmlFindChildDeep(xtil, "properties", "property", NULL);
+  firstprop     = xmlFindChildDeep(xtil, "properties", "property", NULL);
   // get type, animation and wait
-  sflags    = xmlPropertyValue(firstprop, "type");  
+  sflags        = xmlPropertyValue(firstprop, "type");
   xmlPropertyValueInt(firstprop, "anim", &ianim);
   xmlPropertyValueInt(firstprop, "wait", &iwait);
   tile_property_(tile, sflags);
-  printf("Tile type: %s, anim: %d, wait: %d, flags:%d\n", sflags, ianim, iwait,
-    tile_flags(tile));
+  // TODO: set up anim and wait
+  //printf("Tile type: %s, anim: %d, wait: %d, flags:%d\n", sflags, ianim, iwait, tile_flags(tile));
   
   return tile;  
 }
@@ -50,7 +50,7 @@ Tileset * tileset_loadxml(xmlNode * node) {
   }
   iname = xmlGetAttr(xima, "source");
   image = tileset_image_load(iname);
-  printf("Loaded tile set: %s, %p\n", iname, image);
+  // printf("Loaded tile set: %s, %p\n", iname, image);
   // xmlFree(iname); 
   if(!image) { return NULL; }
   set = tileset_new(image);
@@ -154,9 +154,7 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
   }
   // xmlFree(senc);  
   // Only accept csv for now...
-  csv = xmlNodeChildContentRef(xdata); 
-  puts(csv);
-  
+  csv = xmlNodeChildContentRef(xdata);
   // csv = (char *) xmlNodeGetContent(xdata);
   // printf("data: %s\n", );  
   for(yindex = 0; yindex < h; yindex ++) {
@@ -176,7 +174,7 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
   csv_done:
   // don't forget to free the data 
   // xmlFree((void *)csv);  
-  printf("Loaded pane: %p, %d, %s\n", pane, layer, name);
+  // printf("Loaded pane: %p, %d, %s\n", pane, layer, name);
     
   // print_element_names(xdata);
   return pane;  
@@ -190,7 +188,7 @@ Tilemap * tilemap_loadpanesxml(Tilemap * map, xmlNode * xlayer) {
   if(!xlayer) return NULL;
   for(index = xlayer, count = 0; index ;
       index = xmlFindNext(index->next, "layer"), count++) {
-      print_all_attributes(index);
+      // print_all_attributes(index);
       tilemap_loadpanexml(map, index, count);
   }
   return map;
@@ -215,7 +213,7 @@ Tilemap * tilemap_loadxml(xmlDoc * xml) {
   }
   wide   = xmlGetPropInt(root, "width");
   high   = xmlGetPropInt(root, "height");
-  printf("Map: %d %d\n", wide, high);
+  // printf("Map: %d %d\n", wide, high);
   // Use the first tile set (and that one only) as the map's tile set.
   xset   = xmlFindChild(root, "tileset");
 
@@ -243,7 +241,7 @@ Tilemap * tilemap_loadxml(xmlDoc * xml) {
   tilemap_loadpanesxml(result, xlayer);
   
 
-  printf("Loaded map %p %p\n", result, set);
+  // printf("Loaded map %p %p\n", result, set);
   // print_element_names(root);
   return result;
 }  
@@ -263,8 +261,9 @@ Tilemap * tilemap_loadtmx(const char * filename) {
     return NULL;
   }
   result = tilemap_loadxml(xml);
-  /*free the document XXX:this crashes, which means we have stray pointers */
-  // xmlFreeDoc(xml);
+  /*free the document XXX:this crashes after here, and not of it's not freed, so
+  it means we have stray pointers into the xml doc */
+  xmlFreeDoc(xml);
   return result;
 }
 

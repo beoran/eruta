@@ -174,6 +174,7 @@ char * help_strsplit(const char * in, int ch, char * store, size_t space) {
 **/
 ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath) {
   char part[PATH_APPEND_VPATH_SIZE], * aid;
+  if(!vpath) return path;
   aid = strchr(vpath, '/');
   aid = help_strsplit(vpath, '/', part, PATH_APPEND_VPATH_SIZE); 
   while(aid) {

@@ -115,7 +115,7 @@ struct WidgetMethods_ {
   WidgetDraw * done;
 };
 
-typedef struct WidgetMethods_ WidgetMethods;
+// typedef struct WidgetMethods_ WidgetMethods;
 
 /* Widgets are individual parts of the UI. Each widget can contain
 sub-widgets. A note on ownership: the pointers to font and image in style
