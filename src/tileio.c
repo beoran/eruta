@@ -43,14 +43,15 @@ Tileset * tileset_loadxml(xmlNode * node) {
   xmlNode * xtil = NULL;
   Image   * image;
   Tileset * set;
-  const char * iname;
+  char * iname;
   xima  = xmlFindChild(node, "image"); /* Image data is in image tag. */  
   if(!xima) {    
     return NULL;
   }
-  iname = XML_GET_PROP(xima, "source");
+  iname = xmlGetAttr(xima, "source");
   image = tileset_image_load(iname);
   printf("Loaded tile set: %s, %p\n", iname, image);
+  // xmlFree(iname); 
   if(!image) { return NULL; }
   set = tileset_new(image);
   if(!set)   { return NULL; }
@@ -123,13 +124,15 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
     perror("Height of layer too high or negative.");
     return NULL;
   }
-  name = XML_GET_PROP(xlayer, "name");
+  name = xmlGetAttr(xlayer, "name");
   laid = silut_lsearchcstr(tileio_layernames, name);
   if(!laid) {
     fprintf(stderr, "Unknown layer name: %s.\n"
                     "Must be layer_0, layer_1, layer_2 or layer_3.", name);
+    // xmlFree(name);
     return NULL;
   }
+  // xmlFree(name);
   layer = laid->integer;
   pane  = tilemap_panenew(map, layer, w, h);
   if(!pane) {
@@ -141,16 +144,20 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
     perror("Could not find pane data.");
     return NULL;    
   }
-  senc = XML_GET_PROP(xdata, "encoding");
+  senc = xmlGetAttr(xdata, "encoding");
   laid = silut_lsearchcstr(tileio_encodings, senc);
   if(!laid) {
     fprintf(stderr, "Unknown encoding: %s.\n"
                     "Must be csv.", name);
+    // xmlFree(senc);
     return NULL;                    
   }
-  
+  // xmlFree(senc);  
   // Only accept csv for now...
-  csv = (char *) xmlNodeGetContent(xdata);
+  csv = xmlNodeChildContentRef(xdata); 
+  puts(csv);
+  
+  // csv = (char *) xmlNodeGetContent(xdata);
   // printf("data: %s\n", );  
   for(yindex = 0; yindex < h; yindex ++) {
     for(xindex = 0; xindex < w; xindex ++) {
@@ -167,6 +174,8 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
     }
   }
   csv_done:
+  // don't forget to free the data 
+  // xmlFree((void *)csv);  
   printf("Loaded pane: %p, %d, %s\n", pane, layer, name);
     
   // print_element_names(xdata);
@@ -246,7 +255,7 @@ Tilemap * tilemap_loadxml(xmlDoc * xml) {
 */
 Tilemap * tilemap_loadtmx(const char * filename) {
   Tilemap * result;
-  xmlDoc  *xml    = NULL;
+  xmlDoc  * xml    = NULL;
   /* Parse the file and get the DOM */
   xml = xmlReadFile(filename, NULL, 0);
   if (xml == NULL) {
@@ -254,8 +263,8 @@ Tilemap * tilemap_loadtmx(const char * filename) {
     return NULL;
   }
   result = tilemap_loadxml(xml);
-  /*free the document */
-  xmlFreeDoc(xml);
+  /*free the document XXX:this crashes, which means we have stray pointers */
+  // xmlFreeDoc(xml);
   return result;
 }
 

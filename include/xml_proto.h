@@ -6,6 +6,13 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Finds an atribute with the give name in the node or returns NULL */
+xmlAttr * xmlFindAttr(xmlNode * node, const char * name);
+
+/** this function unlike xmlGetProp, does not allocate any memory,
+but also doesn't normalize (which is rarely needed anyway) */
+char * xmlGetAttr(xmlNode * node, const char * name);
+
 /**
  * print_element_names:
  * @a_node: the initial xml node to consider.
@@ -44,6 +51,11 @@ char * xmlPropertyValue(xmlNode * firstprop, char * name);
 
 /** Helper to load integer property values. */
 int * xmlPropertyValueInt(xmlNode * firstprop, char * name, int * result);
+
+/** Returns a reference to the text contents of an xml node.
+* this looks in the child node for the text.
+*/
+char * xmlNodeChildContentRef(xmlNode * node);
 
 #endif // XML_PROTO_H
 

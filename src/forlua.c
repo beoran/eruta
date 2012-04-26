@@ -2,7 +2,7 @@
 #include "lh.h" 
 #include "eruta.h"
 
-/** All functions have a fl prefix that stands for "Function for Lua" */
+/* All functions have a fl prefix that stands for "Function for Lua" */
 
 #ifdef COMMENT_
 
@@ -117,20 +117,22 @@ int fl_maptiledata(lua_State * lua) {
 
 
 
+
+#endif
+
+int fl_test(lua_State * lua) {
+  printf("Hello from test!\n");
+  return 0;
+}
+
+/** Initializes the functionality that Eruta exposes to lua. */
 int fl_init(lua_State * lua) {
-  luaL_openlibs(lua);
-  // luaL_dostring(lua, "print 'Hello!' "); 
-  lua_register(lua, "mapinit"     , fl_mapinit);
-  lua_register(lua, "mapset"      , fl_mapset);
-  lua_register(lua, "mapsetrow"   , fl_mapsetrow);
-  lua_register(lua, "mapfill"     , fl_mapfill);
-  lua_register(lua, "maptileinfo" , fl_maptileinfo);
-  lua_register(lua, "maptiledata" , fl_maptiledata);
+  // luaL_dostring(lua, "print 'Hello!' ");
+  lua_register(lua, "test"        , fl_test);
   lh_globalint(lua, "TILE_WALL"   , 1);
+  return 0;
 }
 
 
-
-#endif 
 
 

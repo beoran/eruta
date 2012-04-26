@@ -11,6 +11,7 @@
 #include "sound.h"
 #include "silut.h"
 #include "fifi.h"
+#include "lh.h"
 #include "ui.h"
 #include "assert.h"
 
@@ -153,20 +154,20 @@ int real_main(void) {
 
     /** Initialises the reactor, the game state is it's data. */
     react_initempty(&react, state);
-    react.keyboard_key_up = main_react_key_up;
+    react.keyboard_key_up   = main_react_key_up;
     react.keyboard_key_down = main_react_key_down;
     
     puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
 
-    camera = state_camera(state);
-    music = music_load("musictest.ogg");
+    camera  = state_camera(state);
+    music   = music_load("musictest.ogg");
     if(!music) perror("musictest.ogg");
 
-    border = fifi_loadbitmap("border_004.png",
+    border  = fifi_loadbitmap("border_004.png",
                             "image", "ui", "background", NULL);
 
-    border = fifi_loadbitmap_vpath("image/ui/background/border_004.png");
-    sheet = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
+    border  = fifi_loadbitmap_vpath("image/ui/background/border_004.png");
+    sheet   = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
     // image_load(ERUTA_TEST_SHEET);
     if(!sheet) {
       perror(ERUTA_TEST_SHEET);
@@ -190,7 +191,10 @@ int real_main(void) {
       puts("Map is NULL!");
     }
 
-    
+  // Try to load the main lua file.
+  lh_dofile_stderr(state, "main.lua");
+  // Call the on_start function.
+  lh_callglobalstderr_args(state_lua(state), "on_start", "s", "a string argument");
 
     
   while(state_busy(state)) { 
@@ -210,6 +214,8 @@ int real_main(void) {
       
       // camera_speed_(camera, mv);
       camera_update(camera);
+      // call lua update callback 
+      lh_callglobalstderr_args(state_lua(state), "on_update", "s", "a string argument");
       
       tile_draw(tile, 200, 300);
       // tile_update(tile);
@@ -222,6 +228,9 @@ int real_main(void) {
         image_blitscale9(border, 10, 400, 200, 30, -1, -1);
         image_blitscale9(border, 220, 300, 400, 150, -1, -1);
       }
+
+      // call lua drawing callback
+      lh_callglobalstderr_args(state_lua(state), "on_draw", "s", "a string argument");
       
       al_draw_textf(state_font(state), COLOR_WHITE,
                         10, 10, 0, "FPS: question p? %lf, %d", state_fps(state), state_frames(state));
@@ -229,6 +238,7 @@ int real_main(void) {
    
       al_flip_display();
    }
+   tilemap_free(map);
    tilepane_free(tilepane);
    tileset_free(tileset);
    camera_free(camera);

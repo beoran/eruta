@@ -7,8 +7,8 @@
 #include "dynar.h"
 #include "mode.h"
 #include "fifi.h"
-
-
+#include "lh.h"
+#include "forlua_proto.h"
 
 
 /* The data struct contains all global state and other data of the application.
@@ -34,6 +34,7 @@ struct State_ {
   Mode                * mode; // active mode
   Dynar               * modes;
   Camera              * camera;
+  Lua                 * lua;
 };
 
 
@@ -105,6 +106,11 @@ ALLEGRO_COLOR state_color_f(State * state, int color,
   return state->colors[color] = al_map_rgba_f(r, g, b, a);
 }
 
+/** Gets Lua intepreter for state. */
+Lua * state_lua(State * state) {
+  return state->lua;
+}
+
 #define STATE_MODES 10
 
 /** Initializes the state. It opens the screen, keyboards,
@@ -117,6 +123,14 @@ State * state_init(State * self, BOOL fullscreen) {
   self->fullscreen = fullscreen;
   self->audio      = FALSE;
   state_errmsg_(self, "OK!");
+  // Initialize lua scripting.
+  self->lua = lh_new();
+  if(!self->lua) {
+    return state_errmsg_(self, "Could not init Lua.");
+  }
+  // initialize the functions Eruta exposes to Lua
+  fl_init(self->lua);
+  
   // Initialize Allegro 5 and addons
   if (!al_init()) {
     return state_errmsg_(self, "Could not init Allegro.");
@@ -140,6 +154,9 @@ State * state_init(State * self, BOOL fullscreen) {
   if(!audio_start()) {
     perror("Sound not started.");
   }
+
+  
+  
   
   // Use full screen mode if needed.
   if(self->fullscreen) { 
@@ -213,8 +230,10 @@ BOOL state_done(State * state) {
 
 /** Closes the state when it's done. */
 State * state_kill(State * self) {
+  audio_done(self->audio);
   camera_free(self->camera);
   dynar_free(self->modes);
+  lh_free(self->lua);
   STRUCT_FREE(self);
   return self;
 }

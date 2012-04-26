@@ -42,6 +42,9 @@ ALLEGRO_COLOR state_color(State * state, int color);
 ALLEGRO_COLOR state_color_f(State * state, int color,
                          float r, float g, float b, float a);
 
+/** Gets Lua intepreter for state. */
+Lua * state_lua(State * state);
+
 /** Initializes the state. It opens the screen, keyboards,
 lua interpreter, etc. Get any error with state_errmsg if
 this returns NULL. */

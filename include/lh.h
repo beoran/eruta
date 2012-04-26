@@ -5,6 +5,12 @@
 #include <lua.h>
 #include <lauxlib.h>
 
+
+/** For when I get lazy... */
+typedef lua_State Lua;
+
+#include "state.h"
+
 /** Opens a lua state with libraries. */
 lua_State * lh_new();
 

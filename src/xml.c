@@ -2,8 +2,27 @@
 #include "xml.h"
 #include <string.h>
 
-/* Exrra XML functions that exxtend libxml2's capabilities or
+/* Extra XML functions that exxtend libxml2's capabilities or
 make it easier to use. */
+
+/** Finds an atribute with the give name in the node or returns NULL */
+xmlAttr * xmlFindAttr(xmlNode * node, const char * name) {
+  xmlAttr * attr;
+  for(attr = node->properties; attr; attr = attr->next) {
+    if(!strcmp(name, (char *)attr->name)) return attr;
+  }
+  return NULL;
+}
+
+/** this function unlike xmlGetProp, does not allocate any memory,
+but also doesn't normalize (which is rarely needed anyway) */
+char * xmlGetAttr(xmlNode * node, const char * name) {
+  xmlAttr * attr = xmlFindAttr(node, name);
+  if(!attr) return NULL;
+  if(!attr->children) return NULL;
+  return (char *) attr->children->content;
+}
+// 
 
 /**
  * print_element_names:
@@ -34,10 +53,14 @@ void print_all_attributes(xmlNode * node) {
  xmlAttrPtr attr;
   printf("Node a%s attributes:", node->name);
   for(attr = node->properties; attr; attr = attr->next) {
-    printf(" %s=%s", attr->name, XML_GET_PROP(node, attr->name));
+    char * prop = xmlGetAttr(node, (char *)attr->name);
+    printf(" %s=%s", attr->name, prop);
+    // xmlFree(prop);
   }
   puts("");
 }
+
+
 
 
 /** Finds a sibling node. If name is not null
@@ -86,9 +109,12 @@ xmlNode * xmlFindChildDeep(xmlNode * node, ...) {
 /** Gets an integer property from the libxml2 node,
 or XML_BAD_VALUE if not found. */
 int xmlGetPropInt(xmlNode * node, const char * name) {
-  char * prop = XML_GET_PROP(node, name);
+  int res;
+  char * prop = xmlGetAttr(node, name);
   if(!prop) return XML_BAD_VALUE;
-  return atoi(prop);
+  res = atoi(prop);
+  // xmlFree(prop);
+  return res;
 }
 
 
@@ -97,9 +123,12 @@ first propery tag.  */
 char * xmlPropertyValue(xmlNode * firstprop, char * name) {
   xmlNode * xprop;
   for(xprop = firstprop ; xprop; xprop = xmlFindNext(xprop->next, "property")) {
-    char * propname = XML_GET_PROP(xprop, "name");
+    char * propname = xmlGetAttr(xprop, "name");
     if(!propname) continue;
-    if(!strcmp(propname, name)) return  XML_GET_PROP(xprop, "value");
+    if(!strcmp(propname, name)) {
+      xmlFree(propname);
+      return xmlGetAttr(xprop, "value");
+    }  
   }
   return NULL;
 }
@@ -109,9 +138,18 @@ int * xmlPropertyValueInt(xmlNode * firstprop, char * name, int * result) {
   char * aid = xmlPropertyValue(firstprop, name);
   if(!aid) return NULL;
   (*result) = atoi(aid);
+  // xmlFree(aid);
   return result;
 }  
 
+/** Returns a reference to the text contents of an xml node.
+* this looks in the child node for the text.
+*/
+char * xmlNodeChildContentRef(xmlNode * node) {
+  if(!node) return NULL;
+  if(!node->children) return NULL;
+  return (char *) node->children->content;
+}
 
 
 

@@ -4,6 +4,7 @@
 #include "eruta.h"
 #include "tilemap.h"
 #include "mode.h"
+#include "lh.h"
 
 #define STATE_COLORS   16
 #define STATE_BLACK   0

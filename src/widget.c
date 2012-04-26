@@ -6,11 +6,35 @@
 #include "dynar.h"
 #include "widget.h"
 
+/*
+* = Explanation of the Widget system. =
+* 
+* The actual logical structure of the UI is maintained on the Lua side.
+* On the C side, we have Widgets, which are very basic and simple objects that
+* can draw themselves and dispose of themselves when they are done, and
+* nothing much more. The Lua script will then create these Gadgets,
+* hold references to them, and  call the draw command to draw them,
+* the drawing happens on the C side for speed. 
+*
+* The response to events and everything else happens on the Lua side.
+* The C side does take the Allegro events and translates them into
+* in game commands (direction of motion, etc), although for the mouse
+* this will probably be clicks at given positions.
+*
+* Control of Eruta should be possible comfortably though joystick,
+* keybroad, and a single mouse only, so people with physical limitations
+* can also play the game.
+*
+*/
+
+
 /* bounds functions */
 
 /** Makes a new bounds box struct. */
 Bounds bounds_make(int x, int y, int w, int h) {
-  Bounds result = { x, y, w, h};
+  Point p = point(x, y);
+  Point s = point(w, h);
+  Bounds result = { p, s };
   return result;
 }
 
@@ -28,22 +52,22 @@ Bounds * bounds_init(Bounds * self, int x, int y, int w, int h) {
 
 /** Get x position of bounds. */
 int bounds_x(Bounds * self) {
-  return self->x;
+  return self->p.x;
 }
 
 /** Get y position of bounds. */
 int bounds_y(Bounds * self) {
-  return self->y;
+  return self->p.y;
 }
 
 /** Get width of bounds. */
 int bounds_w(Bounds * self) {
-  return self->w;
+  return self->s.x;
 }
 
 /** Get height of bounds. */
 int bounds_h(Bounds * self) {
-  return self->h;
+  return self->s.y;
 }
 
 
@@ -85,8 +109,15 @@ Font  * style_font(Style * self)        {
 
 
 
+/** Type and methods of the Widgets */
+struct WidgetMethods_ {
+  WidgetDraw * draw;
+  WidgetDraw * done;
+};
 
-/** Widgets are individual parts of the UI. Each widget can contain
+typedef struct WidgetMethods_ WidgetMethods;
+
+/* Widgets are individual parts of the UI. Each widget can contain
 sub-widgets. A note on ownership: the pointers to font and image in style
 are NOT cleaned up, since style is intended to be mostly a shallow copy in which
 font and background image are repeated many times.
@@ -96,18 +127,8 @@ struct Widget_ {
   Bounds          bounds;
   /* Styling elements. */
   Style           style;
-  
-  /* Z order. */
-  int z;
-  /* Related widgets. */
-  // PACHI_DECLARE();
-  Widget        * parent;     /* parent widget */
-  Widget        * child;      /* child widget */
-  Widget        * next;       /* next sibling, logical order  */
-  Widget        * drawnext;   /* next sibling, drawing order  */
-  
-  /* Status Flags. */
-  int can_focus, focus, closed, hidden, active, mouse_over, mouse_down;
+  /* Class             */
+  WidgetMethods * methods;
 };
 
 /** Get bounds of widget. */
@@ -133,7 +154,7 @@ int widget_y(Widget * self) {
 }
 /** Get z position of widget. */
 int widget_z(Widget * self) {  
-  return self->z;
+  return 0;
 }
 
 /** Get foreground color of widget. */
@@ -154,35 +175,58 @@ Image * widget_background(Widget * self) {
   return style_background(&self->style);
 }
 
-Widget * widget_initall(Widget * self, Widget * parent, 
-                        Bounds bounds, Style style) {
+Widget * widget_initall(Widget * self, Bounds bounds, Style style) {
   if(!self) return NULL;
   self->bounds = bounds;
   self->style  = style;
-  self->z      = 0;
+/*  
   self->parent = parent;
   self->child  = self->next = self->drawnext = NULL;
   self->can_focus = self->active = TRUE;
   self->focus     = self->closed = self->hidden = self->mouse_over 
                   = self->mouse_down = FALSE;
+*/                  
   return self;
 }
 
 
-/** Initialzes a widget with a paren and given bounds. */
-Widget * widget_initbounds(Widget * self,  Widget * parent, Bounds bounds) {
-  return widget_initall(self, parent, bounds, parent->style);
+/** Initialzes a widget with given bounds and style. */
+Widget * widget_initbounds(Widget * self, Bounds bounds) {
+  Color fg    = color_rgb(0,0,0);
+  Color bg    = color_rgb(255,0,0);
+  Style style = { fg, bg, NULL, NULL };
+  return widget_initall(self, bounds, style);
 }
 
-/** Initialzes a widget with a parent bounds are same as parent. */
+/** Initialzes a widget from another one's bounds and style. */
 Widget * widget_initparent(Widget * self,  Widget * parent) {
-  return widget_initall(self  , parent, parent->bounds, parent->style);
+  return widget_initall(self, parent->bounds, parent->style);
 }
 
 /** Allocates a widget */
 Widget * widget_allocate() {
   return STRUCT_ALLOC(Widget);
 }
+
+
+/** Call when widget is not needed anymore. */
+Widget * widget_done(Widget * widget) {
+  // do nothing there as background image and font are NOT owned.
+  return widget;
+}
+
+
+/** Frees a widget. Calls widget->methods->done(), then mem_free if
+the latter returns not NULL. Returns NULL. */
+Widget * widget_free(Widget * self) {
+  if (self && self->methods && self->methods->done) {
+    if(self->methods->done(self)) {
+      mem_free(self);
+    }
+  }
+  return NULL;
+}
+
 
 struct WidgetBox_ {
   struct Widget_ widget;
@@ -201,7 +245,7 @@ struct WidgetLabel_ {
 /** Initializes a label. */
 WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Bounds bounds, 
                           const char * text) {
-  if(!widget_initbounds((Widget *)self, parent, bounds)) return NULL;
+  if(!widget_initbounds((Widget *)self, bounds)) return NULL;
   self->text = str_new(text);
   return self;
 }
@@ -209,7 +253,8 @@ WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Bounds bound
 WidgetLabel * widgetlabel_done(WidgetLabel * self) {
   if(!self) return NULL;
   str_free(self->text);
-  return self;
+  
+  return NULL;
 } 
 
 

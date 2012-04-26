@@ -1,6 +1,7 @@
 #ifndef widget_H_INCLUDED
 #define widget_H_INCLUDED
 
+#include "eruta.h"
 #include "image.h"
 
 /** Parent/child tree */
@@ -25,7 +26,8 @@ typedef struct Pachi_ Pachi;
 
 /** Bounds is a bounds rectangle of a widget. */
 struct Bounds_ { 
-  int x, y, h, w;
+  Point p; // position
+  Point s; // size
 };
 
 typedef struct Bounds_ Bounds;
@@ -41,9 +43,13 @@ struct Style_ {
 typedef struct Style_ Style;
 
 
-
+/** Predefine Widget typedef. */
+typedef struct Widget_ Widget;
 
 #include "widget_proto.h"
+
+typedef Widget * (WidgetDraw)(Widget * self);
+
 
 
 #endif

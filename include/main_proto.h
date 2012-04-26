@@ -22,20 +22,20 @@ int test_silut(void);
 
     /** Initialises the reactor, the game state is it's data. */
     react_initempty(&react, state);
-    react.keyboard_key_up = main_react_key_up;
+    react.keyboard_key_up   = main_react_key_up;
     react.keyboard_key_down = main_react_key_down;
     
     puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
 
-    camera = state_camera(state);
-    music = music_load("musictest.ogg");
+    camera  = state_camera(state);
+    music   = music_load("musictest.ogg");
     if(!music) perror("musictest.ogg");
 
-    border = fifi_loadbitmap("border_004.png",
+    border  = fifi_loadbitmap("border_004.png",
                             "image", "ui", "background", NULL);
 
-    border = fifi_loadbitmap_vpath("image/ui/background/border_004.png");
-    sheet = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
+    border  = fifi_loadbitmap_vpath("image/ui/background/border_004.png");
+    sheet   = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
     // image_load(ERUTA_TEST_SHEET);
     if(!sheet);
 

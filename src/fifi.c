@@ -196,12 +196,45 @@ ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath) {
 
 
 /** Returns a path to data which has the given virtual path.
-*  you need to free this with al_destroy_path.
+*  You need to free the result with al_destroy_path.
 */
 ALLEGRO_PATH * fifi_data_vpath(const char * vpath) {
   ALLEGRO_PATH * path = al_clone_path(fifi_data_path());
   return path_append_vpath(path, vpath);
 }
+
+/**
+* Returns a path to data. Last of the arguments should be NULL.
+* You need to free the result with al_destroy_path.
+* returns NULL if no such file exists.
+*/
+ALLEGRO_PATH * fifi_data_pathva(const char * filename, va_list args) {
+  ALLEGRO_PATH * path = al_clone_path(fifi_data_path());
+  if(!path) return NULL;
+  path_append_va(path, args);
+  al_set_path_filename(path, filename);
+  printf("Loading: %s for %s\n", PATH_CSTR(path), filename);
+  if(PATH_EXISTS(path)) { return path;  }
+  // if we get here, we must destroy the path any way.
+  al_destroy_path(path);
+  return NULL;
+}
+
+/**
+* Returns a path to data. Last of the arguments should be NULL.
+* You need to free the result with al_destroy_path.
+* returns NULL if no such file exists.
+*/
+ALLEGRO_PATH * fifi_data_pathargs(const char * filename, ...) {
+  ALLEGRO_PATH * path;
+  va_list args;
+  va_start(args, filename);
+  path        = fifi_data_pathva(filename, args);
+  va_end(args);
+  return path;
+}
+
+
 
 /**
 * simple test function
@@ -358,6 +391,8 @@ ALLEGRO_PATH * fifi_tileset_filename(const char * name) {
   al_set_path_filename(path, name);
   return path;
 }
+
+
 
 /** The follwoing loadable objects exist: 
 * 1) maps

@@ -69,6 +69,32 @@ typedef cpVect Point;
 #define PATH_CSTR(PATH)    al_path_cstr(PATH, ALLEGRO_NATIVE_PATH_SEP)
 #define PATH_EXISTS(PATH) (al_filename_exists(PATH_CSTR(PATH)))
 
+/**
+These macros can be used in the body of a function with ... args to
+map it to a functions with va_arg arguments as last. Use them like this:
+blah foo_va(bar last, va_args args);
+
+blah foo(bar last, ...) {
+  VA_MAP_START(blah, last);
+  VA_MAP_RESULT(foo_va(blag, VA_MAP_ARGS));
+  VA_MAP_END();
+}
+*/
+#define VA_MAP_START(TYPE, LAST)  \
+  va_list args___;                \
+  TYPE result___;                 \
+  va_start(args___, LAST)
+
+#define VA_MAP_ARGS args___
+
+#define VA_MAP_RESULT(VALUE)  do { \
+  result___ = (VALUE);             \
+  } while (0)
+  
+#define VA_MAP_END() \
+  va_end(args___);   \
+  return result___
+
 
 
 /** Commonly used types and typedefs. */

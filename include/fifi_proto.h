@@ -49,9 +49,23 @@ char * help_strsplit(const char * in, int ch, char * store, size_t space);
 ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath);
 
 /** Returns a path to data which has the given virtual path.
-*  you need to free this with al_destroy_path.
+*  You need to free the result with al_destroy_path.
 */
 ALLEGRO_PATH * fifi_data_vpath(const char * vpath);
+
+/**
+* Returns a path to data. Last of the arguments should be NULL.
+* You need to free the result with al_destroy_path.
+* returns NULL if no such file exists.
+*/
+ALLEGRO_PATH * fifi_data_pathva(const char * filename, va_list args);
+
+/**
+* Returns a path to data. Last of the arguments should be NULL.
+* You need to free the result with al_destroy_path.
+* returns NULL if no such file exists.
+*/
+ALLEGRO_PATH * fifi_data_pathargs(const char * filename, ...);
 
 /**
 * simple test function

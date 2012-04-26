@@ -6,10 +6,6 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/** All functions have a fl prefix that stands for "Function for Lua" */
-
-#ifdef COMMENT_
-
 /** Initializes the map. */
 int fl_mapinit(lua_State * lua);
 
@@ -30,6 +26,9 @@ int fl_maptiledata_walker(lua_State * lua, void * data);
 
 /** Sets multiple tile infos from a hash to a map. */
 int fl_maptiledata(lua_State * lua);
+
+/** Initializes the functionality that Eruta exposes to lua. */
+int fl_init(lua_State * lua);
 
 #endif // FORLUA_PROTO_H
 
