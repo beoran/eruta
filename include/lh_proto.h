@@ -37,6 +37,10 @@ void * lh_todata(Lua *L,  int index);
 Performs type checking. */
 void * lh_checkdata(Lua *L, const char * name, int index);
 
+/** Gets the object on the top of the stack (first argument). Useful
+for OOP-style methods or __gc metamethods. */
+void * lh_getself(Lua *L, const char * name);
+
 /** Makes it easier to parse the arguments a Lua function has received.
 * Works in the spirit of scanf(), but with different specifiers.
 * d : double *, i: int *, l : long *, s : char **, S strdupped char **, p
@@ -65,9 +69,9 @@ int lh_showerror_stderr(Lua * lua, int res);
 
 /**
 * Executes a file in Eruta's data/script directory, and displays any errors
-* on stderr. uses the state's lua state.
+* on stderr. 
 */
-int lh_dofile_stderr(State * state, const char * filename);
+int lh_dofile_stderr(Lua * lua, const char * filename);
 
 /** Pushes values on top of the lua stack with the given argument list. Uses
 * a printf-like interface so it's easier to pass around arguments.

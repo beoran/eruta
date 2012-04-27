@@ -42,10 +42,11 @@ void ** lh_pushdata(Lua *L, const char * name, void * data) {
 /** Gets the object at stack index index as a pointer to data */
 void * lh_todata(Lua *L,  int index) {
   void **ptr = (void **)lua_touserdata(L, index);
+  printf("lh_todata %p\n", ptr);
   if (!ptr) { 
     fprintf(stderr, "Argument %i is NULL.\n", index);
     luaL_error(L, "Argument %i is NULL.\n", index);
-    return NULL;
+    return NULL;    
   }  
   return *ptr;
 }
@@ -56,13 +57,20 @@ void * lh_checkdata(Lua *L, const char * name, int index) {
   void *data;
   luaL_checkudata (L, index, name);
   // 
-  data = lh_todata(L, index);
+  data = lh_todata(L, index);  
   if (!data) { 
-   fprintf(stderr, "Data NULL is NULL.");
+    fprintf(stderr, "Data for %s is NULL.", name);
     luaL_error(L, "Data may not be NULL");
     return NULL;
   }  
   return data;
+}
+
+/** Gets the object on the top of the stack (first argument). Useful
+for OOP-style methods or __gc metamethods. */
+void * lh_getself(Lua *L, const char * name) {
+  // int nargs = lua_gettop(L);
+  return lh_checkdata(L, name, 1);
 }
 
 /** Makes it easier to parse the arguments a Lua function has received.
@@ -143,43 +151,82 @@ int lh_scanargs(Lua *L, char * format, ...) {
   return result;
 }  
 
+
+/* report errors to stderr  */
+
+int lh_report_stderr(Lua *L, int status) {
+  if (status != LUA_OK && !lua_isnil(L, -1)) {
+    const char *msg = lua_tostring(L, -1);
+    if (msg == NULL) msg = "(error object is not a string)";
+    fprintf(stderr, "Error %d: %s\n", status, msg);
+    lua_pop(L, 1);
+    /* force a complete garbage collection in case of errors */
+    lua_gc(L, LUA_GCCOLLECT, 0);
+  }
+  return status;
+}
+
+/* traceback function*/
+int lh_traceback (Lua *L) {
+  const char *msg = lua_tostring(L, 1);
+  if (msg) {  luaL_traceback(L, L, msg, 1); }
+  else if (!lua_isnoneornil(L, 1)) {  /* is there an error object? */
+  if (!luaL_callmeta(L, 1, "__tostring"))  /* try its 'tostring' metamethod */
+    lua_pushliteral(L, "(no error message)");
+  }
+  return 1;
+}
+
+/* Like lua_pcall, but generates a traceback. */
+int lh_tracecall(Lua *L, int narg, int nres) {
+  int status;
+  int base = lua_gettop(L) - narg;  /* function index */
+  lua_pushcfunction(L, lh_traceback);  /* push traceback function */
+  lua_insert(L, base);  /* put it under chunk and args */
+  status = lua_pcall(L, narg, nres, base);
+  lua_remove(L, base);  /* remove traceback function */
+  return status;
+}
+
+
+
 /**
 * Executes a file in Eruta's data/script directory.
 * Returns -1 if the file ws not found.
 */
 int lh_dofile(Lua *L, const char * filename) {
+  int runres, loadres;
   ALLEGRO_PATH * path = fifi_data_pathargs(filename, "script", NULL);
-  if(!path) return -1;
-  int res =  luaL_dofile(L, PATH_CSTR(path));
+  if(!path) return -1;  
+  loadres = luaL_loadfile(L, PATH_CSTR(path));
   al_destroy_path(path);
-  return res;
+  // get out of here if load failed
+  if(loadres) return loadres;
+  runres  = lh_tracecall(L, 0, LUA_MULTRET);
+  return runres;
 }
 
 /**
 * shows an error to stderr if res is nonzero
 */
 int lh_showerror_stderr(Lua * lua, int res) {
-  if(res>0) {
-    char * message;
-    lh_scanargs(lua, "D", &message);
-    fprintf(stderr, "%s\n", message);
-    free(message);
-  } else if (res<0) {
+  if (res<0) {
     fprintf(stderr, "File not found.\n");
+    return res;
   }
-  return res;
+  return lh_report_stderr(lua, res);
 }
 
 
 /**
 * Executes a file in Eruta's data/script directory, and displays any errors
-* on stderr. uses the state's lua state.
+* on stderr. 
 */
-int lh_dofile_stderr(State * state, const char * filename) {
+int lh_dofile_stderr(Lua * lua, const char * filename) {
   int res;
   // try to load the lua file
-  res = lh_dofile(state_lua(state), filename);
-  lh_showerror_stderr(state_lua(state), res);
+  res = lh_dofile(lua, filename);
+  lh_showerror_stderr(lua, res);
   return res;
 }  
 

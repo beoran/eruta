@@ -388,6 +388,7 @@ int console_puts(Console * self, const char * str) {
 
 
 
+
 /** Draws a console. */
 void console_draw(Console * self) {
   int start, stop, high, linehigh, index;

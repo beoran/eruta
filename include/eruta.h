@@ -62,12 +62,22 @@
 Allegro also uses floats now for it's drawing. */
 typedef cpVect Point;
 
+/** Other shorthand types */
+typedef ALLEGRO_PATH Path;
+
+
 /** Wrapper macros */
 #define point(X, Y) cpv(X, Y);
 
+/** Some univerally useful function declarations. */
+/** Helper to convert paths to C strings */
+const char * fifi_path_cstr(Path * path);
+/** Helper for al_filename_exists wuth a path. */
+int fifi_path_exists(Path * path);
+
 /** Shorthand macros. */
-#define PATH_CSTR(PATH)    al_path_cstr(PATH, ALLEGRO_NATIVE_PATH_SEP)
-#define PATH_EXISTS(PATH) (al_filename_exists(PATH_CSTR(PATH)))
+#define PATH_CSTR(PATH)   (fifi_path_cstr(PATH))
+#define PATH_EXISTS(PATH) (fifi_path_exists(PATH))
 
 /**
 These macros can be used in the body of a function with ... args to

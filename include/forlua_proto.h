@@ -6,26 +6,9 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/** Initializes the map. */
-int fl_mapinit(lua_State * lua);
+/** Wrapping ALLEGRO_IMAGE (Image) */
 
-/** Sets a single tile in the map. */
-int fl_mapset(lua_State * lua);
-
-/** Sets a row of tiles in the map. */
-int fl_mapsetrow(lua_State * lua);
-
-/** Fills a whole layer in the map. */
-int fl_mapfill(lua_State * lua);
-
-/** Sets tile info for the map. */
-int fl_maptileinfo(lua_State * lua);
-
-/** Walker that sets multiple tile infos from a hash to a map. */
-int fl_maptiledata_walker(lua_State * lua, void * data);
-
-/** Sets multiple tile infos from a hash to a map. */
-int fl_maptiledata(lua_State * lua);
+int fl_Image_gc(Lua * lua);
 
 /** Initializes the functionality that Eruta exposes to lua. */
 int fl_init(lua_State * lua);

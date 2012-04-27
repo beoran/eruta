@@ -39,11 +39,15 @@ USER_DATA_PATH: /home/bjmey/.local/share/liballeg.org/ex_get_path/
 
 */
 
-const char * fifi_path_cstr(ALLEGRO_PATH * path) {
+/** Helper for al_path_cstr. */
+const char * fifi_path_cstr(Path * path) {
+  if(!path) return NULL;
   return al_path_cstr(path, ALLEGRO_NATIVE_PATH_SEP);
 }
 
-int fifi_path_exists(ALLEGRO_PATH * path) {
+/** Helper for al_filename_exists with a path. */
+int fifi_path_exists(Path * path) {
+  if(!path) return 0;
   return al_filename_exists(fifi_path_cstr(path));
 }
 
