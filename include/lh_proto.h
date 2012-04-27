@@ -25,7 +25,9 @@ Lua * lh_new();
 /** Frees a lua state if it's non-NULL. */
 Lua * lh_free(Lua * lua);
 
-/** Creates lua user data in which the pointer to data will be stored. */
+/** Creates lua user data in which the pointer to data will be stored.
+* You must set up the metatable first thoug lh_datainit and lh_datamethod
+*/
 void ** lh_pushdata(Lua *L, const char * name, void * data);
 
 /** Gets the object at stack index index as a pointer to data */
@@ -34,6 +36,10 @@ void * lh_todata(Lua *L,  int index);
 /** Gets the object at stack index index as a pointer to data. 
 Performs type checking. */
 void * lh_checkdata(Lua *L, const char * name, int index);
+
+/** Gets the object on the top of the stack (first argument). Useful
+for OOP-style methods or __gc metamethods. */
+void * lh_getself(Lua *L, const char * name);
 
 /** Makes it easier to parse the arguments a Lua function has received.
 * Works in the spirit of scanf(), but with different specifiers.
@@ -52,6 +58,7 @@ int lh_scanargs(Lua *L, char * format, ...);
 
 /**
 * Executes a file in Eruta's data/script directory.
+* Returns -1 if the file ws not found.
 */
 int lh_dofile(Lua *L, const char * filename);
 
@@ -62,9 +69,9 @@ int lh_showerror_stderr(Lua * lua, int res);
 
 /**
 * Executes a file in Eruta's data/script directory, and displays any errors
-* on stderr. uses the state's lua state.
+* on stderr. 
 */
-int lh_dofile_stderr(State * state, const char * filename);
+int lh_dofile_stderr(Lua * lua, const char * filename);
 
 /** Pushes values on top of the lua stack with the given argument list. Uses
 * a printf-like interface so it's easier to pass around arguments.
@@ -139,7 +146,7 @@ value at an integer index key from the table at index on the lua stack.
 **/
 int lh_geti(Lua *L, int index, int key);
 
-/** Makes a new metatable for the given type name, and prepares it so the data will be able to given methods usin gthe lh_datamethod function. If fun is not NULL, it sets the __gc value in the metatable to fun, so data of the given type will be correctly garbage collected. Must be called before calling
+/** Makes a new metatable for the given type name, and prepares it so the data will be able to given methods using the lh_datamethod function. If fun is not NULL, it sets the __gc value in the metatable to fun, so data of the given type will be correctly garbage collected. Must be called before calling
 lh_datamethod.
 */
 void lh_datainit(Lua *L, char * name, lua_CFunction fun);

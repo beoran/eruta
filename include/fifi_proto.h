@@ -6,6 +6,12 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Helper for al_path_cstr. */
+const char * fifi_path_cstr(Path * path);
+
+/** Helper for al_filename_exists with a path. */
+int fifi_path_exists(Path * path);
+
 /** Initializes the file finding dir  */
 ALLEGRO_PATH * fifi_init(void);
 

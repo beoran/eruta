@@ -192,7 +192,7 @@ int real_main(void) {
     }
 
   // Try to load the main lua file.
-  lh_dofile_stderr(state, "main.lua");
+  lh_dofile_stderr(state_lua(state), "main.lua");
   // Call the on_start function.
   lh_callglobalstderr_args(state_lua(state), "on_start", "s", "a string argument");
 

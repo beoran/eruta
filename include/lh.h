@@ -9,7 +9,10 @@
 /** For when I get lazy... */
 typedef lua_State Lua;
 
-#include "state.h"
+/** Walker that walks over a Lua table. */
+typedef int (lh_walker)(lua_State *L, void * data); 
+
+#include "lh_proto.h"
 
 /** Opens a lua state with libraries. */
 lua_State * lh_new();
@@ -64,7 +67,7 @@ void lh_datamethod(lua_State *L, char * meta, char * name, lua_CFunction fun);
 /** gets the type name of the object at the given stack index. */
 const char * lh_typename(lua_State *L, int index);
 
-typedef int (lh_walker)(lua_State *L, void * data); 
+
 
 /** Walks over a table at index, calling the walker function as it goes.
 * key will be at index -2, and value at index -1 
