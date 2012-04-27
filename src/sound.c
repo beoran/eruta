@@ -31,6 +31,7 @@ typedef struct Audio_ Audio;
 #define AUDIO_DEPTH    ALLEGRO_AUDIO_DEPTH_INT16
 #define AUDIO_CHANNELS ALLEGRO_CHANNEL_CONF_2
 
+/** Call this when the use of audio is no longer needed. */
 Audio * audio_done(Audio * audio) {
   if(audio) {
     al_detach_mixer(audio->mixer);
@@ -42,6 +43,7 @@ Audio * audio_done(Audio * audio) {
   return audio;
 }
 
+/** Call this to start up the audio system. */
 Audio * audio_init(Audio * audio) {
   if(!audio) return NULL;
   audio->mixer = al_create_mixer(AUDIO_RATE, AUDIO_DEPTH, AUDIO_CHANNELS);

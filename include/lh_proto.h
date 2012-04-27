@@ -25,7 +25,9 @@ Lua * lh_new();
 /** Frees a lua state if it's non-NULL. */
 Lua * lh_free(Lua * lua);
 
-/** Creates lua user data in which the pointer to data will be stored. */
+/** Creates lua user data in which the pointer to data will be stored.
+* You must set up the metatable first thoug lh_datainit and lh_datamethod
+*/
 void ** lh_pushdata(Lua *L, const char * name, void * data);
 
 /** Gets the object at stack index index as a pointer to data */
@@ -52,6 +54,7 @@ int lh_scanargs(Lua *L, char * format, ...);
 
 /**
 * Executes a file in Eruta's data/script directory.
+* Returns -1 if the file ws not found.
 */
 int lh_dofile(Lua *L, const char * filename);
 
@@ -139,7 +142,7 @@ value at an integer index key from the table at index on the lua stack.
 **/
 int lh_geti(Lua *L, int index, int key);
 
-/** Makes a new metatable for the given type name, and prepares it so the data will be able to given methods usin gthe lh_datamethod function. If fun is not NULL, it sets the __gc value in the metatable to fun, so data of the given type will be correctly garbage collected. Must be called before calling
+/** Makes a new metatable for the given type name, and prepares it so the data will be able to given methods using the lh_datamethod function. If fun is not NULL, it sets the __gc value in the metatable to fun, so data of the given type will be correctly garbage collected. Must be called before calling
 lh_datamethod.
 */
 void lh_datainit(Lua *L, char * name, lua_CFunction fun);

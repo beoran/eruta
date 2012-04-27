@@ -5,6 +5,7 @@
 #include "image.h"
 #include "dynar.h"
 #include "widget.h"
+#include "ui.h"
 
 /*
 * = Explanation of the Widget system. =
@@ -228,6 +229,18 @@ Widget * widget_free(Widget * self) {
 }
 
 
+#define WIDGET_BORDER 3 
+
+/** Draws a rounded frame as background for a widget. */
+void widget_drawroundframe(Widget * self) {
+  if(!self) return;
+  draw_roundframe(widget_x(self), widget_y(self), 
+                  widget_w(self), widget_h(self),
+                  WIDGET_BORDER,
+                  widget_forecolor(self), widget_backcolor(self));
+}
+
+
 struct WidgetBox_ {
   struct Widget_ widget;
 };
@@ -265,7 +278,137 @@ struct WidgetChoose_ {
 }; 
 
 
+/** A console is a console for lua interaction adn error display. When it's active it captures all input (as long as  */
+struct Console_ {
+  Widget  parent;
+  Lilis * lines;
+  Lilis * last;
+  int     count;
+  int     max;
+  int     start;
+  int     active;
+  int     charw;
+  char  * buf;
+};
 
+/** Cleans up a console*/
+Console * console_done(Console * self) {
+  if(!self) return NULL;
+  lilis_free(self->lines);
+  mem_free(self->buf);
+  return self;
+}
+
+
+/** Deallocates a console. */
+Console * console_free(Console * self) {
+  console_done(self);
+  mem_free(self);
+  return NULL;
+}
+
+/** Allocates a console. */
+Console * console_alloc() {
+  return STRUCT_ALLOC(Console);
+}
+
+#define CONSOLE_MAX 1000
+
+/** Initializes a console. */
+Console * console_initall(Console * self, Bounds bounds, Style style) {
+  if(!self) return NULL;
+  if(!widget_initall((Widget *)self, bounds, style)) return NULL;
+  self->lines = lilis_newempty();
+  if(!self->lines) return NULL;
+  self->last  = lilis_addnew(self->lines, NULL);
+  if(!self->last) { console_done(self); return NULL; }
+  self->count = 0;
+  self->max   = 1000; // MUST be at least 2, 3 to see anything...
+  self->start = 0;
+  self->active= FALSE;
+  self->charw = 80; 
+  self->buf   = mem_alloc(self->charw + 1);
+   // one extra for NULL at end . 
+  if(!self->buf) { console_done(self); return NULL; }
+  return self;
+}
+
+
+/** Initializes a console. */
+Console * console_new(Bounds bounds, Style style) {
+  Console * self = console_alloc();
+  if(!console_initall(self, bounds, style)) {
+    return console_free(self);
+  }
+  return self;
+}
+
+int console_addstr(Console * self, char * str) {
+  char * store;
+  if(!self) return -1;
+  store = strdup(str);
+  if(!store) return -2;
+  if(!lilis_addnew(self->lines,store)) { 
+    free(store);
+    return -3;
+  }
+  self->count++;
+  if(self->count > self->max) { // remove last node
+    Lilis * prev, * last;
+    // free data
+    void * data = lilis_data(self->last);
+    free(data);
+    // get prev node
+    prev        = lilis_previous(self->last);
+    // free last node
+    lilis_erase(self->last);
+    // prev to last is now last node.
+    self->last  = prev;
+    self->count --; // reduce count again.
+  }
+  return self->count;
+}
+
+/** Puts a string on the console .*/
+int console_puts(Console * self, const char * str) {
+  int index;
+  int size     = strlen(str);
+  int leftsize = size;
+  int lines = 0;
+  for (index = 0; index < size; 
+       index += self->charw, 
+       leftsize -= (self->charw) ) {
+    int copysize = (leftsize > self->charw ? self->charw : leftsize);
+    help_strncpy(self->buf, str + index, copysize, self->charw + 1);
+    console_addstr(self, self->buf);
+    lines++;
+  }
+  return lines;
+} 
+
+
+
+/** Draws a console. */
+void console_draw(Console * self) {
+  int start, stop, high, linehigh, index;
+  if(!self->active) return;
+  widget_drawroundframe((Widget *)self);
+  high        = widget_h((Widget *) self);
+  linehigh    = 12;
+  Lilis * now = self->lines;
+  for (index = high-linehigh; index > 0; index -= linehigh) {
+    char * text;
+    if(!now) break;
+    text = lilis_data(now);
+    if(text) {
+      
+    }
+    now = lilis_next(now);
+  }
+  
+  
+  
+}
 
 
 

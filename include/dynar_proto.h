@@ -120,5 +120,79 @@ Every * dynar_every_data(Dynar * dynar);
 /** Iterates over the pointers in this array. Call every_free when done. */
 Every * dynar_every_ptr(Dynar * dynar);
 
+/**
+* Lilis is a doubly Linked List that points to it's members via void pointers 
+* but does not own them  in the sense that it doesn't clean them up unless requested.
+*/
+struct Lilis_;
+typedef struct Lilis_ Lilis;
+
+/**
+* frees the tail of a llist only. Does nothing to self or other.
+*/
+
+Lilis * lilis_freetail(Lilis * self);
+
+/** Frees the tail of the list pointed to by self. It does not free any of the 
+emlements contained in * data. Does not alter self->prev, and doesn't 
+free that either. */
+Lilis * lilis_done(Lilis * self );  
+
+/** Frees a linked list node and it's tail. Returns NULL. */
+Lilis * lilis_free(Lilis * self);
+
+/** Allocates a new empty linked list.  */
+Lilis * lilis_alloc();
+
+/** Initializes a linked list node */
+Lilis * lilis_init(Lilis * self, Lilis * next, Lilis * prev, void * data);
+
+/** Initializes a new linked list node that points to nothing. */
+Lilis * lilis_initempty(Lilis * self);
+
+/** Returns a newly allocatd linked list node. */
+Lilis * lilis_new(Lilis * next, Lilis * prev, void * data);
+
+/** Returns a newly allocated linked list node that points to nothing. */
+Lilis * lilis_newempty();
+
+/** Appends a node to the current one, inserting it if needed.
+* returns other.
+*/
+Lilis * lilis_add(Lilis * self, Lilis * other);
+
+/**  Creates a new node and adds it */
+Lilis * lilis_addnew(Lilis * self, void * data);
+
+/** Removes the node that follows self, but does NOT call lilis_free on it. 
+* returns the removed node
+*/
+Lilis * lilis_removenext(Lilis * self);
+
+/** Removes self, modifies prev if this is needed, but does NOT call 
+* lilis_free on it. 
+* returns the removed node
+*/
+Lilis * lilis_remove(Lilis * self);
+
+/** Removes the node self, and calls lilis_free on it.
+* returns NULL
+*/
+Lilis * lilis_erase(Lilis * self);
+
+/** Removes the node that follows self, and calls lilis_free on it.
+* returns NULL
+*/
+Lilis * lilis_erasenext(Lilis * self);
+
+/** Gets the next node in the list. */
+Lilis * lilis_next(Lilis * self);
+
+/** Gets the previous  node in the list. */
+Lilis * lilis_previous(Lilis * self);
+
+/** Gets the data of the list node */
+void * lilis_data(Lilis * self);
+
 #endif // DYNAR_PROTO_H
 

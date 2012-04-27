@@ -6,6 +6,12 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Call this when the use of audio is no longer needed. */
+Audio * audio_done(Audio * audio);
+
+/** Call this to start up the audio system. */
+Audio * audio_init(Audio * audio);
+
 /** Global audio settings. */
 static Audio audio_;
 
