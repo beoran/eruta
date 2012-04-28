@@ -82,6 +82,12 @@ int lh_dostring(Lua *L, const char * dorun);
 */
 int lh_dofunction(Lua *L, const char * funcname);
 
+/** Executes then named global function in the lua interpreter and 
+* handles errors by putting a traceback on the stack. Takes arguments.
+*/
+int lh_dofunction_va(Lua *L, const char * funcname,
+                   const char * format, va_list args);
+
 /**
 * shows an error to stderr if res is nonzero
 */
@@ -123,6 +129,19 @@ int lh_dofunction_console(Lua * lua, const char * name, void * console);
 int lh_dofunction_stderr(Lua * lua, const char * name);
 
 /**
+* Executes a function and displays any errors
+* on console. 
+*/
+int lh_dofunction_console_va(Lua * lua, const char * name, 
+                             void * console, const char * format, va_list args);
+
+/**
+* Executes a string and displays any errors
+* on stderr 
+*/
+int lh_dofunction_stderr_va(Lua * lua, const char * name, const char * format, va_list args);
+
+/**
 * Executes a string and displays any errors
 * on console. 
 */
@@ -135,6 +154,10 @@ int lh_dostring_myconsole(Lua * lua, const char * code);
 /** Looks up the console in the lua state's registry and then reports to that,
  as  the namef function is executed. */
 int lh_dofunction_myconsole(Lua * lua, const char * name);
+
+/** Calls a function with arguments, and log to the active console. */
+int lh_dofunction_myconsole_args(Lua *L, const char * funcname,
+                                const char * format, ...);
 
 /** Pushes values on top of the lua stack with the given argument list. Uses
 * a printf-like interface so it's easier to pass around arguments.

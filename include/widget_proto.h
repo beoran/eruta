@@ -117,7 +117,7 @@ WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Bounds bound
 struct Console_;
 typedef struct Console_ Console;
 
-/** Cleans up a console*/
+/** Cleans up a console */
 Console * console_done(Console * self);
 
 /** Deallocates a console. */

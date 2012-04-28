@@ -295,7 +295,7 @@ struct Console_ {
   void * command_data; // command data.
 };
 
-/** Cleans up a console*/
+/** Cleans up a console */
 Console * console_done(Console * self) {
   if(!self) return NULL;
   lilis_free(self->lines);

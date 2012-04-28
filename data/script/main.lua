@@ -3,7 +3,7 @@
 log "this is for the console."
 
 test()
-log "Hi from lua!"
+log "Hi from lua! Björn"
 path = PathForData "script/main.lua"
 if path then
   log(path:to_s())
@@ -30,11 +30,18 @@ end
 
 
 function on_start(s)
-  -- log("Start! " .. s)
+  log("Start! " .. s)
 end
 
-function on_draw()
-  log("Draw!")
+function on_event()
+  -- log("Draw!")
+--  io.write("Draw!\n")  
+end
+
+
+function on_draw(s)
+  -- log("draw! " .. s)
+  -- log("Draw!")
 --  io.write("Draw!\n")  
 end
 

@@ -222,29 +222,48 @@ int lh_tracecall(Lua *L, int narg, int nres) {
 }
 
 /* function pointer type for loading omething and makeing a trace on error*/
-typedef int (LhLoadSomething)(Lua *L, const char * str);
+typedef int (LhLoadSomething)(Lua *L,  const void * data);
 
 
 /*
 * Executes something after loading it
 * Returns -1 if the name was not found according to LhLoadSomething.
 */
-int lh_dosomething(Lua *L, const char * name, LhLoadSomething * loader) {
+int lh_dosomething(Lua *L, const void * data, LhLoadSomething * loader) {
   int runres, loadres;  
-  if(!name) return -1;
-  loadres = loader(L, name);
+  if(!data) return -1;
+  loadres = loader(L, data);
   if(loadres) return loadres;
   runres  = lh_tracecall(L, 0, LUA_MULTRET);
   return runres;
 }
 
-int lh_loadfile(Lua *L, const char * name) {
-  return luaL_loadfile(L, name);
+int lh_loadfile(Lua *L, const void * data) {
+  return luaL_loadfile(L, (const char *) data);
 }
 
-int lh_getglobal(Lua *L, const char  * name) {
-  lua_getglobal(L, name);
+int lh_getglobal(Lua *L, const void * data) {
+  lua_getglobal(L,  (const char *) data);
   return 0;
+}
+
+struct LhLoadFunctionData_ {
+  const char    * name;
+  const char    * format;
+  va_list       * args;
+};
+
+int lh_loadfunction(Lua *L, const void * data) {
+  struct LhLoadFunctionData_ * load_data = (struct LhLoadFunctionData_ *) data;    
+  if(!load_data) return -1;
+  va_list       * args = load_data->args;
+  lua_getglobal(L,  load_data->name);
+  lh_push_va(L, load_data->format, (*args));
+  return 0;
+}
+
+int lh_loadstring(Lua *L, const void * data) {
+  return luaL_loadstring(L, (const char *) data);
 }
 
 
@@ -268,7 +287,7 @@ int lh_dofile(Lua *L, const char * filename) {
 int lh_dostring(Lua *L, const char * dorun) {
   int runres;
   if(!dorun) return -1;
-  runres = lh_dosomething(L, dorun, luaL_loadstring);
+  runres = lh_dosomething(L, dorun, lh_loadstring);
   return runres;
 }
 
@@ -277,13 +296,26 @@ int lh_dostring(Lua *L, const char * dorun) {
 * handles errors by putting a traceback on the stack
 *
 */
-int lh_dofunction(Lua *L, const char * funcname) {
-  int runres;
+int lh_dofunction_va(Lua *L             , const char * funcname,
+                     const char * format, va_list args) {
+  int runres, loadres, nargs;
   if(!funcname) return -1;
-  runres = lh_dosomething(L,  funcname, lh_getglobal);
+  loadres = lh_getglobal(L, funcname);
+  if(loadres) return loadres;
+  nargs   = lh_push_va(L, format, args);
+  runres  = lh_tracecall(L, nargs, LUA_MULTRET);
   return runres;
 }
 
+/** Executes then named global function in the lua interpreter and 
+* handles errors by putting a traceback on the stack. Takes arguments.
+*/
+int lh_dofunction(Lua *L, const char * funcname) {
+  int runres;
+  if(!funcname) return -1;
+  runres = lh_dosomething(L, funcname, lh_getglobal);
+  return runres;
+}
 
 
 /**
@@ -366,11 +398,37 @@ int lh_dofunction_console(Lua * lua, const char * name, void * console) {
 int lh_dofunction_stderr(Lua * lua, const char * name) {
   int res;
   // try to load the lua file
-  res = lh_dostring(lua, name);
+  res = lh_dofunction(lua, name);
   lh_showerror_stderr(lua, res);
   return res;
 }  
 
+
+/**
+* Executes a function and displays any errors
+* on console. 
+*/
+int lh_dofunction_console_va(Lua * lua, const char * name, 
+                             void * console, const char * format, va_list args) {
+  int res;
+  // try to load the lua file
+  res = lh_dofunction_va(lua, name, format, args);
+  lh_showerror_console(lua, res, console);
+  return res;
+}  
+
+
+/**
+* Executes a string and displays any errors
+* on stderr 
+*/
+int lh_dofunction_stderr_va(Lua * lua, const char * name, const char * format, va_list args) {
+  int res;
+  // try to load the lua file
+  res = lh_dofunction_va(lua, name, format, args);
+  lh_showerror_stderr(lua, res);
+  return res;
+}  
 
 /**
 * Executes a string and displays any errors
@@ -384,6 +442,8 @@ int lh_dostring_console(Lua * lua, const char * code, void * console) {
   return res;
 }  
 
+
+
 /** Looks up the console in the lua state's registry and then reports to that,
  as code is executed. */
 int lh_dostring_myconsole(Lua * lua, const char * code) {
@@ -393,7 +453,6 @@ int lh_dostring_myconsole(Lua * lua, const char * code) {
 }
 
 
-
 /** Looks up the console in the lua state's registry and then reports to that,
  as  the namef function is executed. */
 int lh_dofunction_myconsole(Lua * lua, const char * name) {
@@ -401,6 +460,26 @@ int lh_dofunction_myconsole(Lua * lua, const char * name) {
   if (console) return lh_dofunction_console(lua, name, console);
   return lh_dofunction_stderr(lua, name);
 }
+
+
+int lh_dofunction_myconsole_va(Lua *L, const char * fname,
+                   const char * format, va_list args) {
+  Console * console = lh_registry_getptr(L, "eruta.state.console");
+  if (console) return lh_dofunction_console_va(L, fname, console, format, args);
+  return lh_dofunction_stderr_va(L, fname, format, args);
+}
+
+/** Calls a function with arguments, and log to the active console. */
+int lh_dofunction_myconsole_args(Lua *L, const char * funcname,
+                                const char * format, ...) {
+  int res;
+  va_list args;
+  va_start(args, format);
+  res = lh_dofunction_myconsole_va(L, funcname, format, args);
+  va_end(args);
+  return res;
+}
+
 
 /*    
 void lua_pushinteger (Lua *L, lua_Integer n);

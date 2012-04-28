@@ -230,7 +230,7 @@ State * state_init(State * self, BOOL fullscreen) {
   {
     Style style = { color_rgb(255,255,255), color_rgba(64,0,0, 191), 
                     self->font, NULL};
-    Bounds bounds = { 0, 0, 640, 480 }; 
+    Bounds bounds = { {0, 0,} , {640, 480} }; 
     self->console = console_new(bounds, style);
     if(!self->console) {
       return state_errmsg_(self, "Out of memory when allocating console.");
@@ -238,7 +238,8 @@ State * state_init(State * self, BOOL fullscreen) {
   }
   console_puts(self->console, "Console started ok!");
   // set up callback for console comands 
-  console_command_(self->console, lh_dostring_myconsole, self->lua);
+  console_command_(self->console, 
+                   (ConsoleCommand *)lh_dostring_myconsole, self->lua);
   
   // store a few pointers in the lua state's registry for ease of wrapping 
   lh_registry_putptr(self->lua, "eruta.state"         , self);
