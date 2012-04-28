@@ -9,6 +9,7 @@
 #include "fifi.h"
 #include "lh.h"
 #include "forlua_proto.h"
+#include "widget.h"
 
 
 /* The data struct contains all global state and other data of the application.
@@ -35,6 +36,7 @@ struct State_ {
   Dynar               * modes;
   Camera              * camera;
   Lua                 * lua;
+  Console             * console; // the game lua and error message console.
 };
 
 
@@ -110,6 +112,12 @@ ALLEGRO_COLOR state_color_f(State * state, int color,
 Lua * state_lua(State * state) {
   return state->lua;
 }
+
+/** Gets console intepreter for state. */
+Console * state_console(State * state) {
+  return state->console;
+}
+
 
 #define STATE_MODES 10
 
@@ -219,6 +227,24 @@ State * state_init(State * self, BOOL fullscreen) {
   if(!self->camera) {
       return state_errmsg_(self, "Out of memory when allocating camera.");
   }
+  {
+    Style style = { color_rgb(255,255,255), color_rgba(64,0,0, 191), 
+                    self->font, NULL};
+    Bounds bounds = { 0, 0, 640, 480 }; 
+    self->console = console_new(bounds, style);
+    if(!self->console) {
+      return state_errmsg_(self, "Out of memory when allocating console.");
+    }
+  }
+  console_puts(self->console, "Console started ok!");
+  // set up callback for console comands 
+  console_command_(self->console, lh_dostring_myconsole, self->lua);
+  
+  // store a few pointers in the lua state's registry for ease of wrapping 
+  lh_registry_putptr(self->lua, "eruta.state"         , self);
+  lh_registry_putptr(self->lua, "eruta.state.console" , self->console);
+  lh_registry_putptr(self->lua, "eruta.state.font"    , self->font);
+  
   return self;
 }
 
@@ -230,6 +256,7 @@ BOOL state_done(State * state) {
 
 /** Closes the state when it's done. */
 State * state_kill(State * self) {
+  console_free(self->console);
   audio_done(self->audio);
   camera_free(self->camera);
   dynar_free(self->modes);

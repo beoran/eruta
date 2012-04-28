@@ -10,6 +10,13 @@ Please do not hand edit.
 
 int fl_Image_gc(Lua * lua);
 
+/** Wrapping ALLEGRO_FONT (Font) */
+
+int fl_Font_gc(Lua * lua);
+
+/** Writes to console or to stdout if console is not available. */
+int fl_log(lua_State * lua);
+
 /** Initializes the functionality that Eruta exposes to lua. */
 int fl_init(lua_State * lua);
 

@@ -97,8 +97,11 @@ React * react_poll(React * self, void * state) {
   ALLEGRO_EVENT event;
   if(!self) return NULL;
   while(state_poll((State *)state, &event)) {
-    // React to all incoming events.
-    react_react(self, &event);
+    // React to all incoming events, except if the console catches them.
+    Console * console = state_console(state);
+    if(!console_handle(console, &event)) { 
+      react_react(self, &event);
+    }
   }
   return self;
 }  

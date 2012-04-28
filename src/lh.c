@@ -6,6 +6,8 @@
 #include "str.h"
 #include "lh.h"
 #include "fifi.h"
+// needed for console output for lua errors.
+#include "widget.h"
 
 
 /* Not declared in lauxlib.h somehow, but it exists... */
@@ -152,18 +154,49 @@ int lh_scanargs(Lua *L, char * format, ...) {
 }  
 
 
-/* report errors to stderr  */
+/* error reporter function type  */
+typedef int (LhErrorReporter)(int status, const char * msg, void * extra);
 
-int lh_report_stderr(Lua *L, int status) {
+/* error report to a file */
+int lh_errorreporter_file(int status, const char * msg, void * extra) {
+  return fprintf((FILE *) extra, "Error %d: %s\n", status, msg);
+}
+
+/* error report to console */
+int lh_errorreporter_console(int status, const char * msg, void * extra) {
+  char buf[80]; 
+  snprintf(buf, 80, "Error %d:", status);
+  console_puts((Console *)extra, buf);
+  console_puts((Console *)extra, msg);
+  return 0;
+}
+
+
+/* report errors generically  */
+int lh_report_generic(Lua *L, int status, 
+                      LhErrorReporter * reporter, void *extra) {
   if (status != LUA_OK && !lua_isnil(L, -1)) {
     const char *msg = lua_tostring(L, -1);
     if (msg == NULL) msg = "(error object is not a string)";
-    fprintf(stderr, "Error %d: %s\n", status, msg);
+    reporter(status, msg, extra);
     lua_pop(L, 1);
     /* force a complete garbage collection in case of errors */
     lua_gc(L, LUA_GCCOLLECT, 0);
   }
   return status;
+}
+
+
+/** report errors to console  */
+int lh_report_console(Lua *L, int status, void * console) {
+  return lh_report_generic(L, status, lh_errorreporter_console, console);
+}
+
+
+
+/** report errors to stderr  */
+int lh_report_stderr(Lua *L, int status) {
+  return lh_report_generic(L, status, lh_errorreporter_file, stderr);
 }
 
 /* traceback function*/
@@ -188,6 +221,31 @@ int lh_tracecall(Lua *L, int narg, int nres) {
   return status;
 }
 
+/* function pointer type for loading omething and makeing a trace on error*/
+typedef int (LhLoadSomething)(Lua *L, const char * str);
+
+
+/*
+* Executes something after loading it
+* Returns -1 if the name was not found according to LhLoadSomething.
+*/
+int lh_dosomething(Lua *L, const char * name, LhLoadSomething * loader) {
+  int runres, loadres;  
+  if(!name) return -1;
+  loadres = loader(L, name);
+  if(loadres) return loadres;
+  runres  = lh_tracecall(L, 0, LUA_MULTRET);
+  return runres;
+}
+
+int lh_loadfile(Lua *L, const char * name) {
+  return luaL_loadfile(L, name);
+}
+
+int lh_getglobal(Lua *L, const char  * name) {
+  lua_getglobal(L, name);
+  return 0;
+}
 
 
 /**
@@ -195,16 +253,38 @@ int lh_tracecall(Lua *L, int narg, int nres) {
 * Returns -1 if the file ws not found.
 */
 int lh_dofile(Lua *L, const char * filename) {
-  int runres, loadres;
+  int runres;
   ALLEGRO_PATH * path = fifi_data_pathargs(filename, "script", NULL);
-  if(!path) return -1;  
-  loadres = luaL_loadfile(L, PATH_CSTR(path));
+  if(!path) return -1;
+  runres = lh_dosomething(L, PATH_CSTR(path), lh_loadfile);
   al_destroy_path(path);
-  // get out of here if load failed
-  if(loadres) return loadres;
-  runres  = lh_tracecall(L, 0, LUA_MULTRET);
   return runres;
 }
+
+/** Executes a string in the lua interpreter and handles errors
+* by putting atraceback on the stack
+*
+*/
+int lh_dostring(Lua *L, const char * dorun) {
+  int runres;
+  if(!dorun) return -1;
+  runres = lh_dosomething(L, dorun, luaL_loadstring);
+  return runres;
+}
+
+
+/** Executes then named global function in the lua interpreter and 
+* handles errors by putting a traceback on the stack
+*
+*/
+int lh_dofunction(Lua *L, const char * funcname) {
+  int runres;
+  if(!funcname) return -1;
+  runres = lh_dosomething(L,  funcname, lh_getglobal);
+  return runres;
+}
+
+
 
 /**
 * shows an error to stderr if res is nonzero
@@ -217,6 +297,16 @@ int lh_showerror_stderr(Lua * lua, int res) {
   return lh_report_stderr(lua, res);
 }
 
+/**
+* shows an error to console if res is nonzero
+*/
+int lh_showerror_console(Lua * lua, int res, void * console) {
+  if (res<0) {
+    fprintf(stderr, "File not found.\n");
+    return res;
+  }
+  return lh_report_console(lua, res, console);
+}
 
 /**
 * Executes a file in Eruta's data/script directory, and displays any errors
@@ -230,7 +320,87 @@ int lh_dofile_stderr(Lua * lua, const char * filename) {
   return res;
 }  
 
+/**
+* Executes a file in Eruta's data/script directory, and displays any errors
+* on console. 
+*/
+int lh_dofile_console(Lua * lua, const char * filename, void * console) {
+  int res;
+  // try to load the lua file
+  res = lh_dofile(lua, filename);
+  lh_showerror_stderr(lua, res);
+  return res;
+}  
 
+
+/**
+* Executes a string and displays any errors
+* on stderr 
+*/
+int lh_dostring_stderr(Lua * lua, const char * code) {
+  int res;
+  // try to load the lua file
+  res = lh_dostring(lua, code);
+  lh_showerror_stderr(lua, res);
+  return res;
+}  
+
+
+/**
+* Executes a function and displays any errors
+* on console. 
+*/
+int lh_dofunction_console(Lua * lua, const char * name, void * console) {
+  int res;
+  // try to load the lua file
+  res = lh_dofunction(lua, name);
+  lh_showerror_console(lua, res, console);
+  return res;
+}  
+
+
+/**
+* Executes a string and displays any errors
+* on stderr 
+*/
+int lh_dofunction_stderr(Lua * lua, const char * name) {
+  int res;
+  // try to load the lua file
+  res = lh_dostring(lua, name);
+  lh_showerror_stderr(lua, res);
+  return res;
+}  
+
+
+/**
+* Executes a string and displays any errors
+* on console. 
+*/
+int lh_dostring_console(Lua * lua, const char * code, void * console) {
+  int res;
+  // try to load the lua file
+  res = lh_dostring(lua, code);
+  lh_showerror_console(lua, res, console);
+  return res;
+}  
+
+/** Looks up the console in the lua state's registry and then reports to that,
+ as code is executed. */
+int lh_dostring_myconsole(Lua * lua, const char * code) {
+  Console * console = lh_registry_getptr(lua, "eruta.state.console");
+  if (console) return lh_dostring_console(lua, code, console);
+  return lh_dostring_stderr(lua, code);
+}
+
+
+
+/** Looks up the console in the lua state's registry and then reports to that,
+ as  the namef function is executed. */
+int lh_dofunction_myconsole(Lua * lua, const char * name) {
+  Console * console = lh_registry_getptr(lua, "eruta.state.console");
+  if (console) return lh_dofunction_console(lua, name, console);
+  return lh_dofunction_stderr(lua, name);
+}
 
 /*    
 void lua_pushinteger (Lua *L, lua_Integer n);
@@ -513,5 +683,23 @@ void lh_globalint(Lua *L, const char *name, const int i) {
   lua_pushinteger(L, i);
   lua_setglobal(L, name);
 }
+
+
+
+
+/** Stores a C pointer in the registry with the given string key */
+void lh_registry_putptr(Lua *L, const char * name, void * ptr) {
+    lua_pushstring(L, name);       /* push address */
+    lua_pushlightuserdata(L, ptr); /* push value   */
+    lua_settable(L, LUA_REGISTRYINDEX);
+}
+
+/** Retrieves a c pointer from the registry with the given string key */
+void * lh_registry_getptr(Lua *L, const char * name) { 
+    lua_pushstring(L, name);              /* push address */
+    lua_gettable(L, LUA_REGISTRYINDEX);   /* retrieve value */
+    return lua_touserdata(L, -1);    /* get light user data */
+}
+
 
 

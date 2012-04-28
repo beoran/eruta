@@ -150,6 +150,21 @@ int fl_Font(Lua *lua) {
 }
 
 
+/** Writes to console or to stdout if console is not available. */
+int fl_log(lua_State * lua) {
+  Console * console = lh_registry_getptr(lua, "eruta.state.console");
+  const char * text = NULL;
+  if(lh_scanargs(lua, "s", &text) < 1) {
+    return 0;
+  }
+  if(console) {
+    console_puts(console, text);
+  } else {
+    puts(text);
+  }
+  return 0;
+}
+
 /** Initializes the functionality that Eruta exposes to lua. */
 int fl_init(lua_State * lua) {
   // luaL_dostring(lua, "print 'Hello!' ");
@@ -162,7 +177,9 @@ int fl_init(lua_State * lua) {
   lua_register(lua, "PathForData" , fl_PathForData);
   lua_register(lua, "Image"       , fl_Image);
   lua_register(lua, "Font"        , fl_Font);
+  lua_register(lua, "log"         , fl_log);
   lh_globalint(lua, "TILE_WALL"   , 1);
+  
   return 0;
 }
 

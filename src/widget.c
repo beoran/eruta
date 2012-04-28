@@ -288,7 +288,11 @@ struct Console_ {
   int     start;
   int     active;
   int     charw;
+  int     cursor;
   char  * buf;
+  STR   * input;
+  ConsoleCommand * command; // called when a command has been entered, if set.
+  void * command_data; // command data.
 };
 
 /** Cleans up a console*/
@@ -296,6 +300,7 @@ Console * console_done(Console * self) {
   if(!self) return NULL;
   lilis_free(self->lines);
   mem_free(self->buf);
+  str_free(self->input);
   return self;
 }
 
@@ -330,9 +335,28 @@ Console * console_initall(Console * self, Bounds bounds, Style style) {
   self->buf   = mem_alloc(self->charw + 1);
    // one extra for NULL at end . 
   if(!self->buf) { console_done(self); return NULL; }
+  self->input = str_new("");
+  self->cursor= 0;
+  if(!self->input) { console_done(self); return NULL; }
+  self->command      = NULL;
+  self->command_data = NULL;
   return self;
 }
 
+
+/** Sets the console's command function and data. */
+void console_command_(Console * self, ConsoleCommand * command, void * data) {
+  self->command      = command;
+  self->command_data = data;
+}
+
+/** Let the console perform a command if possible. returns nonzero on error,
+zero if OK. */
+int console_docommand(Console * self, char * text) {
+  if(!self) return -1;
+  if(!self->command) return -2;
+  return self->command(self->command_data, text);
+}
 
 /** Initializes a console. */
 Console * console_new(Bounds bounds, Style style) {
@@ -391,25 +415,128 @@ int console_puts(Console * self, const char * str) {
 
 /** Draws a console. */
 void console_draw(Console * self) {
-  int start, stop, high, linehigh, index;
+  Font * font = widget_font((Widget *)self);
+  Color color = widget_forecolor((Widget *)self);
+  int high, linehigh, index, x, y, skip;
   if(!self->active) return;
   widget_drawroundframe((Widget *)self);
-  high        = widget_h((Widget *) self);
-  linehigh    = 12;
+  high        = widget_h((Widget *) self) - 10;
+  x           = widget_x((Widget *) self) +  5;
+  y           = widget_y((Widget *) self) -  5;
+  linehigh    = font_lineheight(font);
   Lilis * now = self->lines;
+  // skip start lines (to allow scrolling backwards) 
+  for (skip = self->start; now && (skip > 0); skip --) {
+    now = lilis_next(now); // move to next line.
+  }
   for (index = high-linehigh; index > 0; index -= linehigh) {
     char * text;
     if(!now) break;
     text = lilis_data(now);
     if(text) {
-      
+      font_drawtext(font, color, x, y + index, 0, text);
     }
     now = lilis_next(now);
   }
-  
-  
+  // draw input string
+  font_drawstr(font, color, x, y + high - linehigh, 0, self->input);
+  // draw start for debugging
+  al_draw_textf(font, color, x, y, 0, "start: %d", self->start);
   
 }
+
+/** Activates or deactivates the console. */
+void console_active_(Console * self, int active) {
+  if(!self) return;
+  self->active = active;
+}
+
+/** Returns nonzero if console is active zero if not. */
+int console_active(Console * self) {
+  if(!self) return 0;
+  return self->active;
+}
+
+/** scrolls the console 1 step in the given direction. */
+int console_scroll(Console * self, int direction) {
+  if((!self) || (!direction)) return FALSE;
+  if(direction < 0) self->start--;
+  if(direction > 0) self->start++;
+  self->start = (self->start < 1) ? 0 : self->start;
+  self->start = (self->start > self->max) ? self->max : self->start;
+  return TRUE;
+}
+
+
+int console_handle_keychar(Console * self, ALLEGRO_EVENT * event) { 
+  int ch = event->keyboard.unichar;
+  int kc = event->keyboard.keycode;
+  switch(kc) {
+    case ALLEGRO_KEY_F1: return TRUE; // ignore the start-console key
+    case ALLEGRO_KEY_PGUP: return console_scroll(self, 1);
+    case ALLEGRO_KEY_PGDN: return console_scroll(self, -1);
+    case ALLEGRO_KEY_BACKSPACE:
+      // remove last character typed.
+      al_ustr_remove_chr(self->input, al_ustr_offset(self->input, -1));
+      return TRUE;
+    break;    
+    case ALLEGRO_KEY_ENTER: {
+      char * command = str_c(self->input);
+      // execute command
+      if(console_docommand(self, command)) { 
+        console_puts(self, "Error in running comand");
+        console_puts(self, command);
+      }
+      al_ustr_truncate(self->input, 0); 
+      // empty string by truncating it
+      return TRUE;
+      }
+    default: break;
+  }
+  
+  str_appendch(self->input, ch);
+  if(event->keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+    console_active_(self, false); // disable console if esc is pressed.
+  }
+  return TRUE;
+}
+
+
+
+int console_handle_mouseaxes(Console * self, ALLEGRO_EVENT * event) { 
+  int z = event->mouse.dz;
+  // only capture mouse scroll wheel...
+  if(z == 0) return FALSE;
+  if(z < 0) return console_scroll(self, -1);
+  if(z > 0) return console_scroll(self, +1);
+  return TRUE;
+}
+
+
+/** Let the console handle allegro events. Will return true if it was consumed,
+false if not. */
+
+int console_handle(Console * self, ALLEGRO_EVENT * event) { 
+  if(!console_active(self)) return FALSE;
+  
+  switch(event->type) {
+    case ALLEGRO_EVENT_KEY_DOWN:
+      return TRUE;
+    case ALLEGRO_EVENT_KEY_UP:
+      return TRUE;
+    case ALLEGRO_EVENT_KEY_CHAR:
+      return console_handle_keychar(self, event);
+    case ALLEGRO_EVENT_MOUSE_AXES:
+      return console_handle_mouseaxes(self, event);
+  }
+  
+  return FALSE;
+}
+
+
+
+
+
 
 
 

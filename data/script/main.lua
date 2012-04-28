@@ -1,12 +1,14 @@
 
 
+log "this is for the console."
+
 test()
-io.write "Hi from lua!\n"
+log "Hi from lua!"
 path = PathForData "script/main.lua"
 if path then
-  io.write(path:to_s(), "\n")
+  log(path:to_s())
 else
-  io.write("path not found\n")
+  log("path not found")
 end
 path = nil
 collectgarbage()
@@ -15,23 +17,24 @@ mainmenu_image = Image("image/background/eruta_mainmenu.png")
 if mainmenu_image then
   local w = mainmenu_image:w()
   local h = mainmenu_image:h()
-  io.write("Image dimensions:", w, "," , h, "\n")
+  log("Image dimensions:" .. w .. "," .. h)
 end
 
 font_tuffy = Font("Tuffy.ttf", 16, 0)
 if font_tuffy then
   local w = font_tuffy:w("M")
   local h = font_tuffy:h()
-  io.write("Font:", w, "," , h, "\n")
+  log("Font:" .. w .. "," .. h)
 end
 
 
 
 function on_start(s)
-  io.write("Start!\n", s, "\n")
+  -- log("Start! " .. s)
 end
 
 function on_draw()
+  log("Draw!")
 --  io.write("Draw!\n")  
 end
 

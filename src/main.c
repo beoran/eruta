@@ -93,6 +93,12 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     case ALLEGRO_KEY_RIGHT:
       camera_speed_xy_(camera, +1,  0);
     break;
+    case ALLEGRO_KEY_F1:
+      console_active_(state_console(state), TRUE);
+    break;
+    case ALLEGRO_KEY_F2:
+      console_active_(state_console(state), FALSE);
+    break;  
     default:
       state_done(state);
     break;
@@ -123,7 +129,6 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
       camera_speed_xy_(camera, 0,  os.y);
     break;
     default:
-      state_done(state);
     break;
   }
   return self;
@@ -230,11 +235,15 @@ int real_main(void) {
       }
 
       // call lua drawing callback
-      lh_callglobalstderr_args(state_lua(state), "on_draw", "s", "a string argument");
+      lh_dofunction_myconsole(state_lua(state), "on_draw");
+      
+      /* lh_callglobalstderr_args(state_lua(state), "on_draw", "s", "a string 
+       argument"); */
       
       al_draw_textf(state_font(state), COLOR_WHITE,
                         10, 10, 0, "FPS: question p? %lf, %d", state_fps(state), state_frames(state));
-                        
+      // draw the console (will autohide if not active).
+      console_draw(state_console(state));
    
       al_flip_display();
    }

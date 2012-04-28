@@ -14,6 +14,8 @@ Please do not hand edit.
 #include "str.h"
 #include "lh.h"
 #include "fifi.h"
+// needed for console output for lua errors.
+#include "widget.h"
 
 
 /* Not declared in lauxlib.h somehow, but it exists... */
@@ -56,11 +58,29 @@ int lh_scanargs_va(Lua *L, char * format, va_list args);
 */
 int lh_scanargs(Lua *L, char * format, ...);
 
+/** report errors to console  */
+int lh_report_console(Lua *L, int status, void * console);
+
+/** report errors to stderr  */
+int lh_report_stderr(Lua *L, int status);
+
 /**
 * Executes a file in Eruta's data/script directory.
 * Returns -1 if the file ws not found.
 */
 int lh_dofile(Lua *L, const char * filename);
+
+/** Executes a string in the lua interpreter and handles errors
+* by putting atraceback on the stack
+*
+*/
+int lh_dostring(Lua *L, const char * dorun);
+
+/** Executes then named global function in the lua interpreter and 
+* handles errors by putting a traceback on the stack
+*
+*/
+int lh_dofunction(Lua *L, const char * funcname);
 
 /**
 * shows an error to stderr if res is nonzero
@@ -68,10 +88,53 @@ int lh_dofile(Lua *L, const char * filename);
 int lh_showerror_stderr(Lua * lua, int res);
 
 /**
+* shows an error to console if res is nonzero
+*/
+int lh_showerror_console(Lua * lua, int res, void * console);
+
+/**
 * Executes a file in Eruta's data/script directory, and displays any errors
 * on stderr. 
 */
 int lh_dofile_stderr(Lua * lua, const char * filename);
+
+/**
+* Executes a file in Eruta's data/script directory, and displays any errors
+* on console. 
+*/
+int lh_dofile_console(Lua * lua, const char * filename, void * console);
+
+/**
+* Executes a string and displays any errors
+* on stderr 
+*/
+int lh_dostring_stderr(Lua * lua, const char * code);
+
+/**
+* Executes a function and displays any errors
+* on console. 
+*/
+int lh_dofunction_console(Lua * lua, const char * name, void * console);
+
+/**
+* Executes a string and displays any errors
+* on stderr 
+*/
+int lh_dofunction_stderr(Lua * lua, const char * name);
+
+/**
+* Executes a string and displays any errors
+* on console. 
+*/
+int lh_dostring_console(Lua * lua, const char * code, void * console);
+
+/** Looks up the console in the lua state's registry and then reports to that,
+ as code is executed. */
+int lh_dostring_myconsole(Lua * lua, const char * code);
+
+/** Looks up the console in the lua state's registry and then reports to that,
+ as  the namef function is executed. */
+int lh_dofunction_myconsole(Lua * lua, const char * name);
 
 /** Pushes values on top of the lua stack with the given argument list. Uses
 * a printf-like interface so it's easier to pass around arguments.
@@ -165,6 +228,12 @@ void lh_tablewalk(Lua *L, int index,
 
 /** Adds a global integer constant to the lua state */
 void lh_globalint(Lua *L, const char *name, const int i);
+
+/** Stores a C pointer in the registry with the given string key */
+void lh_registry_putptr(Lua *L, const char * name, void * ptr);
+
+/** Retrieves a c pointer from the registry with the given string key */
+void * lh_registry_getptr(Lua *L, const char * name); 
 
 #endif // LH_PROTO_H
 

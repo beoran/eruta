@@ -129,6 +129,13 @@ Console * console_alloc();
 /** Initializes a console. */
 Console * console_initall(Console * self, Bounds bounds, Style style);
 
+/** Sets the console's command function and data. */
+void console_command_(Console * self, ConsoleCommand * command, void * data);
+
+/** Let the console perform a command if possible. returns nonzero on error,
+zero if OK. */
+int console_docommand(Console * self, char * text);
+
 /** Initializes a console. */
 Console * console_new(Bounds bounds, Style style);
 
@@ -137,6 +144,20 @@ int console_puts(Console * self, const char * str);
 
 /** Draws a console. */
 void console_draw(Console * self);
+
+/** Activates or deactivates the console. */
+void console_active_(Console * self, int active);
+
+/** Returns nonzero if console is active zero if not. */
+int console_active(Console * self);
+
+/** scrolls the console 1 step in the given direction. */
+int console_scroll(Console * self, int direction);
+
+/** Let the console handle allegro events. Will return true if it was consumed,
+false if not. */
+
+int console_handle(Console * self, ALLEGRO_EVENT * event); 
 
 #endif // WIDGET_PROTO_H
 

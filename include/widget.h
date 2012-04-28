@@ -43,12 +43,19 @@ struct Style_ {
 typedef struct Style_ Style;
 
 
+// console input handler, called when a line of text (a command)
+// is typed. 
+typedef int (ConsoleCommand)(void * extra, char * command);
+
+
 /** Predefine Widget typedef. */
 typedef struct Widget_ Widget;
 
 #include "widget_proto.h"
 
 typedef Widget * (WidgetDraw)(Widget * self);
+
+
 
 
 
