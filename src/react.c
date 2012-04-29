@@ -94,13 +94,21 @@ React * react_react(React * self, ALLEGRO_EVENT * event) {
 
 /** Polls for allegro events and reacts to them. */
 React * react_poll(React * self, void * state) {
-  ALLEGRO_EVENT event;
+  ALLEGRO_EVENT * event;
   if(!self) return NULL;
-  while(state_poll((State *)state, &event)) {
+  // yes an assignment is fine here :)
+  while( (event = state_pollnew((State *)state)) ) {
     // React to all incoming events, except if the console catches them.
     Console * console = state_console(state);
-    if(!console_handle(console, &event)) { 
-      react_react(self, &event);
+    if(console_handle(console, event)) { 
+      event_free(event); // here we must free the event...
+    } else {
+      react_react(self, event);
+      // for now still use react system... 
+      lh_call_on_event(state_lua(state), event);
+      // here lua will free the event for us ...
+      // react_react(self, &event);
+      // no more react system...
     }
   }
   return self;

@@ -5,23 +5,30 @@
 #include "mem.h"
 #include "fifi.h"
 
+/** Wraper structure around an allegro sample. */
 struct Sound_ {
   ALLEGRO_SAMPLE    * handle;
   ALLEGRO_SAMPLE_ID   id;
 };
 
+/** Wrapper structure around an allegro sound stream. */
 struct Music_ {
   ALLEGRO_AUDIO_STREAM * handle;
 };
 
 #define AUDIO_VOICES 8
+
+/** 
+* Wraps around the Allegro sound system, and put severything in one handy 
+* struct.
+*/
 struct Audio_ {
   BOOL               ok;
   ALLEGRO_MIXER * mixer;
   ALLEGRO_VOICE * voice;
 };
 
-typedef struct Audio_ Audio;
+// typedef struct Audio_ Audio;
 
 #ifndef SOUND_SAMPLES
 #define SOUND_SAMPLES 16
@@ -53,7 +60,7 @@ Audio * audio_init(Audio * audio) {
 }
 
 
-/** Global audio settings. */
+/* Global audio settings. */
 static Audio audio_;
 
 /** Stops the audio. */

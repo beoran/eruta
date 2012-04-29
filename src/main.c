@@ -99,8 +99,10 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     case ALLEGRO_KEY_F2:
       console_active_(state_console(state), FALSE);
     break;  
-    default:
+    case ALLEGRO_KEY_ESCAPE:
+    case ALLEGRO_KEY_ENTER:
       state_done(state);
+    default:
     break;
   }
   return self;

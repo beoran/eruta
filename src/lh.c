@@ -6,6 +6,7 @@
 #include "str.h"
 #include "lh.h"
 #include "fifi.h"
+#include "event.h"
 // needed for console output for lua errors.
 #include "widget.h"
 
@@ -461,7 +462,8 @@ int lh_dofunction_myconsole(Lua * lua, const char * name) {
   return lh_dofunction_stderr(lua, name);
 }
 
-
+/** Looks up the console, reports to that as fname icaled in lua taking
+arguments */
 int lh_dofunction_myconsole_va(Lua *L, const char * fname,
                    const char * format, va_list args) {
   Console * console = lh_registry_getptr(L, "eruta.state.console");
@@ -478,6 +480,33 @@ int lh_dofunction_myconsole_args(Lua *L, const char * funcname,
   res = lh_dofunction_myconsole_va(L, funcname, format, args);
   va_end(args);
   return res;
+}
+
+
+int lh_do_on_event(Lua * L, Event * event)  {
+  int runres, loadres;  
+  if(!event) return -1;
+  loadres = lh_getglobal(L, "on_event");
+  // if the event is not pushed free it immediately. 
+  if (loadres) { event_free(event); return loadres; }
+  lh_pushdata(L, "Event", event);
+  runres  = lh_tracecall(L, 1, LUA_MULTRET);
+  return runres;
+}
+
+/** This calls the on_event global callback in the main script. 
+* It passes the given event to the script. The event should have been
+* allocated using event_alloc, ithe event pased like this wil be cautomatically
+* garbage collected on the lua side, so no event_free is needed.
+* the event must not be used anymore after this functon is called because 
+* of this, the lua side may free it unexpectedly.
+*/
+int lh_call_on_event(Lua * L, Event * event) { 
+  int res           = lh_do_on_event(L, event);
+  Console * console = lh_registry_getptr(L, "eruta.state.console");
+  if (console) { return lh_showerror_console(L, res, console); }
+  else         { return lh_showerror_stderr(L, res) ; }
+  return 1;
 }
 
 

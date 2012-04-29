@@ -3,7 +3,9 @@
 
 #include "eruta.h"
 
+#include "sound_proto.h"
 
+#ifdef COMMENT___
 struct Sound_;
 typedef struct Sound_ Sound;
 
@@ -27,7 +29,7 @@ Music * music_load(char * filename);
 
 /** Plays the sound. */
 Sound * sound_play(Sound *);
-
+#endif
 
 
 #endif

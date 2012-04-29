@@ -64,7 +64,7 @@ typedef cpVect Point;
 
 /** Other shorthand types */
 typedef ALLEGRO_PATH Path;
-
+typedef ALLEGRO_EVENT Event;
 
 /** Wrapper macros */
 #define point(X, Y) cpv(X, Y);

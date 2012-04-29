@@ -6,14 +6,26 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Wraper structure around an allegro sample. */
+struct Sound_;
+typedef struct Sound_ Sound;
+
+/** Wrapper structure around an allegro sound stream. */
+struct Music_;
+typedef struct Music_ Music;
+
+/** 
+* Wraps around the Allegro sound system, and put severything in one handy 
+* struct.
+*/
+struct Audio_;
+typedef struct Audio_ Audio;
+
 /** Call this when the use of audio is no longer needed. */
 Audio * audio_done(Audio * audio);
 
 /** Call this to start up the audio system. */
 Audio * audio_init(Audio * audio);
-
-/** Global audio settings. */
-static Audio audio_;
 
 /** Stops the audio. */
 void audio_stop();

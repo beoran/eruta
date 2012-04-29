@@ -33,8 +33,12 @@ function on_start(s)
   log("Start! " .. s)
 end
 
-function on_event()
-  -- log("Draw!")
+le = nil
+
+function on_event(eve)
+  le = eve
+  local type = eve:type()
+  log("Event type: ")
 --  io.write("Draw!\n")  
 end
 

@@ -258,7 +258,7 @@ BOOL state_done(State * state) {
 /** Closes the state when it's done. */
 State * state_kill(State * self) {
   console_free(self->console);
-  audio_done(self->audio);
+  audio_stop();
   camera_free(self->camera);
   dynar_free(self->modes);
   lh_free(self->lua);
@@ -271,6 +271,9 @@ BOOL state_busy(State * self) {
   return self->busy;
 }
 
+
+
+
 /** Polls the state's event queue, and gets the next event and stores it in
 * event. if it is available. Returns true if there is an event of false if
 * not.
@@ -278,6 +281,18 @@ BOOL state_busy(State * self) {
 int state_poll(State * state,  ALLEGRO_EVENT * event) {
   return al_get_next_event(state->queue, event);
 }  
+
+/** Polls the state's event queue, and gets the next event and returns it. 
+* returns nul if out of memory or no event was available.
+* You must free the result of this function with event_free
+*/
+ALLEGRO_EVENT * state_pollnew(State * state) {
+  ALLEGRO_EVENT * event = event_alloc();
+  if(!event) return NULL;
+  if(state_poll(state, event)) return event;
+  return NULL;
+}
+
 
 /** Return the state's default font. */
 ALLEGRO_FONT * state_font(State * state) {

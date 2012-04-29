@@ -80,13 +80,13 @@ int lh_dostring(Lua *L, const char * dorun);
 * handles errors by putting a traceback on the stack
 *
 */
-int lh_dofunction(Lua *L, const char * funcname);
+int lh_dofunction_va(Lua *L             , const char * funcname,
+                     const char * format, va_list args);
 
 /** Executes then named global function in the lua interpreter and 
 * handles errors by putting a traceback on the stack. Takes arguments.
 */
-int lh_dofunction_va(Lua *L, const char * funcname,
-                   const char * format, va_list args);
+int lh_dofunction(Lua *L, const char * funcname);
 
 /**
 * shows an error to stderr if res is nonzero
