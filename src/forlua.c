@@ -45,7 +45,7 @@ int fl_test(lua_State * lua) {
   do {                                                                  \
   CNAME * self = NULL;                                                  \
   self         = lh_getself(lua, #CNAME);                               \
-  printf("Destroyed : %s %p\n", #CNAME, self);                          \
+  printf("Destroyed : %s %p with %s\n", #CNAME, self, #DTOR);           \
   DTOR(self);                                                           \
   return 0;                                                             \
   } while(0)

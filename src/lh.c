@@ -43,6 +43,7 @@ int lh_popall(Lua * lua) {
 */
 void ** lh_pushdata(Lua *L, const char * name, void * data) {
   void ** ptr = lua_newuserdata(L, sizeof(void*));
+  printf("lh_pushdata %s %p\n", name, data);
   (*ptr)      = data;
   luaL_getmetatable(L, name);
   lua_setmetatable(L, -2);
@@ -52,7 +53,6 @@ void ** lh_pushdata(Lua *L, const char * name, void * data) {
 /** Gets the object at stack index index as a pointer to data */
 void * lh_todata(Lua *L,  int index) {
   void **ptr = (void **)lua_touserdata(L, index);
-  printf("lh_todata %p\n", ptr);
   if (!ptr) { 
     fprintf(stderr, "Argument %i is NULL.\n", index);
     luaL_error(L, "Argument %i is NULL.\n", index);

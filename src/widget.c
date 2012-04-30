@@ -297,7 +297,11 @@ struct Console_ {
 
 /** Cleans up a console */
 Console * console_done(Console * self) {
+  Lilis * aid;
   if(!self) return NULL;
+  for (aid = self->lines; aid; aid = lilis_next(aid))  {
+    str_free((STR *)lilis_data(aid));
+  }
   lilis_free(self->lines);
   mem_free(self->buf);
   str_free(self->input);
@@ -368,20 +372,20 @@ Console * console_new(Bounds bounds, Style style) {
 }
 
 int console_addstr(Console * self, char * str) {
-  char * store;
+  STR * storestr;
   if(!self) return -1;
-  store = strdup(str);
-  if(!store) return -2;
-  if(!lilis_addnew(self->lines,store)) { 
-    free(store);
+  storestr = str_new(str);
+  if(!storestr) return -2;
+  if(!lilis_addnew(self->lines, storestr)) { 
+    str_free(storestr);
     return -3;
   }
   self->count++;
   if(self->count > self->max) { // remove last node
     Lilis * prev, * last;
     // free data
-    void * data = lilis_data(self->last);
-    free(data);
+    STR * data = (STR *) lilis_data(self->last);
+    str_free(data);
     // get prev node
     prev        = lilis_previous(self->last);
     // free last node
@@ -430,11 +434,11 @@ void console_draw(Console * self) {
     now = lilis_next(now); // move to next line.
   }
   for (index = high-linehigh; index > 0; index -= linehigh) {
-    char * text;
+    STR * textstr;
     if(!now) break;
-    text = lilis_data(now);
-    if(text) {
-      font_drawtext(font, color, x, y + index, 0, text);
+    textstr = (STR *) lilis_data(now);
+    if(textstr) {
+      font_drawstr(font, color, x, y + index, 0, textstr);
     }
     now = lilis_next(now);
   }

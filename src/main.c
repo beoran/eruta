@@ -252,7 +252,7 @@ int real_main(void) {
    tilemap_free(map);
    tilepane_free(tilepane);
    tileset_free(tileset);
-   camera_free(camera);
+   // camera_free(camera); now released by state.
    state_done(state);
    state_free(state);
    return 0;

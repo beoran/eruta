@@ -77,11 +77,22 @@ State * state_alloc() {
 
 /** Frees a state struct */
 void state_free(State * self) {
-  /* console_free(self->console);
-  camera_free(self->camera);
+  
   dynar_free(self->modes);
-  // audio_stop();
   lh_free(self->lua);
+  console_free(self->console);
+  self->console = NULL; // disable console imediately.
+  font_free(self->font);
+  al_destroy_display(self->display);
+  camera_free(self->camera);
+  audio_stop();
+  al_uninstall_system();
+  
+  /* console_free(self->console);
+  
+  
+  // 
+  
   */
   STRUCT_FREE(self);
 }
@@ -255,6 +266,7 @@ State * state_init(State * self, BOOL fullscreen) {
   state_eventsource(self, al_get_keyboard_event_source());
   state_eventsource(self, al_get_display_event_source(self->display));
   state_eventsource(self, al_get_mouse_event_source());
+  state_eventsource(self, al_get_joystick_event_source());
   al_set_window_title(self->display, "Eruta!");
   // set up fps counter. 
   self->fps     = 0.0;
@@ -302,12 +314,6 @@ BOOL state_done(State * state) {
   return state->busy;
 }
 
-/** Closes the state when it's done. */
-State * state_kill(State * self) {
-  STRUCT_FREE(self);
-  return self;
-}
-
 /** Returns true if the state is busy false if not. */
 BOOL state_busy(State * self) {
   return self->busy;
@@ -329,9 +335,14 @@ int state_poll(State * state,  ALLEGRO_EVENT * event) {
 * You must free the result of this function with event_free
 */
 ALLEGRO_EVENT * state_pollnew(State * state) {
-  ALLEGRO_EVENT * event = event_alloc();
-  if(!event) return NULL;
-  if(state_poll(state, event)) return event;
+  ALLEGRO_EVENT event, * result;
+  
+  if(state_poll(state, &event)) {
+    result = event_alloc();
+    if(!result) return NULL;
+    (*result) = event; // copy data
+    return result;     // return pointer
+  }
   return NULL;
 }
 

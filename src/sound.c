@@ -42,12 +42,17 @@ struct Audio_ {
 Audio * audio_done(Audio * audio) {
   if(audio) {
     al_detach_mixer(audio->mixer);
-    //if (audio->mixer) al_destroy_mixer(audio->mixer);
+    // if (audio->mixer) al_destroy_mixer(audio->mixer);
     audio->mixer = NULL;
-    //if (audio->voice) al_destroy_voice(audio->voice);
+    // if (audio->voice) al_destroy_voice(audio->voice);
     audio->voice = NULL;
   }
   return audio;
+}
+
+/** Call this to alloate space for the audio system. */
+Audio * audio_alloc(void) {
+  return STRUCT_ALLOC(Audio);
 }
 
 /** Call this to start up the audio system. */
@@ -59,44 +64,56 @@ Audio * audio_init(Audio * audio) {
   return audio;
 }
 
+/** Call this to initialzie and create a new audo system. */
+Audio * audio_new(void) {
+  Audio * self = audio_alloc();
+  return self; //audio_init(self);
+}
+
+/** Frees the audio settings. Returns NULL. */
+Audio * audio_free(Audio * self) {
+  mem_free(self);
+  al_uninstall_audio();
+  return NULL;
+}
 
 /* Global audio settings. */
-static Audio audio_;
+static Audio * audio_ = NULL;
 
 /** Stops the audio. */
-void audio_stop() {
-  audio_done(&audio_);
-  audio_.ok = FALSE;
+void audio_stop(void) {
+  audio_free(audio_);
+  audio_ = NULL;
 }
 
 
 /** Call this to enable sound. samples is the amount of samples to play.
 * Returns TRUE if ok false if it failed.
 */
-BOOL audio_start() {
-  audio_.ok = FALSE;
+BOOL audio_start(void) {
+  audio_  = audio_alloc();
+  if(!audio_) return FALSE;
   if(!al_install_audio()) return FALSE;
   if(!al_init_acodec_addon()) return FALSE;
   // if(!audio_init(&audio_)) return FALSE;  
   al_reserve_samples(SOUND_SAMPLES);
-  audio_.mixer = al_get_default_mixer();
-  audio_.ok = TRUE;
-  return audio_.ok;
+  audio_->mixer = al_get_default_mixer();
+  audio_->ok = TRUE;
+  return audio_->ok;
 }
 
 /** Returns true if sound can be played, false if not. */
-BOOL sound_ok() {
-  return audio_.ok;
+BOOL sound_ok(void) {
+  return audio_ && audio_->ok;
 }
 
 /** Frees memory associated with sound. */
 Sound * sound_free(Sound * self) {
-  if(self) {
-    if(self->handle) {
-      al_destroy_sample(self->handle);
-    }
-    mem_free(self);
+  if(!self) return NULL;
+  if(self->handle) {
+    al_destroy_sample(self->handle);
   }
+  mem_free(self);
   return NULL;
 }
 
@@ -141,7 +158,7 @@ Music * music_load(char * filename)  {
     perror("could not load music file");
     return music_free(music);
   }
-  al_attach_audio_stream_to_mixer(music->handle, audio_.mixer);  
+  al_attach_audio_stream_to_mixer(music->handle, audio_->mixer);  
   return music;
 }
 
