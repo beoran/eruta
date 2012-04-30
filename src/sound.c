@@ -42,9 +42,9 @@ struct Audio_ {
 Audio * audio_done(Audio * audio) {
   if(audio) {
     al_detach_mixer(audio->mixer);
-    if (audio->mixer) al_destroy_mixer(audio->mixer);
+    //if (audio->mixer) al_destroy_mixer(audio->mixer);
     audio->mixer = NULL;
-    if (audio->voice) al_destroy_voice(audio->voice);
+    //if (audio->voice) al_destroy_voice(audio->voice);
     audio->voice = NULL;
   }
   return audio;

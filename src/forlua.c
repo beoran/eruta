@@ -215,13 +215,14 @@ FORLUA_GETTER(Event, count      , lua_pushinteger, event_count);
 void fl_Event_initdata(Lua *lua) {
   FORLUA_HASDESTRUCTOR(lua, Event);
   FORLUA_HASMETHOD(lua, Event, type       );
-  /*
+  
   FORLUA_HASMETHOD(lua, Event, timestamp  );
   FORLUA_HASMETHOD(lua, Event, ismouse    );
   FORLUA_HASMETHOD(lua, Event, isdisplay  );
   FORLUA_HASMETHOD(lua, Event, isjoystick );
   FORLUA_HASMETHOD(lua, Event, iskeyboard );
   FORLUA_HASMETHOD(lua, Event, istimer    );
+
   FORLUA_HASMETHOD(lua, Event, x          );
   FORLUA_HASMETHOD(lua, Event, y          );
   FORLUA_HASMETHOD(lua, Event, z          );
@@ -245,7 +246,7 @@ void fl_Event_initdata(Lua *lua) {
   FORLUA_HASMETHOD(lua, Event, pressure   );
   FORLUA_HASMETHOD(lua, Event, error      );
   FORLUA_HASMETHOD(lua, Event, count      );
-  */
+
 }
 
 

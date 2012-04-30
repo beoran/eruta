@@ -30,6 +30,13 @@ Lua * lh_free(Lua * lua) {
   return NULL;
 }
 
+/** Pops all from the stack. */
+int lh_popall(Lua * lua) {
+  int amount = lua_gettop(lua);
+  if(amount < 1)  return amount;
+  lua_pop(lua, amount);
+  return amount;
+}
 
 /** Creates lua user data in which the pointer to data will be stored.
 * You must set up the metatable first thoug lh_datainit and lh_datamethod
@@ -506,6 +513,7 @@ int lh_call_on_event(Lua * L, Event * event) {
   Console * console = lh_registry_getptr(L, "eruta.state.console");
   if (console) { return lh_showerror_console(L, res, console); }
   else         { return lh_showerror_stderr(L, res) ; }
+  lh_popall(L); // be sure stack is empty. 
   return 1;
 }
 
@@ -754,6 +762,7 @@ void lh_datainit(Lua *L, char * name, lua_CFunction fun) {
   if(!fun) return;
   lua_pushcfunction(L, fun);
   lh_rawsets(L, "__gc", -3);
+  lh_popall(L);
 }
 
 /** adds a method to the given named user data type. */
@@ -763,6 +772,7 @@ void lh_datamethod(Lua *L, char * meta, char * name, lua_CFunction fun) {
   // Get the method-lookup table in the metatable.
   lua_pushcfunction(L, fun);
   lh_rawsets(L, name , -3);
+  lh_popall(L);
 }
 
 

@@ -38,7 +38,7 @@ le = nil
 function on_event(eve)
   le = eve
   local type = eve:type()
-  log("Event type: ")
+  log("Event type: " .. type)
 --  io.write("Draw!\n")  
 end
 

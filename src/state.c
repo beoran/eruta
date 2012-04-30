@@ -8,6 +8,7 @@
 #include "mode.h"
 #include "fifi.h"
 #include "lh.h"
+#include "event.h"
 #include "forlua_proto.h"
 #include "widget.h"
 
@@ -75,8 +76,14 @@ State * state_alloc() {
 }
 
 /** Frees a state struct */
-void state_free(State * state) {
-  STRUCT_FREE(state);
+void state_free(State * self) {
+  /* console_free(self->console);
+  camera_free(self->camera);
+  dynar_free(self->modes);
+  // audio_stop();
+  lh_free(self->lua);
+  */
+  STRUCT_FREE(self);
 }
 
 /** Sets error message for state and returns NULL. */
@@ -121,6 +128,40 @@ Console * state_console(State * state) {
 
 #define STATE_MODES 10
 
+int state_initjoystick(State * self) {
+  int num, index, snum, sindex, bnum, bindex, anum, aindex;
+  if(!al_install_joystick()) return FALSE;
+  num = al_get_num_joysticks();
+  printf("Found %d joysticks:\n", num);
+  for(index = 0; index < num; index ++) {
+    ALLEGRO_JOYSTICK * joy = al_get_joystick(index);
+    if(!al_get_joystick_active(joy)) continue;
+    printf("Joystick nr %d, name: %s,", index, al_get_joystick_name(joy));
+    snum = al_get_joystick_num_sticks(joy);
+    printf("\n%d sticks: ", snum);
+    for(sindex = 0; sindex < snum; sindex++) {
+      printf("%s, ", al_get_joystick_stick_name(joy, sindex));
+      anum = al_get_joystick_num_axes(joy, sindex); 
+      printf("%d axes: ", anum);
+      for (aindex = 0; aindex < anum; aindex++) {
+        printf("%s, ", 
+               al_get_joystick_axis_name(joy, sindex, aindex));
+      }
+    }
+  
+    bnum = al_get_joystick_num_buttons(joy);
+    printf("\n%d buttons: ", bnum);
+    for(bindex = 0; bindex < bnum; bindex++) {
+      printf("%s, ", al_get_joystick_button_name(joy, bindex));
+    }
+    printf(".\n");
+  }
+  printf("\n");
+  return num;
+}
+
+
+
 /** Initializes the state. It opens the screen, keyboards,
 lua interpreter, etc. Get any error with state_errmsg if
 this returns NULL. */
@@ -154,9 +195,15 @@ State * state_init(State * self, BOOL fullscreen) {
   if (!al_install_keyboard()) {
     return state_errmsg_(self, "Error installing keyboard.\n");
   }
-
+  
+  // install mouse handler   
   if (!al_install_mouse()) {
     return state_errmsg_(self, "Error installing mouse.\n");
+  }
+  
+  // install joystick 
+  if(!state_initjoystick(self)) {
+    perror("Joysticks not started.");
   }
 
   if(!audio_start()) {
@@ -257,11 +304,6 @@ BOOL state_done(State * state) {
 
 /** Closes the state when it's done. */
 State * state_kill(State * self) {
-  console_free(self->console);
-  audio_stop();
-  camera_free(self->camera);
-  dynar_free(self->modes);
-  lh_free(self->lua);
   STRUCT_FREE(self);
   return self;
 }
