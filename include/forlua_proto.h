@@ -6,15 +6,8 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/** Wrapping ALLEGRO_IMAGE (Image) */
-
-int fl_Image_gc(Lua * lua);
-
-/** Wrapping ALLEGRO_FONT (Font) */
-int fl_Event_gc(Lua * lua);
-
-/** Wraps Allero events. */
-int fl_Font_gc(Lua * lua);
+/** Loading of images. */
+int fl_Image(Lua *lua);
 
 /** Writes to console or to stdout if console is not available. */
 int fl_log(lua_State * lua);

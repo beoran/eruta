@@ -24,7 +24,7 @@ Tilemap * state_loadmap(State * state);
 State * state_alloc();
 
 /** Frees a state struct */
-void state_free(State * state);
+void state_free(State * self);
 
 /** Sets error message for state and returns NULL. */
 State * state_errmsg_(State * state, char * mesg);
@@ -56,9 +56,6 @@ State * state_init(State * self, BOOL fullscreen);
 /** Sets the state's busy status to false */
 BOOL state_done(State * state);
 
-/** Closes the state when it's done. */
-State * state_kill(State * self);
-
 /** Returns true if the state is busy false if not. */
 BOOL state_busy(State * self);
 
@@ -85,6 +82,9 @@ int state_frames(State * state);
 
 /** Returns the FPS value. */
 double state_fps(State * state);
+
+/** Returns the Frame time value. */
+double state_frametime(State * state);
 
 /** Returns the camera of the state. */
 Camera * state_camera(State * state);

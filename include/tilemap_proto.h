@@ -63,5 +63,8 @@ cpShape * tilemap_makewall(Tilemap * self, int tx, int ty);
 /** Draws a tile map. */
 void tilemap_draw(Tilemap * map, Camera * camera);
 
+/** Updates the tile map. Currently this animates the tiles. */
+void tilemap_update(Tilemap * map, double dt);
+
 #endif // TILEMAP_PROTO_H
 

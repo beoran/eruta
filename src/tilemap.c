@@ -198,6 +198,12 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
   }
 }
 
+/** Updates the tile map. Currently this animates the tiles. */
+void tilemap_update(Tilemap * map, double dt) {
+  tileset_update(map->set, dt);
+}
+
+
 
 
 

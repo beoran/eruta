@@ -56,7 +56,7 @@ int tile_anim(Tile * tile);
 Tile * tile_wait_(Tile * tile, int wait);
 
 /** Gets the wait parameter of this tile, or -1 if NULL */
-int tile_wair(Tile * tile);
+int tile_wait(Tile * tile);
 
 /** Gets the value of the flags of a tile. */
 int tile_flags(Tile * tile);
@@ -81,11 +81,11 @@ Tile * tile_property_(Tile * tile, char * property);
 /** Rewinds a tile's animations. */
 void tile_rewindanime(Tile * tile);
 
-/** Updates a tile to animate it. Ignores wait for now. */
-void tile_update(Tile * tile);
+/** Updates a tile to animate it. Ignores dt for now. */
+void tile_update(Tile * tile, double dt);
 
 /** Updates all tiles in a tile set so they all get animated. */
-void tileset_update(Tileset * set);
+void tileset_update(Tileset * set, double dt);
 
 /** Draw a tile to the current active drawing target at the
 given coordinates */

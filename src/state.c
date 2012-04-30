@@ -378,6 +378,13 @@ double state_fps(State * state) {
   return state->fps;
 }
 
+/** Returns the Frame time value. */
+double state_frametime(State * state) {
+  if( state->fps < 20.0) return  1.0 / 20.0; 
+  return 1.0 / state->fps;
+}
+
+
 
 /** Returns the camera of the state. */
 Camera * state_camera(State * state) {

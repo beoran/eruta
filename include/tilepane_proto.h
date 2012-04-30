@@ -92,6 +92,9 @@ Tile * tilepane_fill(Tilepane * pane, Tile * tile);
 */
 void tilepane_draw(Tilepane * pane, Camera * camera);
 
+/** Updates the tile pane. Curently animates the pane. */
+void tilepane_update(Tilepane * pane, double dt);
+
 /** Sets this Tilepane's tile set. */
 Tileset * tilepane_tileset_(Tilepane * pane, Tileset * set);
 

@@ -14,6 +14,7 @@ Please do not hand edit.
 #include "str.h"
 #include "lh.h"
 #include "fifi.h"
+#include "event.h"
 // needed for console output for lua errors.
 #include "widget.h"
 
@@ -26,6 +27,9 @@ Lua * lh_new();
 
 /** Frees a lua state if it's non-NULL. */
 Lua * lh_free(Lua * lua);
+
+/** Pops all from the stack. */
+int lh_popall(Lua * lua);
 
 /** Creates lua user data in which the pointer to data will be stored.
 * You must set up the metatable first thoug lh_datainit and lh_datamethod
@@ -155,9 +159,23 @@ int lh_dostring_myconsole(Lua * lua, const char * code);
  as  the namef function is executed. */
 int lh_dofunction_myconsole(Lua * lua, const char * name);
 
+/** Looks up the console, reports to that as fname icaled in lua taking
+arguments */
+int lh_dofunction_myconsole_va(Lua *L, const char * fname,
+                   const char * format, va_list args);
+
 /** Calls a function with arguments, and log to the active console. */
 int lh_dofunction_myconsole_args(Lua *L, const char * funcname,
                                 const char * format, ...);
+
+/** This calls the on_event global callback in the main script. 
+* It passes the given event to the script. The event should have been
+* allocated using event_alloc, ithe event pased like this wil be cautomatically
+* garbage collected on the lua side, so no event_free is needed.
+* the event must not be used anymore after this functon is called because 
+* of this, the lua side may free it unexpectedly.
+*/
+int lh_call_on_event(Lua * L, Event * event); 
 
 /** Pushes values on top of the lua stack with the given argument list. Uses
 * a printf-like interface so it's easier to pass around arguments.

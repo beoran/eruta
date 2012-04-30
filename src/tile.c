@@ -44,16 +44,16 @@ struct Tile_ {
   /* Offset to the tile to skip to when animating. If this is
   0 the tile is not animated. If nonzero, the tile will skip to
   the tile in the same tile set set with index index + anim.
-  May be negative to "roll back" an animation to it's begin. */
-  int           wait;
-  /* Time in ms to wait before jumping to the next frame of this tile. */  
+  May be negative to "roll back" an animation to it's begin. */  
   int           active;
   /* For unanimated tiles, now is set to the index of the tile itself.
    For animated tiles, it is set to the index of tile that currently should
    be displayed in stead of this tile due to animation.
   */
-  int           time;
-  /* Time since last animation in ms. */
+  double        wait;
+  /* Time in s to wait before jumping to the next frame of this tile. */  
+  double        time;
+  /* Time since last animation in s. */
   /* Sub-position in the tile sheet image of the tileset. */
   Point         now;
 };
@@ -158,8 +158,8 @@ Tile * tile_init(Tile * tile, Tileset * set, int index) {
   tile->index   = index;
   tile->set     = set;
   tile->anim    = 0;
-  tile->time    = 0;
-  tile->wait    = 250;
+  tile->time    = 0.0;
+  tile->wait    = 0.250;
   tile->active  = index;
   tile_recalculate(tile);
   return tile;
@@ -185,17 +185,17 @@ int tile_anim(Tile * tile) {
   return tile->anim;
 }
 
-/** Sets the wait parameter of this tile */
+/** Sets the wait parameter of this tile in ms */
 Tile * tile_wait_(Tile * tile, int wait) {
   if(!tile) return NULL;
-  tile->wait = wait;
+  tile->wait = (double)wait / 1000.0;
   return tile;
 }
 
-/** Gets the wait parameter of this tile, or -1 if NULL */
-int tile_wair(Tile * tile) {
+/** Gets the wait parameter of this tile in ms, or -1 if NULL */
+int tile_wait(Tile * tile) {
   if(!tile) return -1;
-  return tile->wait;
+  return (int)(tile->wait * 1000.0);
 }
 
 
@@ -264,15 +264,20 @@ void tile_rewindanime(Tile * tile) {
   tile_recalculate(tile);
 }
 
-/** Updates a tile to animate it. Ignores wait for now. */
-void tile_update(Tile * tile) {
+/** Updates a tile to animate it. Ignores dt for now. */
+void tile_update(Tile * tile, double dt) {
   int active = 0;
   Tile * aidtile = NULL;
   Tile * nowtile = tileset_get(tile->set, tile->active);
   // nowtile is the tile that is currently active, that is shown.
   // in stead of ourself, but it also may be ourself.
   if(!nowtile) return;
-  // take the animation parameter a,nd add it to the active  
+  tile->time    += dt; // advance animation time of tile. 
+  // Don'tanimate if not enough time has passed
+  if(tile->time < tile->wait) return;
+  // if we get here, reset animation time.
+  tile->time     = 0.0;
+  // take the animation parameter and add it to the active  
   active  = tile->active + nowtile->anim;
   aidtile = tileset_get(tile->set, active);
   // Check if there is such a tile.
@@ -284,13 +289,13 @@ void tile_update(Tile * tile) {
 }
 
 /** Updates all tiles in a tile set so they all get animated. */
-void tileset_update(Tileset * set) {
+void tileset_update(Tileset * set, double dt) {
   int index;
   if (!set) return;
   if (!set->tiles) return;
   for (index = 0; index < tileset_size(set) ; index++) {
     Tile * tile = tileset_get(set, index); 
-    tile_update(tile);
+    tile_update(tile, dt);
   }  
 } 
 

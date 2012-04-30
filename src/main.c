@@ -210,10 +210,11 @@ int real_main(void) {
     //tile_addanime(tile, TILE_ANIME_REWIND);
       react_poll(&react, state);
       
-      al_clear_to_color(COLOR_BLACK);
-      al_draw_line(0, 0, SCREEN_W, SCREEN_H, COLOR_WHITE, 7);
+      //al_clear_to_color(COLOR_BLACK);
+      // al_draw_line(0, 0, SCREEN_W, SCREEN_H, COLOR_WHITE, 7);
       
-      if(map) tilemap_draw(map, camera);
+      
+      if(map) tilemap_update(map, state_frametime(state));
       // tilepane_draw(tilepane, camera);
       // tilepane_draw(tilepane, camera);
       //tilepane_draw(tilepane, camera);
@@ -224,6 +225,8 @@ int real_main(void) {
       // call lua update callback 
       lh_dofunction_myconsole_args(state_lua(state), "on_update", "s", "a string argument");
       
+      
+      if(map) tilemap_draw(map, camera);
       tile_draw(tile, 200, 300);
       // tile_update(tile);
       state_frames_update(state);
@@ -252,6 +255,7 @@ int real_main(void) {
    tilemap_free(map);
    tilepane_free(tilepane);
    tileset_free(tileset);
+   image_free(border);
    // camera_free(camera); now released by state.
    state_done(state);
    state_free(state);

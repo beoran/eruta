@@ -24,19 +24,28 @@ typedef struct Audio_ Audio;
 /** Call this when the use of audio is no longer needed. */
 Audio * audio_done(Audio * audio);
 
+/** Call this to alloate space for the audio system. */
+Audio * audio_alloc(void);
+
 /** Call this to start up the audio system. */
 Audio * audio_init(Audio * audio);
 
+/** Call this to initialzie and create a new audo system. */
+Audio * audio_new(void);
+
+/** Frees the audio settings. Returns NULL. */
+Audio * audio_free(Audio * self);
+
 /** Stops the audio. */
-void audio_stop();
+void audio_stop(void);
 
 /** Call this to enable sound. samples is the amount of samples to play.
 * Returns TRUE if ok false if it failed.
 */
-BOOL audio_start();
+BOOL audio_start(void);
 
 /** Returns true if sound can be played, false if not. */
-BOOL sound_ok();
+BOOL sound_ok(void);
 
 /** Frees memory associated with sound. */
 Sound * sound_free(Sound * self);

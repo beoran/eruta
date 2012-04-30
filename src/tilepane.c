@@ -262,6 +262,15 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
   al_hold_bitmap_drawing(FALSE);  
 }
 
+/** Updates the tile pane. Curently animates the pane. */
+void tilepane_update(Tilepane * pane, double dt) {
+  
+  
+}
+
+
+
+
 
 /** Sets this Tilepane's tile set. */
 Tileset * tilepane_tileset_(Tilepane * pane, Tileset * set) {

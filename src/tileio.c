@@ -32,10 +32,13 @@ Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   xmlPropertyValueInt(firstprop, "anim", &ianim);
   xmlPropertyValueInt(firstprop, "wait", &iwait);
   tile_property_(tile, sflags);
-  // TODO: set up anim and wait
+  if(ianim) { 
+    tile_anim_(tile, ianim);
+    if(iwait > 0) tile_wait_(tile, iwait);
+    else tile_wait_(tile, 200);
+  }
   //printf("Tile type: %s, anim: %d, wait: %d, flags:%d\n", sflags, ianim, iwait, tile_flags(tile));
-  
-  return tile;  
+  return tile;
 }
 
 Tileset * tileset_loadxml(xmlNode * node) {
