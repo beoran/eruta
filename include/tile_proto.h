@@ -52,10 +52,10 @@ Tile * tile_anim_(Tile * tile, int anim);
 /** Gets the animation parameter of this tile, or 0 if NULL */
 int tile_anim(Tile * tile);
 
-/** Sets the wait parameter of this tile */
+/** Sets the wait parameter of this tile in ms */
 Tile * tile_wait_(Tile * tile, int wait);
 
-/** Gets the wait parameter of this tile, or -1 if NULL */
+/** Gets the wait parameter of this tile in ms, or -1 if NULL */
 int tile_wait(Tile * tile);
 
 /** Gets the value of the flags of a tile. */

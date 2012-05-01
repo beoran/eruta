@@ -1,4 +1,24 @@
 
+function Alex(text)
+  io.write("Alex: ", text, "\n" )
+end
+
+function Berun(text)
+  io.write("Berun: ", text, "\n")
+end
+
+
+--[[
+Put your director's instructions and comments here.
+
+Alex "I will have you know that it's possible to talk like this!"
+Berun Sure, but like this is also "possible"... 
+Alex 'I this is also "fine".'
+
+]]
+
+
+
 
 log "this is for the console."
 

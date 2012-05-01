@@ -35,6 +35,7 @@
                   "allegro_memfile"   , "allegro_acodec",
                   "allegro_color"     , "allegro_physfs",
                   "chipmunk"          , "lua"           ,
+                  "ritevm"            ,
                   "xml2"              , "m"
                  }
 		
