@@ -35,7 +35,9 @@
                   "allegro_memfile"   , "allegro_acodec",
                   "allegro_color"     , "allegro_physfs",
                   "chipmunk"          , "lua"           ,
-                  "ritevm"            ,
+                  "ritevm_static"     , 
+                  "mrblib_static" , 
+                  --"ritevm_static"     , --drat linker 
                   "xml2"              , "m"
                  }
 		
