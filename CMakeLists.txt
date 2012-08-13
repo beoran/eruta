@@ -30,11 +30,6 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 find_package(Lua52 REQUIRED)
 find_package(Allegro50 REQUIRED)
 
-# Find SDL
-# find_package(SDL REQUIRED)
-# find_package(SDL_image REQUIRED)
-# find_package(SDL_mixer REQUIRED)
-# find_package(SDL_ttf REQUIRED)
 find_package(PNG REQUIRED)
 find_package(JPEG REQUIRED)
 
@@ -43,27 +38,8 @@ include_directories(${ALLEGRO50_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${JPEG_INCLUDE_D
 
 set(ERUTA_LIBS ${LIBS} ${ALLEGRO50_LIBRARY} ${PNG_LIBRARY} ${JPEG_LIBRARY})
 
-
 include_directories("include")
-include_directories("include/gy")
-include_directories("include/si")
-include_directories("include/lua")
-include_directories("include/chipmunk")
-include_directories("include/raku")
-include_directories("include/eruta")
-
-link_directories("src/gy")
-link_directories("src/si")
-link_directories("src/lua")
-link_directories("src/chipmunk")
-link_directories("src/raku")
-
-add_subdirectory("src/gy")
-add_subdirectory("src/si")
-add_subdirectory("src/lua")
-add_subdirectory("src/chipmunk")
-add_subdirectory("src/raku")
-add_subdirectory("src/eruta")
+add_subdirectory("src")
 
 
 enable_testing()
@@ -71,10 +47,7 @@ enable_testing()
 set(CMAKE_CTEST_OPTIONS --output-on-failure)
 set(CTEST_OUTPUT_ON_FAILURE TRUE)
 set(CTEST_MEMORYCHECK_COMMAND:FILEPATH "/usr/bin/valgrind")
-add_subdirectory("test/si")
-add_subdirectory("test/gy")
-add_subdirectory("test/raku")
-add_subdirectory("test/eruta")
+add_subdirectory("test")
 
 
 

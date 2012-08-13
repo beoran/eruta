@@ -6,6 +6,23 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/**
+* helper macros 
+*/
+
+#define RH_WRAP(RUBY, TYPE, OBJECT)                         \
+mrb_obj_value(Data_Wrap_Struct(RUBY,                        \
+              RUBY->object_class, &toruby_##TYPE, OBJECT));
+
+
+
+/*
+* Helper functions for the mruby ruby interpreter
+*/
+
+
+void toruby_Font_free(mrb_state * state, void * ptr);
+
 /** Allocates and initialzes a new ruby state. */
 Ruby * rh_new();
 
