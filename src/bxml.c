@@ -53,10 +53,11 @@ struct BXML_
 */ 
 struct BXMLParser_ {
   INTERFACE_BODY();
-  int (*now) (struct BXMLParse_ * iface);
-  int (*pos) (struct BXMLParse_ * iface);
-  int (*pos_)(struct BXMLParse_ * iface, int pos);
+  int (*now) (struct BXMLParser_ * iface);
+  int (*pos) (struct BXMLParser_ * iface);
+  int (*pos_)(struct BXMLParser_ * iface, int pos);
 };
+
 
 
 /**
@@ -205,7 +206,9 @@ BXML * bxml_parse_str(char * str) {
 }
 
 
-
+BXML * bxml_readfile(char * filename) {
+  return NULL;
+}
 
 
 
