@@ -252,21 +252,20 @@ struct WidgetBox_ {
 */
 struct WidgetLabel_ {
   Widget        parent;
-  STR         * text;
+  USTR        * text;
 };
 
 /** Initializes a label. */
 WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Bounds bounds, 
                           const char * text) {
   if(!widget_initbounds((Widget *)self, bounds)) return NULL;
-  self->text = str_new(text);
+  self->text = ustr_new(text);
   return self;
 }
 
 WidgetLabel * widgetlabel_done(WidgetLabel * self) {
   if(!self) return NULL;
-  str_free(self->text);
-  
+  ustr_free(self->text);
   return NULL;
 } 
 
@@ -290,7 +289,7 @@ struct Console_ {
   int     charw;
   int     cursor;
   char  * buf;
-  STR   * input;
+  USTR  * input;
   ConsoleCommand * command; // called when a command has been entered, if set.
   void * command_data; // command data.
 };
@@ -300,11 +299,11 @@ Console * console_done(Console * self) {
   Lilis * aid;
   if(!self) return NULL;
   for (aid = self->lines; aid; aid = lilis_next(aid))  {
-    str_free((STR *)lilis_data(aid));
+    ustr_free((USTR *)lilis_data(aid));
   }
   lilis_free(self->lines);
   mem_free(self->buf);
-  str_free(self->input);
+  ustr_free(self->input);
   return self;
 }
 
@@ -339,7 +338,7 @@ Console * console_initall(Console * self, Bounds bounds, Style style) {
   self->buf   = mem_alloc(self->charw + 1);
    // one extra for NULL at end . 
   if(!self->buf) { console_done(self); return NULL; }
-  self->input = str_new("");
+  self->input = ustr_new("");
   self->cursor= 0;
   if(!self->input) { console_done(self); return NULL; }
   self->command      = NULL;
@@ -372,20 +371,20 @@ Console * console_new(Bounds bounds, Style style) {
 }
 
 int console_addstr(Console * self, char * str) {
-  STR * storestr;
+  USTR * storestr;
   if(!self) return -1;
-  storestr = str_new(str);
+  storestr = ustr_new(str);
   if(!storestr) return -2;
   if(!lilis_addnew(self->lines, storestr)) { 
-    str_free(storestr);
+    ustr_free(storestr);
     return -3;
   }
   self->count++;
   if(self->count > self->max) { // remove last node
     Lilis * prev, * last;
     // free data
-    STR * data = (STR *) lilis_data(self->last);
-    str_free(data);
+    USTR * data = (USTR *) lilis_data(self->last);
+    ustr_free(data);
     // get prev node
     prev        = lilis_previous(self->last);
     // free last node
@@ -434,9 +433,9 @@ void console_draw(Console * self) {
     now = lilis_next(now); // move to next line.
   }
   for (index = high-linehigh; index > 0; index -= linehigh) {
-    STR * textstr;
+    USTR * textstr;
     if(!now) break;
-    textstr = (STR *) lilis_data(now);
+    textstr = (USTR *) lilis_data(now);
     if(textstr) {
       font_drawstr(font, color, x, y + index, 0, textstr);
     }
@@ -481,24 +480,24 @@ int console_handle_keychar(Console * self, ALLEGRO_EVENT * event) {
     case ALLEGRO_KEY_PGDN: return console_scroll(self, -1);
     case ALLEGRO_KEY_BACKSPACE:
       // remove last character typed.
-      al_ustr_remove_chr(self->input, al_ustr_offset(self->input, -1));
+      ustr_remove_chr(self->input, ustr_offset(self->input, -1));
       return TRUE;
     break;    
     case ALLEGRO_KEY_ENTER: {
-      char * command = str_c(self->input);
+      char * command = ustr_c(self->input);
       // execute command
       if(console_docommand(self, command)) { 
         console_puts(self, "Error in running comand");
         console_puts(self, command);
       }
-      al_ustr_truncate(self->input, 0); 
+      ustr_truncate(self->input, 0);
       // empty string by truncating it
       return TRUE;
       }
     default: break;
   }
   
-  str_appendch(self->input, ch);
+  ustr_appendch(self->input, ch);
   if(event->keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
     console_active_(self, false); // disable console if esc is pressed.
   }

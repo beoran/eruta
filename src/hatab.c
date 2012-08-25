@@ -4,7 +4,6 @@
 #include "hatab.h"
 #include "mem.h"
 #include "dynar.h"
-#include "bstrlib.h"
 
 
 #define HATAB_ROOM_DEFAULT    128
@@ -132,7 +131,7 @@ Hatab * hatab_done(Hatab * self) {
   return self;
 }
 
-/* Frees a table */
+/** Frees a hash table */
 Hatab * hatab_free(Hatab * self) {
   hatab_done(self);
   return mem_free(self);
@@ -257,11 +256,13 @@ void * hatab_get(Hatab * self, void * key) {
 /** Removes a value that matches key from a hash table. Returns NULL if 
 delete failed, or erased value. */
 void * hatab_drop(Hatab * self, void * key) {
+  void * data;
   Pail * pail = hatab_findpail(self, key);
   if(!pail) return NULL;
+  data  = pail->data;
   // empty the pail but don't break it's links so it can be reused.
   pail_emptynobreak(pail); 
-  return pail->data;
+  return data;
 }
 
 /** Grows the hash table when needed. */
@@ -277,7 +278,7 @@ Hatab * hatab_grow(Hatab * self) {
 
 
 /** Stores a value in the hash table. */
-void * hatab_set(Hatab * self, void * key, void * value) {
+void * hatab_put(Hatab * self, void * key, void * value) {
   uint32_t hash, index;
   Pail * pail, * nextpail = NULL;
   if(!self) return NULL;

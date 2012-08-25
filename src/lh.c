@@ -126,9 +126,9 @@ int lh_scanargs_va(Lua *L, char * format, va_list args) {
       }
       break;
       case 'S': {
-        STR ** s;
+        USTR ** s;
         s = va_arg(args, STR**);
-        if (s) { (*s) = str_new(luaL_checkstring(L, index)); }
+        if (s) { (*s) = ustr_new(luaL_checkstring(L, index)); }
       }
       break;
       case 'p': {
@@ -149,7 +149,7 @@ int lh_scanargs_va(Lua *L, char * format, va_list args) {
 /** Makes it easier to parse the arguments a Lua function has received.
 * Works in the spirit of scanf(), but with different specifiers.
 * d : double *, i: int *, l : long *, s : char **, D strDupped into char **,
-* S : STR ** (Allegro string),  p: userdata pointer.
+* S : USTR ** (Allegro Utf8 string),  p: userdata pointer.
 * Retuns amount of arguments detected.
 */
 int lh_scanargs(Lua *L, char * format, ...) {
@@ -572,7 +572,7 @@ int lh_push_va(Lua *L, const char * format, va_list args) {
       break;
       case 'S': {
         STR * s = va_arg(args, STR*);
-        lua_pushstring(L, str_c(s));
+        lua_pushstring(L, ustr_c(s));
         nargs++;
       }
       break;

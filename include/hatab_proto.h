@@ -25,6 +25,9 @@ int hatab_pailsfull_p(Hatab * self);
 /** Cleans up and empties a table. */
 Hatab * hatab_done(Hatab * self);
 
+/** Frees a hash table */
+Hatab * hatab_free(Hatab * self);
+
 /** Empties all entries in the table. */
 Hatab * hatab_clear(Hatab * self);
 
@@ -56,7 +59,7 @@ void * hatab_drop(Hatab * self, void * key);
 Hatab * hatab_grow(Hatab * self);
 
 /** Stores a value in the hash table. */
-void * hatab_set(Hatab * self, void * key, void * value);
+void * hatab_put(Hatab * self, void * key, void * value);
 
 #endif // HATAB_PROTO_H
 

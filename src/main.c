@@ -14,7 +14,9 @@
 #include "lh.h"
 #include "rh.h"
 #include "ui.h"
+#include "hatab.h"
 #include "assert.h"
+
 
 
 #define SCREEN_W 640
@@ -61,6 +63,26 @@ int test_silut(void) {
   assert(aid);
   assert(aid->integer == 2);
   assert(!strcmp(aid->string, "two"));
+  return 0;  
+}
+
+
+/* testing function for Hatab */
+int test_hatab(void) {
+  Hatab * map;
+  int     i[] = { 123, 456, 789, 1011 };
+  map = hatab_new(NULL);
+  assert(map);
+  assert(hatab_put(map, "123", i));
+  assert(hatab_put(map, "456", i+1));
+  assert(hatab_put(map, "789", i+2));
+  assert(hatab_get(map, "123") == i);
+  assert(hatab_get(map, "456") == i+1);
+  assert(hatab_get(map, "789") == i+2);
+  assert(hatab_drop(map, "456") == i+1);
+  assert(hatab_put(map, "1011", i+3));
+  assert(hatab_get(map, "1011") == i+3);
+  hatab_free(map);
   return 0;  
 }
 
@@ -281,6 +303,7 @@ int main(void) {
   if(!test_xml()) return 0;
 #else
   test_silut();
+  test_hatab();
   return real_main();
 #endif
   // cleanup xml parser

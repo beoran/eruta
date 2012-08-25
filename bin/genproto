@@ -15,8 +15,9 @@ fin       = File.open(ARGV[0], 'rt')
 inproto   = nil;
 instruct  = nil;
 incomm    = nil; 
-STRUCT_RE = %r{struct ([A-Za-z0-9_]+)}
-ENUM_RE   = %r{enum ([A-Za-z0-9_]+)}
+STRUCT_RE = %r{struct ([A-Za-z0-9_]+_)}
+ENUM_RE   = %r{enum ([A-Za-z0-9_]+_)}
+UNION_RE  = %r{union ([A-Za-z0-9_]+_)}
 COMM_RE   = %r(\/\*\*)
 FUNC_RE   = %r(\{)
 COMMEND_RE= %r(\*\*\/)
@@ -29,7 +30,8 @@ fin.each_line do |line|
     commend = line.match(COMMEND_RE)
     done    = line.match(FUNC_RE)
     struct  = line.match(STRUCT_RE)    
-    enum    = line.match(ENUM_RE)    
+    enum    = line.match(ENUM_RE)  
+    union   = line.match(UNION_RE)  
     if struct
       name = struct[1]
       defi = name.chop
@@ -41,6 +43,12 @@ fin.each_line do |line|
       defi = name.chop
       puts "enum #{name};"
       puts "typedef enum #{name} #{defi};"
+      puts
+    elsif union
+      name = union[1]
+      defi = name.chop
+      puts "union #{name};"
+      puts "typedef union #{name} #{defi};"
       puts
     else
       if done

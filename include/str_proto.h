@@ -6,8 +6,8 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/** Converts a STR string to a number as per atoi. */
-int str_atoi(STR * str);
+/** Converts an US string to a number as per atoi. */
+int ustr_atoi(USTR * str);
 
 #endif // STR_PROTO_H
 

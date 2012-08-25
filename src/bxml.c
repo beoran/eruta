@@ -1,6 +1,6 @@
 
 #include "bxml.h"
-#include "bstraux.h"
+
 
 #include <stdlib.h>
 #include <string.h>
@@ -41,10 +41,10 @@ struct BXML_
   BXML * parent, * next, * before, * child, * attr;
   /* Different linked selfs: parent is the parent, next is the next sbling, previous is the previous sibling, child is the first child self,
   attribute is the first attribute (linked by next and previous too) */
-  bstring name; 
+  USTR * name; 
   /* for tags, this is the name of the tag, for attributes, 
   the name of the attribute. */
-  bstring value; /* For attributes this is the value of the attribute.*/
+  USTR * value; /* For attributes this is the value of the attribute.*/
   int kind; /* kind of tag it is. */
 };
 
@@ -80,8 +80,8 @@ BXML * bxml_init(BXML * self, int kind, BXML * parent) {
   self->child  = NULL;
   self->attr   = NULL;
   self->kind   = kind;
-  self->name   = bfromcstr("");
-  self->value  = bfromcstr("");
+  self->name   = ustr_new("");
+  self->value  = ustr_new("");
   return self;
 }
 
@@ -110,8 +110,8 @@ BXML * bxml_done(BXML * self) {
     bxml_free(aid);  // free first attribute
     aid  = next;     // move to next attribute.
   }
-  bdestroy(self->name);
-  bdestroy(self->value);
+  ustr_free(self->name);
+  ustr_free(self->value);
   return self;
 }
 
@@ -194,7 +194,7 @@ BXML * bxml_parse_strn(char * str, size_t size) {
     /* name of node ends on space or / of >. MUST be found. */
     if(!stop) { return bxml_free(node); } 
     /* copy in name of node. */
-    bcatblk(node->name, start, stop - start);
+    //  ustr_nappend(node->name, start, stop - start); doesn't exist yet...
     /* XXX: todo... :p */
   
   return NULL;
