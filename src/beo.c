@@ -89,7 +89,7 @@ BeoValue * beovalue_alloc() {
 /** returns nonzero if the value is of the given type, zero if not. 
 Also returns 0 if value is NULL. */
 int beo_type_p(BeoValue * value, BeoValueType type) { 
-  if(!value) return NULL;
+  if(!value) return 0;
   return (value->type == type);
 }
 
