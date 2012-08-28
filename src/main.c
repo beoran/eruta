@@ -12,7 +12,6 @@
 #include "silut.h"
 #include "fifi.h"
 #include "lh.h"
-#include "rh.h"
 #include "ui.h"
 #include "hatab.h"
 #include "assert.h"
@@ -171,10 +170,9 @@ int real_main(void) {
     Camera   * camera   = NULL;
     Tilepane * tilepane = NULL;
     Tilemap  * map      = NULL;
-    Ruby     * ruby     = NULL;    
     React    react;
     
-    ruby  = rh_new();
+
     
     
     state = state_alloc();
@@ -185,10 +183,6 @@ int real_main(void) {
       return 1;
     }
     
-    printf("Run ruby: %d\n", rh_dofile(ruby, "main.rb"));
-    printf("Funcall ruby: %d\n", mrb_funcall(ruby, mrb_obj_value(ruby->object_class),
-                "on_start", 1, mrb_str_new_cstr(ruby, "start!"))
-                );
 
 
     /** Initialises the reactor, the game state is it's data. */
@@ -290,8 +284,7 @@ int real_main(void) {
    image_free(border);
    // camera_free(camera); now released by state.
    state_done(state);
-   state_free(state);
-   rh_free(ruby); 
+   state_free(state); 
    return 0;
 }
 

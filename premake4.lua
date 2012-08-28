@@ -35,7 +35,6 @@
                   "allegro_memfile"   , "allegro_acodec",
                   "allegro_color"     , "allegro_physfs",
                   "chipmunk"          , "lua"           ,
-                  "mrubylib_static"   , 
                   "xml2"              , "m"
                  }
 		

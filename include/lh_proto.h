@@ -57,7 +57,7 @@ int lh_scanargs_va(Lua *L, char * format, va_list args);
 /** Makes it easier to parse the arguments a Lua function has received.
 * Works in the spirit of scanf(), but with different specifiers.
 * d : double *, i: int *, l : long *, s : char **, D strDupped into char **,
-* S : STR ** (Allegro string),  p: userdata pointer.
+* S : USTR ** (Allegro Utf8 string),  p: userdata pointer.
 * Retuns amount of arguments detected.
 */
 int lh_scanargs(Lua *L, char * format, ...);

@@ -1,4 +1,5 @@
 
+#include "eruta.h"
 #include "str.h"
 
 
@@ -22,6 +23,26 @@ The C string is first converted to a USTR, and the ntne characters are counted.
 XXX: todo how to do this efficiently without losing any unicode data? 
 */
 
+
+/** Converts a ustr to s double. Return 0 and sets OK to NULL if conversion
+failed for some reason. If OK is NULL, it is ignored.  */
+double ustr_tod(USTR * ustr, int * ok) {
+  char * aid = NULL, * cstr;
+  double res;
+  if(!ustr) goto error; 
+  errno = 0;
+  cstr  = ustr_c(ustr);
+  res   = strtod(cstr, &aid);
+  if (aid   == cstr) goto error;
+  if (errno == ERANGE) goto error;
+  
+  // all was fine here, return ok 
+  if(ok) *ok = TRUE;
+  return res;
+  error: // if ze get here there was a conversion error
+  if(ok) *ok = FALSE; 
+  return 0;
+}
 
 
 

@@ -9,5 +9,9 @@ Please do not hand edit.
 /** Converts an US string to a number as per atoi. */
 int ustr_atoi(USTR * str);
 
+/** Converts a ustr to s double. Return 0 and sets OK to NULL if conversion
+failed for some reason. If OK is NULL, it is ignored.  */
+double ustr_tod(USTR * ustr, int * ok);
+
 #endif // STR_PROTO_H
 
