@@ -17,5 +17,19 @@ double ustr_tod(USTR * ustr, int * ok);
 NULL if conversion failed for some reason. If OK is NULL, it is ignored.  */
 long ustr_tol(USTR * ustr, int * ok, int base);
 
+/** Converts an ustr to a double without doing any error checking. */
+double ustr_atod(USTR * ustr);
+
+/** Converts an ustr to a long without doing any error checking. 
+    Uses the decimal base. 
+*/
+double ustr_atol(USTR * ustr);
+
+/** Makes a new ustr from the double. Must be freed with ustr_free */
+USTR * ustr_newdouble(double d);
+
+/** Makes a new ustr from a long. Must be freed with ustr_free */
+USTR * ustr_newlong(long l);
+
 #endif // STR_PROTO_H
 

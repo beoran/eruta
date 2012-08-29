@@ -50,16 +50,6 @@ enum BeoValueType_ {
 };
 
 
-#define BEO_TYPE_P(VALUE, TYPE) beo_type_p((VALUE), (TYPE))
-#define BEO_STRING_P(VALUE) BEO_TYPE_P((VALUE), BEO_STRING)
-#define BEO_FAIL_P(VALUE)   BEO_TYPE_P((VALUE), BEO_FAIL)
-#define BEO_OK_P(VALUE)     BEO_TYPE_P((VALUE), BEO_OK)
-#define BEO_LONG_P(VALUE)   BEO_TYPE_P((VALUE), BEO_LONG)
-#define BEO_DOUBLE_P(VALUE) BEO_TYPE_P((VALUE), BEO_DOUBLE)
-#define BEO_STRING_P(VALUE) BEO_TYPE_P((VALUE), BEO_STRING)
-#define BEO_LIST_P(VALUE)   BEO_TYPE_P((VALUE), BEO_LIST)
-#define BEO_DATA_P(VALUE)   BEO_TYPE_P((VALUE), BEO_DATAPTR)
-#define BEO_FUNC_P(VALUE)   BEO_TYPE_P((VALUE), BEO_FUNCPTR)
 
 
 /** A BeoValue is the type for any value data inside the beo interpreter.
@@ -204,15 +194,28 @@ BeoValue * beovalue_newptr(void * ptr){
 } 
 
 
-/** Converts the BeoValue to a long. Stores trtue in ok if ok. 
+/** Converts the BeoValue to a double. Stores true in ok if ok. 
 Stores false in OK and returns 0 in case there was a conversion error. 
 OK is ignored if it is NULL. */
 double beovalue_getdouble(BeoValue * value, int * ok) {
-  if(BEO_DOUBLE_P(value)) return value->data.d;
+  if(BEO_DOUBLE_P(value)) return BEO_TODOUBLE(value);
+  if(BEO_LONG_P(value))   return (double)BEO_TOLONG(value);
   if(BEO_STRING_P(value)) return ustr_tod(value->data.s, ok);
   if(ok) *ok = FALSE;
   return 0;
 }
+
+/** Converts the BeoValue to a long. Stores true in ok if ok. 
+Stores false in OK and returns 0 in case there was a conversion error. 
+OK is ignored if it is NULL. Decimal numbers are assumed. */
+long beovalue_getlong(BeoValue * value, int * ok) {
+  if(BEO_LONG_P(value))   return BEO_TOLONG(value);
+  if(BEO_DOUBLE_P(value)) return (long)BEO_TODOUBLE(value);
+  if(BEO_STRING_P(value)) return ustr_tol(value->data.s, ok, 10);
+  if(ok) *ok = FALSE;
+  return 0;
+}
+
 
 /* Reference counting of BeoValue */
 
@@ -237,7 +240,6 @@ BeoValue * beo_unref(BeoValue * self, MemDestructor destroy) {
 
 struct BeoFrame_;
 typedef struct BeoFrame_ BeoFrame;
-
 /* A frame is the environment in which a Beo function or 
 script runs. */
 struct BeoFrame_ {

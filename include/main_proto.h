@@ -12,7 +12,7 @@ if Allegro is compiled in the default RelWithDbg mode.
 ***/
 #define ERUTA_TEST_MUSIC "data/music/musictest.ogg"
 #define ERUTA_MAP_TEST "data/map/map_0001.tmx"
-#undef RUN_TESTS
+#define RUN_TESTS
 
 #ifdef RUN_TESTS
 

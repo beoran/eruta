@@ -17,7 +17,7 @@ but wrap it a bit with macros to have to do less typing. */
 #define ustr_new(STR)                      al_ustr_new(STR)
 #define ustr_newcstr(STR)                  al_ustr_new(STR)
 #define ustr_newbuffer(B, SZ)              al_ustr_new_from_buffer(B, SZ)
-#define ustr_newf(STR, FMT, ...)           al_ustr_newf(STR, FMT, __VA_ARGS__)
+#define ustr_newf(FMT, ...)                al_ustr_newf(FMT, __VA_ARGS__)
 #define ustr_free(STR)                     al_ustr_free(STR)
 #define ustr_c(STR)                        al_cstr(STR)
 #define ustr_cstr(STR)                     al_cstr(STR)

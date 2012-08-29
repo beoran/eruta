@@ -14,6 +14,7 @@
 #include "lh.h"
 #include "ui.h"
 #include "hatab.h"
+#include "beo.h"
 #include "assert.h"
 
 
@@ -35,7 +36,7 @@ if Allegro is compiled in the default RelWithDbg mode.
 ***/
 #define ERUTA_TEST_MUSIC "data/music/musictest.ogg"
 #define ERUTA_MAP_TEST "data/map/map_0001.tmx"
-#undef RUN_TESTS
+#define RUN_TESTS
 
 #ifdef RUN_TESTS
 
@@ -82,6 +83,19 @@ int test_hatab(void) {
   assert(hatab_put(map, "1011", i+3));
   assert(hatab_get(map, "1011") == i+3);
   hatab_free(map);
+  return 0;  
+}
+
+/* Testing function for Beo */
+int test_beo(void) {
+  Beo       * beo;
+  BeoValue  * v;
+  v = beovalue_newstr("123.456");
+  printf("beovalue: %ld %lf\n", 
+          beovalue_getlong(v, NULL),
+          beovalue_getdouble(v, NULL)
+        );
+  beo_unref(v, NULL);
   return 0;  
 }
 
@@ -291,14 +305,16 @@ int real_main(void) {
 
 int main(void) {
   // init xml parser
-  LIBXML_TEST_VERSION
+  // LIBXML_TEST_VERSION
 #ifdef RUN_TESTS
-  if(!test_xml()) return 0;
-#else
+  // if(!test_xml()) return 0;
   test_silut();
   test_hatab();
+  test_beo();
+#else
   return real_main();
 #endif
   // cleanup xml parser
-  xmlCleanupParser();
+  // xmlCleanupParser();
+  return 0;
 }

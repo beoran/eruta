@@ -79,10 +79,15 @@ BeoValue * beovalue_initptr(BeoValue * value, void * ptr);
 Must be freed with beovalue_free_destroy */
 BeoValue * beovalue_newptr(void * ptr);
 
-/** Converts the BeoValue to a long. Stores trtue in ok if ok. 
+/** Converts the BeoValue to a double. Stores true in ok if ok. 
 Stores false in OK and returns 0 in case there was a conversion error. 
 OK is ignored if it is NULL. */
 double beovalue_getdouble(BeoValue * value, int * ok);
+
+/** Converts the BeoValue to a long. Stores true in ok if ok. 
+Stores false in OK and returns 0 in case there was a conversion error. 
+OK is ignored if it is NULL. Decimal numbers are assumed. */
+long beovalue_getlong(BeoValue * value, int * ok);
 
 /** Increases the refence count of self and returns self.  */
 BeoValue * beo_ref(BeoValue * self);
