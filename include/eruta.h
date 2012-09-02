@@ -1,7 +1,7 @@
 #ifndef ERUTA_H
 #define ERUTA_H
 
-/** Commnly used includes. */
+/** Commonly used includes. */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

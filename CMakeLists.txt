@@ -2,13 +2,25 @@ cmake_minimum_required(VERSION 2.8)
 # Set policy: link_directories is relative to source dir
 cmake_policy(SET CMP0015 NEW)
 
-set(CMAKE_C_FLAGS "-Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math")  
-# always use gnu99, debugging, all warnings except unused and unknown pragmas.
+
+# Set the project name.
+project(ERUTA C)
 
 # tell CMake to search first in the cmake subdirectory for FIND_PACKAGE() or INCLUDE()
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 
-# Find Allegro using pkgconfig, which means some manual coping of 
+include(CheckCSourceCompiles)
+include(CheckCXXSourceCompiles)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+  set(COMPILER_GCC 1)
+  set(CMAKE_C_FLAGS "-Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math")  
+# always use gnu99, debugging, all warnings except unused and unknown pragmas.
+# when compiling with gnu compiler    
+endif(CMAKE_COMPILER_IS_GNUCC)
+
+
+# Find Allegro using pkgconfig, which means some manual copiyng of 
 # Allegro's pkgconfig files to /usr/lib/pkgconfig
 # find_package(PkgConfig)
 # pkg_check_modules(ALLEGRO REQUIRED
@@ -28,26 +40,39 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 # 
 # MESSAGE (${ALLEGRO})
 find_package(Lua52 REQUIRED)
+find_package(Chipmunk REQUIRED)
 find_package(Allegro50 REQUIRED)
+find_package(LibXml2 REQUIRED)
+
+
 
 find_package(PNG REQUIRED)
 find_package(JPEG REQUIRED)
 
 # Set include and lib dirs. 
-include_directories(${ALLEGRO50_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${JPEG_INCLUDE_DIR})
+include_directories(${ALLEGRO_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${JPEG_INCLUDE_DIR} ${LUA_INCLUDE_DIR} ${CHIPMUNK_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIR}) 
 
-set(ERUTA_LIBS ${LIBS} ${ALLEGRO50_LIBRARY} ${PNG_LIBRARY} ${JPEG_LIBRARY})
+set(ERUTA_LIBS ${LIBS} ${ALLEGRO_LIBRARIES} ${PNG_LIBRARY} ${JPEG_LIBRARY}
+${LUA_LIBRARIES} ${CHIPMUNK_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 include_directories("include")
-add_subdirectory("src")
+# add_subdirectory("src")
+include(ErutaFiles)
 
+
+# eruta exe in the bin subdir (first one should work, but doesnt, hmmm...)
+set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+add_library(ERUTA_OBJECTS OBJECT ${ERUTA_SRC_FILES})
+add_executable(eruta $<TARGET_OBJECTS:ERUTA_OBJECTS> src/main.c)
+target_link_libraries(eruta ${ERUTA_LIBS})
 
 enable_testing()
 # Let ctest run valgrind
 set(CMAKE_CTEST_OPTIONS --output-on-failure)
 set(CTEST_OUTPUT_ON_FAILURE TRUE)
 set(CTEST_MEMORYCHECK_COMMAND:FILEPATH "/usr/bin/valgrind")
-add_subdirectory("test")
+# add_subdirectory("test")
 
 
 
