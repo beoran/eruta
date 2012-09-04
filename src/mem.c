@@ -44,78 +44,71 @@ void * mem_move(void * dest, void * src, size_t size) {
 }
 
 
-/* pointer handler. */
-typedef uint32_t Handle;
-
-struct Meminfo_;
-typedef struct Meminfo_ Meminfo;
-struct Memlist_;
-typedef struct Memlist_ Memlist;
-
-
-struct Meminfo_ {
-  void      * ptr;
-  int         refcount;
-  uint16_t    offset;
-  uint8_t     usage;
-  uint8_t     type;
-  uint16_t    nextfree;
+/* OOP style type info */
+struct TypeInfo_ {
+  struct TypeInfo_   * up;
+  MemDestructor      * done;
 };
 
-struct Memlist_ {
-  int        size;
-  Meminfo  * info;
-  uint16_t   nextfree;
+/* Reference counted memory with OOP- style functionality. */
+struct MemHeader_ {
+  struct TypeInfo_  * type;
+  int                 refcount;
 };
 
-#define MEMLIST_SIZE 1024
 
-Memlist * memlist_init(Memlist * self) {
-  int index;
-  self->size = MEMLIST_SIZE;
-  self->info = mem_calloc(self->size, sizeof(Meminfo));
-  if(!self->info) { self->size = 0; return NULL; }
-  self->nextfree = 0;  
-  for(index = 0; index < self->size; index ++) {
-    Meminfo * aid  = self->info + index;
-    aid->ptr       = NULL;
-    aid->refcount  = -1;
-    aid->usage     = 0;
-    aid->type      = 0;
-    aid->nextfree  = index + 1;
-  }
-  return self;
+void * obj_alloc(size_t size, struct TypeInfo_ * type) {
+  char * ptr                = mem_alloc(size + sizeof(struct MemHeader_));
+  struct MemHeader_  * aid  = (struct MemHeader_ *) ptr;
+  if(!aid) return NULL;
+  aid->type                 = type;
+  aid->refcount             = 1;
+  return aid + sizeof(struct MemHeader_);
 }
 
-Handle handle_make(uint16_t offset, uint8_t usage, uint8_t type) {
-  return ((uint32_t)offset) + (((uint32_t)usage)<<16) + (((uint32_t)type)<<24);
+struct MemHeader_ * obj_memheader(void * ptr) {
+  char * aid;
+  if(!ptr) return NULL;
+  aid = (char *) ptr;
+  return (struct MemHeader_ *) (aid - sizeof(struct MemHeader_));
 }
 
-Handle memlist_add(Memlist * self, void * ptr, uint8_t type) {
-  Meminfo * aid;
-  if(self->nextfree >= self->size) {
-    if(!mem_resize((void **)&self->info, sizeof(Meminfo) * self->size * 2)) {
-      return 0;
+void * obj_ref(void * ptr) {
+  struct MemHeader_ * header;
+  header = obj_memheader(ptr);
+  if(!header) return NULL;
+  header->refcount++;
+  return ptr;  
+}
+
+void * obj_done(void * ptr) {
+  struct MemHeader_ * header;
+  struct TypeInfo_  * info;
+  header = obj_memheader(ptr);
+  if(!header) return NULL;
+  if(!header->type) return NULL;
+  // look for a destructor in the linked type info tables
+  for (info = header->type; info->up; info = info->up) {
+    if(info->done) {
+      return info->done(ptr);
     }
-    self->size = self->size * 2;
-  }  
-  aid = self->info + self->nextfree;
-  aid->ptr       = ptr;
-  aid->usage++;
-  aid->type      = type;
-  aid->refcount  = 1;
-  aid->offset    = self->nextfree;
-  self->nextfree = aid->nextfree;
-  aid->nextfree  = -1; // next is used, so not known.
-  return handle_make(aid->offset, aid->usage, aid->type);
+  }
+  // if we get here do nothing.
+  return ptr;
 }
 
-
-
-
-
-
-
-
+void * obj_unref(void * ptr) {
+  struct MemHeader_ * header;
+  header = obj_memheader(ptr);
+  if(!header) return NULL;
+  header->refcount--;
+  if(header->refcount < 1) {
+    obj_done(ptr);
+    mem_free(header); // if we free the header, the rest of the 
+    // object which follows should be freed as well.
+    return NULL;
+  }
+  return ptr;
+}
 
 

@@ -2,6 +2,7 @@
 * This is a test for fifi in $package$
 */
 #include "si_test.h"
+#include <eruta.h>
 #include "fifi.h"
 
 

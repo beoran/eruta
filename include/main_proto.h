@@ -12,13 +12,18 @@ if Allegro is compiled in the default RelWithDbg mode.
 ***/
 #define ERUTA_TEST_MUSIC "data/music/musictest.ogg"
 #define ERUTA_MAP_TEST "data/map/map_0001.tmx"
-#define RUN_TESTS
+// #define RUN_TESTS 1
 
+/*
 #ifdef RUN_TESTS
 
 #endif
+*/
 
-int test_silut(void);
+
+
+/* Testing function for al_get_standard_path */
+void puts_standard_path(int path, char * name);
 
     /** Initialises the reactor, the game state is it's data. */
     react_initempty(&react, state);

@@ -27,8 +27,15 @@ size_t dynar_elementsize(Dynar * self);
 /** Frees the contents of an array. Has the same effect as emptying the array. Does not call a desctructor on any elements contained! */
 Dynar * dynar_done(Dynar * self);
 
+/** Calls a destructor on the contents of the array if it is not null. 
+ The contents are considered to be pointers. */
+Dynar * dynar_destroy(Dynar * self, MemDestructor * destroy);
+
 /** Frees an array. Returns NULL. */
 Dynar * dynar_free(Dynar * self);
+
+/** Calls a destructor on the elements of the array and then frees the array */
+Dynar * dynar_free_destroy(Dynar * self, MemDestructor * destroy);
 
 /** Allocates a new empty array.  */
 Dynar * dynar_alloc();

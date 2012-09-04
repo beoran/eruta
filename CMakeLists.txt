@@ -69,10 +69,11 @@ target_link_libraries(eruta ${ERUTA_LIBS})
 
 enable_testing()
 # Let ctest run valgrind
+# test exe in the test subdir (first one should work, but doesnt, hmmm...)
 set(CMAKE_CTEST_OPTIONS --output-on-failure)
 set(CTEST_OUTPUT_ON_FAILURE TRUE)
 set(CTEST_MEMORYCHECK_COMMAND:FILEPATH "/usr/bin/valgrind")
-# add_subdirectory("test")
+add_subdirectory("test")
 
 
 

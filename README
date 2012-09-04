@@ -6,21 +6,32 @@ Requirements:
 * Lua 5.2.x
 * Chipmunk 6.x,
 * libxml2 (www.xmlsoft.org)
-* For testing and compilation: premake4, and valgrind.
+* For testing and compilation: cmake, and valgrind.
 * For map editing: tiled (www.mapeditor.org)
-* For some of the tools: Ruby.
+* For some of the tools and continuous testing: Ruby, watchr.
  
 Installation:
 
 You have to make sure that you have all the requirements.  On Linux distributitions like Ubuntu, make sure that the development packages for all requirements are
 installed. Then do: 
 
-premake4 gmake ; make
+cmake . ; make
 
 How to try it:
 
 Run bin/eruta from the project's main directory.
 Expect to be underwhelmed for now. :-)
+
+How to develop using the contious testing script:
+
+Use the supplied watchr script like this:
+watchr tool/watchr/eruta_watchr.rb
+
+Every time you change a c file or header, the matching
+test will be compiled though cmake and make, and 
+will be run. This does compile all C files of eruta,
+so it may be a bit slow at times.
+
 
 License: 
 

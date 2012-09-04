@@ -36,7 +36,7 @@ if Allegro is compiled in the default RelWithDbg mode.
 ***/
 #define ERUTA_TEST_MUSIC "data/music/musictest.ogg"
 #define ERUTA_MAP_TEST "data/map/map_0001.tmx"
-#define RUN_TESTS 1
+// #define RUN_TESTS 1
 
 /*
 #ifdef RUN_TESTS
@@ -44,62 +44,6 @@ if Allegro is compiled in the default RelWithDbg mode.
 #endif
 */
 
-int test_silut(void) {
-  Silut * aid;
-  static Silut lut[] = {
-    { 0, "zero"},
-    { 2, "two" },
-    { 1, "one" },
-    SILUT_DONE
-  };
-  
-  aid = silut_lsearchi(lut, 55);
-  assert(!aid);
-  aid = silut_lsearchcstr(lut, "banana");
-  assert(!aid);
-  aid = silut_lsearchi(lut, 2);
-  assert(aid);
-  assert(aid->integer == 2);
-  assert(!strcmp(aid->string, "two"));
-  aid = silut_lsearchcstr(lut, "two");
-  assert(aid);
-  assert(aid->integer == 2);
-  assert(!strcmp(aid->string, "two"));
-  return 0;  
-}
-
-
-/* testing function for Hatab */
-int test_hatab(void) {
-  Hatab * map;
-  int     i[] = { 123, 456, 789, 1011 };
-  map = hatab_new(NULL);
-  assert(map);
-  assert(hatab_put(map, "123", i));
-  assert(hatab_put(map, "456", i+1));
-  assert(hatab_put(map, "789", i+2));
-  assert(hatab_get(map, "123") == i);
-  assert(hatab_get(map, "456") == i+1);
-  assert(hatab_get(map, "789") == i+2);
-  assert(hatab_drop(map, "456") == i+1);
-  assert(hatab_put(map, "1011", i+3));
-  assert(hatab_get(map, "1011") == i+3);
-  hatab_free(map);
-  return 0;  
-}
-
-/* Testing function for Beo */
-int test_beo(void) {
-  Beo       * beo;
-  BeoValue  * v;
-  v = beovalue_newstr("123.456");
-  printf("beovalue: %ld %lf\n", 
-          beovalue_getlong(v, NULL),
-          beovalue_getdouble(v, NULL)
-        );
-  beo_unref(v, NULL);
-  return 0;  
-}
 
 
 /* Testing function for al_get_standard_path */
@@ -306,17 +250,10 @@ int real_main(void) {
 
 
 int main(void) {
-  // init xml parser
+  int res; // init xml parser
   // LIBXML_TEST_VERSION
-#ifdef RUN_TESTS
-  // if(!test_xml()) return 0;
-  test_silut();
-  test_hatab();
-  test_beo();
-#else
-  return real_main();
-#endif
+  res = real_main();
   // cleanup xml parser
   // xmlCleanupParser();
-  return 0;
+  return res;
 }

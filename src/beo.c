@@ -254,6 +254,15 @@ BeoFrame * beoframe_alloc() {
   return STRUCT_ALLOC(BeoFrame);
 }
 
+/* Fress the frame, burt not it's parent. */
+BeoFrame * beoframe_free(BeoFrame * self) {
+  if(!self) return NULL;
+  self->parent = NULL;
+  self->vars   = hatab_free(self->vars);
+  self->result = beo_unref(self->result, NULL);
+  return mem_free(self);
+}
+
 BeoFrame * beoframe_init(BeoFrame * self, BeoFrame * parent) {
   if(!self) return NULL;
   self->parent = parent;
@@ -272,6 +281,14 @@ BeoValue * beoframe_result_(BeoFrame * self, BeoValue * value) {
   if(!self) return NULL;
   return (self->result = (BeoValue *)beo_ref(value));  
 }
+
+/* Gets the value value of the result of the current frame.
+Does not increase the refcount. */
+BeoValue * beoframe_result(BeoFrame * self, BeoValue * value) {
+  if(!self) return NULL;
+  return (self->result);  
+}
+
 
 /* Sets a variable n the current frame with the given name. 
 Does NOT increase the reference count.
@@ -295,7 +312,7 @@ struct BeoBlock_ {
 };
 
 
-/* a command consists of a name followed by 
+/* A command consists of a name followed by 
 zero or more arguments and zero or more blocks. */
 struct BeoCommand_ {
   USTR    name;
@@ -307,7 +324,6 @@ struct BeoCommand_ {
 
 
 /** The beo interpreter. */
-
 struct Beo_ {
   Hatab     * funcs;
   BeoFrame  * top;
@@ -315,8 +331,18 @@ struct Beo_ {
   int line;         // line counter.
   int col;          // column counter.
   USTR    program;  // current program that is being parsed.
-  
 };
+
+
+Beo * beo_register(Beo * self, char * name, BeoFunction * func) {
+  hatab_put(self->funcs, name, func);
+  // XXX: hatab has a bit of a problem: it does not own it's keys
+  // so, if the keys are not character constants, problems
+  // may occur. 
+  return NULL;
+}
+
+
 
 /* Ideas on the way the interpreter should work: 
 

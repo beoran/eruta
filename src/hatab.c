@@ -99,13 +99,28 @@ static Pail * pail_emptynobreak(Pail * self) {
   return pail_init(self, NULL, NULL, self->next, 0);
 }
 
+/*  If the pail is in use, free the memory held by the key 
+by using the MemDestructors in the acts struct. 
+If the free_key or free_value are NULL, nothing happens for
+respectively tehe key or value.
+Does not break the link chain. Does nothing if the pail is already empty. */
+static Pail * pail_done(Pail * self, HatabActs * acts) {
+  if(pail_empty_p(self)) return self;
+  if(acts) {
+    if(acts->free_value) acts->free_value(self->data);
+    if(acts->free_key)   acts->free_key(self->key);
+  }
+  return pail_emptynobreak(self);
+}
 
 
 
 /* Default operations for the hash table. */
 static HatabActs hatab_default_acts = {
   (HatabCompare *)    strcmp,
-  (HatabHash    *)    hatab_hash_cstr
+  (HatabHash    *)    hatab_hash_cstr,
+  NULL,
+  NULL  
 };
 
 
@@ -123,7 +138,9 @@ int hatab_pailsfull_p(Hatab * self) {
 
 /** Cleans up and empties a table. */
 Hatab * hatab_done(Hatab * self) {
+  int index, stop;
   if(!self) return NULL;
+  // stop = 
   dynar_free(self->pails);
   dynar_free(self->cellar);
   self->pails       = self->cellar      = NULL;

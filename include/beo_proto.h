@@ -98,7 +98,6 @@ not-null if not. */
 BeoValue * beo_unref(BeoValue * self, MemDestructor destroy);
 
 /** The beo interpreter. */
-
 struct Beo_;
 typedef struct Beo_ Beo;
 

@@ -27,6 +27,8 @@ sucessful freeing, and non-null if freeing failed. */
 typedef void * (MemDestructor)(void * ptr);
 
 
+
+
 /** Handy macros. */
 /*
 #define STRUCT_NALLOC(STRUCT, AMOUNT) \

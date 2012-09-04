@@ -2,6 +2,8 @@
 * This is a test for ui in $package$
 */
 #include "si_test.h"
+#include "eruta.h"
+#include "image.h"
 #include "ui.h"
 
 

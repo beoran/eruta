@@ -1,7 +1,9 @@
 require 'open3'
-  
+
+NOTIFY = false
   
 def notify(title, message, status)
+
   notify = 'notify-send'
   image  = status > 0 ? 'dialog-error' : 'dialog-information'
   nmsg   = message.gsub("'","\\'") # escape quotes
@@ -11,7 +13,7 @@ def notify(title, message, status)
   
   options = "-t 30000 -i #{image} '#{title}' '#{nmsg}'"
   warn "#{title} : #{message}"
-  system("#{notify} #{options}") 
+  system("#{notify} #{options}") if NOTIFY 
 end
 
 def run(cmd)
@@ -35,36 +37,6 @@ def make_and_run_test(base)
   end
 end
 
-watch('test/.*/(test_.*\.c\Z)') do |md| 
-  full    = md[0]  
-  base    = md[1].gsub(/\.c\Z/, '')
-  make_and_run_test(base)
-end
-
-watch('include/(.*)/(.*\.h\Z)') do |md|
-  full    = md[0]
-  dir     = md[1]
-  base    = md[2].gsub(/\.h\Z/, '')
-  testname= "test_" + base.gsub("#{dir}_",'')
-  testc   = File.join('test', dir, testname + ".c")
-  if File.exist?(testc)
-    make_and_run_test(testname)
-  end
-end  
-
-watch('src/(.*)/(.*\.c\Z)') do |md|
-  full    = md[0]
-  dir     = md[1]
-  base    = md[2].gsub(/\.c\Z/, '')
-  testname= "test_" + base.gsub("#{dir}_",'')
-  testc   = File.join('test', dir, testname + ".c")
-  if File.exist?(testc)
-    make_and_run_test(testname)
-  else 
-    warn("No test for #{full}.")
-  end
-end
- 
 def build_eruta
   msg, stat  = run("cmake .")
   puts msg
@@ -77,11 +49,33 @@ def build_eruta
   end
 end
 
-watch('src/eruta/(.*\.c\Z)') do
-  build_eruta
+watch('test/(test_.*\.c\Z)') do |md| 
+  full    = md[0]  
+  base    = md[1].gsub(/\.c\Z/, '')
+  make_and_run_test(base)
 end
 
-watch('include/eruta/(.*\.h\Z)') do
+watch('include/(.*\.h\Z)') do |md|
+  full    = md[0]
+  base    = md[1].gsub(/\.h\Z/, '')
+  testname= "test_" + base
+  testc   = File.join('test', testname + ".c")
+  if testc !~ /proto/ && File.exist?(testc)
+    make_and_run_test(testname)
+  end
+end  
+
+watch('src/(.*\.c\Z)') do |md|
   build_eruta
+  full    = md[0]
+  base    = md[1].gsub(/\.c\Z/, '')
+  testname= "test_" + base
+  testc   = File.join('test', testname + ".c")
+  if File.exist?(testc)
+    make_and_run_test(testname)
+  else 
+    warn("No test for #{full}.")
+  end
 end
+ 
 

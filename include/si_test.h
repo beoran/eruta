@@ -167,6 +167,29 @@ static Test * test_intneq(Test * test, int i1, int i2, const char * explain) {
   "Integers should not be equal: %d %d; %s ", i1, i2, explain);
 }
 
+/** Tests if two long integers are equal */
+static Test * test_longeq(Test * test, long i1, long i2, const char * explain) {
+  return test_assert(test, i1 == i2, 
+  "Integers should be equal: %ld %ld; %s ", i1, i2, explain);
+}
+
+/** Tests if two long integers are not equal */
+static Test * test_longneq(Test * test, long i1, long i2, const char * explain) {
+  return test_assert(test, i1 != i2, 
+  "Integers should not be equal: %ld %ld; %s ", i1, i2, explain);
+}
+/** Tests if two doubles are equal */
+static Test * test_doubleeq(Test * test, double d1, double d2, const char * explain) {
+  return test_assert(test, d1 == d2, 
+  "Integers should be equal: %lf %lf; %s ", d1, d2, explain);
+}
+
+/** Tests if two doubles are not equal */
+static Test * test_doubleneq(Test * test, double d1, double d2, const char * explain) {
+  return test_assert(test, d1 != d2, 
+  "Integers should not be equal: %lf %lf; %s ", d1, d2, explain);
+}
+
 /** Tests if an integer has a true value */
 static Test * test_true(Test * test, int boole, const char * explain) {
   return test_assert(test, boole, 
@@ -231,6 +254,12 @@ static Test * warning_supressor(Test * test) {
 #define TEST_PTRNEQ(PTR, CALL)        test_ptrneq(_t,  PTR, TEST_CALL(CALL))
 #define TEST_INTEQ(INT, CALL)         test_inteq(_t,  INT, TEST_CALL(CALL))
 #define TEST_INTNEQ(INT, CALL)        test_intneq(_t, INT, TEST_CALL(CALL))
+#define TEST_LONGEQ(INT, CALL)        test_longeq(_t,  INT, TEST_CALL(CALL))
+#define TEST_LONGNEQ(INT, CALL)       test_longneq(_t, INT, TEST_CALL(CALL))
+#define TEST_DOUBLEEQ(INT, CALL)      test_doubleeq(_t,  INT, TEST_CALL(CALL))
+#define TEST_DOUBLENEQ(INT, CALL)     test_doubleneq(_t, INT, TEST_CALL(CALL))
+
+
 #define TEST_ZERO(CALL)               TEST_INTEQ(0, CALL)
 
 /* Other utility macros. They are syntactic, so you may dislike them.

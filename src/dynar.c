@@ -43,11 +43,32 @@ Dynar * dynar_done(Dynar * self) {
   return self;
 }
 
+/** Calls a destructor on the contents of the array if it is not null. 
+ The contents are considered to be pointers. */
+Dynar * dynar_destroy(Dynar * self, MemDestructor * destroy) {
+  size_t index;
+  size_t size = dynar_size(self);
+  if(!self)     return self;
+  if(!destroy)  return NULL;
+  for(index = 0; index < size ; index++) {
+    void * ptr = dynar_getptr(self, index);    
+    destroy(ptr);
+  }
+  return self;
+}
+
 /** Frees an array. Returns NULL. */
 Dynar * dynar_free(Dynar * self) {
   dynar_done(self);
   return mem_free(self);
 }
+
+/** Calls a destructor on the elements of the array and then frees the array */
+Dynar * dynar_free_destroy(Dynar * self, MemDestructor * destroy) {
+  dynar_destroy(self, destroy);
+  return dynar_free(self);
+}
+
 
 /** Allocates a new empty array.  */
 Dynar * dynar_alloc() {

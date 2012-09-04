@@ -35,6 +35,8 @@ Also don't check for NULL values.
 #define BEO_TOLONG(VALUE)             BEO_GETDATA(VALUE, l)
 #define BEO_TODATAPTR(VALUE)          BEO_GETDATA(VALUE, p)
 
+/** The function type for Beo script functions and commands.*/
+typedef BeoValue * (BeoFunction)(int argc, BeoValue * argv[]);
 
 
 

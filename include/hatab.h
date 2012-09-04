@@ -1,11 +1,13 @@
 #ifndef hatab_H_INCLUDED
 #define hatab_H_INCLUDED
 
-// Hash function for the hash table. 
+#include "mem.h"
 
+// Hash function for the hash table. 
 typedef int (HatabHash)(void * key);
 // Comparison function for the hash table 
 typedef int (HatabCompare)(void * one, void * two);
+
 
 struct HatabActs_;
 typedef struct HatabActs_ HatabActs;
@@ -16,7 +18,10 @@ typedef struct HatabActs_ HatabActs;
 struct HatabActs_ {
   HatabCompare  * compare;
   HatabHash     * hash;
+  MemDestructor * free_value;
+  MemDestructor * free_key;
 };
+
 
 #include <stdint.h> 
 // need stdint for uint32_t
