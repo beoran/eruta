@@ -1,5 +1,5 @@
+# encoding: UTF-8
 # ruby prototype for the Beo language
-
 
 module Beo
   class Token 
@@ -64,9 +64,9 @@ module Beo
         begin          
           state, value, type = lex_char(ch)
           printf ">%s< (%d)-> %s (%s) (%s)\n", ch, ch.ord, state, value, type
-          return state, value, type if state == :error          
+          return :error, value, type if state == :error          
           if state == :ok
-            result << [ value, type ] 
+            result << [ type, value ] 
             printf "Token: >%s< %s \n", value, type
           end            
         end while state == :ok        
@@ -162,14 +162,37 @@ lex.rule( :start          , /[^0-9\-]/    , :store, :word   )
 lex.rule( :word       , /[\n\r\t ]/     , :ok   , :start  , :word)
 lex.rule( :word       , /[^\n\r\t ]/    , :store, :word   , :word)
 
+# a double qouted string goes on until a double quote is found 
+lex.rule( :stringdq   , /\"/            , :skip , :stringend  , :string)
+# a double quoted string goes on until a double quote is found 
+lex.rule( :stringdq   , /[^\"]/         , :store, :stringdq  , :string)
+# end of string
+lex.rule( :stringend  , /.|\n|\r/      , :ok   , :start     , :string )
+# a single qouted string goes on until a double quote is found 
+lex.rule( :stringsq   , /\'/           , :skip , :stringend  , :string)
+# a single quoted string goes on until a double quote is found 
+lex.rule( :stringsq   , /[^\']/        , :store, :stringsq  , :string)
+
+# a backtick qouted string goes on until a double quote is found 
+lex.rule( :stringbt   , /`/            , :skip , :stringend  , :string)
+# a backtick quoted string goes on until a double quote is found 
+lex.rule( :stringbt   , /[^`]/         , :store, :stringbt  , :string)
 
 
 # a 
 
 res = lex.lex_str('a+ +good -foo - apple be2 123 456.78e-9 -12345 hello 
 #{ comment } 
-{{{}}}(){}[]{{}} 
+{{{}}}(){}[]{{}} €€€€
 a = 10 + 20 
+"A String
+Over several lines"
+\'single 
+quoted\'
+`backtick
+
+string
+`
 ')
 p res
 # 
