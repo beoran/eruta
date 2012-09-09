@@ -162,11 +162,19 @@ lex.rule( :start          , /[^0-9\-]/    , :store, :word   )
 lex.rule( :word       , /[\n\r\t ]/     , :ok   , :start  , :word)
 lex.rule( :word       , /[^\n\r\t ]/    , :store, :word   , :word)
 
+# recognise escapes in double quoted strings but don't process them
+lex.rule(:stringdq    , /\\/            , :store, :strdqesc , :stresc)
+# recognise escapes in double quoted strings but don't process them
+lex.rule(:strdqesc    , /./             , :store, :stringdq , :string)
+
+
 # a double qouted string goes on until a double quote is found 
-lex.rule( :stringdq   , /\"/            , :skip , :stringend  , :string)
+lex.rule( :stringdq   , /"/            , :skip , :stringend  , :string)
 # a double quoted string goes on until a double quote is found 
-lex.rule( :stringdq   , /[^\"]/         , :store, :stringdq  , :string)
+lex.rule( :stringdq   , /[^"]/         , :store, :stringdq  , :string)
 # end of string
+
+
 lex.rule( :stringend  , /.|\n|\r/      , :ok   , :start     , :string )
 # a single qouted string goes on until a double quote is found 
 lex.rule( :stringsq   , /\'/           , :skip , :stringend  , :string)
@@ -186,7 +194,7 @@ res = lex.lex_str('a+ +good -foo - apple be2 123 456.78e-9 -12345 hello
 {{{}}}(){}[]{{}} €€€€
 a = 10 + 20 
 "A String
-Over several lines"
+Over several lines with an \n escape."
 \'single 
 quoted\'
 `backtick
