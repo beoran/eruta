@@ -1,5 +1,6 @@
 
 #include "beo.h"
+#include "str.h"
 #include <ctype.h>
 
 
@@ -343,6 +344,270 @@ Beo * beo_register(Beo * self, char * name, BeoFunction * func) {
 }
 
 
+/* Struct to store rules for the lexer */
+struct BeoLexerRule_ {
+  int     before_state; 
+  char *  expression;
+  int     action;
+  int     after_state;
+  int     token_type;
+};
+
+typedef struct BeoLexerRule_ BeoLexerRule;
+
+/* Struct for the lexer's tokens. */
+struct BeoLexerToken_ {
+  int    kind; // Kind of token
+  USTR * text; // text value of the token 
+};
+typedef struct BeoLexerToken_ BeoLexerToken;
+
+/* Struct to store the lexer's state */
+struct BeoLexer_ { 
+  BeoLexerRule  * rules; // Rules of the lexer
+  int             state; // Current state of the lexer.
+  USTR          * text ; // String value of the token that is under construction  
+};
+typedef struct BeoLexer_ BeoLexer;
+
+enum BeoLexerActions_ {
+  BEO_LEXER_SKIP    = 1,
+  BEO_LEXER_STORE   = 2,
+  BEO_LEXER_OK      = 3,  
+};
+
+enum BeoLexerState_ {
+  BEO_LEXER_DONE           ,
+  BEO_LEXER_START          ,
+  BEO_LEXER_COMMENTSTART   ,
+  BEO_LEXER_COMMENTBLOCK   ,  
+  BEO_LEXER_COMMENTLINE    ,  
+  BEO_LEXER_COMMENTEND     ,  
+  BEO_LEXER_BLOCKOPEN      ,  
+  BEO_LEXER_BLOCKCLOSE     ,  
+  BEO_LEXER_LISTOPEN       ,
+  BEO_LEXER_LISTCLOSE      , 
+  BEO_LEXER_EOL            , 
+  BEO_LEXER_NUMBER_OR_WORD , 
+  BEO_LEXER_NUMBER         , 
+  BEO_LEXER_NUMBEREND      , 
+  BEO_LEXER_WORD           ,
+  BEO_LEXER_WORDEND        , 
+  BEO_LEXER_STRINGDQ       , 
+  BEO_LEXER_STRINGDQEND    , 
+  BEO_LEXER_STRINGDQESC    , 
+  BEO_LEXER_STRINGSQ       , 
+  BEO_LEXER_STRINGSQEND    , 
+  BEO_LEXER_STRINGBT       , 
+  BEO_LEXER_STRINGBTEND    , 
+  BEO_LEXER_STRINGEND      ,
+  BEO_LEXER_LINEESC        ,
+  BEO_LEXER_ANYSTATE       ,
+  
+};
+
+enum BeoTokenKind_ {
+  BEO_TOKEN_NONE        = 0,
+  BEO_TOKEN_COMMENT,
+  BEO_TOKEN_BLOCKOPEN,
+  BEO_TOKEN_BLOCKCLOSE,
+  BEO_TOKEN_LISTOPEN,
+  BEO_TOKEN_LISTCLOSE,
+  BEO_TOKEN_WHITESPACE,
+  BEO_TOKEN_EOL,
+  BEO_TOKEN_NUMBER,
+  BEO_TOKEN_STRING,
+  BEO_TOKEN_WORD,
+  BEO_TOKEN_ERROR,
+}; 
+
+
+
+// macro to help define rules
+#define RULE(STATE, MATCH, ACTION, AFTER, TOKEN)  \
+        { BEO_LEXER_##START, MATCH, BEO_LEXER_##ACTION, BEO_LEXER_##AFTER, BEO_TOKEN_##TOKEN }
+
+/* Rules for the beo lexer. The beo lexer uses a state machine.
+The rules work as follows: the first field is the state to which they apply.
+A rule that uses ANYSTATE will apply to any lexer statem other rules
+only apply to if the active lexer state is the given state. The state of the 
+lexer begins out as START. 
+The second field is a string that will be matched with cstr_simplematch 
+to the character that the lexer is considering. If it matches, then the rule is 
+applied. 
+The third field is the action the lexer has to undertake. 
+SKIP means the lexer should simply skip the incoming character. 
+STORE means the lexer should store the incoming character. 
+OK means the lexer should notify it's caller that the current token is finished. 
+and OK. However, this action will NOT store the character under consideration. 
+This character MUST then be re-submitted to the lexer for further consideration. 
+This is done to simplify the character lexer itself, becayse it does not need 
+to keep a lookahead character. This does mean that for many tokens, 
+an additional state wull be needed to save the last character in the state.
+The fourth field is the lexer state to switch to. This is ALWAYS done.
+The fifth field is used in conjunction with an OK action to determine the 
+type of the token returned.
+The rules are applied in order, which means that topmost rules are applied 
+before bottom most. If a topmost rule matches, then any rules below it
+are ignored. This allows to simplify many of the rules.
+*/
+BeoLexerRule BEO_LEXER_RULES[] = {
+  // if there is a line comment start character, it should be a comment
+  RULE(START        , "@#"                    , SKIP , COMMENTSTART , NONE), 
+  // #{ starts a block comment it should be ended with } 
+  RULE(COMMENTSTART , "@{"                    , SKIP , COMMENTBLOCK , NONE),
+  // otherwise it's a line comment
+  RULE(COMMENTSTART , "."                     , SKIP , COMMENTLINE  , NONE),
+  // end of comment line is a newline or carriage return. 
+  RULE(COMMENTLINE  , "@\r\n"                 , STORE, COMMENTEND   , COMMENT),   
+  // anything in coment lines is just stored.
+  RULE(COMMENTLINE  , "."                     , STORE, COMMENTLINE  , COMMENT),   
+  // end of comment block is }
+  RULE(COMMENTBLOCK , "@}"                    , SKIP , COMMENTEND   , COMMENT),   
+  // anything in coment blocks except } is just stored.
+  RULE(COMMENTBLOCK , "^}"                    , STORE, COMMENTBLOCK , COMMENT),   
+  // end of comment, any character is fine (and will be retried)
+  RULE(COMMENTEND   , "."                     , OK   , START        , COMMENT), 
+  
+  // skip whitespaces ( blanks
+  RULE(START        , "$b"                    , SKIP , START        , NONE),
+  
+  // if there is a { it starts a block
+  RULE(START       , "@{"                     , STORE , BLOCKOPEN  , NONE),
+  // if there is a ( it starts a paren list
+  RULE(START       , "@("                     , STORE , LISTOPEN   , NONE),
+  // if there is a [ it starts a block list
+  RULE(START       , "@["                     , STORE , LISTOPEN   , NONE),
+  // if there is a } it closes a block
+  RULE(START       , "@}"                     , STORE , BLOCKCLOSE , NONE),
+  // if there is a ) it closes a pren list
+  RULE(START        , "@)"                    , STORE , LISTCLOSE  , NONE),
+  // if there is a ] it closes a block list  
+  RULE(START        , "@]"                    , STORE , LISTCLOSE  , NONE),
+  // in all cases of {}[](), any character after it ends it
+  RULE(BLOCKOPEN   , "."                      , OK    , START      , BLOCKOPEN),
+  RULE(BLOCKCLOSE  , "."                      , OK    , START      , BLOCKCLOSE),
+  RULE(LISTOPEN    , "."                      , OK    , START      , LISTOPEN),
+  RULE(LISTCLOSE   , "."                      , OK    , START      , LISTCLOSE),
+  // if there is a newline or cr ; it's the end of a statement 
+  RULE(START       , "@\r"                    , SKIP  , EOL        , EOL    ),
+  RULE(START       , "@\n"                    , SKIP  , EOL        , EOL    ),
+  RULE(START       , "@;"                     , SKIP  , EOL        , EOL    ),
+  // any character ends an EOL
+  RULE(EOL         , "@."                     , OK    , START      , EOL    ),
+  
+  // if there is a digit it should be a number
+  RULE(START       , "$d"                     , STORE , NUMBER     , NONE),
+  
+  // if there is a quote it should be a string
+  RULE(START       , "@\""                    , SKIP , STRINGDQ    , NONE),
+  // if there is a quote it should be a string
+  RULE(START       , "@'"                     , SKIP , STRINGSQ    , NONE),
+  // if there is a backtick it should be a string
+  RULE(START       , "@`"                     , SKIP , STRINGBT    , NONE),
+  // if there is a - it chould be a negative number or a word
+  RULE(START       , "@-"                     , STORE, NUMBER_OR_WORD, NONE),
+  
+  // If there is a digit, the number or word is a number
+  RULE(NUMBER_OR_WORD, "$d"                   , STORE, NUMBER      ,  NONE),
+  // If it's a space or a newline, end the single - word
+  RULE(NUMBER_OR_WORD, "@ \t\r\n"             , OK   , WORD        , WORD),
+  // Otherwise, it's a word.
+  RULE(NUMBER_OR_WORD, "@."                   , STORE, WORD        , WORD),
+    
+  // If there is, in a number, a 0 to 9, or a . or an e or E, or a + or - 
+  // or a X, x, b, B, or o, O for hexadecimal, octal and binary numbers, or any of a to f 
+  // for hexadecimal numbers/ assume it's all part of the number 
+  // (even though it may not be so!)
+  RULE(NUMBER        , "@0123456789-+abBcdeEfgoOxX." , STORE, NUMBER, NONE),
+  // any other character ends the number. 
+  RULE(NUMBER        , "."                           , OK   , START , NUMBER),
+  
+  // Finally if there is any character except - or 0 to 9, it should be a word
+  RULE(START         , "^0123456789-"                , STORE, WORD  , WORD),
+
+  //A word goes on until whitespace or newline is found
+  RULE(WORD         , "@\n\r\t "                     , OK   , START  , WORD),
+  // if it's not a blank or newline, store it as part of the word
+  RULE(WORD         , "^\n\r\t "                     , STORE, WORD   , WORD),
+  
+  // recognise escapes in double quoted strings but don't process them
+  RULE(STRINGDQ     , "@\\"                          , STORE, STRINGDQESC, STRING),
+  // numbers keep the escape going to allow \00u, etc.   
+  RULE(STRINGDQESC  , "$d"                           , STORE, STRINGDQESC, STRING),
+  // anything else 
+  RULE(STRINGDQESC  , "!$d"                          , STORE, STRINGDQ, STRING),
+  
+  // a double quoted string goes on until a double quote is found 
+  RULE(STRINGDQ     , "@\""                          , SKIP , STRINGEND, STRING),
+  // store any other characters in the string
+  RULE(STRINGDQ     , "^\""                          , STORE, STRINGDQ , STRING),
+  
+  // end of string. accept any character so it can be resubmitted
+  RULE( STRINGEND   , "."                            , OK   , START    , STRING),
+  
+  // A single quoted string goes on until a single quote is found 
+  RULE(STRINGSQ     , "@'"                           , SKIP , STRINGEND, STRING),
+  // A single quoted string goes on until a single quote is found 
+  RULE(STRINGSQ     , "^'"                           , STORE, STRINGSQ , STRING),
+  // A backtick quoted string goes on until a double quote is found 
+  RULE(STRINGBT     , "@`"                           , SKIP , STRINGEND, STRING),
+  // A backtick quoted string goes on until a double quote is found 
+  RULE(STRINGBT     , "^`"                           , STORE, STRINGBT , STRING)
+
+};
+
+
+BeoLexerToken beolexer_lexchar(BeoLexer * self, int ch) {
+  int index = 0;
+  BeoLexerRule * rule;
+  BeoLexerToken token = { BEO_TOKEN_NONE, NULL };
+  // look though all rules for rules that match the current state
+  // could do a binary search in stead of aliner one, but keep it simple for now.
+  rule = self->rules + index;
+  for (index = 0 , rule = self->rules + index; 
+       rule; 
+       index++, rule = self->rules + index) {
+       
+    // Skip the rule doesn't natch the current state, except if it's ANYSTATE.
+    if(
+        (rule->before_state != BEO_LEXER_ANYSTATE) &&
+        (rule->before_state != self->state)
+      ) continue;
+    // Skip the rule if the expression does not match. 
+    if(!cstr_simplematch(rule->expression, ch)) continue;
+    self->state = rule->after_state; 
+    switch (rule->action) {    
+      case BEO_LEXER_SKIP: // do nothing
+        return token; // return token with type BEO_TOKEN_NULL
+      case BEO_LEXER_STORE: // store character
+        ustr_appendch(self->text, ch);
+        return token; // return token with type BEO_TOKEN_NULL
+        
+      case BEO_LEXER_OK:  
+        // done parsing one token, return token and empty buffer, 
+        // when you recieve this you mustcall lex_char again with the same token
+        // so it gets processed too!
+        token.text  = ustr_dup(self->text);
+        ustr_truncate(self->text, 0); 
+        token.kind  = rule->token_type;
+        return token; 
+      default: 
+        fprintf(stderr, "Unknown action %d in rule!\n", rule->action);
+        return token;
+    } 
+  }
+  // If we get here it's an error.
+  token.kind = BEO_TOKEN_ERROR;
+  // Need better error handling??
+  return token;  
+}
+
+
+
+
+// lex.rule( :start        , /#/             , :skip , :commentstart) 
+
 
 /* Ideas on the way the interpreter should work: 
 
@@ -391,6 +656,22 @@ this newline is ignored if :
    not with begin,
 
 A ; always separates commands.
+
+
+
+Forward polish notation: the arity is usually known, if
+variable, greedily take all arguments available 
+list a b c d e -> [a b c d e]
+list a b list c d e -> [ a b [c d e ]]
+list a plus 1 1 list c d e -> [ a 2 [c d e ]]
+list a plus 1 list c d e 2 -> error, because plus will receive 1 and [c d e 2] 
+as it's arguments.
+
+
+
+
+
+
 
 */
 

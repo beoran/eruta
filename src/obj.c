@@ -202,7 +202,8 @@ ObjPool * objpool_unref(ObjPool * pool) {
   prev = NULL;
   node = pool->last; 
   while (node) {
-    if(!(obj_unref(node->data)) { // not correct, need to change ObjPoolNode!!!
+    if(!(obj_unref(node->data))) { 
+    // not correct, need to change ObjPoolNode!!!
       next = node->next;
       if (!prev) { // begin of list
         pool->last = node->next;
