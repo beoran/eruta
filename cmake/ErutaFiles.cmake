@@ -1,0 +1,40 @@
+# All source files except main.c to enable testing
+# by using cmake's fake library feature. Don't forget to add new source 
+# files here manually.
+set(ERUTA_SRC_FILES
+  src/beo.c
+  src/bxml.c
+  src/camera.c
+  src/ch.c
+  src/dynar.c
+  src/effect.c
+  src/event.c
+  src/every.c
+  src/fifi.c
+  src/forlua.c
+  src/glh.c
+src/hatab.c
+src/ifa.c
+src/lh.c
+src/mem.c
+src/mobile.c
+src/mode.c
+src/obj.c
+src/react.c
+src/rebl.c
+src/silli.c
+src/silut.c
+src/sound.c
+src/sprite.c
+src/state.c
+src/str.c
+src/tile.c
+src/tileio.c
+src/tilemap.c
+src/tilepane.c
+src/toruby.c
+src/ui.c
+src/widget.c
+src/xml.c
+src/zori.c
+)
