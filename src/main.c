@@ -131,14 +131,14 @@ int real_main(void) {
     Tilepane * tilepane = NULL;
     Tilemap  * map      = NULL;
     React    react;
-    
+    ALLEGRO_COLOR myblack = {0.0, 0.0, 0.0, 1.0};
 
     
     
     state = state_alloc();
     /*Point      mp = { -100, -100};
     Point      mv = {0    , 0};*/
-    if((!(state)) || (!state_init(state, FALSE))) {
+    if((!(state)) || (!state_init(state, TRUE))) {
       perror(state_errmsg(state));
       return 1;
     }
@@ -196,7 +196,7 @@ int real_main(void) {
     //tile_addanime(tile, TILE_ANIME_REWIND);
       react_poll(&react, state);
       
-      //al_clear_to_color(COLOR_BLACK);
+      // al_clear_to_color(COLOR_WHITE);
       // al_draw_line(0, 0, SCREEN_W, SCREEN_H, COLOR_WHITE, 7);
       
       

@@ -9,6 +9,11 @@
 #define HATAB_ROOM_DEFAULT    128
 #define HATAB_CELLAR_DEFAULT 16
 
+struct Duo_ {
+  void * key;
+  void * data;
+};
+
 
 /* Jenkins hash function. */
 uint32_t hatab_jenkins(char *key, size_t len) {
@@ -50,6 +55,14 @@ struct Pail_ {
   Pail          * next;
   uint32_t        hash;
 };
+
+
+struct Duo_ * duo_init(struct Duo_ * self, void * key, void * value) {
+  if(!self) return NULL;
+  self->key  = key;
+  self->data = value;
+  return self;
+}
 
 /** A hash table. The algorithm implemented is a coalesced hash table. */
 struct Hatab_  {

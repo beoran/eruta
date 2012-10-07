@@ -54,7 +54,7 @@ void * objpool_register_data(ObjPool * pool, void * data) {
 
 
 /** Allocates an object with the given size in the given pool. 
-This will work much like mam_alloc / calloc, except that 
+This will work much like mem_alloc / calloc, except that 
 a hidden header is placed before the result, 
 which enables reference counting. If klass is NULL,
 a default class will be used that does nothing if done is called
