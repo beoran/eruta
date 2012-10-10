@@ -8,6 +8,8 @@
 #include "mode.h"
 #include "fifi.h"
 #include "lh.h"
+#include "rh.h"
+#include "toruby.h"
 #include "event.h"
 #include "forlua_proto.h"
 #include "widget.h"
@@ -37,6 +39,7 @@ struct State_ {
   Dynar               * modes;
   Camera              * camera;
   Lua                 * lua;
+  Ruby                * ruby;
   Console             * console; // the game lua and error message console.
 };
 
@@ -79,6 +82,7 @@ State * state_alloc() {
 void state_free(State * self) {
   
   dynar_free(self->modes);
+  rh_free(self->ruby);
   lh_free(self->lua);
   console_free(self->console);
   self->console = NULL; // disable console imediately.
@@ -129,6 +133,11 @@ ALLEGRO_COLOR state_color_f(State * state, int color,
 /** Gets Lua intepreter for state. */
 Lua * state_lua(State * state) {
   return state->lua;
+}
+
+/** Gets Ruby interpreter for state. */
+Ruby * state_ruby(State * state) {
+  return state->ruby;
 }
 
 /** Gets console intepreter for state. */
@@ -183,6 +192,11 @@ State * state_init(State * self, BOOL fullscreen) {
   self->fullscreen = fullscreen;
   self->audio      = FALSE;
   state_errmsg_(self, "OK!");
+  // Initialize Ruby scripting 
+  self->ruby = rh_new();
+  if(!self->ruby) {
+    return state_errmsg_(self, "Could not init Ruby.");
+  }
   // Initialize lua scripting.
   self->lua = lh_new();
   if(!self->lua) {
@@ -296,9 +310,9 @@ State * state_init(State * self, BOOL fullscreen) {
     }
   }
   console_puts(self->console, "Console started ok!");
-  // set up callback for console comands 
+  // set up ruby callback for console commands 
   console_command_(self->console, 
-                   (ConsoleCommand *)lh_dostring_myconsole, self->lua);
+                   (ConsoleCommand *)rh_dostring_console, self->ruby);
   
   // store a few pointers in the lua state's registry for ease of wrapping 
   lh_registry_putptr(self->lua, "eruta.state"         , self);

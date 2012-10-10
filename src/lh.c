@@ -454,8 +454,7 @@ int lh_dostring_console(Lua * lua, const char * code, void * console) {
 
 /** Looks up the console in the lua state's registry and then reports to that,
  as code is executed. */
-int lh_dostring_myconsole(Lua * lua, const char * code) {
-  Console * console = lh_registry_getptr(lua, "eruta.state.console");
+int lh_dostring_myconsole(Console * console, const char * code, Lua * lua) {
   if (console) return lh_dostring_console(lua, code, console);
   return lh_dostring_stderr(lua, code);
 }

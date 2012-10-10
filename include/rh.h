@@ -10,7 +10,7 @@
 // shortcut typedef
 typedef mrb_state Ruby;
 
-
+#include "widget.h"
 #include "rh_proto.h"
 
 

@@ -113,10 +113,6 @@ typedef struct WidgetLabel_ WidgetLabel;
 WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Bounds bounds, 
                           const char * text);
 
-/** A console is a console for lua interaction adn error display. When it's active it captures all input (as long as  */
-struct Console_;
-typedef struct Console_ Console;
-
 /** Cleans up a console */
 Console * console_done(Console * self);
 

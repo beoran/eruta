@@ -40,5 +40,9 @@ mrb_value rh_inspect(mrb_state *mrb, mrb_value obj);
 */
 int rh_dofile(Ruby * self, const char * filename);
 
+/** Runs a ruby string in the console, logging results and errors back to it.
+*/
+int rh_dostring_console(Console * console, char * command, void * extra);
+
 #endif // RH_PROTO_H
 

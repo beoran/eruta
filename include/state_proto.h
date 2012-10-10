@@ -45,6 +45,9 @@ ALLEGRO_COLOR state_color_f(State * state, int color,
 /** Gets Lua intepreter for state. */
 Lua * state_lua(State * state);
 
+/** Gets Ruby interpreter for state. */
+Ruby * state_ruby(State * state);
+
 /** Gets console intepreter for state. */
 Console * state_console(State * state);
 

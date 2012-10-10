@@ -277,7 +277,7 @@ struct WidgetChoose_ {
 }; 
 
 
-/** A console is a console for lua interaction adn error display. When it's active it captures all input (as long as  */
+/* A console is a console for command-line interaction and error display. When it's active it captures all input (as long as it's active) */
 struct Console_ {
   Widget  parent;
   Lilis * lines;
@@ -358,7 +358,7 @@ zero if OK. */
 int console_docommand(Console * self, char * text) {
   if(!self) return -1;
   if(!self->command) return -2;
-  return self->command(self->command_data, text);
+  return self->command(self, text, self->command_data);
 }
 
 /** Initializes a console. */

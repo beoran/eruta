@@ -153,7 +153,7 @@ int lh_dostring_console(Lua * lua, const char * code, void * console);
 
 /** Looks up the console in the lua state's registry and then reports to that,
  as code is executed. */
-int lh_dostring_myconsole(Lua * lua, const char * code);
+int lh_dostring_myconsole(Console * console, const char * code, Lua * lua);
 
 /** Looks up the console in the lua state's registry and then reports to that,
  as  the namef function is executed. */
