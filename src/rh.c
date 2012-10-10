@@ -16,7 +16,7 @@ mrb_obj_value(Data_Wrap_Struct(RUBY,                        \
 
 
 /*
-* Helper functions for the mruby ruby interpreter
+* RH contains helper functions for the mruby ruby interpreter.
 */
 
 
@@ -65,24 +65,28 @@ Ruby * rh_free(Ruby * self) {
   return NULL;
 }
 
+/** Returns an mrb_value that contains the value of object.inspect. 
+* m
+*/
+mrb_value rh_inspect(mrb_state *mrb, mrb_value obj) {
+  return mrb_funcall(mrb, obj, "inspect", 0);
+}
 
-int rh_runfile(Ruby * self, FILE * file) {
-  int n;
-  struct mrb_parser_state * parser;
-  parser = mrb_parse_file(self, file);
-  if (!parser || !parser->tree || parser->nerr) {
-    printf("Parse error!\n");
-    return -1;
+
+int rh_runfile(Ruby * self, const char * filename, FILE * file) {
+  mrbc_context     * c  = mrbc_context_new(self);
+  mrb_value v;
+  mrbc_filename(self, c, filename);
+  v = mrb_load_file_cxt(self, file, c);
+
+  mrbc_context_free(self, c);
+  if (self->exc) {
+      if (!mrb_undef_p(v)) {
+        mrb_p(self, mrb_obj_value(self->exc));
+      }
+      return -1;
   }
-  n = mrb_generate_code(self, parser->tree);
-  mrb_pool_close(parser->pool);
-  if (n >= 0) {
-    mrb_run(self, mrb_proc_new(self, self->irep[n]), mrb_top_self(self));
-    if (self->exc) {
-      mrb_p(self, mrb_obj_value(self->exc));
-    }
-  }
-  return n;
+  return 0;
 }
 
 int rh_runfilename(Ruby * self, const char * filename) {
@@ -92,7 +96,7 @@ int rh_runfilename(Ruby * self, const char * filename) {
     printf("No such ruby file: %s\n", filename);
     return -2;
   }
-  res = rh_runfile(self, file);
+  res = rh_runfile(self, filename, file);
   fclose(file);
   return res;
 }
@@ -100,7 +104,7 @@ int rh_runfilename(Ruby * self, const char * filename) {
 
 /**
 * Executes a ruby file in Eruta's data/script directory.
-* Returns -2 if the file ws not found.
+* Returns -2 if the file was not found.
 */
 int rh_dofile(Ruby * self, const char * filename) {
   int runres;

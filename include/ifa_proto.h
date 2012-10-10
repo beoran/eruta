@@ -6,5 +6,13 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Basic interface for a resorce that can be freed. */ 
+struct CanFree_;
+typedef struct CanFree_ CanFree;
+
+/** Interface that extends CanFree and allows reference counting. */
+struct CanReference_;
+typedef struct CanReference_ CanReference;
+
 #endif // IFA_PROTO_H
 

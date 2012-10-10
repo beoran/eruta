@@ -6,8 +6,14 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Initializes an object pool for use */
+ObjPool * objpool_init(ObjPool * pool);
+
+/** Registers data to be used with the given pool. */
+void * objpool_register_data(ObjPool * pool, void * data);
+
 /** Allocates an object with the given size in the given pool. 
-This will work much like mam_alloc / calloc, except that 
+This will work much like mem_alloc / calloc, except that 
 a hidden header is placed before the result, 
 which enables reference counting. If klass is NULL,
 a default class will be used that does nothing if done is called
@@ -57,6 +63,11 @@ void * obj_free(void * ptr);
 on the object if it's reference count became 0. This will return NULL if 
 the reference count became 0, otherwise it will return ptr. */
 void * obj_unref(void * ptr); 
+
+/** Walks though the object pool, and calls unref on each object. 
+If the object is effectively destroyed, it will be removed
+from the pool too. Otherwise, it remains in the pool. */
+ObjPool * objpool_unref(ObjPool * pool);
 
 #endif // OBJ_PROTO_H
 

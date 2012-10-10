@@ -17,7 +17,7 @@ mrb_obj_value(Data_Wrap_Struct(RUBY,                        \
 
 
 /*
-* Helper functions for the mruby ruby interpreter
+* RH contains helper functions for the mruby ruby interpreter.
 */
 
 
@@ -29,9 +29,14 @@ Ruby * rh_new();
 /** Frees a ruby state. */
 Ruby * rh_free(Ruby * self);
 
+/** Returns an mrb_value that contains the value of object.inspect. 
+* m
+*/
+mrb_value rh_inspect(mrb_state *mrb, mrb_value obj);
+
 /**
 * Executes a ruby file in Eruta's data/script directory.
-* Returns -2 if the file ws not found.
+* Returns -2 if the file was not found.
 */
 int rh_dofile(Ruby * self, const char * filename);
 
