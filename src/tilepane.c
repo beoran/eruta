@@ -3,7 +3,21 @@
 #include "tile.h"
 #include "camera.h"
 #include "tilepane.h"
-#include "dynar.h"
+
+/* Generate structs and functions for matrix for tiles. */   
+
+#define TMATRIX_T Tile*
+#define TMATRIX_NAME Tilemat
+#define TMATRIX_PREFIX tilemat_
+#include "tmatrix.h"
+
+#define TMATRIX_T Tile*
+#define TMATRIX_NAME Tilemat
+#define TMATRIX_PREFIX tilemat_
+#define TMATRIX_IMPLEMENT
+#include "tmatrix.h"
+
+
 
 
 /**
@@ -17,7 +31,7 @@ This comment is copied verbatim to the header but no prototype is generated.
 */
 struct Tilepane_ {
   Tileset     * set;
-  Tile      *** tiles;
+  Tilemat     * tiles;
   int           gridwide; // width of the tile map in grid points (tiles)
   int           gridhigh; // height of the tile map in grid points (tiles)
   int           realwide; // width of whole tile map in pixels
@@ -34,9 +48,7 @@ Tilepane * tilepane_done(Tilepane * pane) {
   // First free the rows.
   if (!pane) return NULL;
   if (pane->tiles) {
-    for (index = 0; index < pane->gridhigh ; index ++) {
-      mem_free(pane->tiles[index]);
-    }
+    pane->tiles = tilemat_free(pane->tiles);
   }  
   // Then the column holder arrays. 
   mem_free(pane->tiles);
@@ -59,7 +71,7 @@ Tilepane * tilepane_free(Tilepane * pane) {
 */
 Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
                            int gridwide, int gridhigh) {
-  int index, jdex;
+  int x, y, index;
   if (!pane) { perror("Could not allocate pane "); return NULL; }
   tilepane_tileset_(pane, set);
   pane->gridwide   = gridwide;
@@ -71,29 +83,18 @@ Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
   // Precalculate dimensions...  
   // And allocate space for the tiles and tile indices.
   
-  pane->tiles    = (Tile***) mem_calloc(pane->gridhigh, sizeof(Tile**));
+  pane->tiles    = tilemat_new(gridwide, gridhigh);
   if(!pane->tiles) {
-    perror("Could not allocate tiles array ");
+    perror("Could not allocate tiles matrix ");
     return NULL;
   }
-  
-  // First empty...
-  for (index = 0; index < pane->gridhigh ; index ++) {
-    pane->tiles[index] = NULL;
-  }
-  
+
   // Then allocate column rows, calling gypane done on failiure
   // that's why we need to null everything first) 
-  for (index = 0; index < pane->gridhigh ; index ++) {
-    pane->tiles[index] = (Tile**) mem_calloc(pane->gridwide, sizeof(Tile*));
-    if(!pane->tiles[index]) {
-      perror("Could not allocate tiles sub-array ");
-      tilepane_done(pane);
-      return NULL;
-    }
+  for (y = 0; y < pane->gridhigh ; y++) {
     // set all tile pointers to NULL
-    for(jdex = 0; jdex < pane->gridwide ; jdex++) {
-      pane->tiles[index][jdex] = NULL;
+    for(x = 0; x < pane->gridwide ; x++) {
+      tilemat_putraw(pane->tiles, x, y, NULL);
     }
   }
   
@@ -159,7 +160,7 @@ int tilepane_outsidegrid(Tilepane * pane, int gridx, int gridy) {
 Tile * tilepane_set(Tilepane * pane,
                           int gridx, int gridy, Tile * tile) {
   if (tilepane_outsidegrid(pane, gridx, gridy)) return NULL;
-  pane->tiles[gridy][gridx]    = tile;
+  tilemat_put(pane->tiles, gridx, gridy, tile);
   return tile;
 }  
 
@@ -167,8 +168,8 @@ Tile * tilepane_set(Tilepane * pane,
 * returns NULL if the fcoordinates are out of bounds or if it was an empty tile.
 */
 Tile * tilepane_get(Tilepane * pane, int gridx, int gridy) {
-  if (tilepane_outsidegrid(pane, gridx, gridy)) return NULL;
-  return pane->tiles[gridy][gridx];
+  if (tilemat_outofrange(pane->tiles, gridx, gridy)) return NULL;
+  return tilemat_getraw(pane->tiles, gridx, gridy);
 }  
 
 /** Returns the ile index in the pane's grid at the given grid coordinates,
@@ -248,7 +249,7 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
   for (ty_index = tystart; ty_index < tystop ; ty_index++) {
     drawy        += tilehigh;
     drawx         = -x + TIMES_TILEWIDE(txstart-1);
-    row           = pane->tiles[ty_index];
+    row           = tilemat_rowraw(pane->tiles, ty_index);
     if(!row) continue;
     for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
       drawx      += tilewide;

@@ -33,6 +33,14 @@ enum BXMLResult_
   BXML_ERROR      = 2,
 };
 
+/** BXMLAttr represents an attribute of the an XML tag. */
+struct BXMLAttr_ {
+  USTR     * name;
+  USTR     * value;
+  BXML     * tag;
+  BXMLAttr * next;
+};
+
 
 
 /**
@@ -41,13 +49,14 @@ enum BXMLResult_
 */
 struct BXML_
 {
-  BXML * parent, * next, * before, * child, * attr;
-  /* Different linked selfs: parent is the parent, next is the next sbling, previous is the previous sibling, child is the first child self,
-  attribute is the first attribute (linked by next and previous too) */
+  BXML     * parent, * next, * before, * child;
+  BXMLAttr * attr;
+  /* Different linked selfs: parent is the parent, next is the next sbling, 
+  previous is the previous sibling, child is the first child,
+  attribute is the first attribute. */
   USTR * name; 
-  /* for tags, this is the name of the tag, for attributes, 
-  the name of the attribute. */
-  USTR * value; /* For attributes this is the value of the attribute.*/
+  /* Name of the tag. */
+  USTR * value; /* For text nodes, this contains the text.*/
   int kind; /* kind of tag it is. */
   /* Attributes for IDATA tags. */
   int wide;

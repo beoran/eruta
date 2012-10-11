@@ -115,6 +115,10 @@ int TMATRIX_FUNC(h) (TMATRIX_NAME * self);
 * Returns self on sucess.
 */
 TMATRIX_NAME * TMATRIX_FUNC(init) (TMATRIX_NAME * self, int w, int h);
+
+/** Allocates a new matrix and initializes it. */
+TMATRIX_NAME * TMATRIX_FUNC(new) (int w, int h);
+
 /**
 * Return true if the arguments x and or y are out of range, or
 * if self itself isn't properly initialized. Return false if OK.
@@ -231,6 +235,13 @@ TMATRIX_NAME * TMATRIX_FUNC(init) (TMATRIX_NAME * self, int w, int h) {
   }
   return self;  
 }
+
+/** Allocates a new matrix and initializes it. */
+TMATRIX_NAME * TMATRIX_FUNC(new) (int w, int h) {
+  TMATRIX_NAME * self = TMATRIX_FUNC(alloc)();
+  return TMATRIX_FUNC(init)(self, w, h);
+}  
+  
 
 /**
 * Return true if the arguments x and or y are out of range, or
