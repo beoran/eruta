@@ -7,7 +7,8 @@ Please do not hand edit.
 */
 
 /**
-* Kind of the self. Can be : ATTR, TEXT, TAG, 
+* Kind of the self. Can be : ATTR, TEXT, TAG, IDATA.
+* The latter is for a 2D array of data, for use with the tilemap loading. 
 * Comments, entities and parsing instructions are ignored for now
 */
 enum BXMLKind_;
@@ -35,14 +36,14 @@ typedef struct BXML_ BXML;
 /**
 * BXMLParser is the parser interface.
 */ 
-struct BXMLParser_;
-typedef struct BXMLParser_ BXMLParser;
+struct BXMLParse_;
+typedef struct BXMLParse_ BXMLParse;
 
 /**
 * BXMLParse is the parser object.
 */
-struct BXMLParse_;
-typedef struct BXMLParse_ BXMLParse;
+struct BXMLParser_;
+typedef struct BXMLParser_ BXMLParser;
 
 ;
 

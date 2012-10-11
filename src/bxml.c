@@ -6,17 +6,20 @@
 #include <string.h>
 
 /* Simplistic, non-conforming XML parser that parses XML documents into 
-structs. */
+structs. Has  special handling for tags that have an encoding attribute
+*/
 
 /**
-* Kind of the self. Can be : ATTR, TEXT, TAG, 
+* Kind of the self. Can be : ATTR, TEXT, TAG, IDATA.
+* The latter is for a 2D array of data, for use with the tilemap loading. 
 * Comments, entities and parsing instructions are ignored for now
 */
 enum BXMLKind_
 {
-  BXML_TAG  = 1,
-  BXML_TEXT = 2,
-  BXML_ATTR = 3
+  BXML_TAG    = 1,
+  BXML_TEXT   = 2,
+  BXML_ATTR   = 3,
+  BXML_IDATA  = 4
 };
 
 
@@ -46,12 +49,16 @@ struct BXML_
   the name of the attribute. */
   USTR * value; /* For attributes this is the value of the attribute.*/
   int kind; /* kind of tag it is. */
+  /* Attributes for IDATA tags. */
+  int wide;
+  int high;
+  int ** idata;
 };
 
 /**
 * BXMLParser is the parser interface.
 */ 
-struct BXMLParser_ {
+struct BXMLParse_ {
   INTERFACE_BODY();
   int (*now) (struct BXMLParser_ * iface);
   int (*pos) (struct BXMLParser_ * iface);
@@ -63,7 +70,7 @@ struct BXMLParser_ {
 /**
 * BXMLParse is the parser object.
 */
-struct BXMLParse_ 
+struct BXMLParser_ 
 {
   char * data;
   size_t size;
@@ -82,6 +89,9 @@ BXML * bxml_init(BXML * self, int kind, BXML * parent) {
   self->kind   = kind;
   self->name   = ustr_new("");
   self->value  = ustr_new("");
+  self->idata  = NULL;
+  self->wide   = -1;
+  self->high   = -1;
   return self;
 }
 
@@ -112,6 +122,9 @@ BXML * bxml_done(BXML * self) {
   }
   ustr_free(self->name);
   ustr_free(self->value);
+  if(self->idata) free(self->idata);
+  self->wide = -1;
+  self->high = -1;
   return self;
 }
 

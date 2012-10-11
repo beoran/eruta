@@ -32,6 +32,7 @@ src/tile.c
 src/tileio.c
 src/tilemap.c
 src/tilepane.c
+src/tmatrix.c
 src/rh.c
 src/toruby.c
 src/ui.c
