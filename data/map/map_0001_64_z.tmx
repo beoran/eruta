@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="100" height="100" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="town" tilewidth="32" tileheight="32">
+  <image source="tiles_village_1000.png" width="480" height="480"/>
+  <tile id="3">
+   <properties>
+    <property name="type" value="water"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="type" value="stair"/>
+   </properties>
+  </tile>
+  <tile id="17">
+   <properties>
+    <property name="type" value="wall"/>
+   </properties>
+  </tile>
+  <tile id="35">
+   <properties>
+    <property name="anim" value="1"/>
+    <property name="type" value="water"/>
+   </properties>
+  </tile>
+  <tile id="36">
+   <properties>
+    <property name="anim" value="1"/>
+    <property name="type" value="water"/>
+   </properties>
+  </tile>
+  <tile id="37">
+   <properties>
+    <property name="anim" value="1"/>
+    <property name="type" value="water"/>
+   </properties>
+  </tile>
+  <tile id="38">
+   <properties>
+    <property name="anim" value="-3"/>
+    <property name="type" value="water"/>
+   </properties>
+  </tile>
+  <tile id="105">
+   <properties>
+    <property name="anim" value="1"/>
+    <property name="type" value="water"/>
+   </properties>
+  </tile>
+  <tile id="106">
+   <properties>
+    <property name="anim" value="1"/>
+    <property name="type" value="water"/>
+   </properties>
+  </tile>
+  <tile id="107">
+   <properties>
+    <property name="anim" value="1"/>
+    <property name="type" value="water"/>
+   </properties>
+  </tile>
+  <tile id="108">
+   <properties>
+    <property name="anim" value="1"/>
+    <property name="type" value="water"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="layer_0" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt0akNACAQAMEjoQJqoP8aQSIQGJ6EEeM32RQRCQA2yF0d3O75RVl44cldsxd++IEfL/LjPV4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwBkNNmwsFA==
+  </data>
+ </layer>
+ <layer name="layer_1" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt20FugzAUAFE2vQD3P2wXqVSCgoXDtz3fniehLhKK8SSEFLpv27a7oJYrpedG/H69i5gvG8SxB0vU3N1tUtNrxbb2YOl9vLJH2Wr7S9f7eKUye7D4+cFC73H8uYJR57s/f8vVeufHVzHi8+M837WPz2y11x+dPVjswWIPFnuw2IPFHiz2YFnxb0Rk9mCxBYs9WOzBYg8We7DYg8UeLPZgqe1xfL73+MSrvfdGbTnPLKv0yLKPq/TIgtLD84EXyhwQxkBA6aEXe7DYg2VEj9bby/z6qv1fjF7bi9hORnfmJ1uL4/ay+XaOatcZdVyM3maPY+3sx49M75MePTLNx2ie77LYg8UeLPZgsQdLxnP0J1qNjfqdedX3G7nHiqg9VhU1jzP0yD7+o8w9Mo/9SuT7jIQ2nrtm7kEb0x0R46buN3VcJfZgmb1HtuvDWY+zd9mDNQZ75Np+JEqPb9efpUMke7DMdLyYgT1Y7FE2wz2Vre1bu3Gff6896oy4vtn6+1LmHr3Ncj/1DHrdd26Psp5zZI9/e2HpPYYn6yuO7w8We7DYg8UeLCPv9/m0DuEcZ6So6x+rzFdrEee7tojjfLLYg8UeLPZgsQeLPVjswWIPFnuw2IPFHiz2YO1/xuv15OWJ0WN3+bz8AhM6L8M=
+  </data>
+ </layer>
+ <objectgroup name="object_0" width="100" height="100">
+  <object name="start" type="start" gid="35" x="96" y="128">
+   <properties>
+    <property name="script" value="particle_burst(3, 4, 10)"/>
+   </properties>
+  </object>
+  <object name="warp_1" type="warp" gid="35" x="416" y="416">
+   <properties>
+    <property name="id" value="1"/>
+    <property name="to" value="2"/>
+   </properties>
+  </object>
+  <object name="warp_2" type="warp" gid="35" x="448" y="1312">
+   <properties>
+    <property name="id" value="2"/>
+    <property name="to" value="1"/>
+   </properties>
+  </object>
+  <object name="alarm_1" type="alarm" x="423" y="1118">
+   <properties>
+    <property name="trigger" value="alarm1"/>
+   </properties>
+   <polyline points="0,0 -277,271"/>
+  </object>
+ </objectgroup>
+ <layer name="layer_2" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt0bEJADAMwLBA//+5N2QIeJDAF3gGAGDnLeOWHy1+tPjR4keLHy1+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALR8oZsA/Q==
+  </data>
+ </layer>
+ <layer name="layer_3" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt1iEKAEAIRUHP4P0Pu92wYBB+mAHB7CtWAQDs9HK4tbmxHvf0yKJHFj2y6JGlx/77qfQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuPcAHegCHQ==
+  </data>
+ </layer>
+ <objectgroup name="object_1" width="100" height="100"/>
+</map>
