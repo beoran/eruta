@@ -77,10 +77,10 @@ but wrap it a bit with macros to have to do less typing. */
 #define ustr_equal(STR, STR2)              al_ustr_equal(STR, STR2)
 #define ustr_compare(STR, STR2)            al_ustr_compare(STR, STR2)
 #define ustr_ncopare(STR, STR2, SZ)        al_ustr_ncompare(STR, STR2, SZ)
-#define ustr_prefix(STR, STR2)             al_ustr_has_prefix(STR, STR2)
-#define ustr_suffix(STR, STR2)             al_ustr_has_suffix(STR, STR2)
-#define ustr_prefixcstr(STR, CS)           al_ustr_has_prefix(STR, CS)
-#define ustr_suffixcstr(STR, CS)           al_ustr_has_suffix(STR, CS)
+#define ustr_isprefix(STR, STR2)           al_ustr_has_prefix(STR, STR2)
+#define ustr_issuffix(STR, STR2)           al_ustr_has_suffix(STR, STR2)
+#define ustr_isprefixcstr(STR, CS)         al_ustr_has_prefix_cstr(STR, CS)
+#define ustr_issuffixcstr(STR, CS)         al_ustr_has_suffix_cstr(STR, CS)
 
 
 #define ustr_const(NAME, CSTR)             \
