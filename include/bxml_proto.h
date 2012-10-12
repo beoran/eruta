@@ -17,35 +17,16 @@ typedef enum BXMLKind_ BXMLKind;
 ;
 
 /**
-* Results of a parse
-*/
-enum BXMLResult_;
-typedef enum BXMLResult_ BXMLResult;
-
-;
-
-/**
 * An BXML represents one <tag></tag> self and it's children and attributes,
-* or the attributes of a tag.
+* OR the attributes of a tag.
 */
 struct BXML_;
 typedef struct BXML_ BXML;
 
 ;
 
-/**
-* BXMLParser is the parser interface.
-*/ 
-struct BXMLParse_;
-typedef struct BXMLParse_ BXMLParse;
-
-/**
-* BXMLParse is the parser object.
-*/
-struct BXMLParser_;
-typedef struct BXMLParser_ BXMLParser;
-
-;
+/** Initializes a BXML self */
+BXML * bxml_init(BXML * self, int kind, BXML * parent);
 
 /** Allocates a new bxml node */
 BXML * bxml_alloc();
@@ -58,6 +39,39 @@ BXML * bxml_done(BXML * self);
 
 /** Frees this node and cleans up its children recursively. returns NULL. */
 BXML * bxml_free(BXML * self);
+
+/**
+* BXMLParser is the parser interface.
+*/ 
+struct BXMLParse_;
+typedef struct BXMLParse_ BXMLParse;
+
+/**
+* Results of a parse. Negative states indicate errors.
+*/
+enum BXMLResult_;
+typedef enum BXMLResult_ BXMLResult;
+
+;    
+
+/** State of the parser. Negative states indicate errors. */
+enum BXMLState_;
+typedef enum BXMLState_ BXMLState;
+
+/**
+* BXMLParse is the parser object. The parser works on a character to character 
+* basis.
+*/
+struct BXMLParser_;
+typedef struct BXMLParser_ BXMLParser;
+
+/** Makes the parser accept a single character. 
+The tag or attribute that is currently being parsed, if available, 
+is stored in result. Otherwise NULL is stored. Negative values indicate a 
+parse or parser error. */
+BXMLResult 
+bxmlparser_parse_core(BXMLParser * self, int ch, 
+                      BXML ** result);
 
 #endif // BXML_PROTO_H
 

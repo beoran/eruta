@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /* Simplistic, non-conforming XML parser that parses XML documents into 
 structs. Has  special handling for tags that have an encoding attribute
@@ -16,78 +17,38 @@ structs. Has  special handling for tags that have an encoding attribute
 */
 enum BXMLKind_
 {
-  BXML_TAG    = 1,
-  BXML_TEXT   = 2,
-  BXML_ATTR   = 3,
-  BXML_IDATA  = 4
+  BXML_TAG      = 1,
+  BXML_TEXT     = 2,
+  BXML_ATTR     = 3,
+  BXML_IDATA    = 4,
+  BXML_COMMENT  = 5,
+  BXML_DECLARE  = 6,
+  BXML_LASTKIND = 7
 };
-
-
-/**
-* Results of a parse
-*/
-enum BXMLResult_
-{
-  BXML_OK         = 0,
-  BXML_INCOMPLETE = 1,
-  BXML_ERROR      = 2,
-};
-
-/** BXMLAttr represents an attribute of the an XML tag. */
-struct BXMLAttr_ {
-  USTR     * name;
-  USTR     * value;
-  BXML     * tag;
-  BXMLAttr * next;
-};
-
-
 
 /**
 * An BXML represents one <tag></tag> self and it's children and attributes,
-* or the attributes of a tag.
+* OR the attributes of a tag.
 */
 struct BXML_
 {
+  BXMLKind   kind; /* kind of tag it is. */
   BXML     * parent, * next, * before, * child;
-  BXMLAttr * attr;
+  BXML     * attr;
   /* Different linked selfs: parent is the parent, next is the next sbling, 
   previous is the previous sibling, child is the first child,
   attribute is the first attribute. */
-  USTR * name; 
-  /* Name of the tag. */
-  USTR * value; /* For text nodes, this contains the text.*/
-  int kind; /* kind of tag it is. */
-  /* Attributes for IDATA tags. */
-  int wide;
-  int high;
-  int ** idata;
-};
-
-/**
-* BXMLParser is the parser interface.
-*/ 
-struct BXMLParse_ {
-  INTERFACE_BODY();
-  int (*now) (struct BXMLParser_ * iface);
-  int (*pos) (struct BXMLParser_ * iface);
-  int (*pos_)(struct BXMLParser_ * iface, int pos);
+  USTR     * name; 
+  /* Name of the tag or attribute. */
+  USTR     * value; /* For text nodes, this contains the text. 
+  For attribute nodes this contains the value of the attribute.
+  */
+  /* Extra data, depending on the tag kind, etc. */
+  void     * data;
 };
 
 
-
-/**
-* BXMLParse is the parser object.
-*/
-struct BXMLParser_ 
-{
-  char * data;
-  size_t size;
-  size_t now;
-};
-
-
-/* Initializes a BXML self */
+/** Initializes a BXML self */
 BXML * bxml_init(BXML * self, int kind, BXML * parent) {
   if(!self) return NULL;
   self->parent = parent;
@@ -98,9 +59,7 @@ BXML * bxml_init(BXML * self, int kind, BXML * parent) {
   self->kind   = kind;
   self->name   = ustr_new("");
   self->value  = ustr_new("");
-  self->idata  = NULL;
-  self->wide   = -1;
-  self->high   = -1;
+  self->data   = NULL;
   return self;
 }
 
@@ -131,9 +90,6 @@ BXML * bxml_done(BXML * self) {
   }
   ustr_free(self->name);
   ustr_free(self->value);
-  if(self->idata) free(self->idata);
-  self->wide = -1;
-  self->high = -1;
   return self;
 }
 
@@ -147,6 +103,285 @@ BXML * bxml_free(BXML * self) {
 
 /* according to the XML standard, these are spaces */
 static const char BXML_SPACE_STR[] = { 0x20,  0x09, 0x0D, 0x0A, 0x00 };
+
+
+
+/**
+* BXMLParser is the parser interface.
+*/ 
+struct BXMLParse_ {
+  INTERFACE_BODY();
+  int (*now) (struct BXMLParser_ * iface);
+  int (*pos) (struct BXMLParser_ * iface);
+  int (*pos_)(struct BXMLParser_ * iface, int pos);
+};
+
+/**
+* Results of a parse. Negative states indicate errors.
+*/
+enum BXMLResult_
+{    
+  BXML_FOUND_TAG     =  BXML_TAG, /* A tag was found. */
+  BXML_FOUND_ATTR    =  BXML_ATTR, /* An attribute was found. */
+  BXML_FOUND_TEXT    =  BXML_TEXT,
+  BXML_FOUND_IDATA   =  BXML_IDATA,
+  BXML_FOUND_COMMENT =  BXML_COMMENT,
+  BXML_FOUND_DECLARE =  BXML_DECLARE,
+  /* A text node was found. */
+  BXML_OK            =  BXML_LASTKIND + 1, 
+  /* Parse went on OK. More input is needed. Nothing returned. */
+  BXML_DONE          =  BXML_LASTKIND + 1, 
+  /* Parse finished sucessfully. */
+  BXML_ERROR       = -1,
+  BXML_STACKERROR  = -2,
+};
+
+/** State of the parser. Negative states indicate errors. */
+enum BXMLState_ {
+  BXML_STATE_ERROR      = -1,
+  BXML_STATE_STACKERROR = -2,
+  BXML_STATE_START      = 0,
+  BXML_STATE_TAG        = BXML_TAG,
+  BXML_STATE_ATTRIBUTE  = BXML_ATTR,
+  BXML_STATE_TEXT       = BXML_TEXT,
+  BXML_STATE_IDATA      = BXML_IDATA,
+  BXML_STATE_ENTITY     = BXML_LASTKIND + 2,
+  BXML_STATE_COMMENT    = BXML_LASTKIND + 3,
+  BXML_STATE_DECLARE    = BXML_LASTKIND + 4,
+  BXML_STATE_TAGSTART   = BXML_LASTKIND + 5,  
+  BXML_STATE_TAGEND     = BXML_LASTKIND + 6,
+  BXML_STATE_ATTRLIST   = BXML_LASTKIND + 7,  
+  BXML_STATE_ATTRSTART  = BXML_LASTKIND + 8,
+  BXML_STATE_ATTRVALUE  = BXML_LASTKIND + 9,  
+  BXML_STATE_ATTREND    = BXML_LASTKIND + 10,  
+};
+
+#define BXMLPARSER_STACKSIZE 1024
+
+/**
+* BXMLParse is the parser object. The parser works on a character to character 
+* basis.
+*/
+struct BXMLParser_ {
+  int         line;
+  int         col;
+  int         lastchar;
+  int         nowchar;
+  int         stack[BXMLPARSER_STACKSIZE];
+  int         sp;
+  BXML     *  tag;
+};
+
+/* Pushes a state on the parser's state stack. Returns state if 
+OK, negative on error. */
+int bxmlparser_push(BXMLParser * self, BXMLState state) {
+  self->sp++;
+  // stack overflow
+  if( self->sp >= BXMLPARSER_STACKSIZE) {
+    return BXML_STATE_STACKERROR;
+  }
+  self->stack[self->sp] = state;
+  return state;
+}
+
+/* Returns the state of the top of the stack. 
+Assumes the stack pointer is safe.
+*/
+BXMLState bxmlparser_peek(BXMLParser * self) {
+  return self->stack[self->sp];
+}
+
+
+/* Pops a state from the parser's state stack. Returns negative if
+an error (e.g. underflow) occurs. Returns the new stack top otherwise. */
+BXMLState bxmlparser_pop(BXMLParser * self) {
+  self->sp--;
+  // Stack underflow.
+  if(self->sp < 0) {
+    return BXML_STATE_STACKERROR;
+  }
+  return self->stack[self->sp];
+}
+
+/* Sets the top of the state stack to astate and returns the NEW top */
+BXMLState bxmlparser_put(BXMLParser * self, BXMLState state) {
+  BXMLState old = self->stack[self->sp];
+  return self->stack[self->sp] = state;
+  return old;
+}
+
+
+/* Stack and parsing helper macros. */
+#define PUSH(P, S) bxmlparser_push(P, S)
+#define POP(P) bxmlparser_pop(P)
+#define PEEK(P) bxmlparser_peek(P)
+#define PUT(P, S) bxmlparser_put(P, S)
+
+/* Store SELF->tag in R, and return S */
+#define PRET(SELF, R, S) do { (*(R)) = (SELF)->tag ; return (S); } while(0)   
+
+
+/* Initializes an BXML parser. */
+BXMLParser * 
+bxmlparser_init(BXMLParser * self) {
+  if(!self) return NULL;
+  self->line      = 1;
+  self->col       = 1;
+  self->lastchar  = -1;
+  self->nowchar   = -1;
+  self->sp        = -1;
+  PUSH(self, BXML_STATE_START);
+  self->tag       = NULL;
+  return self;
+}
+
+
+/* Parses when in the start state.  */
+BXMLResult 
+bxmlparser_parse_start(BXMLParser * self, int ch, BXML ** result) {
+  /* We should get a < first  */
+  if (ch == '<') { 
+    /* go on to parse the tag, preparing it for use. */    
+    PUSH(self, BXML_STATE_TAG); 
+    self->tag = bxml_new(BXML_TAG, self->tag);
+    PRET(self, result, BXML_OK);
+  } else if (isblank(ch)) { 
+  /* normally we should get a < character right away,
+  but be lenient and skip spaces. So do nothing. */    
+    PRET(self, result, BXML_OK);
+  } 
+  /* Otherwise it's a parse error. */
+  PRET(self, result, BXML_ERROR);
+}
+
+/* Parses when in the tag start state. This is the beginning of the   
+tag name, to deal with comment and <? declarations. */
+BXMLResult 
+bxmlparser_parse_tagstart(BXMLParser * self, int ch, BXML ** result) {
+  /*    
+  * If there's a ? at the beginning, it's a declaration. 
+  * If there is a ! at the start it should a comment
+    ( may not be so if it's a <!ENTITY>)  
+  * If it's alphabetical, it's OK, the tag name begins.
+  * Anything else is an error.
+  */
+  if (ch == '?')       {
+      PUSH(self, BXML_STATE_DECLARE);
+      PRET(self, result, BXML_OK);
+  } else if(ch == '!') {
+      PUSH(self, BXML_STATE_COMMENT);
+      PRET(self, result, BXML_OK);      
+  } else if(isalpha(ch)) {
+      ustr_appendch(self->tag->name, ch);
+      SWAP(self, BXML_STATE_TAG);
+      PRET(self, result, BXML_OK);
+  } else {
+      /* Anything else is a parse error at the start of the tag name.  */
+      PUSH(self, BXML_STATE_ERROR);
+      PRET(self, result, BXML_ERROR);
+  }    
+  /* If we get here it's inside of the tag */
+}
+
+/* Parses when in the tag state. This is the rest of the the tag name. */
+BXMLResult 
+bxmlparser_parse_tag(BXMLParser * self, int ch, BXML ** result) {
+/*
+  Possible cases:
+  * If there is a > the tag is done, and we go on to text parsing mode
+    for the possible contents of the tag.
+  * If there is a / the tag SHOULD be ending,
+  * If there are alphanumerical characters, continue with the tag name.
+  * If there is whitespace, attribute list begins. 
+*/
+  if(isalnum(ch)) {
+    ustr_appendch(self->tag->name, ch);
+    PRET(self, result, BXML_OK);
+  } else if (isspace(ch)) {
+    SWAP(self, BXML_STATE_ATTRIBUTE);
+    PRET(self, result, BXML_OK);
+  } else if (ch == '/') {
+    SWAP(SELF, BXML_STATE_TAGEND);
+    PRET(self, result, BXML_OK);
+  } else {
+    /* Anything else is a parse error  */
+    PUSH(self, BXML_STATE_ERROR);
+    PRET(self, result, BXML_ERROR);
+  }
+
+}
+
+
+BXMLResult 
+bxmlparser_parse_attribute (BXMLParser * self, int ch, BXML ** result) {
+  PRET(self, result, BXML_ERROR);
+}
+
+BXMLResult 
+bxmlparser_parse_text (BXMLParser * self, int ch, BXML ** result) {
+  PRET(self, result, BXML_ERROR);
+}
+
+BXMLResult 
+bxmlparser_parse_entity (BXMLParser * self, int ch, BXML ** result) {
+  PRET(self, result, BXML_ERROR);
+}
+
+BXMLResult 
+bxmlparser_parse_comment (BXMLParser * self, int ch, BXML ** result) {
+  PRET(self, result, BXML_ERROR);
+}
+
+
+BXMLResult 
+bxmlparser_parse_declare (BXMLParser * self, int ch, BXML ** result) {
+  PRET(self, result, BXML_ERROR);
+}
+
+/** Makes the parser accept a single character. 
+The tag or attribute that is currently being parsed, if available, 
+is stored in result. Otherwise NULL is stored. Negative values indicate a 
+parse or parser error. */
+BXMLResult 
+bxmlparser_parse_core(BXMLParser * self, int ch, 
+                      BXML ** result) {
+  BXMLState state;
+  if(!self) return BXML_ERROR;
+  self->lastchar = self->nowchar;
+  self->nowchar  = ch;
+  // Advance line and column of the parser as needed. 
+  self->col++;
+  if (ch == '\n') {
+    self->line++; self->col = 1;
+  }
+  // Handle the state.
+  state          = PEEK(self);
+  switch(state) {
+    case BXML_STATE_START:
+      return bxmlparser_parse_start(self, ch, result);      
+    case BXML_STATE_TAGSTART:
+      return bxmlparser_parse_tagstart(self, ch, result);
+    case BXML_STATE_TAG:
+      return bxmlparser_parse_tag(self, ch, result);
+    case BXML_STATE_ATTRIBUTE:
+      return bxmlparser_parse_attribute(self, ch, result);
+    case BXML_STATE_TEXT:
+      return bxmlparser_parse_text(self, ch, result);
+    case BXML_STATE_ENTITY:
+      return bxmlparser_parse_entity(self, ch, result);
+    case BXML_STATE_COMMENT:
+      return bxmlparser_parse_comment(self, ch, result);
+    case BXML_STATE_DECLARE:
+      return bxmlparser_parse_declare(self, ch, result);
+    default: 
+      PRET(self, result, BXML_ERROR);    
+  }
+}  
+
+
+
+
+
 
 
 

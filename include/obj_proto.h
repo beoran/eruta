@@ -6,6 +6,10 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Ref is a reference counted wrapper around arbitrary data pointer, */
+struct Ref_;
+typedef struct Ref_ Ref;
+
 /** Initializes an object pool for use */
 ObjPool * objpool_init(ObjPool * pool);
 

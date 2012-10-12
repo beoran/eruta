@@ -2,6 +2,51 @@
 #include "obj.h"
 
 
+
+
+/* 
+  Ideas for refcount/interface combo system. 
+  
+  Interface contains only self, and a pointer to a method table. 
+  Rationale: The method table could be static and reused 
+  to save memory, or allocated at runtime and dynamic when that's needed. 
+  If we were to store the methods diirectly in the interface, this would 
+  take up a lot of duplicate space for every same struct wrapped in an 
+  interface.  
+  The method table is simply a struct of function pointers. However,
+  the first pointers must be a free() function.
+  
+  Finally, the Ref warps an interface and a refcount.
+  
+  The first two methods are always 
+  Reference contains refcount and interface to object. 
+
+*/
+
+
+struct Metab_ {
+  void * (*free)(void * ptr);
+};
+
+struct Inter_ {
+  void         * data;
+  struct Metab * methods;
+};
+
+
+/** Ref is a reference counted wrapper around arbitrary data pointer, */
+struct Ref_ {
+  struct Inter_ * inter;
+  int             refcount;
+};
+
+/*
+Ref * ref_init(Ref * ref, Inter * inter) {
+  return NULL;
+} 
+*/
+
+
 /* Hidden object header that implements the reference counting. */
 struct ObjHeader_ {
   struct ObjClass_  * klass;

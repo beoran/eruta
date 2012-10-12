@@ -86,6 +86,8 @@ but wrap it a bit with macros to have to do less typing. */
 #define ustr_const(NAME, CSTR)             \
         USTR_INFO info_##NAME; US * NAME = ustr_refcstr(&info_##NAME, CSTR);
 
+#define ustr_isempty(USTR) (ustr_size((USTR)) < 1)
+
 #include "str_proto.h"
 
 
