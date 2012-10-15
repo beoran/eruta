@@ -6,5 +6,20 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/**
+* toruby.c contains all functionality that Eruta exposes to 
+* mruby. All functions are prefixed with tr_
+*/
+
+
+#include "toruby.h"
+#include "rh.h"
+
+/* Test method. */
+static int tr_test(mrb_state * mrb, mrb_value self);
+
+/** Initializes the functionality that Eruta exposes to lua. */
+int tr_init(mrb_state * mrb);
+
 #endif // TORUBY_PROTO_H
 

@@ -11,7 +11,7 @@
 */
 struct Dynar_ {
   char * data;
-  // use a char * pointer siince that makes pointer arithmetic easier
+  // use a char * pointer since that makes pointer arithmetic easier
   size_t size;
   size_t elsz;
 };

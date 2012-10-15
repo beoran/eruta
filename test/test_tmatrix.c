@@ -5,41 +5,41 @@
 
 
 /* Get Tmatrix interface, generate for integer type */
-#define TMATRIX_T      int
-#define TMATRIX_NAME   Intmat
-#define TMATRIX_PREFIX intmat_
+#define TEMPLATE_T      int
+#define TEMPLATE_NAME   Intmat
+#define TEMPLATE_PREFIX intmat_
 #include "tmatrix.h"
 
 /* Get implementation for iteger type. */
-#define TMATRIX_IMPLEMENT
-#define TMATRIX_T      int
-#define TMATRIX_NAME   Intmat
-#define TMATRIX_PREFIX intmat_
+#define TEMPLATE_IMPLEMENT
+#define TEMPLATE_T      int
+#define TEMPLATE_NAME   Intmat
+#define TEMPLATE_PREFIX intmat_
 
 #include "tmatrix.h"
 
-#undef TMATRIX_T
-#undef TMATRIX_NAME
-#undef TMATRIX_PREFIX
-#undef TMATRIX_IMPLEMENT
+#undef TEMPLATE_T
+#undef TEMPLATE_NAME
+#undef TEMPLATE_PREFIX
+#undef TEMPLATE_IMPLEMENT
 
 /* Get Tmatrix interface generate for pointer type */
-#define TMATRIX_T      void*
-#define TMATRIX_NAME   Ptrmat
-#define TMATRIX_PREFIX ptrmat_
+#define TEMPLATE_T      void*
+#define TEMPLATE_NAME   Ptrmat
+#define TEMPLATE_PREFIX ptrmat_
 #include "tmatrix.h"
 
 /* Get implementation for pointer type. */
-#define TMATRIX_IMPLEMENT
-#define TMATRIX_T      void*
-#define TMATRIX_NAME   Ptrmat
-#define TMATRIX_PREFIX ptrmat_
+#define TEMPLATE_IMPLEMENT
+#define TEMPLATE_T      void*
+#define TEMPLATE_NAME   Ptrmat
+#define TEMPLATE_PREFIX ptrmat_
 #include "tmatrix.h"
 
-#undef TMATRIX_T
-#undef TMATRIX_NAME
-#undef TMATRIX_PREFIX
-#undef TMATRIX_IMPLEMENT
+#undef TEMPLATE_T
+#undef TEMPLATE_NAME
+#undef TEMPLATE_PREFIX
+#undef TEMPLATE_IMPLEMENT
 
 
 

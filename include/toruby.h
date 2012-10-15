@@ -2,6 +2,7 @@
 #define toruby_H_INCLUDED
 
 #include "toruby_proto.h"
+#include "rh.h"
 
 
 #endif

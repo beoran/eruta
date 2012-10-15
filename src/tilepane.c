@@ -6,15 +6,15 @@
 
 /* Generate structs and functions for matrix for tiles. */   
 
-#define TMATRIX_T Tile*
-#define TMATRIX_NAME Tilemat
-#define TMATRIX_PREFIX tilemat_
+#define TEMPLATE_T Tile*
+#define TEMPLATE_NAME Tilemat
+#define TEMPLATE_PREFIX tilemat_
 #include "tmatrix.h"
 
-#define TMATRIX_T Tile*
-#define TMATRIX_NAME Tilemat
-#define TMATRIX_PREFIX tilemat_
-#define TMATRIX_IMPLEMENT
+#define TEMPLATE_T Tile*
+#define TEMPLATE_NAME Tilemat
+#define TEMPLATE_PREFIX tilemat_
+#define TEMPLATE_IMPLEMENT
 #include "tmatrix.h"
 
 
