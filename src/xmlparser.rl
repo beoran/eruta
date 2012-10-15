@@ -6,7 +6,7 @@
 struct Xmlragel_ {
   Xml * root;
   Xml * top;
-  STR * buffer;
+  USTR * buffer;
 };
 
 
@@ -30,20 +30,20 @@ main     := space* element space*;
   machine xmlparser;
   action buffer {
     str_appendch(parser->buffer, fpc);
-  };
+  }
 
-  action element_open { };
-  action element_done { };
+  action element_open { }
+  action element_done { }
   
   
 
-  name      = ^(space | '/' | '>' | '=')+ >buffer
+  name      = ^(space | '/' | '>' | '=')+ >buffer;
   open      = '<';
   close     = '>';
 
-  element   = open
-  anyspace  = space*
-  junk     := comment; 
+  element   = open;
+  anyspace  = space*;
+  junk     := comment;
   main     := prolog? junk* element junk @{ res = 1; };
 }%%
 
