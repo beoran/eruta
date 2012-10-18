@@ -1,17 +1,17 @@
 #include "stdio.h"
 #include "str.h"
-#include "xml.h"
+#include "bxml.h"
 
 /** Struct to hold the state of the ragel parser. */
-struct Xmlragel_ {
-  Xml * root;
-  Xml * top;
+struct BXMLRagel_ {
+  BXML * root;
+  BXML * top;
   USTR * buffer;
 };
 
 
 /*
-a Ragel Parser for XML.
+A Ragel Parser for XML.
 
 
 attribute = ^(space | ‘/’ | ‘>’ | ‘=’)+ >buffer %attributeName space* ‘=’ space*
@@ -27,24 +27,30 @@ main     := space* element space*;
 */
 
 %%{
-  machine xmlparser;
+  machine bxmlparser;
   action buffer {
     str_appendch(parser->buffer, fpc);
   }
 
-  action element_open { }
-  action element_done { }
+  action tag_open { };
+  action tag_done { };
   
   
 
-  name      = ^(space | '/' | '>' | '=')+ >buffer;
-  open      = '<';
-  close     = '>';
-
-  element   = open;
-  anyspace  = space*;
-  junk     := comment;
-  main     := prolog? junk* element junk @{ res = 1; };
+  name          = ^(space | '/' | '>' | '=')+ >buffer;
+  tagopen       = '<';
+  fulltagclose  = '>';
+  emptytagclose = '/>';
+  emptytag      = tagopen name emptytagclose;
+  endtag        = '</' name? '>' ;
+  fulltag       = tagopen name fulltagclose tagbody endtag ;
+  bodytext      = ^[<&] ;
+  entity        = '&' alnum ';' ; 
+  tagbody       = (bodytext | entity)* ;   
+  tag           =  emptytag | fulltag  ; 
+  anyspace  = space* ; 
+  junk     := comment; 
+  main     := prolog? junk* tag junk @{ res = 1; };
 }%%
 
 /*
@@ -101,7 +107,7 @@ attdef    {open}"?XML-ATT"
 
 %%write data;
 
-int xmlragel_parse(stuct Xmlragel_ * parser, char * xmltext, int size) {
+int xmlragel_parse(stuct BXMLRagel_ * parser, char * xmltext, int size) {
   int cs, res = -1;
   if (size < 0) size = strlen(xmltext);
   {
