@@ -59,7 +59,7 @@ int bounds_h(Bounds * self) {
 }
 
 /** Get priority of bounds. */
-int bounds_h(Bounds * self) {
+int bounds_z(Bounds * self) {
   return self->z;
 }
 
@@ -134,23 +134,23 @@ Bounds widget_bounds(Widget * self) {
 
 /** Get width of widget. */
 int widget_w(Widget * self) {  
-  return bounds_w(self->bounds); 
+  return bounds_w(&self->bounds); 
 }
 /** Get height of widget. */
 int widget_h(Widget * self) {  
-  return bounds_h((self->bounds); 
+  return bounds_h(&self->bounds); 
 }
 /** Get x position of widget. */
 int widget_x(Widget * self) {  
-  return bounds_x()self->bounds); 
+  return bounds_x(&self->bounds); 
 }
 /** Get y position of widget. */
 int widget_y(Widget * self) {  
-  return bounds_y(self->bounds); 
+  return bounds_y(&self->bounds); 
 }
 /** Get z position of widget. */
 int widget_z(Widget * self) {  
-  return bounds_z(self->bounds);
+  return bounds_z(&self->bounds);
 }
 
 /** Get foreground color of widget. */
