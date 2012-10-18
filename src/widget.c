@@ -8,19 +8,6 @@
 #include "ui.h"
 
 /*
-* = Explanation of the Widget system. =
-* 
-* The actual logical structure of the UI is maintained on the Lua side.
-* On the C side, we have Widgets, which are very basic and simple objects that
-* can draw themselves and dispose of themselves when they are done, and
-* nothing much more. The Lua script will then create these Gadgets,
-* hold references to them, and  call the draw command to draw them,
-* the drawing happens on the C side for speed. 
-*
-* The response to events and everything else happens on the Lua side.
-* The C side does take the Allegro events and translates them into
-* in game commands (direction of motion, etc), although for the mouse
-* this will probably be clicks at given positions.
 *
 * Control of Eruta should be possible comfortably though joystick,
 * keybroad, and a single mouse only, so people with physical limitations
@@ -71,6 +58,11 @@ int bounds_h(Bounds * self) {
   return self->s.y;
 }
 
+/** Get priority of bounds. */
+int bounds_h(Bounds * self) {
+  return self->z;
+}
+
 
 /** Makes a new style struct. */
 Style style_make(Color fore, Color back, Font * font, Image * background) {
@@ -112,8 +104,9 @@ Font  * style_font(Style * self)        {
 
 /** Type and methods of the Widgets */
 struct WidgetMethods_ {
-  WidgetDraw * draw;
+  WidgetDraw * free;
   WidgetDraw * done;
+  WidgetDraw * draw;
 };
 
 // typedef struct WidgetMethods_ WidgetMethods;
@@ -123,13 +116,15 @@ sub-widgets. A note on ownership: the pointers to font and image in style
 are NOT cleaned up, since style is intended to be mostly a shallow copy in which
 font and background image are repeated many times.
 */
+
 struct Widget_ {
+  /* Methods           */
+  WidgetMethods * methods;
+  
   /* Bounds */
   Bounds          bounds;
   /* Styling elements. */
   Style           style;
-  /* Class             */
-  WidgetMethods * methods;
 };
 
 /** Get bounds of widget. */
@@ -139,23 +134,23 @@ Bounds widget_bounds(Widget * self) {
 
 /** Get width of widget. */
 int widget_w(Widget * self) {  
-  return bounds_w((Bounds *)self); 
+  return bounds_w(self->bounds); 
 }
 /** Get height of widget. */
 int widget_h(Widget * self) {  
-  return bounds_h((Bounds *)self); 
+  return bounds_h((self->bounds); 
 }
 /** Get x position of widget. */
 int widget_x(Widget * self) {  
-  return bounds_x((Bounds *)self); 
+  return bounds_x()self->bounds); 
 }
 /** Get y position of widget. */
 int widget_y(Widget * self) {  
-  return bounds_y((Bounds *)self); 
+  return bounds_y(self->bounds); 
 }
 /** Get z position of widget. */
 int widget_z(Widget * self) {  
-  return 0;
+  return bounds_z(self->bounds);
 }
 
 /** Get foreground color of widget. */

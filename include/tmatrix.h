@@ -60,7 +60,7 @@ TEMPLATE_NAME * TEMPLATE_FUNC(free) (TEMPLATE_NAME * self);
 int TEMPLATE_FUNC(w) (TEMPLATE_NAME * self);
 
 /** Returns the height of the TMATRIX. 
-* Returns -1 is self isn't propery initialized. */
+* Returns -1 if self isn't propery initialized. */
 int TEMPLATE_FUNC(h) (TEMPLATE_NAME * self);
 
 
