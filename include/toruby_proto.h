@@ -14,9 +14,10 @@ Please do not hand edit.
 
 #include "toruby.h"
 #include "rh.h"
+#include "state.h"
 
 /* Test method. */
-static int tr_test(mrb_state * mrb, mrb_value self);
+static mrb_value tr_test(mrb_state * mrb, mrb_value self);
 
 /** Initializes the functionality that Eruta exposes to lua. */
 int tr_init(mrb_state * mrb);

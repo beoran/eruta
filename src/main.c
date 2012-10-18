@@ -136,9 +136,11 @@ int real_main(void) {
     
     
     state = state_alloc();
+    state_set(state); 
+    // set the state as the global state.
     /*Point      mp = { -100, -100};
     Point      mv = {0    , 0};*/
-    if((!(state)) || (!state_init(state, TRUE))) {
+    if((!(state)) || (!state_init(state, FALSE))) {
       perror(state_errmsg(state));
       return 1;
     }
@@ -249,7 +251,7 @@ int real_main(void) {
 }
 
 
-int main(void) {
+int main(int argc, char* argv[]) {
   int res; // init xml parser
   // LIBXML_TEST_VERSION
   res = real_main();

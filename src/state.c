@@ -197,6 +197,7 @@ State * state_init(State * self, BOOL fullscreen) {
   if(!self->ruby) {
     return state_errmsg_(self, "Could not init Ruby.");
   }
+  tr_init(self->ruby);
   // Initialize lua scripting.
   self->lua = lh_new();
   if(!self->lua) {

@@ -168,16 +168,27 @@ end
   attribute   = space+  attrname space* '=' space* attrvalue;
   open        = '<'  @newchild;
   close       = '/>' @childdone;
-  noclose     = '>' 
+  noclose     = '>';
   attributes  = attribute attribute*;
   tagopen     = (open tagname) %settagname;
   emptytag    = tagopen attributes? close;
   closetag    = '</' tagname? '>' @childdone;
-  tagcontents = tag tag*;
+  
   fulltag     = tagopen attributes? noclose tagcontents closetag;
-  tag         = emptytag | fulltag
+  tag         = emptytag | fulltag;
+  tagcontents = tag tag*;
   elements    = tag tag*;
   main       := elements @{ result = 1; };
+  
+# attribute = ^(space | ‘/’ | ‘>’ | ‘=’)+ >buffer %attributeName space* ‘=’ space*
+# ((‘\” ^’\”* >buffer %attribute ‘\”) | (‘”‘ ^’”‘* >buffer %attribute ‘”‘));
+# element = ‘<' space* ^(space | '/' | '>‘)+ >buffer %elementStart (space+ attribute)*
+# :>> (space* (‘/’ %elementEndSingle)? space* ‘>’ @element);
+# elementBody := space* <: ((^'<'+ >buffer %text) <: space*)?
+# element? :>> (‘<' space* '/' ^'>‘+ ‘>’ @elementEnd);
+# main := space* element space*; git add 
+  
+  
 }%%
 
 
@@ -205,8 +216,7 @@ def ragel_parse(text)
 end
 
 s1 = %{<hello/><world/>}
-s2 = %{<hello/><world I_AM="an attribute" and_THIS_IS='another &quot; one'/>
-<has_children><child1/></has_children>}
+s2 = %{<base><hello/><world I_AM="an attribute" and_THIS_IS='another &quot; one'/><has_children><child1/></has_children></base>}
 ragel_parse(s1)
 ragel_parse(s2)
 

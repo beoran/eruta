@@ -1,0 +1,21 @@
+
+
+#undef TEMPLATE_T
+#undef TEMPLATE_U
+#undef TEMPLATE_V
+#undef TEMPLATE_W
+#undef TEMPLATE_OK
+#undef TEMPLATE_NAME
+#undef TEMPLATE_PREFIX
+#undef TEMPLATE_ALLOC
+#undef TEMPLATE_FREE
+#undef TSTR_HELPER
+#undef TSTR
+#undef TJOIN_HELPER
+#undef TJOIN
+#undef TSTRUCT
+#undef TFUNC
+#undef TEMPLATE_STRUCT
+#undef TEMPLATE_FUNC
+#undef TEMPLATE_IMPLEMENT
+#undef TEMPLATE_OK
