@@ -11,7 +11,6 @@
 #include "rh.h"
 #include "toruby.h"
 #include "event.h"
-#include "forlua_proto.h"
 #include "widget.h"
 
 
@@ -38,9 +37,9 @@ struct State_ {
   Mode                * mode; // active mode
   Dynar               * modes;
   Camera              * camera;
-  Lua                 * lua;
   Ruby                * ruby;
-  Console             * console; // the game lua and error message console.
+  Console             * console; 
+  // The ruby and error message GUI console.
 };
 
 
@@ -83,7 +82,6 @@ void state_free(State * self) {
   
   dynar_free(self->modes);
   rh_free(self->ruby);
-  lh_free(self->lua);
   console_free(self->console);
   self->console = NULL; // disable console imediately.
   font_free(self->font);
@@ -91,13 +89,6 @@ void state_free(State * self) {
   camera_free(self->camera);
   audio_stop();
   al_uninstall_system();
-  
-  /* console_free(self->console);
-  
-  
-  // 
-  
-  */
   STRUCT_FREE(self);
 }
 
@@ -130,10 +121,6 @@ ALLEGRO_COLOR state_color_f(State * state, int color,
   return state->colors[color] = al_map_rgba_f(r, g, b, a);
 }
 
-/** Gets Lua intepreter for state. */
-Lua * state_lua(State * state) {
-  return state->lua;
-}
 
 /** Gets Ruby interpreter for state. */
 Ruby * state_ruby(State * state) {
@@ -183,7 +170,7 @@ int state_initjoystick(State * self) {
 
 
 /** Initializes the state. It opens the screen, keyboards,
-lua interpreter, etc. Get any error with state_errmsg if
+ interpreter, etc. Get any error with state_errmsg if
 this returns NULL. */
 State * state_init(State * self, BOOL fullscreen) {
   if(!self) return NULL;
@@ -198,13 +185,6 @@ State * state_init(State * self, BOOL fullscreen) {
     return state_errmsg_(self, "Could not init Ruby.");
   }
   tr_init(self->ruby);
-  // Initialize lua scripting.
-  self->lua = lh_new();
-  if(!self->lua) {
-    return state_errmsg_(self, "Could not init Lua.");
-  }
-  // initialize the functions Eruta exposes to Lua
-  fl_init(self->lua);
   
   // Initialize Allegro 5 and addons
   if (!al_init()) {
@@ -236,9 +216,6 @@ State * state_init(State * self, BOOL fullscreen) {
     perror("Sound not started.");
   }
 
-  
-  
-  
   // Use full screen mode if needed.
   if(self->fullscreen) { 
     flags = ALLEGRO_FULLSCREEN | ALLEGRO_GENERATE_EXPOSE_EVENTS;
@@ -314,12 +291,7 @@ State * state_init(State * self, BOOL fullscreen) {
   // set up ruby callback for console commands 
   console_command_(self->console, 
                    (ConsoleCommand *)rh_dostring_console, self->ruby);
-  
-  // store a few pointers in the lua state's registry for ease of wrapping 
-  lh_registry_putptr(self->lua, "eruta.state"         , self);
-  lh_registry_putptr(self->lua, "eruta.state.console" , self->console);
-  lh_registry_putptr(self->lua, "eruta.state.font"    , self->font);
-  
+    
   return self;
 }
 

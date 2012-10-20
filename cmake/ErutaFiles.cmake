@@ -11,11 +11,9 @@ set(ERUTA_SRC_FILES
   src/event.c
   src/every.c
   src/fifi.c
-  src/forlua.c
   src/glh.c
 src/hatab.c
 src/ifa.c
-src/lh.c
 src/mem.c
 src/mobile.c
 src/mode.c

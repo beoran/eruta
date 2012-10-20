@@ -13,6 +13,18 @@
 * keybroad, and a single mouse only, so people with physical limitations
 * can also play the game.
 *
+* The following widgets will be needed:
+* 1 ) Console to log errors and interact with ruby/state.
+* 2 ) Menu (vertical, horizontal) 
+* 3 ) Ring menu ?
+* 4 ) Notification/explanation display.
+* 5 ) Talk bubbles.
+* 6 ) Talk dialog with text display and option selection.
+* User interface is different depending on the game "mode"
+* Possible modes could be intro, start menu, 
+* configuration, image/text display (story mode/cutscenes, etc)
+* normal mode, battle mode and menu mode.
+* 
 */
 
 

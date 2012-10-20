@@ -187,9 +187,9 @@ int real_main(void) {
     }
 
   // Try to load the main lua file.
-  lh_dofile_stderr(state_lua(state), "main.lua");
+  // lh_dofile_stderr(state_lua(state), "main.lua");
   // Call the on_start function.
-  lh_dofunction_myconsole_args(state_lua(state), "on_start", "s", "a string argument");
+  // lh_dofunction_myconsole_args(state_lua(state), "on_start", "s", "a string argument");
 
     
   while(state_busy(state)) { 
@@ -211,7 +211,7 @@ int real_main(void) {
       // camera_speed_(camera, mv);
       camera_update(camera);
       // call lua update callback 
-      lh_dofunction_myconsole_args(state_lua(state), "on_update", "s", "a string argument");
+      // lh_dofunction_myconsole_args(state_lua(state), "on_update", "s", "a string argument");
       
       
       if(map) tilemap_draw(map, camera);
@@ -228,7 +228,7 @@ int real_main(void) {
       }
 
       // call lua drawing callback
-      lh_dofunction_myconsole_args(state_lua(state), "on_draw", "s", "a string argument");
+      // lh_dofunction_myconsole_args(state_lua(state), "on_draw", "s", "a string argument");
       
       /* lh_callglobalstderr_args(state_lua(state), "on_draw", "s", "a string 
        argument"); */
