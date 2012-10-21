@@ -69,7 +69,7 @@ React * react_react(React * self, ALLEGRO_EVENT * event) {
     case ALLEGRO_EVENT_MOUSE_WARPED:
       DO_REACT(self, event, mouse, mouse_warped);
     case ALLEGRO_EVENT_TIMER:
-      DO_REACT(self, event, timer, timer);      
+      DO_REACT(self, event, timer, timer);
     case ALLEGRO_EVENT_DISPLAY_EXPOSE:
       DO_REACT(self, event, display, display_expose);
     case ALLEGRO_EVENT_DISPLAY_RESIZE:
@@ -100,11 +100,11 @@ React * react_poll(React * self, void * state) {
   while( (event = state_pollnew((State *)state)) ) {
     // React to all incoming events, except if the console catches them.
     Console * console = state_console(state);
-    if(console_handle(console, event)) { 
+    if(console_handle((Widget *)console, event) < 1 ) { 
       event_free(event); // here we must free the event...
     } else {
       react_react(self, event);
-       event_free(event); 
+      event_free(event);
       // here we must free the event...
       // for now still use react system... 
       // here lua will free the event for us ...

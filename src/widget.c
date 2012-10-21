@@ -4,8 +4,9 @@
 #include "str.h"
 #include "image.h"
 #include "dynar.h"
-#include "widget.h"
 #include "ui.h"
+#include "widget.h"
+
 
 /*
 *
@@ -25,6 +26,31 @@
 * configuration, image/text display (story mode/cutscenes, etc)
 * normal mode, battle mode and menu mode.
 * 
+* Idea for simplification: actually an widget and a mode
+* are comparable in that they deal with inpuut each differently, and
+* output each in differen ways. Only, a mode is a combination of 
+* UI elements. For example, the main menu is a static background 
+* with a vertical menu over it, and the menu has the focus.
+*
+* Ideas on event handling: The "problem" with allegro is that the
+* even types are spare, and ptonentially stretch the whole integer range.
+* Hence, it's not realistic to use a simple array as a jump table. Some
+* more complex structiree, like a hsh table, tree, etc, would be needed 
+* for fast lookup of the event handler function. Hance, and probably by 
+* design, a case statement uis the best way to handle and dispatch the 
+* input. The react system I wrote has the disadvantage that it will add
+* an additional pointer ndirection to that switch statement, a problem the 
+* console doesn't have. Hence, I'll go for a simple event handler
+* for every function that takest he allegro event like the console does.
+* 
+* Hence every widget will have tthe following basic interface 
+* functions: 
+* free (on destruction)
+* done (on deinit)
+* event (on any allegro or user event or action)
+* update (called every n ticks, when the widget should recalculate it's position, etc)
+* draw (called when the widget should draw itself)
+*
 */
 
 
@@ -114,30 +140,9 @@ Font  * style_font(Style * self)        {
 
 
 
-/** Type and methods of the Widgets */
-struct WidgetMethods_ {
-  WidgetDraw * free;
-  WidgetDraw * done;
-  WidgetDraw * draw;
-};
-
 // typedef struct WidgetMethods_ WidgetMethods;
 
-/* Widgets are individual parts of the UI. Each widget can contain
-sub-widgets. A note on ownership: the pointers to font and image in style
-are NOT cleaned up, since style is intended to be mostly a shallow copy in which
-font and background image are repeated many times.
-*/
 
-struct Widget_ {
-  /* Methods           */
-  WidgetMethods * methods;
-  
-  /* Bounds */
-  Bounds          bounds;
-  /* Styling elements. */
-  Style           style;
-};
 
 /** Get bounds of widget. */
 Bounds widget_bounds(Widget * self) {
@@ -183,39 +188,143 @@ Image * widget_background(Widget * self) {
   return style_background(&self->style);
 }
 
-Widget * widget_initall(Widget * self, Bounds bounds, Style style) {
+/** Gets the flags of a widget. */
+int widget_flags(Widget * self) {
+  return self->flags;
+}
+
+/** Gets the id of a widget. */
+int widget_id(Widget * self, int id) {
+  return self->id;
+}
+
+/** Sets all the flags of a widget at once. */
+int widget_flags_(Widget * self, int flags) {
+  return self->flags = flags;
+}
+
+/** Sets the id of a widget. */
+int widget_id_(Widget * self, int id) {
+  return self->id = id;
+}
+
+
+/** Sets an individual flag on the widget. */
+int widget_flag(Widget * self, int flag) {
+  return self->flags = self->flags | flag;
+}
+
+/** Unsets an individual flag on the widget. */
+int widget_unflag(Widget * self, int flag) {
+  register int wflags = self->flags;
+  return self->flags = wflags & (~flag);
+}
+
+/** Sets or unsets an individual flag on the widget. 
+If set is true the flag is set, if false it's unset. */
+int widget_doflag(Widget * self, int flag, int set) {
+  if (set) { return widget_flag(self, flag); }
+  else { return widget_unflag(self, flag); }
+}
+
+/** Checks if an individual flag is set */
+int widget_flag_p(Widget * self, int flag) {
+  register int wflags = self->flags;
+  return (wflags & flag) == flag;
+}
+
+/** Checks if the widget is visible or not.  */
+int widget_visible(Widget * self) {
+  return widget_flag_p(self, WIDGET_FLAG_VISIBLE);
+}
+
+/** Checks if the widget is listening to input or not.  */
+int widget_listening(Widget * self) {
+  return widget_flag_p(self, WIDGET_FLAG_LISTENING);
+}
+
+/** Checks if the widget is active, hat is both visible and 
+listening to input or not.  */
+int widget_active(Widget * self) {
+  return widget_flag_p(self, WIDGET_FLAG_ACTIVE);
+}
+
+/** Checks if the widget is focused or not.  */
+int widget_focused(Widget * self) {
+  return widget_flag_p(self, WIDGET_FLAG_FOCUSED);
+}
+
+/** Checks if the widget selected or not.  */
+int widget_selected(Widget * self) {
+  return widget_flag_p(self, WIDGET_FLAG_SELECTED);
+}
+
+/** Sets the widget to be visible or not depending on set. */
+int widget_visible_(Widget * self, int set) {
+  return widget_doflag(self, WIDGET_FLAG_VISIBLE, set);
+}
+
+/** Sets the widget if the widget is listening to input or not depending
+on set. */
+int widget_listening_(Widget * self, int set) {
+  return widget_doflag(self, WIDGET_FLAG_VISIBLE, set);
+}
+
+/** Sets the widget to be active or not */
+int widget_active_(Widget * self, int set) {
+  return widget_doflag(self, WIDGET_FLAG_ACTIVE, set);
+}
+
+/** Sets if the widget is focused or not.  */
+int widget_focused_(Widget * self, int set) {
+  return widget_doflag(self, WIDGET_FLAG_FOCUSED, set);
+}
+
+/** Sets if the widget selected or not.  */
+int widget_selected_(Widget * self, int set) {
+  return widget_doflag(self, WIDGET_FLAG_SELECTED, set);
+}
+
+/** Sets up the method table of a widget. */
+Widget * widget_metab_(Widget * self, WidgetMetab * metab) {
   if(!self) return NULL;
+  self->metab = metab;
+  return self;
+}
+
+/** Fully initializes a widget. */
+Widget * widget_initall(Widget * self, 
+                        int id, WidgetMetab * metab, 
+                        Bounds bounds, Style style) {
+  if(!self) return NULL;
+  self->id     = id;
+  widget_metab_(self, metab);
   self->bounds = bounds;
   self->style  = style;
-/*  
-  self->parent = parent;
-  self->child  = self->next = self->drawnext = NULL;
-  self->can_focus = self->active = TRUE;
-  self->focus     = self->closed = self->hidden = self->mouse_over 
-                  = self->mouse_down = FALSE;
-*/                  
+  widget_active_(self, TRUE);
   return self;
 }
 
 
-/** Initialzes a widget with given bounds and style. */
-Widget * widget_initbounds(Widget * self, Bounds bounds) {
+/** Initializes a widget with given bounds and style. */
+Widget * widget_initbounds(Widget * self, int id,
+                           WidgetMetab * metab, Bounds bounds)
+{
   Color fg    = color_rgb(0,0,0);
   Color bg    = color_rgb(255,0,0);
   Style style = { fg, bg, NULL, NULL };
-  return widget_initall(self, bounds, style);
+  return widget_initall(self, id, metab, bounds, style);
 }
 
 /** Initialzes a widget from another one's bounds and style. */
-Widget * widget_initparent(Widget * self,  Widget * parent) {
-  return widget_initall(self, parent->bounds, parent->style);
+Widget * widget_initparent(Widget * self, int id, Widget * parent) {
+  return widget_initall(self, id, parent->metab, parent->bounds, parent->style);
 }
 
 /** Allocates a widget */
 Widget * widget_allocate() {
   return STRUCT_ALLOC(Widget);
 }
-
 
 /** Call when widget is not needed anymore. */
 Widget * widget_done(Widget * widget) {
@@ -227,13 +336,14 @@ Widget * widget_done(Widget * widget) {
 /** Frees a widget. Calls widget->methods->done(), then mem_free if
 the latter returns not NULL. Returns NULL. */
 Widget * widget_free(Widget * self) {
-  if (self && self->methods && self->methods->done) {
-    if(self->methods->done(self)) {
+  if (self && self->metab && self->metab->done) {
+    if(self->metab->done(self)) {
       mem_free(self);
     }
   }
   return NULL;
 }
+
 
 
 #define WIDGET_BORDER 3 
@@ -253,16 +363,17 @@ struct WidgetBox_ {
 };
 
 
-/** 
+#ifndef COMMENT_
+/* 
 * A label is simply a piece of text that is drawn at bounds.x, bounds.y
 * using style.font in style.forecolor. No background is drawn.
-*/
+
 struct WidgetLabel_ {
   Widget        parent;
   USTR        * text;
 };
 
-/** Initializes a label. */
+
 WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Bounds bounds, 
                           const char * text) {
   if(!widget_initbounds((Widget *)self, bounds)) return NULL;
@@ -282,17 +393,18 @@ struct WidgetChoose_ {
   Widget parent;
   Dynar * options;
 }; 
+*/
+#endif
 
 
 /* A console is a console for command-line interaction and error display. When it's active it captures all input (as long as it's active) */
 struct Console_ {
-  Widget  parent;
+  Widget  widget;
   Lilis * lines;
   Lilis * last;
   int     count;
   int     max;
   int     start;
-  int     active;
   int     charw;
   int     cursor;
   char  * buf;
@@ -300,58 +412,6 @@ struct Console_ {
   ConsoleCommand * command; // called when a command has been entered, if set.
   void * command_data; // command data.
 };
-
-/** Cleans up a console */
-Console * console_done(Console * self) {
-  Lilis * aid;
-  if(!self) return NULL;
-  for (aid = self->lines; aid; aid = lilis_next(aid))  {
-    ustr_free((USTR *)lilis_data(aid));
-  }
-  lilis_free(self->lines);
-  mem_free(self->buf);
-  ustr_free(self->input);
-  return self;
-}
-
-
-/** Deallocates a console. */
-Console * console_free(Console * self) {
-  console_done(self);
-  mem_free(self);
-  return NULL;
-}
-
-/** Allocates a console. */
-Console * console_alloc() {
-  return STRUCT_ALLOC(Console);
-}
-
-#define CONSOLE_MAX 1000
-
-/** Initializes a console. */
-Console * console_initall(Console * self, Bounds bounds, Style style) {
-  if(!self) return NULL;
-  if(!widget_initall((Widget *)self, bounds, style)) return NULL;
-  self->lines = lilis_newempty();
-  if(!self->lines) return NULL;
-  self->last  = lilis_addnew(self->lines, NULL);
-  if(!self->last) { console_done(self); return NULL; }
-  self->count = 0;
-  self->max   = 1000; // MUST be at least 2, 3 to see anything...
-  self->start = 0;
-  self->active= FALSE;
-  self->charw = 80; 
-  self->buf   = mem_alloc(self->charw + 1);
-   // one extra for NULL at end . 
-  if(!self->buf) { console_done(self); return NULL; }
-  self->input = ustr_new("");
-  self->cursor= 0;
-  if(!self->input) { console_done(self); return NULL; }
-  self->command      = NULL;
-  self->command_data = NULL;
-  return self;
-}
 
 
 /** Sets the console's command function and data. */
@@ -362,21 +422,15 @@ void console_command_(Console * self, ConsoleCommand * command, void * data) {
 
 /** Let the console perform a command if possible. returns nonzero on error,
 zero if OK. */
-int console_docommand(Console * self, char * text) {
+int console_docommand(Console * self, const char * text) {
   if(!self) return -1;
   if(!self->command) return -2;
   return self->command(self, text, self->command_data);
 }
 
-/** Initializes a console. */
-Console * console_new(Bounds bounds, Style style) {
-  Console * self = console_alloc();
-  if(!console_initall(self, bounds, style)) {
-    return console_free(self);
-  }
-  return self;
-}
 
+
+/** Adds a line of text to the console. */
 int console_addstr(Console * self, char * str) {
   USTR * storestr;
   if(!self) return -1;
@@ -421,18 +475,22 @@ int console_puts(Console * self, const char * str) {
 } 
 
 
-
-
 /** Draws a console. */
-void console_draw(Console * self) {
-  Font * font = widget_font((Widget *)self);
-  Color color = widget_forecolor((Widget *)self);
+void console_draw(Widget * widget) {
+  Console * self ;
+  Font * font    ;
+  Color color    ;
   int high, linehigh, index, x, y, skip;
-  if(!self->active) return;
-  widget_drawroundframe((Widget *)self);
-  high        = widget_h((Widget *) self) - 10;
-  x           = widget_x((Widget *) self) +  5;
-  y           = widget_y((Widget *) self) -  5;
+  if (!widget_visible(widget)) return;
+  
+  self  = (Console *) widget;
+  font  = widget_font(widget);
+  color = widget_forecolor(widget);
+  
+  widget_drawroundframe(widget);
+  high        = widget_h(widget) - 10;
+  x           = widget_x(widget) +  5;
+  y           = widget_y(widget) -  5;
   linehigh    = font_lineheight(font);
   Lilis * now = self->lines;
   // skip start lines (to allow scrolling backwards) 
@@ -458,13 +516,13 @@ void console_draw(Console * self) {
 /** Activates or deactivates the console. */
 void console_active_(Console * self, int active) {
   if(!self) return;
-  self->active = active;
+  widget_active_(&self->widget, active);
 }
 
 /** Returns nonzero if console is active zero if not. */
 int console_active(Console * self) {
   if(!self) return 0;
-  return self->active;
+  return widget_active(&self->widget);
 }
 
 /** scrolls the console 1 step in the given direction. */
@@ -474,24 +532,26 @@ int console_scroll(Console * self, int direction) {
   if(direction > 0) self->start++;
   self->start = (self->start < 1) ? 0 : self->start;
   self->start = (self->start > self->max) ? self->max : self->start;
-  return TRUE;
+  return WIDGET_HANDLE_OK;
 }
 
 
+/* Key input event handler for console. */
 int console_handle_keychar(Console * self, ALLEGRO_EVENT * event) { 
   int ch = event->keyboard.unichar;
   int kc = event->keyboard.keycode;
   switch(kc) {
-    case ALLEGRO_KEY_F1: return TRUE; // ignore the start-console key
-    case ALLEGRO_KEY_PGUP: return console_scroll(self, 1);
-    case ALLEGRO_KEY_PGDN: return console_scroll(self, -1);
+    // ignore the start-console key
+    case ALLEGRO_KEY_F1   : return WIDGET_HANDLE_OK;
+    case ALLEGRO_KEY_PGUP : return console_scroll(self, 1);
+    case ALLEGRO_KEY_PGDN : return console_scroll(self, -1);
     case ALLEGRO_KEY_BACKSPACE:
       // remove last character typed.
       ustr_remove_chr(self->input, ustr_offset(self->input, -1));
-      return TRUE;
+      return WIDGET_HANDLE_OK;
     break;    
     case ALLEGRO_KEY_ENTER: {
-      char * command = ustr_c(self->input);
+      const char * command = ustr_c(self->input);
       // execute command
       if(console_docommand(self, command)) { 
         console_puts(self, "Error in running comand");
@@ -499,7 +559,7 @@ int console_handle_keychar(Console * self, ALLEGRO_EVENT * event) {
       }
       ustr_truncate(self->input, 0);
       // empty string by truncating it
-      return TRUE;
+      return WIDGET_HANDLE_OK;
       }
     default: break;
   }
@@ -508,44 +568,120 @@ int console_handle_keychar(Console * self, ALLEGRO_EVENT * event) {
   if(event->keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
     console_active_(self, false); // disable console if esc is pressed.
   }
-  return TRUE;
+  return WIDGET_HANDLE_OK;
 }
 
 
-
+/* Mouse axe event handler for console */
 int console_handle_mouseaxes(Console * self, ALLEGRO_EVENT * event) { 
   int z = event->mouse.dz;
   // only capture mouse scroll wheel...
-  if(z == 0) return FALSE;
+  if(z == 0) return WIDGET_HANDLE_IGNORE;
   if(z < 0) return console_scroll(self, -1);
   if(z > 0) return console_scroll(self, +1);
-  return TRUE;
+  return WIDGET_HANDLE_OK;
 }
 
 
-/** Let the console handle allegro events. Will return true if it was consumed,
-false if not. */
+/** Let the console handle allegro events. Returns 0 if event was consumed,
+postoive if not, and negative on error. */
 
-int console_handle(Console * self, ALLEGRO_EVENT * event) { 
-  if(!console_active(self)) return FALSE;
+int console_handle(Widget * widget, ALLEGRO_EVENT * event) { 
+  Console * self = (Console *) widget;
+  if(!widget) return WIDGET_HANDLE_ERROR;
+  if(!widget_active(widget)) return WIDGET_HANDLE_IGNORE;
+  
   
   switch(event->type) {
     case ALLEGRO_EVENT_KEY_DOWN:
-      return TRUE;
+      return WIDGET_HANDLE_OK;
     case ALLEGRO_EVENT_KEY_UP:
-      return TRUE;
+      return WIDGET_HANDLE_OK;
     case ALLEGRO_EVENT_KEY_CHAR:
       return console_handle_keychar(self, event);
     case ALLEGRO_EVENT_MOUSE_AXES:
       return console_handle_mouseaxes(self, event);
   }
   
-  return FALSE;
+  return WIDGET_HANDLE_IGNORE;
+}
+
+/* Global console method table. */
+static WidgetMetab console_metab_ = {
+  console_free,
+  console_done,
+  console_draw,
+  console_handle,
+  NULL,
+};
+
+
+/** Cleans up a console */
+void * console_done(void * widget) {
+  Console * self = (Console *) widget;
+  Lilis * aid;
+  if(!self) return NULL;
+  for (aid = self->lines; aid; aid = lilis_next(aid))  {
+    ustr_free((USTR *)lilis_data(aid));
+  }
+  self->lines   = lilis_free(self->lines);
+  self->buf     = mem_free(self->buf);
+  ustr_free(self->input);
+  self->input   = NULL;
+  return widget;
 }
 
 
+/** Deallocates a console. */
+void * console_free(void * widget) {
+  Console * self = (Console *) widget;
+  console_done(self);
+  mem_free(self);
+  return NULL;
+}
 
+/** Allocates a console. */
+Console * console_alloc() {
+  return STRUCT_ALLOC(Console);
+}
 
+#define CONSOLE_MAX 1000
+
+/** Initializes a console. */
+Console * console_initall(Console * self, int id, Bounds bounds, Style style) {
+  if(!self) return NULL;
+  if(!widget_initall(&self->widget, id, &console_metab_, bounds, style)) { 
+    return NULL;
+  }
+  self->lines = lilis_newempty();
+  if(!self->lines) return NULL;
+  self->last  = lilis_addnew(self->lines, NULL);
+  if(!self->last) { console_done(self); return NULL; }
+  widget_active_(&self->widget, FALSE);
+  self->count = 0;
+  // max MUST be at least 2, 3 to see anything...
+  self->max   = 1000; 
+  self->start = 0;
+  self->charw = 80; 
+  self->buf   = mem_alloc(self->charw + 1);
+   // one extra for NULL at end . 
+  if(!self->buf) { console_done(self); return NULL; }
+  self->input = ustr_new("");
+  self->cursor= 0;
+  if(!self->input) { console_done(self); return NULL; }
+  self->command      = NULL;
+  self->command_data = NULL;
+  return self;
+}
+
+/** Initializes a new console. */
+Console * console_new(int id, Bounds bounds, Style style) {
+  Console * self = console_alloc();
+  if(!console_initall(self, id, bounds, style)) {
+    return console_free(self);
+  }
+  return self;
+}
 
 
 

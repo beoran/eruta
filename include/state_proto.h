@@ -42,9 +42,6 @@ ALLEGRO_COLOR state_color(State * state, int color);
 ALLEGRO_COLOR state_color_f(State * state, int color,
                          float r, float g, float b, float a);
 
-/** Gets Lua intepreter for state. */
-Lua * state_lua(State * state);
-
 /** Gets Ruby interpreter for state. */
 Ruby * state_ruby(State * state);
 
@@ -52,7 +49,7 @@ Ruby * state_ruby(State * state);
 Console * state_console(State * state);
 
 /** Initializes the state. It opens the screen, keyboards,
-lua interpreter, etc. Get any error with state_errmsg if
+ interpreter, etc. Get any error with state_errmsg if
 this returns NULL. */
 State * state_init(State * self, BOOL fullscreen);
 

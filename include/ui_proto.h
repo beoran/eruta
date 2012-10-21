@@ -10,6 +10,19 @@ Please do not hand edit.
 struct UI_;
 typedef struct UI_ UI;
 
+/** Allocates an unitinialized UI. */
+UI * ui_alloc();
+
+/** Draws the user interface */
+
+
+/** Initializes the user interface. */
+
+
+
+
+
+
 /** Draws an image on the current target bitmap according to a 9 part scaling
 algorithm. This splits the bitmap in 9 parts, keeps the 4 corners unscaled, but
 scales the 4 edges and the center according to the desired size.

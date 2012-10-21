@@ -7,7 +7,6 @@
 #include "dynar.h"
 #include "mode.h"
 #include "fifi.h"
-#include "lh.h"
 #include "rh.h"
 #include "toruby.h"
 #include "event.h"
@@ -82,7 +81,7 @@ void state_free(State * self) {
   
   dynar_free(self->modes);
   rh_free(self->ruby);
-  console_free(self->console);
+  console_free((Widget *)self->console);
   self->console = NULL; // disable console imediately.
   font_free(self->font);
   al_destroy_display(self->display);
@@ -282,7 +281,7 @@ State * state_init(State * self, BOOL fullscreen) {
     Style style = { color_rgb(255,255,255), color_rgba(64,0,0, 191), 
                     self->font, NULL};
     Bounds bounds = { {0, 0,} , {640, 480} }; 
-    self->console = console_new(bounds, style);
+    self->console = console_new(1, bounds, style);
     if(!self->console) {
       return state_errmsg_(self, "Out of memory when allocating console.");
     }

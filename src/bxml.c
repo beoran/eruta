@@ -1,10 +1,11 @@
 
-#include "bxml.h"
-
-
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+
+#include "bxml.h"
+
 
 /* Simplistic, non-conforming XML parser that parses XML documents into 
 structs.

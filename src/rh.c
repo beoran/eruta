@@ -183,7 +183,7 @@ int rh_errorreporter_console(int status, const char * msg, void * extra) {
 */
 int rh_dostring_console(Console * console, char * command, void * extra) {
   Ruby * ruby = (Ruby *) extra;
-  rh_dostringreport(ruby, command, rh_errorreporter_console, console);
+  return rh_dostringreport(ruby, command, rh_errorreporter_console, console);
 }
 
 

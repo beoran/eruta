@@ -45,13 +45,38 @@
 *
 */
 
+#include "ui.h"
+#include "dynar.h"
 
 
 /** UI manages the graphical user interface and menus. */
 struct UI_ {
-   Widget * widget; /* The top level widget, and all it's children. */
-  
+  /* Ths UI is a widget itself. How meta that is! :) */
+  Widget widget;
+  /* ID generator. */
+  int last_id; 
+  /* The widgets in the UI, in a dynamic array. */
+  Dynar * widgets;
 };
+
+
+/** Allocates an unitinialized UI. */
+UI * ui_alloc() {
+  return STRUCT_ALLOC(UI);
+}
+
+
+
+
+
+/** Draws the user interface */
+
+
+/** Initializes the user interface. */
+
+
+
+
 
 
 /** Draws an image on the current target bitmap according to a 9 part scaling

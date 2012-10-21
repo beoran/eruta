@@ -11,7 +11,6 @@
 #include "sound.h"
 #include "silut.h"
 #include "fifi.h"
-#include "lh.h"
 #include "ui.h"
 #include "hatab.h"
 #include "beo.h"

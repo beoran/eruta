@@ -27,6 +27,9 @@ int bounds_w(Bounds * self);
 /** Get height of bounds. */
 int bounds_h(Bounds * self);
 
+/** Get priority of bounds. */
+int bounds_z(Bounds * self);
+
 /** Makes a new style struct. */
 Style style_make(Color fore, Color back, Font * font, Image * background);
 
@@ -48,10 +51,6 @@ Image * style_background(Style * self);
 
 /** Get font of style. */
 Font  * style_font(Style * self);  
-
-/** Type and methods of the Widgets */
-struct WidgetMethods_;
-typedef struct WidgetMethods_ WidgetMethods;
 
 /** Get bounds of widget. */
 Bounds widget_bounds(Widget * self);
@@ -83,11 +82,78 @@ Font * widget_font(Widget * self);
 /** Get background bitmap of widget. */
 Image * widget_background(Widget * self);
 
-/** Initialzes a widget with given bounds and style. */
-Widget * widget_initbounds(Widget * self, Bounds bounds);
+/** Gets the flags of a widget. */
+int widget_flags(Widget * self);
+
+/** Gets the id of a widget. */
+int widget_id(Widget * self, int id);
+
+/** Sets all the flags of a widget at once. */
+int widget_flags_(Widget * self, int flags);
+
+/** Sets the id of a widget. */
+int widget_id_(Widget * self, int id);
+
+/** Sets an individual flag on the widget. */
+int widget_flag(Widget * self, int flag);
+
+/** Unsets an individual flag on the widget. */
+int widget_unflag(Widget * self, int flag);
+
+/** Sets or unsets an individual flag on the widget. 
+If set is true the flag is set, if false it's unset. */
+int widget_doflag(Widget * self, int flag, int set);
+
+/** Checks if an individual flag is set */
+int widget_flag_p(Widget * self, int flag);
+
+/** Checks if the widget is visible or not.  */
+int widget_visible(Widget * self);
+
+/** Checks if the widget is listening to input or not.  */
+int widget_listening(Widget * self);
+
+/** Checks if the widget is active, hat is both visible and 
+listening to input or not.  */
+int widget_active(Widget * self);
+
+/** Checks if the widget is focused or not.  */
+int widget_focused(Widget * self);
+
+/** Checks if the widget selected or not.  */
+int widget_selected(Widget * self);
+
+/** Sets the widget to be visible or not depending on set. */
+int widget_visible_(Widget * self, int set);
+
+/** Sets the widget if the widget is listening to input or not depending
+on set. */
+int widget_listening_(Widget * self, int set);
+
+/** Sets the widget to be active or not */
+int widget_active_(Widget * self, int set);
+
+/** Sets if the widget is focused or not.  */
+int widget_focused_(Widget * self, int set);
+
+/** Sets if the widget selected or not.  */
+int widget_selected_(Widget * self, int set);
+
+/** Sets up the method table of a widget. */
+Widget * widget_metab_(Widget * self, WidgetMetab * metab);
+
+/** Fully initializes a widget. */
+Widget * widget_initall(Widget * self, 
+                        int id, WidgetMetab * metab, 
+                        Bounds bounds, Style style);
+
+/** Initializes a widget with given bounds and style. */
+Widget * widget_initbounds(Widget * self, int id,
+                           WidgetMetab * metab, Bounds bounds)
+;
 
 /** Initialzes a widget from another one's bounds and style. */
-Widget * widget_initparent(Widget * self,  Widget * parent);
+Widget * widget_initparent(Widget * self, int id, Widget * parent);
 
 /** Allocates a widget */
 Widget * widget_allocate();
@@ -102,44 +168,21 @@ Widget * widget_free(Widget * self);
 /** Draws a rounded frame as background for a widget. */
 void widget_drawroundframe(Widget * self);
 
-/** 
-* A label is simply a piece of text that is drawn at bounds.x, bounds.y
-* using style.font in style.forecolor. No background is drawn.
-*/
-struct WidgetLabel_;
-typedef struct WidgetLabel_ WidgetLabel;
-
-/** Initializes a label. */
-WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Bounds bounds, 
-                          const char * text);
-
-/** Cleans up a console */
-Console * console_done(Console * self);
-
-/** Deallocates a console. */
-Console * console_free(Console * self);
-
-/** Allocates a console. */
-Console * console_alloc();
-
-/** Initializes a console. */
-Console * console_initall(Console * self, Bounds bounds, Style style);
-
 /** Sets the console's command function and data. */
 void console_command_(Console * self, ConsoleCommand * command, void * data);
 
 /** Let the console perform a command if possible. returns nonzero on error,
 zero if OK. */
-int console_docommand(Console * self, char * text);
+int console_docommand(Console * self, const char * text);
 
-/** Initializes a console. */
-Console * console_new(Bounds bounds, Style style);
+/** Adds a line of text to the console. */
+int console_addstr(Console * self, char * str);
 
 /** Puts a string on the console .*/
 int console_puts(Console * self, const char * str);
 
 /** Draws a console. */
-void console_draw(Console * self);
+void console_draw(Widget * widget);
 
 /** Activates or deactivates the console. */
 void console_active_(Console * self, int active);
@@ -150,10 +193,25 @@ int console_active(Console * self);
 /** scrolls the console 1 step in the given direction. */
 int console_scroll(Console * self, int direction);
 
-/** Let the console handle allegro events. Will return true if it was consumed,
-false if not. */
+/** Let the console handle allegro events. Returns 0 if event was consumed,
+postoive if not, and negative on error. */
 
-int console_handle(Console * self, ALLEGRO_EVENT * event); 
+int console_handle(Widget * widget, ALLEGRO_EVENT * event); 
+
+/** Cleans up a console */
+void * console_done(void * widget);
+
+/** Deallocates a console. */
+void * console_free(void * widget);
+
+/** Allocates a console. */
+Console * console_alloc();
+
+/** Initializes a console. */
+Console * console_initall(Console * self, int id, Bounds bounds, Style style);
+
+/** Initializes a new console. */
+Console * console_new(int id, Bounds bounds, Style style);
 
 #endif // WIDGET_PROTO_H
 

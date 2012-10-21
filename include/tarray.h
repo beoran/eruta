@@ -202,33 +202,33 @@ void * TEMPLATE_FUNC(getdata)(TEMPLATE_NAME * self, size_t index) {
 }
 
 /* Iterator helper: fill in every->now as data. */
-Every * TEMPLATE_FUNC(everynow)_data(Every * every) {
+Every * TEMPLATE_FUNC(everynow_data)(Every * every) {
   every->now   = TEMPLATE_FUNC(getdata)(every->on, every->index);
   if(every->now) return every;
   return NULL;
 }
 
 /* Iterator helper: fill in every->now as pointer. */
-Every * TEMPLATE_FUNC(everynow)_ptr(Every * every) {
+Every * TEMPLATE_FUNC(everynow_ptr)(Every * every) {
   every->now   = TEMPLATE_FUNC(getptr)(every->on, every->index);
   if(every->now) return every;
   return NULL;
 }
 
 /* Iterator helpers: init */
-Every  * TEMPLATE_FUNC(everyinit)_data(Every * every) {
+Every  * TEMPLATE_FUNC(everyinit_data)(Every * every) {
   every->index = 0;
-  return TEMPLATE_FUNC(everynow)_data(every);
+  return TEMPLATE_FUNC(everynow_data)(every);
 }
 
 /* Iterator helpers: next */
-Every  * TEMPLATE_FUNC(everynext)_data(Every * every) {
+Every  * TEMPLATE_FUNC(everynext_data)(Every * every) {
   every->index++;
-  return TEMPLATE_FUNC(everynow)_data(every);
+  return TEMPLATE_FUNC(everynow_data)(every);
 }
 
 /* Iterator helpers: put. */
-void  * TEMPLATE_FUNC(everyput)_data(Every * every, void * data) {
+void  * TEMPLATE_FUNC(everyput_data)(Every * every, void * data) {
   return TEMPLATE_FUNC(putdata)(every->on, every->index, data);
 }
 
@@ -238,9 +238,9 @@ void  * TEMPLATE_FUNC(everydone)(Every * every) {
 }
 
 /* Iterator helpers: init pointers */
-Every  * TEMPLATE_FUNC(everyinit)_ptr(Every * every) {
+Every  * TEMPLATE_FUNC(everyinit_ptr)(Every * every) {
   every->index = 0;
-  return TEMPLATE_FUNC(everynow)_ptr(every);
+  return TEMPLATE_FUNC(everynow_ptr)(every);
 }
 
 /* Iterator helpers: next pointers */
@@ -256,37 +256,37 @@ void  * TEMPLATE_FUNC(everyput)_ptr(Every * every, void * data) {
 
 
 /* Iterator helper table. */
-static EveryActs TEMPLATE_FUNC(every)_data_acts_ = {
+static EveryActs TEMPLATE_FUNC(every_data_acts_) = {
   TEMPLATE_FUNC(everydone),
-  TEMPLATE_FUNC(everyinit)_data,
-  TEMPLATE_FUNC(everynext)_data,
-  TEMPLATE_FUNC(everyput)_data  
+  TEMPLATE_FUNC(everyinit_data),
+  TEMPLATE_FUNC(everynext_data),
+  TEMPLATE_FUNC(everyput_data)  
 };
 
 /* Iterator helper table. */
-static EveryActs TEMPLATE_FUNC(every)_ptr_acts_ = {
+static EveryActs TEMPLATE_FUNC(every_ptr_acts_) = {
   TEMPLATE_FUNC(everydone),
-  TEMPLATE_FUNC(everyinit)_ptr,
-  TEMPLATE_FUNC(everynext)_ptr,
-  TEMPLATE_FUNC(everyput)_ptr
+  TEMPLATE_FUNC(everyinit_ptr),
+  TEMPLATE_FUNC(everynext_ptr),
+  TEMPLATE_FUNC(everyput_pt)r
 };
 
 
 /** Iterates over the data. Call every_free when done. */
-Every * TEMPLATE_FUNC(every)_data(TEMPLATE_NAME * dynar) {
+Every * TEMPLATE_FUNC(every_data)(TEMPLATE_NAME * dynar) {
   return every_new(&TEMPLATE_FUNC(every)_data_acts_);
 }
 
 /** Iterates over the pointers in this array. Call every_free when done. */
-Every * TEMPLATE_FUNC(every)_ptr(TEMPLATE_NAME * dynar) {
+Every * TEMPLATE_FUNC(every_ptr)(TEMPLATE_NAME * dynar) {
   return every_new(&TEMPLATE_FUNC(every)_ptr_acts_);
 }
 
 
 /* Walks over the array using the each interface, accessing
 the data as pointers. eachdo should return non-null to break the iteration,
-the data thus found is returned bu this function. */
-void * TEMPLATE_FUNC(each)_ptr(TEMPLATE_NAME * self, EachDo * eachdo, void * extra) {
+the data thus found is returned by this function. */
+void * TEMPLATE_FUNC(each_ptr)(TEMPLATE_NAME * self, EachDo * eachdo, void * extra) {
   Each each;
   size_t index;
   size_t size = TEMPLATE_FUNC(size)(self);  
