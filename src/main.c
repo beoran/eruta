@@ -233,7 +233,7 @@ int real_main(void) {
        argument"); */
       
       al_draw_textf(state_font(state), COLOR_WHITE,
-                        10, 10, 0, "FPS: question p? %lf, %d", state_fps(state), state_frames(state));
+                        10, 10, 0, "FPS: %lf, %d", state_fps(state), state_frames(state));
       // draw the console (will autohide if not active).
       console_draw(state_console(state));
    
