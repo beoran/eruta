@@ -6,19 +6,33 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/**
-An area is an in game region that forms a single unity in which play
-takes place. Ok, its' what you'd call a "level". Every area
-consists of a single tile map that determines the visual looks of the area,
-a chipmunk cpSpace that simulates the dynamics, sprite information
-that determines the visibility and position of the sprites, and a reference
-to the scripting engine that contains the logical state of the game.
+/** Scale factor. */
+#define AREA_SCALE_BY (32.0lf)
 
-Division of the data locations: visual and physics engine: in C.
-Logic/game/character data: in scripting engine.
+/** Scales int by scale factor */
+#define AREA_SCALE_INT(I) ((double)((INT) I)>>5)) 
+
+#define THING_WALL   1
+#define THING_WATER  2
+#define THING_STAIR  3
+#define THING_ACTOR  4
+#define THING_MOBILE 5
+#define THING_ZONE   6
+
+/**
+* A Thing is any in-game object that appears the world/map view
 */
-struct Area_;
-typedef struct Area_ Area;
+struct Thing_;
+typedef struct Thing_ Thing;
+
+/** Initializes a Thing. */
+Thing * thing_init(Thing * self, int kind, int id, int z,
+                   Area * area, cpBody * body, cpShape * shape);
+
+/** Initializes a Thing, and makes a new body and rectangulat shape for it. */
+Thing * thing_initmake(Thing * self, int kind, int id, int z,
+                       Area * area, int x, int y, int w, int h,
+                       cpFloat mass, cpFloat impulse); 
 
 /** Allocates an area. */
 Area * area_alloc();
@@ -34,6 +48,9 @@ Area * area_done(Area * self);
 
 /** Frees an area. Returns NULL. */
 Area * area_free(Area * self);
+
+/** Returns the cpSpace that the area uses for dynamics modelling. */
+cpSpace * area_space(Area * self);
 
 #endif // AREA_PROTO_H
 
