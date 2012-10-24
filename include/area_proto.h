@@ -10,19 +10,30 @@ Please do not hand edit.
 An area is an in game region that forms a single unity in which play
 takes place. Ok, its' what you'd call a "level". Every area
 consists of a single tile map that determines the visual looks of the area,
-a physical chipmunk space that simulates the physics, sprite information
+a chipmunk cpSpace that simulates the dynamics, sprite information
 that determines the visibility and position of the sprites, and a reference
 to the scripting engine that contains the logical state of the game.
 
 Division of the data locations: visual and physics engine: in C.
 Logic/game/character data: in scripting engine.
 */
+struct Area_;
+typedef struct Area_ Area;
 
+/** Allocates an area. */
+Area * area_alloc();
 
+/** Initializes an area. */
+Area * area_init(Area * self);
 
+/** Makes a new area. */
+Area * area_new();
 
+/** Deinitializes an area and returns self. */
+Area * area_done(Area * self);
 
-
+/** Frees an area. Returns NULL. */
+Area * area_free(Area * self);
 
 #endif // AREA_PROTO_H
 

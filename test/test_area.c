@@ -6,6 +6,10 @@
 
 
 TEST_FUNC(area) {
+  Area * area;
+  area = area_new();
+  TEST_NOTNULL(area);
+  TEST_NULL(area_free(area));  
   TEST_DONE();
 }
 

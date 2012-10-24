@@ -2,6 +2,7 @@
 # by using cmake's fake library feature. Don't forget to add new source 
 # files here manually.
 set(ERUTA_SRC_FILES
+  src/area.c
   src/beo.c
   src/bxml.c
   src/camera.c
