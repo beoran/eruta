@@ -35,6 +35,7 @@ Image * image_loadtexture(const char * category, int index) {
   return image;
 }
 
+
 /** Cleans up a tilemap. */
 Tilemap * tilemap_done(Tilemap * self) {
   int index;

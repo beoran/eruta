@@ -1,17 +1,23 @@
-
-#include <stldib.h>
+#include <stdlib.h>
 
 #include "tbegin.h"
 
 /**
-* TARRAY is template for a dynamic array of size elements each of elsz size.
+* TARRAY is template for a dynamic array of size elements.
 * For simplicity, it is is exactly sized, that is,
 * it does not allocate any extra elements but the amount requested.
 * In other words it's capacity is equal to it's size.
 */
+#ifndef TEMPLATE_ZERO
+#error Please define TEMPLATE_ZERO as the value returned for nonexisting indexes.
+#undef TEMPLATE_OK
+#endif
+
 #ifdef TEMPLATE_OK
 
 #ifndef TEMPLATE_IMPLEMENT
+
+typedef struct TEMPLATE_STRUCT TEMPLATE_NAME;
 
 struct TEMPLATE_STRUCT {
   TEMPLATE_T * data;
@@ -27,7 +33,8 @@ int TEMPLATE_FUNC(size)(TEMPLATE_NAME * self) {
   return self->size;
 }
 
-/** Frees the contents of an array. Has the same effect as emptying the array. Does not call a destructor on any elements contained! */
+/** Frees the contents of an array. Has the same effect as emptying the array. 
+Does not call a destructor on any elements contained! */
 TEMPLATE_NAME * TEMPLATE_FUNC(done)(TEMPLATE_NAME * self) {
   if(!self) return NULL;
   TEMPLATE_FREE(self->data);
@@ -38,8 +45,9 @@ TEMPLATE_NAME * TEMPLATE_FUNC(done)(TEMPLATE_NAME * self) {
 
 /** Frees an array. Returns NULL. */
 TEMPLATE_NAME * TEMPLATE_FUNC(free)(TEMPLATE_NAME * self) {
-  TRMPLATE_FUNC(done)(self);
-  return mem_free(self);
+  TEMPLATE_FUNC(done)(self);
+  TEMPLATE_FREE(self);
+  return NULL;
 }
 
 /** Allocates a new unusable array.  */
@@ -59,7 +67,7 @@ TEMPLATE_NAME * TEMPLATE_FUNC(init)(TEMPLATE_NAME * self, int size) {
 
 /** Changes the size of the dynamic array. Newsize must be >= 1. */
 TEMPLATE_NAME * TEMPLATE_FUNC(size_)(TEMPLATE_NAME * self, int newsize) {
-  void * newd = NULL;
+  TEMPLATE_T * newd = NULL;
   if(!self) return NULL;
   int index, stop;
   // Don't allow a newsize of 0, since that will make realloc call
@@ -69,7 +77,7 @@ TEMPLATE_NAME * TEMPLATE_FUNC(size_)(TEMPLATE_NAME * self, int newsize) {
   if(!newd) return NULL;
   // copy data if needed
   if(self->data) { 
-    stop  = self->size < newsize ? self->size; newsize;
+    stop  = self->size < newsize ? self->size : newsize;
     for(index = 0; index < self->size; index ++) {
       newd[index] = self->data[index];
     }
@@ -84,7 +92,7 @@ TEMPLATE_NAME * TEMPLATE_FUNC(size_)(TEMPLATE_NAME * self, int newsize) {
 /** Allocates a new array with size elements. */
 TEMPLATE_NAME * TEMPLATE_FUNC(new)(int size) {
   TEMPLATE_NAME * res = TEMPLATE_FUNC(alloc)();
-  if(!TEMPLATE_FUNC(init)(res, amount, elsz)) {
+  if(!TEMPLATE_FUNC(init)(res, size)) {
       return TEMPLATE_FUNC(free)(res);
   }
   return res;
@@ -95,233 +103,99 @@ TEMPLATE_NAME * TEMPLATE_FUNC(new)(int size) {
 * amount bigger than the bigger than the current size.
 * Returns NULL if the array was not grown, otherwise returns self.
 */
-TEMPLATE_NAME * TEMPLATE_FUNC(grow)(TEMPLATE_NAME * self, size_t amount) {
-  size_t mysize = TEMPLATE_FUNC(size)(self);
+TEMPLATE_NAME * TEMPLATE_FUNC(grow)(TEMPLATE_NAME * self, int amount) {
+  int mysize = TEMPLATE_FUNC(size)(self);
   if (mysize >= amount) return NULL;
-  return TEMPLATE_FUNC(size)_(self, amount);
+  return TEMPLATE_FUNC(size_)(self, amount);
 }
 
-/** Checks if the index is smaller than the array's available room . */
-int TEMPLATE_FUNC(sizeindex)_ok(TEMPLATE_NAME * self, size_t index) {
-  if(!self) return FALSE;
-  return index < TEMPLATE_FUNC(size)(self);
-}
-
-/** Checks if the int index is smaller than the array's available room. */
-int TEMPLATE_FUNC(index)_ok(TEMPLATE_NAME * self, int index) {
-  if(!self) return FALSE;
-  if (index < 0) return FALSE;
-  return TEMPLATE_FUNC(sizeindex)_ok(self, (size_t)(index));
+/* Returns true if the index is out of range, false if it's OK to use 
+with this TARRAY. */
+int TEMPLATE_FUNC(outofrange)(TEMPLATE_NAME * self, int index) {
+  if(!self) return TRUE;
+  if (index < 0) return TRUE;
+  return index >= TEMPLATE_FUNC(size)(self);
 }
 
 /** Returns a pointer to the index-th element of the array.
 Does no bounds checking! */
-void * TEMPLATE_FUNC(getraw)_unsafe(TEMPLATE_NAME * self, int index) {
-  return self->data + (index * self->elsz);
+TEMPLATE_T * TEMPLATE_FUNC(getptr_unsafe)(TEMPLATE_NAME * self, int index) {
+  return self->data + index;
 }
 
-/** Copies TEMPLATE_FUNC(elementsize)(self) of bytes from the index-th element
-of the array to out, which must be pointing to a bufer of at least
-TEMPLATE_FUNC(elementsize)(self). Does no bounds checking!
-Returns NULL on failure, out on success.
-*/
-void * TEMPLATE_FUNC(getcopy)_unsafe(TEMPLATE_NAME * self, int index, void * out) {
-  char * cptr = (char *) TEMPLATE_FUNC(getraw)_unsafe(self, index);
-  size_t size = TEMPLATE_FUNC(elementsize)(self);
-  if((!self) || (!out) || (!cptr)) return NULL;
-  mem_move(out, cptr, size);
-  return out;
+/** Returns the index-th element of the array. Does no bounds checking! */
+TEMPLATE_T TEMPLATE_FUNC(getraw_unsafe)(TEMPLATE_NAME * self, int index) {
+  return self->data[index];
 }
 
-/** Copies TEMPLATE_FUNC(elementsize)(self) of bytes from the data pointed to
-* by ptr into the location pointed to by index.
-* Does no bounds checking!
+
+/** Puts the element value at the index'th position 
+* in the array. Does no bounds checking. Returns self;
 */
-TEMPLATE_NAME * TEMPLATE_FUNC(putraw)_unsafe(TEMPLATE_NAME * self, int index, void * ptr) {
-  char * cptr = (char *) TEMPLATE_FUNC(getraw)_unsafe(self, index);
-  size_t size = TEMPLATE_FUNC(elementsize)(self);
-  if((!self) || (!ptr) || (!cptr)) return NULL;
-  mem_move(cptr, ptr, size);
+TEMPLATE_NAME * TEMPLATE_FUNC(putraw_unsafe)
+(TEMPLATE_NAME * self, int index, TEMPLATE_T value) {
+  self->data[index] = value;
   return self;
 }
 
-/** Returns a pointer to the index-th element of the array.
-Does bounds checking and return NULL if out of bounds */
-void * TEMPLATE_FUNC(getraw)(TEMPLATE_NAME * self, size_t index) {
+/** Returns the index-th element of the array.
+Does bounds checking and returns TEMPLATE_ZERO if out of bounds */
+TEMPLATE_T TEMPLATE_FUNC(getraw)(TEMPLATE_NAME * self, size_t index) {
   // Bounds check
-  if(!TEMPLATE_FUNC(index)_ok(self, index)) { return NULL; }
-  return TEMPLATE_FUNC(getraw)_unsafe(self, index);
+  if(TEMPLATE_FUNC(outofrange)(self, index)) { return TEMPLATE_ZERO; }
+  return TEMPLATE_FUNC(getraw_unsafe)(self, index);
 }
+
+/** Returns the index-th element of the array in get.
+Does bounds checking and returns negative if out of bounds or 
+if get is not set. Returns 0 and stores the result in get if all is OK*/
+int TEMPLATE_FUNC(get)(TEMPLATE_NAME * self, 
+                       int index, TEMPLATE_T * get) {
+  // Bounds check
+  if(!get) { return -1; }
+  if(TEMPLATE_FUNC(outofrange)(self, index)) { return -1; }
+  (*get) = TEMPLATE_FUNC(getraw_unsafe)(self, index);
+  return 0;
+}
+
 
 /** Returns a pointer to the index-th element of the array.
 Does bounds checking and return NULL if out of bounds */
-void * TEMPLATE_FUNC(getcopy)(TEMPLATE_NAME * self, int index, void * ptr) {
+TEMPLATE_T * TEMPLATE_FUNC(getptr)(TEMPLATE_NAME * self, int index) {
   // Bounds check
-  if(!TEMPLATE_FUNC(index)_ok(self, index)) { return NULL; }
-  return TEMPLATE_FUNC(getcopy)_unsafe(self, index, ptr);
+  if(TEMPLATE_FUNC(outofrange)(self, index)) { return NULL; }
+  return TEMPLATE_FUNC(getptr_unsafe)(self, index);
 }
 
-/** Copies the TEMPLATE_FUNC(elementsize)(self) of bytes from the data pointed to
-* by ptr into the location pointed to by index.
-* Does bounds checking and return NULL if ouut of bounds.
+/** Copies the TEMPLATE_FUNC(elementsize)(self) of bytes from the data 
+* in value to the location pointed to by index.
+* Does bounds checking and return NULL if out of bounds.
+* Returns self if all was OK.
 */
-TEMPLATE_NAME * TEMPLATE_FUNC(putraw)(TEMPLATE_NAME * self, size_t index, void * ptr) {
+TEMPLATE_NAME * TEMPLATE_FUNC(put)(TEMPLATE_NAME * self, 
+  int index, TEMPLATE_T value) {
   // Bounds check
-  if(!TEMPLATE_FUNC(index)_ok(self, index)) { return NULL; }
-  return TEMPLATE_FUNC(putraw)_unsafe(self, index, ptr);
+  if(TEMPLATE_FUNC(outofrange)(self, index)) { return NULL; }
+  return TEMPLATE_FUNC(putraw_unsafe)(self, index, value);
 }
 
-/** Stores a pointer at the index of the array.
-* Does bounds checking. TEMPLATE_FUNC(elementsize)(self) sould have been
-* initialized as sizeof(void *) by using TEMPLATE_FUNC(newptr)
+/** Stores contents of a pointer at the index of the array.
+* Does bounds checking.
 */
-void * TEMPLATE_FUNC(putptr)(TEMPLATE_NAME * self, int index, void * ptr) {
-  return TEMPLATE_FUNC(putraw)(self, index, &ptr);
+TEMPLATE_NAME * TEMPLATE_FUNC(putptr)(TEMPLATE_NAME * self, int index, 
+                              TEMPLATE_T * ptr) {
+  if(!ptr) return NULL; 
+  return TEMPLATE_FUNC(put)(self, index, (*ptr));
   // use &ptr because we want to put the contents of the pointer,
   // not the pointer itself. 
 }
 
-/** Returns a pointer that was stored at the index index of the array. */
-void * TEMPLATE_FUNC(getptr)(TEMPLATE_NAME * self, size_t index) {
-  void * res = NULL; 
-  if(!TEMPLATE_FUNC(getcopy)(self, index, &res)) return NULL;
-  // use &ptr because we want to fetch the contents of the pointer,
-  // which will be copied from the element of the array.
-  return res;
-}
-
-/** Copies the element that *ptr points to into this array at position
-index */
-void * TEMPLATE_FUNC(putdata)(TEMPLATE_NAME * self, size_t index, void * ptr) {
-  return TEMPLATE_FUNC(putraw)(self, index, ptr);
-}
-
-/** Returns a pointer to the index-th element of the array. */
-void * TEMPLATE_FUNC(getdata)(TEMPLATE_NAME * self, size_t index) {
-  return TEMPLATE_FUNC(getraw)(self, index);
-}
-
-/* Iterator helper: fill in every->now as data. */
-Every * TEMPLATE_FUNC(everynow_data)(Every * every) {
-  every->now   = TEMPLATE_FUNC(getdata)(every->on, every->index);
-  if(every->now) return every;
-  return NULL;
-}
-
-/* Iterator helper: fill in every->now as pointer. */
-Every * TEMPLATE_FUNC(everynow_ptr)(Every * every) {
-  every->now   = TEMPLATE_FUNC(getptr)(every->on, every->index);
-  if(every->now) return every;
-  return NULL;
-}
-
-/* Iterator helpers: init */
-Every  * TEMPLATE_FUNC(everyinit_data)(Every * every) {
-  every->index = 0;
-  return TEMPLATE_FUNC(everynow_data)(every);
-}
-
-/* Iterator helpers: next */
-Every  * TEMPLATE_FUNC(everynext_data)(Every * every) {
-  every->index++;
-  return TEMPLATE_FUNC(everynow_data)(every);
-}
-
-/* Iterator helpers: put. */
-void  * TEMPLATE_FUNC(everyput_data)(Every * every, void * data) {
-  return TEMPLATE_FUNC(putdata)(every->on, every->index, data);
-}
-
-/* Iterator helpers: done. */
-void  * TEMPLATE_FUNC(everydone)(Every * every) {
-  return every;
-}
-
-/* Iterator helpers: init pointers */
-Every  * TEMPLATE_FUNC(everyinit_ptr)(Every * every) {
-  every->index = 0;
-  return TEMPLATE_FUNC(everynow_ptr)(every);
-}
-
-/* Iterator helpers: next pointers */
-Every  * TEMPLATE_FUNC(everynext)_ptr(Every * every) {
-  every->index++;
-  return TEMPLATE_FUNC(everynow)_ptr(every);
-}
-
-/* Iterator helpers: put pointers. */
-void  * TEMPLATE_FUNC(everyput)_ptr(Every * every, void * data) {
-  return TEMPLATE_FUNC(putptr)(every->on, every->index, data);
-}
-
-
-/* Iterator helper table. */
-static EveryActs TEMPLATE_FUNC(every_data_acts_) = {
-  TEMPLATE_FUNC(everydone),
-  TEMPLATE_FUNC(everyinit_data),
-  TEMPLATE_FUNC(everynext_data),
-  TEMPLATE_FUNC(everyput_data)  
-};
-
-/* Iterator helper table. */
-static EveryActs TEMPLATE_FUNC(every_ptr_acts_) = {
-  TEMPLATE_FUNC(everydone),
-  TEMPLATE_FUNC(everyinit_ptr),
-  TEMPLATE_FUNC(everynext_ptr),
-  TEMPLATE_FUNC(everyput_pt)r
-};
-
-
-/** Iterates over the data. Call every_free when done. */
-Every * TEMPLATE_FUNC(every_data)(TEMPLATE_NAME * dynar) {
-  return every_new(&TEMPLATE_FUNC(every)_data_acts_);
-}
-
-/** Iterates over the pointers in this array. Call every_free when done. */
-Every * TEMPLATE_FUNC(every_ptr)(TEMPLATE_NAME * dynar) {
-  return every_new(&TEMPLATE_FUNC(every)_ptr_acts_);
-}
-
-
-/* Walks over the array using the each interface, accessing
-the data as pointers. eachdo should return non-null to break the iteration,
-the data thus found is returned by this function. */
-void * TEMPLATE_FUNC(each_ptr)(TEMPLATE_NAME * self, EachDo * eachdo, void * extra) {
-  Each each;
-  size_t index;
-  size_t size = TEMPLATE_FUNC(size)(self);  
-  each_init(&each, self, extra); 
-  for(index = 0; index < size ; index++) {
-    void * aid;
-    void * ptr = TEMPLATE_FUNC(getptr)(self, index);    
-    each_next(&each, ptr);
-    aid = eachdo(&each);
-    if (aid) return aid;
-  }
-  return NULL;
-}
-
-/* Walks over the array using the walker interface, accessing
-the data as stored structs. */
-void * TEMPLATE_FUNC(walkdata)(TEMPLATE_NAME * self, EachDo * eachdo, void * extra) {
-  Each each;
-  size_t index;
-  size_t size = TEMPLATE_FUNC(size)(self);
-  each_init(&each, self, extra);
-  for(index = 0; index < size ; index++) {
-    void * aid;
-    void * ptr = TEMPLATE_FUNC(getdata)(self, index);
-    each_next(&each, ptr);
-    aid = eachdo(&each);
-    if (aid) return aid;
-  }
-  return NULL;
-}
-
 
 #endif
 
 #endif
+
+#undef TEMPLATE_ZERO
 
 /** Finally clean up by undefining all defined macros. **/
 #include <tend.h>
