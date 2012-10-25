@@ -1,6 +1,8 @@
 #ifndef area_H_INCLUDED
 #define area_H_INCLUDED
 
+#include <chipmunk.h>
+
 /**
 An area is an in game region that forms a single unity in which play
 takes place. Ok, its' what you'd call a "level". Every area

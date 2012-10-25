@@ -12,6 +12,13 @@ Please do not hand edit.
 /** Scales int by scale factor */
 #define AREA_SCALE_INT(I) ((double)((INT) I)>>5)) 
 
+/* Thing types. Generally speaking, there are 
+things that can move and those that cannot. 
+Chipmunks treats them differently in the sense that
+static things will all use a single (or one of 
+a few) static bodies, which does not need to be 
+freed when the thing isn't needed anymore.
+*/
 #define THING_WALL   1
 #define THING_WATER  2
 #define THING_STAIR  3
@@ -19,8 +26,11 @@ Please do not hand edit.
 #define THING_MOBILE 5
 #define THING_ZONE   6
 
+enum Thingflags_;
+typedef enum Thingflags_ Thingflags;
+
 /**
-* A Thing is any in-game object that appears the world/map view
+* A Thing is any in-game object that appears the world/map view.
 */
 struct Thing_;
 typedef struct Thing_ Thing;
@@ -33,6 +43,19 @@ Thing * thing_init(Thing * self, int kind, int id, int z,
 Thing * thing_initmake(Thing * self, int kind, int id, int z,
                        Area * area, int x, int y, int w, int h,
                        cpFloat mass, cpFloat impulse); 
+
+/** Sets an individual flag on the Thing. */
+int thing_flag(Thing * self, int flag);
+
+/** Unsets an individual flag on the Thing. */
+int thing_unflag(Thing * self, int flag);
+
+/** Sets or unsets an individual flag on the Thing. 
+If set is true the flag is set, if false it's unset. */
+int thing_doflag(Thing * self, int flag, int set);
+
+/** Checks if an individual flag is set */
+int thing_flag_p(Thing * self, int flag);
 
 /** Allocates an area. */
 Area * area_alloc();

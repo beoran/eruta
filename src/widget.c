@@ -4,6 +4,7 @@
 #include "str.h"
 #include "image.h"
 #include "dynar.h"
+#include "flags.h"
 #include "ui.h"
 #include "widget.h"
 
@@ -33,15 +34,15 @@
 * with a vertical menu over it, and the menu has the focus.
 *
 * Ideas on event handling: The "problem" with allegro is that the
-* even types are spare, and ptonentially stretch the whole integer range.
+* even types are sparse, and potentially stretch the whole integer range.
 * Hence, it's not realistic to use a simple array as a jump table. Some
-* more complex structiree, like a hsh table, tree, etc, would be needed 
-* for fast lookup of the event handler function. Hance, and probably by 
-* design, a case statement uis the best way to handle and dispatch the 
+* more complex structure, like a hsah table, tree, etc, would be needed 
+* for fast lookup of the event handler function. Hence, and probably by 
+* design, a case statement is the best way to handle and dispatch the 
 * input. The react system I wrote has the disadvantage that it will add
-* an additional pointer ndirection to that switch statement, a problem the 
+* an additional pointer indirection to that switch statement, a problem the 
 * console doesn't have. Hence, I'll go for a simple event handler
-* for every function that takest he allegro event like the console does.
+* for every function that takes the allegro event like the console does.
 * 
 * Hence every widget will have tthe following basic interface 
 * functions: 
@@ -211,26 +212,24 @@ int widget_id_(Widget * self, int id) {
 
 /** Sets an individual flag on the widget. */
 int widget_flag(Widget * self, int flag) {
-  return self->flags = self->flags | flag;
+  return flags_set(&self->flags, flag);
 }
 
 /** Unsets an individual flag on the widget. */
 int widget_unflag(Widget * self, int flag) {
   register int wflags = self->flags;
-  return self->flags = wflags & (~flag);
+  return flags_unset(&self->flags, flag);
 }
 
 /** Sets or unsets an individual flag on the widget. 
 If set is true the flag is set, if false it's unset. */
 int widget_doflag(Widget * self, int flag, int set) {
-  if (set) { return widget_flag(self, flag); }
-  else { return widget_unflag(self, flag); }
+  return flags_put(&self->flags, flag, set);
 }
 
 /** Checks if an individual flag is set */
 int widget_flag_p(Widget * self, int flag) {
-  register int wflags = self->flags;
-  return (wflags & flag) == flag;
+  return flags_get(self->flags, flag);
 }
 
 /** Checks if the widget is visible or not.  */

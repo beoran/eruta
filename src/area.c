@@ -2,6 +2,7 @@
 
 #include "area.h"
 #include "mem.h"
+#include "flags.h"
 
 /** Scale factor. */
 #define AREA_SCALE_BY (32.0lf)
@@ -9,6 +10,14 @@
 /** Scales int by scale factor */
 #define AREA_SCALE_INT(I) ((double)((INT) I)>>5)) 
 
+/* Thing types. Generally speaking, there are 
+things that can move and those that cannot. 
+Chipmunks treats them differently in the sense that
+static things will all use a single (or one of 
+a few) static bodies, which does not need to be 
+freed when the thing isn't needed anymore.
+*/
+#define THING_UNUSED -1
 #define THING_WALL   1
 #define THING_WATER  2
 #define THING_STAIR  3
@@ -16,12 +25,19 @@
 #define THING_MOBILE 5
 #define THING_ZONE   6
 
+enum Thingflags_ {
+  THING_FLAGS_OWNBODY  = 1,
+  THING_FLAGS_OWNSHAPE = 2,
+};
+
+
 /**
-* A Thing is any in-game object that appears the world/map view
+* A Thing is any in-game object that appears the world/map view.
 */
 struct Thing_ {
-  int kind; /* What kind of thing it is. Same as collision type. */
-  int id;   /* Numercial ID. */
+  int kind;  /* What kind of thing it is. Same as collision type. */
+  int id;    /* Numercial ID. */
+  int flags; /* State flags.  */
   Area      * area; /* Aera the thing is in if any. */
   cpBody    * body; /* Physical body of the thing. Is NULL for statical body. */
   cpShape   * shape; /* Main collision shape of the thing. */
@@ -56,6 +72,50 @@ Thing * thing_initmake(Thing * self, int kind, int id, int z,
     cpShapeSetFriction(shape, 0.0);
     cpShapeSetUserData(shape, self);
     return thing_init(self, kind, id, z, area, body, shape);
+}
+
+
+
+/** Sets an individual flag on the Thing. */
+int thing_flag(Thing * self, int flag) {
+  return flags_set(&self->flags, flag);
+}
+
+/** Unsets an individual flag on the Thing. */
+int thing_unflag(Thing * self, int flag) {
+  register int wflags = self->flags;
+  return flags_unset(&self->flags, flag);
+}
+
+/** Sets or unsets an individual flag on the Thing. 
+If set is true the flag is set, if false it's unset. */
+int thing_doflag(Thing * self, int flag, int set) {
+  return flags_put(&self->flags, flag, set);
+}
+
+/** Checks if an individual flag is set */
+int thing_flag_p(Thing * self, int flag) {
+  return flags_get(self->flags, flag);
+}
+
+/** Uninitializes a thing. */
+Thing * thing_done(Thing * thing) {
+  if(!thing) return NULL;
+  if(thing->body && thing_flag_p(thing, THING_FLAGS_OWNBODY)) {
+    cpBodyFree(thing->body) ; thing->body = NULL;
+  }
+  if(thing->shape && thing_flag_p(thing, THING_FLAGS_OWNSHAPE)) {
+    cpShapeFree(thing->body); thing->shape = NULL;
+  }
+  self->area = NULL;
+  self->z    = -1;
+  self->kind = THING_UNUSED;
+  return self;
+}
+
+/** Frees a thing. */
+Thing * thing_free(Thing * thing) {
+  
 }
 
 /*
@@ -116,5 +176,6 @@ cpSpace * area_space(Area * self) {
 
 int area_addwall(Area * self, int x, int y, int z, int w, int h) {
   cpShape * shape = NULL;
+  return -1;
 }
 
