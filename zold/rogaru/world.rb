@@ -123,17 +123,15 @@ module Rogaru
     
     
     
-    # Adds wall to the space 
+    # Adds wall to the space. 
     def add_wall(wall)
       @walls << wall
       @space.add_static_shape(wall.shape)
       # @space.add_body(thing.body)
       return wall
     end
-
-
     
-    # Adds immobile thing to the space 
+    # Adds immobile thing to the space. 
     def add_thing(thing)
       @things << thing
       @all    << thing
@@ -154,7 +152,7 @@ module Rogaru
       return mobile
     end
     
-     # Adds a stair to the space 
+     # Adds a stair to the space. 
     def add_stair(stair)
       @stairs << stair
       @space.add_static_shape(stair.shape)
