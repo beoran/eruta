@@ -178,6 +178,21 @@ Thing * thing_new(int id, int kind, int z,
   return self;
 }
 
+/* Get an interface of TArray for a pointer to Thing type */
+#define TEMPLATE_T      Thing*
+#define TEMPLATE_NAME   ThingArray
+#define TEMPLATE_PREFIX thingarray_
+#define TEMPLATE_ZERO   NULL
+#include "tarray.h"
+
+/* Get an implementation of TArray for pointer to Thing type. */
+#define TEMPLATE_IMPLEMENT
+#define TEMPLATE_T      Thing*
+#define TEMPLATE_NAME   ThingArray
+#define TEMPLATE_PREFIX thingarray_
+#define TEMPLATE_ZERO   NULL
+#include "tarray.h"
+
 /*
 An area is an in game region that forms a single unity in which play
 takes place. OK, it's what you'd call a "level". Every area
@@ -190,24 +205,24 @@ Division of the data locations: visual and physics engine: in C.
 Logic/game/character data: in scripting engine.
 */
 struct Area_ {
-  cpSpace * space;
+  cpSpace     * space;
+  ThingArray  * things;
+  int           lastid;
 };
 
-/** Allocates an area. */
-Area * area_alloc() {
-  return STRUCT_ALLOC(Area);
-}
-
-/** Initializes an area. */
-Area * area_init(Area * self) {
-  if(!self) return NULL;
-  self->space = cpSpaceNew();
-  return self;
-}
-
-/** Makes a new area. */
-Area * area_new() {
-  return area_init(area_alloc());
+/* Cleans up a thing array */
+ThingArray * thingarray_cleanup(ThingArray * things) {
+  int index, stop;  
+  if(!things) return NULL;
+  stop = thingarray_size(things);
+  for (index= 0; index < stop; index++) {
+    Thing * thing = thingarray_getraw(things, index); 
+    if(thing) {
+      thing_free(thing);
+      thingarray_put(things, index, NULL); 
+    }
+  }
+  return things;
 }
 
 /** Deinitializes an area and returns self. */
@@ -217,6 +232,11 @@ Area * area_done(Area * self) {
   // cpSpaceFreeChildren(self->space);
   cpSpaceFree(self->space);
   self->space = NULL;
+  if(self->things) {
+    thingarray_cleanup(self->things);
+    thingarray_free(self->things);
+    self->things = NULL;
+  }
   return self;
 }
 
@@ -228,11 +248,42 @@ Area * area_free(Area * self) {
   return NULL;
 }
 
+/** Allocates an area. */
+Area * area_alloc() {
+  return STRUCT_ALLOC(Area);
+}
+
+/** Start with 1000 things. */
+#define AREA_THINGS 1000
+
+/** Initializes an area. */
+Area * area_init(Area * self) {
+  if(!self) return NULL;
+  self->space = cpSpaceNew();
+  self->things = thingarray_new(AREA_THINGS);
+  if(!self->things) goto out_of_memory;
+  
+  
+  
+  return self;
+  
+  out_of_memory:
+  area_done(self);
+  return NULL;
+}
+
+/** Makes a new area. */
+Area * area_new() {
+  return area_init(area_alloc());
+}
+
+
 /** Returns the cpSpace that the area uses for dynamics modelling. */
 cpSpace * area_space(Area * self) {
   if (!self) return NULL;
   return self->space;
 }
+
 
 int area_addwall(Area * self, int x, int y, int z, int w, int h) {
   cpShape * shape = NULL;

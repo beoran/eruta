@@ -8,7 +8,7 @@
 # by a /** comment.
 # A comment that ends in **/ will be included verbatim, but will not
 # generate any prototypes.
-# functions that are nort preceded by a /** comment are ignored.
+# Functions that are not preceded by a /** comment are ignored.
 #
 #
 fin       = File.open(ARGV[0], 'rt')

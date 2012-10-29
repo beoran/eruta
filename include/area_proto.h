@@ -19,6 +19,7 @@ static things will all use a single (or one of
 a few) static bodies, which does not need to be 
 freed when the thing isn't needed anymore.
 */
+#define THING_UNUSED -1
 #define THING_WALL   1
 #define THING_WATER  2
 #define THING_STAIR  3
@@ -35,42 +36,71 @@ typedef enum Thingflags_ Thingflags;
 struct Thing_;
 typedef struct Thing_ Thing;
 
+/** Sets the z value of the Thing. This influences which layer it
+and, if set, it's Shape is in. Logically,
+there are 4 layers in every area, 2 bottom ones and 2 top ones. 
+Layer 0 is for the floor or walls itself, layer 1 for things that
+are standing or lying on the floor, or for edges,
+layer 2 is for things on the "top floor", that is, another 
+floor above the current one which may be used for bridges, 
+overpasess, etc. Layer 3 is then for things standing
+or lying on that top layer.
+*/
+Thing * thing_z_(Thing * self, int z);
+
+/** Sets an individual flag on the Thing. */
+int thing_setflag(Thing * self, int flag);
+
+/** Unsets an individual flag on the Thing. */
+int thing_unsetflag(Thing * self, int flag);
+
+/** Sets or unsets an individual flag on the Thing. 
+If set is true the flag is set, if false it's unset. */
+int thing_flag_(Thing * self, int flag, int set);
+
+/** Checks if an individual flag is set. */
+int thing_flag(Thing * self, int flag);
+
+/** Uninitializes a thing. */
+Thing * thing_done(Thing * self);
+
+/** Frees a thing. */
+Thing * thing_free(Thing * self);
+
+/** Allocates a Thing. */
+Thing * thing_alloc();
+
 /** Initializes a Thing. */
-Thing * thing_init(Thing * self, int kind, int id, int z,
+Thing * thing_init(Thing * self, int id, int kind, int z,
                    Area * area, cpBody * body, cpShape * shape);
 
-/** Initializes a Thing, and makes a new body and rectangulat shape for it. */
+/** Initializes a Thing, and makes a new body and rectangular
+shape for it. */
 Thing * thing_initmake(Thing * self, int kind, int id, int z,
                        Area * area, int x, int y, int w, int h,
                        cpFloat mass, cpFloat impulse); 
 
-/** Sets an individual flag on the Thing. */
-int thing_flag(Thing * self, int flag);
-
-/** Unsets an individual flag on the Thing. */
-int thing_unflag(Thing * self, int flag);
-
-/** Sets or unsets an individual flag on the Thing. 
-If set is true the flag is set, if false it's unset. */
-int thing_doflag(Thing * self, int flag, int set);
-
-/** Checks if an individual flag is set */
-int thing_flag_p(Thing * self, int flag);
-
-/** Allocates an area. */
-Area * area_alloc();
-
-/** Initializes an area. */
-Area * area_init(Area * self);
-
-/** Makes a new area. */
-Area * area_new();
+/** Allocates and initializes a new Thing. */
+Thing * thing_new(int id, int kind, int z,
+                   Area * area, cpBody * body, cpShape * shape);
 
 /** Deinitializes an area and returns self. */
 Area * area_done(Area * self);
 
 /** Frees an area. Returns NULL. */
 Area * area_free(Area * self);
+
+/** Allocates an area. */
+Area * area_alloc();
+
+/** Start with 1000 things. */
+#define AREA_THINGS 1000
+
+/** Initializes an area. */
+Area * area_init(Area * self);
+
+/** Makes a new area. */
+Area * area_new();
 
 /** Returns the cpSpace that the area uses for dynamics modelling. */
 cpSpace * area_space(Area * self);

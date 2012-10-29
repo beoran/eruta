@@ -19,13 +19,85 @@
 
 typedef struct TEMPLATE_STRUCT TEMPLATE_NAME;
 
+/** Gets the array's size. Returns 0 if self is NULL. */
+int TEMPLATE_FUNC(size)(TEMPLATE_NAME * self);
+
+/** Frees the contents of an array. Has the same effect as emptying the array. 
+Does not call a destructor on any elements contained! */
+TEMPLATE_NAME * TEMPLATE_FUNC(done)(TEMPLATE_NAME * self);
+
+/** Frees an array. Returns NULL. */
+TEMPLATE_NAME * TEMPLATE_FUNC(free)(TEMPLATE_NAME * self);
+
+/** Allocates a new unusable array.  */
+TEMPLATE_NAME * TEMPLATE_FUNC(alloc)();
+
+/** Initializes an empty array with size elements. */
+TEMPLATE_NAME * TEMPLATE_FUNC(init)(TEMPLATE_NAME * self, int size);
+
+/** Changes the size of the dynamic array. Newsize must be >= 1. */
+TEMPLATE_NAME * TEMPLATE_FUNC(size_)(TEMPLATE_NAME * self, int newsize);
+
+/** Allocates a new array with size elements. */
+TEMPLATE_NAME * TEMPLATE_FUNC(new)(int size);
+
+/** Sets the amount of elements of the the array, but ony if
+* amount bigger than the bigger than the current size.
+* Returns NULL if the array was not grown, otherwise returns self.
+*/
+TEMPLATE_NAME * TEMPLATE_FUNC(grow)(TEMPLATE_NAME * self, int amount);
+
+/** Returns a pointer to the index-th element of the array.
+Does no bounds checking! */
+TEMPLATE_T * TEMPLATE_FUNC(getptr_unsafe)(TEMPLATE_NAME * self, int index);
+
+/** Returns the index-th element of the array. Does no bounds checking! */
+TEMPLATE_T TEMPLATE_FUNC(getraw_unsafe)(TEMPLATE_NAME * self, int index);
+
+/** Puts the element value at the index'th position 
+* in the array. Does no bounds checking. Returns self;
+*/
+TEMPLATE_NAME * TEMPLATE_FUNC(putraw_unsafe)
+(TEMPLATE_NAME * self, int index, TEMPLATE_T value);
+
+/** Returns the index-th element of the array.
+Does bounds checking and returns TEMPLATE_ZERO if out of bounds */
+TEMPLATE_T TEMPLATE_FUNC(getraw)(TEMPLATE_NAME * self, size_t index);
+
+/** Returns the index-th element of the array in get.
+Does bounds checking and returns negative if out of bounds or 
+if get is not set. Returns 0 and stores the result in get if all is OK*/
+int TEMPLATE_FUNC(get)(TEMPLATE_NAME * self, 
+                       int index, TEMPLATE_T * get);
+
+/** Returns a pointer to the index-th element of the array.
+Does bounds checking and return NULL if out of bounds */
+TEMPLATE_T * TEMPLATE_FUNC(getptr)(TEMPLATE_NAME * self, int index);
+
+/** Copies the TEMPLATE_FUNC(elementsize)(self) of bytes from the data 
+* in value to the location pointed to by index.
+* Does bounds checking and return NULL if out of bounds.
+* Returns self if all was OK.
+*/
+TEMPLATE_NAME * TEMPLATE_FUNC(put)(TEMPLATE_NAME * self, 
+  int index, TEMPLATE_T value);
+
+/** Stores contents of a pointer at the index of the array.
+* Does bounds checking.
+*/
+TEMPLATE_NAME * TEMPLATE_FUNC(putptr)(TEMPLATE_NAME * self, int index, 
+                              TEMPLATE_T * ptr);
+
+
+#else 
+/** Implementation **/
+
 struct TEMPLATE_STRUCT {
   TEMPLATE_T * data;
   int size;
 };
 
-#else 
-/** Implementation */
+
 
 /** Gets the array's size. Returns 0 if self is NULL. */
 int TEMPLATE_FUNC(size)(TEMPLATE_NAME * self) {
