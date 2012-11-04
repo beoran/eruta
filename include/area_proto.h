@@ -27,6 +27,9 @@ freed when the thing isn't needed anymore.
 #define THING_MOBILE 5
 #define THING_ZONE   6
 
+#define THING_WALL_MASS   INFINITY
+#define THING_ACTOR_MASS  1.0
+
 enum Thingflags_;
 typedef enum Thingflags_ Thingflags;
 
@@ -35,6 +38,15 @@ typedef enum Thingflags_ Thingflags;
 */
 struct Thing_;
 typedef struct Thing_ Thing;
+
+/** Gets the ID of the thing. Returns negative on error or for a
+thing that doesn't belong to an area yet.*/
+int thing_id(Thing * thing);
+
+/** Sets the ID of the thing. Returns negative on error or 
+for a thing that doesn't belong to an area yet (as inicated by newid) 
+*/
+int thing_id_(Thing * thing, int newid);
 
 /** Sets the z value of the Thing. This influences which layer it
 and, if set, it's Shape is in. Logically,
@@ -70,19 +82,41 @@ Thing * thing_free(Thing * self);
 /** Allocates a Thing. */
 Thing * thing_alloc();
 
-/** Initializes a Thing. */
-Thing * thing_init(Thing * self, int id, int kind, int z,
-                   Area * area, cpBody * body, cpShape * shape);
+/** Generic initialization of a thing Initializes a Thing. 
+Sets the given values and some flags. Links the Shape given
+to the Thing if shape is not NULL. 
+Also calls area_addthing on the given area if it is 
+not null. Returns null if that failed, but does no cleanup.  */
+Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
+                   cpBody * body, cpShape * shape);
 
-/** Initializes a Thing, and makes a new body and rectangular
-shape for it. */
-Thing * thing_initmake(Thing * self, int kind, int id, int z,
-                       Area * area, int x, int y, int w, int h,
-                       cpFloat mass, cpFloat impulse); 
+/** Initializes a rectangular, static, non-rotating Thing, and makes 
+a new body  and rectangular shape for it. Returns NULL on error. 
+Uses the area's static body. */
+Thing * thing_initstatic(Thing * self, Area * area, 
+                       int kind, 
+                       int x, int y, int z, int w, int h); 
+
+/** Initializes a thing that cannot rotate.  */
+Thing * thing_initnorotate(Thing * thing, Area * area, int kind,
+                           int x, int y, int z, int w, int h,
+                           cpFloat mass);
 
 /** Allocates and initializes a new Thing. */
 Thing * thing_new(int id, int kind, int z,
                    Area * area, cpBody * body, cpShape * shape);
+
+/** Returns an ID for a thing to use. Internally walks over the 
+known things and finds an empty cell. Returns negative on error. */
+int area_thingid(Area * self);
+
+/** Puts a thing inside the area. Returns NULL on error. 
+returns the thing set if ok. Sets the thing's id to it's 
+position in the internal array for things the area has. */
+Thing * area_addthing(Area * area, Thing * thing);
+
+/** Returns the static body that this area uses for static things. */
+cpBody * area_staticbody(Area * area);
 
 /** Deinitializes an area and returns self. */
 Area * area_done(Area * self);

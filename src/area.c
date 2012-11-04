@@ -25,6 +25,9 @@ freed when the thing isn't needed anymore.
 #define THING_MOBILE 5
 #define THING_ZONE   6
 
+#define THING_WALL_MASS   INFINITY
+#define THING_ACTOR_MASS  1.0
+
 enum Thingflags_ {
   THING_FLAGS_OWNBODY  = 1,
   THING_FLAGS_OWNSHAPE = 2,
@@ -44,6 +47,22 @@ struct Thing_ {
   int         z; /* Layer the thing is in. */
   void *      data; /* Logical data of the thing. */
 };
+
+/** Gets the ID of the thing. Returns negative on error or for a
+thing that doesn't belong to an area yet.*/
+int thing_id(Thing * thing) {
+  if(!thing) return -3;
+  return thing->id;
+}
+
+/** Sets the ID of the thing. Returns negative on error or 
+for a thing that doesn't belong to an area yet (as inicated by newid) 
+*/
+int thing_id_(Thing * thing, int newid) {
+  if(!thing) return -3;
+  return thing->id = newid;
+}
+
 
 /** Sets the z value of the Thing. This influences which layer it
 and, if set, it's Shape is in. Logically,
@@ -115,12 +134,16 @@ Thing * thing_alloc() {
   return STRUCT_ALLOC(Thing);
 }
 
-/** Initializes a Thing. */
-Thing * thing_init(Thing * self, int id, int kind, int z,
-                   Area * area, cpBody * body, cpShape * shape) {
+/** Generic initialization of a thing Initializes a Thing. 
+Sets the given values and some flags. Links the Shape given
+to the Thing if shape is not NULL. 
+Also calls area_addthing on the given area if it is 
+not null. Returns null if that failed, but does no cleanup.  */
+Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
+                   cpBody * body, cpShape * shape) {
   if(!self) return NULL;
   self->kind    = kind;
-  self->id      = id;
+  self->id      = -1;
   self->area    = area;
   self->body    = body;
   self->shape   = shape;
@@ -135,37 +158,44 @@ Thing * thing_init(Thing * self, int id, int kind, int z,
   /* Assume the shape is owned. */
   if (self->shape) {
     thing_setflag(self, THING_FLAGS_OWNSHAPE);
+    /* Shapes's friction (u) should be set to 0 so only pushing is possible, 
+       not "rubbing" */
+    cpShapeSetFriction(self->shape, 0.0);
+    cpShapeSetUserData(self->shape, self);
+  }
+  if (self->area) {
+    if(!area_addthing(area, self)) return NULL;
   }
   return self;
 }
 
-/** Initializes a Thing, and makes a new body and rectangular
-shape for it. */
-Thing * thing_initmake(Thing * self, int kind, int id, int z,
-                       Area * area, int x, int y, int w, int h,
-                       cpFloat mass, cpFloat impulse) { 
-    
-    cpBody * body     ; 
+/** Initializes a rectangular, static, non-rotating Thing, and makes 
+a new body  and rectangular shape for it. Returns NULL on error. 
+Uses the area's static body. */
+Thing * thing_initstatic(Thing * self, Area * area, 
+                       int kind, 
+                       int x, int y, int z, int w, int h) { 
+    cpBody * body     = area_staticbody(area); 
     cpVect points[4]  = { cpv(0, 0), cpv(0, h), cpv(w, h), cpv(w, 0)};
     cpVect offset     = cpv(x,y); 
     cpShape * shape   ; 
-    
     if(!self) return NULL;
- 
-    body  = cpBodyNew(mass, impulse);
-    if(!body) goto out_of_memory;
+    if(!area) return NULL;
     shape = cpPolyShapeNew(body, 4, points, offset);
     if(!shape) goto out_of_memory;
-    
-    /* Shapes's friction (u) should be set to 0 so only pushing is possible, 
-       not "rubbing" */
-    cpShapeSetFriction(shape, 0.0);
-    cpShapeSetUserData(shape, self);
-    return thing_init(self, id, kind, z, area, body, shape);
-    
+    return thing_initgeneric(self, area, id, kind, z, body, shape);
     out_of_memory:
     thing_done(self); 
     return NULL; 
+}
+
+#ifdef COMMENT_
+/** Initializes a thing that cannot rotate.  */
+Thing * thing_initnorotate(Thing * thing, Area * area, int kind,
+                           int x, int y, int z, int w, int h,
+                           cpFloat mass) {
+  cpFloat imp = INFINITY;
+  return thing_initmake(thing, kind, id, x, y, z, w, h, mass, imp) 
 }
 
 /** Allocates and initializes a new Thing. */
@@ -177,6 +207,7 @@ Thing * thing_new(int id, int kind, int z,
   }
   return self;
 }
+#endif 
 
 /* Get an interface of TArray for a pointer to Thing type */
 #define TEMPLATE_T      Thing*
@@ -209,6 +240,45 @@ struct Area_ {
   ThingArray  * things;
   int           lastid;
 };
+
+/** Returns an ID for a thing to use. Internally walks over the 
+known things and finds an empty cell. Returns negative on error. */
+int area_thingid(Area * self) {
+  int index, stop;  
+  ThingArray * things;
+  if(!self) return -1;
+  things = self->things;
+  if(!things) return -2;
+  stop = thingarray_size(things);
+  for (index= 0; index < stop; index++) {
+    Thing * thing = thingarray_getraw(things, index); 
+    if(!thing) {
+      if(index >= area->lastindex) {
+        area->lastindex = index;
+      ]
+      return index;
+    }
+  }
+  return -3;
+}
+
+/** Puts a thing inside the area. Returns NULL on error. 
+returns the thing set if ok. Sets the thing's id to it's 
+position in the internal array for things the area has. */
+Thing * area_addthing(Area * area, Thing * thing) {
+  int id = area_thingid(area); 
+  if (id < 0 ) return NULL;
+  if(!thingarray_put(area->things, id, thing)) return NULL;
+  thing_id_(thing, id);
+  return thing;
+}
+
+/** Returns the static body that this area uses for static things. */
+cpBody * area_staticbody(Area * area) {
+  if(!area) { return NULL; }
+  if(!area->space) { return NULL; }
+  return cpSpaceGetStaticBody(area->space);
+}
 
 /* Cleans up a thing array */
 ThingArray * thingarray_cleanup(ThingArray * things) {
