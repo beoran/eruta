@@ -4,6 +4,7 @@
 #include "image.h"
 #include "tilemap.h"
 #include "dynar.h"
+#include "area.h"
 
 #define TILEMAP_PANES 4
 
@@ -16,7 +17,7 @@ struct Tilemap_ {
   int         gridh;
   Tileset   * set;
   Dynar     * panes;
-  cpSpace   * space;
+  Area      * area;
 };
 
 #define TEXTURE_TILE    "tile"
@@ -44,7 +45,7 @@ Tilemap * tilemap_done(Tilemap * self) {
     tilepane_free(dynar_getptr(self->panes, index));
   }
   dynar_free(self->panes);
-  cpSpaceFree(self->space);
+  area_free(self->area);
   tileset_free(self->set);
   // tilemap_initempty(self);
   return self;
@@ -64,7 +65,7 @@ Tilemap* tilemap_init(Tilemap * self, Tileset * set, int w, int h) {
   for(index = 0; index < TILEMAP_PANES; index++) {
     dynar_putptr(self->panes, index, NULL);
   }
-  self->space = cpSpaceNew();
+  self->area      = area_new();
   return self;
 }
 
@@ -116,17 +117,35 @@ Tile * tilemap_get(Tilemap * self, int l, int x, int y) {
   return tilepane_get(pane, x, y);
 }
 
+
+/** Converts the tile's flags to an integer id for the best Thing to 
+represent this tile. Returns THING_UNUSED if it needs no physical representation. */
+int tile_thingkind(Tile * tile) {
+  if (tile_isflag(tile, TILE_WALL))  return THING_WALL;
+  if (tile_isflag(tile, TILE_STAIR)) return THING_STAIR;
+  if (tile_isflag(tile, TILE_WATER)) return THING_WATER;
+  return THING_UNUSED;  
+}
+
+/** Makes sure that the tile gets properly physically represented in the 
+Area of thui tilemap. Returns the Thing generated or NULL when no physical
+representation is needed.
+*/
+Thing * tilemap_tiletothing(Tilemap * self, int l, int x, int y, Tile * tile) {
+  int kind = tile_thingkind(tile);
+  if ( kind < 0 ) return NULL;  
+  return tilemap_addtilething(self, kind, x, y, l); 
+}
+
+
 /** Sets a tile in the tile map to the given tile. */
 Tile * tilemap_settile(Tilemap * self, int l, int x, int y, Tile * tile) {
+  Tile     * aidt = NULL;
   Tilepane * pane = tilemap_pane(self, l);
   if(!pane) return NULL;
-  if(!tilepane_set(pane, x, y, tile)) return NULL;
-  // TODO: Add physical wall if it's a wall.
-  /*
-  if(tilemap_tilewall(self, tile)) {
-    tilemap_makewall(self, x, y);
-  }
-  */
+  aidt            = tilepane_set(pane, x, y, tile);
+  if(!aidt) return NULL;
+  tilemap_tiletothing(self, l, x, y, aidt);
   return tile;
 }
 
@@ -137,12 +156,7 @@ Tile * tilemap_setindex(Tilemap * self, int l, int x, int y, int index) {
   if(!pane) return NULL;
   tile            = tilepane_setindex(pane, x, y, index);
   if(!tile) return NULL;
-  // TODO: Add physical wall if it's a wall.
-  /*
-  if(tilemap_tilewall(self, tile)) {
-    tilemap_makewall(self, x, y);
-  }
-  */
+  tilemap_tiletothing(self, l, x, y, tile);
   return tile;
 }
 
@@ -166,23 +180,11 @@ int tilemap_getindex(Tilemap * self, int l, int x, int y) {
   return (int) tilepane_getindex(pane, x, y);
 }
 
-/** Makees a physical wall in the chipmunk space of the map at the given 
-tile coordinates. Returns the wall shape. */
-cpShape * tilemap_makewall(Tilemap * self, int tx, int ty) {
-  cpFloat x     = (cpFloat)(tx * TILE_W);
-  cpFloat y     = (cpFloat)(ty * TILE_H);
-  cpFloat w     = (cpFloat)(TILE_W);
-  cpFloat h     = (cpFloat)(TILE_H);
-  cpBody *body  = cpSpaceGetStaticBody(self->space);
-  cpVect  p[4]  = { 
-                    cpv(x   , y  ), 
-                    cpv(x   , y+h), 
-                    cpv(x+w , y+h), 
-                    cpv(x+w , y)
-                   }; 
-  cpShape * wall= cpPolyShapeNew(body, 4, p, cpvzero);
-  cpSpaceAddShape(self->space, wall);
-  return wall;
+/** Makes a static Thing in the Area of the map at the given 
+tile coordinates zith the size of one tile. Returns the Thing thus represented. */
+Thing * tilemap_addtilething(Tilemap * self, int kind, int tx, int ty, int layer) {
+  return area_newstatic(self->area, THING_WALL,
+                        tx * TILE_W, ty * TILE_H, layer, TILE_W, TILE_H);
 }
 
 /** Draws a tile map. */

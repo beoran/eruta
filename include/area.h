@@ -3,6 +3,8 @@
 
 #include <chipmunk.h>
 
+#include "camera.h"
+
 /**
 An area is an in game region that forms a single unity in which play
 takes place. Ok, its' what you'd call a "level". Every area
@@ -16,6 +18,22 @@ Logic/game/character data: in scripting engine.
 */
 struct Area_;
 typedef struct Area_ Area;
+
+
+/* Thing types. Generally speaking, there are 
+things that can move and those that cannot. 
+Chipmunks treats them differently in the sense that
+static things will all use a single (or one of 
+a few) static bodies, which does not need to be 
+freed when the thing isn't needed anymore.
+*/
+#define THING_UNUSED -1
+#define THING_WALL   1
+#define THING_WATER  2
+#define THING_STAIR  3
+#define THING_ACTOR  4
+#define THING_MOBILE 5
+#define THING_ZONE   6
 
 
 #include "area_proto.h"

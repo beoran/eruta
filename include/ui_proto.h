@@ -23,29 +23,5 @@ UI * ui_alloc();
 
 
 
-/** Draws an image on the current target bitmap according to a 9 part scaling
-algorithm. This splits the bitmap in 9 parts, keeps the 4 corners unscaled, but
-scales the 4 edges and the center according to the desired size.
-The 4 corners should be rectangles of identical size corner_w by corner_h in
-the original image. Pass a nonpositive number to have the corner sizes automatically calculated.
-new_w and new_h are the new dimensions the new image should have.
-This is useful for GUI backgrounds.
-*/
-
-void image_blitscale9(Image * img, int xx, int yy,
-                                  int new_w, int new_h,
-                                  int corner_w, int corner_h);
-
-/** Draws a filled frame of the given thickness on the active bitmap.
-* The outer size of the frame will be ww and hh.
-* border color is fg, background color is bg. */
-void draw_frame(int xx, int yy, int ww, int hh, int tt, Color fg, Color bg);
-
-/** Draws a filled, rounded frame of the given thickness on the active bitmap.
-* The rounding is autocalulated. The outer size of the frame will be ww and hh.
-* border color is fg, background color is bg.
-*/
-void draw_roundframe(int xx, int yy, int ww, int hh, int tt, Color fg, Color bg);
-
 #endif // UI_PROTO_H
 

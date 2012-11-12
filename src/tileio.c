@@ -163,6 +163,7 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
   for(yindex = 0; yindex < h; yindex ++) {
     for(xindex = 0; xindex < w; xindex ++) {
       int tileindex = 0;
+      int realindex;
       csv = csv_next(csv, &tileindex);
       if(!csv) {
         perror("Unexpected end of csv data");
@@ -171,7 +172,9 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
       // we read a tile index, set it
       // printf("set tile pane : %d %d %d\n", xindex, yindex, tileindex);
       // TMX's tile indexes are 1 bigger than eruta's, so just substract one.
-      tilepane_setindex(pane, xindex, yindex, tileindex - 1);
+      realindex = tileindex - 1;
+      tilepane_setindex(pane, xindex, yindex, realindex);
+      
     }
   }
   csv_done:

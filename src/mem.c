@@ -4,14 +4,30 @@
 #include <string.h>
 #include "mem.h"
 
+
+/* Calls exit(EXIT_FAILURE) if ptr is NULL. Is messqhe is not null, prints this on stderr.  */
+void * exit_if_null(void * ptr, char * message) {
+  if(!ptr) {
+    if(message) {
+      fprintf(stderr, "%s\n", message);
+    }
+    exit(EXIT_FAILURE);
+  }
+  return ptr;
+}
+
+#define EXIT_ON_NOMEMORY(PTR) exit_if_null(PTR, "Out of memory!")
+
 /** Wrapper for calloc/malloc */
 void * mem_calloc(size_t amount, size_t size) {
-  return calloc(amount, size);
+  void * ptr = calloc(amount, size);
+  return EXIT_ON_NOMEMORY(ptr);
 }
 
 /** Wrapper for calloc/malloc */
 void * mem_alloc(size_t size) {
-  return mem_calloc(1, size);
+  void * ptr = mem_calloc(1, size);
+  return EXIT_ON_NOMEMORY(ptr);
 }
 
 /** Wrapper for free */
@@ -22,7 +38,8 @@ void * mem_free(void * ptr) {
 
 /** Wrapper for realloc */
 void * mem_realloc(void *ptr, size_t newsize) {
-  return realloc(ptr, newsize);
+  void * aid = realloc(ptr, newsize);
+  return EXIT_ON_NOMEMORY(aid);
 }
 
 /** Resizes memory, taking care not to lose ptr* if the reallocation
@@ -125,5 +142,13 @@ void * mem_move(void * dest, void * src, size_t size) {
 * that is tablew with function pointers. For the destructor a single pointer
 * could suffice, but while we're going virtual, allowing interface/class like
 * tables will be better since it alllows more generality and saves space.
+*
+*
+* Another point is what to do if memory allocation fails. While for a critical 
+* application, it woule make sense to try to free ups some space and try
+* again, for non-critical ones like Eruta, the best thing to do is to 
+* simply end the program, since there's nothing sensible that could be done,
+* apart from trying to restore the sceen to it's previous resolution if possible.
+*  
 *
 */

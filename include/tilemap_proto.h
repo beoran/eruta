@@ -40,6 +40,16 @@ Tilepane * tilemap_panenew(Tilemap * self, int index, int w, int h);
 /** Returns the tile in the tile map in the given layer at the given coords. */
 Tile * tilemap_get(Tilemap * self, int l, int x, int y);
 
+/** Converts the tile's flags to an integer id for the best Thing to 
+represent this tile. Returns THING_UNUSED if it needs no physical representation. */
+int tile_thingkind(Tile * tile);
+
+/** Makes sure that the tile gets properly physically represented in the 
+Area of thui tilemap. Returns the Thing generated or NULL when no physical
+representation is needed.
+*/
+Thing * tilemap_tiletothing(Tilemap * self, int l, int x, int y, Tile * tile);
+
 /** Sets a tile in the tile map to the given tile. */
 Tile * tilemap_settile(Tilemap * self, int l, int x, int y, Tile * tile);
 
@@ -56,9 +66,9 @@ Tile * tilemap_fill(Tilemap * self, int l, Tile * tile);
 /** Gets the index of the tile at the given location in the tilemap. */
 int tilemap_getindex(Tilemap * self, int l, int x, int y);
 
-/** Makees a physical wall in the chipmunk space of the map at the given 
-tile coordinates. Returns the wall shape. */
-cpShape * tilemap_makewall(Tilemap * self, int tx, int ty);
+/** Makes a static Thing in the Area of the map at the given 
+tile coordinates zith the size of one tile. Returns the Thing thus represented. */
+Thing * tilemap_addtilething(Tilemap * self, int kind, int tx, int ty, int layer);
 
 /** Draws a tile map. */
 void tilemap_draw(Tilemap * map, Camera * camera);

@@ -26,5 +26,27 @@ Silut * silut_lsearchi(Silut lut[], int integer);
 */
 Silut * silut_lsearchcstr(Silut lut[], const char * string);
 
+/** Compare functions for siluts that compares the strings. */
+int silut_comparecstr(const void * one, const void * two);
+
+/** Compare functions for siluts that compares the integers. */
+int silut_compareint(const void * one, const void * two);
+
+/** Looks up a Silut with an string  in the lookup table by
+* applying bsearch. The look up table must be sorted with the strings ascending.
+*
+* The look up table should have NULL as it's final element.
+* If not found, NULL is returned. If found the matching record is returned.
+*/
+Silut * silut_bsearchcstr(Silut lut[], const char * string);
+
+/** Looks up a Silut with an integer in the lookup table by
+* applying bsearch. The look up table must be sorted with the integers ascending.
+*
+* The look up table should have NULL as it's final element.
+* If not found, NULL is returned. If found the matching record is returned.
+*/
+Silut * silut_bsearchint(Silut lut[], int integer);
+
 #endif // SILUT_PROTO_H
 

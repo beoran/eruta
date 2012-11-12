@@ -7,6 +7,7 @@ set(ERUTA_SRC_FILES
   src/bxml.c
   src/camera.c
   src/ch.c
+  src/draw.c
   src/dynar.c
   src/effect.c
   src/event.c
@@ -14,29 +15,29 @@ set(ERUTA_SRC_FILES
   src/flags.c
   src/fifi.c
   src/glh.c
-src/hatab.c
-src/ifa.c
-src/mem.c
-src/mobile.c
-src/mode.c
-src/obj.c
-src/react.c
-src/rebl.c
-src/silli.c
-src/silut.c
-src/sound.c
-src/sprite.c
-src/state.c
-src/str.c
-src/tile.c
-src/tileio.c
-src/tilemap.c
-src/tilepane.c
-src/tmatrix.c
-src/rh.c
-src/toruby.c
-src/ui.c
-src/widget.c
-src/xml.c
-src/zori.c
+  src/hatab.c
+  src/ifa.c
+  src/mem.c
+  src/mobile.c
+  src/mode.c
+  src/obj.c
+  src/react.c
+  src/rebl.c
+  src/rh.c  
+  src/silli.c
+  src/silut.c
+  src/sound.c
+  src/sprite.c
+  src/state.c
+  src/str.c
+  src/tile.c
+  src/tileio.c
+  src/tilemap.c
+  src/tilepane.c
+  src/tmatrix.c
+  src/toruby.c  
+  src/ui.c
+  src/widget.c
+  src/xml.c
+  src/zori.c
 )

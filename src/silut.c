@@ -70,3 +70,43 @@ Silut * silut_lsearchcstr(Silut lut[], const char * string) {
 }
 
 
+/** Compare functions for siluts that compares the strings. */
+int silut_comparecstr(const void * one, const void * two) {
+  Silut * lut1 = (Silut*) one;
+  Silut * lut2 = (Silut*) two;
+  return strcmp(lut1->string, lut2->string);
+}
+
+/** Compare functions for siluts that compares the integers. */
+int silut_compareint(const void * one, const void * two) {
+  Silut * lut1 = (Silut*) one;
+  Silut * lut2 = (Silut*) two;
+  return lut2->integer - lut1->integer;
+}
+
+
+/** Looks up a Silut with an string  in the lookup table by
+* applying bsearch. The look up table must be sorted with the strings ascending.
+*
+* The look up table should have NULL as it's final element.
+* If not found, NULL is returned. If found the matching record is returned.
+*/
+Silut * silut_bsearchcstr(Silut lut[], const char * string) {
+  Silut key = { -1, string };
+  return (Silut *) 
+    bsearch(&key, lut, silut_len(lut), sizeof(Silut), silut_comparecstr);
+}
+
+
+/** Looks up a Silut with an integer in the lookup table by
+* applying bsearch. The look up table must be sorted with the integers ascending.
+*
+* The look up table should have NULL as it's final element.
+* If not found, NULL is returned. If found the matching record is returned.
+*/
+Silut * silut_bsearchint(Silut lut[], int integer) {
+  Silut key = { integer, "NOT FOUND" };
+  return (Silut *) 
+    bsearch(&key, lut, silut_len(lut), sizeof(Silut), silut_compareint);
+}
+

@@ -67,8 +67,12 @@ Point camera_speed(Camera * self);
 /** Sets speed.  */
 Point camera_speed_(Camera * self, Point speed);
 
-/** Prints camera descriiption for debug */
+/** Prints camera description for debug */
 Camera * camera_debugprint(Camera * self);
+
+/** Returns true if an object at x, y with the given bounds w and h will 
+be visible to this camera, false if not. */
+int camera_cansee(Camera * self, int x, int y, int w, int h);
 
 #endif // CAMERA_PROTO_H
 

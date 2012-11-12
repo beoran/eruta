@@ -132,7 +132,7 @@ Point camera_speed_(Camera * self, Point speed) {
   return self->speed;
 }
 
-/** Prints camera descriiption for debug */
+/** Prints camera description for debug */
 Camera * camera_debugprint(Camera * self) {
   if(!self) { puts("Camera is NULL!"); return NULL; }
   printf("Camera at (%f, %f), size (%f, %f), speed(%f, %f)\n",
@@ -143,7 +143,16 @@ Camera * camera_debugprint(Camera * self) {
 
 
 
-
+/** Returns true if an object at x, y with the given bounds w and h will 
+be visible to this camera, false if not. */
+int camera_cansee(Camera * self, int x, int y, int w, int h) {
+  // not visible if too far to the left or bottom
+  if (x     > camera_br_x(self)) return FALSE;
+  if (y     > camera_br_y(self)) return FALSE;
+  if ((x+w) < camera_at_x(self)) return FALSE;  
+  if ((y+h) < camera_at_y(self)) return FALSE;
+  return TRUE;
+}
 
 
 
