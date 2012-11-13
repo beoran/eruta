@@ -31,6 +31,8 @@ struct Thing_ {
   Area      * area; /* Aera the thing is in if any. */
   cpBody    * body; /* Physical body of the thing. Is NULL for statical body. */
   cpShape   * shape; /* Main collision shape of the thing. */
+  Point        spos; /* Position, merely for static shapes. */
+  Point       ssize; /* size, merely for static shapes. */
   int         z; /* Layer the thing is in. */
   void *      data; /* Logical data of the thing. */
 };
@@ -189,8 +191,12 @@ Thing * thing_initstatic(Thing * self, Area * area,
     if(!self) return NULL;
     if(!area) return NULL;
     // static things are not positioned but simply generated at an offset
-    shape = shape_rectnew(body, 0, 0, w, h, x, y); 
+    shape       = shape_rectnew(body, 0, 0, w, h, x, y); 
     if(!shape) goto out_of_memory;
+    // set spos and ssize;
+    self->spos   = cpv(x, y);
+    self->ssize  = cpv(w, h);
+    
     return thing_initgeneric(self, area, kind, z, body, shape);
     out_of_memory:
     thing_done(self); 
