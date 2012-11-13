@@ -70,7 +70,7 @@ Silut * silut_lsearchcstr(Silut lut[], const char * string) {
 }
 
 
-/** Compare functions for siluts that compares the strings. */
+ /** Compare functions for siluts that compares the strings. */
 int silut_comparecstr(const void * one, const void * two) {
   Silut * lut1 = (Silut*) one;
   Silut * lut2 = (Silut*) two;
