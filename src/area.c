@@ -242,28 +242,38 @@ Thing * thing_newdynamic(Area * area,
   return self;
 }
 
-/* Draws a static thing. */
-void thing_drawstatic(Thing * thing, Camera * camera, Color color) {
-}
-
-/* Draws other, dynamic things. */
-void thing_drawdynamic(Thing * thing, Camera * camera, Color color) {
-}
-
 
 /** Draws a thing to the current active drawing target, corresponding 
 to it's shape and kind and taking the camera into account. Mostely useful for 
 checking or debugging the physics. */
 void thing_draw(Thing * self, Camera * camera) {
-  int cx    = camera_at_x(camera);
-  int cy    = camera_at_y(camera);
+  int cx      ; 
+  int cy      ;
+  int drawx   ;
+  int drawy   ;
+  int w, h    ;
+  Color color;
+  // don't draw null things.
+  if(!self) return;
+  cx        = camera_at_x(camera);
+  cy        = camera_at_y(camera);
   cpBB box  = cpShapeGetBB(self->shape);
   /* Do not draw out of camera range. */
-  if(!camera_cansee(camera, box.l, box.t, box.l - box.r, box.b - box.t)) {
+  drawx = box.l - cx;
+  drawy = box.t - cy;
+  w     = box.l - box.r; 
+  h     = box.b - box.t;
+  if(!camera_cansee(camera, box.l, box.t, w, h)) {
     return;
   }
+  
+  if (thing_static_p(self)) {
+    color = color_rgb(255, 255, 128);
+  } else {
+    color = color_rgb(128, 255, 255);
+  }
+  draw_box(drawx, drawy, w, h, color, 1);  
 }
-
 
 
 
@@ -363,6 +373,17 @@ ThingArray * thingarray_cleanup(ThingArray * things) {
   return things;
 }
 
+/* Empties a thing array */
+ThingArray * thingarray_empty(ThingArray * things) {
+  int index, stop;  
+  if(!things) return NULL;
+  stop = thingarray_size(things);
+  for (index= 0; index < stop; index++) {
+    thingarray_put(things, index, NULL);
+  }
+  return things;
+}
+
 /** Deinitializes an area and returns self. */
 Area * area_done(Area * self) {
   if(!self) return self;
@@ -401,7 +422,9 @@ Area * area_init(Area * self) {
   self->space   = cpSpaceNew();
   self->things  = thingarray_new(AREA_THINGS);
   if(!self->things) goto out_of_memory;
-  
+  thingarray_empty(self->things);
+
+
   return self;
   
   out_of_memory:
@@ -445,5 +468,21 @@ Thing * area_newdynamic(Area * self, int kind,
   return thing;
 }
 
+
+
+/** Draws all things in an area taking the camera into account. */
+void area_draw(Area * self, Camera * camera) {
+  int index;
+  //printf("Rendering %d things\n",  self->lastid);
+  for(index = 0; index <  self->lastid ; index++) {
+    Thing * thing = thingarray_getraw(self->things, index);
+    if (thing) thing_draw(thing, camera);
+  }
+}
+
+/* updates the area */
+void area_update(Area * self, double dt) {
+  cpSpaceStep(self->space, dt);  
+}
 
 

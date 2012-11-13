@@ -121,6 +121,8 @@ Tile * tilemap_get(Tilemap * self, int l, int x, int y) {
 /** Converts the tile's flags to an integer id for the best Thing to 
 represent this tile. Returns THING_UNUSED if it needs no physical representation. */
 int tile_thingkind(Tile * tile) {
+  if (!tile) return THING_UNUSED;
+  if (tile_index(tile)<1) return THING_UNUSED;
   if (tile_isflag(tile, TILE_WALL))  return THING_WALL;
   if (tile_isflag(tile, TILE_STAIR)) return THING_STAIR;
   if (tile_isflag(tile, TILE_WATER)) return THING_WATER;
@@ -199,11 +201,13 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
       // fprintf(stderr, "pane missing: %d", index);
     }
   }
+  area_draw(map->area, camera);
 }
 
 /** Updates the tile map. Currently this animates the tiles. */
 void tilemap_update(Tilemap * map, double dt) {
   tileset_update(map->set, dt);
+  area_update(map->area, dt);  
 }
 
 

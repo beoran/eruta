@@ -173,8 +173,8 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
       // printf("set tile pane : %d %d %d\n", xindex, yindex, tileindex);
       // TMX's tile indexes are 1 bigger than eruta's, so just substract one.
       realindex = tileindex - 1;
-      tilepane_setindex(pane, xindex, yindex, realindex);
-      
+      tilemap_setindex(map, layer, xindex, yindex, realindex);
+ 
     }
   }
   csv_done:

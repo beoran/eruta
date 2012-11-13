@@ -153,5 +153,8 @@ Thing * area_newstatic(Area * self, int kind,
 Thing * area_newdynamic(Area * self, int kind, 
                         int x, int y, int z, int w, int h);
 
+/** Draws all things in an area taking the camera into account. */
+void area_draw(Area * self, Camera * camera);
+
 #endif // AREA_PROTO_H
 

@@ -26,7 +26,7 @@ Silut * silut_lsearchi(Silut lut[], int integer);
 */
 Silut * silut_lsearchcstr(Silut lut[], const char * string);
 
-/** Compare functions for siluts that compares the strings. */
+ /** Compare functions for siluts that compares the strings. */
 int silut_comparecstr(const void * one, const void * two);
 
 /** Compare functions for siluts that compares the integers. */
