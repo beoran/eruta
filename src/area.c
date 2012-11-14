@@ -156,8 +156,8 @@ int thing_static_p(Thing * self) {
 /** Generic initialization of a thing Initializes a Thing. 
 Sets the given values and some flags. Links the Shape given
 to the Thing if shape is not NULL. 
-Also calls area_addthing on the given area if it is 
-not null. Returns null if that failed, but does no cleanup.  */
+Does NOT call area_addthing on the given area. 
+Returns null if that failed, but does no cleanup.  */
 Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
                    cpBody * body, cpShape * shape) {
   if(!self) return NULL;
@@ -184,9 +184,6 @@ Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
     cpShapeSetFriction(self->shape, 0.0);
     cpShapeSetUserData(self->shape, self);
     /* */
-  }
-  if (self->area) {
-    if(!area_addthing(area, self)) return NULL;
   }
   return self;
 }
