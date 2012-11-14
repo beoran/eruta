@@ -130,11 +130,13 @@ int tile_thingkind(Tile * tile) {
 }
 
 /** Makes sure that the tile gets properly physically represented in the 
-Area of thui tilemap. Returns the Thing generated or NULL when no physical
+Area of the tilemap. Returns the Thing generated or NULL when no physical
 representation is needed.
 */
 Thing * tilemap_tiletothing(Tilemap * self, int l, int x, int y, Tile * tile) {
-  int kind = tile_thingkind(tile);
+  int kind;
+  if (!self || !tile) return NULL;
+  kind = tile_thingkind(tile);
   if ( kind < 0 ) return NULL;  
   return tilemap_addtilething(self, kind, x, y, l); 
 }
@@ -210,7 +212,11 @@ void tilemap_update(Tilemap * map, double dt) {
   area_update(map->area, dt);  
 }
 
-
+/** Adds a dynamic thing of the given type to the tile map's area */
+Thing * tilemap_addthing(Tilemap * self, int kind, int x, int y, int z, 
+                         int w, int h) {
+  return area_newdynamic(self->area, kind, x, y, z, w, h);
+}
 
 
 

@@ -28,13 +28,20 @@ struct Thing_ {
   int kind;  /* What kind of thing it is. Same as collision type. */
   int id;    /* Numercial ID. */
   int flags; /* State flags.  */
-  Area      * area; /* Aera the thing is in if any. */
+  Area      * area; /* Area the thing is in if any. */
   cpBody    * body; /* Physical body of the thing. Is NULL for statical body. */
   cpShape   * shape; /* Main collision shape of the thing. */
-  Point        spos; /* Position, merely for static shapes. */
-  Point       ssize; /* size, merely for static shapes. */
   int         z; /* Layer the thing is in. */
   void *      data; /* Logical data of the thing. */
+  /* Chipmunk makes it rather hard to get to the size of a 
+  shape, and also since static shapes all havet he same body, the position 
+  of static shapes is lost. And gettting the box is
+  not reliable neough. So keep the size and position 
+  for static shapes here even if it's slightly redundant.
+  */
+  Point       size; /* size of outline of hape */
+  Point       spos; /* Position, merely for static shapes, for dynamic
+  bodies, use cpBodyGetPos*/
 };
 
 /** Gets the ID of the thing. Returns negative on error or for a
@@ -113,7 +120,8 @@ Thing * thing_done(Thing * self) {
 
 /** Frees a thing. */
 Thing * thing_free(Thing * self) {
-  mem_free(thing_done(self));
+  thing_done(self);
+  mem_free(self);
   return NULL;
 }
 
@@ -165,6 +173,8 @@ Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
   */
   if (self->body && !cpBodyIsStatic(self->body)) {
     thing_setflag(self, THING_FLAGS_OWNBODY);
+    // set this thing in the data of the body
+    cpBodySetUserData(self->body, self);
   }
   /* Assume the shape is owned. */
   if (self->shape) {
@@ -173,6 +183,7 @@ Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
        not "rubbing" */
     cpShapeSetFriction(self->shape, 0.0);
     cpShapeSetUserData(self->shape, self);
+    /* */
   }
   if (self->area) {
     if(!area_addthing(area, self)) return NULL;
@@ -193,9 +204,9 @@ Thing * thing_initstatic(Thing * self, Area * area,
     // static things are not positioned but simply generated at an offset
     shape       = shape_rectnew(body, 0, 0, w, h, x, y); 
     if(!shape) goto out_of_memory;
-    // set spos and ssize;
+    // set spos and size;
     self->spos   = cpv(x, y);
-    self->ssize  = cpv(w, h);
+    self->size   = cpv(w, h);
     
     return thing_initgeneric(self, area, kind, z, body, shape);
     out_of_memory:
@@ -215,8 +226,13 @@ Thing * thing_initdynamic(Thing * self, Area * area,
     body              = cpBodyNew(THING_ACTOR_MASS, INFINITY); 
     if(!body) goto out_of_memory;
     // dynamic things ARE positioned correctly and do not use an offset
-    shape             = shape_rectnew(body, x, y, w, h, 0, 0);
+    // the object's shape is locally around the body
+    shape             = shape_rectnew(body, 0, 0, w, h, 0, 0);
     if(!shape) goto out_of_memory;
+    // set spos and size;
+    self->spos   = cpv(x, y);
+    self->size   = cpv(w, h);
+    
     return thing_initgeneric(self, area, kind, z, body, shape);
     out_of_memory:
     cpBodyFree(body);
@@ -248,6 +264,96 @@ Thing * thing_newdynamic(Area * area,
   return self;
 }
 
+/** Accessors for thing's properties, forwarded to the body 
+of the thing. **/
+
+
+/** Position of the thing. */
+Point thing_p(Thing * self) {
+  return cpBodyGetPos(self->body);
+}
+
+/** Position X coordinates. */
+int thing_x(Thing * self) {
+  return cpBodyGetPos(self->body).x;
+}
+
+/** Position Y coordinates. */
+int thing_y(Thing * self) {
+  return cpBodyGetPos(self->body).y;
+}
+
+/** Layer of thing. */
+int thing_z(Thing * self) {
+  return self->z;
+}
+
+/** Velocity of the thing. */
+Point thing_v(Thing * self) {
+  return cpBodyGetVel(self->body);
+}
+
+/** Speed X coordinates. */
+int thing_vx(Thing * self) {
+  return cpBodyGetVel(self->body).x;
+}
+
+/** Speed Y coordinates. */
+int thing_vy(Thing * self) {
+  return cpBodyGetVel(self->body).y;
+}
+
+/** Set velocity. */
+void thing_v_(Thing * self, Point v) {
+  cpBodySetVel(self->body, v);
+}
+
+/** Set velocity by xy. */
+void thing_vxy_(Thing * self, int vx, int vy) {
+  Point v = cpv(vx, vy);
+  cpBodySetVel(self->body, v);
+}
+
+/** Set x velocity only, leaving y unchanged . */
+void thing_vx_(Thing * self, int vx) {
+  Point v = thing_v(self);
+  v.x     = vx;
+  thing_v_(self, v);
+}
+
+/** Set y velocity only, leaving x unchanged . */
+void thing_vy_(Thing * self, int vy) {
+  Point v = thing_v(self);
+  v.y     = vy;
+  thing_v_(self, v);
+}
+
+/** Sets position of thing's body. */
+void thing_p_(Thing * self, Point p) {
+  cpBodySetPos(self->body, p);
+}
+
+/** Set position by xy. */
+void thing_pxy_(Thing * self, int x, int y) {
+  Point p = cpv(x, y);
+  cpBodySetPos(self->body, p);
+}
+
+/** Set x velocity only, leaving y unchanged . */
+void thing_x_(Thing * self, int x) {
+  Point p = thing_p(self);
+  p.x     = x;
+  thing_p_(self, p);
+}
+
+/** Set x velocity only, leaving y unchanged . */
+void thing_y_(Thing * self, int y) {
+  Point p = thing_p(self); 
+  p.y     = y;
+  thing_p_(self, p);
+}
+
+
 
 /** Draws a thing to the current active drawing target, corresponding 
 to it's shape and kind and taking the camera into account. Mostely useful for 
@@ -258,36 +364,32 @@ void thing_draw(Thing * self, Camera * camera) {
   int drawx, x;
   int drawy, y;
   int w, h    ;
+  int t      = 2;
   Color color;
   // don't draw null things.
   if(!self) return;
   cx        = camera_at_x(camera);
   cy        = camera_at_y(camera);
-  cpBB box  = cpShapeGetBB(self->shape);
-  /* Do not draw out of camera range. */
-  w     = box.l - box.r; 
-  h     = box.b - box.t;
-  
+  w = self->size.x;
+  h = self->size.y;
   if (thing_static_p(self)) {
     x = self->spos.x;
     y = self->spos.y;
-    w = self->ssize.x;
-    h = self->ssize.y;
-    color = color_rgb(255, 255, 128);
+    color = color_rgbaf(1.0, 1.0, 0.0, 0.001);
   } else {
     color = color_rgb(128, 255, 255);
     Point pos = cpBodyGetPos(self->body);
     x = pos.x;
     y = pos.y;
-    w = self->ssize.x;
-    h = self->ssize.y;
+    t = 8;
   }
+  /* Do not draw out of camera range. */
   if(!camera_cansee(camera, x, y, w, h)) {
     return;
   }
   drawx = x - cx;
-  drawy = y - yx;
-  draw_box(drawx, drawy, w, h, color, 1);
+  drawy = y - cy;
+  draw_box(drawx, drawy, w, h, color, t);
 }
 
 
@@ -318,23 +420,46 @@ to the scripting engine that contains the logical state of the game.
 Division of the data locations: visual and physics engine: in C.
 Logic/game/character data: in scripting engine.
 */
+
+/* Start with space for 20000 things. */
+#define AREA_THINGS 20000
+
 struct Area_ {
   cpSpace     * space;
-  ThingArray  * things;
+  Thing       * things[AREA_THINGS];
   int           lastid;
 };
+
+/** Gest the amount of possible things for this area */
+int area_maxthings(Area * area) {
+  return AREA_THINGS;
+}
+
+/** Gets the thing for the given thing ID. */
+Thing * area_thing(Area * area, int index) {
+  if(index < 0) return NULL;
+  if(index > AREA_THINGS) return NULL;
+  if(!area) return NULL;
+  return area->things[index];
+} 
+
+/** Sets the thing for the given thing ID. */
+Thing * area_thing_(Area * area, int index, Thing * set) {
+  if(index < 0) return NULL;
+  if(index > AREA_THINGS) return NULL;
+  if(!area) return NULL;
+  return area->things[index] = set;
+} 
+
 
 /** Returns an ID for a thing to use. Internally walks over the 
 known things and finds an empty cell. Returns negative on error. */
 int area_thingid(Area * self) {
-  int index, stop;  
-  ThingArray * things;
+  int index, stop;
   if(!self) return -1;
-  things = self->things;
-  if(!things) return -2;
-  stop = thingarray_size(things);
+  stop = area_maxthings(self);
   for (index= 0; index < stop; index++) {
-    Thing * thing = thingarray_getraw(things, index); 
+    Thing * thing = area_thing(self, index); 
     if(!thing) {
       if(index >= self->lastid) {
         self->lastid = index;
@@ -353,7 +478,7 @@ Thing * area_addthing(Area * area, Thing * thing) {
   if (!thing)  return NULL;
   id = area_thingid(area);
   if (id < 0 ) return NULL;
-  if(!thingarray_put(area->things, id, thing)) return NULL;
+  if(!area_thing_(area, id, thing)) return NULL;
   thing_id_(thing, id);
   return thing;
 }
@@ -366,37 +491,37 @@ cpBody * area_staticbody(Area * area) {
 }
 
 
-/* Removes a thing from a thingarray, selected by ID and deallocates it. */
-int thingarray_delete(ThingArray * things, int index) {
-  Thing * thing = thingarray_getraw(things, index); 
-  if(thing) {
-      thing_free(thing);
-      thingarray_put(things, index, NULL); 
+/* Removes a thing from the area, selected by ID and deallocates it. */
+int area_deletething(Area * area, int index) {
+  Thing * thing = area_thing(area, index); 
+  if(thing && thing->kind != THING_UNUSED) {
+     thing_free(thing);
+     area_thing_(area, index, NULL);
   }
   return 0;
 } 
 
 
-/* Cleans up a thing array */
-ThingArray * thingarray_cleanup(ThingArray * things) {
-  int index, stop;  
-  if(!things) return NULL;
-  stop = thingarray_size(things);
+/* Cleans up the things of the area */
+Area * area_cleanupthings(Area * self) {
+  int index, stop;
+  if(!self) return NULL;
+  stop = area_maxthings(self);
   for (index= 0; index < stop; index++) {
-    thingarray_delete(things, index);
+    area_deletething(self, index);
   }
-  return things;
+  return self;
 }
 
-/* Empties a thing array */
-ThingArray * thingarray_empty(ThingArray * things) {
+/* Empties the things of an area. Does not destroy them! */
+Area * area_emptythings(Area * self) {
   int index, stop;  
-  if(!things) return NULL;
-  stop = thingarray_size(things);
+  if (!self) return NULL;
+  stop = area_maxthings(self);
   for (index= 0; index < stop; index++) {
-    thingarray_put(things, index, NULL);
+    area_thing_(self, index, NULL);
   }
-  return things;
+  return self;
 }
 
 /** Deinitializes an area and returns self. */
@@ -407,9 +532,8 @@ Area * area_done(Area * self) {
   cpSpaceFree(self->space);
   self->space = NULL;
   if(self->things) {
-    thingarray_cleanup(self->things);
-    thingarray_free(self->things);
-    self->things = NULL;
+    area_cleanupthings(self);
+    // self->things = NULL;
   }
   return self;
 }
@@ -427,18 +551,13 @@ Area * area_alloc() {
   return STRUCT_ALLOC(Area);
 }
 
-/* Start with space for 20000 things. */
-#define AREA_THINGS 20000
-
 /** Initializes an area. */
 Area * area_init(Area * self) {
   if(!self) return NULL;
   self->lastid  = 0;
   self->space   = cpSpaceNew();
-  self->things  = thingarray_new(AREA_THINGS);
-  if(!self->things) goto out_of_memory;
-  thingarray_empty(self->things);
-
+  area_emptythings(self);
+  
 
   return self;
   
@@ -490,7 +609,7 @@ void area_draw(Area * self, Camera * camera) {
   int index;
   //printf("Rendering %d things\n",  self->lastid);
   for(index = 0; index <  self->lastid ; index++) {
-    Thing * thing = thingarray_getraw(self->things, index);
+    Thing * thing = area_thing(self, index);
     if (thing) thing_draw(thing, camera);
   }
 }

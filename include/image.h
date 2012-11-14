@@ -53,7 +53,10 @@ typedef ALLEGRO_FONT Font;
 
 /** Color shorthands. */
 #define color_rgb(R, G, B)  al_map_rgb(R, G, B)
-#define color_rgba(R, G, B, A)  al_map_rgba(R, G, B,A)
+#define color_rgba(R, G, B, A)  al_map_rgba(R, G, B, A)
+#define color_rgbf(R, G, B)  al_map_rgb_f(R, G, B)
+#define color_rgbaf(R, G, B, A)  al_map_rgba_f(R, G, B, A)
+
 #define COLOR_WHITE  al_map_rgb(255, 255, 255)
 #define COLOR_BLACK  al_map_rgb(0  ,   0,   0)
 #define COLOR_BLUE   al_map_rgb(0  ,   0,  64)

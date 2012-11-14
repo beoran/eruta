@@ -76,5 +76,9 @@ void tilemap_draw(Tilemap * map, Camera * camera);
 /** Updates the tile map. Currently this animates the tiles. */
 void tilemap_update(Tilemap * map, double dt);
 
+/** Adds a dynamic thing of the given type to the tile map's area */
+Thing * tilemap_addthing(Tilemap * self, int kind, int x, int y, int z, 
+                         int w, int h);
+
 #endif // TILEMAP_PROTO_H
 

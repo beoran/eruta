@@ -129,6 +129,7 @@ int real_main(void) {
     Camera   * camera   = NULL;
     Tilepane * tilepane = NULL;
     Tilemap  * map      = NULL;
+    Thing    * actor    = NULL;
     React    react;
     ALLEGRO_COLOR myblack = {0.0, 0.0, 0.0, 1.0};
 
@@ -183,6 +184,8 @@ int real_main(void) {
                           "map_0001.tmx", "map", NULL);
     if(!map) {
       puts("Map is NULL!");
+    } else {
+      tilemap_addthing(map, THING_ACTOR, 120, 100, 1, 32, 32);
     }
 
   // Try to load the main lua file.

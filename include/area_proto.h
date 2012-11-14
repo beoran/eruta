@@ -110,6 +110,55 @@ Thing * thing_newdynamic(Area * area,
                        int kind, 
                        int x, int y, int z, int w, int h);
 
+/** Accessors for thing's properties, forwarded to the body 
+of the thing. **/
+
+
+/** Position of the thing. */
+Point thing_p(Thing * self);
+
+/** Position X coordinates. */
+int thing_x(Thing * self);
+
+/** Position Y coordinates. */
+int thing_y(Thing * self);
+
+/** Layer of thing. */
+int thing_z(Thing * self);
+
+/** Velocity of the thing. */
+Point thing_v(Thing * self);
+
+/** Speed X coordinates. */
+int thing_vx(Thing * self);
+
+/** Speed Y coordinates. */
+int thing_vy(Thing * self);
+
+/** Set velocity. */
+void thing_v_(Thing * self, Point v);
+
+/** Set velocity by xy. */
+void thing_vxy_(Thing * self, int vx, int vy);
+
+/** Set x velocity only, leaving y unchanged . */
+void thing_vx_(Thing * self, int vx);
+
+/** Set y velocity only, leaving x unchanged . */
+void thing_vy_(Thing * self, int vy);
+
+/** Sets position of thing's body. */
+void thing_p_(Thing * self, Point p);
+
+/** Set position by xy. */
+void thing_pxy_(Thing * self, int x, int y);
+
+/** Set x velocity only, leaving y unchanged . */
+void thing_x_(Thing * self, int x);
+
+/** Set x velocity only, leaving y unchanged . */
+void thing_y_(Thing * self, int x);
+
 /** Draws a thing to the current active drawing target, corresponding 
 to it's shape and kind and taking the camera into account. Mostely useful for 
 checking or debugging the physics. */

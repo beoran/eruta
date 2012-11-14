@@ -155,6 +155,8 @@ Tile * tile_recalculate(Tile * tile) {
 Tile * tile_init(Tile * tile, Tileset * set, int index) {
   if(!tile) return NULL;
   if(!set) return NULL;
+  tile->flags   = 0;
+  tile->kind    = 0;
   tile->index   = index;
   tile->set     = set;
   tile->anim    = 0;
