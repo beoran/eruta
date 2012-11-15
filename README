@@ -1,11 +1,11 @@
 Eruta, a futuristic jRPG under development.
 
 Requirements:
-* OS: Linux for now. Windows port is under development.
+* OS: Linux for now. Windows port is under development. OSX may work too.
 * Allegro 5.0.x
-* Lua 5.2.x
 * Chipmunk 6.x,
 * libxml2 (www.xmlsoft.org)
+* mruby (latest github version) 
 * For testing and compilation: cmake, and valgrind.
 * For map editing: tiled (www.mapeditor.org)
 * For some of the tools and continuous testing: Ruby, watchr.
@@ -16,6 +16,9 @@ You have to make sure that you have all the requirements.  On Linux distributiti
 installed. Then do: 
 
 cmake . ; make
+
+Or if you want to build with Ninja, use thz latest version of cmake and go
+cmage -G ninja . ; ninja 
 
 How to try it:
 
@@ -35,14 +38,9 @@ so it may be a bit slow at times.
 
 License: 
 
-Eruta is copyright (c)
-2007-2012 Beoran beoran@rubyforge.org.
-2012 Alexbond45
-2012 LunarKnite
-2012 com64
-2012 Mikka
-2012 Sagephoenix
-All rights reserved.
+Eruta is copyright (C)
+2007-2012 Beoran beoran@rubyforge.org. 
+2012 com64 (music files in data/music/*_com64.ogg)
 
 Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met:
@@ -82,8 +80,6 @@ sources, you'll have to make the sources of your program freely available and
 redistributable as well. If you don't like these terms, contact me for making 
 different arrangments. :)
 
-
-
 Credits and third party licenses: 
 
 File:
@@ -105,12 +101,15 @@ Daniel Johnson (font maintainer)
 il.basso.buffo at gmail dot com
 http://io.debian.net/~danielj/
 
+Thanks to the following people for their suggestions:
+
+Alexbond45, LunarKnite, Mikka, Sagephoenix.
 
 
 Remarks for developers:
 
 bin/mkproto is an automatic function prototype extraction tool that uses ruby. 
-It automatically generates .h files for .c files. It extracts the fujnction portotype if the functions hasa comment that starts with /** before it. So 
+It automatically generates .h files for .c files. It extracts the function portotype if the functions hasa comment that starts with /** before it. So 
 /** Comment here */ int foo(void) {
   return 0;
 }
@@ -125,7 +124,8 @@ When a new .c file is needed, use the bin/newmodule tool like this
 bin/newmodule bar 
 and automatically, empty src/bar.c and include/bar.h will be generated.
 
-As for why I use plain C and not, say C++: it's to keep the code simple, tight and focused, and easy to interface wth the Lua scripts. C is a very simple language, but it can do everything. And to save time, quite a bit of the programming will happen on the Lua side.
-
-
-
+As for why I use plain C and not, say C++: it's to keep the code simple, tight 
+and focused, and easy to interface wth the Lua scripts. C is a very simple
+language, but it can do anything. And to save time, some a bit of the 
+programming will happen on the mruby side. Finally, plain C is easier to wrap 
+and use in mruby.
