@@ -219,7 +219,6 @@ Thing * tilemap_addthing(Tilemap * self, int kind, int x, int y, int z,
 }
 
 
-
 #ifdef COMMENT_
 Tilemap * tilemap_load(lua_State * lua, int index) {  
   char buf[1024];

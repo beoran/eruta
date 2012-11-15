@@ -6,18 +6,67 @@ by bin/genproto
 Please do not hand edit.
 */
 
-/**
-* The Camera is one  (or more if using split screen) of the
-* rectangular views that the player has on the game world.
-*/
-struct Camera_;
-typedef struct Camera_ Camera;
+/** Sets an individual flag on the Tracker. */
+int tracker_setflag(Tracker * self, int flag);
+
+/** Unsets an individual flag on the Tracker. */
+int tracker_unsetflag(Tracker * self, int flag);
+
+/** Sets or unsets an individual flag on the Tracker. 
+If set is true the flag is set, if false it's unset. */
+int tracker_flag_(Tracker * self, int flag, int set);
+
+/** Checks if an individual flag is set. */
+int tracker_flag(Tracker * self, int flag);
+
+/** Uninitializes a Trqcker. */
+Tracker * tracker_done(Tracker * self);
+
+/** Frees a Tracker. */
+Tracker * tracker_free(Tracker * self);
+
+/** Allocates a Tracker. */
+Tracker * tracker_alloc();
+
+/** Initializes a tracker */
+Tracker * tracker_init(Tracker * self, Camera * camera, 
+                       void * target, TrackerTrack * track);
+
+/** Makes a new tracker and initializes it. */
+Tracker * tracker_new(Camera * camera, void * data, TrackerTrack * track);
+
+/** Applies a tracker. Returns the result of the track function. */
+int tracker_apply(Tracker * self, void * data);
+
+/** Returns the amount of trackers a camera can have. */
+int camera_maxtrackers(Camera * camera);
+
+/** Gets tracker at the index or NULL if not set or on error. */
+Tracker * camera_tracker(Camera * camera, int index);
+
+/** Sets tracker at the index and returns it, or NULL on error. */
+Tracker * camera_tracker_(Camera * camera, int index, Tracker * tracker);
+
+/** Deletes all trackers of the camera. */
+Camera * camera_freetrackers(Camera * self);
+
+/** Empties all trackers of the camera. Does NOT delete them. */
+Camera * camera_cleartrackers(Camera * self);
+
+/** Cleans up a camera. */
+Camera * camera_done(Camera * self);
 
 /** Frees the carera after use. */
 Camera * camera_free(Camera * self);
 
+/** Initializes a camera. */
+Camera * camera_init(Camera * self, float x, float y, float w, float h);
+
 /** Alocates a new camera. */
 Camera * camera_new(float x, float y, float w, float h);
+
+/** Applies all trackers to the camera */
+int camera_applytrackers(Camera * self);
 
 /** Updates the camera. */
 Camera * camera_update(Camera * self);
@@ -55,6 +104,9 @@ float camera_center_x(Camera * self);
 /** Return y position of camera bottom center */
 float camera_center_y(Camera * self);
 
+/** Sets position of center of camera to center. */
+Point camera_center_(Camera * self, Point center);
+
 /** Modifies speed by individual components. */
 Point camera_speed_deltaxy(Camera * self, float dx, float dy);
 
@@ -73,6 +125,9 @@ Camera * camera_debugprint(Camera * self);
 /** Returns true if an object at x, y with the given bounds w and h will 
 be visible to this camera, false if not. */
 int camera_cansee(Camera * self, int x, int y, int w, int h);
+
+/** Adds a new tracker to the camera.  */
+Tracker * camera_newtracker(Camera * self, int id, void * target, TrackerTrack * track);
 
 #endif // CAMERA_PROTO_H
 

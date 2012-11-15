@@ -45,7 +45,7 @@ represent this tile. Returns THING_UNUSED if it needs no physical representation
 int tile_thingkind(Tile * tile);
 
 /** Makes sure that the tile gets properly physically represented in the 
-Area of thui tilemap. Returns the Thing generated or NULL when no physical
+Area of the tilemap. Returns the Thing generated or NULL when no physical
 representation is needed.
 */
 Thing * tilemap_tiletothing(Tilemap * self, int l, int x, int y, Tile * tile);

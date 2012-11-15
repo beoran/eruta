@@ -189,8 +189,8 @@ Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
 }
 
 /** Initializes a rectangular, static, non-rotating Thing. Uses the 
-area's static body, and makes a new rectangular shape for it. Returns NULL on error. 
-Uses the area's static body. */
+area's static body, and makes a new rectangular shape for it. 
+Returns NULL on error. Uses the area's static body. */
 Thing * thing_initstatic(Thing * self, Area * area, 
                        int kind, 
                        int x, int y, int z, int w, int h) { 
@@ -229,6 +229,8 @@ Thing * thing_initdynamic(Thing * self, Area * area,
     // set spos and size;
     self->spos   = cpv(x, y);
     self->size   = cpv(w, h);
+    // set position of body
+    cpBodySetPos(body, self->spos);
     
     return thing_initgeneric(self, area, kind, z, body, shape);
     out_of_memory:
@@ -330,6 +332,13 @@ void thing_p_(Thing * self, Point p) {
   cpBodySetPos(self->body, p);
 }
 
+/** Adds delta to the position of thing's body. */
+void thing_deltap(Thing * self, Point delta) {
+  Point old = thing_p(self);
+  thing_p_(self, cpvadd(old, delta));
+  // cpBodySetPos(self->body, p);
+}
+
 /** Set position by xy. */
 void thing_pxy_(Thing * self, int x, int y) {
   Point p = cpv(x, y);
@@ -350,6 +359,20 @@ void thing_y_(Thing * self, int y) {
   thing_p_(self, p);
 }
 
+/** Applies a force on the center of gravity of the thing. */
+void thing_applyforce(Thing * thing, const Point f) {
+  cpBodyApplyForce(thing->body, f, cpvzero);
+}
+
+/** Applies an impulse on the center of gravity of the thing. */
+void thing_applyimpulse(Thing * thing, const Point f) {
+  cpBodyApplyImpulse(thing->body, f, cpvzero);
+}
+
+/** Resets the force on this thing to 0. */
+void thing_resetforces(Thing * thing) {
+  cpBodyResetForces(thing->body);
+}
 
 
 /** Draws a thing to the current active drawing target, corresponding 
@@ -361,24 +384,24 @@ void thing_draw(Thing * self, Camera * camera) {
   int drawx, x;
   int drawy, y;
   int w, h    ;
-  int t      = 2;
+  int t       = 2;
   Color color;
   // don't draw null things.
   if(!self) return;
-  cx        = camera_at_x(camera);
-  cy        = camera_at_y(camera);
-  w = self->size.x;
-  h = self->size.y;
+  cx          = camera_at_x(camera);
+  cy          = camera_at_y(camera);
+  w           = self->size.x;
+  h           = self->size.y;
   if (thing_static_p(self)) {
-    x = self->spos.x;
-    y = self->spos.y;
-    color = color_rgbaf(1.0, 1.0, 0.0, 0.001);
+    x         = self->spos.x;
+    y         = self->spos.y;
+    color     = color_rgbaf(1.0, 1.0, 0.0, 0.001);
   } else {
-    color = color_rgb(128, 255, 255);
-    Point pos = cpBodyGetPos(self->body);
-    x = pos.x;
-    y = pos.y;
-    t = 8;
+    color     = color_rgb(128, 255, 255);
+    Point pos = thing_p(self);
+    x         = pos.x;
+    y         = pos.y;
+    t         = 8;
   }
   /* Do not draw out of camera range. */
   if(!camera_cansee(camera, x, y, w, h)) {
@@ -423,8 +446,8 @@ Logic/game/character data: in scripting engine.
 
 struct Area_ {
   cpSpace     * space;
-  Thing       * things[AREA_THINGS];
   int           lastid;
+  Thing       * things[AREA_THINGS];
 };
 
 /** Gest the amount of possible things for this area */
@@ -477,6 +500,11 @@ Thing * area_addthing(Area * area, Thing * thing) {
   if (id < 0 ) return NULL;
   if(!area_thing_(area, id, thing)) return NULL;
   thing_id_(thing, id);
+  /* Don't forget to add body to shape. */
+  cpSpaceAddShape(area->space, thing->shape);
+  if(!thing_static_p(thing)) {
+    cpSpaceAddBody(area->space, thing->body); 
+  }
   return thing;
 }
 
@@ -554,7 +582,7 @@ Area * area_init(Area * self) {
   self->lastid  = 0;
   self->space   = cpSpaceNew();
   area_emptythings(self);
-  
+
 
   return self;
   
@@ -605,15 +633,36 @@ Thing * area_newdynamic(Area * self, int kind,
 void area_draw(Area * self, Camera * camera) {
   int index;
   //printf("Rendering %d things\n",  self->lastid);
-  for(index = 0; index <  self->lastid ; index++) {
+  for(index = 0; index <  (self->lastid + 1); index++) {
     Thing * thing = area_thing(self, index);
     if (thing) thing_draw(thing, camera);
   }
 }
 
-/* updates the area */
+/** Updates the area */
 void area_update(Area * self, double dt) {
   cpSpaceStep(self->space, dt);  
 }
 
+
+
+/** A tracker function for tracking a Thing. Only works with dynamic things. */
+int thing_track(Tracker * tracker, void * data) {
+  Thing * thing = NULL;
+  if(!tracker || !tracker->camera) return TRACKER_ERROR;
+  thing         = (Thing *) tracker->target;
+  if(thing_static_p(thing)) return TRACKER_ERROR;
+  // TODO: correct with half width and half height
+  camera_center_(tracker->camera, thing_p(thing));  
+  return TRACKER_DONE;
+}
+
+/** A tracker function for tracking an area. Simply keeps the camera in 
+the bounds of the area. Doesn't work yet since areas are yet without any size. */
+int area_track(Tracker * tracker, void * data) {
+  Area * area = NULL;
+  if(!tracker || !tracker->camera) return TRACKER_ERROR;
+  area        = (Area *) tracker->target;
+  return TRACKER_DONE;  
+}
 

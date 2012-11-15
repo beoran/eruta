@@ -2,27 +2,140 @@
 #include "eruta.h"
 #include "camera.h"
 #include "mem.h"
+#include "flags.h"
 
-/**
-* The Camera is one  (or more if using split screen) of the
-* rectangular views that the player has on the game world.
-*/
-struct Camera_ {
-  Point at;
-  Point size;
-  Point speed;
-};
+
+
+/** Sets an individual flag on the Tracker. */
+int tracker_setflag(Tracker * self, int flag) {
+  return flags_set(&self->flags, flag);
+}
+
+/** Unsets an individual flag on the Tracker. */
+int tracker_unsetflag(Tracker * self, int flag) {
+  register int wflags = self->flags;
+  return flags_unset(&self->flags, flag);
+}
+
+/** Sets or unsets an individual flag on the Tracker. 
+If set is true the flag is set, if false it's unset. */
+int tracker_flag_(Tracker * self, int flag, int set) {
+  return flags_put(&self->flags, flag, set);
+}
+
+/** Checks if an individual flag is set. */
+int tracker_flag(Tracker * self, int flag) {
+  return flags_get(self->flags, flag);
+}
+
+/** Uninitializes a Trqcker. */
+Tracker * tracker_done(Tracker * self) {
+  if(!self) return NULL;
+  self->target  = NULL;
+  self->track   = NULL;
+  self->camera  = NULL;
+  self->flags   = 0;
+  return self;
+}
+
+/** Frees a Tracker. */
+Tracker * tracker_free(Tracker * self) {
+  tracker_done(self);
+  mem_free(self);
+  return NULL;
+}
+
+/** Allocates a Tracker. */
+Tracker * tracker_alloc() {
+  return STRUCT_ALLOC(Tracker);
+}
+
+/** Initializes a tracker */
+Tracker * tracker_init(Tracker * self, Camera * camera, 
+                       void * target, TrackerTrack * track) {
+  if(!self) return NULL;
+  self->camera = camera;
+  self->target = target;
+  self->track  = track;
+  self->flags  = 0;
+  tracker_flag_(self, TRACKER_ENABLE, 1);
+  return self;  
+}
+
+/** Makes a new tracker and initializes it. */
+Tracker * tracker_new(Camera * camera, void * data, TrackerTrack * track) {
+  return tracker_init(tracker_alloc(), camera, data, track);
+}
+
+/** Applies a tracker. Returns the result of the track function. */
+int tracker_apply(Tracker * self, void * data) {
+  if((!self) | (!self->track)) return TRACKER_ERROR;
+  return self->track(self, data);
+} 
+
 
 Camera * camera_alloc() {
   return STRUCT_ALLOC(Camera);
 }
 
+/** Returns the amount of trackers a camera can have. */
+int camera_maxtrackers(Camera * camera) {
+  return CAMERA_TRACKERS;
+}
+
+/** Gets tracker at the index or NULL if not set or on error. */
+Tracker * camera_tracker(Camera * camera, int index) {
+  if (!camera)    return NULL;
+  if (index < 0)  return NULL;
+  if (index >= camera_maxtrackers(camera)) return NULL;
+  return camera->trackers[index];
+}
+
+/** Sets tracker at the index and returns it, or NULL on error. */
+Tracker * camera_tracker_(Camera * camera, int index, Tracker * tracker) {
+  if (!camera)    return NULL;
+  if (index < 0)  return NULL;
+  if (index >= camera_maxtrackers(camera)) return NULL;
+  return camera->trackers[index] = tracker;
+}
+
+/** Deletes all trackers of the camera. */
+Camera * camera_freetrackers(Camera * self) {
+  int index, stop;
+  stop = camera_maxtrackers(self);
+  for (index = 0; index < stop; index++) {
+    Tracker * tracker = camera_tracker(self, index);
+    if (tracker) { 
+      tracker_free(tracker);
+      camera_tracker_(self, index, NULL);      
+    }
+  }
+}
+
+/** Empties all trackers of the camera. Does NOT delete them. */
+Camera * camera_cleartrackers(Camera * self) {
+  int index, stop;
+  stop = camera_maxtrackers(self);
+  for (index = 0; index < stop; index++) {
+    camera_tracker_(self, index, NULL);
+  }
+}
+
+/** Cleans up a camera. */
+Camera * camera_done(Camera * self) {
+  camera_freetrackers(self);
+  return self;
+}
+
 /** Frees the carera after use. */
 Camera * camera_free(Camera * self) {
+  camera_done(self);
   STRUCT_FREE(self);
   return NULL;
 }
 
+
+/** Initializes a camera. */
 Camera * camera_init(Camera * self, float x, float y, float w, float h) {
   if(!self) return NULL;
   self->at.x    = x;
@@ -31,6 +144,7 @@ Camera * camera_init(Camera * self, float x, float y, float w, float h) {
   self->size.y  = h;
   self->speed.x = 0;
   self->speed.y = 0;
+  camera_cleartrackers(self);  
   return self;
 }
 
@@ -40,8 +154,25 @@ Camera * camera_new(float x, float y, float w, float h) {
   return camera_init(self, x, y, w, h);
 }
 
+/** Applies all trackers to the camera */
+int camera_applytrackers(Camera * self) {
+  int index, stop;
+  stop = camera_maxtrackers(self);
+  for (index = 0; index < stop; index++) {
+    Tracker * tracker = camera_tracker(self, index);
+    if (tracker && tracker_flag(tracker, TRACKER_ENABLE)) { 
+      int result = tracker_apply(tracker, NULL);
+      if (result == TRACKER_DONE) return result;
+    }
+  }  
+  return TRACKER_OK;
+}
+
 /** Updates the camera. */
 Camera * camera_update(Camera * self) {
+  /* Apply the camera's trackers. */
+  camera_applytrackers(self);
+  /* Finally move at the set speed. */
   self->at = cpvadd(self->at, self->speed);
   return self;
 }
@@ -105,6 +236,16 @@ float camera_center_y(Camera * self) {
   return self->at.y + (self->size.y / 2);;
 }
 
+
+/** Sets position of center of camera to center. */
+Point camera_center_(Camera * self, Point center) {
+  Point at;
+  at.x = center.x - (camera_w(self) / 2);
+  at.y = center.y - (camera_h(self) / 2);
+  return camera_at_(self, at);
+}
+
+
 /** Modifies speed by individual components. */
 Point camera_speed_deltaxy(Camera * self, float dx, float dy) {
   self->speed.x += dx;
@@ -154,6 +295,15 @@ int camera_cansee(Camera * self, int x, int y, int w, int h) {
   return TRUE;
 }
 
-
+/** Adds a new tracker to the camera.  */
+Tracker * camera_newtracker(Camera * self, int id, void * target, TrackerTrack * track) {
+  Tracker * tracker = tracker_new(self, target, track);
+  if (!tracker) return NULL;
+  /* Tracker index is set by user because priority is important. */
+  if(!camera_tracker_(self, id, tracker)) {
+    return tracker_free(tracker);
+  }
+  return tracker;
+} 
 
 

@@ -53,26 +53,33 @@ void puts_standard_path(int path, char * name) {
   puts(al_path_cstr(testpath, ALLEGRO_NATIVE_PATH_SEP));
   al_destroy_path(testpath);
 }
-  
+ 
+ 
+/* Global variable just for testing. */ 
+static Thing    * actor_data    = NULL;
 
 React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {  
+  Point f = cpvzero;
   State * state = (State *) self->data;
   Camera * camera = NULL;
   if (!state) return NULL;
   camera = state_camera(state);
   if (!camera) return NULL;
+  if (actor_data) {
+    f = thing_v(actor_data);
+  }
   switch(event->keycode) {
     case ALLEGRO_KEY_UP:
-      camera_speed_xy_(camera,  0, -1);
+      f.y = -50;
     break;
     case ALLEGRO_KEY_DOWN:
-      camera_speed_xy_(camera,  0, +1);
+      f.y = +50;
     break;
     case ALLEGRO_KEY_LEFT:
-      camera_speed_xy_(camera, -1,  0);
+      f.x = -50;
     break;
     case ALLEGRO_KEY_RIGHT:
-      camera_speed_xy_(camera, +1,  0);
+      f.x = +50;
     break;
     case ALLEGRO_KEY_F1:
       console_active_(state_console(state), TRUE);
@@ -86,33 +93,44 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     default:
     break;
   }
+  if(actor_data) {
+    thing_v_(actor_data, f);
+  } 
   return self;
 }
 
 
 React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
-  Point os;
-  State * state = (State *) self->data;
+  Point f         = cpvzero;
+  State * state   = (State *) self->data;
   Camera * camera = NULL;
   if (!state) return NULL;
   camera = state_camera(state);
   if (!camera) return NULL;
-  os = camera_speed(camera);
+  // os = camera_speed(camera);
+  if (actor_data) {
+    f = thing_v(actor_data);
+  }
   switch(event->keycode) {
     case ALLEGRO_KEY_UP:
-      camera_speed_xy_(camera, os.x, 0);
+      f.y = 0.0;
     break;
     case ALLEGRO_KEY_DOWN:
-      camera_speed_xy_(camera, os.x, 0);
+      f.y = 0.0;
     break;
     case ALLEGRO_KEY_LEFT:
-      camera_speed_xy_(camera, 0,  os.y);
+      f.x = 0.0;
     break;
     case ALLEGRO_KEY_RIGHT:
-      camera_speed_xy_(camera, 0,  os.y);
+      f.x = 0.0;
     break;
     default:
     break;
+  }
+  if(actor_data) {
+    thing_v_(actor_data, f);
+  } else {
+    puts("No actor data!");
   }
   return self;
 }
@@ -130,6 +148,7 @@ int real_main(void) {
     Tilepane * tilepane = NULL;
     Tilemap  * map      = NULL;
     Thing    * actor    = NULL;
+    Tracker  * tracker  = NULL;
     React    react;
     ALLEGRO_COLOR myblack = {0.0, 0.0, 0.0, 1.0};
 
@@ -145,7 +164,6 @@ int real_main(void) {
       return 1;
     }
     
-
 
     /** Initialises the reactor, the game state is it's data. */
     react_initempty(&react, state);
@@ -185,7 +203,10 @@ int real_main(void) {
     if(!map) {
       puts("Map is NULL!");
     } else {
-      tilemap_addthing(map, THING_ACTOR, 120, 100, 1, 32, 32);
+      actor_data = tilemap_addthing(map, THING_ACTOR, 120, 100, 1, 32, 32);
+      if(actor) {
+        tracker = camera_newtracker(camera, TRACKER_PC, actor_data, thing_track);
+      }      
     }
 
   // Try to load the main lua file.
@@ -202,7 +223,6 @@ int real_main(void) {
       
       // al_clear_to_color(COLOR_WHITE);
       // al_draw_line(0, 0, SCREEN_W, SCREEN_H, COLOR_WHITE, 7);
-      
       
       if(map) tilemap_update(map, state_frametime(state));
       // tilepane_draw(tilepane, camera);
@@ -236,7 +256,14 @@ int real_main(void) {
        argument"); */
       
       al_draw_textf(state_font(state), COLOR_WHITE,
-                        10, 10, 0, "FPS: %lf, %d", state_fps(state), state_frames(state));
+                        10, 10, 0, "FPS: %lf, %d", state_fps(state), 
+                        state_frames(state));
+      if(actor_data) {
+        al_draw_textf(state_font(state), COLOR_WHITE,
+                        200, 10, 0, "Actor: (%d, %d)", thing_x(actor_data),
+                        thing_y(actor_data));
+        // thing_resetforces(actor_data);
+      }
       // draw the console (will autohide if not active).
       console_draw(state_console(state));
    

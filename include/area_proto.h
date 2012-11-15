@@ -82,8 +82,8 @@ int thing_static_p(Thing * self);
 /** Generic initialization of a thing Initializes a Thing. 
 Sets the given values and some flags. Links the Shape given
 to the Thing if shape is not NULL. 
-Also calls area_addthing on the given area if it is 
-not null. Returns null if that failed, but does no cleanup.  */
+Does NOT call area_addthing on the given area. 
+Returns null if that failed, but does no cleanup.  */
 Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
                    cpBody * body, cpShape * shape);
 
@@ -157,12 +157,30 @@ void thing_pxy_(Thing * self, int x, int y);
 void thing_x_(Thing * self, int x);
 
 /** Set x velocity only, leaving y unchanged . */
-void thing_y_(Thing * self, int x);
+void thing_y_(Thing * self, int y);
+
+/** Applies a force on the center of gravity of the thing. */
+void thing_applyforce(Thing * thing, const Point f);
+
+/** Applies an impulse on the center of gravity of the thing. */
+void thing_applyimpulse(Thing * thing, const Point f);
+
+/** Resets the force on this thing to 0. */
+void thing_resetforces(Thing * thing);
 
 /** Draws a thing to the current active drawing target, corresponding 
 to it's shape and kind and taking the camera into account. Mostely useful for 
 checking or debugging the physics. */
 void thing_draw(Thing * self, Camera * camera);
+
+/** Gest the amount of possible things for this area */
+int area_maxthings(Area * area);
+
+/** Gets the thing for the given thing ID. */
+Thing * area_thing(Area * area, int index);
+
+/** Sets the thing for the given thing ID. */
+Thing * area_thing_(Area * area, int index, Thing * set);
 
 /** Returns an ID for a thing to use. Internally walks over the 
 known things and finds an empty cell. Returns negative on error. */
@@ -204,6 +222,13 @@ Thing * area_newdynamic(Area * self, int kind,
 
 /** Draws all things in an area taking the camera into account. */
 void area_draw(Area * self, Camera * camera);
+
+/** A tracker function for tracking a Thing. Only works with dynamic things. */
+int thing_track(Tracker * tracker, void * data);
+
+/** A tracker function for tracking an area. Simply keeps the camera in 
+the bounds of the area. Doesn't work yet since areas are yet without any size. */
+int area_track(Tracker * tracker, void * data);
 
 #endif // AREA_PROTO_H
 
