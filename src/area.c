@@ -645,6 +645,7 @@ void area_update(Area * self, double dt) {
 }
 
 
+#define THING_TRACK_DELTA 32.0 * 4 
 
 /** A tracker function for tracking a Thing. Only works with dynamic things. */
 int thing_track(Tracker * tracker, void * data) {
@@ -653,16 +654,8 @@ int thing_track(Tracker * tracker, void * data) {
   thing         = (Thing *) tracker->target;
   if(thing_static_p(thing)) return TRACKER_ERROR;
   // TODO: correct with half width and half height
-  camera_center_(tracker->camera, thing_p(thing));  
+  camera_centerdelta_(tracker->camera, thing_p(thing), THING_TRACK_DELTA);  
   return TRACKER_DONE;
 }
 
-/** A tracker function for tracking an area. Simply keeps the camera in 
-the bounds of the area. Doesn't work yet since areas are yet without any size. */
-int area_track(Tracker * tracker, void * data) {
-  Area * area = NULL;
-  if(!tracker || !tracker->camera) return TRACKER_ERROR;
-  area        = (Area *) tracker->target;
-  return TRACKER_DONE;  
-}
 

@@ -88,8 +88,8 @@ Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
                    cpBody * body, cpShape * shape);
 
 /** Initializes a rectangular, static, non-rotating Thing. Uses the 
-area's static body, and makes a new rectangular shape for it. Returns NULL on error. 
-Uses the area's static body. */
+area's static body, and makes a new rectangular shape for it. 
+Returns NULL on error. Uses the area's static body. */
 Thing * thing_initstatic(Thing * self, Area * area, 
                        int kind, 
                        int x, int y, int z, int w, int h); 
@@ -149,6 +149,9 @@ void thing_vy_(Thing * self, int vy);
 
 /** Sets position of thing's body. */
 void thing_p_(Thing * self, Point p);
+
+/** Adds delta to the position of thing's body. */
+void thing_deltap(Thing * self, Point delta);
 
 /** Set position by xy. */
 void thing_pxy_(Thing * self, int x, int y);
@@ -223,12 +226,11 @@ Thing * area_newdynamic(Area * self, int kind,
 /** Draws all things in an area taking the camera into account. */
 void area_draw(Area * self, Camera * camera);
 
+/** Updates the area */
+void area_update(Area * self, double dt);
+
 /** A tracker function for tracking a Thing. Only works with dynamic things. */
 int thing_track(Tracker * tracker, void * data);
-
-/** A tracker function for tracking an area. Simply keeps the camera in 
-the bounds of the area. Doesn't work yet since areas are yet without any size. */
-int area_track(Tracker * tracker, void * data);
 
 #endif // AREA_PROTO_H
 

@@ -75,6 +75,12 @@ Camera * camera_update(Camera * self);
 Point camera_at(Camera * self);
 
 /** Sets position by individual components. */
+Point camera_at_x_(Camera * self, float x);
+
+/** Sets position by individual components. */
+Point camera_at_y_(Camera * self, float y);
+
+/** Sets position by individual components. */
 Point camera_at_xy_(Camera * self, float x, float y);
 
 /** Sets position. */
@@ -104,8 +110,15 @@ float camera_center_x(Camera * self);
 /** Return y position of camera bottom center */
 float camera_center_y(Camera * self);
 
+/** Return position of camera view center. */
+Point camera_center(Camera * self);
+
 /** Sets position of center of camera to center. */
 Point camera_center_(Camera * self, Point center);
+
+/** Sets position of center of camera to center if the distance 
+of the current center is greater than the given delta . */
+Point camera_centerdelta_(Camera * self, Point newcenter, float delta);
 
 /** Modifies speed by individual components. */
 Point camera_speed_deltaxy(Camera * self, float dx, float dy);

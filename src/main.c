@@ -148,7 +148,10 @@ int real_main(void) {
     Tilepane * tilepane = NULL;
     Tilemap  * map      = NULL;
     Thing    * actor    = NULL;
-    Tracker  * tracker  = NULL;
+    Tracker  * tracker    = NULL;
+    Tracker  * maptracker = NULL;
+
+    
     React    react;
     ALLEGRO_COLOR myblack = {0.0, 0.0, 0.0, 1.0};
 
@@ -204,9 +207,10 @@ int real_main(void) {
       puts("Map is NULL!");
     } else {
       actor_data = tilemap_addthing(map, THING_ACTOR, 120, 100, 1, 32, 32);
-      if(actor) {
+      if(actor_data) {
         tracker = camera_newtracker(camera, TRACKER_PC, actor_data, thing_track);
-      }      
+      }  
+      maptracker = camera_newtracker(camera, 31, map, tilemap_track);
     }
 
   // Try to load the main lua file.

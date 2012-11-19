@@ -80,5 +80,9 @@ void tilemap_update(Tilemap * map, double dt);
 Thing * tilemap_addthing(Tilemap * self, int kind, int x, int y, int z, 
                          int w, int h);
 
+/** A tracker function for tracking an area. Simply keeps the camera in 
+the bounds of the tile map. Doesn't work yet since areas are yet without any size. */
+int tilemap_track(Tracker * tracker, void * data);
+
 #endif // TILEMAP_PROTO_H
 

@@ -110,6 +110,7 @@ Camera * camera_freetrackers(Camera * self) {
       camera_tracker_(self, index, NULL);      
     }
   }
+  return self;
 }
 
 /** Empties all trackers of the camera. Does NOT delete them. */
@@ -119,6 +120,7 @@ Camera * camera_cleartrackers(Camera * self) {
   for (index = 0; index < stop; index++) {
     camera_tracker_(self, index, NULL);
   }
+  return self;
 }
 
 /** Cleans up a camera. */
@@ -183,6 +185,19 @@ Point camera_at(Camera * self) {
 }
 
 /** Sets position by individual components. */
+Point camera_at_x_(Camera * self, float x) {
+  self->at.x = x;
+  return self->at;
+}
+
+/** Sets position by individual components. */
+Point camera_at_y_(Camera * self, float y) {
+  self->at.y = y;
+  return self->at;
+}
+
+
+/** Sets position by individual components. */
 Point camera_at_xy_(Camera * self, float x, float y) {
   self->at.x = x;
   self->at.y = y;
@@ -236,6 +251,13 @@ float camera_center_y(Camera * self) {
   return self->at.y + (self->size.y / 2);;
 }
 
+/** Return position of camera view center. */
+Point camera_center(Camera * self) {
+  return cpv(camera_center_x(self), camera_center_y(self));
+}
+
+
+
 
 /** Sets position of center of camera to center. */
 Point camera_center_(Camera * self, Point center) {
@@ -244,6 +266,19 @@ Point camera_center_(Camera * self, Point center) {
   at.y = center.y - (camera_h(self) / 2);
   return camera_at_(self, at);
 }
+
+/** Sets position of center of camera to center if the distance 
+of the current center is greater than the given delta . */
+Point camera_centerdelta_(Camera * self, Point newcenter, float delta) {
+  float dist;
+  Point oldcenter = camera_center(self);
+  dist = cpvdist(oldcenter, newcenter);   
+  if (dist < delta) {
+    return oldcenter;
+  }
+  return camera_center_(self, newcenter);
+}
+
 
 
 /** Modifies speed by individual components. */
