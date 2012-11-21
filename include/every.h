@@ -62,6 +62,7 @@ and the returned data will be returned by the function that uses AllData
 too. Extra is used for passing in extra data if any. */
 typedef void * (AllData)(void * data, void * extra);
 
+
 /** Generic comparator function. Much like strcmp. */
 typedef int (AllCompare)(void * one, void * two);
 

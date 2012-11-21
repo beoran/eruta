@@ -6,6 +6,26 @@ by bin/genproto
 Please do not hand edit.
 */
 
+/** Sets an individual flag on the Panner. */
+int panner_setflag(Panner * self, int flag);
+
+/** Unsets an individual flag on the Panner. */
+int panner_unsetflag(Panner * self, int flag);
+
+/** Sets or unsets an individual flag on the Panner. 
+If set is true the flag is set, if false it's unset. */
+int panner_flag_(Panner * self, int flag, int set);
+
+/** Checks if an individual flag is set. */
+int panner_flag(Panner * self, int flag);
+
+/** Initializes a panner and sets it to be active. If speed is negative
+or zero it will be replaced by 10.0 */
+Panner * panner_init(Panner * self, Point goal, float speed, int immediate);
+
+/** Cleans up a panner after use. */
+Panner * panner_done(Panner * self);
+
 /** Sets an individual flag on the Tracker. */
 int tracker_setflag(Tracker * self, int flag);
 
@@ -19,7 +39,7 @@ int tracker_flag_(Tracker * self, int flag, int set);
 /** Checks if an individual flag is set. */
 int tracker_flag(Tracker * self, int flag);
 
-/** Uninitializes a Trqcker. */
+/** Uninitializes a Tracker. */
 Tracker * tracker_done(Tracker * self);
 
 /** Frees a Tracker. */
@@ -37,6 +57,19 @@ Tracker * tracker_new(Camera * camera, void * data, TrackerTrack * track);
 
 /** Applies a tracker. Returns the result of the track function. */
 int tracker_apply(Tracker * self, void * data);
+
+/** Sets an individual flag on the Camera. */
+int camera_setflag(Camera * self, int flag);
+
+/** Unsets an individual flag on the Camera. */
+int camera_unsetflag(Camera * self, int flag);
+
+/** Sets or unsets an individual flag on the Camera. 
+If set is true the flag is set, if false it's unset. */
+int camera_flag_(Camera * self, int flag, int set);
+
+/** Checks if an individual flag is set. */
+int camera_flag(Camera * self, int flag);
 
 /** Returns the amount of trackers a camera can have. */
 int camera_maxtrackers(Camera * camera);

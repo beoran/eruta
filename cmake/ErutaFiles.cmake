@@ -17,6 +17,7 @@ set(ERUTA_SRC_FILES
   src/glh.c
   src/hatab.c
   src/ifa.c
+  src/inli.c  
   src/mem.c
   src/mobile.c
   src/mode.c

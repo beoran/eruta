@@ -1,5 +1,6 @@
 
 #include "inli.h"
+#include <stdlib.h>
 
 Inli * inli_initall(Inli * self, Inli * next, Inli * prev) {
   if (!self) return NULL;
@@ -14,89 +15,43 @@ Inli * inli_init(Inli * self) {
 
 /** Removes self from the list it is part of. 
 * Does NOT clean up any data asssociated with 
-* the container of the intrusive list. 
+* the container of the intrusive list and also doesn't free self,
+* since it should be part of the container of the intrusive list. 
 */
-
 Inli * inli_remove(Inli * self) {  
-  if(!self) return null;
-  
+  if(!self) return NULL;
+  if(self->prev) { self->prev->next = self->next; }
+  if(self->next) { self->next->prev = self->prev; }
+  return self;
 }
 
-/** Frees the linked list and uses the given destructor to clean up the data 
-too. Does not clean the data in the list if destroy is NULL. */
-Inli * silli_free_destroy(Inli * self, MemDestructor * destroy) {
-  Inli * next;
-  next = self->next;
-  while(next) {
-    if(destroy) {
-      destroy(self->data);
-    }
-    mem_free(self);
-    self = next;
-    next = self->next;
-  }
-  return NULL;
+/** Appends other after self. Returns other, or null if either self or 
+other are NULL.  
+*/
+Inli * inli_add(Inli * self, Inli * other) {  
+  if(!self || !other) return NULL;
+  self->next  = other;
+  other->prev = self;
+  return other;
 }
 
-/** Frees the whole linked list from self on (and all folllowing nodes) 
-but does NOT free it's elements. */
-Inli * silli_free(Inli * self) {
-  return silli_free_destroy(self, NULL);
-}
-
-
-/** Returns the next item in the singly linked list. */
-Inli * silli_next(Inli * self) {
+/** Returns the next element in the list. */
+Inli * inli_next(Inli * self) {
+  if(!self) return NULL;
   return self->next;
 }
 
-/** Returns the data for this node of the singly linked list. */
-Inli * silli_data(Inli * self) {
-  return self->data;
+/** Returns the previous element in the list. */
+Inli * inli_prev(Inli * self) {
+  if(!self) return NULL;
+  return self->prev;  
 }
 
-/** Inserts the node two after th node one in the singly linked list. 
-returns one. Does nothing if one is NULL. If two is null, the list is 
-truncated mercilessly without even calling silli_free on it.
+/** Returns the data for this node of the singly linked list. 
+* Use offsetof to calculate offset.
 */
-Inli * silli_add(Inli * one, Inli * two) {
-  Inli * old_next;
-  if(!one) return NULL;
-  old_next  = one->next;
-  one->next = two;
-  if(two) { 
-    two->next = old_next;
-  }
-  return one;
+void * inli_data(Inli * self, int offset) {
+  return (void *)((char *)self - offset);
 }
-
-/** Iterates over the list using the AllData interface callback */
-Inli * silli_all(Inli * self, AllData * callback, void * extra) {
-  Inli * index;
-  void * result;
-  if(!callback) return NULL;
-  for(index = self; index ; index = index->next) {
-    result = callback(index->data, extra);
-    if(result) return result;
-  }
-  return NULL;
-}
-
-/** Tries to find to_find using the AllCompare callback. */
-Inli * silli_find(Inli * self, AllCompare * callback, void * to_find) {
-  Inli * index;
-  int result;
-  if(!callback) return NULL;
-  for(index = self; index ; index = index->next) {
-    result = callback(index->data, to_find);
-    if(result == 0) return result;
-  }
-  return NULL;
-}
-
-
-
-
-
 
 
