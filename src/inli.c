@@ -17,8 +17,9 @@ Inli * inli_init(Inli * self) {
 * the container of the intrusive list. 
 */
 
-Inli * inli_destroy(Inli * self, MemDestructor * destroy) {  
-
+Inli * inli_remove(Inli * self) {  
+  if(!self) return null;
+  
 }
 
 /** Frees the linked list and uses the given destructor to clean up the data 
