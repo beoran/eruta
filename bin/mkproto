@@ -1,17 +1,23 @@
 #!/bin/bash
-# This little tool calls genproto for all C files in the src directory
+# This little tool calls genproto OR cfunction for all C files in the src directory
 # And outputs function prototypes in the include directory (the xxx_proto.h files)
 # Very handy, saves time because prototypes don't need to be written by hand anymore.
 #
+
+
 export PATH=.:./bin:$PATH
 for each in src/*.c 
 do
 	base=$(basename $each)
+	wrap=${base%.c}_proto
 	out=include/${base%.c}_proto.h
+	# choose between these two: 
+  export GENERATOR=genproto
+  export GENERATOR="cfunctions -aoff -n -m -w $wrap"
 	if [ $each -nt $out ]
 	then 
 	echo "Generating:" $out
-	genproto $each > $out
+	 $GENERATOR $each > $out
 	else
 	echo "Skipping:" $out
 	fi

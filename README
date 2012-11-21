@@ -15,19 +15,20 @@ Requirements:
 * Chipmunk 6.x,
 * libxml2 (www.xmlsoft.org)
 * mruby (latest github version) 
-* For testing and compilation: cmake, and valgrind.
+* For testing and compilation: cmake, cfunction (see vendor dir) and valgrind.
 * For map editing: tiled (www.mapeditor.org)
 * For some of the tools and continuous testing: Ruby, watchr.
  
 Installation:
 
-You have to make sure that you have all the requirements.  On Linux distributitions like Ubuntu, make sure that the development packages for all requirements are
-installed. Then do: 
+You have to make sure that you have all the requirements.  On Linux 
+distributitions like Ubuntu, make sure that the development packages for all 
+requirements are installed. Then do: 
 
 cmake . ; make
 
-Or if you want to build with Ninja, use thz latest version of cmake and go
-cmage -G ninja . ; ninja 
+Or if you want to build with Ninja, use the latest version of cmake and go
+cmake -G ninja . ; ninja 
 
 How to try it:
 
@@ -43,6 +44,15 @@ Every time you change a c file or header, the matching
 test will be compiled though cmake and make, and 
 will be run. This does compile all C files of eruta,
 so it may be a bit slow at times.
+
+How to generate function prototypes:
+When developing I find it easy to have C function prototypes generated 
+automatically. That is how all the xxx_proto.h files are generated. 
+Use bin/mkproto to regenerate these header files when making changes to
+the c files.
+
+How to generate developer's documentation:
+Use naturaldocs. 
 
 
 License: 
