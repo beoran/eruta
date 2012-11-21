@@ -1,0 +1,10 @@
+#!/bin/bash
+# This little tool calls naturaldocs to generate documentation 
+#
+
+NATURALDOCS=/home/bjorn/arch/opt/nd/NaturalDocs
+mkdir -p doc/nd
+mkdir -p doc/nd_project
+
+$NATURALDOCS -i . -o HTML doc/nd -p doc/nd_project
+
