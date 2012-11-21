@@ -2,6 +2,24 @@
 #include "inli.h"
 #include <stdlib.h>
 
+/*
+  Title: Intrusive Linked Lists
+*/
+
+
+/**
+* Struct: Inli
+*
+* Intrusive linked lists.
+*/
+
+/**
+* Function: inli_initall
+*
+* Fully initializes a non-NULL intrusive linked list.
+*
+* Returns: self
+*/
 Inli * inli_initall(Inli * self, Inli * next, Inli * prev) {
   if (!self) return NULL;
   self->next = next;
@@ -9,6 +27,11 @@ Inli * inli_initall(Inli * self, Inli * next, Inli * prev) {
   return self;
 }
 
+/**
+* Initializes the intrusive linked list. Next and prev are set to NULL.
+*
+* Returns: self
+*/
 Inli * inli_init(Inli * self) {
   return inli_initall(self, NULL, NULL);
 }
