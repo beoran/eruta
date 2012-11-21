@@ -4,6 +4,85 @@
 #include "mem.h"
 #include "flags.h"
 
+/* 
+
+Ideas about camera tracking, panning and limiting.
+
+Normally the camera tracks or follows a single mobile Thing.
+Normally, the ting is only tracked if it goes out of
+sight of the camera. However, it is also possible to lock 
+on to the Thing exactly so the camera moves completely with 
+it. 
+
+It's possible to change the thing that is being tracked. 
+This transitiion can be immediate or smooth. The speed
+of this transition can be set.
+
+Sometimes the camera pans around. It moves it's center between 
+a list of goal points. This motion can be immediate or smooth.
+The speed of this transition may be set. Panning has priority
+over tracking. It may be a good idea to implement
+the transition between two things as immediate, but set up a panning
+from the old thing's position to the new thing's one. 
+
+On top of that, the motion of the camera is limited by 
+the limits of the current tile map, and possibly
+by special tiles that prevent the camera to pan or 
+scroll or track past them. 
+
+These map limits may be disabled individually in any 4 directions,
+The effect of the scroll lock tiles may be also be disbled.
+
+Finally, the camera may be completely locked in to place. 
+This could be used, for example, in battle mode.
+
+*/
+
+/** Sets an individual flag on the Panner. */
+int panner_setflag(Panner * self, int flag) {
+  return flags_set(&self->flags, flag);
+}
+
+/** Unsets an individual flag on the Panner. */
+int panner_unsetflag(Panner * self, int flag) {
+  register int wflags = self->flags;
+  return flags_unset(&self->flags, flag);
+}
+
+/** Sets or unsets an individual flag on the Panner. 
+If set is true the flag is set, if false it's unset. */
+int panner_flag_(Panner * self, int flag, int set) {
+  return flags_put(&self->flags, flag, set);
+}
+
+/** Checks if an individual flag is set. */
+int panner_flag(Panner * self, int flag) {
+  return flags_get(self->flags, flag);
+}
+
+#define PANNER_SPEED_DEFAULT 10.0
+
+/** Initializes a panner and sets it to be active. If speed is negative
+or zero it will be replaced by 10.0 */
+Panner * panner_init(Panner * self, Point goal, float speed, int immediate) {
+  if(!self) return NULL;
+  self->goal  = goal;
+  self->speed = speed;
+  if(self->speed <= 0) { self->speed = PANNER_SPEED_DEFAULT; }
+  panner_flag_(self, PANNER_IMMEDIATE, immediate);
+  panner_flag_(self, PANNER_ACTIVE, true);
+  return self;
+}
+
+/** Cleans up a panner after use. */
+Panner * panner_done(Panner * self) {
+  if(!self) return NULL;
+  self->goal  = cpvzero;
+  self->speed = 0.0;
+  return self;
+}
+
+
 
 
 /** Sets an individual flag on the Tracker. */
@@ -28,7 +107,7 @@ int tracker_flag(Tracker * self, int flag) {
   return flags_get(self->flags, flag);
 }
 
-/** Uninitializes a Trqcker. */
+/** Uninitializes a Tracker. */
 Tracker * tracker_done(Tracker * self) {
   if(!self) return NULL;
   self->target  = NULL;
@@ -73,6 +152,27 @@ int tracker_apply(Tracker * self, void * data) {
   return self->track(self, data);
 } 
 
+/** Sets an individual flag on the Camera. */
+int camera_setflag(Camera * self, int flag) {
+  return flags_set(&self->flags, flag);
+}
+
+/** Unsets an individual flag on the Camera. */
+int camera_unsetflag(Camera * self, int flag) {
+  register int wflags = self->flags;
+  return flags_unset(&self->flags, flag);
+}
+
+/** Sets or unsets an individual flag on the Camera. 
+If set is true the flag is set, if false it's unset. */
+int camera_flag_(Camera * self, int flag, int set) {
+  return flags_put(&self->flags, flag, set);
+}
+
+/** Checks if an individual flag is set. */
+int camera_flag(Camera * self, int flag) {
+  return flags_get(self->flags, flag);
+}
 
 Camera * camera_alloc() {
   return STRUCT_ALLOC(Camera);

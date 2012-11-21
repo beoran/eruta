@@ -5,6 +5,38 @@
 
 typedef struct Camera_ Camera;
 typedef struct Tracker_ Tracker;
+typedef struct Panner_ Panner;  
+
+/* The tracking system is too general case, replace with 
+more specific panning and trackinng functions. */
+
+
+/** Flags for the camera */
+enum CameraFlags_ {
+  CAMERA_LOCK     = 1 << 1,
+  CAMERA_PAN      = 1 << 2,
+  CAMERA_TRACK    = 1 << 3,
+  CAMERA_NOWALLS  = 1 << 4,
+  CAMERA_NONLIMIT = 1 << 5,
+  CAMERA_NOELIMIT = 1 << 6,
+  CAMERA_NOSLIMIT = 1 << 7,
+  CAMERA_NOWLIMIT = 1 << 8,
+  CAMERA_NOLIMIT  = CAMERA_NONLIMIT | CAMERA_NOELIMIT 
+                  | CAMERA_NOSLIMIT | CAMERA_NOWLIMIT,
+};
+
+/** A Panner is a goal for panning. */
+struct Panner_ {
+  Point goal;
+  float speed;
+  int   flags;
+};
+
+/** Panner flags. */
+enum PannerFlags_ {
+  PANNER_ACTIVE   = 1 << 1,
+  PANNER_IMMEDIATE= 1 << 2,
+};
 
 
 /** Tracking function. Should return one of the constants below to influence tracking. */
@@ -48,6 +80,9 @@ struct Tracker_ {
   TrackerTrack  * track;
 };
 
+/** Panners a camera can have. */
+#define CAMERA_PANNERS 32
+
 /** Trackers a camera can have. */
 #define CAMERA_TRACKERS 32 
 
@@ -58,7 +93,12 @@ struct Camera_ {
   Point     at;
   Point     size;
   Point     speed;
+  /* Ring buffer for the panners. */
+  Panner    panners[CAMERA_PANNERS];
   Tracker * trackers[CAMERA_TRACKERS];
+  int       panner_now;
+  int       panner_last;
+  int       flags;
 };
 
 
