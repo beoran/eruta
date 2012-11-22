@@ -13,7 +13,7 @@ do
 	out=include/${base%.c}_proto.h
 	# choose between these two: 
   export GENERATOR=genproto
-  export GENERATOR="cfunctions -aoff -n -m -w $wrap"
+  export GENERATOR="cfunctions -c -aoff -n -m -w $wrap"
 	if [ $each -nt $out ]
 	then 
 	echo "Generating:" $out

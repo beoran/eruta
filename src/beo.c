@@ -33,21 +33,22 @@ union BeoValueUnion_ {
 /** Possible types for the BeoValue */
 enum BeoValueType_ {
   BEO_FAIL    = 0,
-  // Used to indicate errors or failures, in (un)icon language style.
-  // in this case, the DataUnion string s will be set with the error message.
-  // there is no false or nil, all is FAIL
+  /* Used to indicate errors or failures, in (un)icon language style.
+   in this case, the DataUnion string s will be set with the error message.
+   there is no false or nil, all is FAIL */
   BEO_OK      = 1,
-  // OK, only boolen type with tru-like value 
-  // (FAIL is always used in stead of false)
+  /* OK, only boolen type with tru-like value 
+   (FAIL is always used in stead of false) */
   BEO_LONG    = 2,
   BEO_DOUBLE  = 3,
   BEO_STRING  = 4,
-  BEO_LIST    = 5, // uses p to store the address of the list. 
-  // Lists are normally Dynars.
+  BEO_LIST    = 5, 
+  /* uses p to store the address of the list. 
+   Lists are normally Dynars. */
   BEO_FUNCPTR = 6,
-  // function pointer
+  /* function pointer */
   BEO_DATAPTR = 7
-  // data pointer
+  /* data pointer */
 };
 
 
@@ -57,13 +58,13 @@ enum BeoValueType_ {
 *   Implemented as a tagged union with a reference count.
 */
 struct BeoValue_ {
-  enum  BeoValueType_   type; // type of the value
+  enum  int_   type; // type of the value
   union BeoValueUnion_  data; // data 
   int                   refs; // reference counting
 };
 
 /* Low level initializer for a beovalue. */
-BeoValue * beovalue_initall(BeoValue * self, BeoValueType type, 
+BeoValue * beovalue_initall(BeoValue * self, int type, 
                                              BeoValueUnion data) {
   if(!self) return NULL;
   self->refs = 1;
@@ -79,14 +80,14 @@ BeoValue * beovalue_alloc() {
 
 /** returns nonzero if the value is of the given type, zero if not. 
 Also returns 0 if value is NULL. */
-int beo_type_p(BeoValue * value, BeoValueType type) { 
+int beo_type_p(BeoValue * value, int type) { 
   if(!value) return 0;
   return (value->type == type);
 }
 
 
 /** Constructor for beovalue. */
-BeoValue * beovalue_newall(BeoValueType type, BeoValueUnion data) {
+BeoValue * beovalue_newall(int type, BeoValueUnion data) {
   BeoValue * self = beovalue_alloc();
   return beovalue_initall(self, type, data);
 }

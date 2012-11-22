@@ -6,6 +6,8 @@ cmake_policy(SET CMP0015 NEW)
 # Set the project name.
 project(ERUTA C)
 
+SET(CMAKE_C_COMPILER   /usr/local/bin/pcc)
+
 # tell CMake to search first in the cmake subdirectory for FIND_PACKAGE() or INCLUDE()
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 
