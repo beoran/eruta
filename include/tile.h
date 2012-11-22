@@ -31,6 +31,10 @@ enum TILE_FLAGS_ {
 #define TILE_FRAMES   32
 #define TILE_PROGRAMS 32
 
+typedef struct Tileset_ Tileset;
+typedef struct Tile_ Tile;
+
+
 #include "tile_proto.h"
 
 

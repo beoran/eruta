@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdarg.h>
-#include <lua.h>
-#include <lauxlib.h>
 #include <chipmunk.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>

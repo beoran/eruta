@@ -6,7 +6,8 @@ cmake_policy(SET CMP0015 NEW)
 # Set the project name.
 project(ERUTA C)
 
-SET(CMAKE_C_COMPILER   /usr/local/bin/pcc)
+# Play with PCC
+# SET(CMAKE_C_COMPILER   /usr/local/bin/pcc)
 
 # tell CMake to search first in the cmake subdirectory for FIND_PACKAGE() or INCLUDE()
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
@@ -15,11 +16,15 @@ include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-  set(COMPILER_GCC 1)
-  set(CMAKE_C_FLAGS "-Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math")  
+ set(COMPILER_GCC 1)
+set(CMAKE_C_FLAGS "-Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math")  
 # always use gnu99, debugging, all warnings except unused and unknown pragmas.
 # when compiling with gnu compiler    
 endif(CMAKE_COMPILER_IS_GNUCC)
+
+# or for PCC
+# set(CMAKE_C_FLAGS "-fpic -fPIC")  
+
 
 
 # Find Allegro using pkgconfig, which means some manual copiyng of 

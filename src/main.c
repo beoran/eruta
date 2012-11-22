@@ -1,4 +1,4 @@
-#include <libxml/parser.h>
+// #include <libxml/parser.h>
 
 #include "eruta.h"
 #include "state.h"
@@ -13,7 +13,7 @@
 #include "fifi.h"
 #include "ui.h"
 #include "hatab.h"
-#include "beo.h"
+/* #include "beo.h" */
 #include "assert.h"
 
 

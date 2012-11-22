@@ -3,7 +3,6 @@
 # files here manually.
 set(ERUTA_SRC_FILES
   src/area.c
-  src/beo.c
   src/bxml.c
   src/camera.c
   src/ch.c
