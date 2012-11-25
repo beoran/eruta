@@ -560,13 +560,14 @@ int console_handle_keychar(Console * self, ALLEGRO_EVENT * event) {
       // empty string by truncating it
       return WIDGET_HANDLE_OK;
       }
+    case ALLEGRO_KEY_ESCAPE:
+      console_active_(self, false); 
+      // disable console if esc is pressed.
+      return WIDGET_HANDLE_OK;
     default: break;
   }
   
   ustr_appendch(self->input, ch);
-  if(event->keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-    console_active_(self, false); // disable console if esc is pressed.
-  }
   return WIDGET_HANDLE_OK;
 }
 

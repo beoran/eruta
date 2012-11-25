@@ -66,6 +66,8 @@ Inli * inli_remove(Inli * self) {
   if(!self) return NULL;
   if(self->prev) { self->prev->next = self->next; }
   if(self->next) { self->next->prev = self->prev; }
+  self->prev = NULL;
+  self->next = NULL;
   return self;
 }
 
@@ -91,6 +93,8 @@ Inli * inli_add(Inli * self, Inli * other) {
 /** 
 * Function: inli_next
 *
+* Returns the next element in the list
+*
 * Parameters:
 *   self - Inli
 *
@@ -103,18 +107,132 @@ Inli * inli_next(Inli * self) {
 }
 
 /** 
-* Function: inli_next
+* Function: inli_prev
+*
+* Returns the previous element in the list
 *
 * Parameters:
 *   self - Inli
 *
 * Returns: 
-*   the next previous in the list, or NULL if no previous item. 
+*   the next element in the list, or NULL if no next item. 
 */
 Inli * inli_prev(Inli * self) {
   if(!self) return NULL;
-  return self->prev;  
+  return self->prev;
 }
+
+/** 
+* Function: inli_first
+*
+* Returns the first element in the list, by dumb iteration.
+*
+* Parameters:
+*   self - Inli
+*
+* Returns: 
+*   the first link in the list, or NULL if self is NULL. 
+*/
+Inli * inli_first(Inli * self) {
+  Inli * aid = self; 
+  if(!aid) return NULL;
+  while (aid->prev) {
+    aid = aid->prev;
+  }
+  return aid;  
+}
+
+/** 
+* Function: inli_last
+*
+* Returns the last element in the list, by dumb iteration.
+*
+* Parameters:
+*   self - Inli
+*
+* Returns: 
+*   the last link in the list, or NULL if self is NULL. 
+*/
+Inli * inli_last(Inli * self) {
+  Inli * aid = self; 
+  if(!aid) return NULL;
+  while (aid->next) {
+    aid = aid->next;
+  }
+  return aid;  
+}
+
+/** 
+* Function: inli_push
+*
+* Appends other to the end of the list by dumb iteration.
+*
+* Parameters:
+*   self - Inli
+*
+* Returns: 
+*   other, or NULL if self or other is NULL. 
+*/
+Inli * inli_push(Inli * self, Inli * other) {  
+  Inli * aid;
+  aid = inli_last(self);
+  return inli_add(aid, other);
+}
+
+
+/** 
+* Function: inli_unshift 
+*                
+* Prepends other to the beginning of the list by dumb iteration.
+*
+* Parameters:
+*   self - Inli
+*
+* Returns: 
+*   other, or NULL if self or other is NULL. 
+*/
+Inli * inli_unshift(Inli * self, Inli * other) {  
+  Inli * aid;
+  aid = inli_first(self);
+  return inli_add(other, self);
+}
+
+
+/** 
+* Function: inli_shift
+*
+* Removes the first element from the list by dumb iteration.
+*
+* Parameters:
+*   self - Inli
+*
+* Returns: 
+*   list node that was removed, or NULL if self is NULL. 
+*/
+Inli * inli_shift(Inli * self) {  
+  Inli * aid;
+  aid = inli_first(self);
+  return inli_remove(aid);
+}
+
+
+/** 
+* Function: inli_pop
+*
+* Removes the last element from the list by dumb iteration.
+*
+* Parameters:
+*   self - Inli
+*
+* Returns: 
+*   list node that was removed, or NULL if self is NULL. 
+*/
+Inli * inli_pop(Inli * self) {  
+  Inli * aid;
+  aid = inli_last(self);
+  return inli_remove(aid);
+}
+
 
 /** 
 * Function: inli_data
@@ -128,7 +246,10 @@ Inli * inli_prev(Inli * self) {
 * 
 */
 void * inli_data(Inli * self, int offset) {
+  if(!self) return NULL;
   return (void *)((char *)self - offset);
 }
+
+
 
 

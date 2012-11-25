@@ -17,13 +17,13 @@ struct Inli_ {
   Inli * prev;
 };
 
-/** Returns the list node for this list elemet is part of, 
+/** Returns the list node for this list element is part of, 
 for the give list element, and data type*/
-#define INLI_DATA(LIST, TYPE, MEMBER) \
-        ((TYPE *)(((char *)(LIST)) - offsetof(TYPE_MEMBER)))  
+#define INLI_DATA(LIST, TYPE, MEMBER)  inli_data(LIST, offsetof(TYPE, MEMBER))  
 
 /** Shorthand for INLI_DATA(LIST, DATA, list) */
-#define INLI_LISTDATA(LIST, TYPE, MEMBER) INLI_DATA(LIST, TYPE, list)
+#define INLI_LISTDATA(LIST, TYPE) INLI_DATA(LIST, TYPE, list)
+
 
 
 #include "inli_proto.h"

@@ -2,10 +2,13 @@
 #define CAMERA_H
 
 #include "eruta.h"
+#include "inli.h"
 
 typedef struct Camera_ Camera;
 typedef struct Tracker_ Tracker;
 typedef struct Panner_ Panner;  
+typedef struct PannerList_ PannerList;  
+
 
 /* The tracking system is too general case, replace with 
 more specific panning and trackinng functions. */
@@ -30,6 +33,13 @@ struct Panner_ {
   Point goal;
   float speed;
   int   flags;
+};
+
+
+/** A PannerNode is an intrusive linked list of panners. */
+struct PannerList_ {
+  Panner panner;
+  Inli   list;
 };
 
 /** Panner flags. */
@@ -90,15 +100,13 @@ struct Tracker_ {
 * rectangular views that the player has on the game world.
 **/
 struct Camera_ {
-  Point     at;
-  Point     size;
-  Point     speed;
-  /* Ring buffer for the panners. */
-  Panner    panners[CAMERA_PANNERS];
-  Tracker * trackers[CAMERA_TRACKERS];
-  int       panner_now;
-  int       panner_last;
-  int       flags;
+  Point        at;
+  Point        size;
+  Point        speed;
+  /* Doubly linked list for the panners. */
+  PannerNode * panners; 
+  Tracker    * trackers[CAMERA_TRACKERS];
+  int          flags;
 };
 
 

@@ -24,7 +24,6 @@ set(ERUTA_SRC_FILES
   src/react.c
   src/rebl.c
   src/rh.c  
-  src/silli.c
   src/silut.c
   src/sound.c
   src/sprite.c

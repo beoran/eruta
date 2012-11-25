@@ -1,5 +1,5 @@
 /* This file was generated with:
-'cfunctions -aoff -n -m -w main_proto src/main.c' */
+'cfunctions -c -aoff -n -m -w main_proto src/main.c' */
 #ifndef CFH_MAIN_PROTO
 #define CFH_MAIN_PROTO
 
