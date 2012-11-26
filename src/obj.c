@@ -16,7 +16,7 @@
   The method table is simply a struct of function pointers. However,
   the first pointers must be a free() function.
   
-  Finally, the Ref warps an interface and a refcount.
+  Finally, the Ref wraps an interface and a refcount.
   
   The first two methods are always 
   Reference contains refcount and interface to object. 

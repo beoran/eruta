@@ -103,7 +103,7 @@ struct Camera_ {
   Point        at;
   Point        size;
   Point        speed;
-  /* Doubly linked list for the panners. */
+  /* Head of doubly linked list for the panners. */
   PannerList * panners; 
   Tracker    * trackers[CAMERA_TRACKERS];
   int          flags;

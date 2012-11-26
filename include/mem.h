@@ -22,10 +22,17 @@ void * mem_resize(void ** ptr, size_t newsize);
 /** Wrapper for memmove, for consistency */
 void * mem_move(void * dest, void * src, size_t size);
 
-/** A function pointer that can act as a destructor. Sould return NULL on 
-sucessful freeing, and non-null if freeing failed. */
+/** A function pointer that can act as a destructor. 
+Should return NULL on sucessful freeing, and non-null 
+if freeing failed. */
 typedef void * (MemDestructor)(void * ptr);
 
+/* Counted reference. Just an idea... */
+struct Refc {
+  void          * ptr; 
+  int             refc;
+  MemDestructor * destroy;
+};
 
 
 

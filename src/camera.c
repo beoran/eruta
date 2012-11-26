@@ -83,6 +83,23 @@ Panner * panner_done(Panner * self) {
 }
 
 
+/** Allocates a new panner list node. */
+PannerList * pannerlist_new(Point goal, float speed, int immediate) {
+  PannerList * self = STRUCT_ALLOC(PannerList);
+  panner_init(&self->panner, goal, speed, immediate);
+  inli_init(&self->list);
+  return self;
+}
+
+/** Frees a panner list node, also removes it from 
+the intrusive list it was in if that was the case.*/ 
+PannerList * pannerlist_free(PannerList * self) {
+  if (self) {
+    inli_remove(&self->list);
+    panner_done(&self->panner);
+  }
+  return mem_free(self);
+}
 
 
 /** Sets an individual flag on the Tracker. */
@@ -229,7 +246,7 @@ Camera * camera_done(Camera * self) {
   return self;
 }
 
-/** Frees the carera after use. */
+/** Frees the carmera after use. */
 Camera * camera_free(Camera * self) {
   camera_done(self);
   STRUCT_FREE(self);
@@ -246,6 +263,7 @@ Camera * camera_init(Camera * self, float x, float y, float w, float h) {
   self->size.y  = h;
   self->speed.x = 0;
   self->speed.y = 0;
+  self->panners = NULL;
   camera_cleartrackers(self);  
   return self;
 }
@@ -268,6 +286,29 @@ int camera_applytrackers(Camera * self) {
     }
   }  
   return TRACKER_OK;
+}
+
+/** Applies the currently active panner to the camera. 
+*/
+int camera_applypanners(Camera * self) {
+  Point delta;
+  Panner * panner;
+  if(!self) return -1;
+  if(!self->panners) return -2;
+  panner = &self->panners->panner;
+  if (!panner_flag(panner, PANNER_ACTIVE)) {
+    return -3;
+  }
+  delta = cpvsub(camera_center(self), panner->goal);
+  /* Delta has the direction or angle in which 
+  the camera has to scroll, however, normally delta will be 
+  bigger than the speed of the panning. We only have to move 
+  a fraction of that delta. */
+  return -4;
+  
+  
+  
+  
 }
 
 /** Updates the camera. */
@@ -417,7 +458,40 @@ Camera * camera_debugprint(Camera * self) {
   return self;
 }
 
+/** Adds a new panner to the camera. Returns it, or NULL if some 
+error occurred, */
+Panner * camera_newpanner(Camera * self, Point goal, float speed, int immediate) {
+  PannerList * pannernode;
+  if(!self) return NULL;
+  pannernode = pannerlist_new(goal, speed, immediate);
+  if(!pannernode) return NULL;
+  if(!self->panners) {
+    self->panners = pannernode;
+  } else {
+    inli_push(&self->panners->list, &pannernode->list);
+  }
+  return &pannernode->panner;  
+} 
 
+/** Removes the topmost panner and frees it. 
+Does nothing if no panners are installed. 
+Return new topmost panner list or null if it was the last. */
+Panner * camera_freetoppanner(Camera * self) {
+  Inli       * nextlist;
+  PannerList * nextpannerlist;
+  if((!self) || (!self->panners)) return NULL;
+  nextlist       = inli_next(&self->panners->list);
+  nextpannerlist = INLI_LISTDATA(nextlist, PannerList);
+  pannerlist_free(self->panners);
+  self->panners  = nextpannerlist;
+  if(!self->panners) return NULL;
+  return &self->panners->panner;
+}
+
+/** Empty the camera's list of panners. */
+void camera_freepanners(Camera * self) {
+  while(camera_freetoppanner(self));
+}
 
 /** Returns true if an object at x, y with the given bounds w and h will 
 be visible to this camera, false if not. */
