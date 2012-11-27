@@ -288,33 +288,74 @@ int camera_applytrackers(Camera * self) {
   return TRACKER_OK;
 }
 
+/* Returns nonzero if the camera is panning,
+false if not */
+int camera_panning_p(Camera * self) {
+  Panner * panner;
+  if(!self) return FALSE;
+  if(!self->panners) return FALSE;
+  panner = &self->panners->panner;
+  if (!panner_flag(panner, PANNER_ACTIVE)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+
+
 /** Applies the currently active panner to the camera. 
 */
 int camera_applypanners(Camera * self) {
   Point delta;
+  Point vspeed;
   Panner * panner;
-  if(!self) return -1;
-  if(!self->panners) return -2;
+  cpFloat speed, length;
+  cpFloat ratio;
+  if(!camera_panning_p(self)) return -1;
+  /* Immediate panning. */
   panner = &self->panners->panner;
-  if (!panner_flag(panner, PANNER_ACTIVE)) {
-    return -3;
+  if (panner_flag(panner, PANNER_IMMEDIATE)) {
+    camera_center_(self, panner->goal);
+    camera_freetoppanner(self);
+    return 0;
   }
+  /**/
+  
   delta = cpvsub(camera_center(self), panner->goal);
   /* Delta has the direction or angle in which 
   the camera has to scroll, however, normally delta will be 
   bigger than the speed of the panning. We only have to move 
-  a fraction of that delta. */
-  return -4;
+  a fraction of that delta, at least as long 
+  as the length of delta is bigger than the speed */
+  length      = cpvlength(delta);
+  if (length < 1.0) {
+    /* Less than one pixel to move, the goal hss been reached. */
+    camera_center_(self, panner->goal);
+    camera_freetoppanner(self);
+    return 0;
+  }
   
-  
-  
+  if (length < panner->speed) { 
+    speed     = length;
+  } else {
+    speed     = panner->speed;
+  }
+  /* Ensure negative speed is not possible.  */
+  if(speed <= 0.0) { speed = 1.0; }
+
+  /* Construct the speed vector, it has the same angle as the 
+  delta vector, but the magnitude is that of the needed speed */
+  vspeed      = cpvforangle(cpvtoangle(delta)); 
+  self->speed = cpvmult(vspeed, speed); 
+  return 1;
   
 }
 
 /** Updates the camera. */
 Camera * camera_update(Camera * self) {
-  /* Apply the camera's trackers. */
-  camera_applytrackers(self);
+  /* Apply the camera's panners. */
+  // camera_applytrackers(self);
+  camera_applypanners(self);
   /* Finally move at the set speed. */
   self->at = cpvadd(self->at, self->speed);
   return self;
