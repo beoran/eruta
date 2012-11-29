@@ -20,6 +20,7 @@ struct Test_ {
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <math.h>
 
 // some cute ANSI colors, can be disabled by defining TESTING_NO_ANSI
 #ifndef TESTING_NO_ANSI
@@ -33,6 +34,15 @@ struct Test_ {
 #endif
 
 #define TEST_UNUSED(x) ((void)(x))
+
+/* Epsilon for double and float comparisons*/
+#ifndef TEST_DOUBLE_EPSILON
+#define TEST_DOUBLE_EPSILON 0.0000000001
+#endif 
+
+#ifndef TEST_FLOAT_EPSILON
+#define TEST_FLOAT_EPSILON 0.0000001
+#endif 
 
 
 /** Initializes the test. */
@@ -178,17 +188,35 @@ static Test * test_longneq(Test * test, long i1, long i2, const char * explain) 
   return test_assert(test, i1 != i2, 
   "Integers should not be equal: %ld %ld; %s ", i1, i2, explain);
 }
-/** Tests if two doubles are equal */
+
+/** Tests if two doubles are equal within TEST_DOUBLE_EPSILON */
 static Test * test_doubleeq(Test * test, double d1, double d2, const char * explain) {
-  return test_assert(test, d1 == d2, 
-  "Integers should be equal: %lf %lf; %s ", d1, d2, explain);
+  double delta = fabs(d2 - d1);
+  return test_assert(test, delta < TEST_DOUBLE_EPSILON, 
+  "Doubles should not be equal: %lf %lf; %s ", d1, d2, explain);
 }
 
-/** Tests if two doubles are not equal */
+/** Tests if two doubles are not more different than TEST_DOUBLE_EPSILON */
 static Test * test_doubleneq(Test * test, double d1, double d2, const char * explain) {
-  return test_assert(test, d1 != d2, 
-  "Integers should not be equal: %lf %lf; %s ", d1, d2, explain);
+  double delta = fabs(d2 - d1);
+  return test_assert(test, delta >= TEST_DOUBLE_EPSILON, 
+  "Doubles should not be equal: %lf %lf; %s ", d1, d2, explain);
 }
+
+/** Tests if two floats are equal within TEST_FLOAT_EPSILON */
+static Test * test_floateq(Test * test, float d1, float d2, const char * explain) {
+  float delta = fabsf(d2 - d1);
+  return test_assert(test, delta < TEST_FLOAT_EPSILON, 
+  "Doubles should not be equal: %lf %lf; %s ", d1, d2, explain);
+}
+
+/** Tests if two floats are not more different than TEST_FLOAT_EPSILON */
+static Test * test_floatneq(Test * test, float d1, float d2, const char * explain) {
+  float delta = fabsf(d2 - d1);
+  return test_assert(test, delta >= TEST_FLOAT_EPSILON, 
+  "Doubles should not be equal: %lf %lf; %s ", d1, d2, explain);
+}
+
 
 /** Tests if an integer has a true value */
 static Test * test_true(Test * test, int boole, const char * explain) {
@@ -258,6 +286,8 @@ static Test * warning_supressor(Test * test) {
 #define TEST_LONGNEQ(INT, CALL)       test_longneq(_t, INT, TEST_CALL(CALL))
 #define TEST_DOUBLEEQ(INT, CALL)      test_doubleeq(_t,  INT, TEST_CALL(CALL))
 #define TEST_DOUBLENEQ(INT, CALL)     test_doubleneq(_t, INT, TEST_CALL(CALL))
+#define TEST_FLOATEQ(INT, CALL)       test_floateq(_t,  INT, TEST_CALL(CALL))
+#define TEST_FLOATNEQ(INT, CALL)      test_floatneq(_t, INT, TEST_CALL(CALL))
 
 
 #define TEST_ZERO(CALL)               TEST_INTEQ(0, CALL)

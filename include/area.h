@@ -19,6 +19,7 @@ Logic/game/character data: in scripting engine.
 struct Area_;
 typedef struct Area_ Area;
 
+typedef struct Thing_ Thing; 
 
 /* Thing types. Generally speaking, there are 
 things that can move and those that cannot. 

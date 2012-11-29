@@ -647,6 +647,8 @@ void area_update(Area * self, double dt) {
 
 #define THING_TRACK_DELTA 32.0 * 4 
 
+#ifdef COMMENT_
+
 /** A tracker function for tracking a Thing. Only works with dynamic things. */
 int thing_track(Tracker * tracker, void * data) {
   Thing * thing = NULL;
@@ -658,4 +660,6 @@ int thing_track(Tracker * tracker, void * data) {
   return TRACKER_DONE;
 }
 
+
+#endif
 

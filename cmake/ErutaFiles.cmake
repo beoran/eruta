@@ -23,6 +23,7 @@ set(ERUTA_SRC_FILES
   src/obj.c
   src/react.c
   src/rebl.c
+  src/rebox.c
   src/rh.c  
   src/silut.c
   src/sound.c

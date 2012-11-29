@@ -297,7 +297,6 @@ Tilemap * tilemap_save(Tilemap * map, int index) {
 
 
 
-#endif
 
 /** A tracker function for tracking an area. Simply keeps the camera in 
 the bounds of the tile map. Doesn't work yet since areas are yet without any size. */
@@ -316,3 +315,4 @@ int tilemap_track(Tracker * tracker, void * data) {
   return TRACKER_DONE;  
 }
 
+#endif
