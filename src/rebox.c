@@ -1,6 +1,7 @@
 
 #include "rebox.h"
 #include <stdlib.h>
+#include "flags.h"
 
 /** Returns a newly initialised rectangular box. */
 Rebox rebox_new(cpFloat x, cpFloat y, cpFloat w, cpFloat h) {

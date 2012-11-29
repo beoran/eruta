@@ -24,7 +24,7 @@ enum CameraFlags_ {
   CAMERA_LOCK     = 1 << 1,
   CAMERA_PAN      = 1 << 2,
   CAMERA_TRACK    = 1 << 3,
-  CAMERA_NOWALLS  = 1 << 4,
+  CAMERA_NOLOCKIN = 1 << 4,
   CAMERA_NONLIMIT = 1 << 5,
   CAMERA_NOELIMIT = 1 << 6,
   CAMERA_NOSLIMIT = 1 << 7,
@@ -87,7 +87,9 @@ struct Camera_ {
   Point        walls;
   Point        wallsize;
   /* Head of doubly linked list for the panners. */
-  PannerList * panners; 
+  PannerList * panners;
+  /* Head of doubly linked list for the lockins. */  
+  LockinList * lockins;
   int          flags;
 };
 
