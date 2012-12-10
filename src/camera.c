@@ -100,6 +100,65 @@ PannerList * pannerlist_free(PannerList * self) {
   return mem_free(self);
 }
 
+/** Frees all nodes of a PannerList */
+PannerList * pannerlist_freeall(PannerList * self) {
+  PannerList * index, * next;
+  index = self;
+  while (index) {
+    Inli * nextlist = inli_next(&index->list);
+    next = INLI_LISTDATA(nextlist, PannerList);
+    pannerlist_free(index);
+    index = next;
+  }
+  return NULL;
+}
+
+/** Initializes a lockin and sets it to be active. If speed is negative
+or zero it will be replaced by 10.0 */
+Lockin * lockin_init(Lockin * self, float x, float y, float w, float h) {
+  if(!self) return NULL;
+  self->box   = rebox_new(x, y, w, h);
+  self->flags = LOCKIN_ACTIVE;
+  return self;
+}
+
+/** Cleans up a lockin after use. */
+Lockin * lockin_done(Lockin * self) {
+  if(!self) return NULL;
+  self->flags = 0;
+  return self;
+}
+
+
+/** Allocates a new lockin list node. */
+LockinList * lockinlist_new(float x, float y, float w, float h) {
+  LockinList * self = STRUCT_ALLOC(LockinList);
+  lockin_init(&self->lockin, x, y, w, h);
+  inli_init(&self->list);
+  return self;
+}
+
+/** Frees a lockin list node, also removes it from 
+the intrusive list it was in if that was the case.*/ 
+LockinList * lockinlist_free(LockinList * self) {
+  if (!self) { return NULL; }
+  inli_remove(&self->list);
+  lockin_done(&self->lockin);
+  return mem_free(self);
+}
+
+/** Frees all nodes of a LockinList */
+LockinList * lockinlist_freeall(LockinList * self) {
+  LockinList * index, * next;
+  index = self;
+  while (index) {
+    Inli * nextlist = inli_next(&index->list);
+    next = INLI_LISTDATA(nextlist, LockinList);
+    lockinlist_free(index);
+    index = next;
+  }
+  return NULL;
+}
 
 /** Sets an individual flag on the Camera. */
 int camera_setflag(Camera * self, int flag) {
@@ -131,8 +190,8 @@ Camera * camera_alloc() {
 /** Cleans up a camera. */
 Camera * camera_done(Camera * self) {
   if(!self) { return NULL; } 
-  pannerlist_free(self->panners);
-  self->panners = NULL;
+  camera_freelockins(self);
+  camera_freepanners(self);
   return self;
 }
 
@@ -151,6 +210,8 @@ Camera * camera_init(Camera * self, float x, float y, float w, float h) {
   self->speed.x = 0;
   self->speed.y = 0;
   self->panners = NULL;
+  self->lockins = NULL;
+  self->track   = NULL;
   return self;
 }
 
@@ -160,20 +221,70 @@ Camera * camera_new(float x, float y, float w, float h) {
   return camera_init(self, x, y, w, h);
 }
 
-/* Returns nonzero if the camera is panning,
+/** Sets the object to be tracked. 
+This object is not owned by camera. */
+Thing * camera_track_(Camera * self, Thing * track) {
+  if(!self) return NULL;
+  self->track = track;
+  return self->track;
+}
+
+/** Returns nonzero if the camera is panning,
 false if not */
 int camera_panning_p(Camera * self) {
   Panner * panner;
   if(!self) return FALSE;
   if(!self->panners) return FALSE;
-  panner = &self->panners->panner;
-  if (!panner_flag(panner, PANNER_ACTIVE)) {
-    return FALSE;
-  }
+  if(camera_flag(self, CAMERA_NOPAN)) return FALSE;
   return TRUE;
 }
 
+/** Retuns nonzero if the camera is limited by lockins, 
+false if not. */
+int camera_lockin_p(Camera * self) {
+  if(!self) return FALSE;
+  if(!self->lockins) return FALSE;
+  if(camera_flag(self, CAMERA_NOLOCKIN)) return FALSE;
+  return TRUE;
+}
 
+/** Returns nonzero if the camera must track a Thing, zero if not. */
+int camera_tracking_p(Camera * self) {
+  if(!self) return FALSE;
+  if(!self->track) return FALSE;
+  if(camera_flag(self, CAMERA_NOTRACK)) return FALSE;
+  return TRUE;
+}
+
+/* Lock on tracking*/
+int camera_applylockedtracking(Camera *self) {
+  // TODO: correct with half width and half height
+  camera_center_(self, thing_p(self->track));
+  return 1;
+}
+
+#define CAMERA_TRACK_RATIO  0.8
+
+/* Regular tracking */
+int camera_applynormaltracking(Camera *self) {
+  double tracklimitx, tracklimity; 
+  Thing * thing = self->track;
+  if(thing_static_p(thing)) return -1;
+  tracklimitx   = camera_w(self) * CAMERA_TRACK_RATIO;  
+  tracklimity   = camera_h(self) * CAMERA_TRACK_RATIO;
+  // TODO: correct with half width and half height
+  camera_centerdelta_(self, thing_p(thing), tracklimitx, tracklimity);
+  return 0;
+}
+
+/* Tracks the active object. */
+int camera_applytracking(Camera *self) {
+  if(!camera_tracking_p(self)) return -1;
+  if(camera_flag(self, CAMERA_TRACKLOCK)) { 
+    return camera_applylockedtracking(self);
+  }
+  return camera_applynormaltracking(self);
+}
 
 /** Applies the currently active panner to the camera. 
 */
@@ -223,11 +334,35 @@ int camera_applypanners(Camera * self) {
   return 1;  
 }
 
+/* Applies the current active lockin to the camera. */
+int camera_applylockins(Camera * self) {
+  Lockin * lockin;
+  double dx, dy;
+  Point delta;
+  if(!camera_lockin_p(self)) return -1;
+  lockin = &self->lockins->lockin;
+  if(rebox_inside_p(&lockin->box, &self->box)) {
+      /* The camera is inside the lockin box, so it's ok. */
+    return -1;
+  }
+  dx          = rebox_delta_x(&lockin->box, &self->box);
+  dy          = rebox_delta_y(&lockin->box, &self->box);
+  delta       = point(dx, dy);
+  self->box.at= cpvadd(self->box.at, delta);
+  if(dx != 0.0) self->speed.x = 0.0;
+  if(dy != 0.0) self->speed.y = 0.0; 
+  return 0;
+}
+
 /** Updates the camera. */
 Camera * camera_update(Camera * self) {
-  /* Apply the camera's panners. */
-  // camera_applytrackers(self);
-  camera_applypanners(self);
+  /* Apply the camera's panners, and only track if no panning occurred. 
+  Obviously, tracking and panning should be mutually exclusive. */
+  if(camera_applypanners(self) <= 0) {
+    camera_applytracking(self);
+  }
+  /* Apply the lockins, that limit the camera's motion. */
+  camera_applylockins(self);
   /* Finally move at the set speed. */
   camera_at_(self, cpvadd(camera_at(self), self->speed));
   return self;
@@ -312,19 +447,40 @@ Point camera_center_(Camera * self, Point center) {
   return rebox_center_((Rebox *)self, center);
 }
 
-/** Adjusts the position of center of camera to center if the distance 
-of the current center is greater than the given delta . */
-Point camera_centerdelta_(Camera * self, Point newcenter, float delta) {
+/** Adjusts the position of center of camera to center if new center 
+nears the borders of the camer view within the given deltas. */
+Point 
+camera_centerdelta_(Camera * self, Point newcenter, float deltax, float deltay){
+  double dx, dy, minx, miny, maxx, maxy;
   Point movecenter;
-  Point movement;
+  Point movement;  
+  Thing * thing   = self->track;
+  double tx       = thing_cx(thing);
+  double ty       = thing_cy(thing);
   
   Point oldcenter = camera_center(self);
   Point vdelta    = cpvsub(oldcenter, newcenter);
-  float length    = cpvlength(vdelta);
-  if (length < delta) return oldcenter;
-  movement        = cpvforangle(cpvtoangle(vdelta)); 
-  movement        = cpvmult(movecenter, (length - delta)); 
-  movecenter      = cpvadd(oldcenter, movement);  
+  movecenter      = oldcenter;
+  deltax          = 128.0;
+  deltay          = 128.0;  
+  minx            = camera_at_x(self) + deltax;
+  maxx            = camera_br_x(self) - deltax;
+  miny            = camera_at_y(self) + deltay;
+  maxy            = camera_br_y(self) - deltay;
+  
+  if (tx < minx) { 
+    movecenter.x  = oldcenter.x - minx + tx;  
+  } else if (tx > maxx) {
+    movecenter.x  = oldcenter.x + tx - maxx;  
+  } 
+
+  if (ty < miny) { 
+    movecenter.y  = oldcenter.y - miny + ty;  
+  } else if (ty > maxy) {
+    movecenter.y  = oldcenter.y + ty - maxy;  
+  }
+  
+  
   return camera_center_(self, movecenter);
 }
 
@@ -396,7 +552,45 @@ Panner * camera_freetoppanner(Camera * self) {
 /** Empty the camera's list of panners. */
 void camera_freepanners(Camera * self) {
   while(camera_freetoppanner(self));
+  self->panners = NULL;
 }
+
+/** Adds a new lockin to the camera. Returns it, or NULL if some 
+error occurred, */
+Lockin * camera_newlockin(Camera * self, float x, float y, float w, float h) {
+  LockinList * lockinnode;
+  if(!self) return NULL;
+  lockinnode = lockinlist_new(x, y, w, h);
+  if(!lockinnode) return NULL;
+  if(!self->lockins) {
+    self->lockins = lockinnode;
+  } else {
+    inli_push(&self->lockins->list, &lockinnode->list);
+  }
+  return &lockinnode->lockin;  
+} 
+
+/** Removes the topmost lockin and frees it. 
+Does nothing if no lockins are installed. 
+Return new topmost lockin list or null if it was the last. */
+Lockin * camera_freetoplockin(Camera * self) {
+  Inli       * nextlist;
+  LockinList * nextlockinlist;
+  if((!self) || (!self->lockins)) return NULL;
+  nextlist       = inli_next(&self->lockins->list);
+  nextlockinlist = INLI_LISTDATA(nextlist, LockinList);
+  lockinlist_free(self->lockins);
+  self->lockins  = nextlockinlist;
+  if(!self->lockins) return NULL;
+  return &self->lockins->lockin;
+}
+
+/** Empty the camera's list of lockins. */
+void camera_freelockins(Camera * self) {
+  while(camera_freetoplockin(self));
+  self->lockins = NULL;
+}
+
 
 /** Returns true if an object at x, y with the given bounds w and h will 
 be visible to this camera, false if not. */

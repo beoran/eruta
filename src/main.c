@@ -70,16 +70,16 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
   }
   switch(event->keycode) {
     case ALLEGRO_KEY_UP:
-      f.y = -50;
+      f.y = -100;
     break;
     case ALLEGRO_KEY_DOWN:
-      f.y = +50;
+      f.y = +100;
     break;
     case ALLEGRO_KEY_LEFT:
-      f.x = -50;
+      f.x = -100;
     break;
     case ALLEGRO_KEY_RIGHT:
-      f.x = +50;
+      f.x = +100;
     break;
     case ALLEGRO_KEY_F1:
       console_active_(state_console(state), TRUE);
@@ -208,9 +208,9 @@ int real_main(void) {
     } else {
       actor_data = tilemap_addthing(map, THING_ACTOR, 120, 100, 1, 32, 32);
       if(actor_data) {
-        tracker = camera_newtracker(camera, TRACKER_PC, actor_data, thing_track);
-      }  
-      maptracker = camera_newtracker(camera, 31, map, tilemap_track);
+        camera_track_(camera, actor_data);
+      }
+      //camera_newlockin(camera, 0, 0, , map, tilemap_track);
     }
 
   // Try to load the main lua file.

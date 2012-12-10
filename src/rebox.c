@@ -111,5 +111,27 @@ int rebox_inside_p(Rebox * self, Rebox * other) {
   return TRUE;
 }
 
+/* Returns 0 if box 2 if other is wholly inside self,
+otherwise the distance the box other has to move 
+in the x direction to make it so. 
+Only works if other is smaller than self. */
+double rebox_delta_x(Rebox * self, Rebox * other) {
+  double dx = self->at.x - other->at.x; 
+  if (dx > 0) return dx; 
+  dx = rebox_br_x(self) - rebox_br_x(other);
+  if (dx > 0) return -dx;
+  return 0.0;
+}
 
+/* Returns 0 if box 2 if other is wholly inside self,
+otherwise the distance the box other has to move 
+in the y direction to make it so. 
+Only works if other is smaller than self. */
+double rebox_delta_y(Rebox * self, Rebox * other) {
+  double dy = self->at.y - other->at.y; 
+  if (dy > 0) return dy; 
+  dy = rebox_br_y(self) - rebox_br_y(other);
+  if (dy > 0) return -dy;
+  return 0.0;
+}
 

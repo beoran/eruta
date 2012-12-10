@@ -5,6 +5,8 @@
 #include "inli.h"
 #include "rebox.h"
 
+
+/** Forward declaration of structs and types. */
 typedef struct Camera_      Camera;
 typedef struct Tracker_     Tracker;
 typedef struct Panner_      Panner;  
@@ -12,25 +14,24 @@ typedef struct PannerList_  PannerList;
 typedef struct Lockin_      Lockin;  
 typedef struct LockinList_  LockinList;
 
+#include "area.h"
 
 
 
-/* The tracking system is too general case, replace with 
-more specific panning, locking and tracking functions. */
-
-
-/** Flags for the camera */
+/** Flags for the camera. */
 enum CameraFlags_ {
-  CAMERA_LOCK     = 1 << 1,
-  CAMERA_PAN      = 1 << 2,
-  CAMERA_TRACK    = 1 << 3,
-  CAMERA_NOLOCKIN = 1 << 4,
-  CAMERA_NONLIMIT = 1 << 5,
-  CAMERA_NOELIMIT = 1 << 6,
-  CAMERA_NOSLIMIT = 1 << 7,
-  CAMERA_NOWLIMIT = 1 << 8,
-  CAMERA_NOLIMIT  = CAMERA_NONLIMIT | CAMERA_NOELIMIT 
-                  | CAMERA_NOSLIMIT | CAMERA_NOWLIMIT,
+  /* Camera cannot move at all. */
+  CAMERA_LOCK       = 1 << 1,
+  /* Camera panning disabled. */
+  CAMERA_NOPAN      = 1 << 2,
+  /* Camera tracking disabled */
+  CAMERA_NOTRACK    = 1 << 3,
+  /* Camera lockin disabled. */
+  CAMERA_NOLOCKIN   = 1 << 4,
+  /* Camera tracking of tracked thing is immediate and locked on to tracked thing. 
+  * Otherwise, the tracking is only applied gradually.
+  */
+  CAMERA_TRACKLOCK  = 1 << 5  
 };
 
 /** A Panner is a goal for panning the Camera. */
@@ -90,6 +91,8 @@ struct Camera_ {
   PannerList * panners;
   /* Head of doubly linked list for the lockins. */  
   LockinList * lockins;
+  /* Thing that is being tracked. */
+  Thing      * track; 
   int          flags;
 };
 
