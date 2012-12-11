@@ -282,6 +282,28 @@ int thing_y(Thing * self) {
   return cpBodyGetPos(self->body).y;
 }
 
+/** Width  of thing. */
+int thing_w(Thing * self) {
+  return self->size.x;
+}
+
+/** Height of thing. */
+int thing_h(Thing * self) {
+  return self->size.y;
+}
+
+
+
+/** Center of thing on x axis. */
+int thing_cx(Thing * self) {
+  return thing_x(self) + thing_w(self) / 2;
+}
+
+/** Height of thing. */
+int thing_cy(Thing * self) {
+  return thing_y(self) + thing_h(self) / 2;
+}
+
 /** Layer of thing. */
 int thing_z(Thing * self) {
   return self->z;

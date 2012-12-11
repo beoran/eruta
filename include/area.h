@@ -3,7 +3,7 @@
 
 #include <chipmunk.h>
 
-#include "camera.h"
+
 
 /**
 An area is an in game region that forms a single unity in which play
@@ -21,6 +21,8 @@ typedef struct Area_ Area;
 
 typedef struct Thing_ Thing; 
 
+
+
 /* Thing types. Generally speaking, there are 
 things that can move and those that cannot. 
 Chipmunks treats them differently in the sense that
@@ -36,6 +38,9 @@ freed when the thing isn't needed anymore.
 #define THING_MOBILE 5
 #define THING_ZONE   6
 
+
+/** Need the camera and it's prototypes. */
+#include "camera.h"
 
 #include "area_proto.h"
 
