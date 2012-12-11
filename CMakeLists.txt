@@ -17,7 +17,7 @@ include(CheckCXXSourceCompiles)
 
 if(CMAKE_COMPILER_IS_GNUCC)
  set(COMPILER_GCC 1)
-set(CMAKE_C_FLAGS "-Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math")  
+set(CMAKE_C_FLAGS "-Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math -fstrict-aliasing -Wstrict-aliasing")
 # always use gnu99, debugging, all warnings except unused and unknown pragmas.
 # when compiling with gnu compiler    
 endif(CMAKE_COMPILER_IS_GNUCC)
