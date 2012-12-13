@@ -210,7 +210,7 @@ int real_main(void) {
       if(actor_data) {
         camera_track_(camera, actor_data);
       }
-      //camera_newlockin(camera, 0, 0, , map, tilemap_track);
+      tilemap_layer_lockin(map, 0, camera);    
     }
 
   // Try to load the main lua file.

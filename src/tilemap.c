@@ -219,6 +219,34 @@ Thing * tilemap_addthing(Tilemap * self, int kind, int x, int y, int z,
 }
 
 
+/** Sets up the camera so it will stay locked in to the 
+given layer of the tile map */
+Lockin * tilepane_lockin(Tilepane * pane, Camera * camera) {
+  float x, y, w, h;
+  if(!pane) return NULL;
+  x = 0.0;
+  y = 0.0;
+  w = tilepane_wide(pane);  
+  h = tilepane_high(pane);  
+  return camera_newlockin(camera, x, y, w, h);
+} 
+
+
+/** Sets up the camera so it will stay locked in to the 
+extent of the given layer of the tile map. */
+Lockin * tilemap_layer_lockin(Tilemap * map, 
+                              int layer, 
+                              Camera * camera) {
+  Tilepane * pane;
+  Lockin * result;
+  float x, y, w, h;
+  if (!map) return NULL;
+  pane = tilemap_pane(map, layer);
+  return tilepane_lockin(pane, camera);  
+}
+
+
+
 #ifdef COMMENT_
 Tilemap * tilemap_load(lua_State * lua, int index) {  
   char buf[1024];
