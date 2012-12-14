@@ -76,7 +76,38 @@ struct ObjPool_ {
 
 
 
-#include "obj_proto.h"
+/* This file was generated with:
+'cfunctions -c -aoff -n -w obj_proto src/obj.c' */
+#ifndef CFH_OBJ_PROTO
+#define CFH_OBJ_PROTO
+
+/* From 'src/obj.c': */
+
+ObjPool * objpool_init (ObjPool * pool );
+
+void * objpool_register_data (ObjPool * pool , void * data );
+
+void * obj_alloc_in_pool (ObjPool * pool , size_t size , ObjClass * klass );
+
+void * obj_alloc (size_t size , ObjClass * klass );
+
+void * obj_ref (void * ptr );
+
+ObjClass * obj_class (void * ptr );
+
+ObjMethod * objclass_method_at (ObjClass * klass , size_t offset );
+
+ObjMethod * objclass_getfree (ObjClass * klass );
+
+void * obj_done (void * ptr );
+
+void * obj_free (void * ptr );
+
+void * obj_unref (void * ptr );
+
+ObjPool * objpool_unref (ObjPool * pool );
+
+#endif /* CFH_OBJ_PROTO */
 
 
 

@@ -278,9 +278,9 @@ State * state_init(State * self, BOOL fullscreen) {
       return state_errmsg_(self, "Out of memory when allocating camera.");
   }
   {
-    Style style = { color_rgb(255,255,255), color_rgba(64,0,0, 191), 
-                    self->font, NULL};
-    Bounds bounds = { {0, 0,} , {640, 480} }; 
+    Style   style = { color_rgb(255,255,255), color_rgba(64,0,0, 191), 
+                      self->font, NULL};
+    Rebox  bounds = { {0, 0,} , {640, 480} }; 
     self->console = console_new(1, bounds, style);
     if(!self->console) {
       return state_errmsg_(self, "Out of memory when allocating console.");

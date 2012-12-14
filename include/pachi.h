@@ -23,7 +23,20 @@ struct Pachi_ {
 #define PACHI_DATA(PACHI, TYPE, NAME) (&(PACHI) - offsetof(TYPE, NAME)); 
 
 
-#include "pachi_proto.h"
+/* This file was generated with:
+'cfunctions -c -aoff -n -w pachi_proto src/pachi.c' */
+#ifndef CFH_PACHI_PROTO
+#define CFH_PACHI_PROTO
+
+/* From 'src/pachi.c': */
+
+Pachi * pachi_init (Pachi * self , Pachi * parent );
+
+Pachi * pachi_addnext (Pachi * self , Pachi * next );
+
+Pachi * pachi_addchild (Pachi * self , Pachi * child );
+
+#endif /* CFH_PACHI_PROTO */
 
 
 #endif

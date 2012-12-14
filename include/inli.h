@@ -26,7 +26,40 @@ for the give list element, and data type*/
 
 
 
-#include "inli_proto.h"
+/* This file was generated with:
+'cfunctions -c -aoff -n -w inli_proto src/inli.c' */
+#ifndef CFH_INLI_PROTO
+#define CFH_INLI_PROTO
+
+/* From 'src/inli.c': */
+
+Inli * inli_initall (Inli * self , Inli * next , Inli * prev );
+
+Inli * inli_init (Inli * self );
+
+Inli * inli_remove (Inli * self );
+
+Inli * inli_add (Inli * self , Inli * other );
+
+Inli * inli_next (Inli * self );
+
+Inli * inli_prev (Inli * self );
+
+Inli * inli_first (Inli * self );
+
+Inli * inli_last (Inli * self );
+
+Inli * inli_push (Inli * self , Inli * other );
+
+Inli * inli_unshift (Inli * self , Inli * other );
+
+Inli * inli_shift (Inli * self );
+
+Inli * inli_pop (Inli * self );
+
+void * inli_data (Inli * self , int offset );
+
+#endif /* CFH_INLI_PROTO */
 
 
 

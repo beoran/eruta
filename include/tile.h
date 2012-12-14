@@ -35,7 +35,62 @@ typedef struct Tileset_ Tileset;
 typedef struct Tile_ Tile;
 
 
-#include "tile_proto.h"
+/* This file was generated with:
+'cfunctions -c -aoff -n -w tile_proto src/tile.c' */
+#ifndef CFH_TILE_PROTO
+#define CFH_TILE_PROTO
+
+/* From 'src/tile.c': */
+
+void tileset_done (Tileset * set );
+
+void tileset_free (Tileset * set );
+
+int tileset_size (Tileset * set );
+
+Tileset * tileset_init (Tileset * set , Image * sheet );
+
+Tileset * tileset_new (Image * sheet );
+
+Tile * tile_recalculate (Tile * tile );
+
+Tile * tile_init (Tile * tile , Tileset * set , int index );
+
+Tile * tileset_get (Tileset * set , int index );
+
+Tile * tile_anim_ (Tile * tile , int anim );
+
+int tile_anim (Tile * tile );
+
+Tile * tile_wait_ (Tile * tile , int wait );
+
+int tile_wait (Tile * tile );
+
+int tile_flags (Tile * tile );
+
+Tile * tile_flags_ (Tile * tile , int flags );
+
+Tile * tile_setflag (Tile * tile , int flag );
+
+Tile * tile_unflag (Tile * tile , int flag );
+
+int tile_isflag (Tile * tile , int flag );
+
+Tile * tile_property_ (Tile * tile , char * property );
+
+void tile_rewindanime (Tile * tile );
+
+void tile_update (Tile * tile , double dt );
+
+void tileset_update (Tileset * set , double dt );
+
+void tile_draw (Tile * tile , int x , int y );
+
+int tile_index (Tile * tile );
+
+int tile_kind (Tile * tile );
+
+#endif /* CFH_TILE_PROTO */
 
 
 

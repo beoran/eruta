@@ -6,7 +6,20 @@
 
 typedef struct React_ React;
 
-#include "react_proto.h"
+/* This file was generated with:
+'cfunctions -c -aoff -n -w react_proto src/react.c' */
+#ifndef CFH_REACT_PROTO
+#define CFH_REACT_PROTO
+
+/* From 'src/react.c': */
+
+React * react_initempty (React * self , void * data );
+
+React * react_react (React * self , ALLEGRO_EVENT * event );
+
+React * react_poll (React * self , void * state );
+
+#endif /* CFH_REACT_PROTO */
 
 typedef React * (Reactor)(React * self, ALLEGRO_EVENT event);
 

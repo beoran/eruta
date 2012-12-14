@@ -7,7 +7,20 @@
 typedef int (ReblCompare)(void * one, void * two);
 
 
-#include "rebl_proto.h"
+/* This file was generated with:
+'cfunctions -c -aoff -n -w rebl_proto src/rebl.c' */
+#ifndef CFH_REBL_PROTO
+#define CFH_REBL_PROTO
+
+/* From 'src/rebl.c': */
+
+
+#ifdef UNDER_CONSTRUCTION___
+extern struct Rebl_ sentinel;
+
+#endif
+
+#endif /* CFH_REBL_PROTO */
 
 
 

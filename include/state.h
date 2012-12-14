@@ -1,6 +1,11 @@
 #ifndef ERUTA_STATE_H
 #define ERUTA_STATE_H
 
+/** The data struct contains all global state and other data of the application.
+*/
+typedef struct State_ State;
+
+
 #include "eruta.h"
 #include "tilemap.h"
 #include "mode.h"
@@ -12,12 +17,65 @@
 /** Amount of samples that can be played at the same time. */
 #define STATE_SAMPLES 16
 
-/** The data struct contains all global state and other data of the application.
-*/
-struct State_;
-typedef struct State_ State;
 
-#include "state_proto.h"
+/* This file was generated with:
+'cfunctions -c -aoff -n -w state_proto src/state.c' */
+#ifndef CFH_STATE_PROTO
+#define CFH_STATE_PROTO
+
+State * state_get(void);
+
+State * state_set (State * state );
+
+Tilemap * state_nowmap (State * state );
+
+Tilemap * state_loadmap (State * state );
+
+State * state_alloc(void);
+
+void state_free (State * self );
+
+State * state_errmsg_ (State * state , char * mesg );
+
+char * state_errmsg (State * state );
+
+State * state_eventsource (State * state , ALLEGRO_EVENT_SOURCE * src );
+
+ALLEGRO_COLOR state_color (State * state , int color );
+
+ALLEGRO_COLOR state_color_f (State * state , int color , float r , float g , float b , float a );
+
+Ruby * state_ruby (State * state );
+
+Console * state_console (State * state );
+
+int state_initjoystick (State * self );
+
+State * state_init (State * self , BOOL fullscreen );
+
+BOOL state_done (State * state );
+
+BOOL state_busy (State * self );
+
+int state_poll (State * state , ALLEGRO_EVENT * event );
+
+ALLEGRO_EVENT * state_pollnew (State * state );
+
+ALLEGRO_FONT * state_font (State * state );
+
+void state_frames_update (State * state );
+
+int state_frames (State * state );
+
+double state_fps (State * state );
+
+double state_frametime (State * state );
+
+Camera * state_camera (State * state );
+
+
+
+#endif /* CFH_STATE_PROTO */
 
 
 #endif

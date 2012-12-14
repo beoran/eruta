@@ -88,7 +88,32 @@ but wrap it a bit with macros to have to do less typing. */
 
 #define ustr_isempty(USTR) (ustr_size((USTR)) < 1)
 
-#include "str_proto.h"
+/* This file was generated with:
+'cfunctions -c -aoff -n -w str_proto src/str.c' */
+#ifndef CFH_STR_PROTO
+#define CFH_STR_PROTO
+
+/* From 'src/str.c': */
+
+int ustr_atoi (USTR * str );
+
+double ustr_tod (USTR * ustr , int * ok );
+
+long ustr_tol (USTR * ustr , int * ok , int base );
+
+double ustr_atod (USTR * ustr );
+
+double ustr_atol (USTR * ustr );
+
+USTR * ustr_newdouble (double d );
+
+USTR * ustr_newlong (long l );
+
+int cstr_charis (const char * expression , int ch );
+
+int cstr_simplematch (const char * expression , int ch );
+
+#endif /* CFH_STR_PROTO */
 
 
 #endif

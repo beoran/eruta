@@ -3,33 +3,52 @@
 
 #include "eruta.h"
 
-#include "sound_proto.h"
-
-#ifdef COMMENT___
 struct Sound_;
 typedef struct Sound_ Sound;
 
 struct Music_;
 typedef struct Music_ Music;
 
+struct Audio_;
+typedef struct Audio_ Audio;
 
-/** Call this to enable sound. samples is the amount of samples to play.
-* Returns TRUE if ok false if it failed. 
-*/
-BOOL audio_start();
 
-/** Returns true if sound can be played, false if not. */
-BOOL sound_ok();
+/* This file was generated with:
+'cfunctions -c -aoff -n -w sound_proto src/sound.c' */
+#ifndef CFH_SOUND_PROTO
+#define CFH_SOUND_PROTO
 
-/** Loads a sound from file. */
-Sound * sound_load(char * filename);
+/* From 'src/sound.c': */
 
-/** Loads music from file, and starts to play it immediately. */
-Music * music_load(char * filename);
+Audio * audio_done (Audio * audio );
 
-/** Plays the sound. */
-Sound * sound_play(Sound *);
-#endif
+Audio * audio_alloc (void);
+
+Audio * audio_init (Audio * audio );
+
+Audio * audio_new (void);
+
+Audio * audio_free (Audio * self );
+
+void audio_stop (void);
+
+BOOL audio_start (void);
+
+BOOL sound_ok (void);
+
+Sound * sound_free (Sound * self );
+
+Sound * sound_load (char * filename );
+
+Music * music_free (Music * self );
+
+Music * music_load (char * filename );
+
+Sound * sound_playback (Sound * sound , float gain , float pan , float speed , BOOL loop );
+
+Sound * sound_play (Sound * sound );
+
+#endif /* CFH_SOUND_PROTO */
 
 
 #endif

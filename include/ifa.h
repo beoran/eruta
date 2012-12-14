@@ -1,11 +1,7 @@
 #ifndef ifa_H_INCLUDED
 #define ifa_H_INCLUDED
 
-/*
-#include "ifa_proto.h"
-*/
-
-/** ifa contains functionality to emulate go language style interfaces in C. */
+/** Ifa contains functionality to emulate go language style interfaces in C. */
 
 #define INTERFACE_BODY()    \
           void * self;

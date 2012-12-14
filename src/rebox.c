@@ -3,6 +3,28 @@
 #include <stdlib.h>
 #include "flags.h"
 
+/* bounds functions */
+
+/** Makes a new bounds box struct. */
+Rebox rebox_make(int x, int y, int w, int h) {
+  Point p = point(x, y);
+  Point s = point(w, h);
+  Rebox result = { p, s };
+  return result;
+}
+
+/** Initializes a bounds pointer by copying data from a bounds struct.  */
+Rebox * rebox_initbounds(Rebox * self, Rebox bounds) {
+  if(!self) return NULL;
+  (*self) = bounds;
+  return self;
+}
+
+/** Initializes a bounds pointer from it's coordinates. */
+Rebox * rebox_init(Rebox * self, int x, int y, int w, int h) {
+  return rebox_initbounds(self, rebox_make(x, y, w, h));
+}
+
 /** Returns a newly initialised rectangular box. */
 Rebox rebox_new(cpFloat x, cpFloat y, cpFloat w, cpFloat h) {
   Rebox result;

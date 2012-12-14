@@ -55,52 +55,7 @@
 */
 
 
-/* bounds functions */
 
-/** Makes a new bounds box struct. */
-Bounds bounds_make(int x, int y, int w, int h) {
-  Point p = point(x, y);
-  Point s = point(w, h);
-  Bounds result = { p, s };
-  return result;
-}
-
-/** Initializes a bounds pointer by copying data from a bounds struct.  */
-Bounds * bounds_initbounds(Bounds * self, Bounds bounds) {
-  if(!self) return NULL;
-  (*self) = bounds;
-  return self;
-}
-
-/** Initializes a bounds pointer from it's coordinates. */
-Bounds * bounds_init(Bounds * self, int x, int y, int w, int h) {
-  return bounds_initbounds(self, bounds_make(x, y, w, h));
-}
-
-/** Get x position of bounds. */
-int bounds_x(Bounds * self) {
-  return self->p.x;
-}
-
-/** Get y position of bounds. */
-int bounds_y(Bounds * self) {
-  return self->p.y;
-}
-
-/** Get width of bounds. */
-int bounds_w(Bounds * self) {
-  return self->s.x;
-}
-
-/** Get height of bounds. */
-int bounds_h(Bounds * self) {
-  return self->s.y;
-}
-
-/** Get priority of bounds. */
-int bounds_z(Bounds * self) {
-  return self->z;
-}
 
 
 /** Makes a new style struct. */
@@ -146,29 +101,29 @@ Font  * style_font(Style * self)        {
 
 
 /** Get bounds of widget. */
-Bounds widget_bounds(Widget * self) {
+Rebox widget_bounds(Widget * self) {
   return self->bounds;
 }
 
 /** Get width of widget. */
 int widget_w(Widget * self) {  
-  return bounds_w(&self->bounds); 
+  return rebox_w(&self->bounds); 
 }
 /** Get height of widget. */
 int widget_h(Widget * self) {  
-  return bounds_h(&self->bounds); 
+  return rebox_h(&self->bounds); 
 }
 /** Get x position of widget. */
 int widget_x(Widget * self) {  
-  return bounds_x(&self->bounds); 
+  return rebox_x(&self->bounds); 
 }
 /** Get y position of widget. */
 int widget_y(Widget * self) {  
-  return bounds_y(&self->bounds); 
+  return rebox_y(&self->bounds); 
 }
 /** Get z position of widget. */
 int widget_z(Widget * self) {  
-  return bounds_z(&self->bounds);
+  return self->z;
 }
 
 /** Get foreground color of widget. */
@@ -294,7 +249,7 @@ Widget * widget_metab_(Widget * self, WidgetMetab * metab) {
 /** Fully initializes a widget. */
 Widget * widget_initall(Widget * self, 
                         int id, WidgetMetab * metab, 
-                        Bounds bounds, Style style) {
+                        Rebox bounds, Style style) {
   if(!self) return NULL;
   self->id     = id;
   widget_metab_(self, metab);
@@ -307,7 +262,7 @@ Widget * widget_initall(Widget * self,
 
 /** Initializes a widget with given bounds and style. */
 Widget * widget_initbounds(Widget * self, int id,
-                           WidgetMetab * metab, Bounds bounds)
+                           WidgetMetab * metab, Rebox bounds)
 {
   Color fg    = color_rgb(0,0,0);
   Color bg    = color_rgb(255,0,0);
@@ -395,7 +350,7 @@ struct WidgetLabel_ {
 };
 
 
-WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Bounds bounds, 
+WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Rebox bounds, 
                           const char * text) {
   if(!widget_initbounds((Widget *)self, bounds)) return NULL;
   self->text = ustr_new(text);
@@ -670,7 +625,7 @@ Console * console_alloc() {
 #define CONSOLE_MAX 1000
 
 /** Initializes a console. */
-Console * console_initall(Console * self, int id, Bounds bounds, Style style) {
+Console * console_initall(Console * self, int id, Rebox bounds, Style style) {
   if(!self) return NULL;
   if(!widget_initall(&self->widget, id, &console_metab_, bounds, style)) { 
     return NULL;
@@ -697,7 +652,7 @@ Console * console_initall(Console * self, int id, Bounds bounds, Style style) {
 }
 
 /** Initializes a new console. */
-Console * console_new(int id, Bounds bounds, Style style) {
+Console * console_new(int id, Rebox bounds, Style style) {
   Console * self = console_alloc();
   if(!console_initall(self, id, bounds, style)) {
     return console_free(self);

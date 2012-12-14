@@ -57,7 +57,7 @@ struct Pail_ {
 };
 
 
-struct Duo_ * duo_init(struct Duo_ * self, void * key, void * value) {
+static struct Duo_ * duo_init(struct Duo_ * self, void * key, void * value) {
   if(!self) return NULL;
   self->key  = key;
   self->data = value;
@@ -170,18 +170,18 @@ Hatab * hatab_free(Hatab * self) {
 
 /* Gets a pointer to the (pails) pail at the given index,
 which is not checked and should be valid. */
-Pail * hatab_getpail(Hatab * self, uint32_t index) {
+static Pail * hatab_getpail(Hatab * self, uint32_t index) {
   return (Pail *) dynar_getdata(self->pails, index);
 }
 
 /* Gets a pointer to the cellar pail at the given index,
 which is not checked and should be valid. */
-Pail * hatab_getcellarpail(Hatab * self, uint32_t index) {
+static Pail * hatab_getcellarpail(Hatab * self, uint32_t index) {
   return (Pail *) dynar_getdata(self->cellar, index);
 }
 
 /* Returns the next available cellar cell, or NULL if the cellar is full. */
-Pail * hatab_getnextcellar(Hatab * self) {
+static Pail * hatab_getnextcellar(Hatab * self) {
   if(hatab_cellarfull_p(self)) return NULL;
   self->cellar_used++;
   return hatab_getcellarpail(self, self->cellar_used - 1);
@@ -248,7 +248,7 @@ int hatab_compare(Hatab * self, void * pa, void * pb) {
 }
 
 /* Checks if the given bucket contains the given key with the given hash. */
-int hatab_pailok(Hatab * self, Pail * pail, 
+static int hatab_pailok(Hatab * self, Pail * pail, 
                    void * key, uint32_t hash) {
   if(!pail) return FALSE;
   if(pail_empty_p(pail))       return FALSE;
@@ -258,7 +258,7 @@ int hatab_pailok(Hatab * self, Pail * pail,
 }
 
 /* Gets the pail that matches this key, or NULL if not found.  */
-Pail * hatab_findpail(Hatab * self, void * key) {
+static Pail * hatab_findpail(Hatab * self, void * key) {
   uint32_t hash, index;
   Pail * pail;
   if(!self) return NULL;

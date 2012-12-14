@@ -12,24 +12,24 @@
 struct Dynar_ {
   char * data;
   // use a char * pointer since that makes pointer arithmetic easier
-  size_t size;
-  size_t elsz;
+  int size;
+  int elsz;
 };
 
 /** Gets the array's size. Returns 0 if self is NULL. */
-size_t dynar_size(Dynar * self) {
+int dynar_size(Dynar * self) {
   if(!self) return 0;
   return self->size;
 }
 
 /** Gets the amount of elements in the vector. Returns 0 if self is NULL. */
-size_t dynar_amount(Dynar * self) {
+int dynar_amount(Dynar * self) {
   if(!self) return 0;
   return self->size;
 }
 
 /** Gets the array's element size.  Returns 0 if self is NULL. */
-size_t dynar_elementsize(Dynar * self) {
+int dynar_elementsize(Dynar * self) {
   if(!self) return 0;
   return self->elsz;
 }
@@ -46,8 +46,8 @@ Dynar * dynar_done(Dynar * self) {
 /** Calls a destructor on the contents of the array if it is not null. 
  The contents are considered to be pointers. */
 Dynar * dynar_destroy(Dynar * self, MemDestructor * destroy) {
-  size_t index;
-  size_t size = dynar_size(self);
+  int index;
+  int size = dynar_size(self);
   if(!self)     return self;
   if(!destroy)  return NULL;
   for(index = 0; index < size ; index++) {
@@ -77,7 +77,7 @@ Dynar * dynar_alloc() {
 
 
 /** Initializes an empty array with 0 elements of size elsz each. */
-Dynar * dynar_initempty(Dynar * self, size_t elsz) {
+Dynar * dynar_initempty(Dynar * self, int elsz) {
   if(!self)    return NULL;
   if(elsz < 0) return NULL;
   self->size = 0;
@@ -86,7 +86,7 @@ Dynar * dynar_initempty(Dynar * self, size_t elsz) {
 }
 
 /** Allocates a new empty array for elements of size elsz each. */
-Dynar * dynar_newempty(size_t elsz) {
+Dynar * dynar_newempty(int elsz) {
   Dynar * res = dynar_alloc();
   if(!dynar_initempty(res, elsz)) {
     return dynar_free(res);
@@ -95,8 +95,8 @@ Dynar * dynar_newempty(size_t elsz) {
 }
 
 /** Changes the size of the dynamic array. Newsize must be >= 1. */
-Dynar * dynar_size_(Dynar* self, size_t newsize) {
-  size_t elsz = dynar_elementsize(self);
+Dynar * dynar_size_(Dynar* self, int newsize) {
+  int elsz = dynar_elementsize(self);
   void * newd = NULL;
   if(!self) return NULL;
   // don't allow a newsize of 0, since that will make realloc call
@@ -113,7 +113,7 @@ Dynar * dynar_size_(Dynar* self, size_t newsize) {
 
 /** Initializes a new array with a amount elements of size
 elsz each. */
-Dynar * dynar_init(Dynar * self, size_t amount, size_t elsz) {
+Dynar * dynar_init(Dynar * self, int amount, int elsz) {
   Dynar * aid = dynar_initempty(self, elsz);
   if(!aid) return NULL;
   if(!dynar_size_(self, amount)) return NULL;
@@ -121,12 +121,12 @@ Dynar * dynar_init(Dynar * self, size_t amount, size_t elsz) {
 }
 
 /** Initializes a new array with a capacity to store amount void* pointers.*/
-Dynar * dynar_initptr(Dynar * self, size_t amount) {
+Dynar * dynar_initptr(Dynar * self, int amount) {
   return dynar_init(self, amount, sizeof(void *));
 }
 
 /** Allocates a new array with amount elements of size elsz each. */
-Dynar * dynar_new(size_t amount, size_t elsz) {
+Dynar * dynar_new(int amount, int elsz) {
   Dynar * res = dynar_alloc();
   if(!dynar_init(res, amount, elsz)) {
       return dynar_free(res);
@@ -134,24 +134,25 @@ Dynar * dynar_new(size_t amount, size_t elsz) {
   return res;
 }
 
+
 /** Allocates a new array that will be able to contain amount void * pointers.*/
-Dynar * dynar_newptr(size_t amount) {
+Dynar * dynar_newptr(int amount) {
   return dynar_new(amount, sizeof(void *));
 }
- 
+
 
 /** Sets the amount of elements of the the array, but ony if
 * amount bigger than the bigger than the current size.
 * Returns NULL if the array was not grown, otherwise returns self.
 */
-Dynar * dynar_grow(Dynar * self, size_t amount) {
-  size_t mysize = dynar_size(self);
+Dynar * dynar_grow(Dynar * self, int amount) {
+  int mysize = dynar_size(self);
   if (mysize >= amount) return NULL;
   return dynar_size_(self, amount);
 }
 
 /** Checks if the index is smaller than the array's available room . */
-int dynar_sizeindex_ok(Dynar * self, size_t index) {
+int dynar_sizeindex_ok(Dynar * self, int index) {
   if(!self) return FALSE;
   return index < dynar_size(self);
 }
@@ -160,7 +161,7 @@ int dynar_sizeindex_ok(Dynar * self, size_t index) {
 int dynar_index_ok(Dynar * self, int index) {
   if(!self) return FALSE;
   if (index < 0) return FALSE;
-  return dynar_sizeindex_ok(self, (size_t)(index));
+  return dynar_sizeindex_ok(self, (int)(index));
 }
 
 /** Returns a pointer to the index-th element of the array.
@@ -176,7 +177,7 @@ Returns NULL on failure, out on success.
 */
 void * dynar_getcopy_unsafe(Dynar * self, int index, void * out) {
   char * cptr = (char *) dynar_getraw_unsafe(self, index);
-  size_t size = dynar_elementsize(self);
+  int size = dynar_elementsize(self);
   if((!self) || (!out) || (!cptr)) return NULL;
   mem_move(out, cptr, size);
   return out;
@@ -188,7 +189,7 @@ void * dynar_getcopy_unsafe(Dynar * self, int index, void * out) {
 */
 Dynar * dynar_putraw_unsafe(Dynar * self, int index, void * ptr) {
   char * cptr = (char *) dynar_getraw_unsafe(self, index);
-  size_t size = dynar_elementsize(self);
+  int size = dynar_elementsize(self);
   if((!self) || (!ptr) || (!cptr)) return NULL;
   mem_move(cptr, ptr, size);
   return self;
@@ -196,7 +197,7 @@ Dynar * dynar_putraw_unsafe(Dynar * self, int index, void * ptr) {
 
 /** Returns a pointer to the index-th element of the array.
 Does bounds checking and return NULL if out of bounds */
-void * dynar_getraw(Dynar * self, size_t index) {
+void * dynar_getraw(Dynar * self, int index) {
   // Bounds check
   if(!dynar_index_ok(self, index)) { return NULL; }
   return dynar_getraw_unsafe(self, index);
@@ -214,7 +215,7 @@ void * dynar_getcopy(Dynar * self, int index, void * ptr) {
 * by ptr into the location pointed to by index.
 * Does bounds checking and return NULL if ouut of bounds.
 */
-Dynar * dynar_putraw(Dynar * self, size_t index, void * ptr) {
+Dynar * dynar_putraw(Dynar * self, int index, void * ptr) {
   // Bounds check
   if(!dynar_index_ok(self, index)) { return NULL; }
   return dynar_putraw_unsafe(self, index, ptr);
@@ -231,7 +232,7 @@ void * dynar_putptr(Dynar * self, int index, void * ptr) {
 }
 
 /** Returns a pointer that was stored at the index index of the array. */
-void * dynar_getptr(Dynar * self, size_t index) {
+void * dynar_getptr(Dynar * self, int index) {
   void * res = NULL; 
   if(!dynar_getcopy(self, index, &res)) return NULL;
   // use &ptr because we want to fetch the contents of the pointer,
@@ -241,12 +242,12 @@ void * dynar_getptr(Dynar * self, size_t index) {
 
 /** Copies the element that *ptr points to into this array at position
 index */
-void * dynar_putdata(Dynar * self, size_t index, void * ptr) {
+void * dynar_putdata(Dynar * self, int index, void * ptr) {
   return dynar_putraw(self, index, ptr);
 }
 
 /** Returns a pointer to the index-th element of the array. */
-void * dynar_getdata(Dynar * self, size_t index) {
+void * dynar_getdata(Dynar * self, int index) {
   return dynar_getraw(self, index);
 }
 
@@ -337,8 +338,8 @@ the data as pointers. eachdo should return non-null to break the iteration,
 the data thus found is returned bu this function. */
 void * dynar_each_ptr(Dynar * self, EachDo * eachdo, void * extra) {
   Each each;
-  size_t index;
-  size_t size = dynar_size(self);  
+  int index;
+  int size = dynar_size(self);  
   each_init(&each, self, extra); 
   for(index = 0; index < size ; index++) {
     void * aid;
@@ -354,8 +355,8 @@ void * dynar_each_ptr(Dynar * self, EachDo * eachdo, void * extra) {
 the data as stored structs. */
 void * dynar_walkdata(Dynar * self, EachDo * eachdo, void * extra) {
   Each each;
-  size_t index;
-  size_t size = dynar_size(self);
+  int index;
+  int size = dynar_size(self);
   each_init(&each, self, extra);
   for(index = 0; index < size ; index++) {
     void * aid;
