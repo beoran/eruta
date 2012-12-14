@@ -1,5 +1,5 @@
 /* This file was generated with:
-'cfunctions -c -aoff -n -m -w main_proto src/main.c' */
+'cfunctions -c -aoff -n -w main_proto src/main.c' */
 #ifndef CFH_MAIN_PROTO
 #define CFH_MAIN_PROTO
 
@@ -19,7 +19,6 @@ extern ALLEGRO_BITMAP * texture;
 
 #line 27 "src/main.c"
 extern ALLEGRO_COLOR solid_white;
-/* Testing function for al_get_standard_path */
 
 #line 49 "src/main.c"
 void puts_standard_path (int path , char * name );

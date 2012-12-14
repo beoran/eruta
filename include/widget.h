@@ -91,7 +91,7 @@ struct WidgetIfa_ {
 
 /** Widgets are individual parts of the UI.  
 As a simplification, Widgets are considered to occupy "panes" ordered 
-in the user intterface from back to front. They do not contain other widgets 
+in the user interface from back to front. They do not contain other widgets 
 and do not have any generic relations between them.
 
 A note on pointer ownership: the pointers to font and image in style

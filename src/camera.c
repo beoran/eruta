@@ -9,13 +9,13 @@
 Ideas about camera tracking, panning and limiting.
 
 Normally the camera tracks or follows a single mobile Thing.
-Normally, the ting is only tracked if it goes out of
+Normally, the thing is only tracked if it goes out of
 sight of the camera. However, it is also possible to lock 
 on to the Thing exactly so the camera moves completely with 
 it. 
 
 It's possible to change the thing that is being tracked. 
-This transitiion can be immediate or smooth. The speed
+This transition can be immediate or smooth. The speed
 of this transition can be set.
 
 Sometimes the camera pans around. It moves it's center between 

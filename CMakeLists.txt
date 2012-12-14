@@ -8,6 +8,8 @@ project(ERUTA C)
 
 # Play with PCC
 # SET(CMAKE_C_COMPILER   /usr/local/bin/pcc)
+# Play with UCC
+# SET(CMAKE_C_COMPILER   /usr/local/lib/ucc/ucc)
 
 # tell CMake to search first in the cmake subdirectory for FIND_PACKAGE() or INCLUDE()
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
@@ -17,9 +19,10 @@ include(CheckCXXSourceCompiles)
 
 if(CMAKE_COMPILER_IS_GNUCC)
  set(COMPILER_GCC 1)
-set(CMAKE_C_FLAGS "-Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math -fstrict-aliasing -Wstrict-aliasing")
+set(CMAKE_C_FLAGS "-W -Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math -fno-strict-aliasing -Wstrict-aliasing")
 # always use gnu99, debugging, all warnings except unused and unknown pragmas.
-# when compiling with gnu compiler    
+# when compiling with gnu compiler  Also turn of stricat aliasing,
+# but do warn about it because other compiler may not be able to turn it off.
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 # or for PCC

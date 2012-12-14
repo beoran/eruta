@@ -48,6 +48,8 @@
 #include "ui.h"
 #include "dynar.h"
 
+#include <stdarg.h>
+
 
 /** UI manages the graphical user interface and menus. */
 struct UI_ {
@@ -74,8 +76,42 @@ UI * ui_alloc() {
 
 /** Initializes the user interface. */
 
+typedef void void_function(void); 
+
+typedef void_function * void_function_ptr; 
 
 
+/** Generic utility */
 
+/** Helps to scan variable arguments with a format string, 
+much like how scanf would work fro stdin. */
+void vva_list_scan(va_list args, char * format, va_list data) {
+  for( ; (*format); format++) {
+    switch((*format)) {
+      case 'p': (*va_arg(data, void**) ) = va_arg(args, void*); break;
+      
+      case 'd':
+      case 'i': (*va_arg(data, int*))     = va_arg(args,   int); break;
+      case 'o':
+      case 'u': (*va_arg(data, unsigned int*))  
+              = va_arg(args,   unsigned int); break;
+      case 'l': (*va_arg(data, long*))    = va_arg(args, long); break;
+      case 's': (*va_arg(data, char**))   = va_arg(args, char*); break;
+      case 'f': (*va_arg(data, double*))  = va_arg(args, double); break;
+      case 'F': (*va_arg(data, void_function_ptr*))
+                = va_arg(args, void_function_ptr); break;
+      default:
+        break;
+    }
+  }
+}
 
+/** Helps to scan variable arguments with a format string, 
+much like how scanf would work for stdin. */
+void va_list_scan(va_list args, char * format, ...) {
+  va_list data;
+  va_start(data, format);
+  vva_list_scan(args, format, data);
+  va_end(data);
+}
 

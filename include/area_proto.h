@@ -36,48 +36,73 @@ Thing * thing_free (Thing * self );
 #line 1 "/usr/local/share/cfunctions/c-extensions.h"
 /* Macro definitions for C extensions for Cfunctions. */
 
-/* Own version of the cfunctions.h . */
+/* 
+   Copyright (C) 1998 Ben K. Bullock.
+
+   This header file is free software; Ben K. Bullock gives unlimited
+   permission to copy, modify and distribute it. 
+
+   This header file is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+*/
+
 
 #ifndef C_EXTENSIONS_H
 #define C_EXTENSIONS_H
 
-#ifndef X_NO_RETURN
+/* Only modern GNU C's have `__attribute__'.  The keyword `inline'
+   seems to have been around since the beginning, but it does not work
+   with the `-ansi' option, which defines `__STRICT_ANSI__'.  I expect
+   that `__attribute__' does not work with `-ansi' either.  Anyway
+   both of these failure cases are being lumped together here for the
+   sake of brevity. */
+
+#if defined (__GNUC__) && ( __GNUC__ >= 2 ) && ( __GNUC_MINOR__ > 4 ) && \
+   ! defined (__STRICT_ANSI__)
+
+/* Macro definitions for Gnu C extensions to C. */
+
+#define X_NO_RETURN __attribute__((noreturn))
+#define X_PRINT_FORMAT(a,b) __attribute__((format(printf,a,b)))
+#define X_CONST __attribute__((const))
+#define X_INLINE
+
+#else /* Not a modern GNU C */
+
 #define X_NO_RETURN 
-#endif
-
-#ifndef X_PRINT_FORMAT
 #define X_PRINT_FORMAT(a,b) 
-#endif
-
-#ifndef X_CONST
 #define X_CONST
-#endif
 
-#ifndef INLINE
+#endif /* GNU C */
+
+/* The following `#define' is not a mistake.  INLINE is defined to
+   nothing for both GNU and non-GNU compilers.  When Cfunctions sees
+   `INLINE' it copies the whole of the function into the header file,
+   prefixed with `extern inline' and surrounded by an `#ifdef
+   X_INLINE' wrapper.  In order to inline the function in GNU C, only
+   `X_INLINE' needs to be defined. There is also a normal prototype
+   for the case that X_INLINE is not defined.  The reason for copying
+   the function with a prefix `extern inline' into the header file is
+   explained in the GNU C manual and the Cfunctions manual. */
+
 #define INLINE
-#endif
-
-#ifndef NO_RETURN
 #define NO_RETURN void
-#endif
-
-#ifndef NO_SIDE_FX
 #define NO_SIDE_FX
-#endif
-
-#ifndef PRINT_FORMAT
 #define PRINT_FORMAT(a,b)
-#endif
-
-#ifndef LOCAL
 #define LOCAL
-#endif
+
+/* Prototype macro for `traditional C' output. */
 
 #ifndef PROTO
+#if defined(__STDC__) && __STDC__ == 1
 #define PROTO(a) a
-#endif 
+#else
+#define PROTO(a) ()
+#endif /* __STDC__ */
+#endif /* PROTO */
 
-#endif /* ifndef C_EXTENSIONS_H */
+#endif /* ndef C_EXTENSIONS_H */
 Thing * thing_alloc PROTO ((void));
 
 #line 139 "src/area.c"
@@ -111,114 +136,126 @@ int thing_x (Thing * self );
 int thing_y (Thing * self );
 
 #line 286 "src/area.c"
-int thing_z (Thing * self );
+int thing_w (Thing * self );
 
 #line 291 "src/area.c"
+int thing_h (Thing * self );
+
+#line 298 "src/area.c"
+int thing_cx (Thing * self );
+
+#line 303 "src/area.c"
+int thing_cy (Thing * self );
+
+#line 308 "src/area.c"
+int thing_z (Thing * self );
+
+#line 313 "src/area.c"
 Point thing_v (Thing * self );
 
-#line 296 "src/area.c"
+#line 318 "src/area.c"
 int thing_vx (Thing * self );
 
-#line 301 "src/area.c"
+#line 323 "src/area.c"
 int thing_vy (Thing * self );
 
-#line 306 "src/area.c"
+#line 328 "src/area.c"
 void thing_v_ (Thing * self , Point v );
 
-#line 311 "src/area.c"
+#line 333 "src/area.c"
 void thing_vxy_ (Thing * self , int vx , int vy );
 
-#line 317 "src/area.c"
+#line 339 "src/area.c"
 void thing_vx_ (Thing * self , int vx );
 
-#line 324 "src/area.c"
+#line 346 "src/area.c"
 void thing_vy_ (Thing * self , int vy );
 
-#line 331 "src/area.c"
+#line 353 "src/area.c"
 void thing_p_ (Thing * self , Point p );
 
-#line 336 "src/area.c"
+#line 358 "src/area.c"
 void thing_deltap (Thing * self , Point delta );
 
-#line 343 "src/area.c"
+#line 365 "src/area.c"
 void thing_pxy_ (Thing * self , int x , int y );
 
-#line 349 "src/area.c"
+#line 371 "src/area.c"
 void thing_x_ (Thing * self , int x );
 
-#line 356 "src/area.c"
+#line 378 "src/area.c"
 void thing_y_ (Thing * self , int y );
 
-#line 363 "src/area.c"
+#line 385 "src/area.c"
 void thing_applyforce (Thing * thing , const Point f );
 
-#line 368 "src/area.c"
+#line 390 "src/area.c"
 void thing_applyimpulse (Thing * thing , const Point f );
 
-#line 373 "src/area.c"
+#line 395 "src/area.c"
 void thing_resetforces (Thing * thing );
 
-#line 381 "src/area.c"
+#line 403 "src/area.c"
 void thing_draw (Thing * self , Camera * camera );
 
-#line 454 "src/area.c"
+#line 476 "src/area.c"
 int area_maxthings (Area * area );
 
-#line 459 "src/area.c"
+#line 481 "src/area.c"
 Thing * area_thing (Area * area , int index );
 
-#line 467 "src/area.c"
+#line 489 "src/area.c"
 Thing * area_thing_ (Area * area , int index , Thing * set );
 
-#line 477 "src/area.c"
+#line 499 "src/area.c"
 int area_thingid (Area * self );
 
-#line 496 "src/area.c"
+#line 518 "src/area.c"
 Thing * area_addthing (Area * area , Thing * thing );
 
-#line 512 "src/area.c"
+#line 534 "src/area.c"
 cpBody * area_staticbody (Area * area );
 
-#line 520 "src/area.c"
+#line 542 "src/area.c"
 int area_deletething (Area * area , int index );
 
-#line 531 "src/area.c"
+#line 553 "src/area.c"
 Area * area_cleanupthings (Area * self );
 
-#line 542 "src/area.c"
+#line 564 "src/area.c"
 Area * area_emptythings (Area * self );
 
-#line 553 "src/area.c"
+#line 575 "src/area.c"
 Area * area_done (Area * self );
 
-#line 567 "src/area.c"
+#line 589 "src/area.c"
 Area * area_free (Area * self );
 
-#line 575 "src/area.c"
+#line 597 "src/area.c"
 Area * area_alloc PROTO ((void));
 
-#line 580 "src/area.c"
+#line 602 "src/area.c"
 Area * area_init (Area * self );
 
-#line 595 "src/area.c"
+#line 617 "src/area.c"
 Area * area_new PROTO ((void));
 
-#line 601 "src/area.c"
+#line 623 "src/area.c"
 cpSpace * area_space (Area * self );
 
-#line 609 "src/area.c"
+#line 631 "src/area.c"
 Thing * area_newstatic (Area * self , int kind , int x , int y , int z , int w , int h );
 
-#line 621 "src/area.c"
+#line 643 "src/area.c"
 Thing * area_newdynamic (Area * self , int kind , int x , int y , int z , int w , int h );
 
-#line 633 "src/area.c"
+#line 655 "src/area.c"
 void area_draw (Area * self , Camera * camera );
 
-#line 643 "src/area.c"
+#line 665 "src/area.c"
 void area_update (Area * self , double dt );
 
-#line 653 "src/area.c"
+#line 675 "src/area.c"
 
 #ifdef COMMENT_
 int thing_track (Tracker * tracker , void * data );

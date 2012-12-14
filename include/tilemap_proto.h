@@ -65,21 +65,27 @@ void tilemap_update (Tilemap * map , double dt );
 #line 217 "src/tilemap.c"
 Thing * tilemap_addthing (Tilemap * self , int kind , int x , int y , int z , int w , int h );
 
-#line 223 "src/tilemap.c"
+#line 224 "src/tilemap.c"
+Lockin * tilepane_lockin (Tilepane * pane , Camera * camera );
+
+#line 239 "src/tilemap.c"
+Lockin * tilemap_layer_lockin (Tilemap * map , int layer , Camera * camera );
+
+#line 251 "src/tilemap.c"
 
 #ifdef COMMENT_
 Tilemap * tilemap_load (lua_State * lua , int index );
 
-#line 239 "src/tilemap.c"
+#line 267 "src/tilemap.c"
 Tilepane * tilepane_savefile (Tilepane *pane , int paneid , FILE *fout );
 
-#line 254 "src/tilemap.c"
+#line 282 "src/tilemap.c"
 Tilemap * tilemap_savefile (Tilemap * map , FILE * fout );
 
-#line 286 "src/tilemap.c"
+#line 314 "src/tilemap.c"
 Tilemap * tilemap_save (Tilemap * map , int index );
 
-#line 303 "src/tilemap.c"
+#line 331 "src/tilemap.c"
 int tilemap_track (Tracker * tracker , void * data );
 
 #endif

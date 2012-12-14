@@ -269,7 +269,7 @@ int real_main(void) {
         // thing_resetforces(actor_data);
       }
       // draw the console (will autohide if not active).
-      console_draw(state_console(state));
+      widget_draw((Widget *)state_console(state));
    
       al_flip_display();
    }

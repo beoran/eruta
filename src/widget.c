@@ -343,6 +343,28 @@ Widget * widget_free(Widget * self) {
   return NULL;
 }
 
+/** Generic widget drawing. */
+void widget_draw(Widget * self) {
+  if(self->metab->draw) {
+    self->metab->draw(self);
+  }
+}
+
+
+/** Generic widget event handling. */
+void widget_handle(Widget * self, ALLEGRO_EVENT * event) {
+  if(self->metab->handle) {
+    self->metab->handle(self, event);
+  }
+}
+
+/** Generic widget update. */
+void widget_update(Widget * self, ALLEGRO_EVENT * event) {
+  if(self->metab->handle) {
+    self->metab->handle(self, event);
+  }
+}
+
 
 
 #define WIDGET_BORDER 3 

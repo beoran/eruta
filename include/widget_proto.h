@@ -225,55 +225,58 @@ Widget * widget_done (Widget * widget );
 #line 337 "src/widget.c"
 Widget * widget_free (Widget * self );
 
-#line 351 "src/widget.c"
+#line 347 "src/widget.c"
+void widget_draw (Widget * self );
+
+#line 356 "src/widget.c"
 void widget_drawroundframe (Widget * self );
 
-#line 417 "src/widget.c"
+#line 422 "src/widget.c"
 void console_command_ (Console * self , ConsoleCommand * command , void * data );
 
-#line 424 "src/widget.c"
+#line 429 "src/widget.c"
 int console_docommand (Console * self , const char * text );
 
-#line 433 "src/widget.c"
+#line 438 "src/widget.c"
 int console_addstr (Console * self , char * str );
 
-#line 460 "src/widget.c"
+#line 465 "src/widget.c"
 int console_puts (Console * self , const char * str );
 
-#line 478 "src/widget.c"
+#line 483 "src/widget.c"
 void console_draw (Widget * widget );
 
-#line 516 "src/widget.c"
+#line 521 "src/widget.c"
 void console_active_ (Console * self , int active );
 
-#line 522 "src/widget.c"
+#line 527 "src/widget.c"
 int console_active (Console * self );
 
-#line 528 "src/widget.c"
+#line 533 "src/widget.c"
 int console_scroll (Console * self , int direction );
 
-#line 539 "src/widget.c"
+#line 544 "src/widget.c"
 int console_handle_keychar (Console * self , ALLEGRO_EVENT * event );
 
-#line 576 "src/widget.c"
+#line 581 "src/widget.c"
 int console_handle_mouseaxes (Console * self , ALLEGRO_EVENT * event );
 
-#line 589 "src/widget.c"
+#line 594 "src/widget.c"
 int console_handle (Widget * widget , ALLEGRO_EVENT * event );
 
-#line 620 "src/widget.c"
+#line 625 "src/widget.c"
 void * console_done (void * widget );
 
-#line 636 "src/widget.c"
+#line 641 "src/widget.c"
 void * console_free (void * widget );
 
-#line 644 "src/widget.c"
+#line 649 "src/widget.c"
 Console * console_alloc PROTO ((void));
 
-#line 651 "src/widget.c"
+#line 656 "src/widget.c"
 Console * console_initall (Console * self , int id , Bounds bounds , Style style );
 
-#line 678 "src/widget.c"
+#line 683 "src/widget.c"
 Console * console_new (int id , Bounds bounds , Style style );
 
 #endif /* CFH_WIDGET_PROTO */
