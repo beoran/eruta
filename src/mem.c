@@ -152,3 +152,37 @@ void * mem_move(void * dest, void * src, size_t size) {
 *  
 *
 */
+
+
+
+/** Thoughts on memory management and garbage collection. 
+* The probelm in C is that it is not always clear who is the owner 
+* for an object, and and who is just using a reference. 
+* If ownership is well defined, then correct cleanup is easier to arrange.
+*
+* Here's an idea on reference linking for shared ownership:
+*/
+
+typedef struct Memref_ Memref;
+
+struct Memref_ {
+  void   * pointer;
+  Memref * next;
+  Memref * previous;
+};
+
+Memref memref(void * pointer) {
+  Memref ref = { pointer, 0, 0 };
+  return ref;
+}
+
+
+
+
+
+
+
+
+
+
+

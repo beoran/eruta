@@ -149,6 +149,7 @@ TEMPLATE_NAME * TEMPLATE_FUNC(done) (TEMPLATE_NAME * self) {
 /** Calls TEMPLATE_NAME_done, and then frees the TMATRIX self. Returns NULL. */
 TEMPLATE_NAME * TEMPLATE_FUNC(free) (TEMPLATE_NAME * self) {
   TEMPLATE_FUNC(done)(self);
+  TEMPLATE_FREE(self);
   return NULL;
 }
 

@@ -50,7 +50,7 @@ Tilepane * tilepane_done(Tilepane * pane) {
   if (pane->tiles) {
     pane->tiles = tilemat_free(pane->tiles);
   }  
-  // Then the column holder arrays. 
+  // Then the column holder arrays. XXX is this correct?
   mem_free(pane->tiles);
   // Size is now zero.
   pane->gridhigh = 0;
