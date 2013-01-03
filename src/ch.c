@@ -1,7 +1,6 @@
 /** Chipmunk helper functions. */
 #include <stdlib.h>
 #include <string.h>
-#include <lauxlib.h>
 #include "ch.h"
 
 /** Allocates a rectangular box shape, with the given width and height
