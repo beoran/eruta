@@ -55,6 +55,37 @@
 */
 
 
+/* Very simple array based event handler. It's O(N) for ow,
+ but N is very small here, so the simplicity of creating a method table 
+ is more important. */
+typedef struct WidgetAction_ WidgetAction;
+
+typedef int WidgetHandler (Widget * console, void * data);
+
+struct WidgetAction_ { 
+  int              type;
+  WidgetHandler  * handler;
+};
+
+static WidgetAction console_actions[] = {
+  { ALLEGRO_EVENT_KEY_DOWN  , console_handle_ok      }, 
+  { ALLEGRO_EVENT_KEY_UP    , console_handle_ok      },
+  { ALLEGRO_EVENT_KEY_CHAR  , console_handle_keychar },
+  { ALLEGRO_EVENT_MOUSE_AXES, console_handle_mouseaxes },
+  { -1, NULL }
+};
+
+
+int widgetactions_handle(WidgetAction * actions, int type,
+                         Widget * widget, void * data) {
+  while((actions->type != -1) && (actions->handler != NULL)) {
+    if (actions->type == type) {
+      return actions->handler(widget, data);
+    }
+    actions++;
+  }
+  return WIDGET_HANDLE_IGNORE;
+} 
 
 
 
@@ -569,35 +600,6 @@ int console_handle_ok(Widget * widget, void * data) {
   return WIDGET_HANDLE_OK;
 }
 
-typedef struct WidgetAction_ WidgetAction;
-
-typedef int WidgetHandler (Widget * console, void * data);
-
-struct WidgetAction_ { 
-  int              type;
-  WidgetHandler  * handler;
-};
-
-static WidgetAction console_actions[] = {
-  { ALLEGRO_EVENT_KEY_DOWN  , console_handle_ok      }, 
-  { ALLEGRO_EVENT_KEY_UP    , console_handle_ok      },
-  { ALLEGRO_EVENT_KEY_CHAR  , console_handle_keychar },
-  { ALLEGRO_EVENT_MOUSE_AXES, console_handle_mouseaxes },
-  { -1, NULL }
-};
-
-
-
-int widgetactions_handle(WidgetAction * actions, int type,
-                         Widget * widget, void * data) {
-  while((actions->type != -1) && (actions->handler != NULL)) {
-    if (actions->type == type) {
-      return actions->handler(widget, data);
-    }
-    actions++;
-  }
-  return WIDGET_HANDLE_IGNORE;
-} 
 
 
 /** Let the console handle allegro events. Returns 0 if event was consumed,
