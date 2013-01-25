@@ -296,12 +296,6 @@ int console_active (Console * self );
 
 int console_scroll (Console * self , int direction );
 
-int console_handle_keychar (Console * self , ALLEGRO_EVENT * event );
-
-int console_handle_mouseaxes (Console * self , ALLEGRO_EVENT * event );
-
-int console_handle (Widget * widget , ALLEGRO_EVENT * event );
-
 void * console_done (void * widget );
 
 void * console_free (void * widget );
