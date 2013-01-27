@@ -4,6 +4,7 @@
 set(ERUTA_SRC_FILES
   src/rebox.c
   src/area.c
+  src/bad.c
   src/bxml.c
   src/camera.c
   src/ch.c
@@ -25,6 +26,7 @@ set(ERUTA_SRC_FILES
   src/react.c
   src/rebl.c
   src/rh.c  
+  src/scegra.c
   src/silut.c
   src/sound.c
   src/sprite.c

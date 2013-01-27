@@ -7,6 +7,47 @@
 #include "toruby.h"
 #include "rh.h"
 #include "state.h"
+#include "image.h"
+
+/**
+* helper macros 
+*/
+
+#define RH_WRAP(RUBY, TYPE, OBJECT)                         \
+mrb_obj_value(Data_Wrap_Struct(RUBY,                        \
+              RUBY->object_class, &toruby_##TYPE, OBJECT));
+
+
+void tr_Font_free(mrb_state * state, void * ptr) {
+  printf("Freeing font %p\n", ptr);
+  font_free((Font*)ptr);
+}
+
+struct mrb_data_type toruby_Font_type = { "Font", tr_Font_free };
+
+/*
+mrb_value toruby_Font(mrb_state* mrb, mrb_value sel, mrb_value rname) {
+  Fonr * font = RSTRING(name);
+}
+*/
+
+void toruby_Path_free(mrb_state * state, void * ptr) {
+  printf("Freeing path %p\n", ptr);
+  al_destroy_path((Path*)ptr);
+}
+
+struct mrb_data_type toruby_Path = { "Path", toruby_Path_free };
+
+/* gets a data path based on a vpath. */
+mrb_value tr_Path(Ruby * ruby, mrb_value self) {
+  ALLEGRO_PATH * path = NULL;
+  const char * vpath = NULL; size_t vlen = 0; 
+  mrb_get_args(ruby, "s", &vpath, &vlen);
+  printf("Making path for : %s, %d", vpath, vlen);
+  path = fifi_data_vpath(vpath);
+  if(!path) return mrb_nil_value();
+  return mrb_obj_value(Data_Wrap_Struct(ruby, ruby->object_class, &toruby_Path, path));
+}
 
 /* Test method. */
 static mrb_value tr_test(mrb_state * mrb, mrb_value self) {
