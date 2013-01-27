@@ -55,6 +55,37 @@
 */
 
 
+/* Very simple array based event handler. It's O(N) for ow,
+ but N is very small here, so the simplicity of creating a method table 
+ is more important. */
+typedef struct WidgetAction_ WidgetAction;
+
+typedef int WidgetHandler (Widget * console, void * data);
+
+struct WidgetAction_ { 
+  int              type;
+  WidgetHandler  * handler;
+};
+
+static WidgetAction console_actions[] = {
+  { ALLEGRO_EVENT_KEY_DOWN  , console_handle_ok      }, 
+  { ALLEGRO_EVENT_KEY_UP    , console_handle_ok      },
+  { ALLEGRO_EVENT_KEY_CHAR  , console_handle_keychar },
+  { ALLEGRO_EVENT_MOUSE_AXES, console_handle_mouseaxes },
+  { -1, NULL }
+};
+
+
+int widgetactions_handle(WidgetAction * actions, int type,
+                         Widget * widget, void * data) {
+  while((actions->type != -1) && (actions->handler != NULL)) {
+    if (actions->type == type) {
+      return actions->handler(widget, data);
+    }
+    actions++;
+  }
+  return WIDGET_HANDLE_IGNORE;
+} 
 
 
 
@@ -511,9 +542,14 @@ int console_scroll(Console * self, int direction) {
   return WIDGET_HANDLE_OK;
 }
 
+Console * widget_console(Widget * self) { 
+  return (Console *) self;
+}
 
 /* Key input event handler for console. */
-int console_handle_keychar(Console * self, ALLEGRO_EVENT * event) { 
+int console_handle_keychar(Widget * widget, void * data) { 
+  Console * self        = widget_console(widget);
+  ALLEGRO_EVENT * event = (ALLEGRO_EVENT *) data;
   int ch = event->keyboard.unichar;
   int kc = event->keyboard.keycode;
   switch(kc) {
@@ -550,8 +586,9 @@ int console_handle_keychar(Console * self, ALLEGRO_EVENT * event) {
 
 
 /* Mouse axe event handler for console */
-int console_handle_mouseaxes(Console * self, ALLEGRO_EVENT * event) { 
-  int z = event->mouse.dz;
+int console_handle_mouseaxes(Widget * widget, void * data) { 
+  Console * self        = widget_console(widget);
+  ALLEGRO_EVENT * event = (ALLEGRO_EVENT *) data;  int z = event->mouse.dz;
   // only capture mouse scroll wheel...
   if(z == 0) return WIDGET_HANDLE_IGNORE;
   if(z < 0) return console_scroll(self, -1);
@@ -559,28 +596,19 @@ int console_handle_mouseaxes(Console * self, ALLEGRO_EVENT * event) {
   return WIDGET_HANDLE_OK;
 }
 
+int console_handle_ok(Widget * widget, void * data) { 
+  return WIDGET_HANDLE_OK;
+}
+
+
 
 /** Let the console handle allegro events. Returns 0 if event was consumed,
 postoive if not, and negative on error. */
 
 int console_handle(Widget * widget, ALLEGRO_EVENT * event) { 
-  Console * self = (Console *) widget;
   if(!widget) return WIDGET_HANDLE_ERROR;
   if(!widget_active(widget)) return WIDGET_HANDLE_IGNORE;
-  
-  
-  switch(event->type) {
-    case ALLEGRO_EVENT_KEY_DOWN:
-      return WIDGET_HANDLE_OK;
-    case ALLEGRO_EVENT_KEY_UP:
-      return WIDGET_HANDLE_OK;
-    case ALLEGRO_EVENT_KEY_CHAR:
-      return console_handle_keychar(self, event);
-    case ALLEGRO_EVENT_MOUSE_AXES:
-      return console_handle_mouseaxes(self, event);
-  }
-  
-  return WIDGET_HANDLE_IGNORE;
+  return widgetactions_handle(console_actions, event->type, widget, event);
 }
 
 /* Global console method table. */
