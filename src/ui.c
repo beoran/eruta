@@ -7,7 +7,7 @@
 * UI handles the user interface of Eruta.
 * 
 * There is only one top-level widget, however, every widget can contain
-* any amout of child widgets. Widgets that are children of the same parent
+* any amout of child widgets. BBWidgets that are children of the same parent
 * widget are said to be on the same level.
 *
 *
@@ -35,12 +35,12 @@
 * The margin of a widget determines how closely that widget may be packed
 * to it's sibling widgets.
 *
-* The work in UI is divided between the UI and the Widget. The UI struct
+* The work in UI is divided between the UI and the BBWidget. The UI struct
 * handles everything that depends on and/or may influence several widgets at
 * once, such as event dispatching but also setting the focus, determining which
 * widget is being hovered, or dragged, etc. The latter fuctions change the state
 * of several widgets, so they are handled on the level of the system.
-* The Widget class and it's child classes handle the individual state and
+* The BBWidget class and it's child classes handle the individual state and
 * actions of the various widgets individually.
 *
 */
@@ -54,7 +54,7 @@
 /** UI manages the graphical user interface and menus. */
 struct UI_ {
   /* Ths UI is a widget itself. How meta that is! :) */
-  Widget widget;
+  BBWidget widget;
   /* ID generator. */
   int last_id; 
   /* The widgets in the UI, in a dynamic array. */

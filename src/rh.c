@@ -133,15 +133,15 @@ int rh_errorreporter_file(int status, const char * msg, void * extra) {
 int rh_errorreporter_console(int status, const char * msg, void * extra) {
   char buf[80]; 
   snprintf(buf, 80, "Error %d:", status);
-  console_puts((Console *)extra, buf);
-  console_puts((Console *)extra, msg);
+  bbconsole_puts((BBConsole *)extra, buf);
+  bbconsole_puts((BBConsole *)extra, msg);
   return 0;
 }
 
 
 /** Runs a ruby string in the console, logging results and errors back to it.
 */
-int rh_dostring_console(Console * console, char * command, void * extra) {
+int rh_dostring_console(BBConsole * console, char * command, void * extra) {
   Ruby * ruby = (Ruby *) extra;
   return rh_dostringreport(ruby, command, rh_errorreporter_console, console);
 }

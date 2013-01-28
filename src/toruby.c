@@ -60,7 +60,7 @@ static mrb_value tr_test(mrb_state * mrb, mrb_value self) {
 static mrb_value tr_log(mrb_state * mrb, mrb_value self) {
   
   State   * state   = NULL;
-  Console * console = NULL;
+  BBConsole * console = NULL;
   state             = state_get();
   if (state) {
     console = state_console(state);
@@ -70,7 +70,7 @@ static mrb_value tr_log(mrb_state * mrb, mrb_value self) {
   mrb_value text    = mrb_nil_value();
   mrb_get_args(mrb, "S", &text);
   if(console) {
-    console_puts(console, RSTRING_PTR(text));
+    bbconsole_puts(console, RSTRING_PTR(text));
   } else {
     puts(RSTRING_PTR(text));
   }

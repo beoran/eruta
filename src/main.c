@@ -82,10 +82,10 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
       f.x = +100;
     break;
     case ALLEGRO_KEY_F1:
-      console_active_(state_console(state), TRUE);
+      bbconsole_active_(state_console(state), TRUE);
     break;
     case ALLEGRO_KEY_F2:
-      console_active_(state_console(state), FALSE);
+      bbconsole_active_(state_console(state), FALSE);
     break;  
     case ALLEGRO_KEY_ESCAPE:
     case ALLEGRO_KEY_ENTER:
@@ -216,7 +216,7 @@ int real_main(void) {
   // Try to load the main lua file.
   // lh_dofile_stderr(state_lua(state), "main.lua");
   // Call the on_start function.
-  // lh_dofunction_myconsole_args(state_lua(state), "on_start", "s", "a string argument");
+  // lh_dofunction_mybbconsole_args(state_lua(state), "on_start", "s", "a string argument");
 
     
   while(state_busy(state)) { 
@@ -237,7 +237,7 @@ int real_main(void) {
       // camera_speed_(camera, mv);
       camera_update(camera);
       // call lua update callback 
-      // lh_dofunction_myconsole_args(state_lua(state), "on_update", "s", "a string argument");
+      // lh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
       
       
       if(map) tilemap_draw(map, camera);
@@ -254,7 +254,7 @@ int real_main(void) {
       }
 
       // call lua drawing callback
-      // lh_dofunction_myconsole_args(state_lua(state), "on_draw", "s", "a string argument");
+      // lh_dofunction_mybbconsole_args(state_lua(state), "on_draw", "s", "a string argument");
       
       /* lh_callglobalstderr_args(state_lua(state), "on_draw", "s", "a string 
        argument"); */
@@ -269,7 +269,7 @@ int real_main(void) {
         // thing_resetforces(actor_data);
       }
       // draw the console (will autohide if not active).
-      widget_draw((Widget *)state_console(state));
+      bbwidget_draw((BBWidget *)state_console(state));
    
       al_flip_display();
    }

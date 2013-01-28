@@ -47,7 +47,7 @@ ALLEGRO_COLOR state_color_f (State * state , int color , float r , float g , flo
 
 Ruby * state_ruby (State * state );
 
-Console * state_console (State * state );
+BBConsole * state_console (State * state );
 
 int state_initjoystick (State * self );
 

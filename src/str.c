@@ -1,7 +1,8 @@
 #include <ctype.h>
 #include "eruta.h"
 #include "str.h"
-
+#include "bad.h"
+#include "mem.h"
 
 /* str contains utf-8 enables strings. It's currently nothing 
 but a thin layer over Allegro's string library since 
@@ -167,4 +168,76 @@ int cstr_simplematch(const char * expression, int ch) {
   }
   // can't reach here    
 }
+
+
+
+
+/* An ustrlist is a list of UTF-8 enabled strings.  */
+typedef struct USTRListNode_  USTRListNode;
+typedef struct USTRList_      USTRList;
+
+struct USTRListNode_ {
+  USTR    * ustr;
+  BadList   list;  
+};
+
+struct USTRList_ {
+  USTRListNode * head;
+  USTRListNode * tail;
+  int size;
+};
+
+USTRListNode * ustrlistnode_alloc(void) {
+  return STRUCT_ALLOC(USTRListNode);
+}
+
+USTRListNode * ustrlistnode_init(USTRListNode * self, USTR * ustr) {
+  if(!self) return NULL;
+  self->ustr = al_ustr_dup(ustr);
+  badlist_initempty(&self->list);
+  return self;
+}
+
+USTRListNode * ustrlistnode_done(USTRListNode * self) {
+  if(!self) return NULL;
+  al_ustr_free(self->ustr);
+  badlist_initempty(&self->list);
+  return self;
+}
+
+USTRListNode * ustrlistnode_free(USTRListNode * self) {
+  if(!self) return NULL;
+  return mem_free(ustrlistnode_free(self));
+}
+
+
+USTRList * ustrlist_alloc(void) {
+  USTRList * self;
+  self = STRUCT_ALLOC(USTRList);
+  return self;
+}
+
+USTRList * ustrlist_init(USTRList * self) {
+  if (!self) return self;
+  self->head = NULL;
+  self->tail = NULL;
+  return self;
+}
+
+USTRList * ustrlist_done(USTRList * self) {
+  USTRListNode * aid;
+  if(!self) return NULL;
+  // for(aid = self->head; 
+  return self;
+}
+
+
+
+
+
+
+
+
+
+
 
