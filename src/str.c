@@ -217,9 +217,19 @@ USTRList * ustrlist_alloc(void) {
   return self;
 }
 
+USTRList * ustrlist_init(USTRList * self) {
+  if (!self) return self;
+  self->head = NULL;
+  self->tail = NULL;
+  return self;
+}
 
-
-
+USTRList * ustrlist_done(USTRList * self) {
+  USTRListNode * aid;
+  if(!self) return NULL;
+  // for(aid = self->head; 
+  return self;
+}
 
 
 
