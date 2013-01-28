@@ -170,8 +170,6 @@ int cstr_simplematch(const char * expression, int ch) {
 }
 
 
-
-
 /* An ustrlist is a list of UTF-8 enabled strings.  */
 typedef struct USTRListNode_  USTRListNode;
 typedef struct USTRList_      USTRList;
@@ -182,8 +180,8 @@ struct USTRListNode_ {
 };
 
 struct USTRList_ {
-  USTRListNode * head;
-  USTRListNode * tail;
+  BadList * head;
+  BadList * tail;
   int size;
 };
 
@@ -205,6 +203,11 @@ USTRListNode * ustrlistnode_done(USTRListNode * self) {
   return self;
 }
 
+USTRListNode * badlist_ustrlistnode(BadList * elem) {
+  if(!elem) return NULL;
+  return bad_container(elem, USTRListNode, list);
+}
+
 USTRListNode * ustrlistnode_free(USTRListNode * self) {
   if(!self) return NULL;
   return mem_free(ustrlistnode_free(self));
@@ -221,16 +224,40 @@ USTRList * ustrlist_init(USTRList * self) {
   if (!self) return self;
   self->head = NULL;
   self->tail = NULL;
+  self->size = 0;
   return self;
 }
 
 USTRList * ustrlist_done(USTRList * self) {
-  USTRListNode * aid;
+  BadList      * elem;
+  USTRListNode * node;
   if(!self) return NULL;
-  // for(aid = self->head; 
+  elem = self->head; 
+  while(elem) {
+    node = badlist_ustrlistnode(elem);
+    elem = badlist_next(elem); 
+    // here, elem is already pointing to next so node is safe to free
+    ustrlistnode_free(node);
+  }
+  ustrlist_init(self);
   return self;
 }
 
+
+USTRList * ustrlist_free(USTRList * self) {
+  if(!ustrlist_done(self)) return NULL;
+  mem_free(self);
+  return NULL;
+}
+
+USTRList * ustrlist_add(USTRList * self, USTRListNode * node) {
+  if(!self) return NULL;
+  if(!self->head) { 
+    self->head       = &node->list;
+    self->head->next = NULL;
+  }
+
+}
 
 
 

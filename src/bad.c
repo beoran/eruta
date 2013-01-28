@@ -193,14 +193,16 @@ BadList * badlist_unlink(BadList * self) {
 * Appends other after self. 
 *
 * Parameters:
-*   self - BadList to append to
+*   self - BadList to append to. IF NULL, returns other, since that becomes 
+*          the base of the list.
 *   other - BadList to append to self.
 *
 * Returns:
-*   other if all went OK, NULL on error
+*   The new "first" element of the list.
 */
 BadList * badlist_add(BadList * self, BadList * other) {  
-  if(!self || !other) return NULL;
+  if(!self)  return other;
+  if(!other) return self;
   self->next  = other;
   other->prev = self;
   return other;
