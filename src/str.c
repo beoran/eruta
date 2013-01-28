@@ -255,8 +255,12 @@ USTRList * ustrlist_add(USTRList * self, USTRListNode * node) {
   if(!self->head) { 
     self->head       = &node->list;
     self->head->next = NULL;
+  } else {
+    self->tail->next = &node->list;
+    /* XXX  */
   }
-
+  self->tail       = &node->list;
+  return self;
 }
 
 
