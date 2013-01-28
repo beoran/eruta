@@ -99,8 +99,8 @@ React * react_poll(React * self, void * state) {
   // yes an assignment is fine here :)
   while( (event = state_pollnew((State *)state)) ) {
     // React to all incoming events, except if the console catches them.
-    Console * console = state_console(state);
-    if(console_handle((Widget *)console, event) < 1 ) { 
+    BBConsole * console = state_console(state);
+    if(bbconsole_handle((BBWidget *)console, event) < 1 ) { 
       event_free(event); // here we must free the event...
     } else {
       react_react(self, event);

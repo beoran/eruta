@@ -37,7 +37,7 @@ struct State_ {
   Dynar               * modes;
   Camera              * camera;
   Ruby                * ruby;
-  Console             * console; 
+  BBConsole             * console; 
   // The ruby and error message GUI console.
 };
 
@@ -81,7 +81,7 @@ void state_free(State * self) {
   
   dynar_free(self->modes);
   rh_free(self->ruby);
-  console_free((Widget *)self->console);
+  bbconsole_free((BBWidget *)self->console, NULL);
   self->console = NULL; // disable console imediately.
   font_free(self->font);
   al_destroy_display(self->display);
@@ -127,7 +127,7 @@ Ruby * state_ruby(State * state) {
 }
 
 /** Gets console intepreter for state. */
-Console * state_console(State * state) {
+BBConsole * state_console(State * state) {
   return state->console;
 }
 
@@ -281,15 +281,15 @@ State * state_init(State * self, BOOL fullscreen) {
     Style   style = { color_rgb(255,255,255), color_rgba(64,0,0, 191), 
                       self->font, NULL};
     Rebox  bounds = { {0, 0,} , {640, 480} }; 
-    self->console = console_new(1, bounds, style);
+    self->console = bbconsole_new(1, bounds, style);
     if(!self->console) {
       return state_errmsg_(self, "Out of memory when allocating console.");
     }
   }
-  console_puts(self->console, "Console started ok!");
+  bbconsole_puts(self->console, "BBConsole started ok!");
   // set up ruby callback for console commands 
-  console_command_(self->console, 
-                   (ConsoleCommand *)rh_dostring_console, self->ruby);
+  bbconsole_command_(self->console, 
+                   (BBConsoleCommand *)rh_dostring_console, self->ruby);
     
   return self;
 }
