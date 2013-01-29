@@ -452,6 +452,10 @@ int bbconsole_addstr(BBConsole * self, char * str) {
   if(!self) return -1;
   storestr = ustr_new(str);
   if(!storestr) return -2;
+  if(!ustrlist_addustr(&self->text, storestr)) { 
+    ustr_free(storestr);
+    return -3;
+  }  
   if(!lilis_addnew(self->lines, storestr)) { 
     ustr_free(storestr);
     return -3;
@@ -509,18 +513,27 @@ int bbconsole_draw(BBWidget * widget, void * data) {
   y           = bbwidget_y(widget) -  5;
   linehigh    = font_lineheight(font);
   Lilis * now = self->lines;
+  BadListNode * bnow;
   // skip start lines (to allow scrolling backwards) 
   for (skip = self->start; now && (skip > 0); skip --) {
     now = lilis_next(now); // move to next line.
   }
+  
+  // skip start lines (to allow scrolling backwards) 
+  for (skip = self->start; bnow && (skip > 0); skip --) {
+    bnow = badlistnode_next(badlist_head(&self->text)); // move to next line.
+  }
+  
   for (index = high-linehigh; index > 0; index -= linehigh) {
     USTR * textstr;
     if(!now) break;
-    textstr = (USTR *) lilis_data(now);
+    textstr =  ustrlistnode_ustr(badlistnode_ustrlistnode(bnow));
+      // (USTR *) lilis_data(now);
     if(textstr) {
       font_drawstr(font, color, x, y + index, 0, textstr);
     }
     now = lilis_next(now);
+    bnow = badlistnode_next(bnow);
   }
   // draw input string
   font_drawstr(font, color, x, y + high - linehigh, 0, self->input);

@@ -169,6 +169,10 @@ int cstr_simplematch(const char * expression, int ch) {
   // can't reach here    
 }
 
+USTR * ustrlistnode_ustr(USTRListNode * self) {
+  if(!self) return NULL;
+  return self->ustr;
+}
 
 
 USTRListNode * ustrlistnode_alloc(void) {
