@@ -23,10 +23,35 @@ TEST_FUNC(str) {
   TEST_DONE();
 }
 
+TEST_FUNC(strlist) {
+  int index;
+  BadListNode  * bnode;
+  USTRListNode * node;
+  
+  USTRList list;
+  /** Test the cstr_simplematch function */
+  TEST_NOTNULL(ustrlist_init(&list));
+  
+  char * data[] = { "one", "two", "three", "four" };
+  for(index = 0; index < 4; index ++) {
+    TEST_NOTNULL(ustrlist_addcstr(&list, data[index]));
+  }
+  for(bnode = ustrlist_head(&list); bnode; bnode = badlistnode_next(bnode)) {
+    node = badlistnode_ustrlistnode(bnode);
+    printf("%s", ustr_c(ustrlistnode_ustr(node)));
+  }
+  
+  
+  TEST_NOTNULL(ustrlist_done(&list));
+  TEST_DONE();
+}
+
+
 
 int main(void) {
   TEST_INIT();
   TEST_RUN(str);
+  TEST_RUN(strlist);
   TEST_REPORT();
 }
 

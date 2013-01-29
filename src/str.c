@@ -186,9 +186,21 @@ USTRListNode * ustrlistnode_init(USTRListNode * self, USTR * ustr) {
   return self;
 }
 
+USTRListNode * ustrlistnode_initcstr(USTRListNode * self, char * cstr) {
+  if(!self) return NULL;
+  self->ustr = ustr_new(cstr);
+  badlistnode_initempty(&self->list);
+  return self;
+}
+
 USTRListNode * ustrlistnode_new(USTR * ustr) {
   return ustrlistnode_init(ustrlistnode_alloc(), ustr);
 }
+
+USTRListNode * ustrlistnode_newcstr(char * cstr) {
+  return ustrlistnode_initcstr(ustrlistnode_alloc(), cstr);
+}
+
 
 USTRListNode * ustrlistnode_done(USTRListNode * self) {
   if(!self) return NULL;
@@ -204,7 +216,17 @@ USTRListNode * badlistnode_ustrlistnode(BadListNode * elem) {
 
 USTRListNode * ustrlistnode_free(USTRListNode * self) {
   if(!self) return NULL;
-  return mem_free(ustrlistnode_free(self));
+  return mem_free(ustrlistnode_done(self));
+}
+
+BadListNode * ustrlist_head(USTRList * self) {
+  if(!self) return NULL;
+  return self->head;
+}
+
+BadListNode * ustrlist_tail(USTRList * self) {
+  if(!self) return NULL;
+  return self->tail;
 }
 
 
@@ -265,6 +287,14 @@ USTRListNode * ustrlist_addustr(USTRList * self, USTR * ustr) {
   ustrlist_addnode(self, node);
   return node;
 }
+
+USTRListNode * ustrlist_addcstr(USTRList * self, char * cstr) {
+  USTRListNode * node = ustrlistnode_newcstr(cstr);
+  if(!node) return NULL;
+  ustrlist_addnode(self, node);
+  return node;
+}
+
 
 int ustrlist_size(USTRList * self) {
   return badlist_size(self);

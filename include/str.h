@@ -134,8 +134,12 @@ USTRListNode * ustrlistnode_init(USTRListNode * self, USTR * ustr);
 USTRListNode * ustrlistnode_new(USTR * ustr);
 USTRListNode * ustrlistnode_done(USTRListNode * self);
 USTRListNode * badlistnode_ustrlistnode(BadListNode * elem);
-
 USTRListNode * ustrlistnode_free(USTRListNode * self);
+
+BadListNode * ustrlist_head(USTRList * self);
+BadListNode * ustrlist_tail(USTRList * self);
+
+
 USTRList * ustrlist_alloc(void);
 USTRList * ustrlist_init(USTRList * self);
 USTRList * ustrlist_new();
@@ -144,8 +148,8 @@ USTRList * ustrlist_free(USTRList * self);
 USTRList * ustrlist_addnode(USTRList * self, USTRListNode * node);
 USTRList * ustrlist_removenode(USTRList * self, USTRListNode * node);
 
-
 USTRListNode * ustrlist_addustr(USTRList * self, USTR * ustr);
+USTRListNode * ustrlist_addcstr(USTRList * self, char * cstr);
 
 int ustrlist_size(USTRList * self);
 
