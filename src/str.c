@@ -170,20 +170,6 @@ int cstr_simplematch(const char * expression, int ch) {
 }
 
 
-/* An ustrlist is a list of UTF-8 enabled strings.  */
-typedef struct USTRListNode_  USTRListNode;
-typedef struct USTRList_      USTRList;
-
-struct USTRListNode_ {
-  USTR    * ustr;
-  BadList   list;  
-};
-
-struct USTRList_ {
-  BadList * head;
-  BadList * tail;
-  int size;
-};
 
 USTRListNode * ustrlistnode_alloc(void) {
   return STRUCT_ALLOC(USTRListNode);
@@ -192,18 +178,22 @@ USTRListNode * ustrlistnode_alloc(void) {
 USTRListNode * ustrlistnode_init(USTRListNode * self, USTR * ustr) {
   if(!self) return NULL;
   self->ustr = al_ustr_dup(ustr);
-  badlist_initempty(&self->list);
+  badlistnode_initempty(&self->list);
   return self;
+}
+
+USTRListNode * ustrlistnode_new(USTR * ustr) {
+  return ustrlistnode_init(ustrlistnode_alloc(), ustr);
 }
 
 USTRListNode * ustrlistnode_done(USTRListNode * self) {
   if(!self) return NULL;
   al_ustr_free(self->ustr);
-  badlist_initempty(&self->list);
+  badlistnode_initempty(&self->list);
   return self;
 }
 
-USTRListNode * badlist_ustrlistnode(BadList * elem) {
+USTRListNode * badlistnode_ustrlistnode(BadListNode * elem) {
   if(!elem) return NULL;
   return bad_container(elem, USTRListNode, list);
 }
@@ -222,20 +212,22 @@ USTRList * ustrlist_alloc(void) {
 
 USTRList * ustrlist_init(USTRList * self) {
   if (!self) return self;
-  self->head = NULL;
-  self->tail = NULL;
-  self->size = 0;
+  badlist_init(self);
   return self;
 }
 
+USTRList * ustrlist_new() {
+  return ustrlist_init(ustrlist_alloc());
+}
+
 USTRList * ustrlist_done(USTRList * self) {
-  BadList      * elem;
+  BadListNode      * elem;
   USTRListNode * node;
   if(!self) return NULL;
-  elem = self->head; 
+  elem = badlist_head(self); 
   while(elem) {
-    node = badlist_ustrlistnode(elem);
-    elem = badlist_next(elem); 
+    node = badlistnode_ustrlistnode(elem);
+    elem = badlistnode_next(elem); 
     // here, elem is already pointing to next so node is safe to free
     ustrlistnode_free(node);
   }
@@ -250,18 +242,30 @@ USTRList * ustrlist_free(USTRList * self) {
   return NULL;
 }
 
-USTRList * ustrlist_add(USTRList * self, USTRListNode * node) {
+USTRList * ustrlist_addnode(USTRList * self, USTRListNode * node) {
   if(!self) return NULL;
-  if(!self->head) { 
-    self->head       = &node->list;
-    self->head->next = NULL;
-  } else {
-    self->tail->next = &node->list;
-    /* XXX  */
-  }
-  self->tail       = &node->list;
+  badlist_add(self, &node->list);
   return self;
 }
+
+USTRList * ustrlist_removenode(USTRList * self, USTRListNode * node) {
+  if(!self) return NULL;
+  badlist_remove(self, &node->list);
+  return self;
+}
+
+
+USTRListNode * ustrlist_addustr(USTRList * self, USTR * ustr) {
+  USTRListNode * node = ustrlistnode_new(ustr);
+  if(!node) return NULL;
+  ustrlist_addnode(self, node);
+  return node;
+}
+
+int ustrlist_size(USTRList * self) {
+  return badlist_size(self);
+}
+
 
 
 

@@ -407,6 +407,7 @@ struct BBWidgetChoose_ {
 /* A console is a console for command-line interaction and error display. When it's active it captures all input (as long as it's active) */
 struct BBConsole_ {
   BBWidget  widget;
+  USTRList  text;
   Lilis * lines;
   Lilis * last;
   int     count;
@@ -629,7 +630,7 @@ int bbconsole_handle(BBWidget * widget, ALLEGRO_EVENT * event) {
 }
 
 
-/** Cleans up a console */
+/** Cleans up a console. */
 int bbconsole_done(BBWidget * widget, void * data) {
   BBConsole * self = bbwidget_console(widget);
   Lilis * aid;
@@ -641,6 +642,7 @@ int bbconsole_done(BBWidget * widget, void * data) {
   self->buf     = mem_free(self->buf);
   ustr_free(self->input);
   self->input   = NULL;
+  ustrlist_done(&self->text);
   return BBWIDGET_HANDLE_OK;
 }
 
@@ -666,6 +668,7 @@ BBConsole * bbconsole_initall(BBConsole * self, int id, Rebox bounds, Style styl
   if(!bbwidget_initall(&self->widget, id, bbconsole_actions, bounds, style)) { 
     return NULL;
   }
+  ustrlist_init(&self->text);
   self->lines = lilis_newempty();
   if(!self->lines) return NULL;
   self->last  = lilis_addnew(self->lines, NULL);

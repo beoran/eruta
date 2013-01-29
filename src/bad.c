@@ -81,34 +81,34 @@ float bad_clampf(float value , float min, float max) {
 
 
 /**
-* Struct: BadList
+* Struct: BadListNode
 *
-* BadList is an intrusive doubly linked list.
+* BadListNode is an intrusive doubly linked list.
 * These lists do not contain any pointers to the data member that is part of 
 * the list, rather, you use them by including them into the struct that 
 * needs to be included in the intrusive linked list, hence the "intrusive".
 * Use the macro bad_container to get the containing struct back.
 *
-* For example : struct Foo { int value ; BadList list } ...
-* struct Foo foo, bar; badlist_init(&foo.list); badlist_init(&bar.list);
-* badlist_add(&foo.list, &bar.list);
+* For example : struct Foo { int value ; BadListNode list } ...
+* struct Foo foo, bar; badlistnode_init(&foo.list); badlistnode_init(&bar.list);
+* badlistnode_add(&foo.list, &bar.list);
 * 
 */
 
 /**
-* Function: badlist_initall
+* Function: badlistnode_initall
 *
 * Fully initializes a non-NULL intrusive linked list.
 *
 * Parameters:
-*   self - BadList to initialize
-*   next - Next BadList list node to link to or NULL
-*   prev - Previous BadList list node to link to or NULL
+*   self - BadListNode to initialize
+*   next - Next BadListNode list node to link to or NULL
+*   prev - Previous BadListNode list node to link to or NULL
 *
 * Returns: 
 *   self
 */
-BadList * badlist_initall(BadList * self, BadList * next, BadList * prev) {
+BadListNode * badlistnode_initall(BadListNode * self, BadListNode * next, BadListNode * prev) {
   if (!self) return NULL;
   self->next = next;
   self->prev = prev;
@@ -116,56 +116,56 @@ BadList * badlist_initall(BadList * self, BadList * next, BadList * prev) {
 }
 
 /**
-* Function: badlist_init
+* Function: badlistnode_init
 *
 * Initializes the intrusive linked list. Next and prev are set to NULL.
 *
 * Parameters:
-*   self - BadList to initialize
+*   self - BadListNode to initialize
 *
 * Returns: 
 *   self
 */
-BadList * badlist_init(BadList * self) {
-  return badlist_initall(self, NULL, NULL);
+BadListNode * badlistnode_init(BadListNode * self) {
+  return badlistnode_initall(self, NULL, NULL);
 }
 
 
 /**
-* Function: badlist_initempty
+* Function: badlistnode_initempty
 *
 * Initializes the intrusive linked list to be empty. Next is set to self
-* to signal this to badlist_isempty.
+* to signal this to badlistnode_isempty.
 *
 * Parameters:
-*   self - BadList to initialize as empty
+*   self - BadListNode to initialize as empty
 *
 * Returns: 
 *   self
 */
-BadList * badlist_initempty(BadList * self) {
-  return badlist_initall(self, self, NULL);
+BadListNode * badlistnode_initempty(BadListNode * self) {
+  return badlistnode_initall(self, self, NULL);
 }
 
 /**
-* Function: badlist_isempty
+* Function: badlistnode_isempty
 *
 * Returns true if the list is empty, false if not.
 * 
 * Parameters:
-*   self - BadList to check.
+*   self - BadListNode to check.
 *
 * Returns: 
 *   TRUE if empty, FALSE if not. A NULL list is also empty.
 */
-bool badlist_isempty(BadList * self) {
+bool badlistnode_isempty(BadListNode * self) {
   if(!self) return TRUE;  
-  return badlist_next(self) == self;
+  return badlistnode_next(self) == self;
 }
 
 
 /** 
-* Function: badlist_unlink
+* Function: badlistnode_unlink
 *
 * Unlinks self from the list it is part of. 
 * Does NOT clean up any data asssociated with the container of the intrusive 
@@ -173,12 +173,12 @@ bool badlist_isempty(BadList * self) {
 * of the intrusive list. 
 *
 * Parameters:
-*   self - BadList to remove from whole of list. May be NULL.
+*   self - BadListNode to remove from whole of list. May be NULL.
 *
 * Returns: 
 *   self
 */
-BadList * badlist_unlink(BadList * self) {  
+BadListNode * badlistnode_unlink(BadListNode * self) {  
   if(!self) return NULL;
   if(self->prev) { self->prev->next = self->next; }
   if(self->next) { self->next->prev = self->prev; }
@@ -188,19 +188,19 @@ BadList * badlist_unlink(BadList * self) {
 }
 
 /** 
-* Function: badlist_add
+* Function: badlistnode_add
 *
 * Appends other after self. 
 *
 * Parameters:
-*   self - BadList to append to. IF NULL, returns other, since that becomes 
+*   self - BadListNode to append to. IF NULL, returns other, since that becomes 
 *          the base of the list.
-*   other - BadList to append to self.
+*   other - BadListNode to append to self.
 *
 * Returns:
 *   The new "first" element of the list.
 */
-BadList * badlist_add(BadList * self, BadList * other) {  
+BadListNode * badlistnode_add(BadListNode * self, BadListNode * other) {  
   if(!self)  return other;
   if(!other) return self;
   self->next  = other;
@@ -209,50 +209,50 @@ BadList * badlist_add(BadList * self, BadList * other) {
 }
 
 /** 
-* Function: badlist_next
+* Function: badlistnode_next
 *
 * Returns the next element in the list
 *
 * Parameters:
-*   self - BadList
+*   self - BadListNode
 *
 * Returns: 
 *   the next element in the list, or NULL if no next item. 
 */
-BadList * badlist_next(BadList * self) {
+BadListNode * badlistnode_next(BadListNode * self) {
   if(!self) return NULL;
   return self->next;
 }
 
 /** 
-* Function: badlist_prev
+* Function: badlistnode_prev
 *
 * Returns the previous element in the list
 *
 * Parameters:
-*   self - BadList
+*   self - BadListNode
 *
 * Returns: 
 *   the next element in the list, or NULL if no next item. 
 */
-BadList * badlist_prev(BadList * self) {
+BadListNode * badlistnode_prev(BadListNode * self) {
   if(!self) return NULL;
   return self->prev;
 }
 
 /** 
-* Function: badlist_first
+* Function: badlistnode_first
 *
 * Returns the first element in the list, by dumb iteration.
 *
 * Parameters:
-*   self - BadList
+*   self - BadListNode
 *
 * Returns: 
 *   the first link in the list, or NULL if self is NULL. 
 */
-BadList * badlist_first(BadList * self) {
-  BadList * aid = self; 
+BadListNode * badlistnode_first(BadListNode * self) {
+  BadListNode * aid = self; 
   if(!aid) return NULL;
   while (aid->prev) {
     aid = aid->prev;
@@ -261,18 +261,18 @@ BadList * badlist_first(BadList * self) {
 }
 
 /** 
-* Function: badlist_last
+* Function: badlistnode_last
 *
 * Returns the last element in the list, by dumb iteration.
 *
 * Parameters:
-*   self - BadList
+*   self - BadListNode
 *
 * Returns: 
 *   the last link in the list, or NULL if self is NULL. 
 */
-BadList * badlist_last(BadList * self) {
-  BadList * aid = self; 
+BadListNode * badlistnode_last(BadListNode * self) {
+  BadListNode * aid = self; 
   if(!aid) return NULL;
   while (aid->next) {
     aid = aid->next;
@@ -281,83 +281,83 @@ BadList * badlist_last(BadList * self) {
 }
 
 /** 
-* Function: badlist_push
+* Function: badlistnode_push
 *
 * Appends other to the end of the list by dumb iteration.
 *
 * Parameters:
-*   self - BadList
+*   self - BadListNode
 *
 * Returns: 
 *   other, or NULL if self or other is NULL. 
 */
-BadList * badlist_push(BadList * self, BadList * other) {  
-  BadList * aid;
-  aid = badlist_last(self);
-  return badlist_add(aid, other);
+BadListNode * badlistnode_push(BadListNode * self, BadListNode * other) {  
+  BadListNode * aid;
+  aid = badlistnode_last(self);
+  return badlistnode_add(aid, other);
 }
 
 
 /** 
-* Function: badlist_unshift 
+* Function: badlistnode_unshift 
 *                
 * Prepends other to the beginning of the list by dumb iteration.
 *
 * Parameters:
-*   self - BadList
+*   self - BadListNode
 *
 * Returns: 
 *   other, or NULL if self or other is NULL. Other is now also the new 
 *   beginning of the list.
 */
-BadList * badlist_unshift(BadList * self, BadList * other) {  
-  BadList * aid;
-  aid = badlist_first(self);
-  badlist_add(other, aid);
+BadListNode * badlistnode_unshift(BadListNode * self, BadListNode * other) {  
+  BadListNode * aid;
+  aid = badlistnode_first(self);
+  badlistnode_add(other, aid);
   return other;
 }
 
 
 /** 
-* Function: badlist_shift
+* Function: badlistnode_shift
 *
 * Removes the first element from the list by dumb iteration.
 *
 * Parameters:
-*   self - BadList
+*   self - BadListNode
 *
 * Returns: 
 *   list node that was removed, or NULL if self is NULL. 
 */
-BadList * 
-badlist_shift(BadList * self) {  
-  BadList * aid;
-  aid = badlist_first(self);
-  return badlist_unlink(aid);
+BadListNode * 
+badlistnode_shift(BadListNode * self) {  
+  BadListNode * aid;
+  aid = badlistnode_first(self);
+  return badlistnode_unlink(aid);
 }
 
 
 /** 
-* Function: badlist_pop
+* Function: badlistnode_pop
 *
 * Removes the last element from the list by dumb iteration.
 *
 * Parameters:
-*   self - BadList
+*   self - BadListNode
 *
 * Returns: 
 *   list node that was removed, or NULL if self is NULL. 
 */
-BadList * 
-badlist_pop(BadList * self) {  
-  BadList * aid;
-  aid = badlist_last(self);
-  return badlist_unlink(aid);
+BadListNode * 
+badlistnode_pop(BadListNode * self) {  
+  BadListNode * aid;
+  aid = badlistnode_last(self);
+  return badlistnode_unlink(aid);
 }
 
 
 /** 
-* Function: badlist_data
+* Function: badlistnode_data
 * 
 * Parameters:
 * self - list node to get the data of.
@@ -368,7 +368,7 @@ badlist_pop(BadList * self) {
 * 
 */
 void * 
-badlist_data(BadList * self, int offset) {
+badlistnode_data(BadListNode * self, int offset) {
   if(!self) return NULL;
   return (void *)((char *)self - offset);
 }
@@ -376,21 +376,21 @@ badlist_data(BadList * self, int offset) {
 
 
 /** 
-* Function: badlist_search
+* Function: badlistnode_search
 * 
 * Parameters:
 * self   - list node to search.
-* offset - Comparer function, get passed each element of the BadList * and 
+* offset - Comparer function, get passed each element of the BadListNode * and 
 *          tofind, must return 0 if the item searched for is found.
 *
 * Returns:  
-*   the BadList found, or NULL if not found.
+*   the BadListNode found, or NULL if not found.
 * 
 */
-BadList * 
-badlist_search(BadList * self, BadListCompare * compare, BadList * tofind) {
-  BadList * aid;
-  if (badlist_isempty(self)) return NULL;
+BadListNode * 
+badlistnode_search(BadListNode * self, BadListNodeCompare * compare, BadListNode * tofind) {
+  BadListNode * aid;
+  if (badlistnode_isempty(self)) return NULL;
   for(aid = self; aid ; aid = aid->next) {
     int cmp = compare(aid, tofind);
     if (cmp == 0) return aid;
@@ -399,21 +399,21 @@ badlist_search(BadList * self, BadListCompare * compare, BadList * tofind) {
 }
 
 /** 
-* Function: badlist_searchvalue
+* Function: badlistnode_searchvalue
 * 
 * Parameters:
 * self   - list node to search.
-* offset - Comparer function, get passed each element of the BadList * and 
+* offset - Comparer function, get passed each element of the BadListNode * and 
 *          tofind, must return 0 if the item searched for is found.
-* tofind - Arbitrary pointer to a VALUE (not a BadList *).
+* tofind - Arbitrary pointer to a VALUE (not a BadListNode *).
 * Returns:  
-*   the BadList found, or NULL if not found.
+*   the BadListNode found, or NULL if not found.
 * 
 */
-BadList * 
-badlist_searchvalue(BadList * self, BadListSearchValue * compare, void * tofind) {
-  BadList * aid;
-  if (badlist_isempty(self)) return NULL;
+BadListNode * 
+badlistnode_searchvalue(BadListNode * self, BadListNodeSearchValue * compare, void * tofind) {
+  BadListNode * aid;
+  if (badlistnode_isempty(self)) return NULL;
   for(aid = self; aid ; aid = aid->next) {
     int cmp = compare(aid, tofind);
     if (cmp == 0) return aid;
@@ -422,29 +422,29 @@ badlist_searchvalue(BadList * self, BadListSearchValue * compare, void * tofind)
 }
 
 /*
-* Function: badlist_unlink
+* Function: badlistnode_unlink
 *
-* A shorthand for badlist_unlink(badlist_search(self, compare, toremove));
+* A shorthand for badlistnode_unlink(badlistnode_search(self, compare, toremove));
 */
-BadList * 
-badlist_remove(BadList * self, BadListCompare * compare, BadList * toremove) {  
-  return badlist_unlink(badlist_search(self, compare, toremove));
+BadListNode * 
+badlistnode_remove(BadListNode * self, BadListNodeCompare * compare, BadListNode * toremove) {  
+  return badlistnode_unlink(badlistnode_search(self, compare, toremove));
 }
 
 
 /*
- * Function: badlist_each
+ * Function: badlistnode_each
  * 
  * Iterates over all list elements starting from self. 
- * It's safe to unlink the element passed to BadListEach. 
- * The iteration stops if BadListEach returns non-zero.
+ * It's safe to unlink the element passed to BadListNodeEach. 
+ * The iteration stops if BadListNodeEach returns non-zero.
  */
-int badlist_each(BadList * self, BadListEach * each, void * data) {
-  BadList * aid, * next;
+int badlistnode_each(BadListNode * self, BadListNodeEach * each, void * data) {
+  BadListNode * aid, * next;
   int res = 0;
   aid = self;
   while(aid) {
-    next = badlist_next(aid);
+    next = badlistnode_next(aid);
     res  = each(aid, data);
     if(res) return res;
     aid  = next;
@@ -452,6 +452,59 @@ int badlist_each(BadList * self, BadListEach * each, void * data) {
   return res;
 }
 
+
+BadList * badlist_init(BadList * self) {
+  if (!self) return NULL;
+  self->head = NULL;
+  self->tail = NULL;
+  self->size = 0;
+  return self;
+}
+
+BadList * badlist_add(BadList * self, BadListNode * node) {
+  if (!self) return NULL;
+  if (!self->tail) { 
+    self->head       = node;
+    badlistnode_initempty(node);
+  } else {      
+    self->tail->next = node;
+    node->prev       = self->tail;
+    node->next       = NULL;
+  }
+  self->tail         = node;
+  self->size++;
+  return self;
+}
+
+BadList * badlist_remove(BadList * self, BadListNode * node) {
+  if(self->tail == node) {
+    self->tail = node->prev;
+  } 
+  if(self->head == node) {
+    self->head = node->next;
+  } 
+  if (!self->tail) { self->head = NULL; }  
+  if (!self->head) { self->tail = NULL; }
+  badlistnode_unlink(node);
+  self->size--;
+  return self;
+}
+
+
+BadListNode * badlist_head(BadList * self) {
+  if (!self) return NULL;
+  return self->head;
+}
+
+BadListNode * badlist_tail(BadList * self) {
+  if (!self) return NULL;
+  return self->tail;
+}
+
+int badlist_size(BadList * self) {
+  if (!self) return 0;
+  return self->size;
+}
 
 
 BadBitree * 
@@ -1106,13 +1159,13 @@ int badvar_fromarray(BadVar argv[], int argc, ...) {
 /** This may not be very useful since it's hard to define. */
 struct BadVarList_ {
   struct BadVar_ var;
-  struct BadList_    list;
+  struct BadListNode_    list;
 };
 
 struct BadVarList_ *
 badvarlist_init(struct BadVarList_ * self, struct BadVar_ var) {
   self->var = var;
-  badlist_init(&self->list);
+  badlistnode_init(&self->list);
   return self;
 }  
 

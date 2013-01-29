@@ -83,52 +83,78 @@ int bad_compared(double one, double two);
 #define bad_container(PTR, TYPE, MEMBER) \
         ((TYPE *)(((char *)(PTR)) - offsetof(TYPE, MEMBER)))
 
-typedef struct BadList_ BadList;
+typedef struct BadListNode_     BadListNode;
+typedef struct BadList_         BadList;
 
-typedef int BadListCompare(BadList * one, BadList * two);
-typedef int BadListEach(BadList * elem, void * data);
-typedef int BadListSearchValue(BadList * elem, void * data);
 
+typedef int BadListNodeCompare(BadListNode * one, BadListNode * two);
+typedef int BadListNodeEach(BadListNode * elem, void * data);
+typedef int BadListNodeSearchValue(BadListNode * elem, void * data);
+
+
+/* Struct: BadList_
+ * BadListNode is a doubly linked list head. 
+ * 
+ */
 struct BadList_ {
-  struct BadList_ * next;
-  struct BadList_ * prev;
+  struct BadListNode_ * head;
+  struct BadListNode_ * tail;
+  int                   size;
 };
 
-/** Returns the list node for this list element is part of, 
+
+/* Struct: BadListNode_
+ * BadListNode is a doubly linked list node. 
+ * 
+ */
+struct BadListNode_ {
+  struct BadListNode_ * next;
+  struct BadListNode_ * prev;
+};
+
+/* Returns the list node for this list element is part of, 
 for the give list element, and data type*/
-#define badlist_getdata(LIST, TYPE, MEMBER)     \
-        badlist_data(LIST, offsetof(TYPE, MEMBER))
+#define badlistnode_getdata(LIST, TYPE, MEMBER)     \
+        badlistnode_data(LIST, offsetof(TYPE, MEMBER))
 
-/** Shorthand for INLI_DATA(LIST, DATA, list) */
-#define badlist_listdata(LIST, TYPE) inli_getdata(LIST, TYPE, list)
+/* Shorthand for INLI_DATA(LIST, DATA, list) */
+#define badlistnode_listdata(LIST, TYPE) inli_getdata(LIST, TYPE, list)
 
-BadList * badlist_initempty(BadList * self);
-bool   badlist_isempty(BadList * self);
-BadList * badlist_initall(BadList * self , BadList * next , BadList * prev );
-BadList * badlist_init(BadList * self);
-BadList * badlist_unlink(BadList * self);
-BadList * badlist_add(BadList * self , BadList * other );
-BadList * badlist_next(BadList * self );
-BadList * badlist_prev(BadList * self );
-BadList * badlist_first(BadList * self );
-BadList * badlist_last(BadList * self );
-BadList * badlist_push(BadList * self , BadList * other );
-BadList * badlist_unshift(BadList * self , BadList * other );
-BadList * badlist_shift(BadList * self );
-BadList * badlist_pop(BadList * self );
+BadListNode * badlistnode_initempty(BadListNode * self);
+bool   badlistnode_isempty(BadListNode * self);
+BadListNode * badlistnode_initall(BadListNode * self , BadListNode * next , BadListNode * prev );
+BadListNode * badlistnode_init(BadListNode * self);
+BadListNode * badlistnode_unlink(BadListNode * self);
+BadListNode * badlistnode_add(BadListNode * self , BadListNode * other );
+BadListNode * badlistnode_next(BadListNode * self );
+BadListNode * badlistnode_prev(BadListNode * self );
+BadListNode * badlistnode_first(BadListNode * self );
+BadListNode * badlistnode_last(BadListNode * self );
+BadListNode * badlistnode_push(BadListNode * self , BadListNode * other );
+BadListNode * badlistnode_unshift(BadListNode * self , BadListNode * other );
+BadListNode * badlistnode_shift(BadListNode * self );
+BadListNode * badlistnode_pop(BadListNode * self );
 
-void * badlist_data(BadList * self , int offset);
+void * badlistnode_data(BadListNode * self , int offset);
 
-BadList * 
-badlist_search(BadList * self, BadListCompare * compare, BadList * tofind);
+BadListNode * 
+badlistnode_search(BadListNode * self, BadListNodeCompare * compare, BadListNode * tofind);
 
-BadList * 
-badlist_remove(BadList * self, BadListCompare * compare, BadList * toremove);
+BadListNode * 
+badlistnode_remove(BadListNode * self, BadListNodeCompare * compare, BadListNode * toremove);
 
-int badlist_each(BadList * self, BadListEach * each, void * data);
+int badlistnode_each(BadListNode * self, BadListNodeEach * each, void * data);
 
-BadList * 
-badlist_searchvalue(BadList * self, BadListSearchValue * compare, void * tofind);
+BadListNode * 
+badlistnode_searchvalue(BadListNode * self, BadListNodeSearchValue * compare, void * tofind);
+
+
+BadList *       badlist_init(BadList * self);
+BadList *       badlist_add(BadList * self, BadListNode * node);
+BadList *       badlist_remove(BadList * self, BadListNode * node);
+BadListNode *   badlist_head(BadList * self);
+BadListNode *   badlist_tail(BadList * self);
+int             badlist_size(BadList * self);
 
 
 typedef struct BadBitree_ BadBitree;

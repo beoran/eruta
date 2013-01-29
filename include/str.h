@@ -116,4 +116,37 @@ int cstr_simplematch (const char * expression , int ch );
 #endif /* CFH_STR_PROTO */
 
 
+#include "bad.h"
+
+/* An ustrlist is a list of UTF-8 enabled strings.  */
+typedef struct USTRListNode_    USTRListNode;
+typedef        BadList          USTRList; 
+
+
+struct USTRListNode_ {
+  USTR    * ustr;
+  BadListNode   list;  
+};
+
+USTRListNode * ustrlistnode_alloc(void);
+USTRListNode * ustrlistnode_init(USTRListNode * self, USTR * ustr);
+USTRListNode * ustrlistnode_new(USTR * ustr);
+USTRListNode * ustrlistnode_done(USTRListNode * self);
+USTRListNode * badlistnode_ustrlistnode(BadListNode * elem);
+
+USTRListNode * ustrlistnode_free(USTRListNode * self);
+USTRList * ustrlist_alloc(void);
+USTRList * ustrlist_init(USTRList * self);
+USTRList * ustrlist_new();
+USTRList * ustrlist_done(USTRList * self);
+USTRList * ustrlist_free(USTRList * self);
+USTRList * ustrlist_addnode(USTRList * self, USTRListNode * node);
+USTRList * ustrlist_removenode(USTRList * self, USTRListNode * node);
+
+
+USTRListNode * ustrlist_addustr(USTRList * self, USTR * ustr);
+
+int ustrlist_size(USTRList * self);
+
+
 #endif

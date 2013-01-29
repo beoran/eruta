@@ -25,7 +25,7 @@ struct ScegraStyle_ {
 
 struct ScegraPoints_ { 
   Point   point;
-  BadList list;
+  BadListNode list;
 };
 
 struct ScegraNode_ {
@@ -35,7 +35,7 @@ struct ScegraNode_ {
   Rebox           box;
   ScegraStyle     style;
   ScegraPoints  * points;
-  BadList         list;  
+  BadListNode         list;  
   USTR          * text;
   ScegraDraw    * draw;
   ScegraUpdate  * update;
@@ -44,10 +44,10 @@ struct ScegraNode_ {
 
 /* Scene graph struct. */
 struct Scegra_ {
-  BadList * nodes;  
+  BadListNode * nodes;  
 };
 
-ScegraNode * scegranode_frombadlist(BadList * elem) {
+ScegraNode * scegranode_frombadlist(BadListNode * elem) {
   if (!elem) return NULL;
   return bad_container(elem, ScegraNode, list);
 }
@@ -67,7 +67,7 @@ scegranode_initall(ScegraNode * node, int id, Rebox box, ScegraStyle style,
   node->step    = 0;
   node->text    = ustr_dup(text);
   node->points  = NULL;
-  badlist_initempty(&node->list);
+  badlistnode_initempty(&node->list);
   return node;
 }
 
@@ -77,7 +77,7 @@ scegranode_done(ScegraNode * self) {
   self->id = -1;
   if (self->text) ustr_free(self->text);
   // Todo, free node list 
-  badlist_unlink(&self->list);
+  badlistnode_unlink(&self->list);
   return self;
 }
 
