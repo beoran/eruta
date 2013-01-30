@@ -350,6 +350,99 @@ void bbwidget_update(BBWidget * self, ALLEGRO_EVENT * event) {
 
 
 
+/* Helper struct that keeps track of the BYTE positions within 
+a c string or USTR where a line or word starts or ends with a given maxwidth. */
+typedef struct BBTextInfo_ BBTextInfo;
+
+struct BBTextInfo_ {
+  int from_char;
+  int start_char;
+  int stop_char;
+  int maxwidth;
+};
+
+
+/* Creates a temporary ustr that refers ustr but respecds the bounds of the 
+textinfo (start_char and enc_char) */
+const USTR * bbtextinfo_refustr(BBTextInfo * self, 
+                                USTR_INFO  * uinfo,
+                                const USTR * ustr) { 
+  return al_ref_ustr(uinfo, ustr, 
+                     al_ustr_offset(ustr, self->start_char),
+                     al_ustr_offset(ustr, self->stop_char)
+                    );
+}
+
+
+BBTextInfo * 
+bbtextinfo_wordfromtext(BBTextInfo * self, USTR * ustr, Font * font) {
+  int found;
+  int start_pos;
+  int end_pos;
+  int now_char;
+  int end_char;
+  int len;
+  int ch;
+  if(!self) return NULL;
+  now_char         = self->from_char;
+  self->start_char = now_char;
+  ch = al_ustr_get_next(ustr, &now_char); 
+  while (ch > 0) { 
+    switch(ch) { 
+      case ' ': /* Found a space, here the word ends, include the space. */
+        self->stop_char = now_char;
+        return self;
+      case '\n': /* A newline ends a word, include the newline. */
+        self->stop_char = now_char;
+        return self;
+      default: /* Other characters mean the word is not finished yet. */
+        break;
+    }
+    /* XXX: Shoudl handle the case for languages that use no spaces, 
+    * by checking with al_get_ustr_width but it's not a pressing matter yet.
+    */
+    ch = al_ustr_get_next(ustr, &now_char); 
+  } 
+  // no word found, just set end here and be done. 
+  self->stop_char = now_char - 1;
+  /* return nULL to signify end */
+  return NULL;
+}
+
+/** Gets the positions of the next line of text fort he given Unicode string 
+and store them in the given info. If the info's from is set to 0 or less, 
+the first line is assumed, otherwise, the line will be started from "from".
+Uses the given font to determine the width of the text as it is built.
+*/
+BBTextInfo * 
+bbtextinfo_linefromtext(BBTextInfo * self, USTR * ustr, Font * font) {
+  BBTextInfo wordinfo;
+  USTR_INFO  worduinfo;
+  USTR     * word;
+  int index;
+  
+  wordinfo.from_char = self->from_char;
+  while(bbtextinfo_wordfromtext(&wordinfo, ustr, font)) {
+    word = bbtextinfo_refustr(&wordinfo, &worduinfo, ustr);
+    printf("word>");
+    for(index = 0; index < ustr_length(word) ; index++) {
+      printf("%c", ustr_get(word, index));
+    } 
+    printf("<\n");
+    wordinfo.from_char = wordinfo.stop_char + 1;
+  }
+  word = bbtextinfo_refustr(&wordinfo, &worduinfo, ustr);
+  printf("word>");
+  for(index = 0; index < ustr_length(word) ; index++) {
+    printf("%c", ustr_get(word, index));
+  } 
+  printf("<\n");
+  
+  return NULL; 
+}
+
+
+
 #define BBWIDGET_BORDER 3 
 
 /** Draws a rounded frame as background for a widget. */
@@ -463,6 +556,8 @@ int bbconsole_puts(BBConsole * self, const char * str) {
   int size     = strlen(str);
   int leftsize = size;
   int lines = 0;
+  BBTextInfo info = { 0 };
+  USTR * ustr;
   for (index = 0; index < size; 
        index += self->charw, 
        leftsize -= (self->charw) ) {
@@ -471,6 +566,9 @@ int bbconsole_puts(BBConsole * self, const char * str) {
     bbconsole_addstr(self, self->buf);
     lines++;
   }
+  ustr = ustr_new(str);
+  bbtextinfo_linefromtext(&info, ustr, self->widget.style.font);
+  ustr_free(ustr);
   return lines;
 } 
 
@@ -652,7 +750,7 @@ BBConsole * bbconsole_initall(BBConsole * self, int id, Rebox bounds, Style styl
     return NULL;
   }
   ustrlist_init(&self->text);
-  ustrlist_shiftcstr(&self->text, "empty line");
+  // ustrlist_shiftcstr(&self->text, "empty line");
   bbwidget_active_(&self->widget, FALSE);
   self->count = 0;
   // max MUST be at least 2, 3 to see anything...

@@ -428,7 +428,16 @@ USTRListNode * ustrlist_skipnode(USTRList * self, int skip) {
 }
 
 
+typedef int USTRGetWidth(USTR const * ustr, void * data);
 
+/** Splits the incoming c string into a list of ustrings, each which have a width 
+less than width. The callback get_width is called to determine 
+the size of the string as it is puzzled together. The string will be split on
+spaces. Tabs are non-braking but will be replaced by spaces. Newlines will force a new line. 
+*/
+USTRList * ustrlist_splitcstr(const char * cstr, double width, 
+                              USTRGetWidth *  get_width, void * data) {
 
+}
 
 
