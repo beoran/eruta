@@ -149,12 +149,14 @@ BadListNode *
 badlistnode_searchvalue(BadListNode * self, BadListNodeSearchValue * compare, void * tofind);
 
 
-BadList *       badlist_init(BadList * self);
-BadList *       badlist_add(BadList * self, BadListNode * node);
-BadList *       badlist_remove(BadList * self, BadListNode * node);
-BadListNode *   badlist_head(BadList * self);
-BadListNode *   badlist_tail(BadList * self);
-int             badlist_size(BadList * self);
+BadList *       badlist_init  (BadList *  self);
+BadList *       badlist_add   (BadList *  self, BadListNode * node);
+BadList *       badlist_shift (BadList *  self, BadListNode * node);
+BadList *       badlist_remove(BadList *  self, BadListNode * node);
+BadListNode *   badlist_head  (BadList *  self);
+BadListNode *   badlist_tail  (BadList *  self);
+int             badlist_size  (BadList *  self);
+
 
 
 typedef struct BadBitree_ BadBitree;

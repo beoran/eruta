@@ -136,8 +136,10 @@ USTRListNode * ustrlistnode_done(USTRListNode * self);
 USTRListNode * badlistnode_ustrlistnode(BadListNode * elem);
 USTRListNode * ustrlistnode_free(USTRListNode * self);
 
-BadListNode * ustrlist_head(USTRList * self);
-BadListNode * ustrlist_tail(USTRList * self);
+USTRListNode * ustrlistnode_next(USTRListNode * self);
+USTRListNode * ustrlistnode_prev(USTRListNode * self);
+USTRListNode * ustrlist_head(USTRList * self);
+USTRListNode * ustrlist_tail(USTRList * self);
 
 
 USTRList * ustrlist_alloc(void);
@@ -150,8 +152,19 @@ USTRList * ustrlist_removenode(USTRList * self, USTRListNode * node);
 
 USTRListNode * ustrlist_addustr(USTRList * self, USTR * ustr);
 USTRListNode * ustrlist_addcstr(USTRList * self, char * cstr);
+USTRListNode * ustrlist_shiftustr(USTRList * self, USTR * ustr);
+USTRListNode * ustrlist_shiftcstr(USTRList * self, char * cstr);
 
 int ustrlist_size(USTRList * self);
+
+USTRList * ustrlist_droplast(USTRList * self);
+
+USTR * ustrlist_join(USTRList * self);
+USTR * ustrlist_joinwithcstr(USTRList * self, const char * sep);
+USTR * ustrlist_joinwithch(USTRList * self, const char ch);
+USTR * ustrlist_joinwithustr(USTRList * self, USTR * sep);
+
+USTRListNode * ustrlist_skipnode(USTRList * self, int skip);
 
 
 #endif

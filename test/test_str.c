@@ -25,22 +25,34 @@ TEST_FUNC(str) {
 
 TEST_FUNC(strlist) {
   int index;
-  BadListNode  * bnode;
+  USTR * ustr;
   USTRListNode * node;
-  
+  char * data[] = { "one", "two", "three", "four" };
+  char * zero   = "zero";
   USTRList list;
   /** Test the cstr_simplematch function */
   TEST_NOTNULL(ustrlist_init(&list));
   
-  char * data[] = { "one", "two", "three", "four" };
+  
   for(index = 0; index < 4; index ++) {
     TEST_NOTNULL(ustrlist_addcstr(&list, data[index]));
   }
-  for(bnode = ustrlist_head(&list); bnode; bnode = badlistnode_next(bnode)) {
-    node = badlistnode_ustrlistnode(bnode);
-    printf("%s", ustr_c(ustrlistnode_ustr(node)));
-  }
+  TEST_NOTNULL(ustrlist_shiftcstr(&list, zero));
   
+  for(node = ustrlist_head(&list); node; node = ustrlistnode_next(node)) {
+    printf("%s\n", ustr_c(ustrlistnode_ustr(node)));
+  }
+  TEST_NOTNULL(ustrlist_droplast(&list));
+  for(node = ustrlist_head(&list); node; node = ustrlistnode_next(node)) {
+    printf("%s\n", ustr_c(ustrlistnode_ustr(node)));
+  }
+  ustr = ustrlist_joinwithcstr(&list, " , ");
+  printf("%s\n", ustr_c(ustr));
+  TEST_NOTNULL(ustrlist_shiftustr(&list, ustr));
+  ustr_free(ustr);
+  for(node = ustrlist_head(&list); node; node = ustrlistnode_next(node)) {
+    printf("%s\n", ustr_c(ustrlistnode_ustr(node)));
+  }
   
   TEST_NOTNULL(ustrlist_done(&list));
   TEST_DONE();
