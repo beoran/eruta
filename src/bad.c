@@ -465,7 +465,7 @@ BadList * badlist_add(BadList * self, BadListNode * node) {
   if (!self) return NULL;
   if (!self->tail) { 
     self->head       = node;
-    badlistnode_initempty(node);
+    badlistnode_initall(node, NULL, NULL);
   } else {      
     self->tail->next = node;
     node->prev       = self->tail;
@@ -475,6 +475,22 @@ BadList * badlist_add(BadList * self, BadListNode * node) {
   self->size++;
   return self;
 }
+
+BadList * badlist_shift(BadList * self, BadListNode * node) {
+  if (!self) return NULL;
+  if (!self->head) { 
+    self->tail       = node;
+    badlistnode_initall(node, NULL, NULL);
+  } else {      
+    self->head->prev = node;
+    node->prev       = NULL;
+    node->next       = self->head;
+  }
+  self->head         = node;
+  self->size++;
+  return self;
+}
+
 
 BadList * badlist_remove(BadList * self, BadListNode * node) {
   if(self->tail == node) {

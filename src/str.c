@@ -181,7 +181,14 @@ USTRListNode * ustrlistnode_alloc(void) {
 
 USTRListNode * ustrlistnode_init(USTRListNode * self, USTR * ustr) {
   if(!self) return NULL;
-  self->ustr = al_ustr_dup(ustr);
+  self->ustr = ustr_dup(ustr);
+  badlistnode_initempty(&self->list);
+  return self;
+}
+
+USTRListNode * ustrlistnode_initcstr(USTRListNode * self, char * cstr) {
+  if(!self) return NULL;
+  self->ustr = ustr_new(cstr);
   badlistnode_initempty(&self->list);
   return self;
 }
@@ -190,21 +197,53 @@ USTRListNode * ustrlistnode_new(USTR * ustr) {
   return ustrlistnode_init(ustrlistnode_alloc(), ustr);
 }
 
+USTRListNode * ustrlistnode_newcstr(char * cstr) {
+  return ustrlistnode_initcstr(ustrlistnode_alloc(), cstr);
+}
+
+
 USTRListNode * ustrlistnode_done(USTRListNode * self) {
   if(!self) return NULL;
-  al_ustr_free(self->ustr);
+  ustr_free(self->ustr);
   badlistnode_initempty(&self->list);
   return self;
 }
+
 
 USTRListNode * badlistnode_ustrlistnode(BadListNode * elem) {
   if(!elem) return NULL;
   return bad_container(elem, USTRListNode, list);
 }
 
+USTRListNode * ustrlistnode_next(USTRListNode * self) {
+  BadListNode * bnode;
+  if (!self) return NULL;
+  bnode = badlistnode_next(&self->list);
+  return badlistnode_ustrlistnode(bnode);
+}
+
+USTRListNode * ustrlistnode_prev(USTRListNode * self) {
+  BadListNode * bnode;
+  if (!self) return NULL;
+  bnode = badlistnode_prev(&self->list);
+  return badlistnode_ustrlistnode(bnode);
+}
+
+
 USTRListNode * ustrlistnode_free(USTRListNode * self) {
   if(!self) return NULL;
-  return mem_free(ustrlistnode_free(self));
+  ustrlistnode_done(self);
+  return mem_free(self);
+}
+
+USTRListNode * ustrlist_head(USTRList * self) {
+  if(!self) return NULL;
+  return badlistnode_ustrlistnode(self->head);
+}
+
+USTRListNode * ustrlist_tail(USTRList * self) {
+  if(!self) return NULL;
+  return badlistnode_ustrlistnode(self->tail);
 }
 
 
@@ -252,9 +291,18 @@ USTRList * ustrlist_addnode(USTRList * self, USTRListNode * node) {
   return self;
 }
 
+USTRList * ustrlist_shiftnode(USTRList * self, USTRListNode * node) {
+  if(!self) return NULL;
+  badlist_shift(self, &node->list);
+  return self;
+}
+
+
+/* Removes the node from the list and frees it too. */
 USTRList * ustrlist_removenode(USTRList * self, USTRListNode * node) {
   if(!self) return NULL;
   badlist_remove(self, &node->list);
+  ustrlistnode_free(node);
   return self;
 }
 
@@ -266,17 +314,130 @@ USTRListNode * ustrlist_addustr(USTRList * self, USTR * ustr) {
   return node;
 }
 
+USTRListNode * ustrlist_addcstr(USTRList * self, char * cstr) {
+  USTRListNode * node = ustrlistnode_newcstr(cstr);
+  if(!node) return NULL;
+  ustrlist_addnode(self, node);
+  return node;
+}
+
+USTRListNode * ustrlist_shiftustr(USTRList * self, USTR * ustr) {
+  USTRListNode * node = ustrlistnode_new(ustr);
+  if(!node) return NULL;
+  ustrlist_shiftnode(self, node);
+  return node;
+}
+
+USTRListNode * ustrlist_shiftcstr(USTRList * self, char * cstr) {
+  USTRListNode * node = ustrlistnode_newcstr(cstr);
+  if(!node) return NULL;
+  ustrlist_shiftnode(self, node);
+  return node;
+}
+
+
 int ustrlist_size(USTRList * self) {
   return badlist_size(self);
 }
 
 
+USTRList * ustrlist_droplast(USTRList * self) {
+  USTRListNode * node;
+  node = ustrlist_tail(self);
+  ustrlist_removenode(self, node);
+  return self;
+}
+
+/* Joins the list to a newly allocated string. The result must be freed after 
+use with (al_)ustr_free(). */
+USTR * ustrlist_join(USTRList * self) {
+  USTRListNode * node;
+  USTR * result;
+  result   = ustr_new("");
+  for(node = ustrlist_head(self); node; node = ustrlistnode_next(node)) {
+     ustr_append(result, ustrlistnode_ustr(node));
+  }
+  return result;
+}
+
+/* Joins the list to a newly allocated string, using sep as the separator.
+The result must be freed after use with (al_)ustr_free(). */
+USTR * ustrlist_joinwithcstr(USTRList * self, const char * sep) {
+  int first = true;
+  USTRListNode * node;
+  USTR * result;
+  result   = ustr_new("");
+  for(node = ustrlist_head(self); node; node = ustrlistnode_next(node)) {
+    if(first) { 
+      first  = false;
+    } else {
+      ustr_appendcstr(result, sep);
+    }
+    ustr_append(result, ustrlistnode_ustr(node));
+  }
+  return result;
+}
+
+/* Joins the list to a newly allocated string, using ch as the separator.
+The result must be freed after use with (al_)ustr_free(). */
+USTR * ustrlist_joinwithch(USTRList * self, const char ch) {
+  int first = true;
+  USTRListNode * node;
+  USTR * result;
+  result   = ustr_new("");
+  for(node = ustrlist_head(self); node; node = ustrlistnode_next(node)) {
+    if(first) { 
+      first  = false;
+    } else {
+      ustr_appendch(result, ch);
+    }
+    ustr_append(result, ustrlistnode_ustr(node));
+  }
+  return result;
+}
 
 
+/* Joins the list to a newly allocated string, using sep as the separator.
+The result must be freed after use with (al_)ustr_free(). */
+USTR * ustrlist_joinwithustr(USTRList * self, USTR * sep) {
+  int first = true;
+  USTRListNode * node;
+  USTR * result;
+  result = ustr_new("");
+  for(node = ustrlist_head(self); node; node = ustrlistnode_next(node)) {
+    if(first) { 
+      first  = false;
+    } else {
+      ustr_append(result, sep);
+    }
+    ustr_append(result, ustrlistnode_ustr(node));
+  }
+  return result;
+}
+
+/* Retruns drom the list the node reached after skipping skip nodes from head. 
+* Returns NULL if there sis no such node or on other failures.
+*/
+USTRListNode * ustrlist_skipnode(USTRList * self, int skip) { 
+  USTRListNode * now ;
+  // skip skip lines
+  for (now = ustrlist_head(self); now && (skip > 0); skip --) {
+    now = ustrlistnode_next(now); // move to next line.
+  }
+  return now;
+}
 
 
+typedef int USTRGetWidth(USTR const * ustr, void * data);
 
+/** Splits the incoming c string into a list of ustrings, each which have a width 
+less than width. The callback get_width is called to determine 
+the size of the string as it is puzzled together. The string will be split on
+spaces. Tabs are non-braking but will be replaced by spaces. Newlines will force a new line. 
+*/
+USTRList * ustrlist_splitcstr(const char * cstr, double width, 
+                              USTRGetWidth *  get_width, void * data) {
 
-
+}
 
 

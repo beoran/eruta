@@ -350,6 +350,99 @@ void bbwidget_update(BBWidget * self, ALLEGRO_EVENT * event) {
 
 
 
+/* Helper struct that keeps track of the BYTE positions within 
+a c string or USTR where a line or word starts or ends with a given maxwidth. */
+typedef struct BBTextInfo_ BBTextInfo;
+
+struct BBTextInfo_ {
+  int from_char;
+  int start_char;
+  int stop_char;
+  int maxwidth;
+};
+
+
+/* Creates a temporary ustr that refers ustr but respecds the bounds of the 
+textinfo (start_char and enc_char) */
+const USTR * bbtextinfo_refustr(BBTextInfo * self, 
+                                USTR_INFO  * uinfo,
+                                const USTR * ustr) { 
+  return al_ref_ustr(uinfo, ustr, 
+                     al_ustr_offset(ustr, self->start_char),
+                     al_ustr_offset(ustr, self->stop_char)
+                    );
+}
+
+
+BBTextInfo * 
+bbtextinfo_wordfromtext(BBTextInfo * self, USTR * ustr, Font * font) {
+  int found;
+  int start_pos;
+  int end_pos;
+  int now_char;
+  int end_char;
+  int len;
+  int ch;
+  if(!self) return NULL;
+  now_char         = self->from_char;
+  self->start_char = now_char;
+  ch = al_ustr_get_next(ustr, &now_char); 
+  while (ch > 0) { 
+    switch(ch) { 
+      case ' ': /* Found a space, here the word ends, include the space. */
+        self->stop_char = now_char;
+        return self;
+      case '\n': /* A newline ends a word, include the newline. */
+        self->stop_char = now_char;
+        return self;
+      default: /* Other characters mean the word is not finished yet. */
+        break;
+    }
+    /* XXX: Shoudl handle the case for languages that use no spaces, 
+    * by checking with al_get_ustr_width but it's not a pressing matter yet.
+    */
+    ch = al_ustr_get_next(ustr, &now_char); 
+  } 
+  // no word found, just set end here and be done. 
+  self->stop_char = now_char - 1;
+  /* return nULL to signify end */
+  return NULL;
+}
+
+/** Gets the positions of the next line of text fort he given Unicode string 
+and store them in the given info. If the info's from is set to 0 or less, 
+the first line is assumed, otherwise, the line will be started from "from".
+Uses the given font to determine the width of the text as it is built.
+*/
+BBTextInfo * 
+bbtextinfo_linefromtext(BBTextInfo * self, USTR * ustr, Font * font) {
+  BBTextInfo wordinfo;
+  USTR_INFO  worduinfo;
+  USTR     * word;
+  int index;
+  
+  wordinfo.from_char = self->from_char;
+  while(bbtextinfo_wordfromtext(&wordinfo, ustr, font)) {
+    word = bbtextinfo_refustr(&wordinfo, &worduinfo, ustr);
+    printf("word>");
+    for(index = 0; index < ustr_length(word) ; index++) {
+      printf("%c", ustr_get(word, index));
+    } 
+    printf("<\n");
+    wordinfo.from_char = wordinfo.stop_char + 1;
+  }
+  word = bbtextinfo_refustr(&wordinfo, &worduinfo, ustr);
+  printf("word>");
+  for(index = 0; index < ustr_length(word) ; index++) {
+    printf("%c", ustr_get(word, index));
+  } 
+  printf("<\n");
+  
+  return NULL; 
+}
+
+
+
 #define BBWIDGET_BORDER 3 
 
 /** Draws a rounded frame as background for a widget. */
@@ -408,17 +501,15 @@ struct BBWidgetChoose_ {
 struct BBConsole_ {
   BBWidget  widget;
   USTRList  text;
-  Lilis * lines;
-  Lilis * last;
-  int     count;
-  int     max;
-  int     start;
-  int     charw;
-  int     cursor;
-  char  * buf;
-  USTR  * input;
+  int       count;
+  int       max;
+  int       start;
+  int       charw;
+  int       cursor;
+  char    * buf;
+  USTR    * input;
   BBConsoleCommand * command; // called when a command has been entered, if set.
-  void * command_data; // command data.
+  void    * command_data; // command data.
 };
 
 
@@ -450,31 +541,13 @@ int bbconsole_docommand(BBConsole * self, const char * text) {
 int bbconsole_addstr(BBConsole * self, char * str) {
   USTR * storestr;
   if(!self) return -1;
-  storestr = ustr_new(str);
-  if(!storestr) return -2;
-  if(!ustrlist_addustr(&self->text, storestr)) { 
-    ustr_free(storestr);
+  if(!ustrlist_shiftcstr(&self->text, str)) { 
     return -3;
   }  
-  if(!lilis_addnew(self->lines, storestr)) { 
-    ustr_free(storestr);
-    return -3;
-  }
-  self->count++;
   if(self->count > self->max) { // remove last node
-    Lilis * prev, * last;
-    // free data
-    USTR * data = (USTR *) lilis_data(self->last);
-    ustr_free(data);
-    // get prev node
-    prev        = lilis_previous(self->last);
-    // free last node
-    lilis_erase(self->last);
-    // prev to last is now last node.
-    self->last  = prev;
-    self->count --; // reduce count again.
+    ustrlist_droplast(&self->text);
   }
-  return self->count;
+  return ustrlist_size(&self->text);
 }
 
 /** Puts a string on the console .*/
@@ -483,6 +556,8 @@ int bbconsole_puts(BBConsole * self, const char * str) {
   int size     = strlen(str);
   int leftsize = size;
   int lines = 0;
+  BBTextInfo info = { 0 };
+  USTR * ustr;
   for (index = 0; index < size; 
        index += self->charw, 
        leftsize -= (self->charw) ) {
@@ -491,16 +566,21 @@ int bbconsole_puts(BBConsole * self, const char * str) {
     bbconsole_addstr(self, self->buf);
     lines++;
   }
+  ustr = ustr_new(str);
+  bbtextinfo_linefromtext(&info, ustr, self->widget.style.font);
+  ustr_free(ustr);
   return lines;
 } 
 
 
 /** Draws a console. */
 int bbconsole_draw(BBWidget * widget, void * data) {
-  BBConsole * self ;
-  Font * font    ;
-  Color color    ;
+  BBConsole * self  ;
+  Font * font       ;
+  Color color       ;
+  USTRListNode * now;
   int high, linehigh, index, x, y, skip;
+  
   if (!bbwidget_visible(widget)) return BBWIDGET_HANDLE_IGNORE;
   
   self  = bbwidget_console(widget);
@@ -512,32 +592,25 @@ int bbconsole_draw(BBWidget * widget, void * data) {
   x           = bbwidget_x(widget) +  5;
   y           = bbwidget_y(widget) -  5;
   linehigh    = font_lineheight(font);
-  Lilis * now = self->lines;
-  BadListNode * bnow;
-  // skip start lines (to allow scrolling backwards) 
-  for (skip = self->start; now && (skip > 0); skip --) {
-    now = lilis_next(now); // move to next line.
-  }
   
+  now         = ustrlist_head(&self->text);
   // skip start lines (to allow scrolling backwards) 
-  for (skip = self->start; bnow && (skip > 0); skip --) {
-    bnow = badlistnode_next(badlist_head(&self->text)); // move to next line.
-  }
+  now         = ustrlist_skipnode(&self->text, self->start);
   
-  for (index = high-linehigh; index > 0; index -= linehigh) {
+  for (index = high-(linehigh*2); index > 0; index -= linehigh) {
     USTR * textstr;
     if(!now) break;
-    textstr =  ustrlistnode_ustr(badlistnode_ustrlistnode(bnow));
+    textstr = ustrlistnode_ustr(now);
     if(textstr) {
       font_drawstr(font, color, x, y + index, 0, textstr);
     }
-    now = lilis_next(now);
-    bnow = badlistnode_next(bnow);
+    now = ustrlistnode_next(now);
   }
   // draw input string
   font_drawstr(font, color, x, y + high - linehigh, 0, self->input);
   // draw start for debugging
-  al_draw_textf(font, color, x, y, 0, "start: %d", self->start);
+  al_draw_textf(font, color, x, y, 0, "start: %d, size: %d", self->start, 
+                ustrlist_size(&self->text));
   return BBWIDGET_HANDLE_OK;
 }
 
@@ -558,8 +631,8 @@ int bbconsole_scroll(BBConsole * self, int direction) {
   if((!self) || (!direction)) return FALSE;
   if(direction < 0) self->start--;
   if(direction > 0) self->start++;
-  self->start = (self->start < 1) ? 0 : self->start;
-  self->start = (self->start > self->max) ? self->max : self->start;
+  /* Clamp start between 0 and size of list. */
+  self->start = bad_clampi(self->start, 0, ustrlist_size(&self->text));
   return BBWIDGET_HANDLE_OK;
 }
 
@@ -647,10 +720,6 @@ int bbconsole_done(BBWidget * widget, void * data) {
   BBConsole * self = bbwidget_console(widget);
   Lilis * aid;
   if(!self) return BBWIDGET_HANDLE_IGNORE;
-  for (aid = self->lines; aid; aid = lilis_next(aid))  {
-    ustr_free((USTR *)lilis_data(aid));
-  }
-  self->lines   = lilis_free(self->lines);
   self->buf     = mem_free(self->buf);
   ustr_free(self->input);
   self->input   = NULL;
@@ -681,10 +750,7 @@ BBConsole * bbconsole_initall(BBConsole * self, int id, Rebox bounds, Style styl
     return NULL;
   }
   ustrlist_init(&self->text);
-  self->lines = lilis_newempty();
-  if(!self->lines) return NULL;
-  self->last  = lilis_addnew(self->lines, NULL);
-  if(!self->last) { bbconsole_done(&self->widget, NULL); return NULL; }
+  // ustrlist_shiftcstr(&self->text, "empty line");
   bbwidget_active_(&self->widget, FALSE);
   self->count = 0;
   // max MUST be at least 2, 3 to see anything...
