@@ -13,27 +13,27 @@ Eruta will be a 2D or 2.5D game.
   Rationale: I like the old-school 2D look. 3D games are more resource hungry 
   and time-consuming to implement, so that's a later project, if ever.
 
-Programmed in C with lua scripting:
-  Rationale: I tried many other things but no matter how easy Ruby is to use,
+Programmed in C with mruby scripting:
+  Rationale: I tried many other things but no matter how easy normal Ruby is to use,
   I ended up wrining a lot of C anyway to support it. For gaming, speed is
   essential since a slow game is hard to enjoy, especially for an action game.
-  Lua is much faster and lighter there, too. Too bad the Rite idea (light ruby)
-  didn't seem to have come through. And no, Don't even dare mention C++, it
-  complicates matters  withou being actuall yhelpful. And too bad that Objective
-  C is not well supported on Windows and messy on Linux.  Lua is not the
-  most flexible language to use, but it's popular, lightweight and very fast.
-  
+  At first the choice of scripting languages was on Lua, but the mruby idea came
+  tough, and I switched to that since it does give the easy Ruby syntax for the scripts. 
+  And no, Don't even dare mention C++, it complicates matters  without being actually
+  helpful. And too bad that Objective C is not well supported on Windows and messy on 
+  Linux.  
+
 Using Allegro 5.x. 
   Rationale: SDL may be the de facto standard for open source games, but it's
   very poor in functionality. So I ended up having to write a lof of
   functionality myself. And SDL 1.3 is not as mature as allegro 5 is. I thought
   alegro 5 was slower, but when  using plain C, and taking care to
-  load the image after openig the screen, Allegro 5 was actually plenty
+  load the images after opening the screen, Allegro 5 was actually plenty
   fast enough. Allegro has so much nice functionality built in, it would be a
   waste not to use it when using plain C.  
 
-Screen resolution exactly 640x480. Color depth minimum 16bpp or better. Perhaps
-implement scaling to other resolutons trough OpenGL or 2xSai, etc later.
+Screen resolution exactly 640x480. Color depth minimum 16bpp or better. 
+  Also implement scaling to other resolutons trough OpenGL or 2xSai, etc later.
   Rationale: Old-style feeling and limit art requrements.
 
 Needed Functionality:
@@ -43,6 +43,7 @@ Particle engine
 Camera module
 Physical world
 Collision detection
+UI Sybsystem
 Input mapping (to commands/events)
 Music handling
 Sound handling
@@ -72,7 +73,7 @@ There will be options for parallax scrolling of the backkground bitmap versus th
 can be locked or unlocked in x and y directions though scripts or by using
 special "scroll lock" tiles.
 
-Culling will be possible, in that, if enabled, only the direct area around the player sprite will be shown, and anything outside a rectangle set buy special culling tiles will not be drawn. This to allow inside areas to be stored more compactly.
+Culling will be possible, in that, if enabled, only the direct area around the player sprite will be shown, and anything outside a rectangle set by special culling tiles will not be drawn. This to allow inside areas to be stored more compactly.
 
 Everymap layer uses exactly one tile set based on a tile image. Tile images are
 are files in .png format with a width and height that are integer multiples of

@@ -528,7 +528,6 @@ int bbconsole_draw(BBWidget * widget, void * data) {
     USTR * textstr;
     if(!now) break;
     textstr =  ustrlistnode_ustr(badlistnode_ustrlistnode(bnow));
-      // (USTR *) lilis_data(now);
     if(textstr) {
       font_drawstr(font, color, x, y + index, 0, textstr);
     }
