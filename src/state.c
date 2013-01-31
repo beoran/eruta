@@ -37,7 +37,7 @@ struct State_ {
   Dynar               * modes;
   Camera              * camera;
   Ruby                * ruby;
-  BBConsole             * console; 
+  BBConsole           * console; 
   // The ruby and error message GUI console.
 };
 
@@ -280,7 +280,7 @@ State * state_init(State * self, BOOL fullscreen) {
   {
     Style   style = { color_rgb(255,255,255), color_rgba(64,0,0, 191), 
                       self->font, NULL};
-    Rebox  bounds = { {0, 0,} , {640, 480} }; 
+    Rebox  bounds = { {20, 20} , {600, 400} }; 
     self->console = bbconsole_new(1, bounds, style);
     if(!self->console) {
       return state_errmsg_(self, "Out of memory when allocating console.");

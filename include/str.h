@@ -29,7 +29,7 @@ but wrap it a bit with macros to have to do less typing. */
 #define ustr_empty                         al_ustr_empty_string()
 #define ustr_refcstr(INFO, CS)             al_ref_cstr(INFO, CS)
 #define ustr_refbuffer(INFO, BUF, SZ)      al_ref_buffer(INFO, BUF, SZ)
-#define ustr_refstr(INFO, STR, FROM, TO)   al_ref_ustr(INFO, STR, FROM, TO)
+#define ustr_refustr(INFO, STR, FROM, TO)  al_ref_ustr(INFO, STR, FROM, TO)
 #define ustr_size(STR)                     al_ustr_size(STR)
 #define ustr_length(STR)                   al_ustr_length(STR)
 #define ustr_offset(STR, INDEX)            al_ustr_offset(STR, INDEX)

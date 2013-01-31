@@ -132,8 +132,10 @@ int rh_errorreporter_file(int status, const char * msg, void * extra) {
 /* Error report to console */
 int rh_errorreporter_console(int status, const char * msg, void * extra) {
   char buf[80]; 
-  snprintf(buf, 80, "Error %d:", status);
-  bbconsole_puts((BBConsole *)extra, buf);
+  if (status != 0) { 
+    snprintf(buf, 80, "Error %d:", status);
+    bbconsole_puts((BBConsole *)extra, buf);
+  } 
   bbconsole_puts((BBConsole *)extra, msg);
   return 0;
 }

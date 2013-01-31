@@ -363,14 +363,14 @@ struct BBTextInfo_ {
 
 
 /* Creates a temporary ustr as per al_ref_ustr but with 
- start and stop as code positions. */
+ start and stop as code positions, not byte positions. */
 const USTR * 
 ustrinfo_newref(
   USTR_INFO * uinfo, const USTR * ustr, int start, int stop) {
-  return al_ref_ustr(uinfo, ustr, 
-                     al_ustr_offset(ustr, start),
-                     al_ustr_offset(ustr, stop)
-                    );    
+  return ustr_refustr(uinfo, ustr, 
+                      ustr_offset(ustr, start),
+                      ustr_offset(ustr, stop)
+                     );
 }
 
 
@@ -408,7 +408,7 @@ bbtextinfo_wordfromtext(BBTextInfo * self, USTR * ustr, Font * font) {
       default: /* Other characters mean the word is not finished yet. */
         break;
     }
-    /* XXX: Shoudl handle the case for languages that use no spaces, 
+    /* XXX: Should handle the case for languages that use no spaces, 
     * by checking with al_get_ustr_width but it's not a pressing matter yet.
     */
     ch = al_ustr_get_next(ustr, &now_char); 
@@ -423,10 +423,11 @@ bbtextinfo_wordfromtext(BBTextInfo * self, USTR * ustr, Font * font) {
 /** Prints a ustring, since puts or printf print too much some
  times for a refstring.*/
 ustr_print(USTR * word) {
-    int index;
+  int index;
     for(index = 0; index < ustr_length(word) ; index++) {
       putchar(ustr_get(word, index));
-    }  
+    }
+  return index;
 }
 
 
@@ -441,39 +442,37 @@ bbtextinfo_linefromtext(BBTextInfo * self, USTR * ustr, Font * font) {
   USTR_INFO  lineuinfo;
   USTR     * line;
 
-  USTR_INFO  worduinfo;
+  USTR_INFO  worduinfo = { 0 };
   USTR     * word;
   int index;
   int width;
   int last_stop;
+  self->start_char   = self->from_char;
   wordinfo.from_char = self->from_char;
+  
   while(bbtextinfo_wordfromtext(&wordinfo, ustr, font)) {
     word = bbtextinfo_refustr(&wordinfo, &worduinfo, ustr);
     line = ustrinfo_newref(&lineuinfo, ustr, self->start_char, wordinfo.stop_char);
-    printf("word>");
-    ustr_print(word);
-    printf("<\n");
-    printf("line>");
-    ustr_print(line);
-    printf("<\n");
     width = al_get_ustr_width(font, line);
     if (width > self->maxwidth) { 
-      self->start_char = self->from_char;
-      self->stop_char  = wordinfo.start_char;
-      line = bbtextinfo_refustr(&self, &lineuinfo, ustr);
-      printf("line ok>");
-      ustr_print(line);
-      printf("<\n");
+      /* XXX: handle case of text overflow by bluntly retuning the word as is.
+      Should split single word basd on length too.
+      There is overflow if this is still the first word as see from wordinfo_start_char.
+      */
+      if (wordinfo.start_char == self->start_char) {
+        self->stop_char  = wordinfo.stop_char;
+      } else { 
+        self->stop_char  = wordinfo.start_char;
+      }
       return self;
     }
-    wordinfo.from_char = wordinfo.stop_char + 1;
+    wordinfo.from_char = wordinfo.stop_char;
   }
-  word = bbtextinfo_refustr(&wordinfo, &worduinfo, ustr);
-  printf("word>");
-  ustr_print(word);
-  printf("<\n");
-  
-  return NULL; 
+  /* if we get here, the whole string fits. */
+  self->start_char = self->from_char;
+  self->stop_char  = wordinfo.stop_char;
+  /* Return NULL to tell caler text has been completely split up. */
+  return NULL;
 }
 
 
@@ -574,7 +573,6 @@ int bbconsole_docommand(BBConsole * self, const char * text) {
 
 /** Adds a line of text to the console. */
 int bbconsole_addstr(BBConsole * self, char * str) {
-  USTR * storestr;
   if(!self) return -1;
   if(!ustrlist_shiftcstr(&self->text, str)) { 
     return -3;
@@ -585,15 +583,29 @@ int bbconsole_addstr(BBConsole * self, char * str) {
   return ustrlist_size(&self->text);
 }
 
+/** Adds a line of text to the console. */
+int bbconsole_addustr(BBConsole * self, USTR * ustr) {
+  if(!self) return -1;
+  if(!ustrlist_shiftustr(&self->text, ustr)) { 
+    return -3;
+  }  
+  if(self->count > self->max) { // remove last node
+    ustrlist_droplast(&self->text);
+  }
+  return ustrlist_size(&self->text);
+}
+
+
 /** Puts a string on the console .*/
 int bbconsole_puts(BBConsole * self, const char * str) {
   int index;
   int size     = strlen(str);
   int leftsize = size;
   int lines = 0;
+  USTR_INFO uinfo;
   BBTextInfo info = { 0 };
-  info.maxwidth   = bbwidget_w(&self->widget) - 2;
-  USTR * ustr;
+  info.maxwidth   = bbwidget_w(&self->widget) - 10;
+  USTR * ustr, * uline;/*
   for (index = 0; index < size; 
        index += self->charw, 
        leftsize -= (self->charw) ) {
@@ -601,9 +613,18 @@ int bbconsole_puts(BBConsole * self, const char * str) {
     help_strncpy(self->buf, str + index, copysize, self->charw + 1);
     bbconsole_addstr(self, self->buf);
     lines++;
-  }
+  }*/
   ustr = ustr_new(str);
-  bbtextinfo_linefromtext(&info, ustr, self->widget.style.font);
+  while(bbtextinfo_linefromtext(&info, ustr, self->widget.style.font)) {
+    uline = bbtextinfo_refustr(&info, &uinfo, ustr);
+    bbconsole_addustr(self, uline);
+    // don't forget to skip to next word!!    !
+    info.from_char  = info.stop_char + 1;
+    info.start_char = info.from_char;
+  }
+  uline = bbtextinfo_refustr(&info, &uinfo, ustr);
+  bbconsole_addustr(self, uline);
+  // bbconsole_addstr(self, self->buf);
   ustr_free(ustr);
   return lines;
 } 
