@@ -489,6 +489,17 @@ void bbwidget_drawroundframe(BBWidget * self) {
 }
 
 
+/** Skips the text info to the next word or line of text. Must be called 
+when looping over bbtextinfo_linefromtext. */
+BBTextInfo * bbtextinfo_next(BBTextInfo * self) { 
+  if(!self) return NULL;
+  self->from_char  = self->stop_char + 1;
+  self->start_char = self->from_char;
+  return self;
+}
+
+
+    
 struct BBWidgetBox_ {
   struct BBWidget_ widget;
 };
@@ -577,7 +588,7 @@ int bbconsole_addstr(BBConsole * self, char * str) {
   if(!ustrlist_shiftcstr(&self->text, str)) { 
     return -3;
   }  
-  if(self->count > self->max) { // remove last node
+  while(ustrlist_size(&self->text) >= self->max) { // remove last node(s)
     ustrlist_droplast(&self->text);
   }
   return ustrlist_size(&self->text);
@@ -589,7 +600,7 @@ int bbconsole_addustr(BBConsole * self, USTR * ustr) {
   if(!ustrlist_shiftustr(&self->text, ustr)) { 
     return -3;
   }  
-  if(self->count > self->max) { // remove last node
+  while(ustrlist_size(&self->text) >= self->max) { // remove last node(s)
     ustrlist_droplast(&self->text);
   }
   return ustrlist_size(&self->text);
@@ -618,9 +629,12 @@ int bbconsole_puts(BBConsole * self, const char * str) {
   while(bbtextinfo_linefromtext(&info, ustr, self->widget.style.font)) {
     uline = bbtextinfo_refustr(&info, &uinfo, ustr);
     bbconsole_addustr(self, uline);
-    // don't forget to skip to next word!!    !
+    // don't forget to skip to next line!!!
+    bbtextinfo_next(&info);
+    /* 
     info.from_char  = info.stop_char + 1;
     info.start_char = info.from_char;
+    */
   }
   uline = bbtextinfo_refustr(&info, &uinfo, ustr);
   bbconsole_addustr(self, uline);
@@ -798,7 +812,8 @@ BBConsole * bbconsole_alloc() {
   return STRUCT_ALLOC(BBConsole);
 }
 
-#define BBCONSOLE_MAX 1000
+/* Amount of lines of display the console hat o keep track of. */
+#define BBCONSOLE_MAX 200
 
 /** Initializes a console. */
 BBConsole * bbconsole_initall(BBConsole * self, int id, Rebox bounds, Style style) {
@@ -811,7 +826,7 @@ BBConsole * bbconsole_initall(BBConsole * self, int id, Rebox bounds, Style styl
   bbwidget_active_(&self->widget, FALSE);
   self->count = 0;
   // max MUST be at least 2, 3 to see anything...
-  self->max   = 1000; 
+  self->max   = BBCONSOLE_MAX;
   self->start = 0;
   self->charw = 80; 
   self->buf   = mem_alloc(self->charw + 1);
