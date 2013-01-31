@@ -51,7 +51,7 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 # MESSAGE (${ALLEGRO})
 find_package(Mruby REQUIRED)
 find_package(Chipmunk REQUIRED)
-find_package(Allegro50 REQUIRED)
+find_package(Allegro51 REQUIRED)
 find_package(LibXml2 REQUIRED)
 
 
