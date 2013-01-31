@@ -362,15 +362,25 @@ struct BBTextInfo_ {
 };
 
 
+/* Creates a temporary ustr as per al_ref_ustr but with 
+ start and stop as code positions. */
+const USTR * 
+ustrinfo_newref(
+  USTR_INFO * uinfo, const USTR * ustr, int start, int stop) {
+  return al_ref_ustr(uinfo, ustr, 
+                     al_ustr_offset(ustr, start),
+                     al_ustr_offset(ustr, stop)
+                    );    
+}
+
+
+
 /* Creates a temporary ustr that refers ustr but respecds the bounds of the 
 textinfo (start_char and enc_char) */
 const USTR * bbtextinfo_refustr(BBTextInfo * self, 
                                 USTR_INFO  * uinfo,
                                 const USTR * ustr) { 
-  return al_ref_ustr(uinfo, ustr, 
-                     al_ustr_offset(ustr, self->start_char),
-                     al_ustr_offset(ustr, self->stop_char)
-                    );
+  return ustrinfo_newref(uinfo, ustr, self->start_char, self->stop_char);
 }
 
 
@@ -404,10 +414,21 @@ bbtextinfo_wordfromtext(BBTextInfo * self, USTR * ustr, Font * font) {
     ch = al_ustr_get_next(ustr, &now_char); 
   } 
   // no word found, just set end here and be done. 
-  self->stop_char = now_char - 1;
+  self->stop_char = now_char;
   /* return nULL to signify end */
   return NULL;
 }
+
+
+/** Prints a ustring, since puts or printf print too much some
+ times for a refstring.*/
+ustr_print(USTR * word) {
+    int index;
+    for(index = 0; index < ustr_length(word) ; index++) {
+      putchar(ustr_get(word, index));
+    }  
+}
+
 
 /** Gets the positions of the next line of text fort he given Unicode string 
 and store them in the given info. If the info's from is set to 0 or less, 
@@ -417,25 +438,39 @@ Uses the given font to determine the width of the text as it is built.
 BBTextInfo * 
 bbtextinfo_linefromtext(BBTextInfo * self, USTR * ustr, Font * font) {
   BBTextInfo wordinfo;
+  USTR_INFO  lineuinfo;
+  USTR     * line;
+
   USTR_INFO  worduinfo;
   USTR     * word;
   int index;
-  
+  int width;
+  int last_stop;
   wordinfo.from_char = self->from_char;
   while(bbtextinfo_wordfromtext(&wordinfo, ustr, font)) {
     word = bbtextinfo_refustr(&wordinfo, &worduinfo, ustr);
+    line = ustrinfo_newref(&lineuinfo, ustr, self->start_char, wordinfo.stop_char);
     printf("word>");
-    for(index = 0; index < ustr_length(word) ; index++) {
-      printf("%c", ustr_get(word, index));
-    } 
+    ustr_print(word);
     printf("<\n");
+    printf("line>");
+    ustr_print(line);
+    printf("<\n");
+    width = al_get_ustr_width(font, line);
+    if (width > self->maxwidth) { 
+      self->start_char = self->from_char;
+      self->stop_char  = wordinfo.start_char;
+      line = bbtextinfo_refustr(&self, &lineuinfo, ustr);
+      printf("line ok>");
+      ustr_print(line);
+      printf("<\n");
+      return self;
+    }
     wordinfo.from_char = wordinfo.stop_char + 1;
   }
   word = bbtextinfo_refustr(&wordinfo, &worduinfo, ustr);
   printf("word>");
-  for(index = 0; index < ustr_length(word) ; index++) {
-    printf("%c", ustr_get(word, index));
-  } 
+  ustr_print(word);
   printf("<\n");
   
   return NULL; 
@@ -557,6 +592,7 @@ int bbconsole_puts(BBConsole * self, const char * str) {
   int leftsize = size;
   int lines = 0;
   BBTextInfo info = { 0 };
+  info.maxwidth   = bbwidget_w(&self->widget) - 2;
   USTR * ustr;
   for (index = 0; index < size; 
        index += self->charw, 
