@@ -131,7 +131,7 @@ struct USTRListNode_ {
 USTR * ustrlistnode_ustr(USTRListNode * self);
 USTRListNode * ustrlistnode_alloc(void);
 USTRListNode * ustrlistnode_init(USTRListNode * self, USTR * ustr);
-USTRListNode * ustrlistnode_new(USTR * ustr);
+USTRListNode * ustrlistnode_new(const USTR * ustr);
 USTRListNode * ustrlistnode_done(USTRListNode * self);
 USTRListNode * badlistnode_ustrlistnode(BadListNode * elem);
 USTRListNode * ustrlistnode_free(USTRListNode * self);
@@ -150,10 +150,10 @@ USTRList * ustrlist_free(USTRList * self);
 USTRList * ustrlist_addnode(USTRList * self, USTRListNode * node);
 USTRList * ustrlist_removenode(USTRList * self, USTRListNode * node);
 
-USTRListNode * ustrlist_addustr(USTRList * self, USTR * ustr);
-USTRListNode * ustrlist_addcstr(USTRList * self, char * cstr);
-USTRListNode * ustrlist_shiftustr(USTRList * self, USTR * ustr);
-USTRListNode * ustrlist_shiftcstr(USTRList * self, char * cstr);
+USTRListNode * ustrlist_addustr(USTRList * self, const USTR * ustr);
+USTRListNode * ustrlist_addcstr(USTRList * self, const char * cstr);
+USTRListNode * ustrlist_shiftustr(USTRList * self, const USTR * ustr);
+USTRListNode * ustrlist_shiftcstr(USTRList * self, const char * cstr);
 
 int ustrlist_size(USTRList * self);
 

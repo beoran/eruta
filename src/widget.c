@@ -396,7 +396,7 @@ bbtextinfo_wordfromtext(BBTextInfo * self, USTR * ustr, Font * font) {
   if(!self) return NULL;
   now_char         = self->from_char;
   self->start_char = now_char;
-  ch = al_ustr_get_next(ustr, &now_char); 
+  ch = ustr_getnext(ustr, &now_char); 
   while (ch > 0) { 
     switch(ch) { 
       case ' ': /* Found a space, here the word ends, include the space. */
@@ -411,7 +411,7 @@ bbtextinfo_wordfromtext(BBTextInfo * self, USTR * ustr, Font * font) {
     /* XXX: Should handle the case for languages that use no spaces, 
     * by checking with al_get_ustr_width but it's not a pressing matter yet.
     */
-    ch = al_ustr_get_next(ustr, &now_char); 
+    ch = ustr_getnext(ustr, &now_char); 
   } 
   // no word found, just set end here and be done. 
   self->stop_char = now_char;
@@ -422,8 +422,8 @@ bbtextinfo_wordfromtext(BBTextInfo * self, USTR * ustr, Font * font) {
 
 /** Prints a ustring, since puts or printf print too much some
  times for a refstring.*/
-ustr_print(USTR * word) {
-  int index;
+int ustr_print(USTR * word) {
+  size_t index;
     for(index = 0; index < ustr_length(word) ; index++) {
       putchar(ustr_get(word, index));
     }
@@ -440,10 +440,11 @@ BBTextInfo *
 bbtextinfo_linefromtext(BBTextInfo * self, USTR * ustr, Font * font) {
   BBTextInfo wordinfo;
   USTR_INFO  lineuinfo;
-  USTR     * line;
+  const USTR     * line;
 
   USTR_INFO  worduinfo = { 0 };
-  USTR     * word;
+  const USTR     * word;
+  int ch;
   int index;
   int width;
   int last_stop;
@@ -456,7 +457,7 @@ bbtextinfo_linefromtext(BBTextInfo * self, USTR * ustr, Font * font) {
     width = al_get_ustr_width(font, line);
     if (width > self->maxwidth) { 
       /* XXX: handle case of text overflow by bluntly retuning the word as is.
-      Should split single word basd on length too.
+      Should split single word based on length too.
       There is overflow if this is still the first word as see from wordinfo_start_char.
       */
       if (wordinfo.start_char == self->start_char) {
@@ -466,12 +467,22 @@ bbtextinfo_linefromtext(BBTextInfo * self, USTR * ustr, Font * font) {
       }
       return self;
     }
+    // If we get here, the word way still end on a newline character 
+    // check this case. XXX: It works like this because 
+    // stop_char is a bit wonky... it points at the first character of the 
+    // next word in this case...
+    ch = ustr_get(ustr, wordinfo.stop_char - 1);
+    if (ch == '\n') {
+      self->start_char = self->from_char;
+      self->stop_char  = wordinfo.stop_char - 1;
+      return self;
+    }
     wordinfo.from_char = wordinfo.stop_char;
   }
   /* if we get here, the whole string fits. */
   self->start_char = self->from_char;
   self->stop_char  = wordinfo.stop_char;
-  /* Return NULL to tell caler text has been completely split up. */
+  /* Return NULL to tell caller text has been completely split up. */
   return NULL;
 }
 
@@ -583,7 +594,7 @@ int bbconsole_docommand(BBConsole * self, const char * text) {
 
 
 /** Adds a line of text to the console. */
-int bbconsole_addstr(BBConsole * self, char * str) {
+int bbconsole_addstr(BBConsole * self, const char * str) {
   if(!self) return -1;
   if(!ustrlist_shiftcstr(&self->text, str)) { 
     return -3;
@@ -595,7 +606,7 @@ int bbconsole_addstr(BBConsole * self, char * str) {
 }
 
 /** Adds a line of text to the console. */
-int bbconsole_addustr(BBConsole * self, USTR * ustr) {
+int bbconsole_addustr(BBConsole * self, const USTR * ustr) {
   if(!self) return -1;
   if(!ustrlist_shiftustr(&self->text, ustr)) { 
     return -3;
@@ -616,29 +627,17 @@ int bbconsole_puts(BBConsole * self, const char * str) {
   USTR_INFO uinfo;
   BBTextInfo info = { 0 };
   info.maxwidth   = bbwidget_w(&self->widget) - 10;
-  USTR * ustr, * uline;/*
-  for (index = 0; index < size; 
-       index += self->charw, 
-       leftsize -= (self->charw) ) {
-    int copysize = (leftsize > self->charw ? self->charw : leftsize);
-    help_strncpy(self->buf, str + index, copysize, self->charw + 1);
-    bbconsole_addstr(self, self->buf);
-    lines++;
-  }*/
+  USTR * ustr;
+  const USTR * uline;
   ustr = ustr_new(str);
   while(bbtextinfo_linefromtext(&info, ustr, self->widget.style.font)) {
     uline = bbtextinfo_refustr(&info, &uinfo, ustr);
     bbconsole_addustr(self, uline);
     // don't forget to skip to next line!!!
     bbtextinfo_next(&info);
-    /* 
-    info.from_char  = info.stop_char + 1;
-    info.start_char = info.from_char;
-    */
   }
   uline = bbtextinfo_refustr(&info, &uinfo, ustr);
   bbconsole_addustr(self, uline);
-  // bbconsole_addstr(self, self->buf);
   ustr_free(ustr);
   return lines;
 } 

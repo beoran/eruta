@@ -193,8 +193,8 @@ USTRListNode * ustrlistnode_initcstr(USTRListNode * self, char * cstr) {
   return self;
 }
 
-USTRListNode * ustrlistnode_new(USTR * ustr) {
-  return ustrlistnode_init(ustrlistnode_alloc(), ustr);
+USTRListNode * ustrlistnode_new(const USTR * ustr) {
+  return ustrlistnode_init(ustrlistnode_alloc(), (USTR *) ustr);
 }
 
 USTRListNode * ustrlistnode_newcstr(char * cstr) {
@@ -307,28 +307,28 @@ USTRList * ustrlist_removenode(USTRList * self, USTRListNode * node) {
 }
 
 
-USTRListNode * ustrlist_addustr(USTRList * self, USTR * ustr) {
+USTRListNode * ustrlist_addustr(USTRList * self, const USTR * ustr) {
   USTRListNode * node = ustrlistnode_new(ustr);
   if(!node) return NULL;
   ustrlist_addnode(self, node);
   return node;
 }
 
-USTRListNode * ustrlist_addcstr(USTRList * self, char * cstr) {
+USTRListNode * ustrlist_addcstr(USTRList * self, const char * cstr) {
   USTRListNode * node = ustrlistnode_newcstr(cstr);
   if(!node) return NULL;
   ustrlist_addnode(self, node);
   return node;
 }
 
-USTRListNode * ustrlist_shiftustr(USTRList * self, USTR * ustr) {
+USTRListNode * ustrlist_shiftustr(USTRList * self, const USTR * ustr) {
   USTRListNode * node = ustrlistnode_new(ustr);
   if(!node) return NULL;
   ustrlist_shiftnode(self, node);
   return node;
 }
 
-USTRListNode * ustrlist_shiftcstr(USTRList * self, char * cstr) {
+USTRListNode * ustrlist_shiftcstr(USTRList * self, const char * cstr) {
   USTRListNode * node = ustrlistnode_newcstr(cstr);
   if(!node) return NULL;
   ustrlist_shiftnode(self, node);

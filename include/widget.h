@@ -247,7 +247,7 @@ bbconsole_command_(BBConsole * self , BBConsoleCommand * command , void * data )
 
 int bbconsole_docommand (BBConsole * self , const char * text );
 
-int bbconsole_addstr (BBConsole * self , char * str );
+int bbconsole_addstr (BBConsole * self , const char * str );
 
 int bbconsole_puts(BBConsole * self , const char * str );
 
