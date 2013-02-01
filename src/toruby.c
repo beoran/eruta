@@ -8,6 +8,7 @@
 #include "rh.h"
 #include "state.h"
 #include "image.h"
+#include "fifi.h"
 
 /**
 * helper macros 

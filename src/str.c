@@ -179,14 +179,14 @@ USTRListNode * ustrlistnode_alloc(void) {
   return STRUCT_ALLOC(USTRListNode);
 }
 
-USTRListNode * ustrlistnode_init(USTRListNode * self, USTR * ustr) {
+USTRListNode * ustrlistnode_init(USTRListNode * self, const USTR * ustr) {
   if(!self) return NULL;
   self->ustr = ustr_dup(ustr);
   badlistnode_initempty(&self->list);
   return self;
 }
 
-USTRListNode * ustrlistnode_initcstr(USTRListNode * self, char * cstr) {
+USTRListNode * ustrlistnode_initcstr(USTRListNode * self, const char * cstr) {
   if(!self) return NULL;
   self->ustr = ustr_new(cstr);
   badlistnode_initempty(&self->list);
@@ -194,10 +194,10 @@ USTRListNode * ustrlistnode_initcstr(USTRListNode * self, char * cstr) {
 }
 
 USTRListNode * ustrlistnode_new(const USTR * ustr) {
-  return ustrlistnode_init(ustrlistnode_alloc(), (USTR *) ustr);
+  return ustrlistnode_init(ustrlistnode_alloc(), ustr);
 }
 
-USTRListNode * ustrlistnode_newcstr(char * cstr) {
+USTRListNode * ustrlistnode_newcstr(const char * cstr) {
   return ustrlistnode_initcstr(ustrlistnode_alloc(), cstr);
 }
 
@@ -437,7 +437,7 @@ spaces. Tabs are non-braking but will be replaced by spaces. Newlines will force
 */
 USTRList * ustrlist_splitcstr(const char * cstr, double width, 
                               USTRGetWidth *  get_width, void * data) {
-
+  return NULL; /* Look for widget textinfo in stead. */
 }
 
 

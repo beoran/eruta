@@ -67,12 +67,21 @@
 
 
 /* Some simple numerical comparison, min, max, etc functions. */
-int bad_mini(int one, int two);
-double bad_mind(double one, double two);
-int bad_maxi(int one, int two);
-double bad_maxd(double one, double two);
-int bad_comparei(int one, int two);
-int bad_compared(double one, double two);
+
+int     bad_mini(int one, int two);
+double  bad_mind(double one, double two); 
+float   bad_minf(float one, float two); 
+int     bad_maxi(int one, int two);
+double  bad_maxd(double one, double two); 
+float   bad_maxf(float one, float two); 
+int     bad_comparei(int one, int two);
+int     bad_compared(double one, double two);
+int     bad_comparef(float one, float two);
+int     bad_clampi(int value , int min, int max) ;
+double  bad_clampd(double value , double min, double max); 
+float   bad_clampf(float value , float min, float max); 
+
+
 
 /* Macro: bad_container(PTR, TYPE, MEMBER)
  This macro returns, for the given pointer, a pointer to a containing struct

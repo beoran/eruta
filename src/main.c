@@ -244,15 +244,13 @@ int real_main(void) {
       tile_draw(tile, 200, 300);
       // tile_update(tile);
       state_frames_update(state);
-      draw_roundframe(2, 2, 630, 30, 2,
-      COLOR_WHITE, color_rgba(0, 0, 64, 192));
 
       
       if (border) { 
         image_blitscale9(border, 10, 400, 200, 30, -1, -1);
         image_blitscale9(border, 220, 300, 400, 150, -1, -1);
       }
-
+      
       // call lua drawing callback
       // lh_dofunction_mybbconsole_args(state_lua(state), "on_draw", "s", "a string argument");
       

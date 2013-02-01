@@ -34,6 +34,10 @@ double bad_mind(double one, double two) {
   return (one < two) ? one : two;  
 }
 
+float bad_minf(float one, float two) {
+  return (one < two) ? one : two;  
+}
+
 
 int bad_maxi(int one, int two) {
   return (one > two) ? one : two;  
@@ -43,6 +47,11 @@ double bad_maxd(double one, double two) {
   return (one > two) ? one : two;
 }
 
+float bad_maxf(float one, float two) {
+  return (one > two) ? one : two;
+}
+
+
 
 int bad_comparei(int one, int two) {
   if (one < two) return -1;
@@ -51,6 +60,12 @@ int bad_comparei(int one, int two) {
 }
 
 int bad_compared(double one, double two) {
+  if (one < two) return -1;
+  if (one > two) return  1;
+  return 0;
+}
+
+int bad_comparef(float one, float two) {
   if (one < two) return -1;
   if (one > two) return  1;
   return 0;

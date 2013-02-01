@@ -259,6 +259,6 @@ ObjPool * objpool_unref(ObjPool * pool) {
       node = next;
     }
   }
-  
+  return pool;
 }
 

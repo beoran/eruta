@@ -128,9 +128,10 @@ struct USTRListNode_ {
   BadListNode   list;  
 };
 
-USTR * ustrlistnode_ustr(USTRListNode * self);
+USTR *         ustrlistnode_ustr(USTRListNode * self);
 USTRListNode * ustrlistnode_alloc(void);
-USTRListNode * ustrlistnode_init(USTRListNode * self, USTR * ustr);
+USTRListNode * ustrlistnode_init(USTRListNode * self, const USTR * ustr);
+USTRListNode * ustrlistnode_initcstr(USTRListNode * self, const char * str);
 USTRListNode * ustrlistnode_new(const USTR * ustr);
 USTRListNode * ustrlistnode_done(USTRListNode * self);
 USTRListNode * badlistnode_ustrlistnode(BadListNode * elem);

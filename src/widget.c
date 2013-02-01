@@ -7,6 +7,7 @@
 #include "flags.h"
 #include "ui.h"
 #include "widget.h"
+#include "draw.h"
 #include "bad.h"
 
 
