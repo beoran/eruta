@@ -148,6 +148,14 @@ int rh_dostring_console(BBConsole * console, char * command, void * extra) {
   return rh_dostringreport(ruby, command, rh_errorreporter_console, console);
 }
 
+/** Runs a file in the ruby interpreter, logging results and errors back to
+ * the console.
+ */
+int rh_runfilename_console(BBConsole * console, char * command, void * extra) {
+  Ruby * ruby = (Ruby *) extra;
+  return rh_dostringreport(ruby, command, rh_errorreporter_console, console);
+}
+
 
 
 /* Documentation for mrb_get_args

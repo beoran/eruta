@@ -182,7 +182,8 @@ int real_main(void) {
     border  = fifi_loadbitmap("border_004.png",
                             "image", "ui", "background", NULL);
 
-    border  = fifi_loadbitmap_vpath("image/ui/background/border_004.png");
+    border  = NULL; 
+    // fifi_loadbitmap_vpath("image/ui/background/border_004.png");
     sheet   = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
     // image_load(ERUTA_TEST_SHEET);
     if(!sheet) {
@@ -213,10 +214,10 @@ int real_main(void) {
       tilemap_layer_lockin(map, 0, camera);    
     }
 
-  // Try to load the main lua file.
-  // lh_dofile_stderr(state_lua(state), "main.lua");
+  // Try to load the mainruby file.
+  // rh_dofile_stderr(state_lua(state), "main.lua");
   // Call the on_start function.
-  // lh_dofunction_mybbconsole_args(state_lua(state), "on_start", "s", "a string argument");
+  // th_dofunction_mybbconsole_args(state_lua(state), "on_start", "s", "a string argument");
 
     
   while(state_busy(state)) { 

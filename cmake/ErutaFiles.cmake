@@ -36,6 +36,7 @@ set(ERUTA_SRC_FILES
   src/tileio.c
   src/tilemap.c
   src/tilepane.c
+  src/tarray.c
   src/tmatrix.c
   src/toruby.c  
   src/ui.c
