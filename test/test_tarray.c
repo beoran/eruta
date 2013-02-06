@@ -47,8 +47,8 @@ TEST_FUNC(tarray_int) {
   TEST_NULL(intarr_put(array, 5, 321));
   TEST_NOTNULL(intarr_put(array, 1, 321));
   TEST_NULL(intarr_put(array, 10, 456));
-  TEST_INTEQ(123, intarr_getraw(array, 3));
-  TEST_INTEQ(654, intarr_getraw(array, 0));
+  TEST_INTEQ(123, intarr_getraw(array, 3, 0));
+  TEST_INTEQ(654, intarr_getraw(array, 0, 0));
   TEST_TRUE(intarr_get(array, 3, &get));
   TEST_INTEQ(123, get);  
   TEST_TRUE(intarr_get(array, 0, &get));
@@ -79,8 +79,8 @@ TEST_FUNC(tarray_ptr) {
   TEST_NULL(ptrarr_put(array, 5, p3));
   TEST_NOTNULL(ptrarr_put(array, 1, p3));
   TEST_NULL(ptrarr_put(array, 10, p4));
-  TEST_PTREQ(p1, ptrarr_getraw(array, 3));
-  TEST_PTREQ(p2, ptrarr_getraw(array, 0));
+  TEST_PTREQ(p1, ptrarr_getraw(array, 3, NULL));
+  TEST_PTREQ(p2, ptrarr_getraw(array, 0, NULL));
   TEST_TRUE(ptrarr_get(array, 3, &get));
   TEST_PTREQ(p1, get);  
   TEST_TRUE(ptrarr_get(array, 0, &get));

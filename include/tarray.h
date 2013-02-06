@@ -8,11 +8,6 @@
 * it does not allocate any extra elements but the amount requested.
 * In other words it's capacity is equal to it's size.
 */
-#ifndef TEMPLATE_ZERO
-#error Please define TEMPLATE_ZERO as the value returned for nonexisting indexes.
-#undef TEMPLATE_OK
-#endif
-
 #ifdef TEMPLATE_OK
 
 #ifndef TEMPLATE_IMPLEMENT
@@ -61,12 +56,13 @@ TEMPLATE_NAME * TEMPLATE_FUNC(putraw_unsafe)
 (TEMPLATE_NAME * self, int index, TEMPLATE_T value);
 
 /* Returns the index-th element of the array.
-Does bounds checking and returns TEMPLATE_ZERO if out of bounds */
-TEMPLATE_T TEMPLATE_FUNC(getraw)(TEMPLATE_NAME * self, size_t index);
+Does bounds checking and returns zero if out of bounds */
+TEMPLATE_T TEMPLATE_FUNC(getraw)(TEMPLATE_NAME * self, 
+                                 size_t index, TEMPLATE_T zero);
 
 /* Returns the index-th element of the array in get.
-Does bounds checking and returns negative if out of bounds or 
-if get is not set. Returns 0 and stores the result in get if all is OK*/
+Does bounds checking and returns FALSE if out of bounds or 
+if get is not set. Returns TRUE and stores the result in get if all is OK. */
 int TEMPLATE_FUNC(get)(TEMPLATE_NAME * self, 
                        int index, TEMPLATE_T * get);
 
@@ -161,7 +157,7 @@ TEMPLATE_NAME * TEMPLATE_FUNC(size_)(TEMPLATE_NAME * self, int newsize) {
   return self;
 }
 
-/* Allocates a new array with size elements. */
+/* Allocates a new array with size elements. Size should be greater than 0 */
 TEMPLATE_NAME * TEMPLATE_FUNC(new)(int size) {
   TEMPLATE_NAME * res = TEMPLATE_FUNC(alloc)();
   if(!TEMPLATE_FUNC(init)(res, size)) {
@@ -211,10 +207,11 @@ TEMPLATE_NAME * TEMPLATE_FUNC(putraw_unsafe)
 }
 
 /* Returns the index-th element of the array.
-Does bounds checking and returns TEMPLATE_ZERO if out of bounds */
-TEMPLATE_T TEMPLATE_FUNC(getraw)(TEMPLATE_NAME * self, size_t index) {
+Does bounds checking and returns zero if out of bounds */
+TEMPLATE_T TEMPLATE_FUNC(getraw)(TEMPLATE_NAME * self, 
+                                 size_t index, TEMPLATE_T zero) {
   // Bounds check
-  if(TEMPLATE_FUNC(outofrange)(self, index)) { return TEMPLATE_ZERO; }
+  if(TEMPLATE_FUNC(outofrange)(self, index)) { return zero; }
   return TEMPLATE_FUNC(getraw_unsafe)(self, index);
 }
 

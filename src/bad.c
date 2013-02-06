@@ -838,103 +838,154 @@ void badaatree_printgraph(BadAatree * self, int level) {
   }
 }
 
-BadNodetree *
-badnodetree_initall(BadNodetree * self, BadNodetree * parent, BadNodetree * child,
-                    BadNodetree * first_sibling, BadNodetree * next_sibling,
-                    BadNodetree * previous_sibling, BadNodetree * last_sibling) {
+BadChildtree *
+badchildtree_initall(BadChildtree * self, BadChildtree * parent, BadChildtree * child,
+                    BadChildtree * next_sibling, BadChildtree * previous_sibling) {
  if(!self) return NULL;
  self->parent           = parent;
  self->child            = child;
- self->first_sibling    = first_sibling;
- self->next_sibling     = next_sibling;
- self->previous_sibling = previous_sibling;
- self->last_sibling     = last_sibling;
+ self->next             = next_sibling;
+ self->previous         = previous_sibling;
  return self;
 }
 
-BadNodetree * 
-badnodetree_initnull(BadNodetree * self) {
-  return badnodetree_initall(self, NULL, NULL, NULL, NULL, NULL, NULL);
+BadChildtree * 
+badchildtree_initnull(BadChildtree * self) {
+  return badchildtree_initall(self, NULL, NULL, NULL, NULL);
 }
 
-/* An empty badnodetree is simply a NULL tree. */
+/* An empty badchildtree is simply a NULL tree. */
 bool 
-badnodetree_isempty(BadNodetree * self) {
+badchildtree_isempty(BadChildtree * self) {
   return !self;
 }
   
-BadNodetree * 
-badnodetree_parent(BadNodetree * self) {
-  if (badnodetree_isempty(self)) return NULL;
+BadChildtree * 
+badchildtree_parent(BadChildtree * self) {
+  if (badchildtree_isempty(self)) return NULL;
   return self->parent;
 }
 
 
-BadNodetree * 
-badnodetree_child(BadNodetree * self) {
-  if (badnodetree_isempty(self)) return NULL;
+BadChildtree * 
+badchildtree_child(BadChildtree * self) {
+  if (badchildtree_isempty(self)) return NULL;
   return self->child;
 }
 
 
-BadNodetree * 
-badnodetree_next(BadNodetree * self) {
-  if (badnodetree_isempty(self)) return NULL;
-  return self->next_sibling;
+BadChildtree * 
+badchildtree_next(BadChildtree * self) {
+  if (badchildtree_isempty(self)) return NULL;
+  return self->next;
+}
+
+/* Returns the last sibling of self, or NULL if no siblings or if self is NULL. */
+BadChildtree * 
+badchildtree_lastsibling(BadChildtree * self) {
+  BadChildtree * aid, * next; 
+  if (badchildtree_isempty(self)) return NULL;
+  aid   = self;
+  next  = badchildtree_next(aid);
+  /* Skip until the end of the list. */
+  while(next) {
+    aid   = next;
+    next  = badchildtree_next(aid);
+  }
+  return aid;
+}
+
+/* Returns the last child of the tree, or NULL if no children or nself is NULL. */
+BadChildtree * 
+badchildtree_lastchild(BadChildtree * self) {
+  if (badchildtree_isempty(self)) return NULL;
+  return badchildtree_lastsibling(self->child);
 }
 
 
-BadNodetree * 
-badnodetree_first(BadNodetree * self) {
-  if (badnodetree_isempty(self)) return NULL;
-  return self->first_sibling;
+/* Returns the previous sibling of self or NULL if no previous child. */
+BadChildtree * 
+badchildtree_previous(BadChildtree * self) {
+  if (badchildtree_isempty(self)) return NULL;
+  return self->previous;
 }
 
 
-BadNodetree * 
-badnodetree_last(BadNodetree * self) {
-  if (badnodetree_isempty(self)) return NULL;
-  return self->last_sibling;
+/* Inserts the sibling as a sibling of self, right after self. Sets parent
+ link of the sibling too. */
+BadChildtree * 
+badchildtree_insertsibling(BadChildtree * self, BadChildtree * sibling) {
+  BadChildtree * next;
+  if (badchildtree_isempty(self)) return sibling;  
+  if (badchildtree_isempty(sibling)) return self;  
+  next                          = self->next; 
+  self->next                    = sibling;
+  sibling->next                 = next;
+  sibling->previous             = self;
+  if (next) {
+    next->previous              = sibling;    
+  }
+  sibling->parent               = self->parent;
+  return self;
 }
 
-
-BadNodetree * 
-badnodetree_previous(BadNodetree * self) {
-  if (badnodetree_isempty(self)) return NULL;
-  return self->previous_sibling;
-}
-
-
-
-/* Appends sibling as the last sibling. 
- * Returns the new root element of the tree. 
+/* Appends sibling as the last sibling of self. 
+ * Returns the new root element of the tree. If self is NULL, sibling is 
+ * returned as that will be the new root of the BadChildtree. 
  */
-BadNodetree * 
-badnodetree_appendsibling(BadNodetree * self, BadNodetree * sibling) {
-  BadNodetree * last;
-  if (badnodetree_isempty(self)) return sibling;
-  last = badnodetree_last(self);
+BadChildtree * 
+badchildtree_appendsibling(BadChildtree * self, BadChildtree * sibling) {
+  BadChildtree * last;
+  if (badchildtree_isempty(self)) return sibling;
+  last = badchildtree_lastsibling(self);
   if(!last) {
     last = self; 
   }
-  last->next_sibling          = sibling;
-  sibling->previous_sibling   = last;
-  if (sibling->last_sibling) { 
-      self->last_sibling        = sibling->last_sibling;
-  } else { 
-      self->last_sibling        = sibling;
-      sibling->last_sibling     = sibling;
-  } 
-  if (self->first_sibling) { 
-      sibling->first_sibling    = self->first_sibling;
-  } else {
-      self->first_sibling       = self;
-      sibling->first_sibling    = self;
-  } 
+  badchildtree_insertsibling(last, sibling);  
   return self;
 }
 
 
+/* Appends child as the last child sibling of self. 
+ * Returns the new root element of the tree. If self is NULL, child is 
+ * returned as that will be the new root of the BadChildtree. 
+ */
+BadChildtree * 
+badchildtree_appendchild(BadChildtree * self, BadChildtree * child) {
+  BadChildtree * last;
+  if (badchildtree_isempty(self)) return child;
+  last = badchildtree_lastchild(self);
+  if(!last) {
+    self->child = child;
+  } else { 
+    badchildtree_insertsibling(last, child);
+  }
+  child->parent = self;
+  return self;
+} 
+
+
+
+/* Shows the tree in a text form on stdout, suitable for dot to concert to a graph. 
+ */
+void badchildtree_printgraph(BadChildtree * self, int level) {
+  BadChildtree * aid; 
+  if(level == 0) {
+    printf("digraph { \n");
+  }
+  level++;
+  for (aid = badchildtree_child(self) ; aid ; aid = badchildtree_next(aid)) { 
+    printf("t%p -> t%p [color=red];\n", self, aid);
+    if (badchildtree_parent(aid) == self) {
+      printf("t%p -> t%p [color=blue];\n", aid, badchildtree_parent(aid));
+    }    
+    badchildtree_printgraph(aid, level);
+  }
+  level--;
+  if(level == 0) {
+    printf("} \n");
+  }
+}
 
 
 
@@ -955,7 +1006,31 @@ struct BadBoxptr_ badboxptr_malloc(size_t size) {
   return badboxptr_make(malloc(size));
 }
 
-void * badboxptr_get(struct BadBoxptr_ * self) {
+void * badboxptr_borrow(struct BadBoxptr_ * self) {
+  return self->ptr_private;
+} 
+
+int badboxptr_isnull(struct BadBoxptr_ * self) {
+  return (!self->ptr_private);
+} 
+
+void * badboxptr_index(struct BadBoxptr_ * self, size_t offset) {
+  if(badboxptr_isnull(self)) return NULL;
+  return self->ptr_private + offset;
+} 
+
+void * badboxptr_rindex(struct BadBoxptr_ * self, size_t offset) {
+  if(badboxptr_isnull(self)) return NULL;
+  return self->ptr_private - offset;
+} 
+
+
+/* Takes ownership of data from box pointer "from". 
+ * From box pointer will be set to NULL. 
+ */
+struct BadBoxptr_ * badboxptr_own(struct BadBoxptr_ * self, struct BadBoxptr_ * from) {
+  self->ptr_private = from->ptr_private;
+  from->ptr_private = NULL;
   return self->ptr_private;
 } 
 

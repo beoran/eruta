@@ -270,23 +270,48 @@ BadAatree * badaatree_delete(BadAatree * self, BadAatree * node,
                              BadAatreeSetValue * set);
 
 
-typedef struct BadNodetree_ BadNodetree;
+typedef struct BadChildtree_ BadChildtree;
 
 /*
- * Struct: BadNodetree
+ * Struct: BadChildtree
  * 
- * A BadNodetree is a tree where every node can have any number of children.
+ * A BadChildtree is a tree where every node can have any number of children.
  * 
  */
-struct BadNodetree_ {
-  BadNodetree * parent;
-  BadNodetree * child;
-  BadNodetree * first_sibling;
-  BadNodetree * last_sibling;
-  BadNodetree * next_sibling;
-  BadNodetree * previous_sibling;
+struct BadChildtree_ {
+  BadChildtree * parent;
+  BadChildtree * child;  
+  BadChildtree * next;
+  BadChildtree * previous;
 };
 
+
+BadChildtree *
+badchildtree_initall(BadChildtree * self, BadChildtree * parent, BadChildtree * child,
+                    BadChildtree * next_sibling, BadChildtree * previous_sibling); 
+BadChildtree * 
+badchildtree_initnull(BadChildtree * self);
+bool 
+badchildtree_isempty(BadChildtree * self); 
+BadChildtree * 
+badchildtree_parent(BadChildtree * self); 
+BadChildtree * 
+badchildtree_child(BadChildtree * self); 
+BadChildtree * 
+badchildtree_next(BadChildtree * self);
+BadChildtree * 
+badchildtree_lastsibling(BadChildtree * self);
+BadChildtree * 
+badchildtree_lastchild(BadChildtree * self);
+BadChildtree * 
+badchildtree_previous(BadChildtree * self);
+BadChildtree * 
+badchildtree_insertsibling(BadChildtree * self, BadChildtree * sibling);
+BadChildtree * 
+badchildtree_appendsibling(BadChildtree * self, BadChildtree * sibling);
+BadChildtree * 
+badchildtree_appendchild(BadChildtree * self, BadChildtree * child);
+void badchildtree_printgraph(BadChildtree * self, int level);
 
 
 
