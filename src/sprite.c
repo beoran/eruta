@@ -13,7 +13,7 @@
  * registerrs if the image pointer is owned, etc.
  */
 struct SpriteFrame_ {
-  Point             at;  
+  Point         at;
   /* Current location of SpriteFrame relative to SpriteAction. */
   Rebox         bounds; 
   Image       * image;
@@ -23,6 +23,7 @@ struct SpriteFrame_ {
 };
 
 /* Get Tarray interface, generate for SpriteFrame type */
+#undef TEMPLATE_IMPLEMENT
 #define TEMPLATE_T      SpriteFrame
 #define TEMPLATE_NAME   SpriteFrameArray
 #define TEMPLATE_PREFIX spriteframearray_
@@ -38,15 +39,16 @@ struct SpriteFrame_ {
 
 
 struct SpriteAction_ {
-  Point             at;  
+  Point             at;
   /* Current location of SpriteAction with regards to the sprite. */
-  int index;
-  int flags;
-  SpriteFrameArray frames;
+  int               index;
+  int               flags;
+  SpriteFrameArray  frames;
 };
 
 
 /* Get Tarray interface, generate for SpriteAction type */
+#undef TEMPLATE_IMPLEMENT
 #define TEMPLATE_T      SpriteAction
 #define TEMPLATE_NAME   SpriteActionArray
 #define TEMPLATE_PREFIX spriteactionarray_
@@ -81,6 +83,7 @@ struct Sprite_ {
 
 
 /* Get Tarray interface, generate for Sprite type */
+#undef TEMPLATE_IMPLEMENT
 #define TEMPLATE_T      Sprite
 #define TEMPLATE_NAME   SpriteArray
 #define TEMPLATE_PREFIX spritearray_
@@ -106,7 +109,7 @@ struct SpriteList_ {
 SpriteFrame * spriteframe_initall(SpriteFrame * self, Point at, 
                                   Rebox box, Image * image, 
                                   int index, double duration, int flags) {
-                                    
+
   if(!self) return NULL;
   self->at      = at;
   self->bounds  = box;

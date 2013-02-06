@@ -12,6 +12,8 @@
 
 #ifndef TEMPLATE_IMPLEMENT
 
+struct TEMPLATE_STRUCT;
+
 typedef struct TEMPLATE_STRUCT TEMPLATE_NAME;
 
 /* Gets the array's size. Returns 0 if self is NULL. */
@@ -86,12 +88,15 @@ TEMPLATE_NAME * TEMPLATE_FUNC(putptr)(TEMPLATE_NAME * self, int index,
 
 
 #else 
-/* Implementation **/
+/* Implementation */
 
 struct TEMPLATE_STRUCT {
   TEMPLATE_T * data;
   int size;
 };
+
+
+TEMPLATE_NAME;
 
 
 
@@ -270,6 +275,9 @@ TEMPLATE_NAME * TEMPLATE_FUNC(putptr)(TEMPLATE_NAME * self, int index,
 
 /* Finally clean up by undefining all defined macros. **/
 #include <tend.h>
+
+#undef TEMPLATE_IMPLEMENT
+/* We need this because of a nasty CPP bug in older (4.4.3) gcc versions: the undefs in tend.h are not applied repeatedly gcc 4.7.2 is ok. */
 
 
 

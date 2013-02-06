@@ -185,7 +185,7 @@ int tilemap_getindex(Tilemap * self, int l, int x, int y) {
 }
 
 /** Makes a static Thing in the Area of the map at the given 
-tile coordinates zith the size of one tile. Returns the Thing thus represented. */
+tile coordinates with the size of one tile. Returns the Thing thus represented. */
 Thing * tilemap_addtilething(Tilemap * self, int kind, int tx, int ty, int layer) {
   return area_newstatic(self->area, THING_WALL,
                         tx * TILE_W, ty * TILE_H, layer, TILE_W, TILE_H);

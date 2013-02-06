@@ -25,9 +25,9 @@ enum Thingflags_ {
 * A Thing is any in-game object that appears the world/map view.
 */
 struct Thing_ {
-  int kind;  /* What kind of thing it is. Same as collision type. */
-  int id;    /* Numercial ID. */
-  int flags; /* State flags.  */
+  int         kind;  /* What kind of thing it is. Same as collision type. */
+  int         id;    /* Numercial ID. */
+  int         flags; /* State flags.  */
   Area      * area; /* Area the thing is in if any. */
   cpBody    * body; /* Physical body of the thing. Is NULL for statical body. */
   cpShape   * shape; /* Main collision shape of the thing. */
