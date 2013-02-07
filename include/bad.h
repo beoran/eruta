@@ -183,6 +183,17 @@ typedef struct BadAatree_ BadAatree;
 typedef int BadAatreeCompare(BadAatree * one, BadAatree * two);
 typedef int BadAatreeSetValue(BadAatree * to, BadAatree * from);
 typedef int BadAatreeCompareKey(BadAatree * self, void * key);
+typedef void * BadAatreeGetKey(BadAatree * self);
+
+
+typedef struct BadAatreeMethods_ BadAatreeMethods;
+
+struct BadAatreeMethods_ {
+  BadAatreeCompare    * compare;
+  BadAatreeSetValue   * setvalue;
+  BadAatreeCompareKey * comparekey;
+  BadAatreeCompareKey * getkey;  
+};
 
 struct BadAatree_ {
   struct BadBitree_    tree;
@@ -253,11 +264,13 @@ BadAatree * badaatree_skew(BadAatree * self);
 BadAatree * badaatree_split(BadAatree * self);
 
 BadAatree * badaatree_insert(BadAatree * self, BadAatree * node, 
-                             BadAatreeCompare compare);
+                             BadAatreeMethods * methods);
                              
 BadAatree * badaatree_search(BadAatree * self, BadAatree * node,
-                             BadAatreeCompare compare);
+                             BadAatreeMethods * methods);
 
+BadAatree * badaatree_searchkey(BadAatree * self, void * key,
+                                BadAatreeMethods * methods);
 
 BadAatree * badaatree_leveldownall(BadAatree * self);
 
@@ -266,9 +279,11 @@ BadAatree * badaatree_successor(BadAatree * self);
 BadAatree * badaatree_predecessor(BadAatree * self);
 
 BadAatree * badaatree_delete(BadAatree * self, BadAatree * node, 
-                             BadAatreeCompare * compare, 
-                             BadAatreeSetValue * set);
+                             BadAatreeMethods * methods);
 
+
+BadAatree * badaatree_deletekey(BadAatree * self, void * key, 
+                                BadAatreeMethods * methods);
 
 typedef struct BadChildtree_ BadChildtree;
 

@@ -8,6 +8,7 @@ set(ERUTA_SRC_FILES
   src/bxml.c
   src/camera.c
   src/ch.c
+  src/castor.c
   src/draw.c
   src/dynar.c
   src/effect.c

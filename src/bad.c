@@ -700,16 +700,16 @@ BadAatree * badaatree_split(BadAatree * self) {
 }
 
 BadAatree * badaatree_insert(BadAatree * self, BadAatree * node, 
-                             BadAatreeCompare compare) { 
+                             BadAatreeMethods * methods) { 
   int cmp;
   BadAatree * aid; 
   if(!self) { return node; } 
-  cmp = compare(self, node);
+  cmp = methods->compare(self, node);
   if(cmp < 0) {
-    aid = badaatree_insert(badaatree_left(self), node, compare);
+    aid = badaatree_insert(badaatree_left(self), node, methods);
     badaatree_left_(self, aid);
   } else if (cmp > 0) {
-    aid = badaatree_insert(badaatree_right(self), node, compare);
+    aid = badaatree_insert(badaatree_right(self), node, methods);
     badaatree_right_(self, aid);
   } else { /* Ignore duplicates for now,... */
   }
@@ -719,15 +719,15 @@ BadAatree * badaatree_insert(BadAatree * self, BadAatree * node,
 }
 
 BadAatree * badaatree_search(BadAatree * self, BadAatree * node,
-                             BadAatreeCompare compare) { 
+                             BadAatreeMethods * methods) { 
   int cmp;
   BadAatree * aid; 
   if(!self) { return NULL; } 
-  cmp = compare(self, node);
+  cmp = methods->compare(self, node);
   if(cmp < 0) {
-    return badaatree_search(badaatree_left(self), node, compare);
+    return badaatree_search(badaatree_left(self), node, methods);
   } else if (cmp > 0) {
-    return badaatree_search(badaatree_right(self), node, compare);
+    return badaatree_search(badaatree_right(self), node, methods);
   } else { /* Found the item! */
     return self;
   }
@@ -773,17 +773,16 @@ BadAatree * badaatree_predecessor(BadAatree * self) {
 }
 
 BadAatree * badaatree_delete(BadAatree * self, BadAatree * node, 
-                             BadAatreeCompare * compare, 
-                             BadAatreeSetValue * set) {
+                             BadAatreeMethods * methods) {
   BadAatree * aid;
   int cmp;
   if(!self) { return self; } 
-  cmp = compare(self, node);
+  cmp = methods->compare(self, node);
   if(cmp < 0) {
-    aid = badaatree_delete(badaatree_left(self), node, compare, set);
+    aid = badaatree_delete(badaatree_left(self), node, methods);
     badaatree_left_(self, aid);
   } else if (cmp > 0) {
-    aid = badaatree_delete(badaatree_right(self), node, compare, set);
+    aid = badaatree_delete(badaatree_right(self), node, methods);
     badaatree_right_(self, aid);
   } else { /* Found the value ! */
     if(badaatree_isleaf(self)) {
@@ -792,15 +791,15 @@ BadAatree * badaatree_delete(BadAatree * self, BadAatree * node,
     } else if (!badaatree_left(self)) {
       BadAatree * 
       left  = badaatree_successor(self);
-      aid   = badaatree_delete(left, badaatree_right(self), compare, set);
+      aid   = badaatree_delete(left, badaatree_right(self), methods);
       badaatree_right_(self, aid);
-      set(self, left);
+      methods->setvalue(self, left);
     } else {
       BadAatree * 
       right = badaatree_predecessor(self);
-      aid   = badaatree_delete(right, badaatree_left(self), compare, set);
+      aid   = badaatree_delete(right, badaatree_left(self), methods);
       badaatree_left_(self, aid);
-      set(self, right);
+      methods->setvalue(self, right);
     }
   }
   /* Rebalance */
