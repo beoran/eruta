@@ -6,6 +6,9 @@
 typedef struct SpriteFrame_     SpriteFrame;
 typedef struct SpriteAction_    SpriteAction;   
 typedef struct Sprite_          Sprite;
+typedef struct SpriteList_      SpriteList;
+
+
 
 /* The direction of a SpriteAction. */
 enum SpriteActionDirection_ {
@@ -29,7 +32,14 @@ enum SpriteActionType_ {
   SPRITE_ARTS           = 8, 
 }; 
 
+
 Sprite * sprite_new();
+
+
+
+
+
+
 
 
 

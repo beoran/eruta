@@ -34,12 +34,12 @@ struct Thing_ {
   int         z; /* Layer the thing is in. */
   void *      data; /* Logical data of the thing. */
   /* Chipmunk makes it rather hard to get to the size of a 
-  shape, and also since static shapes all havet he same body, the position 
-  of static shapes is lost. And gettting the box is
+  shape, and also since static shapes all have the same body, the position 
+  of static shapes is lost. And getting the box is
   not reliable neough. So keep the size and position 
   for static shapes here even if it's slightly redundant.
   */
-  Point       size; /* size of outline of hape */
+  Point       size; /* size of outline of shape */
   Point       spos; /* Position, merely for static shapes, for dynamic
   bodies, use cpBodyGetPos*/
 };
@@ -398,7 +398,7 @@ void thing_resetforces(Thing * thing) {
 
 
 /** Draws a thing to the current active drawing target, corresponding 
-to it's shape and kind and taking the camera into account. Mostely useful for 
+to it's shape and kind and taking the camera into account.  Useful for 
 checking or debugging the physics. */
 void thing_draw(Thing * self, Camera * camera) {
   int cx      ; 
@@ -452,12 +452,12 @@ void thing_draw(Thing * self, Camera * camera) {
 #include "tarray.h"
 
 /*
-An area is an in game region that forms a single unity in which play
-takes place. OK, it's what you'd call a "level". Every area
-consists of a single tile map that determines the visual looks of the area,
-a chipmunk cpSpace that simulates the dynamics, sprite information
-that determines the visibility and position of the sprites, and a reference
-to the scripting engine that contains the logical state of the game.
+An area is an in game region that corrresponds with a single loaded tile map
+and that keeps track of the physics and location of all in-game objects. 
+
+An area consists of a chipmunk cpSpace that simulates the dynamics, 
+and a list of Things, that is, in game objects. It also contains a reference
+to a SpriteList (that is owned by state). 
 
 Division of the data locations: visual and physics engine: in C.
 Logic/game/character data: in scripting engine.

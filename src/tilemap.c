@@ -8,8 +8,14 @@
 
 #define TILEMAP_PANES 4
 
-/** A tile map is a game map that uses tiled panes for it's 
-display and physics. */
+/** A tile map is a game map, roughly equivalent to a "level" that uses tiled 
+ * panes for it's display. It also contains an Area for the physical, logical
+ * and graphical representation of in-game objects.  
+ * The plan is to have a single Area that gets re-used and cleaned every 
+ * time the map changes, keeping only the player characters and NPC's that 
+ * must move between maps.
+ * This should make keeping track of the characters (from scripting, etc) easier.
+ */
 struct Tilemap_ {
   Image     * texture;
   int         textureid;

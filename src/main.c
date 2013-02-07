@@ -182,26 +182,6 @@ int real_main(void) {
     border  = fifi_loadbitmap("border_004.png",
                             "image", "ui", "background", NULL);
 
-    border  = NULL; 
-    // fifi_loadbitmap_vpath("image/ui/background/border_004.png");
-    sheet   = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
-    // image_load(ERUTA_TEST_SHEET);
-    if(!sheet) {
-      perror(ERUTA_TEST_SHEET);
-      return 1;
-    }
-    tileset = tileset_new(sheet);
-    tile    = tileset_get(tileset, 4);
-    tile_anim_(tile, -4);
-    tile    = tileset_get(tileset, 0);
-    tile_anim_(tile, 4);
-
-    tilepane= tilepane_new(tileset, 100, 100);
-    // tilepane_set(tilepane, 0, 0, tile);
-    // tilepane_set(tilepane, 1, 1, tile);
-    tilepane_fill(tilepane, tile);
-
-    // map = tilemap_load(ERUTA_MAP_TEST);
     map = fifi_loadsimple((FifiSimpleLoader*) tilemap_load,
                           "map_0001.tmx", "map", NULL);
     if(!map) {
@@ -215,49 +195,32 @@ int real_main(void) {
     }
 
   // Try to load the mainruby file.
-  // rh_dofile_stderr(state_lua(state), "main.lua");
+  // rh_dofile_stderr(state_ruby(state), "main.ruby");
   // Call the on_start function.
-  // th_dofunction_mybbconsole_args(state_lua(state), "on_start", "s", "a string argument");
+  // rh_dofunction_mybbconsole_args(state_lua(state), "on_start", "s", "a string argument");
 
     
   while(state_busy(state)) { 
-    // tile_addframe(tile, 3);
-    //tile_addanime(tile, TILE_ANIME_NEXT);
-    //tile_addanime(tile, TILE_ANIME_REWIND);
       react_poll(&react, state);
-      
-      // al_clear_to_color(COLOR_WHITE);
-      // al_draw_line(0, 0, SCREEN_W, SCREEN_H, COLOR_WHITE, 7);
-      
       if(map) tilemap_update(map, state_frametime(state));
-      // tilepane_draw(tilepane, camera);
-      // tilepane_draw(tilepane, camera);
-      //tilepane_draw(tilepane, camera);
-      //tilepane_draw(tilepane, camera);
-      
-      // camera_speed_(camera, mv);
       camera_update(camera);
-      // call lua update callback 
-      // lh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
+      // call ruby update callback 
+      // rh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
       
       
       if(map) tilemap_draw(map, camera);
-      tile_draw(tile, 200, 300);
-      // tile_update(tile);
       state_frames_update(state);
-
       
+      /*
       if (border) { 
         image_blitscale9(border, 10, 400, 200, 30, -1, -1);
         image_blitscale9(border, 220, 300, 400, 150, -1, -1);
       }
+      */
       
-      // call lua drawing callback
-      // lh_dofunction_mybbconsole_args(state_lua(state), "on_draw", "s", "a string argument");
-      
-      /* lh_callglobalstderr_args(state_lua(state), "on_draw", "s", "a string 
-       argument"); */
-      
+      // call ruby drawing callback
+      // rh_dofunction_mybbconsole_args(state_lua(state), "on_draw", "s", "a string argument");
+           
       al_draw_textf(state_font(state), COLOR_WHITE,
                         10, 10, 0, "FPS: %lf, %d", state_fps(state), 
                         state_frames(state));
@@ -265,18 +228,16 @@ int real_main(void) {
         al_draw_textf(state_font(state), COLOR_WHITE,
                         200, 10, 0, "Actor: (%d, %d)", thing_x(actor_data),
                         thing_y(actor_data));
-        // thing_resetforces(actor_data);
       }
       // draw the console (will autohide if not active).
       bbwidget_draw((BBWidget *)state_console(state));
-   
+      /* finally update display. */   
       al_flip_display();
    }
    tilemap_free(map);
    tilepane_free(tilepane);
    tileset_free(tileset);
    image_free(border);
-   // camera_free(camera); now released by state.
    state_done(state);
    state_free(state); 
    return 0;

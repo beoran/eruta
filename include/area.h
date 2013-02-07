@@ -5,7 +5,7 @@
 
 
 
-/**
+/*
 An area is an in game region that forms a single unity in which play
 takes place. Ok, its' what you'd call a "level". Every area
 consists of a single tile map that determines the visual looks of the area,

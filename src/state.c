@@ -11,7 +11,7 @@
 #include "toruby.h"
 #include "event.h"
 #include "widget.h"
-
+#include "sprite.h"
 
 /* The data struct contains all global state and other data of the application.
 */
@@ -36,6 +36,7 @@ struct State_ {
   Mode                * mode; // active mode
   Dynar               * modes;
   Camera              * camera;
+  SpriteList          * sprites;
   Ruby                * ruby;
   BBConsole           * console; 
   // The ruby and error message GUI console.
@@ -70,13 +71,19 @@ Tilemap * state_loadmap(State * state) {
   return state->loadmap;
 }
 
+/* Return's the state's sprite list */
+SpriteList * state_sprites(State * state) {
+  if(!state) return NULL;
+  return state->sprites;
+}
+
 
 /** Allocates a state struct */
 State * state_alloc() {
   return STRUCT_ALLOC(State);
 }
 
-/** Frees a state struct */
+/** Frees a state struct. */
 void state_free(State * self) {
   
   dynar_free(self->modes);
@@ -230,25 +237,19 @@ State * state_init(State * self, BOOL fullscreen) {
   
   al_resize_display(self->display, SCREEN_W, SCREEN_H);
   
-  // initialize the file finder, so we can start to loaded
+  // initialize the file finder, so we can start to load the data files
   if(!fifi_init()) { 
     return state_errmsg_(self, "Could not find data folder!\n");
   }
 
-/*
-  self->font = fifi_loadfont("fixed_font.tga", 0, 0);
-  if (!self->font) {
-    return state_errmsg_(self, "Error loading data/font/fixed_font.tga");
-  }
-*/ // Tuffy.ttf
- // "OpenBaskerville-0.0.53.otf"
+  // Tuffy.ttf
+  // "OpenBaskerville-0.0.53.otf"
   #define STATE_FONTNAME "GranaPadano.ttf"
   
   self->font = fifi_loadfont(STATE_FONTNAME, 16, 0);
   if (!self->font) {
     return state_errmsg_(self, "Error loading " STATE_FONTNAME);
   }
-
 
   state_color_f(self, STATE_WHITE, 1, 1, 1, 1);
   state_color_f(self, STATE_BLACK, 0, 0, 0, 1);
@@ -277,6 +278,7 @@ State * state_init(State * self, BOOL fullscreen) {
   if(!self->camera) {
       return state_errmsg_(self, "Out of memory when allocating camera.");
   }
+  /* Set up console. */
   {
     Style   style = { color_rgb(255,255,255), color_rgba(64,0,0, 191), 
                       self->font, NULL};
