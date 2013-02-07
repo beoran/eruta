@@ -11,6 +11,7 @@
 #include "toruby.h"
 #include "event.h"
 #include "widget.h"
+#include "area.h"
 #include "sprite.h"
 
 /* The data struct contains all global state and other data of the application.
@@ -36,6 +37,8 @@ struct State_ {
   Mode                * mode; // active mode
   Dynar               * modes;
   Camera              * camera;
+  Area                * area;
+  /* Logical and physical game objects. */
   SpriteList          * sprites;
   Ruby                * ruby;
   BBConsole           * console; 
@@ -71,6 +74,12 @@ Tilemap * state_loadmap(State * state) {
   return state->loadmap;
 }
 
+/* Returns the state's area. */
+Area * state_area(State * state) {
+  if(!state) return NULL;
+  return state->area;
+}
+
 /* Return's the state's sprite list */
 SpriteList * state_sprites(State * state) {
   if(!state) return NULL;
@@ -85,11 +94,12 @@ State * state_alloc() {
 
 /** Frees a state struct. */
 void state_free(State * self) {
-  
+  area_free(self->area);
+  self->area = NULL;
   dynar_free(self->modes);
   rh_free(self->ruby);
   bbconsole_free((BBWidget *)self->console, NULL);
-  self->console = NULL; // disable console imediately.
+  self->console = NULL; // disable console immediately.
   font_free(self->font);
   al_destroy_display(self->display);
   camera_free(self->camera);
@@ -292,7 +302,10 @@ State * state_init(State * self, BOOL fullscreen) {
   // set up ruby callback for console commands 
   bbconsole_command_(self->console, 
                    (BBConsoleCommand *)rh_dostring_console, self->ruby);
-    
+  
+  /* Initialize Area. */
+  self->area = area_new();
+  
   return self;
 }
 

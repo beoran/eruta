@@ -67,6 +67,7 @@ struct Tile_ {
 
 /** Cleans up a tileset, and empties it.  */
 void tileset_done(Tileset * set) {
+  if(!set) return;
   if (set->tiles) {
     dynar_free(set->tiles);
     set->tiles = NULL;
@@ -77,6 +78,7 @@ void tileset_done(Tileset * set) {
 
 /** Deallocates a tileset */
 void tileset_free(Tileset * set) {
+  if(!set) return;
   tileset_done(set);
   mem_free(set);
 }
