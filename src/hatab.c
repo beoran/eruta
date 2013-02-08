@@ -107,6 +107,7 @@ typedef struct Pail_ Pail;
 struct Pail_ {
   HatabPair       pair;
   Pail          * next;
+  Pail          * prev;
   uint32_t        hash;
 };
 
@@ -124,27 +125,58 @@ struct Hatab_  {
 
 /* Initializes a hash table bucket, here abbreviated to "pail". */
 static Pail * pail_init(Pail * self, 
-                        void * key, void * data, void * next, uint32_t hash) {
+                        void * key, void * data, void * next, 
+                        void * prev, uint32_t hash) {
   hatabpair_init(&self->pair, key, data);
   self->next  = next;
+  self->prev  = prev;
   self->hash  = hash;
   return self;
 }
 
 /* Initializes a hash table bucket, here abbreviated to "pail". */
 static Pail * pail_initpair(Pail * self, HatabPair pair, 
-                            void * next, uint32_t hash) {
+                            void * next, void * prev, uint32_t hash) {
   self->pair  = pair;
   self->next  = next;
+  self->prev  = prev;
   self->hash  = hash;
   return self;
 }
 
-/* Sets the next pail following this one */
+/* Returns the next pail following this one.  */
+static Pail * pail_next(Pail * self) {
+  if(!self) return NULL;
+  return self->next;
+}
+
+/* Returns the previous pail preceding this one.  */
+static Pail * pail_prev(Pail * self) {
+  if(!self) return NULL;
+  return self->next;
+}
+
+
+/* Sets the next pail following this one. Also updates next->prev if needed.  */
 static Pail * pail_next_(Pail * self, Pail * next) {
   if(!self) return NULL;
-  return self->next = next;
+  self->next = next;
+  if(next) {
+    next->prev = self;
+  }
+  return next;
 }
+
+/* Sets the next pail preceding this one */
+static Pail * pail_prev_(Pail * self, Pail * prev) {
+  if(!self) return NULL;
+  self->prev = prev;
+  if(prev) {
+    prev->next = self;
+  }  
+  return prev;
+}
+
 
 /* Gets the key of the pail. */
 static void * pail_key(Pail * self) {
@@ -159,7 +191,7 @@ static void * pail_value(Pail * self) {
 
 /* Initializes a hash bucket to be empty. */
 static Pail * pail_initempty(Pail * self) {
-  return pail_init(self, NULL, NULL, NULL, 0);
+  return pail_init(self, NULL, NULL, NULL, NULL, 0);
 }
 
 /* Returns zero if the hash of the bucket is equal to hash, nonzero if not. */
@@ -174,12 +206,24 @@ static int pail_empty_p(Pail * self) {
 
 /* Empties a pail, without breaking the link chain */
 static Pail * pail_emptynobreak(Pail * self) {
-  return pail_init(self, NULL, NULL, self->next, 0);
+  return pail_init(self, NULL, NULL, self->next, self->prev, 0);
 }
+
+/* Unlinks the pail, that is, removes itself from the pail chain it is in. 
+ Returns the next pail in the chain, if any. Then empties the pail,
+ so make suure to destroy the contents before calling thsi function. */
+static Pail * pail_unlink(Pail * self) {
+  /* Link next and prev together. */
+  pail_next_(self->prev, self->next); 
+  pail_prev_(self->next, self->prev);
+  pail_initempty(self);
+  return self->next;
+}
+
 
 /*  If the pail is in use, free the memory held by the key 
 by using the HatabPairFree destructor in the acts struct. 
-If the destructioor is NULL, nothing happens .
+If the destructor is NULL, nothing happens. 
 Does not break the link chain. Does nothing if the pail is already empty. */
 static Pail * pail_done(Pail * self, HatabActs * acts) {
   if(pail_empty_p(self)) return self;
