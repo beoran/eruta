@@ -251,6 +251,29 @@ void * dynar_getdata(Dynar * self, int index) {
   return dynar_getraw(self, index);
 }
 
+/* Applies quick sort to the array using the given comparator. */
+Dynar * dynar_qsort(Dynar * self, DynarCompare  * compare) {
+  void * base; int nmemb; size_t size;
+  if(!self) return NULL;
+  base  = self->data;
+  nmemb = self->size;
+  size  = self->elsz;
+  qsort(base, nmemb, size, compare);
+  return self;
+}
+
+/* Applies a binary search to the array using the given comparator. 
+ User must call dynar_qsort first. */
+void * dynar_bsearch(Dynar * self, const void * key, DynarCompare  * compare) {
+  void * base; int nmemb; size_t size;
+  if(!self) return NULL;
+  base  = self->data;
+  nmemb = self->size;
+  size  = self->elsz;
+  return bsearch(key, base, nmemb, size, compare);
+}
+
+
 /* Iterator helper: fill in every->now as data. */
 Every * dynar_everynow_data(Every * every) {
   every->now   = dynar_getdata(every->on, every->index);

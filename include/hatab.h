@@ -3,24 +3,35 @@
 
 #include "mem.h"
 
+typedef struct HatabPair_ HatabPair;
+
+/* Hatab stores key/value pairs. */
+struct HatabPair_ {
+  void * key;
+  void * value;
+};
+
+
 // Hash function for the hash table. 
-typedef int (HatabHash)(void * key);
+typedef int (HatabHash)(const void * key);
 // Comparison function for the hash table 
-typedef int (HatabCompare)(void * one, void * two);
+typedef int (HatabCompare)(const void * one, const void * two);
+
+
+// Free function for the hash table's pairs. 
+typedef int (HatabPairFree)(HatabPair * pair);
+
 
 
 struct HatabActs_;
 typedef struct HatabActs_ HatabActs;
 
-
-
 // function pointers that determine the hash table's functioning, 
 // especially how it compares and hashes keys
 struct HatabActs_ {
   HatabCompare  * compare;
-  HatabHash     * hash;
-  MemDestructor * free_value;
-  MemDestructor * free_key;
+  HatabHash     * hash;  
+  HatabPairFree * free_pair; 
 };
 
 typedef struct Hatab_ Hatab;
@@ -41,7 +52,7 @@ Hatab * hatab_initroom (Hatab * self , HatabActs * acts , int pails , int cellar
 Hatab * hatab_alloc (void);
 Hatab * hatab_init (Hatab * self , HatabActs * acts );
 Hatab * hatab_newroom (HatabActs * acts , int pails , int cellars );
-Hatab * hatab_new (HatabActs * acts );
+Hatab * hatab_new (HatabActs * acts);
 uint32_t hatab_hash (Hatab * self , void * ptr );
 int hatab_compare (Hatab * self , void * pa , void * pb );
 void * hatab_get (Hatab * self , void * key );

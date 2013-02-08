@@ -9,11 +9,66 @@
 #define HATAB_ROOM_DEFAULT    128
 #define HATAB_CELLAR_DEFAULT 16
 
-struct Duo_ {
-  void * key;
-  void * data;
-};
+/* TODO: the current hash table structure isn't too good. 
+ Empty pails are kept in the hash chains. Better would be to use doubly 
+ linked pails, and drop unused pails from the doubly linked list. 
+ Also, the cellar can be replaced by a pail storage, that 
+ keeps all the pails. The hash table's lookup table then 
+ only stores *pointers* to pails in the pail storage. In theory,
+ the pail storage could even be external if that was needed. 
+ */
 
+/* Allocate a new hash tab pair. */
+HatabPair * hatabpair_alloc() {
+  return STRUCT_ALLOC(HatabPair);  
+}
+
+
+/* Initialize a hash tab pair. */
+HatabPair * hatabpair_init(HatabPair * self, void * key, void * value) {
+  if(!self) return NULL;
+  self->key     = key;
+  self->value   = value;
+  return self;
+}
+
+/* Make a new hash tab pair. */
+HatabPair * hatabpair_new(HatabPair * self, void * key, void * value) {
+  return hatabpair_init(hatabpair_alloc(), key, value);  
+}
+
+
+/* Free the pair. Contrary to normal, does not clean up the contents of the pair!. */
+HatabPair * hatabpair_free(HatabPair * self) {
+  return mem_free(self);
+}
+
+/* Apply destructor to pair. */
+HatabPair * hatabpair_destroy(HatabPair * self, HatabPairFree * destructor) {
+  if (destructor) destructor(self);
+  return hatabpair_free(self);
+}
+
+
+/* Get the key of a hash tab pair. */
+void * hatabpair_key(HatabPair * self) {
+  if(!self) return NULL;
+  return self->key;
+}
+
+/* Get the value of a hash tab pair. */
+void * hatabpair_value(HatabPair * self) {
+  if(!self) return NULL;
+  return self->value;
+}
+
+
+/* Returns nonzero if the pair is empty, that is, has a NULL key, zero if not . */
+int hatabpair_empty_p(HatabPair * self) {
+  if(!self) return TRUE;
+  if(!self->key) return TRUE;
+  return FALSE;
+}
 
 /* Jenkins hash function. */
 uint32_t hatab_jenkins(char *key, size_t len) {
@@ -42,27 +97,20 @@ uint32_t hatab_hash_uint32(void * key) {
 }
 
 
-/* A Pail is a hash bucket. This is internal to Hatab and shouldn't be used 
-outide of this file. */
+/* A Pail is a hash bucket. This is internal to Hatab and should not be used 
+outside of this file. */
 
 struct Pail_;
 typedef struct Pail_ Pail;
 
-/* Hash bucket */
+/* Hash bucket, contains a pair, the hash value, and  and a linked list to the next pail. */
 struct Pail_ {
-  void          * key;
-  void          * data;
+  HatabPair       pair;
   Pail          * next;
   uint32_t        hash;
 };
 
 
-static struct Duo_ * duo_init(struct Duo_ * self, void * key, void * value) {
-  if(!self) return NULL;
-  self->key  = key;
-  self->data = value;
-  return self;
-}
 
 /** A hash table. The algorithm implemented is a coalesced hash table. */
 struct Hatab_  {
@@ -77,8 +125,16 @@ struct Hatab_  {
 /* Initializes a hash table bucket, here abbreviated to "pail". */
 static Pail * pail_init(Pail * self, 
                         void * key, void * data, void * next, uint32_t hash) {
-  self->key   = key;
-  self->data  = data;
+  hatabpair_init(&self->pair, key, data);
+  self->next  = next;
+  self->hash  = hash;
+  return self;
+}
+
+/* Initializes a hash table bucket, here abbreviated to "pail". */
+static Pail * pail_initpair(Pail * self, HatabPair pair, 
+                            void * next, uint32_t hash) {
+  self->pair  = pair;
   self->next  = next;
   self->hash  = hash;
   return self;
@@ -90,6 +146,15 @@ static Pail * pail_next_(Pail * self, Pail * next) {
   return self->next = next;
 }
 
+/* Gets the key of the pail. */
+static void * pail_key(Pail * self) {
+  return hatabpair_key(&self->pair);  
+}
+
+/* Gets the value of the pail. */
+static void * pail_value(Pail * self) {
+  return hatabpair_value(&self->pair);  
+}
 
 
 /* Initializes a hash bucket to be empty. */
@@ -104,7 +169,7 @@ static int pail_cmphash(Pail * self, uint32_t hash) {
 
 /* Returns nonzero if the pail is empty, zero if not . */
 static int pail_empty_p(Pail * self) {
-  return !(self->key);
+  return hatabpair_empty_p(&self->pair);
 }
 
 /* Empties a pail, without breaking the link chain */
@@ -113,19 +178,16 @@ static Pail * pail_emptynobreak(Pail * self) {
 }
 
 /*  If the pail is in use, free the memory held by the key 
-by using the MemDestructors in the acts struct. 
-If the free_key or free_value are NULL, nothing happens for
-respectively tehe key or value.
+by using the HatabPairFree destructor in the acts struct. 
+If the destructioor is NULL, nothing happens .
 Does not break the link chain. Does nothing if the pail is already empty. */
 static Pail * pail_done(Pail * self, HatabActs * acts) {
   if(pail_empty_p(self)) return self;
   if(acts) {
-    if(acts->free_value) acts->free_value(self->data);
-    if(acts->free_key)   acts->free_key(self->key);
+    if(acts->free_pair) acts->free_pair(&self->pair);
   }
   return pail_emptynobreak(self);
 }
-
 
 
 /* Default operations for the hash table. */
@@ -133,7 +195,6 @@ static HatabActs hatab_default_acts = {
   (HatabCompare *)    strcmp,
   (HatabHash    *)    hatab_hash_cstr,
   NULL,
-  NULL  
 };
 
 
@@ -253,7 +314,7 @@ static int hatab_pailok(Hatab * self, Pail * pail,
   if(!pail) return FALSE;
   if(pail_empty_p(pail))       return FALSE;
   if(pail_cmphash(pail, hash)) return FALSE;
-  if(hatab_compare(self, pail->key, key)) return FALSE;
+  if(hatab_compare(self, pail_key(pail), key)) return FALSE;
   return TRUE;
 }
 
@@ -280,7 +341,7 @@ static Pail * hatab_findpail(Hatab * self, void * key) {
 void * hatab_get(Hatab * self, void * key) {
   Pail * pail = hatab_findpail(self, key);
   if(!pail) return NULL;
-  return pail->data;
+  return pail_value(pail);
 }
 
 /** Removes a value that matches key from a hash table. Returns NULL if 
@@ -289,7 +350,7 @@ void * hatab_drop(Hatab * self, void * key) {
   void * data;
   Pail * pail = hatab_findpail(self, key);
   if(!pail) return NULL;
-  data  = pail->data;
+  data  = pail_value(pail);
   // empty the pail but don't break it's links so it can be reused.
   pail_emptynobreak(pail); 
   return data;

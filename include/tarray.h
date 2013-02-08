@@ -16,6 +16,12 @@ struct TEMPLATE_STRUCT;
 
 typedef struct TEMPLATE_STRUCT TEMPLATE_NAME;
 
+#define TEMPLATE_COMPARATOR TJOIN(TEMPLATE_STRUCT, Compare)
+
+typedef int TEMPLATE_COMPARATOR (const void * self, const void * other);
+
+  
+
 /* Gets the array's size. Returns 0 if self is NULL. */
 int TEMPLATE_FUNC(size)(TEMPLATE_NAME * self);
 
@@ -85,6 +91,10 @@ TEMPLATE_NAME * TEMPLATE_FUNC(put)(TEMPLATE_NAME * self,
 */
 TEMPLATE_NAME * TEMPLATE_FUNC(putptr)(TEMPLATE_NAME * self, int index, 
                               TEMPLATE_T * ptr);
+
+
+
+
 
 
 #else 
@@ -260,6 +270,21 @@ TEMPLATE_NAME * TEMPLATE_FUNC(putptr)(TEMPLATE_NAME * self, int index,
   // not the pointer itself. 
 }
 
+#ifdef TEMPLATE_COMPARATOR
+
+/* Applies quicksort to the array using the given comparator. */
+TEMPLATE_NAME * TEMPLATE_FUNC(qsort)(TEMPLATE_NAME * self, 
+                                     TEMPLATE_COMPARATOR * compare) {
+  void * base; int nmemb; size_t size;
+  if(!self) return NULL;
+  base  = self->data;
+  nmemb = self->size;
+  size  = sizeof(TEMPLATE_T);
+  qsort(base, nmemb, size, compare);
+  return self;
+}
+
+#endif
 
 #endif
 
@@ -267,6 +292,10 @@ TEMPLATE_NAME * TEMPLATE_FUNC(putptr)(TEMPLATE_NAME * self, int index,
 
 #ifdef TEMPLATE_ZERO
 #undef TEMPLATE_ZERO
+#endif
+
+#ifdef TEMPLATE_COMPARATOR
+#undef TEMPLATE_COMPARATOR
 #endif
 
 /* Finally clean up by undefining all defined macros. **/
