@@ -115,10 +115,10 @@ struct Pail_ {
 
 /** A hash table. The algorithm implemented is a coalesced hash table. */
 struct Hatab_  {
+  Dynar      * lookup ;
   Dynar      * pails  ;
-  Dynar      * cellar ;
+  int          lookup_used;
   int          pails_used;
-  int          cellar_used;
   /* Acts of the hash table, for customization of the hash function, etc.  */
   HatabActs  * acts   ;
 };
@@ -230,7 +230,7 @@ static Pail * pail_done(Pail * self, HatabActs * acts) {
   if(acts) {
     if(acts->free_pair) acts->free_pair(&self->pair);
   }
-  return pail_emptynobreak(self);
+  return pail_unlink(self);
 }
 
 
@@ -242,27 +242,26 @@ static HatabActs hatab_default_acts = {
 };
 
 
-/** Returns nonzero if the cellar is full, zero if it isn't. */
-int hatab_cellarfull_p(Hatab * self) {
-  if(!self) return 0;
-  return self->cellar_used >= dynar_size(self->cellar);
-}
-
-/** Returns nonzero if the pails array is full, zero if it isn't. */
+/** Returns nonzero if the pails is full, zero if it isn't. */
 int hatab_pailsfull_p(Hatab * self) {
   if(!self) return 0;
   return self->pails_used >= dynar_size(self->pails);
 }
 
+/** Returns nonzero if the lookup array is full, zero if it isn't. */
+int hatab_lookupfull_p(Hatab * self) {
+  if(!self) return 0;
+  return self->lookup_used >= dynar_size(self->lookup);
+}
+
 /** Cleans up and empties a table. */
 Hatab * hatab_done(Hatab * self) {
-  int index, stop;
+  int index;
   if(!self) return NULL;
-  // stop = 
+  dynar_free(self->lookup);
   dynar_free(self->pails);
-  dynar_free(self->cellar);
-  self->pails       = self->cellar      = NULL;
-  self->pails_used  = self->cellar_used = 0;
+  self->lookup       = self->pails      = NULL;
+  self->lookup_used  = self->pails_used = 0;
   return self;
 }
 
@@ -273,51 +272,77 @@ Hatab * hatab_free(Hatab * self) {
 }
 
 
-/* Gets a pointer to the (pails) pail at the given index,
+/* Gets a pointer to the lookup pail at the given index,
 which is not checked and should be valid. */
-static Pail * hatab_getpail(Hatab * self, uint32_t index) {
+static Pail * hatab_getlookuppail(Hatab * self, uint32_t index) {
+  return (Pail *) dynar_getptr(self->lookup, index);
+}
+
+/* Gets a pointer to the pails pail at the given index,
+which is not checked and should be valid. */
+static Pail * hatab_getpailspail(Hatab * self, uint32_t index) {
   return (Pail *) dynar_getdata(self->pails, index);
 }
 
-/* Gets a pointer to the cellar pail at the given index,
-which is not checked and should be valid. */
-static Pail * hatab_getcellarpail(Hatab * self, uint32_t index) {
-  return (Pail *) dynar_getdata(self->cellar, index);
+/* Returns the next empty pail cell, or NULL if the pails storage is full. */
+static Pail * hatab_getnextemptypail(Hatab * self) {  
+  int index, stop;
+  stop = dynar_size(self->pails);
+  for (index = 0; index < stop; index ++) {
+    Pail * pail = hatab_getpailspail(self, index);
+    if (pail_empty_p(pail)) { 
+      self->pails_used++;
+      return pail;
+    }
+  }
+  return NULL;
 }
 
-/* Returns the next available cellar cell, or NULL if the cellar is full. */
-static Pail * hatab_getnextcellar(Hatab * self) {
-  if(hatab_cellarfull_p(self)) return NULL;
-  self->cellar_used++;
-  return hatab_getcellarpail(self, self->cellar_used - 1);
-}
-
-/** Empties all entries in the table. */
+/* Empties all entries in the table. */
 Hatab * hatab_clear(Hatab * self) {
   int index, size;
+  size      = dynar_size(self->lookup);
+  /* Empty lookup table. */
+  for(index = 0; index < size; index++) {
+    dynar_putptr(self->lookup, index, NULL);
+  }
+  /* Clean up and free pails. */
   size      = dynar_size(self->pails);
   for(index = 0; index < size; index++) {
-    void * data = hatab_getpail(self, index);
-    pail_initempty(data);
+    void * data = hatab_getpailspail(self, index);
+    pail_done(data, self->acts);
   }
-  size      = dynar_size(self->cellar);
+  return self;
+}
+
+/* Initializes the dynars and pails of the table. */
+Hatab * hatab_initpails(Hatab * self) {
+  int index, size;
+  size      = dynar_size(self->lookup);
+  /* Empty lookup table. */
   for(index = 0; index < size; index++) {
-    void * data = hatab_getcellarpail(self, index);
+    dynar_putptr(self->lookup, index, NULL);
+  }
+  /* Clean up and free pails. */
+  size      = dynar_size(self->pails);
+  for(index = 0; index < size; index++) {
+    void * data = hatab_getpailspail(self, index);
     pail_initempty(data);
   }
   return self;
 }
 
-/** Initializes the table with the given room and cellar space. */
+
+/** Initializes the table with the given room and pails space. */
 Hatab * hatab_initroom(Hatab * self, HatabActs * acts, 
-                        int pails, int cellars)
+                        int pails, int space)
 {
   if(!self)     return NULL;
   self->acts    = acts ? acts : (&hatab_default_acts);
-  self->pails   = dynar_new(pails  , sizeof(Pail));
-  self->cellar  = dynar_new(cellars, sizeof(Pail));
-  if((!self->pails) || (!self->cellar)) return hatab_done(self);
-  hatab_clear(self);
+  self->lookup  = dynar_new(pails , sizeof(Pail *));
+  self->pails   = dynar_new(space, sizeof(Pail));
+  if((!self->lookup) || (!self->pails)) return hatab_done(self);
+  hatab_initpails(self);
   return self;
 }
 
@@ -326,28 +351,28 @@ Hatab * hatab_alloc() {
   return STRUCT_ALLOC(Hatab);
 }
 
-/** Initializes the hatab with default room and cellar space */
+/** Initializes the hatab with default room and pails space */
 Hatab * hatab_init(Hatab * self, HatabActs * acts) {
-  return hatab_initroom(self, acts, HATAB_ROOM_DEFAULT, HATAB_CELLAR_DEFAULT);
+  return hatab_initroom(self, acts, HATAB_ROOM_DEFAULT, HATAB_ROOM_DEFAULT * 2);
 }
 
 /** Makes a new hatab */
-Hatab * hatab_newroom(HatabActs * acts, int pails, int cellars) {
-  return hatab_initroom(hatab_alloc(), acts, pails, cellars);
+Hatab * hatab_newroom(HatabActs * acts, int pails, int space) {
+  return hatab_initroom(hatab_alloc(), acts, pails, space);
 }
 
 
-/** Makes a new hatab with default room and cellar space */
+/** Makes a new hatab with default room and pails space */
 Hatab * hatab_new(HatabActs * acts) {
-  return hatab_newroom(acts, HATAB_ROOM_DEFAULT, HATAB_CELLAR_DEFAULT);
+  return hatab_newroom(acts, HATAB_ROOM_DEFAULT, HATAB_ROOM_DEFAULT * 2);
 }
 
-/* Calculates the hash value of the given data pointer using self->acst.hash*/
+/* Calculates the hash value of the given data pointer using self->acts->hash*/
 uint32_t hatab_hash(Hatab * self, void * ptr) {
   return self->acts->hash(ptr);
 }
 
-/* Compares the given data pointers using self->acts.compare*/
+/* Compares the given data pointers using self->acts->compare */
 int hatab_compare(Hatab * self, void * pa, void * pb) {
   return self->acts->compare(pa, pb);
 }
@@ -368,13 +393,13 @@ static Pail * hatab_findpail(Hatab * self, void * key) {
   Pail * pail;
   if(!self) return NULL;
   hash    = hatab_hash(self, key);
-  index   = hash % dynar_size(self->pails);
-  pail    = hatab_getpail(self, index);
+  index   = hash % dynar_size(self->lookup);
+  pail    = hatab_getlookuppail(self, index);
   if (!pail)  return NULL; 
   while(pail) {
     if(hatab_pailok(self, pail, key, hash)) return pail;
     // return the pail if it's OK. 
-    pail = pail->next; // Follow the linked chain of pails.
+    pail = pail_next(pail); // Follow the linked chain of pails.
   }
   // If we get here, no more links, and not found. Return null.
   return NULL;
@@ -388,23 +413,21 @@ void * hatab_get(Hatab * self, void * key) {
   return pail_value(pail);
 }
 
-/** Removes a value that matches key from a hash table. Returns NULL if 
-delete failed, or erased value. */
+/** Removes a value that matches key from a hash table. 
+ *  The value will also will be deleted if the methods are set correctly. */
 void * hatab_drop(Hatab * self, void * key) {
   void * data;
   Pail * pail = hatab_findpail(self, key);
   if(!pail) return NULL;
-  data  = pail_value(pail);
-  // empty the pail but don't break it's links so it can be reused.
-  pail_emptynobreak(pail); 
-  return data;
+  pail_done(pail, self->acts); 
+  return self;
 }
 
 /** Grows the hash table when needed. */
 Hatab * hatab_grow(Hatab * self) {
-  // double the size of the cellar block, so collisions can be handled 
+  // double the size of the pails block, so collisions can be handled 
   // NOTE: should also grow table but rehash is slow...
-  void * mok = dynar_grow(self->cellar, (dynar_size(self->cellar))*2);
+  void * mok = dynar_grow(self->pails, (dynar_size(self->pails))*2);
   /*void * cok = siarray_grow(hatab_pails(self), hatab_pailsroom(self)*2);*/
   if(!mok) return NULL;
   // if(!cok) return NULL; // XXX: rehash the table here!  
@@ -415,42 +438,69 @@ Hatab * hatab_grow(Hatab * self) {
 /** Stores a value in the hash table. */
 void * hatab_put(Hatab * self, void * key, void * value) {
   uint32_t hash, index;
-  Pail * pail, * nextpail = NULL;
+  Pail * pail, * newpail = NULL;
   if(!self) return NULL;
   hash    = hatab_hash(self, key);
-  index   = hash % dynar_size(self->pails);
-  pail    = hatab_getpail(self, index);
-  if (!pail) return NULL;
-  while (pail->next && !pail_empty_p(pail))  {
-      pail = pail->next;
-      // Follow chain of linked, nonempty pails. If the pail is empty or
-      // the chain is broken, we can store the data in the pail.
-  }
-  // If we get here, no more links, so we have to add the value either here,
-  // or add a new linked pail.
-  
-  // If there is no next pail, link to new one.
-  if (!pail->next) {
-    if(hatab_cellarfull_p(self)) {  // The cellar is full.
+  index   = hash % dynar_size(self->lookup);
+  pail    = hatab_getlookuppail(self, index);
+  /* get a new pail */
+  newpail = hatab_getnextemptypail(self);
+  if(!newpail) { 
+    if(hatab_pailsfull_p(self)) {  // The pails is full.
       if(!hatab_grow(self)) return NULL; 
       // Grow the hashtable, return null if that failed. 
     }
-    nextpail = hatab_getnextcellar(self);
-    // If we din't get a next pail, the cellar is full. 
-    // Grow the table and try again.
-    if(!nextpail) {
-      if(!hatab_grow(self)) return NULL;
-      nextpail = hatab_getnextcellar(self);
-      if(!nextpail) return NULL;
-    } 
-    pail->next = nextpail;
-    pail = nextpail;
-  } 
-  self->pails_used++; // one more bucket in use. 
-  return pail_init(pail, key, value, NULL, hash);
+    newpail = hatab_getnextemptypail(self);
+    if (!newpail) return NULL;
+  }
+
+  
+  /* No pail set yet, set it in the array. */  
+  if (!pail)  { 
+    dynar_putptr(self->lookup, index, newpail);
+  } else { 
+    /* Pail already there. Go to end of linked list and add pail there. */
+    while (pail->next)  {
+      pail = pail->next;
+      // Follow chain of linked, nonempty pails. If the pail is empty or
+      // the chain is broken, we can store the data in the pail.
+    }
+    // XXX
+    pail->next          = newpail;
+    newpail->prev       = pail;
+  }
+  newpail->hash         = hash;
+  hatabpair_init(&newpail->pair, key, value);
+  return newpail; 
 }
 
 
+/* Prints a dot graph of the hash tab for debugging */
+void hatab_printgraph(Hatab * self) {
+  int index, stop, oldindex;
+  Pail * pail, * oldpail, * nextpail,  *linkpail;
+  pail = NULL; oldpail = NULL;
+  oldindex = -1;
+  printf("digraph { \n");
+  stop = dynar_size(self->lookup);
+  for(index = 0; index < stop; index ++) {
+    pail = (Pail *) dynar_getptr(self->lookup, index);
+    if (!pail) { 
+      continue;
+    }
+    if (oldpail) {
+       printf("t%p -> t%p [color=red];\n", oldpail, pail);
+    }
+    linkpail = pail ; nextpail = pail_next(linkpail);
+    while (nextpail) {
+      printf("t%p -> t%p [color=green];\n", linkpail, nextpail);
+      linkpail = nextpail;
+      nextpail = pail_next(linkpail); 
+    } 
+    oldpail = pail;  
+  } 
+  printf("} \n");
+}
 
 
 
