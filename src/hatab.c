@@ -419,6 +419,7 @@ void * hatab_drop(Hatab * self, void * key) {
   void * data;
   Pail * pail = hatab_findpail(self, key);
   if(!pail) return NULL;
+  /* XXX: this can't work now... */
   pail_done(pail, self->acts); 
   return self;
 }
@@ -426,7 +427,7 @@ void * hatab_drop(Hatab * self, void * key) {
 /** Grows the hash table when needed. */
 Hatab * hatab_grow(Hatab * self) {
   // double the size of the pails block, so collisions can be handled 
-  // NOTE: should also grow table but rehash is slow...
+  // NOTE: should also grow lookup table but rehash is slow...
   void * mok = dynar_grow(self->pails, (dynar_size(self->pails))*2);
   /*void * cok = siarray_grow(hatab_pails(self), hatab_pailsroom(self)*2);*/
   if(!mok) return NULL;
