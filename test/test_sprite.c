@@ -6,6 +6,10 @@
 
 
 TEST_FUNC(sprite) {
+  Sprite * sprite;
+  sprite = sprite_new();
+  TEST_NOTNULL(sprite);
+  sprite_free(sprite);
   TEST_DONE();
 }
 
