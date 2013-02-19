@@ -98,6 +98,7 @@ Dynar * dynar_newempty(int elsz) {
 Dynar * dynar_size_(Dynar* self, int newsize) {
   int elsz = dynar_elementsize(self);
   void * newd = NULL;
+  int delta;
   if(!self) return NULL;
   // don't allow a newsize of 0, since that will make realloc call
   // free on self->data, which we don't want.
@@ -107,7 +108,13 @@ Dynar * dynar_size_(Dynar* self, int newsize) {
   // if we get here realloc was successful, so it should be safe to reassign
   // self->data
   self->data = newd;
+  // now, empty the unused new data! (is this ok???) 
+  delta =  newsize - self->size;
+  memset(self->data + (self->size * self->elsz), 0, (delta * self->elsz));
+  
   self->size = newsize;  
+  
+  
   return self;
 }
 

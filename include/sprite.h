@@ -52,8 +52,11 @@ enum SpriteActionType_ {
 }; 
 
 
-Sprite * sprite_new();
-
+Sprite * sprite_init(Sprite * self, int index, int nactions);
+Sprite * sprite_done(Sprite * self);
+Sprite * sprite_free(Sprite * self);
+Sprite * sprite_alloc();
+Sprite * sprite_new(int index, int nactions);
 
 
 
