@@ -266,7 +266,7 @@ Dynar * dynar_qsort(Dynar * self, DynarCompare  * compare) {
  User must call dynar_qsort first. */
 void * dynar_bsearch(Dynar * self, const void * key, DynarCompare  * compare) {
   void * base; int nmemb; size_t size;
-  if(!self) return NULL;
+  if (!self) return NULL;
   base  = self->data;
   nmemb = self->size;
   size  = self->elsz;

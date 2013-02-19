@@ -2,121 +2,130 @@
 #include "sprite.h"
 #include "rebox.h"
 #include "mem.h"
+#include "dynar.h"
+#include "image.h"
 #include "bad.h"
+
 
 #define SPRITEFRAME_OWNEDFLAG  1
 
+/* To use the sprites from LPC as placeholders, 
+ and also for the real sprites, which will have a similar layout, 
+ I 'll try a non-atlas layered fragment approach first. 
+ In this approach every sprite has actions (animation series),
+ every series has frames, and every frame has layers of trimmed 
+ layers. Each layer has an owned, trimmed bitmap with only the relevant 
+ sprite fragment and their offset to the sprite proper.
+*/
 
-/* A SpriteFrame is a single frame of animation of a sprite. 
- * It consists of a bounds rectangle, a image pointer, an index in the 
- * animation, and a duration in ms of the frame. The flags field 
- * registerrs if the image pointer is owned, etc.
+
+/* A SpriteLayer is a single layer of a single frame of animation of a sprite */
+struct SpriteLayer_ {
+  Point   offset;
+  Image * image;
+  int     index;
+  int     drawflags;
+};
+
+
+/* A SpriteFrame is a single frame of animation of a sprite.
+ * It consists of a set of layers, a duration, flags, and the almount of used layers.  
  */
 struct SpriteFrame_ {
-  Point         at;
-  /* Current location of SpriteFrame relative to SpriteAction. */
-  Rebox         bounds; 
-  Image       * image;
-  int           index;
-  double        duration;
-  int           flags;
+  int                index;
+  Dynar            * layers;
+  int                used_layers;
+  double             duration;
+  int                flags;
 };
-
-/* Get Tarray interface, generate for SpriteFrame type */
-#undef TEMPLATE_IMPLEMENT
-#define TEMPLATE_T      SpriteFrame
-#define TEMPLATE_NAME   SpriteFrameArray
-#define TEMPLATE_PREFIX spriteframearray_
-#include "tarray.h"
-
-/* Get Tarray implementation, generate for SpriteFrame type */
-#define TEMPLATE_IMPLEMENT
-#define TEMPLATE_T      SpriteFrame
-#define TEMPLATE_NAME   SpriteFrameArray
-#define TEMPLATE_PREFIX spriteframearray_
-#include "tarray.h"
-
-
 
 struct SpriteAction_ {
-  Point             at;
-  /* Current location of SpriteAction with regards to the sprite. */
-  int               index;
-  int               flags;
-  SpriteFrameArray  frames;
+  int                index;
+  int                flags;
+  Dynar            * frames;
+  int                used_frames;
+  SpriteFrame      * frame_now;
 };
 
-
-/* Get Tarray interface, generate for SpriteAction type */
-#undef TEMPLATE_IMPLEMENT
-#define TEMPLATE_T      SpriteAction
-#define TEMPLATE_NAME   SpriteActionArray
-#define TEMPLATE_PREFIX spriteactionarray_
-#include "tarray.h"
-
-/* Get Tarray implementation, generate for SpriteAction type */
-#define TEMPLATE_IMPLEMENT
-#define TEMPLATE_T      SpriteAction
-#define TEMPLATE_NAME   SpriteActionArray
-#define TEMPLATE_PREFIX spriteactionarray_
-#include "tarray.h"
 
 /* A sprite has several actions and frames. */
 struct Sprite_ {
-  Point             at;  
-  /* Current location of Sprite. */
-  Point             offset;
-  /* Offset of child sprite to parent sprite. */
-  Image           * sheet; 
-  /* the sprite's sheet. It's an image "atlas" that holds all frames. */
-  int               index;
-  int               z;
-  int               action; 
-  int               frame;
-  double            time;
-  SpriteActionArray actions;
-  BadChildtree      tree;
-  /* Tree of child, sibling and parent sprites. */
-  BadListNode       node;
-  /* List node for listing drawing order. */
+  SpriteAction     * action_now;
+  SpriteFrame      * frame_now;
+  int                frame_index;
+  int                action_index;
+  int                actions_used;
+  double             time;
+  Dynar            * actions;
+  int used_actions;
 };
-
-
-/* Get Tarray interface, generate for Sprite type */
-#undef TEMPLATE_IMPLEMENT
-#define TEMPLATE_T      Sprite
-#define TEMPLATE_NAME   SpriteArray
-#define TEMPLATE_PREFIX spritearray_
-#include "tarray.h"
-
-/* Get Tarray implementation, generate for Sprite type */
-#define TEMPLATE_IMPLEMENT
-#define TEMPLATE_T      Sprite
-#define TEMPLATE_NAME   SpriteArray
-#define TEMPLATE_PREFIX spritearray_
-#include "tarray.h"
-
 
 /** The list of all loaded sprites. Some may be drawn and some not. */
 struct SpriteList_ {
-  SpriteArray sprites;
+  Dynar * sprites;
+  int     sprites_used;
 }; 
 
+/* Initialize a sprite layer. */
+SpriteLayer *
+spritelayer_initall(SpriteLayer * self, int index, Image * image, Point offset) {
+  if (!self) return NULL;
+  self->image           = image;
+  self->index           = index;
+  self->offset          = offset;
+  self->drawflags       = 0;
+  return self;
+}
 
-#define SPRITE_BEGINACTIONS      8
-#define SPRITEACTION_BEGINFRAME  4
+/* Draw a sprite layer with point at as the relevant game object's core position. */
+void spritelayer_draw(SpriteLayer * self, Point * at) {
+  Point real;
+  if(!self) return;
+  real = cpvadd((*at), self->offset);
+  al_draw_bitmap(self->image, real.x, real.y, self->drawflags);
+}
 
-SpriteFrame * spriteframe_initall(SpriteFrame * self, Point at, 
-                                  Rebox box, Image * image, 
-                                  int index, double duration, int flags) {
-
+SpriteLayer * 
+spritelayer_done(SpriteLayer * self) {
   if(!self) return NULL;
-  self->at      = at;
-  self->bounds  = box;
-  self->image   = image;
-  self->index   = index;
-  self->duration= duration;
-  self->flags   = flags;
+  al_destroy_bitmap(self->image);
+  self->image           = NULL;
+  self->drawflags       = 0;
+  self->index           = -1;
+  self->offset          = point(0.0, 0.0);
+  return self;
+}
+
+SpriteLayer *
+spritelayer_drawflags_(SpriteLayer * self, int drawflags) {
+  if (!self) return NULL;
+  self->drawflags = drawflags;
+  return self;
+}
+
+
+int spriteframe_maxlayers(SpriteFrame * self) {
+  return dynar_size(self->layers);
+}
+
+int spriteframe_layers(SpriteFrame * self) {
+  return self->used_layers;
+}
+
+
+#define SPRITE_BEGINLAYERS       8
+#define SPRITE_BEGINACTIONS      8
+#define SPRITE_BEGINFRAMES       4
+
+SpriteFrame * spriteframe_init(SpriteFrame * self, 
+                                int index, int nlayers, int flags,
+                                double duration) {
+  if (!self) return NULL;
+  self->index           = index;
+  self->layers          = dynar_new(nlayers, sizeof(SpriteLayer *));
+  self->used_layers     = 0;
+  self->duration        = duration;
+  self->flags           = flags;
   return self;
 } 
 
@@ -124,42 +133,120 @@ SpriteFrame * spriteframe_alloc() {
   return STRUCT_ALLOC(SpriteFrame);
 }
 
+SpriteFrame * spriteframe_done(SpriteFrame * self) {
+  int index; 
+  SpriteLayer * layer;
+  if(!self) return NULL;
+  self->flags           = 0;
+  self->duration        = 0.0;
+  self->used_layers     = -1;
+  for (index = 0; index < dynar_size(self->layers) ; index) {
+    layer = dynar_getraw(self->layers, index);
+    spritelayer_done(layer);
+  }
+  dynar_free(self->layers);
+  self->layers          = NULL;
+  self->index           = -1;
+  return self;
+}
+
+SpriteFrame * spriteframe_free(SpriteFrame * self) {
+  spriteframe_done(self);
+  return NULL;
+}
+
+
+
+int spriteaction_maxframes(SpriteAction *self) {
+  if(!self) return 0;
+  return dynar_size(self->frames);
+}
+
 int spriteaction_frames(SpriteAction *self) {
   if(!self) return 0;
-  return spriteframearray_size(&self->frames);
+  return self->used_frames;
 }
 
-SpriteFrame * spriteaction_frame(SpriteAction *self, int index) {
+SpriteFrame * 
+spriteaction_frame(SpriteAction *self, int index) {
   if(!self) return 0;
-  return spriteframearray_getptr(&self->frames, index);
+  return dynar_getptr(self->frames, index);
+}
+
+SpriteFrame * 
+spriteaction_frame_(SpriteAction *self, int index, SpriteFrame * frame) {
+  if(!self) return 0;
+  return dynar_putptr(self->frames, index, frame);
 }
 
 
-SpriteAction * spriteaction_init(SpriteAction * self, int index, int nframes, 
-                                 int flags, Point at) {
+SpriteAction * 
+spriteaction_init(SpriteAction * self, int index, int flags, int nframes) {
   int aid;
-  self->index  = index;
-  spriteframearray_init(&self->frames, nframes); 
-  self->flags  = flags;
-  self->at     = at;
-  for(aid = 0; aid < spriteaction_frames(self); aid++) {
-    Point pzero = { 0.0, 0.0};
-    Rebox bzero; 
-    SpriteFrame * frame = spriteaction_frame(self, aid);
-    rebox_init(&bzero, 0.0, 0.0, 0.0, 0.0);
-    spriteframe_initall(frame, pzero, bzero, NULL, aid, 0.0, 0); 
+  self->index           = index;
+  self->frames          = dynar_new(nframes, sizeof(SpriteFrame *));
+  self->used_frames     = 0;
+  self->flags           = flags;
+  self->frame_now       = NULL;
+  for (aid = 0; aid < spriteaction_frames(self); aid++) {
+    spriteaction_frame_(self, aid, NULL); 
   }
   return self;
 }
 
-int sprite_actions(Sprite *self) {
+
+SpriteAction * 
+spriteaction_done(SpriteAction * self) {
+  int aid;
+  if(!self) return NULL;
+  for (aid = 0; aid < spriteaction_frames(self); aid++) {
+    SpriteFrame * frame = spriteaction_frame(self, aid);
+    spriteframe_free(frame); 
+  }
+  dynar_free(self->frames);
+  self->frames = NULL;
+  self->frame_now = NULL;
+  return self;
+}
+
+SpriteAction * spriteaction_free(SpriteAction * self) {
+  spriteaction_done(self);
+  return mem_free(self);
+}
+
+
+SpriteAction * spriteaction_alloc() {
+  return STRUCT_ALLOC(SpriteAction);
+}
+
+SpriteLayer * spritelayer_alloc() {
+  return STRUCT_ALLOC(SpriteLayer);
+}
+
+SpriteAction * spriteaction_new(int index, int nframes, int flags) {
+  return spriteaction_init(spriteaction_alloc(), index, nframes, flags);
+}
+
+SpriteFrame * spriteframe_new(int index, int nlayers, int flags, double duration) {
+  return spriteframe_init(spriteframe_alloc(), index, nlayers, flags, duration);  
+}
+
+
+
+
+int sprite_maxactions(Sprite *self) {
   if(!self) return 0;
-  return spriteactionarray_size(&self->actions);
+  return dynar_size(self->actions);
 }
 
 SpriteAction * sprite_action(Sprite *self, int index) {
   if(!self) return 0;
-  return spriteactionarray_getptr(&self->actions, index);
+  return dynar_getptr(self->actions, index);
+}
+
+SpriteAction * sprite_action_(Sprite *self, int index, SpriteAction * action) {
+  if(!self) return 0;
+  return dynar_getptr(self->actions, index);
 }
 
 
@@ -174,17 +261,49 @@ SpriteFrame * sprite_frame(Sprite *self, int action, int index) {
 }
 
 
-Sprite * sprite_init(Sprite * self, int index, int nactions, Point at) {
+Sprite * sprite_init(Sprite * self, int index, int nactions) {
+  int aid;
   if (!self) return NULL;
-  self->at      = at;
-  self->index   = index;
-  self->action  = 0; 
-  self->frame   = 0;
-  self->time    = 0.0; 
-  spriteactionarray_init(&self->actions, nactions);   
-  badchildtree_initnull(&self->tree);
+  // self->index        = index;
+  self->action_now   = NULL;
+  self->frame_now    = NULL;
+  self->used_actions = 0;
+  self->time         = 0.0; 
+  self->actions      = dynar_new(nactions, sizeof(SpriteAction *));   
+  for (aid = 0; aid < sprite_maxactions(self); aid++) {
+    sprite_action_(self, aid, NULL);
+  }   
   return self;
 }
+
+
+Sprite * sprite_done(Sprite * self) {
+  int aid;
+  if(!self) return NULL;
+  for (aid = 0; aid < sprite_maxactions(self); aid++) {
+    SpriteAction * act = sprite_action(self, aid); 
+    spriteaction_free(act);
+  }   
+  dynar_free(self->actions);
+  self->actions    = NULL; 
+  self->action_now = NULL;
+  self->frame_now  = NULL;
+  return self;
+}
+
+Sprite * sprite_free(Sprite * self) {
+  return mem_free(sprite_done(self));
+  return NULL;
+}
+
+Sprite * sprite_alloc() {
+  return STRUCT_ALLOC(Sprite);
+}
+
+Sprite * sprite_new(int index, int nactions) {
+  return sprite_init(sprite_alloc(), index, nactions);
+}
+
 
 
 
