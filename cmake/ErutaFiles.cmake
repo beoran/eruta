@@ -5,6 +5,7 @@ set(ERUTA_SRC_FILES
   src/rebox.c
   src/area.c
   src/bad.c
+  src/brex.c
   src/bxml.c
   src/camera.c
   src/ch.c
