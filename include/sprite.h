@@ -52,18 +52,37 @@ enum SpriteActionType_ {
 }; 
 
 
-Sprite * sprite_init(Sprite * self, int index, int nactions);
+/* Amount of potential actions that a sprite has by default at creation. */
+#define SPRITE_NACTIONS_DEFAULT 16
+
+/* Amount of potential frame that a spriteaction has by default at creation. */
+#define SPRITEACTION_NFRAMES_DEFAULT 16
+
+/* Amount of potential layers that a spriteframe has by default at creation. */
+#define SPRITEFRAME_NLAYERS_DEFAULT 16
+
+
+int sprite_maxactions(Sprite *self);
+SpriteAction * sprite_action(Sprite *self, int index);
+SpriteAction * sprite_action_(Sprite *self, int index, SpriteAction * action);
+int sprite_frames(Sprite *self, int action);
+SpriteFrame * sprite_frame(Sprite *self, int action, int index);
+Sprite * sprite_initall(Sprite * self, int index, int nactions);
+Sprite * sprite_init(Sprite * self, int index);
 Sprite * sprite_done(Sprite * self);
 Sprite * sprite_free(Sprite * self);
 Sprite * sprite_alloc();
-Sprite * sprite_new(int index, int nactions);
+Sprite * sprite_new(int index);
+SpriteFrame * spriteaction_newframe(SpriteAction * self, int index, 
+                                    int flags, double duration);
 
+/* Adds a new action to the sprite. Any old action at the 
+ same index is freed. Returns the new action or NULL on error. */
+SpriteAction * sprite_newaction(Sprite * self, int actionindex, int flags);
 
-
-
-
-
-
+/* Adds a frame to the sprite. The action must already exist. */
+SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
+                              int flags, double duration);
 
 
 

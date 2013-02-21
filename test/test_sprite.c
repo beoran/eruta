@@ -2,13 +2,49 @@
 * This is a test for sprite in $package$
 */
 #include "si_test.h"
+#include "eruta.h"
 #include "sprite.h"
 
 
 TEST_FUNC(sprite) {
-  Sprite * sprite;
-  sprite = sprite_new(1, 16);
+  Sprite        * sprite;
+  SpriteAction  * act;
+  SpriteFrame   * frame;
+  SpriteLayer   * layer;
+  Point           offset = cpv(1.0, 2.0);
+  sprite = sprite_new(1);
   TEST_NOTNULL(sprite);
+  TEST_NULL(sprite_action(sprite, 0));
+  TEST_NULL(sprite_action(sprite, 1));
+  TEST_NULL(sprite_frame(sprite, 1, 2));
+  TEST_NULL(sprite_layer(sprite, 1, 2, 3));
+  
+  act    = sprite_newaction(sprite, 0, SPRITE_ACTIVE);
+  TEST_NOTNULL(act);
+  TEST_PTREQ(act, sprite_action(sprite, 0));
+  act    = sprite_newaction(sprite, 0, SPRITE_ACTIVE);
+  TEST_NOTNULL(act);
+  TEST_PTREQ(act, sprite_action(sprite, 0));
+  
+  frame  = sprite_newframe(sprite, 0, 1,  SPRITE_ACTIVE, 0.25);
+  TEST_NOTNULL(frame);
+  TEST_PTREQ(frame, sprite_frame(sprite, 0, 1));
+
+  /* Check if out of bounds new works and doesn't leak. */
+  act    = sprite_newaction(sprite, 100, SPRITE_ACTIVE);
+  TEST_NULL(act);
+
+  layer  = sprite_newlayer(sprite, 0, 1, 22, NULL, offset);
+  TEST_NOTNULL(layer);
+  TEST_PTREQ(layer, sprite_layer(sprite, 0, 1, 22));
+ 
+  frame  = sprite_newframe(sprite, 0, 111,  SPRITE_ACTIVE, 0.25);
+  TEST_NULL(frame);
+  
+  layer  = sprite_newlayer(sprite, 0, 1, 222, NULL, offset);
+  TEST_NULL(layer);
+
+  
   sprite_free(sprite);
   TEST_DONE();
 }

@@ -42,10 +42,11 @@ void * dynar_getptr (Dynar * self , int index );
 void * dynar_putdata (Dynar * self , int index , void * ptr );
 void * dynar_getdata (Dynar * self , int index );
 
+Dynar * dynar_putnullall(Dynar * self);
+
 Dynar * dynar_qsort(Dynar * self  , DynarCompare * compare);
 void * dynar_lsearch(Dynar * self, const void * key, DynarCompare * compare);
 void * dynar_bsearch(Dynar * self, const void * key, DynarCompare * compare);
-
 
 
 Every * dynar_everynow_data (Every * every );

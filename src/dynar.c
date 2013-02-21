@@ -108,13 +108,12 @@ Dynar * dynar_size_(Dynar* self, int newsize) {
   // if we get here realloc was successful, so it should be safe to reassign
   // self->data
   self->data = newd;
-  // now, empty the unused new data! (is this ok???) 
+  // now, empty the unused new data, but only if growing! (XXX: is this ok???) 
   delta =  newsize - self->size;
-  memset(self->data + (self->size * self->elsz), 0, (delta * self->elsz));
-  
+  if(delta > 0) { 
+    memset(self->data + (self->size * self->elsz), 0, (delta * self->elsz));
+  }
   self->size = newsize;  
-  
-  
   return self;
 }
 
@@ -279,6 +278,17 @@ void * dynar_bsearch(Dynar * self, const void * key, DynarCompare  * compare) {
   size  = self->elsz;
   return bsearch(key, base, nmemb, size, compare);
 }
+
+/* Puts NULL in every element of this array using dynar_putptr */
+Dynar * dynar_putnullall(Dynar * self) {
+  int stop = dynar_size(self);
+  int index;
+  for (index = 0; index < stop; index++) {
+    dynar_putptr(self, index, NULL);
+  }
+  return self; 
+}
+
 
 
 /* Iterator helper: fill in every->now as data. */
