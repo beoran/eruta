@@ -29,13 +29,17 @@ TEST_FUNC(sprite) {
   frame  = sprite_newframe(sprite, 0, 1,  SPRITE_ACTIVE, 0.25);
   TEST_NOTNULL(frame);
   TEST_PTREQ(frame, sprite_frame(sprite, 0, 1));
-
+  
+  layer  = sprite_newlayer(sprite, 0, 1, 2, NULL, offset);
+  TEST_NOTNULL(layer);
+  TEST_PTREQ(layer, sprite_layer(sprite, 0, 1, 2));
+ 
   /* Check if out of bounds new works and doesn't leak. */
   act    = sprite_newaction(sprite, 100, SPRITE_ACTIVE);
   TEST_NULL(act);
-
+  
   layer  = sprite_newlayer(sprite, 0, 1, 22, NULL, offset);
-  TEST_NOTNULL(layer);
+  TEST_NULL(layer);
   TEST_PTREQ(layer, sprite_layer(sprite, 0, 1, 22));
  
   frame  = sprite_newframe(sprite, 0, 111,  SPRITE_ACTIVE, 0.25);
@@ -43,7 +47,14 @@ TEST_FUNC(sprite) {
   
   layer  = sprite_newlayer(sprite, 0, 1, 222, NULL, offset);
   TEST_NULL(layer);
-
+  
+  sprite_maxactions_(sprite, 77);
+  TEST_INTEQ(77, sprite_maxactions(sprite));  
+  
+  sprite_maxactions_(sprite, 1);
+  TEST_INTEQ(1, sprite_maxactions(sprite));  
+  TEST_NOTNULL(sprite_action(sprite, 0));
+  
   
   sprite_free(sprite);
   TEST_DONE();

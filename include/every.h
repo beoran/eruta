@@ -83,6 +83,8 @@ void * each_on (Each * self );
 void * each_extra (Each * self );
 int each_index (Each * self);
 
+/* Yet another iteration interface: a Walker is a simple callback function. */
+typedef void * (Walker)(void * element, void * extra);  
 
 // and some helper macros
 #define EACH_NOW(EACH, TYPE) ((TYPE *) each_now(EACH))

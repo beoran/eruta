@@ -5,7 +5,6 @@
 #include "dynar.h"
 #include "image.h"
 #include "bad.h"
-// #include "../tool/ature/includes/vcs.h"
 
 
 #define SPRITEFRAME_OWNEDFLAG  1
@@ -425,6 +424,7 @@ SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
   return spriteaction_newframe(action, frameindex, flags, duration);
 }
 
+/* Adds a layer to a sprite. The action and frame must already exist. */
 SpriteLayer * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
                               int layerindex, Image * image, Point offset) {
   SpriteFrame * frame;
@@ -434,6 +434,45 @@ SpriteLayer * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
   aid = spriteframe_newlayer(frame, layerindex, image, offset);
   return aid;
 }
+
+
+/* Returns the maximum amount of frames this sprite can currently have
+ *for the given action index. */
+int sprite_maxframes(Sprite * self, int actionindex) {
+  SpriteAction * action;
+  action = sprite_action(self, actionindex);
+  if (!action) return 0;
+  return spriteaction_maxframes(action);  
+}
+
+/* Returns the maximum amount of layers this sprite can currently have
+ * for the given action and frame index. */
+int sprite_maxlayers(Sprite * self, int actionindex, int frameindex) {
+  SpriteFrame * frame;
+  frame = sprite_frame(self, actionindex, frameindex);
+  if (!frame) return 0;
+  return spriteframe_maxlayers(frame);  
+}
+
+/* Change the amount of actions the sprite can have. Returns self 
+ on success, null if failed. */
+Sprite * sprite_maxactions_(Sprite * self, int newactions) {
+  int last, toclean;
+  Dynar * aid;
+  if(!self) return NULL;
+  last = dynar_size(self->actions);
+  toclean = last - newactions;
+  if (toclean > 0) {
+    
+  }
+  aid = dynar_size_(self->actions, newactions);  
+  if(!aid) return NULL;
+  return self;
+}
+
+
+
+
 
 
 

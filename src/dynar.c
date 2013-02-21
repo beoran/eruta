@@ -391,9 +391,9 @@ void * dynar_each_ptr(Dynar * self, EachDo * eachdo, void * extra) {
   return NULL;
 }
 
-/* Walks over the array using the walker interface, accessing
+/* Walks over the array using the Each interface, accessing
 the data as stored structs. */
-void * dynar_walkdata(Dynar * self, EachDo * eachdo, void * extra) {
+void * dynar_each_data(Dynar * self, EachDo * eachdo, void * extra) {
   Each each;
   int index;
   int size = dynar_size(self);
@@ -408,6 +408,61 @@ void * dynar_walkdata(Dynar * self, EachDo * eachdo, void * extra) {
   return NULL;
 }
 
+/* Walks over the array using the walker interface, accessing
+the data as stored pointers. */
+void * dynar_walkptr(Dynar * self, Walker * walker, void * extra) {
+  int index;
+  int size = dynar_size(self);
+  for(index = 0; index < size ; index++) {
+    void * aid;
+    void * ptr = dynar_getptr(self, index);
+    aid        = walker(ptr, extra);
+    if (aid) return aid;
+  }
+  return NULL;
+}
+
+/* Walks over the array using the walker interface, accessing
+the data as stored pointers. */
+void * dynar_walkdata(Dynar * self, Walker * walker, void * extra) {
+  int index;
+  int size = dynar_size(self);
+  for(index = 0; index < size ; index++) {
+    void * aid;
+    void * ptr = dynar_getdata(self, index);
+    aid        = walker(ptr, extra);
+    if (aid) return aid;
+  }
+  return NULL;
+}
+
+/* Walks over the array updating it, using the walker interface, accessing
+the data as stored pointers. */
+void * dynar_mapptr(Dynar * self, Walker * walker, void * extra) {
+  int index;
+  int size = dynar_size(self);
+  for(index = 0; index < size ; index++) {
+    void * aid;
+    void * ptr = dynar_getptr(self, index);
+    aid        = walker(ptr, extra);
+    if (aid) return aid;
+  }
+  return NULL;
+}
+
+/* Walks over the array updating it using the walker interface, accessing
+the data as stored pointers. */
+void * dynar_mapdata(Dynar * self, Walker * walker, void * extra) {
+  int index;
+  int size = dynar_size(self);
+  for(index = 0; index < size ; index++) {
+    void * aid;
+    void * ptr = dynar_getdata(self, index);
+    aid        = walker(ptr, extra);
+    if (aid) return aid;
+  }
+  return NULL;
+}
 
 /**
 * Lilis is a doubly Linked List that points to it's members via void pointers 

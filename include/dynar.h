@@ -62,7 +62,16 @@ Every * dynar_every_data (Dynar * dynar );
 Every * dynar_every_ptr (Dynar * dynar );
 
 void * dynar_each_ptr (Dynar * self , EachDo * eachdo , void * extra );
-void * dynar_walkdata (Dynar * self , EachDo * eachdo , void * extra );
+void * dynar_each_data(Dynar * self, EachDo * eachdo, void * extra);
+
+/* Walks over the array using the walker interface, accessing
+the data as stored pointers. */
+void * dynar_walkptr(Dynar * self, Walker * walker, void * extra);
+
+/* Walks over the array using the walker interface, accessing
+the data as stored pointers. */
+void * dynar_walkdata(Dynar * self, Walker * walker, void * extra);
+
 
 Lilis * lilis_freetail (Lilis * self );
 Lilis * lilis_done (Lilis * self );
