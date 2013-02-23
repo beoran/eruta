@@ -454,25 +454,96 @@ int sprite_maxlayers(Sprite * self, int actionindex, int frameindex) {
   return spriteframe_maxlayers(frame);  
 }
 
-/* Change the amount of actions the sprite can have. Returns self 
+/* Sprite action cleanup walker. */
+void * spriteaction_cleanwalk(void * ptr, void * extra) {
+  SpriteAction * action = (SpriteAction *) ptr;
+  if (!action) { return action; } 
+  return spriteaction_free(action);
+}
+
+/* Sprite action destructor. */
+void * spriteaction_destructor(void * ptr) {
+  return spriteaction_free((SpriteAction *) ptr);
+} 
+
+/* Sprite frame destructor. */
+void * spriteframe_destructor(void * ptr) {
+  return spriteframe_free((SpriteFrame *) ptr);
+} 
+
+/* Sprite layer destructor. */
+void * spritelayer_destructor(void * ptr) {
+  return spritelayer_free((SpriteLayer *) ptr);
+} 
+
+
+/* Change the amount of layers the sprite frame can have. Returns self 
  on success, null if failed. */
-Sprite * sprite_maxactions_(Sprite * self, int newactions) {
-  int last, toclean;
+SpriteFrame * spriteframe_maxlayers_(SpriteFrame * self, int newlayers) {
+  int last, toclean, index;
   Dynar * aid;
   if(!self) return NULL;
-  last = dynar_size(self->actions);
-  toclean = last - newactions;
-  if (toclean > 0) {
-    
-  }
-  aid = dynar_size_(self->actions, newactions);  
+  aid = dynar_resize(self->layers, newlayers, spritelayer_destructor);  
   if(!aid) return NULL;
   return self;
 }
 
 
+/* Change the amount of frames the sprite action can have. Returns self 
+ on success, null if failed. */
+SpriteAction * spriteaction_maxframes_(SpriteAction * self, int newframes) {
+  int last, toclean, index;
+  Dynar * aid;
+  if(!self) return NULL;
+  aid = dynar_resize(self->frames, newframes, spriteframe_destructor);  
+  if(!aid) return NULL;
+  return self;
+}
 
 
+/* Change the amount of actions the sprite can have. Returns self 
+ on success, null if failed. */
+Sprite * sprite_maxactions_(Sprite * self, int newactions) {
+  int last, toclean, index;
+  Dynar * aid;
+  if(!self) return NULL;
+  aid = dynar_resize(self->actions, newactions, spriteaction_destructor);  
+  if(!aid) return NULL;
+  return self;
+}
+
+/* Draws the sprite frame at the given location. */
+void spriteframe_draw(SpriteFrame * self, Point * at) {
+  int index, stop;
+  SpriteLayer * layer;
+  if (!self) return;
+  stop = spriteframe_maxlayers(self);
+  for (index = 0; index < stop ; index++) {
+    layer = spriteframe_layer(self, index);
+    spritelayer_draw(layer, at);
+  }
+  
+}
+
+/* Draw the sprite at the given location. This takes
+  the current action, frame, layers and offsets into consideration. */
+void sprite_draw(Sprite * self, Point * at) {
+  if(!self) return;
+  spriteframe_draw(self->frame_now, at);
+}
+
+/* Sets the sprite's current action and current frame. Returns 
+ self if ok, NULL if out of bounds. */
+Sprite * 
+sprite_now_(Sprite * self, int actionnow, int framenow) {
+  if (!self) return NULL;
+  if (bad_outofboundsi(actionnow, 0, sprite_maxactions(self)) return NULL; 
+  return self;
+  
+}
+
+
+/* Updates the sprite. Dt is the time passed since the last update in doubles. */
 
 
 

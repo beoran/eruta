@@ -80,7 +80,9 @@ int     bad_comparef(float one, float two);
 int     bad_clampi(int value , int min, int max) ;
 double  bad_clampd(double value , double min, double max); 
 float   bad_clampf(float value , float min, float max); 
-
+int bad_outofboundsi(int value, int min, int max);
+int bad_outofboundsd(int value, double min, double max);
+int bad_outofboundsf(int value, float min, float max);
 
 
 /* Macro: bad_container(PTR, TYPE, MEMBER)

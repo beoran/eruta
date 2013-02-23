@@ -92,6 +92,21 @@ float bad_clampf(float value , float min, float max) {
   return value;
 }
 
+int bad_outofboundsi(int value, int min, int max) {
+  if (value < min)  return TRUE;
+  return (value >= max); 
+}
+
+
+int bad_outofboundsd(int value, double min, double max) {
+  if (value < min)  return TRUE;
+  return (value >= max); 
+}
+
+int bad_outofboundsf(int value, float min, float max) {
+  if (value < min)  return TRUE;
+  return (value >= max); 
+}
 
 
 

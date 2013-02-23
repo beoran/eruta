@@ -48,13 +48,20 @@ TEST_FUNC(sprite) {
   layer  = sprite_newlayer(sprite, 0, 1, 222, NULL, offset);
   TEST_NULL(layer);
   
-  sprite_maxactions_(sprite, 77);
+  TEST_NOTNULL(sprite_maxactions_(sprite, 77));
   TEST_INTEQ(77, sprite_maxactions(sprite));  
+  act    = sprite_newaction(sprite, 60, SPRITE_ACTIVE);
+  TEST_NOTNULL(sprite_action(sprite, 60));
   
-  sprite_maxactions_(sprite, 1);
+  
+  TEST_NOTNULL(sprite_maxactions_(sprite, 1));
+  TEST_NULL(sprite_action(sprite, 60));
   TEST_INTEQ(1, sprite_maxactions(sprite));  
   TEST_NOTNULL(sprite_action(sprite, 0));
-  
+  act = sprite_action(sprite, 0);
+  if (act) {
+    TEST_NOTNULL(spriteaction_maxframes_(act, 3));
+  }
   
   sprite_free(sprite);
   TEST_DONE();
