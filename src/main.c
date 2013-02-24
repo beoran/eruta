@@ -15,6 +15,7 @@
 #include "hatab.h"
 /* #include "beo.h" */
 #include "assert.h"
+#include "str.h"
 
 
 
@@ -197,7 +198,11 @@ int real_main(void) {
   // Try to load the mainruby file.
   rh_runfilename_console(state_console(state), "main.rb", state_ruby(state));
   // Call the on_start function.
-  // rh_dofunction_mybbconsole_args(state_lua(state), "on_start", "s", "a string argument");
+  { 
+    USTR * com = ustr_newf("on_start('%s')", "OK!");
+    rh_dostring_console(state_console(state), ustr_c(com), state_ruby(state));
+    ustr_free(com);
+  }
 
     
   while(state_busy(state)) { 
@@ -205,9 +210,9 @@ int real_main(void) {
       if(map) tilemap_update(map, state_frametime(state));
       camera_update(camera);
       // call ruby update callback 
+      rh_dostring_console(state_console(state), "on_update", state_ruby(state));
       // rh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
-      
-      
+
       if(map) tilemap_draw(map, camera);
       state_frames_update(state);
       

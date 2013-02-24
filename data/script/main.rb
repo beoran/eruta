@@ -23,6 +23,15 @@ def on_start(s)
   return 1234567
 end
 
+def ok!
+  log "OK, it works!"
+end
+
+def on_update
+  puts "Update!"
+end
+
+
 # log "this is for the console."
 # 
 # test()

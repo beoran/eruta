@@ -27,7 +27,7 @@ char * rh_exceptionstring(Ruby * self) {
   // reset exception since we have it's string value.
   // Does this leak memory or not???
   self->exc = NULL;
-  return mrb_string_value_cstr(self, &value);
+  return strdup(mrb_string_value_cstr(self, &value));
 }
 
 
@@ -62,7 +62,7 @@ char * rh_inspect_cstr(mrb_state *mrb, mrb_value value) {
 NULL. */
 int rh_runfilereport(Ruby * self, const char * filename, FILE * file, 
                       RhReporter reporter, void * extra) {
-  
+  int res;
   char * str;
   mrbc_context * c  = mrbc_context_new(self);
   mrb_value v;
@@ -75,11 +75,13 @@ int rh_runfilereport(Ruby * self, const char * filename, FILE * file,
   str = rh_exceptionstring(self);
   if(str) {
     if(reporter) { 
-      return reporter(-1, str, extra);
+      res = reporter(-1, str, extra);
     } else  {
       mrb_p(self, mrb_obj_value(self->exc));
-      return -1;
+      res = -1;
     }
+    free(str);
+    return res;
   }
   
   /* Report result value. */
@@ -153,21 +155,30 @@ int rh_dofile(Ruby * self, const char * filename) {
 Errors are reported to the reporter callback if it isn't NULL. */
 int rh_dostringreport(Ruby * self, const char * command, 
                       RhReporter reporter, void * extra) {
-  const char * str;
-  mrbc_context     * c  = mrbc_context_new(self);
+  int res;
+  char * str;
   mrb_value v;
+  #ifdef RH_USE_CONTEXT
+  mrbc_context      * c  = mrbc_context_new(self);
   mrbc_filename(self, c, "command");
   v = mrb_load_string_cxt(self, command, c);
-
-  mrbc_context_free(self, c);
+  mrbc_context_free(self, c); 
+  #else
+  v = mrb_load_string(self, command);
+  #endif
+  
+  /* v = mrb_load_string(self, command); is also possible but 
+    doesn't show  file information. */
   str = rh_exceptionstring(self);
   if(str) {
     if(reporter) { 
-      return reporter(-1, str, extra);
+      res = reporter(-1, str, extra);
     } else  {
       mrb_p(self, mrb_obj_value(self->exc));
-      return -1;
+      res = -1;
     }
+    free(str);
+    return res;
   }
   if (reporter) {
     str = rh_inspect_cstr(self, v);
@@ -209,6 +220,9 @@ int rh_runfilename_console(BBConsole * console, char * name, void * extra) {
   return rh_dofilereport(ruby, name, rh_errorreporter_console, console);
 }
 
+/* Maybe wrap this too? 
+mrb_value mrb_funcall_argv(mrb_state*, mrb_value, mrb_sym, int, mrb_value*);
+*/
 
 
 /* Documentation for mrb_get_args
