@@ -25,9 +25,10 @@ set(ERUTA_SRC_FILES
   src/mobile.c
   src/mode.c
   src/obj.c
+  src/pointergrid.c
   src/react.c
   src/rebl.c
-  src/rh.c  
+  src/rh.c    
   src/scegra.c
   src/silut.c
   src/sound.c

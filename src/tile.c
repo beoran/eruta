@@ -99,7 +99,7 @@ Tileset * tileset_init(Tileset * set, Image * sheet) {
     set->tiles  = NULL;
     return NULL;
   }
-  // alow re-init
+  // allow re-init
   if (set->tiles) {
     tileset_done(set);
   } 
@@ -111,7 +111,7 @@ Tileset * tileset_init(Tileset * set, Image * sheet) {
   // set->tiles    = mem_alloc(sizeof(Tile) * set->size);
   if (!set->tiles) {
     set->w      = -1;
-    set->h      = -1;    
+    set->h      = -1;
     return NULL;
   }
   // now set up the tiles
@@ -305,10 +305,13 @@ void tileset_update(Tileset * set, double dt) {
 
 
 /** Draw a tile to the current active drawing target at the
-given coordinates */
-void tile_draw(Tile * tile, int x, int y) {
-  Tileset * set = tile->set;
-  Image * sheet = set->sheet;
+given coordinates. Does nothing if tile is NULL.  */
+void tile_draw(Tile * tile, int x, int y) {  
+  Tileset * set;
+  Image * sheet;
+  if (!tile) return;
+  set   =  tile->set;
+  sheet = set->sheet;
   float dx      = (float) x;
   float dy      = (float) y; 
   float sx      = (float) tile->now.x;

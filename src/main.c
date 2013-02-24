@@ -195,7 +195,7 @@ int real_main(void) {
     }
 
   // Try to load the mainruby file.
-  // rh_dofile_stderr(state_ruby(state), "main.ruby");
+  rh_runfilename_console(state_console(state), "main.rb", state_ruby(state));
   // Call the on_start function.
   // rh_dofunction_mybbconsole_args(state_lua(state), "on_start", "s", "a string argument");
 

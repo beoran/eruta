@@ -536,14 +536,60 @@ void sprite_draw(Sprite * self, Point * at) {
  self if ok, NULL if out of bounds. */
 Sprite * 
 sprite_now_(Sprite * self, int actionnow, int framenow) {
+  SpriteAction * action;
+  SpriteFrame  * frame;
   if (!self) return NULL;
-  if (bad_outofboundsi(actionnow, 0, sprite_maxactions(self)) return NULL; 
+  if (bad_outofboundsi(actionnow, 0, sprite_maxactions(self))) return NULL; 
+  frame = sprite_frame(self, actionnow, framenow);
+  if (!frame) {
+    return NULL;
+  }
+  self->frame_index   = framenow;
+  self->action_index  = actionnow;
+  self->frame_now     = frame;
+  self->time          = 0;
   return self;
-  
 }
 
 
-/* Updates the sprite. Dt is the time passed since the last update in doubles. */
+/* Updates the sprite. dt is the time passed since the last update in doubles. */
+void sprite_update(Sprite * self, double dt) {
+  if (!self) return;  
+  if(!self->frame_now) return;
+  self->time += dt;
+  if(self->time > self->frame_now->duration) {
+    int next = self->frame_index + 1;
+    if (next > sprite_maxframes(self, self->action_index)) {
+      next = 0;
+    }
+    sprite_now_(self, self->action_index, next);
+  }
+}
+
+/** Loads a layer of the sprite from the given image. 
+* The layer's image will be duplicated. The indicated tile sizes and 
+* locations will be used. Returns the layer on success of NULL if something 
+* went wrong.
+*/
+SpriteLayer * sprite_newlayerfrom(Sprite * self, int actionindex, 
+                                  int frameindex, int layerindex, 
+                                  Image * source, Point size, Point where) {
+  SpriteLayer * res;
+  Point offset;
+  Image * aid;
+  aid = al_create_bitmap(size.x, size.y);
+  if(!aid) return NULL;
+  offset = cpv(0,0);
+  al_set_target_bitmap(aid);
+  al_draw_bitmap_region(source, where.x, where.y, size.x, size.y, 0, 0, 0);
+  al_set_target_backbuffer(al_get_current_display());
+  res = sprite_newlayer(self, actionindex, frameindex, layerindex, aid, offset);
+  if(!res) {
+    al_destroy_bitmap(aid);
+    return NULL;
+  }
+  return res;
+}
 
 
 

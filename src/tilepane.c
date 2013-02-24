@@ -4,25 +4,8 @@
 #include "camera.h"
 #include "tilepane.h"
 
-/* Generate structs and functions for matrix for tiles. */   
+#include "pointergrid.h"
 
-#define TEMPLATE_T Tile*
-#define TEMPLATE_NAME Tilemat
-#define TEMPLATE_PREFIX tilemat_
-#include "tmatrix.h"
-
-#define TEMPLATE_T Tile*
-#define TEMPLATE_NAME Tilemat
-#define TEMPLATE_PREFIX tilemat_
-#define TEMPLATE_IMPLEMENT
-#include "tmatrix.h"
-
-
-
-
-/**
-This comment is copied verbatim to the header but no prototype is generated.
-**/
 
 /**
 * A Tilepane is a pane or layer of tiles for use in a tile map or tiled
@@ -31,7 +14,7 @@ This comment is copied verbatim to the header but no prototype is generated.
 */
 struct Tilepane_ {
   Tileset     * set;
-  Tilemat     * tiles;
+  PointerGrid * tiles;
   int           gridwide; // width of the tile map in grid points (tiles)
   int           gridhigh; // height of the tile map in grid points (tiles)
   int           realwide; // width of whole tile map in pixels
@@ -48,7 +31,7 @@ Tilepane * tilepane_done(Tilepane * pane) {
   // First free the rows.
   if (!pane) return NULL;
   if (pane->tiles) {
-    pane->tiles = tilemat_free(pane->tiles);
+    pane->tiles = pointergrid_free(pane->tiles);
   }  
   // Then the column holder arrays. XXX is this correct?
   mem_free(pane->tiles);
@@ -83,7 +66,7 @@ Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
   // Precalculate dimensions...  
   // And allocate space for the tiles and tile indices.
   
-  pane->tiles    = tilemat_new(gridwide, gridhigh);
+  pane->tiles    = pointergrid_new(gridwide, gridhigh);
   if(!pane->tiles) {
     perror("Could not allocate tiles matrix ");
     return NULL;
@@ -94,7 +77,7 @@ Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
   for (y = 0; y < pane->gridhigh ; y++) {
     // set all tile pointers to NULL
     for(x = 0; x < pane->gridwide ; x++) {
-      tilemat_putraw(pane->tiles, x, y, NULL);
+      pointergrid_putraw(pane->tiles, x, y, NULL);
     }
   }
   
@@ -160,7 +143,7 @@ int tilepane_outsidegrid(Tilepane * pane, int gridx, int gridy) {
 Tile * tilepane_set(Tilepane * pane,
                           int gridx, int gridy, Tile * tile) {
   if (tilepane_outsidegrid(pane, gridx, gridy)) return NULL;
-  tilemat_put(pane->tiles, gridx, gridy, tile);
+  pointergrid_put(pane->tiles, gridx, gridy, tile);
   return tile;
 }  
 
@@ -168,8 +151,8 @@ Tile * tilepane_set(Tilepane * pane,
 * returns NULL if the fcoordinates are out of bounds or if it was an empty tile.
 */
 Tile * tilepane_get(Tilepane * pane, int gridx, int gridy) {
-  if (tilemat_outofrange(pane->tiles, gridx, gridy)) return NULL;
-  return tilemat_getraw(pane->tiles, gridx, gridy);
+  if (pointergrid_outofrange(pane->tiles, gridx, gridy)) return NULL;
+  return pointergrid_getraw(pane->tiles, gridx, gridy);
 }  
 
 /** Returns the ile index in the pane's grid at the given grid coordinates,
@@ -249,14 +232,13 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
   for (ty_index = tystart; ty_index < tystop ; ty_index++) {
     drawy        += tilehigh;
     drawx         = -x + TIMES_TILEWIDE(txstart-1);
-    row           = tilemat_rowraw(pane->tiles, ty_index);
+    row           = (Tile **) pointergrid_rowraw(pane->tiles, ty_index);
     if(!row) continue;
     for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
       drawx      += tilewide;
       tile        = row[tx_index];
-       if(tile) {
-         tile_draw(tile, drawx, drawy);
-       }
+      // Null tile will not be drawn by tile_draw
+      tile_draw(tile, drawx, drawy);
     }
   }
   // Let go of hold 
