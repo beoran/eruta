@@ -9,7 +9,6 @@
 #include "state.h"
 #include "image.h"
 #include "fifi.h"
-#include "../../../arch/dl/game/lib/allegro-5.1.4/include/allegro5/events.h"
 #include <mruby/hash.h>
 
 
