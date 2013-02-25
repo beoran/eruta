@@ -44,6 +44,21 @@ int rh_errorreporter_console (int status , const char * msg , void * extra );
 
 int rh_dostring_console (BBConsole * console , char * command , void * extra );
 
+int rh_dostring_stderr(char * command, void * extra);
+
+
+int rh_runfilename_stderr(char * name, void * extra);
+
+int rh_simple_funcall(char * name, void * ruby);
+
+int rh_runfilename_console(BBConsole * console, char * name, void * extra);
+
+int rh_runfunction_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, 
+                           char * name, int argc, mrb_value * argv);
+
+int rh_runtopfunction_console(BBConsole * console, Ruby * ruby, 
+                              char * name, int argc, mrb_value * argv);
+
 
 #endif
 

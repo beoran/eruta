@@ -11,9 +11,9 @@ end
 # [[
 # Put your director's instructions and comments here.
 
-Alex "I will have you know that it's possible to talk like this!"
-Berun %{Sure, but like this is also "possible"...} 
-Alex 'I this is also "fine".'
+# Alex "I will have you know that it's possible to talk like this!"
+# Berun %{Sure, but like this is also "possible"...} 
+# Alex 'I this is also "fine".'
 
 pa = path("script/main.lua")
 pa = nil
@@ -27,8 +27,13 @@ def ok!
   log "OK, it works!"
 end
 
-def on_update
-  puts "Update!"
+$count = 0
+
+def on_update(dt)  
+  $count += 1 
+  # log "dt: #{dt}"
+  # log "Update nr #{$count}!"
+  return nil
 end
 
 

@@ -651,7 +651,7 @@ int bbconsole_draw(BBWidget * widget, void * data) {
   Color color       ;
   USTRListNode * now;
   int high, linehigh, index, x, y, skip;
-  
+  int linew;
   if (!bbwidget_visible(widget)) return BBWIDGET_HANDLE_IGNORE;
   
   self  = bbwidget_console(widget);
@@ -679,6 +679,9 @@ int bbconsole_draw(BBWidget * widget, void * data) {
   }
   // draw input string
   font_drawstr(font, color, x, y + high - linehigh, 0, self->input);
+  // Draw cursor
+  linew = al_get_ustr_width(font, self->input);
+  al_draw_line(x + linew, y + high - linehigh, x + linew, y + high, color, 1);
   // draw start for debugging
   al_draw_textf(font, color, x, y, 0, "start: %d, size: %d", self->start, 
                 ustrlist_size(&self->text));

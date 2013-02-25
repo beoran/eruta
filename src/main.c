@@ -197,20 +197,30 @@ int real_main(void) {
 
   // Try to load the mainruby file.
   rh_runfilename_console(state_console(state), "main.rb", state_ruby(state));
+  // rh_runfilename_stderr("main.rb", state_ruby(state));
+
   // Call the on_start function.
   { 
     USTR * com = ustr_newf("on_start('%s')", "OK!");
     rh_dostring_console(state_console(state), ustr_c(com), state_ruby(state));
+    // rh_dostring_stderr(ustr_c(com), state_ruby(state));
     ustr_free(com);
   }
 
     
   while(state_busy(state)) { 
+      mrb_value mval;
       react_poll(&react, state);
       if(map) tilemap_update(map, state_frametime(state));
       camera_update(camera);
       // call ruby update callback 
-      rh_dostring_console(state_console(state), "on_update", state_ruby(state));
+      mval = mrb_float_value(state_frametime(state));
+      rh_runtopfunction_console(state_console(state), state_ruby(state), 
+                                 "on_update", 1, &mval);
+     
+      // rh_dostring_stderr("on_update", state_ruby(state));
+      // rh_simple_funcall("on_update", state_ruby(state));
+      
       // rh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
 
       if(map) tilemap_draw(map, camera);

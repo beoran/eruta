@@ -1,14 +1,17 @@
-/**
+/*
 * toruby.c contains all functionality that Eruta exposes to 
 * mruby. All functions are prefixed with tr_
 */
 
-
+#include "eruta.h"
 #include "toruby.h"
 #include "rh.h"
 #include "state.h"
 #include "image.h"
 #include "fifi.h"
+#include "../../../arch/dl/game/lib/allegro-5.1.4/include/allegro5/events.h"
+#include <mruby/hash.h>
+
 
 /**
 * helper macros 
@@ -78,7 +81,22 @@ static mrb_value tr_log(mrb_state * mrb, mrb_value self) {
   return self;
 }
 
-/** Initializes the functionality that Eruta exposes to lua. */
+
+/* Wraps an Allegro event for use in ruby into an mruby hash. */
+static mrb_value tr_eventvalues(mrb_state * mrb   , ALLEGRO_EVENT * event, 
+                          mrb_value * values, int size) {
+  int result;
+  mrb_value aid;
+  aid = mrb_hash_new(mrb);
+  // mrb_hash_set(mrb, aid, mrb_intern(mrb, "type"), );
+  return aid;
+}
+
+
+
+
+
+/** Initializes the functionality that Eruta exposes to Ruby. */
 int tr_init(mrb_state * mrb) {
   // luaL_dostring(lua, "print 'Hello!' ");
   struct RClass *krn;
@@ -87,6 +105,9 @@ int tr_init(mrb_state * mrb) {
   mrb_define_method(mrb, krn, "test", 
                     tr_test, ARGS_REQ(1));
   mrb_define_method(mrb, krn, "log" , tr_log , ARGS_REQ(1));
+  // must restore gc area here ????
+  mrb_gc_arena_restore(mrb, 0);
+  
   return 0;
 }
 
