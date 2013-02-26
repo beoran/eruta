@@ -41,6 +41,7 @@ struct SpriteFrame_ {
 
 struct SpriteAction_ {
   int                index;
+  int                type;
   int                flags;
   Dynar            * frames;
   int                used_frames;
@@ -239,9 +240,10 @@ spriteaction_frame_(SpriteAction *self, int index, SpriteFrame * frame) {
 
 
 SpriteAction * 
-spriteaction_initall(SpriteAction * self, int index, int flags, int nframes) {
+spriteaction_initall(SpriteAction * self, int index, int type, int flags, int nframes) {
   int aid;
   self->index           = index;
+  self->type            = type;
   self->frames          = dynar_new(nframes, sizeof(SpriteFrame *));
   self->used_frames     = 0;
   self->flags           = flags;
@@ -251,8 +253,8 @@ spriteaction_initall(SpriteAction * self, int index, int flags, int nframes) {
 }
 
 SpriteAction * 
-spriteaction_init(SpriteAction * self, int index, int flags) {
-  return spriteaction_initall(self, index, flags, SPRITEACTION_NFRAMES_DEFAULT);
+spriteaction_init(SpriteAction * self, int index, int type, int flags) {
+  return spriteaction_initall(self, index, type, flags, SPRITEACTION_NFRAMES_DEFAULT);
 }
 
 SpriteAction * 
@@ -279,12 +281,12 @@ SpriteAction * spriteaction_alloc() {
   return STRUCT_ALLOC(SpriteAction);
 }
 
-SpriteAction * spriteaction_newall(int index, int flags, int nframes) {
-  return spriteaction_initall(spriteaction_alloc(), index, flags, nframes);
+SpriteAction * spriteaction_newall(int index, int type, int flags, int nframes) {
+  return spriteaction_initall(spriteaction_alloc(), index, type, flags, nframes);
 }
 
-SpriteAction * spriteaction_new(int index, int flags) {
-  return spriteaction_init(spriteaction_alloc(), index, flags);
+SpriteAction * spriteaction_new(int index, int type, int flags) {
+  return spriteaction_init(spriteaction_alloc(), type, index, flags);
 }
 
 SpriteFrame * spriteframe_newall(int index, int flags, double duration, int nlayers) {
@@ -405,9 +407,9 @@ SpriteFrame * spriteaction_newframe(SpriteAction * self, int index,
 
 /* Adds a new action to the sprite. Any old action at the 
  same index is freed. Returns the new action or NULL on error. */
-SpriteAction * sprite_newaction(Sprite * self, int actionindex, int flags) {
+SpriteAction * sprite_newaction(Sprite * self, int actionindex, int type, int flags) {
   SpriteAction * action, *aid;
-  action = spriteaction_new(actionindex, flags);
+  action = spriteaction_new(actionindex, type, flags);
   if(!action) return NULL;
   aid = sprite_action_(self, actionindex, action);
    if (aid) return aid;
@@ -571,7 +573,7 @@ void sprite_update(Sprite * self, double dt) {
 * locations will be used. Returns the layer on success of NULL if something 
 * went wrong.
 */
-SpriteLayer * sprite_newlayerfrom(Sprite * self, int actionindex, 
+SpriteLayer * sprite_loadlayerfrom(Sprite * self, int actionindex, 
                                   int frameindex, int layerindex, 
                                   Image * source, Point size, Point where) {
   SpriteLayer * res;
@@ -591,6 +593,84 @@ SpriteLayer * sprite_newlayerfrom(Sprite * self, int actionindex,
   return res;
 }
 
+/* Layout info of the ULPCSS sprites. */
+static int ulpcss_sprites_per_row[] = {
+  7, 7, 7, 7,  
+  8, 8, 8, 8,  
+  9, 9, 9, 9,  
+  6, 6, 6, 6,  
+  13, 13, 13, 13,  
+  6, 
+  -1 
+};
+
+/* Type info of the ULPCSS sprites. */
+static int ulpcss_row_type[] = {
+  SPRITE_CAST , SPRITE_CAST , SPRITE_CAST , SPRITE_CAST ,
+  SPRITE_STAB , SPRITE_STAB , SPRITE_STAB , SPRITE_STAB ,
+  SPRITE_WALK , SPRITE_WALK , SPRITE_WALK , SPRITE_WALK ,
+  SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH,
+  SPRITE_SHOOT, SPRITE_SHOOT, SPRITE_SHOOT, SPRITE_SHOOT,
+  SPRITE_DOWN ,
+  -1 
+};
+
+/* Direction info of the ULPCSS sprites. */
+static int ulpcss_row_direction[] = {
+  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
+  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
+  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
+  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
+  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
+  SPRITE_ALL  ,
+  -1
+};
+
+
+SpriteLayout ulpcss_layout = {
+  ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction
+}; 
+
+
+/* Loads a sprite layer for the whole sprite.  Pass in oversized for 
+ * oversized image. The layer info in the struct with -1 delimted arrays
+ * is used to correctly set up the sprites. 
+ */ 
+Sprite * sprite_loadlayerwithlayout
+(Sprite * self, int layerindex, Image * source, int oversized, 
+SpriteLayout * layout) {
+  int stride;
+  int tx = 0, ty = 0;
+  int inrow, actionindex, frameindex;
+  stride      = (oversized ? 96 : 32);
+  Point where, size;
+  size        = cpv(stride, stride);
+  actionindex = 0;
+  inrow       = layout->per_row[actionindex];
+  where       = cpvzero;
+
+  while ( inrow >= 0 ) { 
+    int actionflags       = layout->row_dir[actionindex];
+    int actiontype        = layout->row_type[actionindex];
+    SpriteAction * action = 
+    sprite_newaction(self, actionindex, actiontype, actionflags);
+    if (!action) { fprintf(stderr, "Error allocating sprite action!\n"); }
+    /* Load frames. */
+    for (frameindex = 0; frameindex++; frameindex < inrow) {
+      SpriteLayer * ok;
+      where.x    += stride;
+      ok = sprite_loadlayerfrom(self, actionindex, frameindex, layerindex, 
+                           source, size, where);
+      if (!ok) { fprintf(stderr, "Error loading sprite layer!\n"); }
+    }
+    where.x  = 0;
+    where.y += stride;
+    actionindex++;                     
+    inrow    = layout->per_row[actionindex]; 
+  }
+  
+  return self;
+}
 
 
 

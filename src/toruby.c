@@ -93,9 +93,7 @@ static mrb_value tr_eventvalues(mrb_state * mrb   , ALLEGRO_EVENT * event,
 
 
 
-
-
-/** Initializes the functionality that Eruta exposes to Ruby. */
+/* Initializes the functionality that Eruta exposes to Ruby. */
 int tr_init(mrb_state * mrb) {
   // luaL_dostring(lua, "print 'Hello!' ");
   struct RClass *krn;

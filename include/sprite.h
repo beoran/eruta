@@ -8,6 +8,16 @@ typedef struct SpriteFrame_     SpriteFrame;
 typedef struct SpriteAction_    SpriteAction;   
 typedef struct Sprite_          Sprite;
 typedef struct SpriteList_      SpriteList;
+typedef struct SpriteLayout_    SpriteLayout;
+
+/* The layout of the sprite. Each field is a -1 terminated array. */ 
+struct SpriteLayout_ {
+  int * per_row;
+  int * row_type;
+  int * row_dir;
+};
+
+
 
 
 
@@ -78,7 +88,7 @@ SpriteFrame * spriteaction_newframe(SpriteAction * self, int index,
 
 /* Adds a new action to the sprite. Any old action at the 
  same index is freed. Returns the new action or NULL on error. */
-SpriteAction * sprite_newaction(Sprite * self, int actionindex, int flags);
+SpriteAction * sprite_newaction(Sprite * self, int actionindex, int type, int flags);
 
 /* Adds a frame to the sprite. The action must already exist. */
 SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
