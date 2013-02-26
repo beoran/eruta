@@ -627,7 +627,7 @@ static int ulpcss_row_direction[] = {
 };
 
 
-SpriteLayout ulpcss_layout = {
+static SpriteLayout ulpcss_layout = {
   ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction
 }; 
 
@@ -636,7 +636,7 @@ SpriteLayout ulpcss_layout = {
  * oversized image. The layer info in the struct with -1 delimted arrays
  * is used to correctly set up the sprites. 
  */ 
-Sprite * sprite_loadlayerwithlayout
+Sprite * sprite_loadlayerlayout
 (Sprite * self, int layerindex, Image * source, int oversized, 
 SpriteLayout * layout) {
   int stride;
@@ -665,14 +665,32 @@ SpriteLayout * layout) {
     }
     where.x  = 0;
     where.y += stride;
-    actionindex++;                     
+    actionindex++;
     inrow    = layout->per_row[actionindex]; 
   }
-  
   return self;
 }
 
 
+/** Loads sprite layer with the ulpcss layout. */
+Sprite * sprite_loadlayer_ulpcss
+(Sprite * self, int layerindex, Image * source, int oversized) {
+return sprite_loadlayerlayout(self, layerindex, source, oversized,
+                              &ulpcss_layout);
+} 
+
+/** Loads sprite layer from file with the ulpcss layout. 
+The file name is in FIMFI format (subdir of data) */
+Sprite * sprite_loadlayer_ulpcss_vpath
+(Sprite * self, int layerindex, char * vpath, int oversized) {
+  Sprite * res; 
+  Image * image;
+  image = fifi_loadbitmap_vpath(vpath);
+  if(!image) return NULL;
+  res = sprite_loadlayer_ulpcss(self, layerindex, image, oversized);
+  al_destroy_bitmap(image);
+  return res;
+}
 
 
 

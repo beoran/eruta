@@ -151,6 +151,7 @@ int real_main(void) {
     Thing    * actor    = NULL;
     Tracker  * tracker    = NULL;
     Tracker  * maptracker = NULL;
+    Sprite   * sprite     = null;
 
     
     React    react;
@@ -167,6 +168,8 @@ int real_main(void) {
       perror(state_errmsg(state));
       return 1;
     }
+    
+    /* Init empty sprite. */
     
 
     /** Initialises the reactor, the game state is it's data. */

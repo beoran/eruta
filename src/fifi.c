@@ -27,12 +27,8 @@ ALLEGRO_RESOURCES_PATH/share/data.zip
 ALLEGRO_RESOURCES_PATH/../data.zip
 ALLEGRO_RESOURCES_PATH/../share/data.zip
 /usr/local/var/arch/bjmey/src/eruta/../data
-
-
-
  
-ALLEGRO_EXENAME_PATH: /usr/local/var/arch/bjmey/src/eruta/bin/eruta
-
+ALLEGRO_EXENAME_PATH: ~/src/eruta/bin/eruta
 RESOURCES_PATH: /usr/local/var/arch/bjmey/dl/varia/allegro-5.0.5/examples/
 TEMP_PATH: /tmp/
 USER_DATA_PATH: /home/bjmey/.local/share/liballeg.org/ex_get_path/
@@ -192,11 +188,11 @@ ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath) {
     printf("append_vpath last: %s\n", part);
     if(strchr(part, '.')) { // it's a file name
       al_set_path_filename(path, part);
-    } else {     
+    } else {
       al_append_path_component(path, part);
-    }  
+    }
   }
-  return path;  
+  return path;
 }
 
 
@@ -408,6 +404,7 @@ ALLEGRO_PATH * fifi_tileset_filename(const char * name) {
 * 5) tiles
 * 6) gui elements
 * 7) backgrounds
+* 8) Sprites of course!
 */
 
 
