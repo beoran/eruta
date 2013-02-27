@@ -16,6 +16,7 @@
 /* #include "beo.h" */
 #include "assert.h"
 #include "str.h"
+#include "sprite.h"
 
 
 
@@ -151,7 +152,7 @@ int real_main(void) {
     Thing    * actor    = NULL;
     Tracker  * tracker    = NULL;
     Tracker  * maptracker = NULL;
-    Sprite   * sprite     = null;
+    Sprite   * sprite     = NULL;
 
     
     React    react;
@@ -169,9 +170,7 @@ int real_main(void) {
       return 1;
     }
     
-    /* Init empty sprite. */
-    
-
+ 
     /** Initialises the reactor, the game state is it's data. */
     react_initempty(&react, state);
     react.keyboard_key_up   = main_react_key_up;
@@ -182,10 +181,23 @@ int real_main(void) {
     camera  = state_camera(state);
     //music   = music_load("musictest.ogg");
     // if(!music) perror("musictest.ogg");
+    /* Initialize empty sprite and load a few layers. */
+    sprite = sprite_new(1);
+    if(!sprite_loadlayer_ulpcss_vpath
+        (sprite, 0, "image/ulpcss/body/male/light.png", 0) 
+      ) { 
+        fprintf(stderr, "Couldnot load body layer.\n");
+    }
+    sprite_now_(sprite, 0, 0);
+    if(sprite_pose_(sprite, SPRITE_WALK, SPRITE_NORTH)) {
+      fprintf(stderr, "Could not set sprite pose!\n");
+    } else {
+      printf("Sprite pose set.\n");
+    }
+    
 
     border  = fifi_loadbitmap("border_004.png",
                             "image", "ui", "background", NULL);
-
     map = fifi_loadsimple((FifiSimpleLoader*) tilemap_load,
                           "map_0001.tmx", "map", NULL);
     if(!map) {
@@ -213,6 +225,7 @@ int real_main(void) {
     
   while(state_busy(state)) { 
       mrb_value mval;
+      Point spritenow = cpv(100, 120); 
       react_poll(&react, state);
       if(map) tilemap_update(map, state_frametime(state));
       camera_update(camera);
@@ -227,6 +240,9 @@ int real_main(void) {
       // rh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
 
       if(map) tilemap_draw(map, camera);
+      if (sprite) sprite_draw(sprite, &spritenow);
+     
+      if (sprite) sprite_update(sprite, state_frametime(state));
       state_frames_update(state);
       
       /*
@@ -252,6 +268,7 @@ int real_main(void) {
       /* finally update display. */   
       al_flip_display();
    }
+   sprite_free(sprite);
    tilemap_free(map);
    tilepane_free(tilepane);
    tileset_free(tileset);

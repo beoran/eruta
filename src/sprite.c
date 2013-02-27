@@ -5,6 +5,7 @@
 #include "dynar.h"
 #include "image.h"
 #include "bad.h"
+#include "flags.h"
 
 
 #define SPRITEFRAME_OWNEDFLAG  1
@@ -17,6 +18,29 @@
  layers. Each layer has an owned, trimmed bitmap with only the relevant 
  sprite fragment and their offset to the sprite proper.
 */
+
+
+/* ULPCSS has the following layers:
+ * accessories
+ * behind_body (quiver)
+ * belt
+ * body 
+ * eyes (in body layer)
+ * feet
+ * hair
+ * hands
+ * head
+ * legs
+ * torso (however, there seem to be overlap possibilities)
+ * weapons
+ * 
+ * All in all, having 32 possible layers is more than enough it seems, at 
+ * least for now. 
+ * 
+ */
+
+
+
 
 
 /* A SpriteLayer is a single layer of a single frame of animation of a sprite */
@@ -34,7 +58,7 @@ struct SpriteLayer_ {
 struct SpriteFrame_ {
   int                index;
   Dynar            * layers;
-  int                used_layers;
+  int                layers_used;
   double             duration;
   int                flags;
 };
@@ -44,7 +68,7 @@ struct SpriteAction_ {
   int                type;
   int                flags;
   Dynar            * frames;
-  int                used_frames;
+  int                frames_used;
   SpriteFrame      * frame_now;
 };
 
@@ -128,7 +152,7 @@ int spriteframe_maxlayers(SpriteFrame * self) {
 }
 
 int spriteframe_layers(SpriteFrame * self) {
-  return self->used_layers;
+  return self->layers_used;
 }
 
 
@@ -143,7 +167,7 @@ SpriteFrame * spriteframe_init(SpriteFrame * self,
   self->index           = index;
   self->layers          = dynar_newptr(nlayers);
   dynar_putnullall(self->layers);
-  self->used_layers     = 0;
+  self->layers_used     = 0;
   self->duration        = duration;
   self->flags           = flags;
   return self;
@@ -166,7 +190,7 @@ SpriteFrame * spriteframe_done(SpriteFrame * self) {
   if(!self) return NULL;
   self->flags           = 0;
   self->duration        = 0.0;
-  self->used_layers     = -1;
+  self->layers_used     = -1;
   for (index = 0; index < dynar_size(self->layers); index++) {
     layer = spriteframe_layer(self, index);
     spritelayer_free(layer);
@@ -214,7 +238,7 @@ int spriteaction_maxframes(SpriteAction *self) {
 
 int spriteaction_frames(SpriteAction *self) {
   if(!self) return 0;
-  return self->used_frames;
+  return self->frames_used;
 }
 
 SpriteFrame * 
@@ -245,7 +269,7 @@ spriteaction_initall(SpriteAction * self, int index, int type, int flags, int nf
   self->index           = index;
   self->type            = type;
   self->frames          = dynar_new(nframes, sizeof(SpriteFrame *));
-  self->used_frames     = 0;
+  self->frames_used     = 0;
   self->flags           = flags;
   self->frame_now       = NULL;
   dynar_putnullall(self->frames);
@@ -286,7 +310,7 @@ SpriteAction * spriteaction_newall(int index, int type, int flags, int nframes) 
 }
 
 SpriteAction * spriteaction_new(int index, int type, int flags) {
-  return spriteaction_init(spriteaction_alloc(), type, index, flags);
+  return spriteaction_init(spriteaction_alloc(), index, type, flags);
 }
 
 SpriteFrame * spriteframe_newall(int index, int flags, double duration, int nlayers) {
@@ -297,6 +321,47 @@ SpriteFrame * spriteframe_new(int index, int flags, double duration) {
   return spriteframe_newall(index, flags, duration, SPRITEFRAME_NLAYERS_DEFAULT);  
 }
 
+
+/* Gets the used actions of a sprite. */
+int sprite_actionsused(Sprite * sprite) {
+  if (!sprite) return 0;
+  return (sprite->actions_used);
+}
+
+/* Sets the used actions of a sprite. */
+int sprite_actionsused_(Sprite * sprite, int used) {
+  if (!sprite) return 0;
+  return (sprite->actions_used = used);
+}
+
+
+/* Gets the used frames of a sprite action. */
+int spriteaction_framesusedold(SpriteAction * self) {
+  if (!self) return 0;
+  return (self->frames_used);
+}
+
+/* Sets the used frames of a sprite action. */
+int spriteaction_framesused(SpriteAction * self) {
+  int index ;
+  if (!self) return 0;
+  for(index = 0; index < spriteaction_maxframes(self) ; index++) {
+    if(!spriteaction_frame(self, index)) return index;
+  }
+  return index;
+}
+
+/* Gets the used layers of a frame. */
+int spriteframe_layersused(SpriteFrame * self) {
+  if (!self) return 0;
+  return (self->layers_used);
+}
+
+/* Sets the used layers of a sprite. */
+int sprite_layersused_(SpriteFrame * self, int used) {
+  if (!self) return 0;
+  return (self->layers_used = used);
+}
 
 
 int sprite_maxactions(Sprite *self) {
@@ -412,8 +477,8 @@ SpriteAction * sprite_newaction(Sprite * self, int actionindex, int type, int fl
   action = spriteaction_new(actionindex, type, flags);
   if(!action) return NULL;
   aid = sprite_action_(self, actionindex, action);
-   if (aid) return aid;
-   /* Free if action could not be set. */
+  if (aid) return aid;
+  /* Free if action could not be set. */
   return spriteaction_free(action);
 }
 
@@ -446,6 +511,15 @@ int sprite_maxframes(Sprite * self, int actionindex) {
   if (!action) return 0;
   return spriteaction_maxframes(action);  
 }
+
+/* Returns the amount of frames used frames of this sprite */
+int sprite_framesused(Sprite * self, int actionindex) {
+  SpriteAction * action;
+  action = sprite_action(self, actionindex);
+  if (!action) return 0;
+  return spriteaction_framesused(action);  
+}
+
 
 /* Returns the maximum amount of layers this sprite can currently have
  * for the given action and frame index. */
@@ -557,16 +631,51 @@ sprite_now_(Sprite * self, int actionnow, int framenow) {
 /* Updates the sprite. dt is the time passed since the last update in doubles. */
 void sprite_update(Sprite * self, double dt) {
   if (!self) return;  
-  if(!self->frame_now) return;
+  if(!self->frame_now) { 
+    fprintf(stderr, "NULL current sprite frame!: %d\n", self->action_index);
+    // try to restore back to first frame if out of whack somehow.
+     sprite_now_(self, self->action_index, 0);
+    return;
+  }
   self->time += dt;
   if(self->time > self->frame_now->duration) {
     int next = self->frame_index + 1;
-    if (next > sprite_maxframes(self, self->action_index)) {
+    if (next >= sprite_framesused(self, self->action_index)) {
       next = 0;
+      self->frame_index = 0;
     }
+    self->time = 0.0;
     sprite_now_(self, self->action_index, next);
   }
 }
+
+/* Returns nonzero if this action matches the pose and direction. */
+int spriteaction_ispose(SpriteAction * self, int pose, int direction) {
+  if (!self)              return FALSE;
+  if (self->type != pose) return FALSE;
+  //return TRUE;
+  printf("Flags: %d & %d\n", self->flags, direction);
+  return self->flags & direction;
+}
+
+
+/* Sets the sprite current pose and direction. Will reset the frame to 0. 
+ * Returns negative if the pose could not be found in this sprite;
+ */
+int sprite_pose_(Sprite * self, int pose, int direction) {
+  int max, index;
+  SpriteAction * action;
+  max = sprite_maxactions(self);
+  for (index = 0; index < max; index ++) {
+    action = sprite_action(self, index);
+    if (spriteaction_ispose(action, pose, direction)) {
+      sprite_now_(self, index, 0);
+      return 0;
+    }  
+  }
+  return -1;
+};
+
 
 /** Loads a layer of the sprite from the given image. 
 * The layer's image will be duplicated. The indicated tile sizes and 
@@ -579,12 +688,30 @@ SpriteLayer * sprite_loadlayerfrom(Sprite * self, int actionindex,
   SpriteLayer * res;
   Point offset;
   Image * aid;
+  ALLEGRO_COLOR black, glass;
+  black = al_map_rgba(0,0,0,255);
+  glass = al_map_rgba(0,0,0,0);
+  // al_set_new_bitmap_flags
   aid = al_create_bitmap(size.x, size.y);
-  if(!aid) return NULL;
-  offset = cpv(0,0);
+  if(!aid) { 
+    fprintf(stderr, "Cannot allocate bitmap for: %d %d %d\n", actionindex, frameindex, layerindex);
+    return NULL;
+  }  
+  offset = cpv(0,0); 
   al_set_target_bitmap(aid);
+  al_clear_to_color(glass);  
   al_draw_bitmap_region(source, where.x, where.y, size.x, size.y, 0, 0, 0);
   al_set_target_backbuffer(al_get_current_display());
+  #ifdef SPRITE_LOAD_DISPLAY
+  al_clear_to_color(black);
+  al_draw_bitmap(aid, 
+                 -32 + al_get_display_width(al_get_current_display()) / 2, 
+                 -32 + al_get_display_height(al_get_current_display()) / 2,
+                 0);
+  al_flip_display();
+  #endif
+  // usleep(100000);
+  
   res = sprite_newlayer(self, actionindex, frameindex, layerindex, aid, offset);
   if(!res) {
     al_destroy_bitmap(aid);
@@ -617,18 +744,19 @@ static int ulpcss_row_type[] = {
 
 /* Direction info of the ULPCSS sprites. */
 static int ulpcss_row_direction[] = {
-  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
-  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
-  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
-  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
-  SPRITE_EAST , SPRITE_NORTH , SPRITE_WEST, SPRITE_SOUTH,
+  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
+  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
+  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
+  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
+  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
   SPRITE_ALL  ,
   -1
 };
 
 
 static SpriteLayout ulpcss_layout = {
-  ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction
+  ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction,
+  0
 }; 
 
 
@@ -642,7 +770,8 @@ SpriteLayout * layout) {
   int stride;
   int tx = 0, ty = 0;
   int inrow, actionindex, frameindex;
-  stride      = (oversized ? 96 : 32);
+  // xxx: oversize images need work!...
+  stride      = (oversized ? (64*3) : 64);
   Point where, size;
   size        = cpv(stride, stride);
   actionindex = 0;
@@ -652,16 +781,37 @@ SpriteLayout * layout) {
   while ( inrow >= 0 ) { 
     int actionflags       = layout->row_dir[actionindex];
     int actiontype        = layout->row_type[actionindex];
-    SpriteAction * action = 
-    sprite_newaction(self, actionindex, actiontype, actionflags);
-    if (!action) { fprintf(stderr, "Error allocating sprite action!\n"); }
+    SpriteAction * action = sprite_action(self, actionindex);
+    if (!action) { 
+      action = sprite_newaction(self, actionindex, actiontype, actionflags);
+    } 
+    if (!action) { 
+      fprintf(stderr, "Error allocating sprite action %d!\n", actionindex); 
+    }
     /* Load frames. */
-    for (frameindex = 0; frameindex++; frameindex < inrow) {
+    for (frameindex = 0; frameindex < inrow; frameindex++) {
+      SpriteFrame * frame;
       SpriteLayer * ok;
-      where.x    += stride;
+      /* Special case for stand-in-walk */
+      if ((actiontype == SPRITE_WALK) && (layout->standinwalk >= 0) {
+        if (frameindex == layout->standinwalk) {
+          
+        }
+      }
+      
+      frame       = sprite_frame(self, actionindex, frameindex);
+      if(!frame) {
+        frame     = sprite_newframe(self, actionindex, frameindex, SPRITE_ACTIVE, 0.2);
+      }
+      if (!frame) { 
+        fprintf(stderr, "Error allocating sprite frame %d %d!\n", 
+                actionindex, frameindex); 
+      }
+
       ok = sprite_loadlayerfrom(self, actionindex, frameindex, layerindex, 
                            source, size, where);
       if (!ok) { fprintf(stderr, "Error loading sprite layer!\n"); }
+      where.x    += stride;
     }
     where.x  = 0;
     where.y += stride;
@@ -680,7 +830,7 @@ return sprite_loadlayerlayout(self, layerindex, source, oversized,
 } 
 
 /** Loads sprite layer from file with the ulpcss layout. 
-The file name is in FIMFI format (subdir of data) */
+The file name is in FIFI vpath format (subdir of data) */
 Sprite * sprite_loadlayer_ulpcss_vpath
 (Sprite * self, int layerindex, char * vpath, int oversized) {
   Sprite * res; 
