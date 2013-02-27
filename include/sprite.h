@@ -1,6 +1,7 @@
 #ifndef sprite_H_INCLUDED
 #define sprite_H_INCLUDED
 
+#include "eruta.h"
 #include "image.h"
 
 typedef struct SpriteLayer_     SpriteLayer;
@@ -10,11 +11,14 @@ typedef struct Sprite_          Sprite;
 typedef struct SpriteList_      SpriteList;
 typedef struct SpriteLayout_    SpriteLayout;
 
-/* The layout of the sprite. Each field is a -1 terminated array. */ 
+/* The layout of the sprite. Each pointer field is a -1 terminated array. */ 
 struct SpriteLayout_ {
   int * per_row;
   int * row_type;
   int * row_dir;
+  /* If not negative, this means the standinwaltk'th frame of the 
+   walking animatin is in fact the standing position. */
+  int standinwalk;
 };
 
 
@@ -27,6 +31,8 @@ enum SpriteFlags_ {
   SPRITE_EMPTY          = 0,
   /* Sprite elemnt is in use if this is set, not if not. */ 
   SPRITE_ACTIVE         = 1,
+  /* Sprite element does not need to be updated. */
+  SPRITE_FREEZE         = 2,
   /* Direction flags */
   SPRITE_NO_DIRECTION   = 0,
   SPRITE_SOUTH          = 1 << 8,
@@ -59,11 +65,28 @@ enum SpriteActionType_ {
   SPRITE_HURT           = 7,
   SPRITE_STAND          = 8,
   SPRITE_DEFEND         = 9,
-}; 
+};
+
+/* Sprite layer suggested uses. */
+enum SpriteLayerKind_   { 
+  SPRITELAYER_BEHINDBODY,
+  SPRITELAYER_BODY,
+  SPRITELAYER_HEAD,
+  SPRITELAYER_EYES,
+  SPRITELAYER_HAIR,
+  SPRITELAYER_HANDS,
+  SPRITELAYER_FEET,
+  SPRITELAYER_LEGS,
+  SPRITELAYER_TORSO,
+  SPRITELAYER_ACCESSORIES,
+  SPRITELAYER_WEAPONS, 
+};
+
+
 
 
 /* Amount of potential actions that a sprite has by default at creation. */
-#define SPRITE_NACTIONS_DEFAULT 16
+#define SPRITE_NACTIONS_DEFAULT 32
 
 /* Amount of potential frame that a spriteaction has by default at creation. */
 #define SPRITEACTION_NFRAMES_DEFAULT 16
@@ -83,16 +106,23 @@ Sprite * sprite_done(Sprite * self);
 Sprite * sprite_free(Sprite * self);
 Sprite * sprite_alloc();
 Sprite * sprite_new(int index);
-SpriteFrame * spriteaction_newframe(SpriteAction * self, int index, 
-                                    int flags, double duration);
 
-/* Adds a new action to the sprite. Any old action at the 
- same index is freed. Returns the new action or NULL on error. */
-SpriteAction * sprite_newaction(Sprite * self, int actionindex, int type, int flags);
+void sprite_draw(Sprite * self, Point * at);
+Sprite * sprite_now_(Sprite * self, int actionnow, int framenow);
+void sprite_update(Sprite * self, double dt);
 
-/* Adds a frame to the sprite. The action must already exist. */
-SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
-                              int flags, double duration);
+
+SpriteFrame * spriteaction_newframe
+(SpriteAction * self, int index, int flags, double duration);
+SpriteAction * sprite_newaction
+(Sprite * self, int actionindex, int type, int flags);
+SpriteFrame * sprite_newframe
+(Sprite * self, int actionindex, int frameindex, int flags, double duration);
+Sprite * sprite_loadlayer_ulpcss_vpath
+(Sprite * self, int layerindex, char * vpath, int oversized);
+
+int sprite_pose_(Sprite * self, int pose, int direction);
+
 
 
 
