@@ -10,6 +10,8 @@ typedef struct SpriteAction_    SpriteAction;
 typedef struct Sprite_          Sprite;
 typedef struct SpriteList_      SpriteList;
 typedef struct SpriteLayout_    SpriteLayout;
+typedef struct SpriteState_     SpriteState;
+
 
 /* The layout of the sprite. Each pointer field is a -1 terminated array. */ 
 struct SpriteLayout_ {

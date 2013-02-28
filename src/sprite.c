@@ -82,14 +82,31 @@ struct Sprite_ {
   int                actions_used;
   double             time;
   Dynar            * actions;
-  int used_actions;
 };
 
-/** The list of all loaded sprites. Some may be drawn and some not. */
+/* The list of all loaded sprites. Some may be drawn and some not. */
 struct SpriteList_ {
   Dynar * sprites;
   int     sprites_used;
-}; 
+};
+
+
+/* SpriteState contains dynamic information about a sprite. This was   
+ * separated out of Sprite to allow one sprites to be reused and shown by 
+ * several Things. 
+ */
+struct SpriteState_ {
+  Sprite           * sprite;
+  SpriteAction     * action_now;
+  SpriteFrame      * frame_now;
+  int                frame_index;
+  int                action_index;
+  double             time;
+};
+
+
+
+
 
 /* Allocates a sprite layer. */
 SpriteLayer * 
@@ -414,7 +431,7 @@ Sprite * sprite_initall(Sprite * self, int index, int nactions) {
   // self->index        = index;
   self->action_now   = NULL;
   self->frame_now    = NULL;
-  self->used_actions = 0;
+  self->actions_used = 0;
   self->time         = 0.0; 
   self->actions      = dynar_newptr(nactions); 
   dynar_putnullall(self->actions);
@@ -454,6 +471,30 @@ Sprite * sprite_new(int index) {
   return sprite_init(sprite_alloc(), index);
 }
 
+
+SpriteState * spritestate_alloc() {
+  return STRUCT_ALLOC(SpriteState);
+}
+
+SpriteState * spritestate_free(SpriteState * self) {
+  /* No cleanup since the Sprite * is owned by the sprite list. */
+  return mem_free(self);
+}
+
+Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite) {
+  /* No cleanup, sprite is not woned by the sprite state. */
+  return self->sprite = sprite;
+}
+
+
+SpriteState * spritestate_sprite(SpriteState * self) {
+  /* No cleanup, sprite is not woned by the sprite state. */
+  return self->sprite ;
+}
+
+SpriteState * spritestate_init(SpriteState * self, Sprite * sprite) {
+  
+}
 
 /* Adds a new frame to an action. Any old frame at the same index is freed. 
  Returns the new frame or NULL on error. */
@@ -911,6 +952,12 @@ Sprite * sprite_loadlayer_ulpcss_vpath
   return res;
 }
 
+
+
+
+/* Sprite list is a storage location for all sprites. 
+ * 
+ */
 
 
 

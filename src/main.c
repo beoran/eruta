@@ -186,10 +186,21 @@ int real_main(void) {
     if(!sprite_loadlayer_ulpcss_vpath
         (sprite, 0, "image/ulpcss/body/male/light.png", 0) 
       ) { 
-        fprintf(stderr, "Couldnot load body layer.\n");
+        fprintf(stderr, "Could not load body layer.\n");
     }
+    sprite_loadlayer_ulpcss_vpath
+    (sprite, 1, "image/ulpcss/hair/male/messy2/redhead.png", 0);
+    sprite_loadlayer_ulpcss_vpath
+    (sprite, 2, "image/ulpcss/torso/white_shirt_male.png", 0);
+    sprite_loadlayer_ulpcss_vpath
+    (sprite, 3, "image/ulpcss/legs/green_pants_male.png", 0);
+    sprite_loadlayer_ulpcss_vpath
+    (sprite, 4, "image/ulpcss/feet/brown_shoes_male.png", 0);
+
+ 
+
     sprite_now_(sprite, 0, 0);
-    if(sprite_pose_(sprite, SPRITE_STAND, SPRITE_NORTH)) {
+    if(sprite_pose_(sprite, SPRITE_WALK, SPRITE_EAST)) {
       fprintf(stderr, "Could not set sprite pose!\n");
     } else {
       printf("Sprite pose set.\n");
