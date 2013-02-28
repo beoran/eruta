@@ -4,10 +4,13 @@
 #include "eruta.h"
 #include "image.h"
 
+/* Typedefs for the rather complex sprite subsystem... */
+
 typedef struct SpriteLayer_     SpriteLayer;
 typedef struct SpriteFrame_     SpriteFrame;
-typedef struct SpriteAction_    SpriteAction;   
+typedef struct SpriteAction_    SpriteAction;
 typedef struct Sprite_          Sprite;
+typedef struct SpriteData_      SpriteData;
 typedef struct SpriteList_      SpriteList;
 typedef struct SpriteLayout_    SpriteLayout;
 typedef struct SpriteState_     SpriteState;
@@ -104,33 +107,33 @@ enum SpriteLayerKind_   {
 #define SPRITEFRAME_NLAYERS_DEFAULT 16
 
 
-int sprite_maxactions(Sprite *self);
-SpriteAction * sprite_action(Sprite *self, int index);
-SpriteAction * sprite_action_(Sprite *self, int index, SpriteAction * action);
-int sprite_frames(Sprite *self, int action);
-SpriteFrame * sprite_frame(Sprite *self, int action, int index);
-Sprite * sprite_initall(Sprite * self, int index, int nactions);
-Sprite * sprite_init(Sprite * self, int index);
-Sprite * sprite_done(Sprite * self);
-Sprite * sprite_free(Sprite * self);
-Sprite * sprite_alloc();
-Sprite * sprite_new(int index);
+int spritedata_maxactions(SpriteData *self);
+SpriteAction * spritedata_action(SpriteData *self, int index);
+SpriteAction * spritedata_action_(SpriteData *self, int index, SpriteAction * action);
+int spritedata_frames(SpriteData *self, int action);
+SpriteFrame * spritedata_frame(SpriteData *self, int action, int index);
+SpriteData * spritedata_initall(SpriteData * self, int index, int nactions);
+SpriteData * spritedata_init(SpriteData * self, int index);
+SpriteData * spritedata_done(SpriteData * self);
+SpriteData * spritedata_free(SpriteData * self);
+SpriteData * spritedata_alloc();
+SpriteData * spritedata_new(int index);
 
-void sprite_draw(Sprite * self, Point * at);
-Sprite * sprite_now_(Sprite * self, int actionnow, int framenow);
-void sprite_update(Sprite * self, double dt);
+void spritedata_draw(SpriteData * self, Point * at);
+SpriteData * spritedata_now_(SpriteData * self, int actionnow, int framenow);
+void spritedata_update(SpriteData * self, double dt);
 
 
 SpriteFrame * spriteaction_newframe
 (SpriteAction * self, int index, int flags, double duration);
-SpriteAction * sprite_newaction
-(Sprite * self, int actionindex, int type, int flags);
-SpriteFrame * sprite_newframe
-(Sprite * self, int actionindex, int frameindex, int flags, double duration);
-Sprite * sprite_loadlayer_ulpcss_vpath
-(Sprite * self, int layerindex, char * vpath, int oversized);
+SpriteAction * spritedata_newaction
+(SpriteData * self, int actionindex, int type, int flags);
+SpriteFrame * spritedata_newframe
+(SpriteData * self, int actionindex, int frameindex, int flags, double duration);
+SpriteData * spritedata_loadlayer_ulpcss_vpath
+(SpriteData * self, int layerindex, char * vpath, int oversized);
 
-int sprite_pose_(Sprite * self, int pose, int direction);
+int spritedata_pose_(SpriteData * self, int pose, int direction);
 
 
 

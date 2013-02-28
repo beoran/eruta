@@ -140,19 +140,20 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
 
 
 int real_main(void) {
-    Image    * border   = NULL;
-    Image    * sheet    = NULL;
-    Tileset  * tileset  = NULL;
-    Tile     * tile     = NULL;
-    State    * state    = NULL;
-    Music    * music    = NULL;
-    Camera   * camera   = NULL;
-    Tilepane * tilepane = NULL;
-    Tilemap  * map      = NULL;
-    Thing    * actor    = NULL;
-    Tracker  * tracker    = NULL;
-    Tracker  * maptracker = NULL;
-    Sprite   * sprite     = NULL;
+    Image       * border   = NULL;
+    Image       * sheet    = NULL;
+    Tileset     * tileset  = NULL;
+    Tile        * tile     = NULL;
+    State       * state    = NULL;
+    Music       * music    = NULL;
+    Camera      * camera   = NULL;
+    Tilepane    * tilepane = NULL;
+    Tilemap     * map      = NULL;
+    Thing       * actor    = NULL;
+    Tracker     * tracker    = NULL;
+    Tracker     * maptracker = NULL;
+    SpriteData  * sprite     = NULL;
+    SpriteState * spritestate= NULL;
 
     
     React    react;
@@ -182,25 +183,26 @@ int real_main(void) {
     //music   = music_load("musictest.ogg");
     // if(!music) perror("musictest.ogg");
     /* Initialize empty sprite and load a few layers. */
-    sprite = sprite_new(1);
-    if(!sprite_loadlayer_ulpcss_vpath
+    sprite      = spritedata_new(1);
+    spritestate = spritestate_alloc();
+    spritestate_init(spritestate, sprite);
+    
+    if(!spritedata_loadlayer_ulpcss_vpath
         (sprite, 0, "image/ulpcss/body/male/light.png", 0) 
       ) { 
         fprintf(stderr, "Could not load body layer.\n");
     }
-    sprite_loadlayer_ulpcss_vpath
+    spritedata_loadlayer_ulpcss_vpath
     (sprite, 1, "image/ulpcss/hair/male/messy2/redhead.png", 0);
-    sprite_loadlayer_ulpcss_vpath
+    spritedata_loadlayer_ulpcss_vpath
     (sprite, 2, "image/ulpcss/torso/white_shirt_male.png", 0);
-    sprite_loadlayer_ulpcss_vpath
+    spritedata_loadlayer_ulpcss_vpath
     (sprite, 3, "image/ulpcss/legs/green_pants_male.png", 0);
-    sprite_loadlayer_ulpcss_vpath
+    spritedata_loadlayer_ulpcss_vpath
     (sprite, 4, "image/ulpcss/feet/brown_shoes_male.png", 0);
 
- 
-
-    sprite_now_(sprite, 0, 0);
-    if(sprite_pose_(sprite, SPRITE_WALK, SPRITE_EAST)) {
+    spritestate_now_(sprite, 0, 0);
+    if(spritestate_pose_(sprite, SPRITE_WALK, SPRITE_EAST)) {
       fprintf(stderr, "Could not set sprite pose!\n");
     } else {
       printf("Sprite pose set.\n");
@@ -251,9 +253,9 @@ int real_main(void) {
       // rh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
 
       if(map) tilemap_draw(map, camera);
-      if (sprite) sprite_draw(sprite, &spritenow);
+      if (sprite) spritestate_draw(spritestate, &spritenow);
      
-      if (sprite) sprite_update(sprite, state_frametime(state));
+      if (sprite) spritestate_update(spritestate, state_frametime(state));
       state_frames_update(state);
       
       /*
@@ -279,7 +281,8 @@ int real_main(void) {
       /* finally update display. */   
       al_flip_display();
    }
-   sprite_free(sprite);
+   spritedata_free(sprite);
+   spritestate_free(spritestate);
    tilemap_free(map);
    tilepane_free(tilepane);
    tileset_free(tileset);
