@@ -471,31 +471,6 @@ Sprite * sprite_new(int index) {
   return sprite_init(sprite_alloc(), index);
 }
 
-
-SpriteState * spritestate_alloc() {
-  return STRUCT_ALLOC(SpriteState);
-}
-
-SpriteState * spritestate_free(SpriteState * self) {
-  /* No cleanup since the Sprite * is owned by the sprite list. */
-  return mem_free(self);
-}
-
-Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite) {
-  /* No cleanup, sprite is not woned by the sprite state. */
-  return self->sprite = sprite;
-}
-
-
-SpriteState * spritestate_sprite(SpriteState * self) {
-  /* No cleanup, sprite is not woned by the sprite state. */
-  return self->sprite ;
-}
-
-SpriteState * spritestate_init(SpriteState * self, Sprite * sprite) {
-  
-}
-
 /* Adds a new frame to an action. Any old frame at the same index is freed. 
  Returns the new frame or NULL on error. */
 SpriteFrame * spriteaction_newframe(SpriteAction * self, int index, 
@@ -508,8 +483,6 @@ SpriteFrame * spriteaction_newframe(SpriteAction * self, int index,
   if (aid) return aid;
   return spriteframe_free(frame);
 }
-
-
 
 /* Adds a new action to the sprite. Any old action at the 
  same index is freed. Returns the new action or NULL on error. */
@@ -958,6 +931,29 @@ Sprite * sprite_loadlayer_ulpcss_vpath
 /* Sprite list is a storage location for all sprites. 
  * 
  */
+SpriteState * spritestate_alloc() {
+  return STRUCT_ALLOC(SpriteState);
+}
+
+SpriteState * spritestate_free(SpriteState * self) {
+  /* No cleanup since the Sprite * is owned by the sprite list. */
+  return mem_free(self);
+}
+
+Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite) {
+  /* No cleanup, sprite is not woned by the sprite state. */
+  return self->sprite = sprite;
+}
+
+
+SpriteState * spritestate_sprite(SpriteState * self) {
+  /* No cleanup, sprite is not woned by the sprite state. */
+  return self->sprite ;
+}
+
+SpriteState * spritestate_init(SpriteState * self, Sprite * sprite) {
+  
+}
 
 
 
