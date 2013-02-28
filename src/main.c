@@ -189,7 +189,7 @@ int real_main(void) {
         fprintf(stderr, "Couldnot load body layer.\n");
     }
     sprite_now_(sprite, 0, 0);
-    if(sprite_pose_(sprite, SPRITE_WALK, SPRITE_NORTH)) {
+    if(sprite_pose_(sprite, SPRITE_STAND, SPRITE_NORTH)) {
       fprintf(stderr, "Could not set sprite pose!\n");
     } else {
       printf("Sprite pose set.\n");

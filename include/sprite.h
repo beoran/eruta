@@ -16,9 +16,16 @@ struct SpriteLayout_ {
   int * per_row;
   int * row_type;
   int * row_dir;
+  /* The maximum sizes of the individual frames or layers.  */
+  int size_x;
+  int size_y;  
   /* If not negative, this means the standinwaltk'th frame of the 
-   walking animatin is in fact the standing position. */
+   walking animation is in fact the standing position. This frame should be skipped 
+   for walking and added to a separate standing position. 
+   The standing actions will be placed after all other actions of the sprite.
+   */
   int standinwalk;
+  
 };
 
 

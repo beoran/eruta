@@ -756,8 +756,14 @@ static int ulpcss_row_direction[] = {
 
 static SpriteLayout ulpcss_layout = {
   ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction,
-  0
+  64, 64, 0
 }; 
+
+static SpriteLayout ulpcss_oversized_layout = {
+  ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction,
+  64 * 3, 64 * 3, 0
+}; 
+
 
 /* Gets the action for the sprite, or creates it if it doesn't exist yet. */
 SpriteAction * sprite_actiongetnew
@@ -808,53 +814,51 @@ Sprite * sprite_loadlayerlayout_standinwalk(Sprite * self,
                                             Image * source, 
                                             int oversized, 
                                             SpriteLayout * layout) {
-  
+  return NULL;
 }
 
-/* Loads a sprite layer for the whole sprite.  Pass in oversized for 
- * oversized image. The layer info in the struct with -1 delimted arrays
- * is used to correctly set up the sprites. 
- */ 
-Sprite * sprite_loadlayerlayout
-(Sprite * self, int layerindex, Image * source, int oversized, 
-SpriteLayout * layout) {
-  int stride;
-  int stop, walkaction;
-  int tx = 0, ty = 0;
-  int inrow, actionindex, frameindex;
-  // xxx: oversize images need work!...
-  stride      = (oversized ? (64*3) : 64);
-  Point where, size;
-  size        = cpv(stride, stride);
-  actionindex = 0;
-  where       = cpvzero;
-  stop        = spritelayout_actions(layout);
-  walkaction  = stop - 1;
 
-  for (actionindex = 0 ; actionindex < stop ; actionindex++ ) {
-    inrow                 = layout->per_row[actionindex];
+/* Loads sprite layers for an action of a sprite from an image.  The layout info 
+ * in the SpriteLayout struct determines how to load the sprite.
+ */ 
+Sprite * spritelayout_loadactionlayer
+(SpriteLayout * layout, Sprite * sprite, 
+ Image * source, int actionindex, int layerindex) {
+    int frameindex;
+    Point where           = cpv(0, layout->size_y * actionindex);
+    Point size            = cpv(layout->size_x, layout->size_y);
+    int inrow             = layout->per_row[actionindex];
     int actionflags       = layout->row_dir[actionindex];
     int actiontype        = layout->row_type[actionindex];
-    int stand_in_walk     = 0;
+    int stand_in_walk     = ((actiontype == SPRITE_WALK) && (layout->standinwalk >= 0));
     SpriteAction * action = 
-    sprite_actiongetnew(self, actionindex, actiontype, actionflags);
+    sprite_actiongetnew(sprite, actionindex, actiontype, actionflags);
+    
     if (!action) { 
       fprintf(stderr, "Error allocating sprite action %d!\n", actionindex);
+      return NULL;
     }
     /* Load frames. */
     for (frameindex = 0; frameindex < inrow; frameindex++) {
       SpriteFrame * frame;
       SpriteLayer * ok;
       /* 
-        Special case for stand-in-walk. Skip them and load in a second pass. 
+        Special case for stand-in-walk. 
       */      
-      if (   (actiontype == SPRITE_WALK) 
-          && (frameindex == layout->standinwalk) 
-        ) {
+      if (stand_in_walk  && (frameindex == layout->standinwalk)) {
+        /* Make an action for the stand-in-walk frame. */
+        int walkaction = spritelayout_actions(layout) + actionindex % 4; 
+        /* XXX: It's a bit of a hack, assumes that there will be 4 consecutive walk 
+         * actions. */
+        action = sprite_actiongetnew(sprite, walkaction, SPRITE_STAND, actionflags);
+        /* Load stand frame */
+        ok = sprite_loadframelayerfrom(sprite, walkaction, frameindex, 
+              layerindex, source, size, where, SPRITE_ACTIVE, 2.0);
         stand_in_walk = 1;
+        printf("Stand in walk found: %p %p at %d...\n", action, ok, walkaction);
         /* skip standing frames. */
       } else {
-        ok = sprite_loadframelayerfrom(self, actionindex, 
+        ok = sprite_loadframelayerfrom(sprite, actionindex, 
                                        frameindex - stand_in_walk, 
               layerindex, source, size, where, SPRITE_ACTIVE, 2.0);
         if (!ok) { 
@@ -863,22 +867,35 @@ SpriteLayout * layout) {
                 actionindex, frameindex);
         }
       }
-      where.x    += stride;
+      where.x    += layout->size_x;
     }
-    where.x  = 0;
-    where.y += stride;
+  return sprite;
+}
+
+
+/* Loads a sprite layer for the whole sprite.  The layout info in the struct is 
+ * used to correctly set  up the sprite parts. 
+ */ 
+Sprite * spritelayout_loadlayer
+(SpriteLayout * layout, Sprite * sprite, int layerindex, Image * source) {
+  int stop;
+  int actionindex, walkaction;
+  Point where, size;
+  actionindex = 0;
+  stop        = spritelayout_actions(layout);
+  walkaction  = stop - 1;
+
+  for (actionindex = 0 ; actionindex < stop ; actionindex++ ) {
+    spritelayout_loadactionlayer(layout, sprite, source, actionindex, layerindex);
   }
-  
-  
-  return self;
+  return sprite;
 }
 
 
 /** Loads sprite layer with the ulpcss layout. */
 Sprite * sprite_loadlayer_ulpcss
 (Sprite * self, int layerindex, Image * source, int oversized) {
-return sprite_loadlayerlayout(self, layerindex, source, oversized,
-                              &ulpcss_layout);
+  return spritelayout_loadlayer(&ulpcss_layout, self, layerindex, source);
 } 
 
 /** Loads sprite layer from file with the ulpcss layout. 
