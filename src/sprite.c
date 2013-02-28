@@ -74,7 +74,7 @@ struct SpriteAction_ {
 
 
 /* A sprite has several actions and frames. */
-struct SpriteData_ {
+struct Sprite_ {
   SpriteAction     * action_now;
   SpriteFrame      * frame_now;
   int                frame_index;
@@ -92,11 +92,11 @@ struct SpriteList_ {
 
 
 /* SpriteState contains dynamic information about a sprite. This was   
- * separated out of SpriteDatato allow one sprites to be reused and shown by 
+ * separated out of Sprite to allow one sprites to be reused and shown by 
  * several Things. 
  */
 struct SpriteState_ {
-  SpriteData           * sprite;
+  Sprite           * sprite;
   SpriteAction     * action_now;
   SpriteFrame      * frame_now;
   int                frame_index;
@@ -340,13 +340,13 @@ SpriteFrame * spriteframe_new(int index, int flags, double duration) {
 
 
 /* Gets the used actions of a sprite. */
-int spritedata_actionsused(SpriteData * sprite) {
+int sprite_actionsused(Sprite * sprite) {
   if (!sprite) return 0;
   return (sprite->actions_used);
 }
 
 /* Sets the used actions of a sprite. */
-int spritedata_actionsused_(SpriteData * sprite, int used) {
+int sprite_actionsused_(Sprite * sprite, int used) {
   if (!sprite) return 0;
   return (sprite->actions_used = used);
 }
@@ -375,28 +375,28 @@ int spriteframe_layersused(SpriteFrame * self) {
 }
 
 /* Sets the used layers of a sprite. */
-int spritedata_layersused_(SpriteFrame * self, int used) {
+int sprite_layersused_(SpriteFrame * self, int used) {
   if (!self) return 0;
   return (self->layers_used = used);
 }
 
 
-int spritedata_maxactions(SpriteData *self) {
+int sprite_maxactions(Sprite *self) {
   if(!self) return 0;
   return dynar_size(self->actions);
 }
 
-SpriteAction * spritedata_action(SpriteData *self, int index) {
+SpriteAction * sprite_action(Sprite *self, int index) {
   if(!self) return 0;
   return dynar_getptr(self->actions, index);
 }
 
 /* Set an action to the sprite. Any old action at the 
  same index is freed. */
-SpriteAction * spritedata_action_(SpriteData *self, int index, SpriteAction * action) {
+SpriteAction * sprite_action_(Sprite *self, int index, SpriteAction * action) {
   SpriteAction * oldact;
   if(!self) return 0;
-  oldact = spritedata_action(self, index);
+  oldact = sprite_action(self, index);
   if (oldact) {
     spriteaction_free(oldact);
   }
@@ -406,26 +406,26 @@ SpriteAction * spritedata_action_(SpriteData *self, int index, SpriteAction * ac
   return NULL;
 }
 
-int spritedata_frames(SpriteData *self, int action) {
+int sprite_frames(Sprite *self, int action) {
   if(!self) return 0;
-  return spriteaction_frames(spritedata_action(self, action));
+  return spriteaction_frames(sprite_action(self, action));
 }
 
 /* Returns the sprite's index'th frame of the action'th action of this sprite,
  or NULL if no such action or frame. */
-SpriteFrame * spritedata_frame(SpriteData *self, int action, int index) {
+SpriteFrame * sprite_frame(Sprite *self, int action, int index) {
   if(!self) return 0;
-  return spriteaction_frame(spritedata_action(self, action), index);
+  return spriteaction_frame(sprite_action(self, action), index);
 }
 
 
 /** Returns a layer of the sprite that's at the given the action, frame,
  * and layer indexes of NULL if not found. */
-SpriteLayer * spritedata_layer(SpriteData * self, int action ,int frame, int layer) {
-  return spriteframe_layer(spritedata_frame(self, action, frame), layer);
+SpriteLayer * sprite_layer(Sprite * self, int action ,int frame, int layer) {
+  return spriteframe_layer(sprite_frame(self, action, frame), layer);
 } 
  
-SpriteData * spritedata_initall(SpriteData * self, int index, int nactions) {
+Sprite * sprite_initall(Sprite * self, int index, int nactions) {
   int aid;
   if (!self) return NULL;
   // self->index        = index;
@@ -439,16 +439,16 @@ SpriteData * spritedata_initall(SpriteData * self, int index, int nactions) {
 }
 
 
-SpriteData * spritedata_init(SpriteData * self, int index) {
-  return spritedata_initall(self, index,  SPRITE_NACTIONS_DEFAULT);
+Sprite * sprite_init(Sprite * self, int index) {
+  return sprite_initall(self, index,  SPRITE_NACTIONS_DEFAULT);
 }
 
 
-SpriteData * spritedata_done(SpriteData * self) {
+Sprite * sprite_done(Sprite * self) {
   int aid;
   if(!self) return NULL;
-  for (aid = 0; aid < spritedata_maxactions(self); aid++) {
-    SpriteAction * act = spritedata_action(self, aid); 
+  for (aid = 0; aid < sprite_maxactions(self); aid++) {
+    SpriteAction * act = sprite_action(self, aid); 
     spriteaction_free(act);
   }   
   dynar_free(self->actions);
@@ -458,23 +458,43 @@ SpriteData * spritedata_done(SpriteData * self) {
   return self;
 }
 
-SpriteData * spritedata_free(SpriteData * self) {
-  return mem_free(spritedata_done(self));
+Sprite * sprite_free(Sprite * self) {
+  return mem_free(sprite_done(self));
   return NULL;
 }
 
-SpriteData * spritedata_alloc() {
-  return STRUCT_ALLOC(SpriteData);
+Sprite * sprite_alloc() {
+  return STRUCT_ALLOC(Sprite);
 }
 
-SpriteData * spritedata_new(int index) {
-  return spritedata_init(spritedata_alloc(), index);
+Sprite * sprite_new(int index) {
+  return sprite_init(sprite_alloc(), index);
 }
 
 
+SpriteState * spritestate_alloc() {
+  return STRUCT_ALLOC(SpriteState);
+}
+
+SpriteState * spritestate_free(SpriteState * self) {
+  /* No cleanup since the Sprite * is owned by the sprite list. */
+  return mem_free(self);
+}
+
+Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite) {
+  /* No cleanup, sprite is not woned by the sprite state. */
+  return self->sprite = sprite;
+}
 
 
+SpriteState * spritestate_sprite(SpriteState * self) {
+  /* No cleanup, sprite is not woned by the sprite state. */
+  return self->sprite ;
+}
 
+SpriteState * spritestate_init(SpriteState * self, Sprite * sprite) {
+  
+}
 
 /* Adds a new frame to an action. Any old frame at the same index is freed. 
  Returns the new frame or NULL on error. */
@@ -493,31 +513,31 @@ SpriteFrame * spriteaction_newframe(SpriteAction * self, int index,
 
 /* Adds a new action to the sprite. Any old action at the 
  same index is freed. Returns the new action or NULL on error. */
-SpriteAction * spritedata_newaction(SpriteData * self, int actionindex, int type, int flags) {
+SpriteAction * sprite_newaction(Sprite * self, int actionindex, int type, int flags) {
   SpriteAction * action, *aid;
   action = spriteaction_new(actionindex, type, flags);
   if(!action) return NULL;
-  aid = spritedata_action_(self, actionindex, action);
+  aid = sprite_action_(self, actionindex, action);
   if (aid) return aid;
   /* Free if action could not be set. */
   return spriteaction_free(action);
 }
 
 /* Adds a frame to the sprite. The action must already exist. */
-SpriteFrame * spritedata_newframe(SpriteData * self, int actionindex, int frameindex,
+SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
                               int flags, double duration) {
   SpriteAction * action;
-  action = spritedata_action(self, actionindex);
+  action = sprite_action(self, actionindex);
   if (!action) return NULL;
   return spriteaction_newframe(action, frameindex, flags, duration);
 }
 
 /* Adds a layer to a sprite. The action and frame must already exist. */
-SpriteLayer * spritedata_newlayer(SpriteData * self, int actionindex, int frameindex,
+SpriteLayer * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
                               int layerindex, Image * image, Point offset) {
   SpriteFrame * frame;
   SpriteLayer * aid; 
-  frame = spritedata_frame(self, actionindex, frameindex);
+  frame = sprite_frame(self, actionindex, frameindex);
   if(!frame) return NULL;
   aid = spriteframe_newlayer(frame, layerindex, image, offset);
   return aid;
@@ -526,17 +546,17 @@ SpriteLayer * spritedata_newlayer(SpriteData * self, int actionindex, int framei
 
 /* Returns the maximum amount of frames this sprite can currently have
  *for the given action index. */
-int spritedata_maxframes(SpriteData * self, int actionindex) {
+int sprite_maxframes(Sprite * self, int actionindex) {
   SpriteAction * action;
-  action = spritedata_action(self, actionindex);
+  action = sprite_action(self, actionindex);
   if (!action) return 0;
   return spriteaction_maxframes(action);  
 }
 
 /* Returns the amount of frames used frames of this sprite */
-int spritedata_framesused(SpriteData * self, int actionindex) {
+int sprite_framesused(Sprite * self, int actionindex) {
   SpriteAction * action;
-  action = spritedata_action(self, actionindex);
+  action = sprite_action(self, actionindex);
   if (!action) return 0;
   return spriteaction_framesused(action);  
 }
@@ -544,31 +564,31 @@ int spritedata_framesused(SpriteData * self, int actionindex) {
 
 /* Returns the maximum amount of layers this sprite can currently have
  * for the given action and frame index. */
-int spritedata_maxlayers(SpriteData * self, int actionindex, int frameindex) {
+int sprite_maxlayers(Sprite * self, int actionindex, int frameindex) {
   SpriteFrame * frame;
-  frame = spritedata_frame(self, actionindex, frameindex);
+  frame = sprite_frame(self, actionindex, frameindex);
   if (!frame) return 0;
   return spriteframe_maxlayers(frame);  
 }
 
-/* SpriteData action cleanup walker. */
+/* Sprite action cleanup walker. */
 void * spriteaction_cleanwalk(void * ptr, void * extra) {
   SpriteAction * action = (SpriteAction *) ptr;
   if (!action) { return action; } 
   return spriteaction_free(action);
 }
 
-/* SpriteData action destructor. */
+/* Sprite action destructor. */
 void * spriteaction_destructor(void * ptr) {
   return spriteaction_free((SpriteAction *) ptr);
 } 
 
-/* SpriteData frame destructor. */
+/* Sprite frame destructor. */
 void * spriteframe_destructor(void * ptr) {
   return spriteframe_free((SpriteFrame *) ptr);
 } 
 
-/* SpriteData layer destructor. */
+/* Sprite layer destructor. */
 void * spritelayer_destructor(void * ptr) {
   return spritelayer_free((SpriteLayer *) ptr);
 } 
@@ -600,7 +620,7 @@ SpriteAction * spriteaction_maxframes_(SpriteAction * self, int newframes) {
 
 /* Change the amount of actions the sprite can have. Returns self 
  on success, null if failed. */
-SpriteData * spritedata_maxactions_(SpriteData * self, int newactions) {
+Sprite * sprite_maxactions_(Sprite * self, int newactions) {
   int last, toclean, index;
   Dynar * aid;
   if(!self) return NULL;
@@ -624,20 +644,20 @@ void spriteframe_draw(SpriteFrame * self, Point * at) {
 
 /* Draw the sprite at the given location. This takes
   the current action, frame, layers and offsets into consideration. */
-void spritedata_draw(SpriteData * self, Point * at) {
+void sprite_draw(Sprite * self, Point * at) {
   if(!self) return;
   spriteframe_draw(self->frame_now, at);
 }
 
 /* Sets the sprite's current action and current frame. Returns 
  self if ok, NULL if out of bounds. */
-SpriteData * 
-spritedata_now_(SpriteData * self, int actionnow, int framenow) {
+Sprite * 
+sprite_now_(Sprite * self, int actionnow, int framenow) {
   SpriteAction * action;
   SpriteFrame  * frame;
   if (!self) return NULL;
-  if (bad_outofboundsi(actionnow, 0, spritedata_maxactions(self))) return NULL; 
-  frame = spritedata_frame(self, actionnow, framenow);
+  if (bad_outofboundsi(actionnow, 0, sprite_maxactions(self))) return NULL; 
+  frame = sprite_frame(self, actionnow, framenow);
   if (!frame) {
     return NULL;
   }
@@ -650,23 +670,23 @@ spritedata_now_(SpriteData * self, int actionnow, int framenow) {
 
 
 /* Updates the sprite. dt is the time passed since the last update in doubles. */
-void spritedata_update(SpriteData * self, double dt) {
+void sprite_update(Sprite * self, double dt) {
   if (!self) return;  
   if(!self->frame_now) { 
     fprintf(stderr, "NULL current sprite frame!: %d\n", self->action_index);
     // try to restore back to first frame if out of whack somehow.
-     spritedata_now_(self, self->action_index, 0);
+     sprite_now_(self, self->action_index, 0);
     return;
   }
   self->time += dt;
   if(self->time > self->frame_now->duration) {
     int next = self->frame_index + 1;
-    if (next >= spritedata_framesused(self, self->action_index)) {
+    if (next >= sprite_framesused(self, self->action_index)) {
       next = 0;
       self->frame_index = 0;
     }
     self->time = 0.0;
-    spritedata_now_(self, self->action_index, next);
+    sprite_now_(self, self->action_index, next);
   }
 }
 
@@ -683,14 +703,14 @@ int spriteaction_ispose(SpriteAction * self, int pose, int direction) {
 /* Sets the sprite current pose and direction. Will reset the frame to 0. 
  * Returns negative if the pose could not be found in this sprite;
  */
-int spritedata_pose_(SpriteData * self, int pose, int direction) {
+int sprite_pose_(Sprite * self, int pose, int direction) {
   int max, index;
   SpriteAction * action;
-  max = spritedata_maxactions(self);
+  max = sprite_maxactions(self);
   for (index = 0; index < max; index ++) {
-    action = spritedata_action(self, index);
+    action = sprite_action(self, index);
     if (spriteaction_ispose(action, pose, direction)) {
-      spritedata_now_(self, index, 0);
+      sprite_now_(self, index, 0);
       return 0;
     }  
   }
@@ -703,7 +723,7 @@ int spritedata_pose_(SpriteData * self, int pose, int direction) {
 * locations will be used. Returns the layer on success of NULL if something 
 * went wrong.
 */
-SpriteLayer * spritedata_loadlayerfrom(SpriteData * self, int actionindex, 
+SpriteLayer * sprite_loadlayerfrom(Sprite * self, int actionindex, 
                                   int frameindex, int layerindex, 
                                   Image * source, Point size, Point where) {
   SpriteLayer * res;
@@ -733,7 +753,7 @@ SpriteLayer * spritedata_loadlayerfrom(SpriteData * self, int actionindex,
   #endif
   // usleep(100000);
   
-  res = spritedata_newlayer(self, actionindex, frameindex, layerindex, aid, offset);
+  res = sprite_newlayer(self, actionindex, frameindex, layerindex, aid, offset);
   if(!res) {
     al_destroy_bitmap(aid);
     return NULL;
@@ -787,30 +807,30 @@ static SpriteLayout ulpcss_oversized_layout = {
 
 
 /* Gets the action for the sprite, or creates it if it doesn't exist yet. */
-SpriteAction * spritedata_actiongetnew
-(SpriteData * self, int actionindex, int actiontype, int actionflags) {
-  SpriteAction * action = spritedata_action(self, actionindex);
+SpriteAction * sprite_actiongetnew
+(Sprite * self, int actionindex, int actiontype, int actionflags) {
+  SpriteAction * action = sprite_action(self, actionindex);
   if (action) return action;
-  return spritedata_newaction(self, actionindex, actiontype, actionflags);
+  return sprite_newaction(self, actionindex, actiontype, actionflags);
 }
 
 /* Gets the frame for the sprite, or creates it if it doesn't exist yet. */
-SpriteFrame * spritedata_framegetnew
-(SpriteData * self, int actionindex, int frameindex, int flags, double duration) {
-  SpriteFrame * frame = spritedata_frame(self, actionindex, frameindex);
+SpriteFrame * sprite_framegetnew
+(Sprite * self, int actionindex, int frameindex, int flags, double duration) {
+  SpriteFrame * frame = sprite_frame(self, actionindex, frameindex);
   if (frame) return frame;
-  return spritedata_newframe(self, actionindex, frameindex, SPRITE_ACTIVE, 0.2);
+  return sprite_newframe(self, actionindex, frameindex, SPRITE_ACTIVE, 0.2);
 }
 
 /* Loads a frame from an image, and creates it if it doesn't exist yet. */
-SpriteLayer * spritedata_loadframelayerfrom
-(SpriteData * self, int actionindex, int frameindex, int layerindex, 
+SpriteLayer * sprite_loadframelayerfrom
+(Sprite * self, int actionindex, int frameindex, int layerindex, 
  Image * source, Point size, Point where, int frameflags, double duration) {
   SpriteFrame * frame;  
-  frame  = spritedata_framegetnew(
+  frame  = sprite_framegetnew(
             self, actionindex, frameindex, SPRITE_ACTIVE, 0.2);
   if (!frame) return NULL;
-  return spritedata_loadlayerfrom(self, actionindex, frameindex, layerindex,
+  return sprite_loadlayerfrom(self, actionindex, frameindex, layerindex,
             source, size, where);
 }
 
@@ -830,7 +850,7 @@ int spritelayout_actions(SpriteLayout * layout) {
 * It's ugly but it's needed because of how the ULPCSS sprite sheets are 
 * organized...
 */
-SpriteData * spritedata_loadlayerlayout_standinwalk(SpriteData * self, 
+Sprite * sprite_loadlayerlayout_standinwalk(Sprite * self, 
                                             int layerindex, 
                                             Image * source, 
                                             int oversized, 
@@ -842,8 +862,8 @@ SpriteData * spritedata_loadlayerlayout_standinwalk(SpriteData * self,
 /* Loads sprite layers for an action of a sprite from an image.  The layout info 
  * in the SpriteLayout struct determines how to load the sprite.
  */ 
-SpriteData * spritelayout_loadactionlayer
-(SpriteLayout * layout, SpriteData * sprite, 
+Sprite * spritelayout_loadactionlayer
+(SpriteLayout * layout, Sprite * sprite, 
  Image * source, int actionindex, int layerindex) {
     int frameindex;
     Point where           = cpv(0, layout->size_y * actionindex);
@@ -853,7 +873,7 @@ SpriteData * spritelayout_loadactionlayer
     int actiontype        = layout->row_type[actionindex];
     int stand_in_walk     = ((actiontype == SPRITE_WALK) && (layout->standinwalk >= 0));
     SpriteAction * action = 
-    spritedata_actiongetnew(sprite, actionindex, actiontype, actionflags);
+    sprite_actiongetnew(sprite, actionindex, actiontype, actionflags);
     
     if (!action) { 
       fprintf(stderr, "Error allocating sprite action %d!\n", actionindex);
@@ -871,15 +891,15 @@ SpriteData * spritelayout_loadactionlayer
         int walkaction = spritelayout_actions(layout) + actionindex % 4; 
         /* XXX: It's a bit of a hack, assumes that there will be 4 consecutive walk 
          * actions. */
-        action = spritedata_actiongetnew(sprite, walkaction, SPRITE_STAND, actionflags);
+        action = sprite_actiongetnew(sprite, walkaction, SPRITE_STAND, actionflags);
         /* Load stand frame */
-        ok = spritedata_loadframelayerfrom(sprite, walkaction, frameindex, 
+        ok = sprite_loadframelayerfrom(sprite, walkaction, frameindex, 
               layerindex, source, size, where, SPRITE_ACTIVE, 2.0);
         stand_in_walk = 1;
         printf("Stand in walk found: %p %p at %d...\n", action, ok, walkaction);
         /* skip standing frames. */
       } else {
-        ok = spritedata_loadframelayerfrom(sprite, actionindex, 
+        ok = sprite_loadframelayerfrom(sprite, actionindex, 
                                        frameindex - stand_in_walk, 
               layerindex, source, size, where, SPRITE_ACTIVE, 2.0);
         if (!ok) { 
@@ -897,8 +917,8 @@ SpriteData * spritelayout_loadactionlayer
 /* Loads a sprite layer for the whole sprite.  The layout info in the struct is 
  * used to correctly set  up the sprite parts. 
  */ 
-SpriteData * spritelayout_loadlayer
-(SpriteLayout * layout, SpriteData * sprite, int layerindex, Image * source) {
+Sprite * spritelayout_loadlayer
+(SpriteLayout * layout, Sprite * sprite, int layerindex, Image * source) {
   int stop;
   int actionindex, walkaction;
   Point where, size;
@@ -914,127 +934,28 @@ SpriteData * spritelayout_loadlayer
 
 
 /** Loads sprite layer with the ulpcss layout. */
-SpriteData * spritedata_loadlayer_ulpcss
-(SpriteData * self, int layerindex, Image * source, int oversized) {
+Sprite * sprite_loadlayer_ulpcss
+(Sprite * self, int layerindex, Image * source, int oversized) {
   return spritelayout_loadlayer(&ulpcss_layout, self, layerindex, source);
 } 
 
 /** Loads sprite layer from file with the ulpcss layout. 
 The file name is in FIFI vpath format (subdir of data) */
-SpriteData * spritedata_loadlayer_ulpcss_vpath
-(SpriteData * self, int layerindex, char * vpath, int oversized) {
-  SpriteData * res; 
+Sprite * sprite_loadlayer_ulpcss_vpath
+(Sprite * self, int layerindex, char * vpath, int oversized) {
+  Sprite * res; 
   Image * image;
   image = fifi_loadbitmap_vpath(vpath);
   if(!image) return NULL;
-  res = spritedata_loadlayer_ulpcss(self, layerindex, image, oversized);
+  res = sprite_loadlayer_ulpcss(self, layerindex, image, oversized);
   al_destroy_bitmap(image);
   return res;
 }
 
-/* SpriteData state functions. */
-
-
-SpriteState * spritestate_alloc() {
-  return STRUCT_ALLOC(SpriteState);
-}
-
-SpriteState * spritestate_free(SpriteState * self) {
-  /* No cleanup since the SpriteData * is owned by the sprite list. */
-  return mem_free(self);
-}
-
-SpriteData * spritestate_spritedata_(SpriteState * self, SpriteData * sprite) {
-  /* No cleanup, sprite is not owned by the sprite state. */
-  self->sprite        = sprite;
-  self->action_index  = 0;
-  self->frame_index   = 0;
-  self->action_now    = NULL;
-  self->frame_now     = NULL; 
-  self->time          = 0.0;
-  return self->sprite;
-}
-
-
-SpriteData * spritestate_spritedata(SpriteState * self) {
-  return self->sprite;
-}
-
-SpriteState * spritestate_init(SpriteState * self, SpriteData * sprite) {
-  spritestate_spritedata_(self, sprite);
-  return self;
-}
-
-/* Draws the sprite state at the given location.
-   Draw the sprite at the given location. This takes
-   the current action, frame, layers and offsets into consideration. */
-void spritestate_draw(SpriteState * self, Point * at) {
-  if(!self) return;
-  spriteframe_draw(self->frame_now, at);
-}
-
-/* Sets the sprite states's current action and current frame. Returns 
- self if ok, NULL if out of bounds. */
-SpriteState * 
-spritestate_now_(SpriteState * self, int actionnow, int framenow) {
-  SpriteAction * action;
-  SpriteFrame  * frame;
-  if (!self) return NULL;
-  if (bad_outofboundsi(actionnow, 0, spritedata_maxactions(self->sprite))) 
-    return NULL; 
-  frame = spritedata_frame(self->sprite, actionnow, framenow);
-  if (!frame) {
-    return NULL;
-  }
-  self->frame_index   = framenow;
-  self->action_index  = actionnow;
-  self->frame_now     = frame;
-  self->time          = 0.0;
-  return self;
-}
-
-/* Updates the sprite state. dt is the time passed since the last update 
-in seconds (normally in the orrer of 0.02s . */
-void spritestate_update(SpriteState * self, double dt) {
-  if (!self) return;  
-  if(!self->frame_now) { 
-    fprintf(stderr, "NULL current sprite frame!: %d\n", self->action_index);
-    // try to restore back to first frame if out of whack somehow.
-    spritestate_now_(self, self->action_index, 0);
-    return;
-  }
-  self->time += dt;
-  if(self->time > self->frame_now->duration) {
-    int next = self->frame_index + 1;
-    if (next >= spritedata_framesused(self->sprite, self->action_index)) {
-      next = 0;
-      self->frame_index = 0;
-    }
-    self->time = 0.0;
-    spritedata_now_(self, self->action_index, next);
-  }
-}
-
-/* Sets the sprite current pose and direction. Will reset the frame to 0. 
- * Returns negative if the pose could not be found in this sprite;
- */
-int spritestate_pose_(SpriteState * self, int pose, int direction) {
-  int max, index;
-  SpriteAction * action;
-  max = spritedata_maxactions(self->sprite);
-  for (index = 0; index < max; index ++) {
-    action = spritedata_action(self->sprite, index);
-    if (spriteaction_ispose(action, pose, direction)) {
-      spritestate_now_(self, index, 0);
-      return 0;
-    }  
-  }
-  return -1;
-};
 
 
 
-/* SpriteData list is a storage location for all sprites. 
+/* Sprite list is a storage location for all sprites. 
  * 
  */
 
