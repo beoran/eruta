@@ -150,9 +150,10 @@ int real_main(void) {
     Tilepane * tilepane = NULL;
     Tilemap  * map      = NULL;
     Thing    * actor    = NULL;
-    Tracker  * tracker    = NULL;
-    Tracker  * maptracker = NULL;
-    Sprite   * sprite     = NULL;
+    Tracker  * tracker          = NULL;
+    Tracker  * maptracker       = NULL;
+    Sprite   * sprite           = NULL;
+    SpriteState * spritestate   = NULL;
 
     
     React    react;
@@ -182,7 +183,8 @@ int real_main(void) {
     //music   = music_load("musictest.ogg");
     // if(!music) perror("musictest.ogg");
     /* Initialize empty sprite and load a few layers. */
-    sprite = sprite_new(1);
+    sprite      = sprite_new(1);
+    spritestate = spritestate_new(sprite);
     if(!sprite_loadlayer_ulpcss_vpath
         (sprite, 0, "image/ulpcss/body/male/light.png", 0) 
       ) { 
@@ -199,8 +201,8 @@ int real_main(void) {
 
  
 
-    sprite_now_(sprite, 0, 0);
-    if(sprite_pose_(sprite, SPRITE_WALK, SPRITE_EAST)) {
+    spritestate_now_(spritestate, 0, 0);
+    if(spritestate_pose_(spritestate, SPRITE_WALK, SPRITE_EAST)) {
       fprintf(stderr, "Could not set sprite pose!\n");
     } else {
       printf("Sprite pose set.\n");
@@ -232,6 +234,7 @@ int real_main(void) {
     // rh_dostring_stderr(ustr_c(com), state_ruby(state));
     ustr_free(com);
   }
+  // spritestate_speedup_(spritestate, 2.0);
 
     
   while(state_busy(state)) { 
@@ -251,9 +254,9 @@ int real_main(void) {
       // rh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
 
       if(map) tilemap_draw(map, camera);
-      if (sprite) sprite_draw(sprite, &spritenow);
+      if (sprite) spritestate_draw(spritestate, &spritenow);
      
-      if (sprite) sprite_update(sprite, state_frametime(state));
+      if (sprite) spritestate_update(spritestate, state_frametime(state));
       state_frames_update(state);
       
       /*

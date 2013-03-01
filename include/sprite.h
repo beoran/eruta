@@ -31,6 +31,22 @@ struct SpriteLayout_ {
 };
 
 
+/* SpriteState contains dynamic information about a sprite. This was   
+ * separated out of Sprite to allow one sprite to be reused and shown differently 
+ * by several Things. 
+ */
+struct SpriteState_ {
+  Sprite           * sprite;
+  SpriteAction     * action_now;
+  SpriteFrame      * frame_now;
+  int                frame_index;
+  int                action_index;
+  double             time;
+  double             speedup;
+};
+
+
+
 
 
 
@@ -102,6 +118,9 @@ enum SpriteLayerKind_   {
 
 /* Amount of potential layers that a spriteframe has by default at creation. */
 #define SPRITEFRAME_NLAYERS_DEFAULT 16
+
+/* Amount of potential sprites that a SpriteList can contain at creation. */
+#define SPRITELIST_NSPRITES_DEFAULT 10000
 
 
 int sprite_maxactions(Sprite *self);

@@ -7,12 +7,18 @@
 
 
 TEST_FUNC(sprite) {
+  SpriteList    * list;
   Sprite        * sprite;
   SpriteAction  * act;
   SpriteFrame   * frame;
   SpriteLayer   * layer;
   Point           offset = cpv(1.0, 2.0);
   sprite = sprite_new(1);
+  list = spritelist_new();
+  TEST_NOTNULL(list);
+  TEST_NOTNULL(spritelist_getornew(list, 123));
+
+  
   TEST_NOTNULL(sprite);
   TEST_NULL(sprite_action(sprite, 0));
   TEST_NULL(sprite_action(sprite, 1));
@@ -53,7 +59,6 @@ TEST_FUNC(sprite) {
   act    = sprite_newaction(sprite, 60, SPRITE_NORTH, SPRITE_ACTIVE);
   TEST_NOTNULL(sprite_action(sprite, 60));
   
-  
   TEST_NOTNULL(sprite_maxactions_(sprite, 1));
   TEST_NULL(sprite_action(sprite, 60));
   TEST_INTEQ(1, sprite_maxactions(sprite));  
@@ -62,7 +67,7 @@ TEST_FUNC(sprite) {
   if (act) {
     TEST_NOTNULL(spriteaction_maxframes_(act, 3));
   }
-  
+  spritelist_free(list);
   sprite_free(sprite);
   TEST_DONE();
 }
