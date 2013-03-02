@@ -7,7 +7,7 @@
 
 
 /** Helkper functions for Allegro's events. 
-* This mostly exists for use with lua scripting. 
+* This mostly exists for use with scripting. 
 */
 
 
