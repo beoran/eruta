@@ -132,7 +132,68 @@ bin/newmodule bar
 and automatically, empty src/bar.c and include/bar.h will be generated.
 
 As for why I use plain C and not, say C++: it's to keep the code simple, tight 
-and focused, and easy to interface with the Lua scripts. C is a very simple
-language, but it can do anything. And to save time, quite a bit of the 
-programming will happen on the mruby side. Finally, plain C is easier to wrap 
-and use in mruby.
+and focused, and easy to interface with the Ruby scripts. C is a very simple
+language, but it can do anything and it does it fast. And to save time, quite 
+a bit of the programming will happen on the mruby side. 
+
+An overview of the C files andwhat they are about: 
+
+src/area.c        : In-game areas or levels.
+src/bad.c         : Beoran's Algorithms and datastructures.
+src/base64.c      : Base64 implementation, currently unused.
+src/brex.c        : Reular expressions ,currently unused.
+src/bxml.c        : My own XML parser, currently not in use.
+src/bxmlparser.c  : My own XML parser, currently not in use.
+src/camera.c      : Camera models a view port over an in-game level.
+src/castor.c      : Cache and in memory storage for resources. Needs work.
+src/ch.c          : Chipmunk Helper functions.
+src/cocell.c      : Cons cell, currenly not used.
+src/draw.c        : Additional drawing functions.
+src/dynar.c       : Dynamic arrays in C. Used everywhere.
+src/effect.c      : Effects and particle engine. Needs a lot of work.
+src/event.c       : Additional event functions. 
+src/every.c       : Iterators and iteration in C.
+src/fifi.c        : Find Files. Helps find game data and eases resource loading.
+src/flags.c       : Simple integer bitflag setting and getting helpers.
+src/glh.c         : OpenGL helper functions. Currently not in use.
+src/hatab.c       : Hash table. Needs work, so not in use yet.
+src/ifa.c         : Generic interfaces for C. Currently not used.
+src/inli.c        : Intrusive linked ist, currently not used.
+src/main.c        : Main function and many helpers and tests.
+src/mem.c         : Memory handling helpers.
+src/miniz.c       : Minimalistic zip library for later use.
+src/mobile.c      : Autonomously moving game entities.
+src/mode.c        : Game mode switching functions.
+src/obj.c         : OOP in C playground. Currently not in use.
+src/pachi.c       : Parent child tree. Currently not in use.
+src/pointergrid.c : Two dimensional grid, used for the tile map.
+src/react.c       : Input handling system. Needs to be merged with UI and mode.
+src/rebl.c        : Red black tree, under construction, unused.
+src/rebox.c       : Rectangular boxes. Used in UI, camera etc.
+src/rh.c          : MRuby helper functions.
+src/scegra.c      : Scene graph idea, may be discared, currently unused.
+src/silut.c       : Simple string lookup table.
+src/sound.c       : Sound and music helper functions.
+src/sprite.c      : Sprite functions, in use but needs work.
+src/state.c       : Manages all state data of the engine.
+src/str.c         : USTR and String helper functions.
+src/tarray.c      : XMacro template matrix. Currently unused.
+src/tile.c        : Tile map tile functionality.
+src/tileio.c      : Tile map reading and later perhaps writing for ingame edit.
+src/tilemap.c     : Tile map functonality.
+src/tilepane.c    : Tile pane, a layer in a tile map.
+src/tinfl.c       : Tiny inflater, uncompression, currently unused.
+src/tlilis.c      : Templated linked list, currently unused.
+src/tmatrix.c     : Templated matrix currently unused.
+src/toruby.c      : Functions that are exposed to the mruby scripting.
+src/ui.c          : User interface functionality.
+src/widget.c      : UI widgets, currently only script console.
+src/xml.c         : Libxml helper functions.
+src/zori.c        : UI functions, currently empty.
+
+Since I try out a lot of things, ther are quite a few unused C fils in 
+the project. Perhaps I will clean them out some day.. :)
+
+
+
+
