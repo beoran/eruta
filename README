@@ -23,7 +23,7 @@ Installation:
 
 You have to make sure that you have all the requirements.  On Linux 
 distributitions like Ubuntu, make sure that the development packages for all 
-requirements are installed. Then do: 
+requirements are installed. Then do on the command line: 
 
 cmake . ; make
 
@@ -44,12 +44,6 @@ Every time you change a c file or header, the matching
 test will be compiled though cmake and make, and 
 will be run. This does compile all C files of eruta,
 so it may be a bit slow at times.
-
-How to generate function prototypes:
-When developing I find it easy to have C function prototypes generated 
-automatically. That is how all the xxx_proto.h files are generated. 
-Use bin/mkproto to regenerate these header files when making changes to
-the c files.
 
 How to generate developer's documentation:
 Use naturaldocs. 
