@@ -850,15 +850,23 @@ Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite) {
   return self->sprite;
 }
 
+  /* No cleanup since the Sprite * is owned by the sprite list. 
+  This function exists for future extensio only and should be called to 
+  prepare for any owned pointers if those turn out to be needed.
+  */
+SpriteState * spritestate_done(SpriteState * self) { 
+  return self;
+} 
+
 SpriteState * spritestate_free(SpriteState * self) {
-  /* No cleanup since the Sprite * is owned by the sprite list. */
+  spritestate_done(self);
   return mem_free(self);
 }
 
 
-SpriteState * spritestate_sprite(SpriteState * self) {
+Sprite * spritestate_sprite(SpriteState * self) {
   if(!self) return NULL;
-  return self->sprite ;
+  return self->sprite;
 }
 
 SpriteState * spritestate_init(SpriteState * self, Sprite * sprite) {
@@ -916,9 +924,9 @@ spritestate_now_(SpriteState * self, int actionnow, int framenow) {
  * dt is the time passed since the last update in seconds (usuallu around 0.02). */
 void spritestate_update(SpriteState * self, double dt) {
   Sprite * sprite;
-  if (!self) return NULL;
+  if (!self) return;
   sprite = self->sprite;
-  if (!sprite) return NULL;
+  if (!sprite) return;
   if(!self->frame_now) { 
     fprintf(stderr, "NULL current sprite frame!: %d\n", self->action_index);
     // try to restore back to first frame if out of whack somehow.

@@ -234,6 +234,11 @@ int real_main(void) {
     // rh_dostring_stderr(ustr_c(com), state_ruby(state));
     ustr_free(com);
   }
+  
+  if ((actor_data) && (sprite)) {
+    thing_sprite_(actor_data, sprite);
+    thing_pose_(actor_data, SPRITE_WALK);
+  }
   // spritestate_speedup_(spritestate, 2.0);
 
     
@@ -258,7 +263,9 @@ int real_main(void) {
      
       if (sprite) spritestate_update(spritestate, state_frametime(state));
       state_frames_update(state);
-      
+      if(actor_data) { 
+        thing_update(actor_data); 
+      } 
       /*
       if (border) { 
         image_blitscale9(border, 10, 400, 200, 30, -1, -1);

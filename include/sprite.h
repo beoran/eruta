@@ -149,9 +149,35 @@ SpriteFrame * sprite_newframe
 Sprite * sprite_loadlayer_ulpcss_vpath
 (Sprite * self, int layerindex, char * vpath, int oversized);
 
-int sprite_pose_(Sprite * self, int pose, int direction);
 
+SpriteState * spritestate_alloc();
+Sprite      * spritestate_sprite_(SpriteState * self, Sprite * sprite);
+SpriteState * spritestate_free(SpriteState * self);
+Sprite      * spritestate_sprite(SpriteState * self);
+SpriteState * spritestate_init(SpriteState * self, Sprite * sprite);
+SpriteState * spritestate_done(SpriteState * self);
+double        spritestate_speedup(SpriteState * self);
+double        spritestate_speedup_(SpriteState * self, double speedup); 
+SpriteState * spritestate_new(Sprite *  sprite);
+void          spritestate_draw(SpriteState * self, Point * at);
+Sprite *      spritestate_now_(SpriteState * self, int actionnow, int framenow);
+void          spritestate_update(SpriteState * self, double dt);
+int           spriteaction_ispose(SpriteAction * self, int pose, int direction);
+int           spritestate_pose_(SpriteState * self, int pose, int direction);
 
+/* Sprite list functions. */
+SpriteList * spritelist_alloc();
+SpriteList * spritelist_initall(SpriteList * self, int maxsprites);
+SpriteList * spritelist_init(SpriteList * self);
+SpriteList * spritelist_done(SpriteList * self);
+SpriteList * spritelist_new();
+SpriteList * spritelist_free(SpriteList * self);
+Sprite     * spritelist_sprite(SpriteList * self, int index);
+Sprite     * spritelist_sprite_(SpriteList * self, int index, Sprite * sprite);
+Sprite     * spritelist_newsprite(SpriteList * self, int index);
+Sprite     * spritelist_getornew(SpriteList * self, int index);
+Sprite     * spritelist_loadlayer_ulpcss_vpath(
+              SpriteList * self, int index,  int layerindex, char * vpath);
 
 
 

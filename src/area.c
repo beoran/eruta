@@ -17,10 +17,11 @@
 #define THING_ACTOR_MASS  1.0
 
 enum Thingflags_ {
-  THING_FLAGS_OWNBODY  = 1,
-  THING_FLAGS_OWNSHAPE = 2,
+  THING_FLAGS_OWNBODY          = 1,
+  THING_FLAGS_OWNSHAPE         = 2,
+  /* Thig doesn't change direction even when moving. */
+  THING_FLAGS_LOCK_DIRECTION   = 3,
 };
-
 
 /**
 * A Thing is any in-game object that appears the world/map view.
@@ -42,8 +43,10 @@ struct Thing_ {
   */
   Point       size; /* size of outline of shape */
   Point       spos; /* Position, merely for static shapes, for dynamic
-  SpriteState spritestate;
   bodies, use cpBodyGetPos*/
+  /* Sprite information. */
+  int         spritedirection;
+  SpriteState spritestate;
 };
 
 /** Gets the ID of the thing. Returns negative on error or for a
@@ -117,6 +120,8 @@ Thing * thing_done(Thing * self) {
   self->area    = NULL;
   self->z       = -1;
   self->kind    = THING_UNUSED;
+  self->spritedirection = SPRITE_ALL;
+  spritestate_done(&self->spritestate);
   return self;
 }
 
@@ -132,6 +137,28 @@ Thing * thing_free(Thing * self) {
 Thing * thing_alloc() {
   return STRUCT_ALLOC(Thing);
 }
+
+/* Sets the sprite of a thing. */
+Sprite * thing_sprite_(Thing * thing, Sprite * sprite) { 
+  if (!thing) return NULL;
+  return spritestate_sprite_(&thing->spritestate, sprite);
+}
+
+/* Gets the sprite of a thing. */
+Sprite * thing_sprite(Thing * thing) { 
+  if (!thing) return NULL;
+  return spritestate_sprite(&thing->spritestate);
+}
+
+
+
+/* Sets the pose of the sprite state of a thing. The direction is 
+filled in from the thing's sprite direction. */
+int thing_pose_(Thing * thing, int pose) { 
+  if (!thing) return -1;
+  return spritestate_pose_(&thing->spritestate, pose, thing->spritedirection);
+}
+
 
 /** Generates a rectangular shape for the given body
 with the given position, size and offset */
@@ -169,6 +196,9 @@ Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
   self->body    = body;
   self->shape   = shape;
   thing_z_(self, z);
+  self->spritedirection = SPRITE_ALL;
+  spritestate_init(&self->spritestate, NULL);
+  
   /* If the thing has a body and it is not static, 
   assume it is owned by this thing and must be freed when calling 
   thing_done.
@@ -433,7 +463,47 @@ void thing_draw(Thing * self, Camera * camera) {
   }
   drawx = x - cx;
   drawy = y - cy;
-  draw_box(drawx, drawy, w, h, color, t);
+  /* draw sprite if available, otherwise debug box if needed. */
+  if(thing_sprite(self)) {
+    Point spriteat = cpv(drawx, drawy);
+    spritestate_draw(&self->spritestate, &spriteat);
+  } else {    
+    draw_box(drawx, drawy, w, h, color, t);
+  }
+}
+
+
+/* Updates the thing, especialy it's spite state direction and animation. */
+void thing_update(Thing * self, double dt) {
+  if(!flags_get(self->flags, THING_FLAGS_LOCK_DIRECTION)) { 
+    int newdir; 
+    Point vel = cpBodyGetVel(self->body);
+    double magnitude = cpvlength(vel);
+    if (fabs(magnitude) > 0.01) { 
+      /* could change dir if moving */
+      if (vel.x < -0.01) {
+        newdir = SPRITE_EAST;
+      } else if (vel.x > 0.01) {
+        newdir = SPRITE_WEST;
+      } else if (vel.y < -0.01) {
+        newdir = SPRITE_NORTH;
+      } else if (vel.x > 0.01) {
+        newdir = SPRITE_SOUTH;
+      } else { /* XXX: improve this hack... */
+        newdir = SPRITE_SOUTH;
+      }
+      if(newdir != self->spritedirection) {
+        self->spritedirection = newdir;
+        thing_pose_(self, SPRITE_WALK);
+        /* XXX: later spritestate to store current direction and pose...*/
+      }
+    } else {
+      /* This won't work on attacking, etc. */
+      thing_pose_(self, SPRITE_STAND);
+    }
+  }
+  
+  spritestate_update(&self->spritestate, dt);
 }
 
 
