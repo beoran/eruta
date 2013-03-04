@@ -4,6 +4,7 @@
 #include "mem.h"
 #include "flags.h"
 #include "draw.h"
+#include "sprite.h"
 
 /** Scale factor. */
 #define AREA_SCALE_BY (32.0lf)
@@ -41,6 +42,7 @@ struct Thing_ {
   */
   Point       size; /* size of outline of shape */
   Point       spos; /* Position, merely for static shapes, for dynamic
+  SpriteState spritestate;
   bodies, use cpBodyGetPos*/
 };
 
