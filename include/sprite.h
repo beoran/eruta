@@ -41,6 +41,8 @@ struct SpriteState_ {
   SpriteFrame      * frame_now;
   int                frame_index;
   int                action_index;
+  int                pose_now;
+  int                direction_now;
   double             time;
   double             speedup;
 };
@@ -163,7 +165,14 @@ void          spritestate_draw(SpriteState * self, Point * at);
 Sprite *      spritestate_now_(SpriteState * self, int actionnow, int framenow);
 void          spritestate_update(SpriteState * self, double dt);
 int           spriteaction_ispose(SpriteAction * self, int pose, int direction);
-int           spritestate_pose_(SpriteState * self, int pose, int direction);
+int           spritestate_pose_(SpriteState * self, int pose);
+int           spritestate_pose(SpriteState * self);
+int           spritestate_direction(SpriteState * self);
+int           spritestate_direction_(SpriteState * self, int direction);
+int           spritestate_posedirection_
+              (SpriteState * self, int pose, int direction);
+
+
 
 /* Sprite list functions. */
 SpriteList * spritelist_alloc();

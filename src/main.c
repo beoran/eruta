@@ -202,7 +202,7 @@ int real_main(void) {
  
 
     spritestate_now_(spritestate, 0, 0);
-    if(spritestate_pose_(spritestate, SPRITE_WALK, SPRITE_EAST)) {
+    if(spritestate_posedirection_(spritestate, SPRITE_WALK, SPRITE_EAST)) {
       fprintf(stderr, "Could not set sprite pose!\n");
     } else {
       printf("Sprite pose set.\n");
@@ -246,25 +246,26 @@ int real_main(void) {
       mrb_value mval;
       Point spritenow = cpv(100, 120); 
       react_poll(&react, state);
-      if(map) tilemap_update(map, state_frametime(state));
+      if (map) tilemap_update(map, state_frametime(state));
       camera_update(camera);
       // call ruby update callback 
       mval = mrb_float_value(state_frametime(state));
       rh_runtopfunction_console(state_console(state), state_ruby(state), 
                                  "on_update", 1, &mval);
      
+      // area_update( , 
       // rh_dostring_stderr("on_update", state_ruby(state));
       // rh_simple_funcall("on_update", state_ruby(state));
       
       // rh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
 
-      if(map) tilemap_draw(map, camera);
-      if (sprite) spritestate_draw(spritestate, &spritenow);
+      if (map) tilemap_draw(map, camera);
+      //if (sprite) spritestate_draw(spritestate, &spritenow);
      
-      if (sprite) spritestate_update(spritestate, state_frametime(state));
-      state_frames_update(state);
+      // if (sprite) spritestate_update(spritestate, state_frametime(state));
+      // state_frames_update(state);
       if(actor_data) { 
-        thing_update(actor_data); 
+        // thing_update(actor_data, state_frametime(state)); 
       } 
       /*
       if (border) { 
@@ -274,8 +275,7 @@ int real_main(void) {
       */
       
       // call ruby drawing callback
-      // rh_dofunction_mybbconsole_args(state_lua(state), "on_draw", "s", "a string argument");
-           
+             
       al_draw_textf(state_font(state), COLOR_WHITE,
                         10, 10, 0, "FPS: %lf, %d", state_fps(state), 
                         state_frames(state));
@@ -288,6 +288,7 @@ int real_main(void) {
       bbwidget_draw((BBWidget *)state_console(state));
       /* finally update display. */   
       al_flip_display();
+      state_frames_update(state);
    }
    sprite_free(sprite);
    tilemap_free(map);

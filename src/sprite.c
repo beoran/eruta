@@ -10,6 +10,10 @@
 
 #define SPRITEFRAME_OWNEDFLAG  1
 
+/* The tile height and width to be used when drawing a sprite. */
+#define SPRITE_TILE_WIDE 32
+#define SPRITE_TILE_HIGH 32
+
 /* To use the sprites from LPC as placeholders, 
  and also for the real sprites, which will have a similar layout, 
  I 'll try a non-atlas layered fragment approach first. 
@@ -41,12 +45,16 @@
 
 
 
-
-
-/* A SpriteLayer is a single layer of a single frame of animation of a sprite */
+/* A SpriteLayer is a single layer of a single frame of animation of a sprite.
+ size is NOT the current size of the image, but the original size of the layer's 
+ frames. For example, a sprite can be loaded as having frame sizes of 64x64, however,
+ due to cropping, the image in image may be smaller (and offset will be set to
+ compensate this at drawing).
+*/
 struct SpriteLayer_ {
-  Point   offset;
   Image * image;
+  Point   offset;
+  Point   size;
   int     index;
   int     drawflags;
 };
@@ -98,24 +106,30 @@ spritelayer_alloc() {
 
 /* Initialize a sprite layer. */
 SpriteLayer *
-spritelayer_initall(SpriteLayer * self, int index, Image * image, Point offset) {
+spritelayer_initall(SpriteLayer * self, int index, Image * image, Point size, Point offset) {
   if (!self) return NULL;
   self->image           = image;
   self->index           = index;
   self->offset          = offset;
+  self->size            = size;
   self->drawflags       = 0;
   return self;
 }
 
-SpriteLayer * spritelayer_new(int index, Image * image, Point offset) {
-  return spritelayer_initall(spritelayer_alloc(), index, image, offset);
+SpriteLayer * spritelayer_new(int index, Image * image, Point size, Point offset) {
+  return spritelayer_initall(spritelayer_alloc(), index, image, size, offset);
 } 
 
 /* Draw a sprite layer with point at as the relevant game object's core position. */
 void spritelayer_draw(SpriteLayer * self, Point * at) {
-  Point real;
+  Point real, delta, aid;
+  /*    - size_w/2 + tile_w / 2   */
   if(!self) return;
-  real = cpvadd((*at), self->offset);
+  delta = cpv(-self->size.x / 2 + SPRITE_TILE_WIDE / 2, 
+              -self->size.y + SPRITE_TILE_HIGH);
+  aid  = cpvadd((*at), self->offset);
+  real = cpvadd(aid, delta);  
+  /* Adjust for tile size and frame size. */
   al_draw_bitmap(self->image, real.x, real.y, self->drawflags);
 }
 
@@ -216,8 +230,8 @@ SpriteLayer * spriteframe_layer_(SpriteFrame * self, int index, SpriteLayer * la
 }
 
 SpriteLayer * spriteframe_newlayer(SpriteFrame * self, int index, 
-                                   Image * image, Point offset) {
-  SpriteLayer * layer = spritelayer_new(index, image, offset);
+                                   Image * image, Point size, Point offset) {
+  SpriteLayer * layer = spritelayer_new(index, image, size, offset);
   SpriteLayer * aid;
   aid = spriteframe_layer_(self, index, layer);
   if (aid) return aid;
@@ -479,12 +493,13 @@ SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
 
 /* Adds a layer to a sprite. The action and frame must already exist. */
 SpriteLayer * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
-                              int layerindex, Image * image, Point offset) {
+                              int layerindex, Image * image, Point size, 
+                              Point offset) {
   SpriteFrame * frame;
   SpriteLayer * aid; 
   frame = sprite_frame(self, actionindex, frameindex);
   if(!frame) return NULL;
-  aid = spriteframe_newlayer(frame, layerindex, image, offset);
+  aid = spriteframe_newlayer(frame, layerindex, image, size, offset);
   return aid;
 }
 
@@ -584,7 +599,6 @@ void spriteframe_draw(SpriteFrame * self, Point * at) {
     layer = spriteframe_layer(self, index);
     spritelayer_draw(layer, at);
   }
-  
 }
 
 
@@ -623,7 +637,7 @@ SpriteLayer * sprite_loadlayerfrom(Sprite * self, int actionindex,
   #endif
   // usleep(100000);
   
-  res = sprite_newlayer(self, actionindex, frameindex, layerindex, aid, offset);
+  res = sprite_newlayer(self, actionindex, frameindex, layerindex, aid, size, offset);
   if(!res) {
     al_destroy_bitmap(aid);
     return NULL;
@@ -840,12 +854,14 @@ SpriteState * spritestate_alloc() {
 
 Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite) {
   if(!self) return NULL;
-  self->sprite       = sprite;
-  self->action_index = -1;
-  self->action_now   = NULL;
-  self->frame_now    = NULL;
-  self->frame_index  = -1;
-  self->time         = 0.0;
+  self->sprite          = sprite;
+  self->action_index    = -1;
+  self->action_now      = NULL;
+  self->frame_now       = NULL;
+  self->frame_index     = -1;
+  self->time            = 0.0;
+  self->pose_now        = SPRITE_STAND;
+  self->direction_now   = SPRITE_ALL;
   /* No cleanup, sprite is not owned by the sprite state. */
   return self->sprite;
 }
@@ -958,14 +974,23 @@ int spriteaction_ispose(SpriteAction * self, int pose, int direction) {
 /* Sets the spritestate current pose and direction. Will reset the frame to 0. 
  * Returns negative if the pose could not be found in this sprite;
  * Otherwise returns the index of the used sprite action.
+ * Returns -2 without effect if the pose and direction are identical to the ones
+ * currently set.
  */
-int spritestate_pose_(SpriteState * self, int pose, int direction) {
+int spritestate_posedirection_(SpriteState * self, int pose, int direction) {
   int max, index;
   SpriteAction * action;
   Sprite * sprite;
-  if (!self) return NULL;
+  if (!self)    return -1;
   sprite = self->sprite;
-  if (!sprite) return NULL;  
+  if (!sprite)  return -1;
+  if ((self->pose_now == pose) && (self->direction_now == direction)) {
+    /* Do nothing if the pose and ditr are not actually changed. */
+    return -2;
+  }
+  
+  self->pose_now        = pose;
+  self->direction_now   = direction;
   max = sprite_maxactions(sprite);
   for (index = 0; index < max; index ++) {
     action = sprite_action(sprite, index);
@@ -976,6 +1001,36 @@ int spritestate_pose_(SpriteState * self, int pose, int direction) {
   }
   return -1;
 };
+
+/* Changes the direction but keeps the pose. 
+ * No effect if direction is the current active one.*/
+int spritestate_direction_(SpriteState * self, int direction) {
+  if (!self) return -1; 
+  return spritestate_posedirection_(self, self->pose_now, direction);
+}
+
+/* Changes the pose but keeps the direction. 
+ * No effect if pose is the current active one.
+ */
+int spritestate_pose_(SpriteState * self, int pose) {
+  if (!self) return -1; 
+  return spritestate_posedirection_(self, pose, self->direction_now);
+}
+
+
+
+/* Returns the current active pose of the sprite state.*/
+int spritestate_pose(SpriteState * self) {
+  if (!self) return SPRITE_STAND; 
+  return self->pose_now;
+}
+
+/* Returns the current active direction of the sprite state.*/
+int spritestate_direction(SpriteState * self) {
+  if (!self) return SPRITE_NO_DIRECTION; 
+  return self->direction_now;
+}
+
 
 /** Sprite cleanup walker */
 void * sprite_cleanup_walker(void * data, void * extra) {

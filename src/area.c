@@ -19,8 +19,8 @@
 enum Thingflags_ {
   THING_FLAGS_OWNBODY          = 1,
   THING_FLAGS_OWNSHAPE         = 2,
-  /* Thig doesn't change direction even when moving. */
-  THING_FLAGS_LOCK_DIRECTION   = 3,
+  /* Thing doesn't change direction even when moving. */
+  THING_FLAGS_LOCK_DIRECTION   = 4,
 };
 
 /**
@@ -44,8 +44,8 @@ struct Thing_ {
   Point       size; /* size of outline of shape */
   Point       spos; /* Position, merely for static shapes, for dynamic
   bodies, use cpBodyGetPos*/
-  /* Sprite information. */
-  int         spritedirection;
+  /* Sprite information Also is the reference for the direction the thing is facing. 
+   */
   SpriteState spritestate;
 };
 
@@ -120,7 +120,6 @@ Thing * thing_done(Thing * self) {
   self->area    = NULL;
   self->z       = -1;
   self->kind    = THING_UNUSED;
-  self->spritedirection = SPRITE_ALL;
   spritestate_done(&self->spritestate);
   return self;
 }
@@ -153,10 +152,17 @@ Sprite * thing_sprite(Thing * thing) {
 
 
 /* Sets the pose of the sprite state of a thing. The direction is 
-filled in from the thing's sprite direction. */
+kept the same as it was. */
 int thing_pose_(Thing * thing, int pose) { 
-  if (!thing) return -1;
-  return spritestate_pose_(&thing->spritestate, pose, thing->spritedirection);
+  if (!thing) return -3;
+  return spritestate_pose_(&thing->spritestate, pose);
+}
+
+/* Sets the direction of the sprite state of a thing. The pose is 
+kept the same as it was. */
+int thing_direction_(Thing * thing, int direction) { 
+  if (!thing) return -3;
+  return spritestate_direction_(&thing->spritestate, direction);
 }
 
 
@@ -196,7 +202,6 @@ Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
   self->body    = body;
   self->shape   = shape;
   thing_z_(self, z);
-  self->spritedirection = SPRITE_ALL;
   spritestate_init(&self->spritestate, NULL);
   
   /* If the thing has a body and it is not static, 
@@ -423,13 +428,22 @@ void thing_applyimpulse(Thing * thing, const Point f) {
   cpBodyApplyImpulse(thing->body, f, cpvzero);
 }
 
-/** Resets the force on this thing to 0. */
+/* Resets the force on this thing to 0. */
 void thing_resetforces(Thing * thing) {
   cpBodyResetForces(thing->body);
 }
 
+/* Returns the position of self, works both for static and dynamic things. */
+Point thing_sdp(Thing * self) {
+  if (thing_static_p(self) || (!self->body)) {
+    return self->spos;
+  } else {
+    return thing_p(self);
+  }
+}
 
-/** Draws a thing to the current active drawing target, corresponding 
+
+/* Draws a thing to the current active drawing target, corresponding 
 to it's shape and kind and taking the camera into account.  Useful for 
 checking or debugging the physics. */
 void thing_draw(Thing * self, Camera * camera) {
@@ -466,12 +480,33 @@ void thing_draw(Thing * self, Camera * camera) {
   /* draw sprite if available, otherwise debug box if needed. */
   if(thing_sprite(self)) {
     Point spriteat = cpv(drawx, drawy);
+    draw_box(drawx, drawy, w, h, color, t);
     spritestate_draw(&self->spritestate, &spriteat);
   } else {    
     draw_box(drawx, drawy, w, h, color, t);
   }
 }
 
+/* Returns the direction the sprite of this thing is currently facing */
+int thing_direction(Thing * self) {
+  if (!self) return SPRITE_NO_DIRECTION;
+  return spritestate_direction(&self->spritestate);
+}
+
+/* Returns the pose of the sprite of this thing */
+int thing_pose(Thing * self) {
+  if (!self) return SPRITE_STAND;
+  return spritestate_pose(&self->spritestate);
+}
+
+/* Changes the pose to newpose but only if it's oldpose. 
+ * Returns negative if the pose wasn't changed.  */
+int thing_poseifold_(Thing * self, int oldpose, int newpose) {
+  if (thing_pose(self) == oldpose) {
+    return thing_pose_(self, newpose);
+  } 
+  return -1;
+}
 
 /* Updates the thing, especialy it's spite state direction and animation. */
 void thing_update(Thing * self, double dt) {
@@ -479,12 +514,12 @@ void thing_update(Thing * self, double dt) {
     int newdir; 
     Point vel = cpBodyGetVel(self->body);
     double magnitude = cpvlength(vel);
-    if (fabs(magnitude) > 0.01) { 
+    if (fabs(magnitude) > 0.00) { 
       /* could change dir if moving */
       if (vel.x < -0.01) {
-        newdir = SPRITE_EAST;
-      } else if (vel.x > 0.01) {
         newdir = SPRITE_WEST;
+      } else if (vel.x > 0.01) {
+        newdir = SPRITE_EAST;
       } else if (vel.y < -0.01) {
         newdir = SPRITE_NORTH;
       } else if (vel.x > 0.01) {
@@ -492,39 +527,49 @@ void thing_update(Thing * self, double dt) {
       } else { /* XXX: improve this hack... */
         newdir = SPRITE_SOUTH;
       }
-      if(newdir != self->spritedirection) {
-        self->spritedirection = newdir;
-        thing_pose_(self, SPRITE_WALK);
-        /* XXX: later spritestate to store current direction and pose...*/
-      }
+      /* Change direction. spritestate_pose will see if nothing changed and do nothing. in that case */
+      thing_poseifold_(self, SPRITE_STAND, SPRITE_WALK);
+      thing_direction_(self, newdir);
     } else {
+      thing_poseifold_(self, SPRITE_WALK, SPRITE_STAND);
       /* This won't work on attacking, etc. */
-      thing_pose_(self, SPRITE_STAND);
     }
+  } else {
+    puts("Thing direction locked!");
   }
   
   spritestate_update(&self->spritestate, dt);
 }
 
 
-
-/* Get an interface of TArray for a pointer to Thing type */
-#define TEMPLATE_T      Thing*
-#define TEMPLATE_NAME   ThingArray
-#define TEMPLATE_PREFIX thingarray_
-#define TEMPLATE_ZERO   NULL
-#include "tarray.h"
-
-/* Get an implementation of TArray for pointer to Thing type. */
-#define TEMPLATE_IMPLEMENT
-#define TEMPLATE_T      Thing*
-#define TEMPLATE_NAME   ThingArray
-#define TEMPLATE_PREFIX thingarray_
-#define TEMPLATE_ZERO   NULL
-#include "tarray.h"
+/* Compares a thing with another, for drawing order. Things with low 
+ z come before those with high z, and with same z, low y comes before high y. 
+ qsort compatible. */
+int thing_compare_for_drawing(const void * p1, const void * p2) {
+  Thing * self  = (Thing *) p1;
+  Thing * other = (Thing *) p2;
+  Point pos1, pos2;
+  if(!p1) { 
+    if(!p2) {
+      return 0;
+    }
+    /* Sort nulls to the back. */
+    return 1;
+  }
+  if(!p2) return -1;
+  /* Compare Z if no nulls. */
+  if (self->z < other->z) return -1;
+  if (self->z > other->z) return  1;
+  pos1 = thing_sdp(self);
+  pos2 = thing_sdp(other); 
+  /* compare y if z is equal */
+  if ( pos1.y < pos2.y ) return -1;
+  if ( pos1.y > pos2.y ) return 1;
+  return 0;
+}
 
 /*
-An area is an in game region that corrresponds with a single loaded tile map
+An area is an in game region that corresponds with a single loaded tile map
 and that keeps track of the physics and location of all in-game objects. 
 
 An area consists of a chipmunk cpSpace that simulates the dynamics, 
@@ -542,6 +587,7 @@ struct Area_ {
   cpSpace     * space;
   int           lastid;
   Thing       * things[AREA_THINGS];
+  Thing       * things_todraw[AREA_THINGS];
 };
 
 /** Gest the amount of possible things for this area */
@@ -728,15 +774,37 @@ void area_draw(Area * self, Camera * camera) {
   int index;
   //printf("Rendering %d things\n",  self->lastid);
   for(index = 0; index <  (self->lastid + 1); index++) {
-    Thing * thing = area_thing(self, index);
-    if (thing) thing_draw(thing, camera);
+    Thing * thing = self->things_todraw[index];
+    if(!thing) break;
+    /*
+    area_thing(self, index);
+    if (thing) */
+    thing_draw(thing, camera);
   }
 }
 
 /** Updates the area */
 void area_update(Area * self, double dt) {
+  int subindex = 0;
+  int index;
   cpSpaceStep(self->space, dt);  
+  for(index = 0; index <  (self->lastid + 1); index++) {
+    Thing * thing = area_thing(self, index);
+    if (thing) { 
+      thing_update(thing, dt);
+      self->things_todraw[subindex] = thing;
+      subindex++;
+    }
+  }
+  /** Sort drawing array for drawing. */
+  qsort(self->things_todraw, subindex, sizeof(Thing*), thing_compare_for_drawing); 
 }
+
+
+
+
+
+
 
 
 #define THING_TRACK_DELTA 32.0 * 4 
