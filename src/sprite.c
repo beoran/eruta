@@ -966,7 +966,6 @@ int spriteaction_ispose(SpriteAction * self, int pose, int direction) {
   if (!self)              return FALSE;
   if (self->type != pose) return FALSE;
   //return TRUE;
-  printf("Flags: %d & %d\n", self->flags, direction);
   return self->flags & direction;
 }
 
