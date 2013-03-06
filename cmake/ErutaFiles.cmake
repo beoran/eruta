@@ -2,7 +2,7 @@
 # by using cmake's fake library feature. Don't forget to add new source 
 # files here manually.
 set(ERUTA_SRC_FILES
-  src/rebox.c
+  src/alps.c
   src/area.c
   src/bad.c
   src/brex.c
@@ -28,6 +28,7 @@ set(ERUTA_SRC_FILES
   src/pointergrid.c
   src/react.c
   src/rebl.c
+  src/rebox.c
   src/rh.c    
   src/scegra.c
   src/silut.c
