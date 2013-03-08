@@ -225,6 +225,9 @@ void camera_freelockins (Camera * self );
 
 int camera_cansee (Camera * self , int x , int y , int w , int h );
 
+Point camera_worldtoscreen(Camera * self, Point world_pos);
+Point camera_screentoworld(Camera * self, Point screen_pos);
+
 #endif /* CFH_CAMERA_PROTO */
 
 #endif

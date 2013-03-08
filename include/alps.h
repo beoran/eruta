@@ -2,10 +2,12 @@
 #define ALPS_H_INCLUDED
 
 #include "eruta.h"
+#include "camera.h"
 
 struct AlpsDrop_ {
-  Point position;
-  Point velocity;
+  Point         position;
+  Point         velocity;
+  double        life;
 };
 
 
@@ -20,6 +22,10 @@ struct AlpsShower_ {
   float     abberation;
   Point     velocity;
   AlpsDrop  drops[ALPS_SHOWER_DROPS];
+  /*  A reference to the camera is needed because effects are generated 
+   * "in view" only. 
+   */
+  Camera * camera;
 };
 
 
@@ -35,7 +41,10 @@ struct AlpsParticle_ {
 };
 
 
-
+void alpsshower_init
+(AlpsShower * rain, Camera * camera, int intensity, float abberation, Point velocity);
+void alpsshower_draw(AlpsShower * rain, Camera * camera);
+void alpsshower_update(AlpsShower * rain, double dt);
 
 
 

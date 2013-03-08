@@ -17,6 +17,9 @@
 #include "assert.h"
 #include "str.h"
 #include "sprite.h"
+#include "alps.h"
+
+
 
 
 
@@ -154,11 +157,10 @@ int real_main(void) {
     Tracker  * maptracker       = NULL;
     Sprite   * sprite           = NULL;
     SpriteState * spritestate   = NULL;
-
+    AlpsShower shower;
     
     React    react;
     ALLEGRO_COLOR myblack = {0.0, 0.0, 0.0, 1.0};
-
     
     
     state = state_alloc();
@@ -171,8 +173,10 @@ int real_main(void) {
       return 1;
     }
     
+    alpsshower_init(&shower, state_camera(state), 100, 1.0, cpv(10.0, 10000.0));
  
-    /** Initialises the reactor, the game state is it's data. */
+ 
+    /* Initializes the reactor, the game state is it's data. */
     react_initempty(&react, state);
     react.keyboard_key_up   = main_react_key_up;
     react.keyboard_key_down = main_react_key_down;
@@ -246,6 +250,8 @@ int real_main(void) {
       mrb_value mval;
       Point spritenow = cpv(100, 120); 
       react_poll(&react, state);
+      alpsshower_update(&shower, state_frametime(state));
+      
       if (map) tilemap_update(map, state_frametime(state));
       camera_update(camera);
       // call ruby update callback 
@@ -267,12 +273,6 @@ int real_main(void) {
       if(actor_data) { 
         // thing_update(actor_data, state_frametime(state)); 
       } 
-      /*
-      if (border) { 
-        image_blitscale9(border, 10, 400, 200, 30, -1, -1);
-        image_blitscale9(border, 220, 300, 400, 150, -1, -1);
-      }
-      */
       
       // call ruby drawing callback
              
@@ -284,6 +284,7 @@ int real_main(void) {
                         200, 10, 0, "Actor: (%d, %d)", thing_x(actor_data),
                         thing_y(actor_data));
       }
+      alpsshower_draw(&shower, state_camera(state));
       // draw the console (will autohide if not active).
       bbwidget_draw((BBWidget *)state_console(state));
       /* finally update display. */   

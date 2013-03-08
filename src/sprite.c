@@ -594,11 +594,13 @@ void spriteframe_draw(SpriteFrame * self, Point * at) {
   int index, stop;
   SpriteLayer * layer;
   if (!self) return;
+  al_hold_bitmap_drawing(true);
   stop = spriteframe_maxlayers(self);
   for (index = 0; index < stop ; index++) {
     layer = spriteframe_layer(self, index);
     spritelayer_draw(layer, at);
   }
+  al_hold_bitmap_drawing(false);
 }
 
 

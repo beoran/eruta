@@ -373,6 +373,11 @@ Point camera_at(Camera * self) {
   return rebox_at((Rebox *)self);
 }
 
+/** Return position of camera bottom top left corner. */
+Point camera_br(Camera * self) {
+  return rebox_br((Rebox *)self);
+}
+
 /** Sets position by individual components. */
 Point camera_at_x_(Camera * self, float x) {
   return rebox_x_((Rebox *)self, x);
@@ -602,5 +607,21 @@ int camera_cansee(Camera * self, int x, int y, int w, int h) {
   if ((y+h) < camera_at_y(self)) return FALSE;
   return TRUE;
 }
+
+
+/* Transforms "world" (ie area/tilemap/level) coordinates to 
+ * screen/camera coordinates. 
+ */
+Point camera_worldtoscreen(Camera * self, Point world_pos) {
+  return cpvsub(world_pos, self->box.at);
+}
+
+/* Transforms screen/camera coordinates to "world" (ie area/tilemap/level) 
+ * coordinates. 
+ */
+Point camera_screentoworld(Camera * self, Point screen_pos) {
+  return cpvsub(screen_pos, self->box.at);
+}
+
 
 
