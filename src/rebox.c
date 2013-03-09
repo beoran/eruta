@@ -42,6 +42,12 @@ Point rebox_at(Rebox * self) {
   return self->at;
 }
 
+/** Return position of Rebox bottom right corner. */
+Point rebox_br(Rebox * self) {
+  return cpvadd(self->at, self-> size);
+}
+
+
 /** Sets position by individual components. */
 Point rebox_x_(Rebox * self, float x) {
   self->at.x = x;

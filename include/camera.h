@@ -191,6 +191,8 @@ float camera_br_x (Camera * self );
 
 float camera_br_y (Camera * self );
 
+Point camera_br(Camera * self);
+
 float camera_center_x (Camera * self );
 
 float camera_center_y (Camera * self );

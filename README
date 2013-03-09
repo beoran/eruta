@@ -11,11 +11,12 @@ Eruta us a futuristic jRPG under development.
 
 Requirements:
 * OS: Linux for now. Windows port is under development. OSX may work too.
-* Allegro 5.0.x
-* Chipmunk 6.x,
+* Allegro 5.1.5 or later (5.1.5 is in vendor directory)
+* Chipmunk 6.x (see vendor directory).
 * libxml2 (www.xmlsoft.org)
 * mruby (latest github version) 
-* For testing and compilation: cmake, cfunction (see vendor dir) and valgrind.
+* For compilation: cmake 2.8.10.2 or later (see vendor directory), make or ninja.
+* For testing and debugging: gdb, ddd, valgrind.
 * For map editing: tiled (www.mapeditor.org)
 * For some of the tools and continuous testing: Ruby, watchr.
  

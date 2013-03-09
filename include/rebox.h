@@ -47,6 +47,8 @@ float rebox_w (Rebox * self );
 
 float rebox_h (Rebox * self );
 
+Point rebox_br(Rebox * self);
+
 float rebox_br_x (Rebox * self );
 
 float rebox_br_y (Rebox * self );
