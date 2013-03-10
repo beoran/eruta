@@ -113,8 +113,7 @@ PannerList * pannerlist_freeall(PannerList * self) {
   return NULL;
 }
 
-/** Initializes a lockin and sets it to be active. If speed is negative
-or zero it will be replaced by 10.0 */
+/** Initializes a lockin and sets it to be active.  */
 Lockin * lockin_init(Lockin * self, float x, float y, float w, float h) {
   if(!self) return NULL;
   self->box   = rebox_new(x, y, w, h);
@@ -195,7 +194,7 @@ Camera * camera_done(Camera * self) {
   return self;
 }
 
-/** Frees the carmera after use. */
+/** Frees the camera after use. */
 Camera * camera_free(Camera * self) {
   camera_done(self);
   STRUCT_FREE(self);
@@ -312,7 +311,7 @@ int camera_applypanners(Camera * self) {
   as the length of delta is bigger than the speed */
   length      = cpvlength(delta);
   if (length < 1.0) {
-    /* Less than one pixel to move, the goal hss been reached. */
+    /* Less than one pixel to move, the goal has been reached. */
     camera_center_(self, panner->goal);
     camera_freetoppanner(self);
     return 0;
