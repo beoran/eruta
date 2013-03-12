@@ -122,6 +122,12 @@ data/image/ui/icon/gin: See licence.txt in that directory.
 Icons provided under the Creative Commons 3.0 BY license.
 Icons made by Lorc, Delapoite en John Colbutn. 
 
+data/music: 
+data/music/*_com64.ogg : Com64 under CC-BY 3.0.
+data/music/*_joclemons.ogg : Jo Clemons under CC-BY 3.0.
+
+
+
 
 Thanks to the following people for their suggestions:
 
