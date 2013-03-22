@@ -34,9 +34,14 @@ struct Castor_ {
 
 
 CastorNode * castornode_done(CastorNode * self) {
+  if(!self) return NULL;
+  if ((self->type) && (self->type->unloader)) { 
+    self->type->unloader(self->data, self->extra);
+  } else {
+    perror("Unloading resource failed.");
+  }
   free(self->name);
   self->name = NULL;
-  self->type->unloader(self->data, self->extra); 
   /* XXX: free data correctly!!! */
   self->data      = NULL;
   self->permanent = FALSE;
@@ -72,8 +77,20 @@ CastorNode * castornode_newall(const char * name, CastorType * type, int flags,
 }
 
 
+/** Compares strings, where a NULL string is compared
+ as being greater than any other value. */
+int nullok_strcmp(const char * one, const char * two) {
+    if(!one) { 
+    if(!two) return 0;
+    return 1;
+  } else if(!two) { 
+    return -1;
+  }
+  return strcmp(one, two);
+} 
+
 int castornode_compare(const CastorNode * one, const CastorNode * two) {
-  return strcmp(one->name, two->name);
+  return nullok_strcmp(one->name, two->name);
 }
 
 int castornode_compare_qsort(const void * one, const void * two) {
@@ -89,7 +106,7 @@ int castornode_compare_qsort(const void * one, const void * two) {
 int castornode_compare_bsearch_cstr(const void * one, const void * two) {
   const char * str        = one;
   const CastorNode * node = two;
-  return strcmp(str, node->name);
+  return nullok_strcmp(str, node->name);
 }
 
 
@@ -108,10 +125,9 @@ void * castor_node_destructor(void * data) {
 Castor * castor_done(Castor * self) {
   if (!self) return NULL;
   /* No cleanup for types, they are not owned (probably in static structs) */
-  self->types      = mem_free(self->types);
+  self->types      = dynar_free(self->types);
   /* Clean up nodes */
-  dynar_free_destroy(self->nodes, castor_node_destructor);
-  self->nodes      = mem_free(self->nodes);
+  self->nodes      =   dynar_free_destroy(self->nodes, castor_node_destructor);
   self->used_types = -1;
   self->used_nodes = -1;
   return self;
@@ -122,7 +138,7 @@ Castor * castor_init(Castor * self) {
   if (!self) return NULL;
   self->types = dynar_newptr(CASTOR_INIT_TYPES);
   self->nodes = dynar_newptr(CASTOR_INIT_NODES);
-  if ((!self->types) || (self->nodes)) { 
+  if ((!self->types) || (!self->nodes)) { 
     castor_done(self);
     return NULL;
   }
@@ -146,7 +162,7 @@ Castor * castor_new() {
 
 CastorType * castor_addtype(Castor * self, int index, CastorType * type) {
   if (!self) return NULL;
-  if (!dynar_putptr(self->nodes, index, type)) return NULL;
+  if (!dynar_putptr(self->types, index, type)) return NULL;
   return type;
 }
 

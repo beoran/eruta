@@ -36,6 +36,7 @@ set(ERUTA_SRC_FILES
   src/sprite.c
   src/state.c
   src/str.c
+  src/thing.c
   src/tile.c
   src/tileio.c
   src/tilemap.c

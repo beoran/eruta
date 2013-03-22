@@ -34,6 +34,7 @@ struct State_ {
   int                   frames;
   Tilemap             * nowmap;  // active tile map
   Tilemap             * loadmap; // new tile map that's being loaded.
+  Tilemap             * worldmap; /* World map that stays loaded. */
   Mode                * mode; // active mode
   Dynar               * modes;
   Camera              * camera;
