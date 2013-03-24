@@ -32,8 +32,8 @@ struct State_ {
   char                * errmsg;
   double                fpsnow, fpstime, fps;
   int                   frames;
-  Tilemap             * nowmap;  // active tile map
-  Tilemap             * loadmap; // new tile map that's being loaded.
+  Tilemap             * nowmap;     // active tile map
+  Tilemap             * loadingmap; // new tile map that's being loaded.
   Tilemap             * worldmap; /* World map that stays loaded. */
   Mode                * mode; // active mode
   Dynar               * modes;
@@ -70,9 +70,9 @@ Tilemap * state_nowmap(State * state) {
 }
 
 /** Return's the state's loading tile map. */
-Tilemap * state_loadmap(State * state) {
+Tilemap * state_loadingmap(State * state) {
   if(!state) return NULL;
-  return state->loadmap;
+  return state->loadingmap;
 }
 
 /* Returns the state's area. */
@@ -272,11 +272,11 @@ State * state_init(State * self, BOOL fullscreen) {
   state_eventsource(self, al_get_joystick_event_source());
   al_set_window_title(self->display, "Eruta!");
   // set up fps counter. 
-  self->fps     = 0.0;
-  self->fpstime = al_get_time();
-  self->frames  = 0;  
-  self->loadmap = NULL;
-  self->nowmap  = NULL;
+  self->fps        = 0.0;
+  self->fpstime    = al_get_time();
+  self->frames     = 0;  
+  self->loadingmap = NULL;
+  self->nowmap     = NULL;
   
   // set up modes
   self->modes   = dynar_new(ERUTA_MODE_MAX, sizeof(Mode *));
@@ -393,6 +393,57 @@ Camera * state_camera(State * state) {
   if(!state) return NULL;
   return state->camera;
 }
+
+
+
+
+
+/* Core functionality of Eruta, implemented on the state. */
+
+/* Ideas about starting the game and progressing
+* Normally, the game will have different modes. The game will start in 
+* intro mode, which automatically changes into main menu mode. 
+* From main menu mode a game may be loaded or a new game may be started. 
+* 
+* When the game starts, the generic startup and settings scripts must be loaded.
+* They influence the design of the main menu. 
+*  
+* To begin, we must implement the new game start. When a new game is started,
+* the game start script is loaded. Then, unless instructed differently, 
+* map number 0001 is loaded. As always, when a map is loaded, 
+* the map's corresponding script is loaded. The game has an area of "savable"
+* data which is initialized either by loading the game or by the new game script.   
+*  
+* Before the game is saved, the save game script is loaded. Likewise before 
+* the game is loaded the load game script is loaded. 
+* 
+* Once the game is running, the main game script is loaded and call-backs 
+* are used to communicate with it. This is the mechanism that allows part of the game 
+* to be implemented in script. 
+* 
+* Needed scripts so far: start.mrb, newgame.mrb, loadgame.mrb, savegame.mrb, 
+* main.mrb, and one map_0001.mrb, etc for every map. Other scripts can be loaded by 
+* these scripts for modulaization, but only from the script directory.  
+*  
+*/
+
+
+
+/* Preloads a tile map from the given vpath. Returns the loaded map, or 
+ NULL if not loaded. */
+Tilemap * state_preloadmap_vpath(State * state, const char * vpath) {
+  
+  return NULL;
+}
+
+/* Preloads a tile map with the given map number. Returns the loaded map, or 
+ NULL if not loaded. */
+Tilemap * state_preloadmap_index(State * state, int index) {
+  return NULL;
+}
+
+
+
 
 #ifdef _COMMENT
 

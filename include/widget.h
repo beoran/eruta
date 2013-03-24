@@ -44,12 +44,12 @@ typedef struct BBWidgetMetab_ BBWidgetMetab;
 /* Predefine widget state flags . */
 typedef enum BBWidgetFlags_ BBWidgetFlags;
 
-/* Very simple array based event handler. It's O(N) for ow,
+/* Very simple array based event handler. It's O(N) for now,
  but N is very small here, so the simplicity of creating a method table 
  is more important. */
 typedef struct BBWidgetAction_ BBWidgetAction;
 
-typedef int BBWidgetHandler (BBWidget * console, void * data);
+typedef int BBWidgetHandler(BBWidget * widget, void * data);
 
 struct BBWidgetAction_ { 
   int              type;
