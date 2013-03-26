@@ -4,6 +4,7 @@
 #include "camera.h"
 #include "sound.h"
 #include "tilemap.h"
+#include "tileio.h"
 #include "dynar.h"
 #include "mode.h"
 #include "fifi.h"
@@ -95,8 +96,14 @@ State * state_alloc() {
 
 /** Frees a state struct. */
 void state_free(State * self) {
+  spritelist_free(self->sprites);
+  self->sprites = NULL;
   area_free(self->area);
-  self->area = NULL;
+  self->area    = NULL;
+  if (self->nowmap) {
+    tilemap_free(self->nowmap);
+    self->nowmap = NULL;
+  }
   dynar_free(self->modes);
   rh_free(self->ruby);
   bbconsole_free((BBWidget *)self->console, NULL);
@@ -148,6 +155,78 @@ Ruby * state_ruby(State * state) {
 BBConsole * state_console(State * state) {
   return state->console;
 }
+
+/* Creates a new sprite in the sprite list. */
+Sprite * state_newsprite(State * state, int index) {
+  SpriteList * list = state_sprites(state);
+  return spritelist_newsprite(list, index);
+}
+
+/* Returns a sprite from the state's sprite list. */
+Sprite * state_sprite(State * state, int index) {
+  SpriteList * list = state_sprites(state);
+  return spritelist_sprite(list, index);
+}
+
+/* Returns a sprite from the state's sprite list or makes it new if 
+ * it didn't exist. */
+Sprite * state_getornewsprite(State * state, int index) {
+  SpriteList * list = state_sprites(state);
+  return spritelist_getornew(list, index);
+}
+
+/* Loads a layer of a sprite from a vpath. Sprite layer is in 
+ ulpcss format. */
+int state_sprite_loadulpcss
+(State * state, int sprite_index, int layer_index, const char * vpath) { 
+  Sprite * sprite = state_getornewsprite(state, sprite_index);
+  if(!sprite) return -1;
+  if(sprite_loadlayer_ulpcss_vpath(sprite, layer_index, vpath, 0)) { 
+    return sprite_index;
+  } else {
+    return -2;
+  }
+}
+
+/*  Gets a thing from the state's active tile map/area. */
+Thing * state_thing(State * state, int index) {
+  Tilemap * map = state_nowmap(state);
+  return tilemap_thing(map, index);
+}
+
+/* Makes a new dynamic thing in the state's active tile map/area. */
+Thing * state_newthing(State * state, int kind, 
+                        int x, int y, int z, int w, int h) {
+  Tilemap * map = state_nowmap(state);
+  return tilemap_addthing(map, kind, x, y, z, w, h);
+}
+
+/* Sets up the state's camera to track the numbered thing. */
+int state_cameratrackthing(State * state, int thing_index) {
+  Thing * thing = state_thing(state, thing_index);
+  if (thing) {
+  	camera_track_(state_camera(state), thing);
+	return 0;
+  }
+  return -1;
+}
+
+/* Lock in the state's camera to the current active tile map's given layer. */
+int state_lockin_maplayer(State * state, int layer) {
+  tilemap_layer_lockin(state_nowmap(state), layer, state_camera(state));
+  return 0;
+}
+
+/* Loads a named tile map from the map folder. */
+int state_loadtilemap_vpath(State * self, char * vpath) {
+  self->loadingmap = fifi_loadsimple_vpath((FifiSimpleLoader*) tilemap_load, vpath);
+  if(!self->loadingmap) return -1;
+  /* TODO: some preposcessing, and move the PCs from the old map to the new... */
+  tilemap_free(self->nowmap);
+  self->nowmap = self->loadingmap;
+  return 0;
+}
+
 
 
 #define STATE_MODES 10
@@ -307,6 +386,9 @@ State * state_init(State * self, BOOL fullscreen) {
   /* Initialize Area. */
   self->area = area_new();
   
+  /* Initialize sprite lisst. */
+  self->sprites = spritelist_new();
+  
   return self;
 }
 
@@ -322,6 +404,39 @@ BOOL state_busy(State * self) {
 }
 
 
+/* Draws all inside the state that needs to be drawn. */
+void state_draw(State * self) {
+    if (self->nowmap) {
+       tilemap_draw(self->nowmap, self->camera);    
+    }
+    // draw fps  
+    al_draw_textf(state_font(self), COLOR_WHITE,
+                        10, 10, 0, "FPS: %lf, %d", state_fps(self), 
+                        state_frames(self));
+    // alpsshower_draw(&shower, state_camera(state));
+    // draw the console (will autohide if not active).
+    bbwidget_draw((BBWidget *)state_console(self));
+}
+
+
+/* Updates the state's display. */
+void state_flip_display(State * self) {
+  al_flip_display();
+  state_frames_update(self);
+}
+
+/* Updates the state's elements. */
+void state_update(State * self) { 
+  mrb_value mval;
+  // alpsshower_update(&shower, state_frametime(state));    
+  if (self->nowmap) tilemap_update(self->nowmap, state_frametime(self));
+  camera_update(self->camera);
+  // call ruby update callback 
+  mval = mrb_float_value(state_frametime(self));
+  rh_runtopfunction_console(state_console(self), state_ruby(self), 
+                                 "on_update", 1, &mval);
+  
+}
 
 
 /** Polls the state's event queue, and gets the next event and stores it in

@@ -187,44 +187,37 @@ int real_main(void) {
     //music   = music_load("musictest.ogg");
     // if(!music) perror("musictest.ogg");
     /* Initialize empty sprite and load a few layers. */
-    sprite      = sprite_new(1);
+    sprite      = state_getornewsprite(state, 1);
     spritestate = spritestate_new(sprite);
-    if(!sprite_loadlayer_ulpcss_vpath
-        (sprite, 0, "image/ulpcss/body/male/light.png", 0) 
+    if(state_sprite_loadulpcss(state, 1, 0, "image/ulpcss/body/male/light.png") < 0 
       ) { 
         fprintf(stderr, "Could not load body layer.\n");
     }
-    sprite_loadlayer_ulpcss_vpath
-    (sprite, 1, "image/ulpcss/hair/male/messy2/redhead.png", 0);
-    sprite_loadlayer_ulpcss_vpath
-    (sprite, 2, "image/ulpcss/torso/white_shirt_male.png", 0);
-    sprite_loadlayer_ulpcss_vpath
-    (sprite, 3, "image/ulpcss/legs/green_pants_male.png", 0);
-    sprite_loadlayer_ulpcss_vpath
-    (sprite, 4, "image/ulpcss/feet/brown_shoes_male.png", 0);
-
- 
-
+    state_sprite_loadulpcss(state, 1, 1, "image/ulpcss/hair/male/messy2/redhead.png");
+    state_sprite_loadulpcss(state, 1, 2, "image/ulpcss/torso/white_shirt_male.png");
+    state_sprite_loadulpcss(state, 1, 3, "image/ulpcss/legs/green_pants_male.png");
+    state_sprite_loadulpcss(state, 1, 4, "image/ulpcss/feet/brown_shoes_male.png");
+    /*
     spritestate_now_(spritestate, 0, 0);
     if(spritestate_posedirection_(spritestate, SPRITE_WALK, SPRITE_EAST)) {
       fprintf(stderr, "Could not set sprite pose!\n");
     } else {
       printf("Sprite pose set.\n");
     }
-    
+    */
 
-    border  = fifi_loadbitmap("border_004.png",
-                            "image", "ui", "background", NULL);
-    map = fifi_loadsimple((FifiSimpleLoader*) tilemap_load,
-                          "map_0001.tmx", "map", NULL);
+    /*border  = fifi_loadbitmap("border_004.png",
+                            "image", "ui", "background", NULL);*/
+    state_loadtilemap_vpath(state, "map/map_0001.tmx");
+    map = state_nowmap(state);
     if(!map) {
       puts("Map is NULL!");
     } else {
-      actor_data = tilemap_addthing(map, THING_ACTOR, 120, 100, 1, 32, 32);
+      actor_data = state_newthing(state, THING_ACTOR, 120, 100, 1, 32, 32);
       if(actor_data) {
         camera_track_(camera, actor_data);
       }
-      tilemap_layer_lockin(map, 0, camera);    
+      state_lockin_maplayer(state, 0);
     }
 
   // Try to load the mainruby file.
@@ -245,57 +238,17 @@ int real_main(void) {
   }
   // spritestate_speedup_(spritestate, 2.0);
 
-    
+  /* Main game loop, controlled by the State object. */  
   while(state_busy(state)) { 
       mrb_value mval;
       Point spritenow = cpv(100, 120); 
       react_poll(&react, state);
       alpsshower_update(&shower, state_frametime(state));
-      
-      if (map) tilemap_update(map, state_frametime(state));
-      camera_update(camera);
-      // call ruby update callback 
-      mval = mrb_float_value(state_frametime(state));
-      rh_runtopfunction_console(state_console(state), state_ruby(state), 
-                                 "on_update", 1, &mval);
-     
-      // area_update( , 
-      // rh_dostring_stderr("on_update", state_ruby(state));
-      // rh_simple_funcall("on_update", state_ruby(state));
-      
-      // rh_dofunction_mybbconsole_args(state_lua(state), "on_update", "s", "a string argument");
-
-      if (map) tilemap_draw(map, camera);
-      //if (sprite) spritestate_draw(spritestate, &spritenow);
-     
-      // if (sprite) spritestate_update(spritestate, state_frametime(state));
-      // state_frames_update(state);
-      if(actor_data) { 
-        // thing_update(actor_data, state_frametime(state)); 
-      } 
-      
-      // call ruby drawing callback
-             
-      al_draw_textf(state_font(state), COLOR_WHITE,
-                        10, 10, 0, "FPS: %lf, %d", state_fps(state), 
-                        state_frames(state));
-      if(actor_data) {
-        al_draw_textf(state_font(state), COLOR_WHITE,
-                        200, 10, 0, "Actor: (%d, %d)", thing_x(actor_data),
-                        thing_y(actor_data));
-      }
-      alpsshower_draw(&shower, state_camera(state));
-      // draw the console (will autohide if not active).
-      bbwidget_draw((BBWidget *)state_console(state));
-      /* finally update display. */   
-      al_flip_display();
-      state_frames_update(state);
+      state_update(state);
+      state_draw(state);
+      state_flip_display(state);
    }
-   sprite_free(sprite);
-   tilemap_free(map);
-   tilepane_free(tilepane);
-   tileset_free(tileset);
-   image_free(border);
+   /* image_free(border); */
    state_done(state);
    state_free(state); 
    return 0;

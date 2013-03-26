@@ -11,9 +11,8 @@
 /** A tile map is a game map, roughly equivalent to a "level" that uses tiled 
  * panes for it's display. It also contains an Area for the physical, logical
  * and graphical representation of in-game objects.  
- * The plan is to have a single Area that gets re-used and cleaned every 
- * time the map changes, keeping only the player characters and NPC's that 
- * must move between maps.
+ * The plan is to have an area per tile map and copy the player characters between 
+ * those areas when moved, but keeping their ID's the same.  
  * This should make keeping track of the characters (from scripting, etc) easier.
  */
 struct Tilemap_ {
@@ -250,6 +249,21 @@ Lockin * tilemap_layer_lockin(Tilemap * map,
   pane = tilemap_pane(map, layer);
   return tilepane_lockin(pane, camera);  
 }
+
+
+
+/* Returns the tile map's area. */
+Area * tilemap_area(Tilemap * self) {
+  if(!self) return NULL;
+  return self->area;
+}
+
+/* Returns a thing from this tile map's area. */
+Thing * tilemap_thing(Tilemap * self, int index) {
+  Area * area = tilemap_area(self);
+  return area_thing(area, index);
+}
+
 
 
 

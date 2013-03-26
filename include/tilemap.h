@@ -57,6 +57,11 @@ Lockin * tilepane_lockin (Tilepane * pane , Camera * camera );
 
 Lockin * tilemap_layer_lockin (Tilemap * map , int layer , Camera * camera );
 
+Area * tilemap_area(Tilemap * self);
+
+Thing * tilemap_thing(Tilemap * self, int index);
+
+
 
 #ifdef COMMENT_
 Tilemap * tilemap_load (lua_State * lua , int index );

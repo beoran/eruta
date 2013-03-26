@@ -86,7 +86,7 @@ Thing * area_addthing(Area * area, Thing * thing) {
   if (id < 0 ) return NULL;
   if(!area_thing_(area, id, thing)) return NULL;
   thing_id_(thing, id);
-  /* Don't forget to add body to shape. */
+  /* Don't forget to add body and shape to the space if needed. */
   cpSpaceAddShape(area->space, thing->shape);
   if(!thing_static_p(thing)) {
     cpSpaceAddBody(area->space, thing->body); 
