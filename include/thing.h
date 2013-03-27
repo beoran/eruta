@@ -12,6 +12,9 @@ enum Thingflags_ {
   THING_FLAGS_OWNSHAPE         = 2,
   /* Thing doesn't change direction even when moving. */
   THING_FLAGS_LOCK_DIRECTION   = 4,
+  /* Persistent things are to be copied from one map to the next.
+   Especially useful (and automatcical) for PCs. */
+  THING_FLAGS_PERSISTENT       = 8,
 };
 
 /**
@@ -35,7 +38,7 @@ struct Thing_ {
   Point       size; /* size of outline of shape */
   Point       spos; /* Position, merely for static shapes, for dynamic
   bodies, use cpBodyGetPos*/
-  /* Sprite information Also is the reference for the direction the thing is facing. 
+  /* Sprite information. Also is the reference for the direction the thing is facing. 
    */
   SpriteState spritestate;
 };

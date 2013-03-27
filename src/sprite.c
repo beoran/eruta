@@ -6,7 +6,7 @@
 #include "image.h"
 #include "bad.h"
 #include "flags.h"
-
+#include "fifi.h"
 
 #define SPRITEFRAME_OWNEDFLAG  1
 
@@ -919,7 +919,7 @@ void spritestate_draw(SpriteState * self, Point * at) {
 
 /* Sets the spritestate's current action and current frame. Returns 
  self if ok, NULL if out of bounds. */
-Sprite * 
+SpriteState * 
 spritestate_now_(SpriteState * self, int actionnow, int framenow) {
   SpriteAction * action;
   SpriteFrame  * frame;

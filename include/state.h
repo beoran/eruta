@@ -78,13 +78,13 @@ Sprite * state_newsprite(State * state, int index);
 Sprite * state_sprite(State * state, int index);
 Sprite * state_getornewsprite(State * state, int index); 
 int state_sprite_loadulpcss
-(State * state, int sprite_index, int layer_index, const char * vpath);
+(State * state, int sprite_index, int layer_index, char * vpath);
 
 Thing * state_thing(State * state, int index);
 Thing * state_newthing(State * state, int kind, 
                         int x, int y, int z, int w, int h);
 
-int state_cameratrackthing(State * state, int thing_index);
+int state_camera_track_(State * state, int thing_index);
 int state_lockin_maplayer(State * state, int layer);
 int state_loadtilemap_vpath(State * self, char * vpath);
 
@@ -92,6 +92,14 @@ void state_draw(State * self);
 void state_flip_display(State * self);
 void state_update(State * self);
 
+int state_newthingindex(State * state, int kind, 
+                        int x, int y, int z, int w, int h);
+int state_thing_sprite_(State * state, int thing_index, int sprite_index); 
+int state_thing_pose_(State * state, int thing_index, int pose);
+int state_thing_direction_(State * state, int thing_index, int direction);
+
+int state_actorindex_(State * self, int thing_index);
+Thing * state_actor(State * self);
 
 
 

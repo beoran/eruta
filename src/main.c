@@ -60,16 +60,15 @@ void puts_standard_path(int path, char * name) {
 }
  
  
-/* Global variable just for testing. */ 
-static Thing    * actor_data    = NULL;
-
 React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {  
   Point f = cpvzero;
   State * state = (State *) self->data;
   Camera * camera = NULL;
+  Thing * actor_data;
   if (!state) return NULL;
   camera = state_camera(state);
   if (!camera) return NULL;
+  actor_data = state_actor(state);
   if (actor_data) {
     f = thing_v(actor_data);
   }
@@ -109,10 +108,12 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
   Point f         = cpvzero;
   State * state   = (State *) self->data;
   Camera * camera = NULL;
+  Thing  * actor_data = NULL;
   if (!state) return NULL;
   camera = state_camera(state);
   if (!camera) return NULL;
   // os = camera_speed(camera);
+  actor_data = state_actor(state);
   if (actor_data) {
     f = thing_v(actor_data);
   }
@@ -158,6 +159,8 @@ int real_main(void) {
     Sprite   * sprite           = NULL;
     SpriteState * spritestate   = NULL;
     AlpsShower shower;
+    int        actor_id;
+    int        sprite_id;
     
     React    react;
     ALLEGRO_COLOR myblack = {0.0, 0.0, 0.0, 1.0};
@@ -187,7 +190,8 @@ int real_main(void) {
     //music   = music_load("musictest.ogg");
     // if(!music) perror("musictest.ogg");
     /* Initialize empty sprite and load a few layers. */
-    sprite      = state_getornewsprite(state, 1);
+    sprite_id   = 1;
+    sprite      = state_getornewsprite(state, sprite_id);
     spritestate = spritestate_new(sprite);
     if(state_sprite_loadulpcss(state, 1, 0, "image/ulpcss/body/male/light.png") < 0 
       ) { 
@@ -213,9 +217,9 @@ int real_main(void) {
     if(!map) {
       puts("Map is NULL!");
     } else {
-      actor_data = state_newthing(state, THING_ACTOR, 120, 100, 1, 32, 32);
-      if(actor_data) {
-        camera_track_(camera, actor_data);
+      actor_id = state_newthingindex(state, THING_ACTOR, 120, 100, 1, 32, 32);
+      if(actor_id >= 0) {
+        state_camera_track_(state, actor_id);
       }
       state_lockin_maplayer(state, 0);
     }
@@ -227,14 +231,15 @@ int real_main(void) {
   // Call the on_start function.
   { 
     USTR * com = ustr_newf("on_start('%s')", "OK!");
-    rh_dostring_console(state_console(state), ustr_c(com), state_ruby(state));
+    rh_dostring_console(state_console(state), (char *) ustr_c(com), state_ruby(state));
     // rh_dostring_stderr(ustr_c(com), state_ruby(state));
     ustr_free(com);
   }
   
-  if ((actor_data) && (sprite)) {
-    thing_sprite_(actor_data, sprite);
-    thing_pose_(actor_data, SPRITE_WALK);
+  if ((actor_id >= 0) && (sprite_id >= 0)) {
+    state_actorindex_(state, actor_id);
+    state_thing_sprite_(state, actor_id, sprite_id);
+    state_thing_pose_(state, actor_id, SPRITE_WALK);
   }
   // spritestate_speedup_(spritestate, 2.0);
 

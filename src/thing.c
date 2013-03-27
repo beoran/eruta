@@ -482,17 +482,18 @@ void thing_update(Thing * self, double dt) {
     Point vel = cpBodyGetVel(self->body);
     double magnitude = cpvlength(vel);
     if (fabs(magnitude) > 0.00) { 
-      /* could change dir if moving */
+     /* could change dir if moving. TODO: take the old direction into
+        account for more control of facing when moving diagonally. */
       if (vel.x < -0.01) {
         newdir = SPRITE_WEST;
       } else if (vel.x > 0.01) {
         newdir = SPRITE_EAST;
       } else if (vel.y < -0.01) {
         newdir = SPRITE_NORTH;
-      } else if (vel.x > 0.01) {
+      } else if (vel.y > 0.01) {
         newdir = SPRITE_SOUTH;
-      } else { /* XXX: improve this hack... */
-        newdir = SPRITE_SOUTH;
+      } else { /* Not much motion, don't change dir */
+        newdir = thing_direction(self);
       }
       /* Change direction. spritestate_pose will see if nothing changed and do nothing. in that case */
       thing_poseifold_(self, SPRITE_STAND, SPRITE_WALK);

@@ -13,6 +13,7 @@
 #include "event.h"
 #include "widget.h"
 #include "area.h"
+#include "thing.h"
 #include "sprite.h"
 
 /* The data struct contains all global state and other data of the application.
@@ -45,6 +46,9 @@ struct State_ {
   Ruby                * ruby;
   BBConsole           * console; 
   // The ruby and error message GUI console.
+  /* The curtrent actor, controlled by the plater. */
+  Thing               * actor;
+  
 };
 
 
@@ -178,7 +182,7 @@ Sprite * state_getornewsprite(State * state, int index) {
 /* Loads a layer of a sprite from a vpath. Sprite layer is in 
  ulpcss format. */
 int state_sprite_loadulpcss
-(State * state, int sprite_index, int layer_index, const char * vpath) { 
+(State * state, int sprite_index, int layer_index, char * vpath) { 
   Sprite * sprite = state_getornewsprite(state, sprite_index);
   if(!sprite) return -1;
   if(sprite_loadlayer_ulpcss_vpath(sprite, layer_index, vpath, 0)) { 
@@ -201,6 +205,62 @@ Thing * state_newthing(State * state, int kind,
   return tilemap_addthing(map, kind, x, y, z, w, h);
 }
 
+/* Makes a new dynamic thing and returns it's index, or 
+ negative if it could not be created. */
+int state_newthingindex(State * state, int kind, 
+                        int x, int y, int z, int w, int h) {
+                          
+  Thing * thing = state_newthing(state, kind, x, y, z, w, h);
+  if (!thing) return -1;
+  return thing_id(thing);
+}
+
+
+/* Looks op both the Thing and the Sprite by index and 
+ * links the Thing to the Sprite. Returns the sprite index set or negative on error.
+ * Both sprite and thing must already exist for this to work. 
+ */
+int state_thing_sprite_(State * state, int thing_index, int sprite_index) {
+  Thing * thing; Sprite * sprite;
+  thing  = state_thing(state, thing_index);
+  if (!thing) { return -1; } 
+  sprite = state_sprite(state, sprite_index);
+  if (!sprite) { return -2; }
+  thing_sprite_(thing, sprite);
+  return sprite_index;
+}
+
+/* Looks up the thing by index and set it's pose. Returns negative on error, 
+ or if sucessful, the pose set. */
+int state_thing_pose_(State * state, int thing_index, int pose) {
+  Thing * thing;
+  thing = state_thing(state, thing_index);
+  if(!thing) return -1;
+  thing_pose_(thing, pose);
+  return pose;
+}
+ 
+/* Looks up the thing by index and set it's direction. Returns negative on error, 
+ or if sucessful, the direction set. */
+int state_thing_direction_(State * state, int thing_index, int direction) {
+  Thing * thing;
+  thing = state_thing(state, thing_index);
+  if(!thing) return -1;
+  thing_direction_(thing, direction);
+  return direction;
+}
+ 
+/* Looks up the thing by index and let the state's camera track it. */
+int state_camera_track_(State * state, int thing_index) {
+  Thing * thing;
+  thing = state_thing(state, thing_index);
+  if(!thing) return -1;
+  camera_track_(state_camera(state), thing);
+  thing_direction_(thing, thing_index);
+  return thing_index;
+}
+
+
 /* Sets up the state's camera to track the numbered thing. */
 int state_cameratrackthing(State * state, int thing_index) {
   Thing * thing = state_thing(state, thing_index);
@@ -214,7 +274,7 @@ int state_cameratrackthing(State * state, int thing_index) {
 /* Lock in the state's camera to the current active tile map's given layer. */
 int state_lockin_maplayer(State * state, int layer) {
   tilemap_layer_lockin(state_nowmap(state), layer, state_camera(state));
-  return 0;
+  return 0; 
 }
 
 /* Loads a named tile map from the map folder. */
@@ -226,6 +286,25 @@ int state_loadtilemap_vpath(State * self, char * vpath) {
   self->nowmap = self->loadingmap;
   return 0;
 }
+
+
+/* Sets the state current active actor to the thing with the given index.
+ * Does not change if no such thing is found;
+ */
+int state_actorindex_(State * self, int thing_index) {
+  Thing * thing;
+  thing = state_thing(self, thing_index);
+  if(!thing) return -1;
+  self->actor = thing;
+  return thing_index;
+}
+
+/* Returns the current active actor of the state. */
+Thing * state_actor(State * self) {
+  if(!self) return NULL;
+  return self->actor;
+}
+
 
 
 
