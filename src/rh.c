@@ -7,6 +7,7 @@
 #include "str.h"
 
 #include <stdarg.h>
+#include <mruby.h>
 
 /*
 * RH contains helper functions for the mruby ruby interpreter.
