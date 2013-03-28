@@ -242,6 +242,9 @@ void bbwidget_update (BBWidget * self , ALLEGRO_EVENT * event );
 
 void bbwidget_drawroundframe (BBWidget * self );
 
+
+int bbconsole_handle(BBWidget * widget, ALLEGRO_EVENT * event);
+
 void 
 bbconsole_command_(BBConsole * self , BBConsoleCommand * command , void * data );
 

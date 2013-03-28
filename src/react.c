@@ -1,7 +1,10 @@
 
+#include "eruta.h"
+#include "event.h"
 #include "mode.h"
 #include "state.h"
 #include "react.h"
+#include "widget.h"
 
 /** Initializes the react structure so it does nothing at all in all cases. */
 React * react_initempty(React * self, void * data) {

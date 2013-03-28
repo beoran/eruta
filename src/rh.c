@@ -39,7 +39,7 @@ int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, va_list 
         
       case 'z':
         str = va_arg(list, const char*);
-        val = mrb_str_new2(ruby, str);
+        val = mrb_str_new_cstr(ruby, str);
         break;
         
       case 'i':
