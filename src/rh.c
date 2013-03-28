@@ -86,8 +86,8 @@ int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, va_list 
 /* Error reporter function type  */
 typedef int (RhReporter)(int status, const char * msg, void * extra);
 
-/** Calulates the execption string. Reult only tempoarily available..
-XXX: check if this doesn't leak memory...
+/** Calulates the execption string. Result only tempoarily available..
+XXX: check if this doesn't leak memory... you must free the results manually.
 */
 char * rh_exceptionstring(Ruby * self) {
   char      * result;
@@ -105,8 +105,8 @@ char * rh_exceptionstring(Ruby * self) {
 /** Allocates and initialzes a new ruby state. */
 Ruby * rh_new() {
    Ruby * self = mrb_open();
-   mrb_define_method(self, self->kernel_module, 
-                     "path", tr_Path, ARGS_REQ(1));
+   /*mrb_define_method(self, self->kernel_module, 
+                     "path", tr_Path, ARGS_REQ(1));*/
    return self;
 }
 
@@ -140,7 +140,7 @@ int rh_make_report(Ruby * self, mrb_value v, RhReporter * reporter, void * extra
     if(reporter) { 
       res = reporter(-1, str, extra);
     } else  {
-      mrb_p(self, mrb_obj_value(self->exc));
+      fprintf(stderr, "mruby error: %s\n", str);
       res = -1;
     }
     free(str);

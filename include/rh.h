@@ -20,7 +20,7 @@ void toruby_Path_free(mrb_state * state , void * ptr );
 
 extern struct mrb_data_type toruby_Path;
 
-mrb_value tr_Path (Ruby * ruby , mrb_value self );
+ mrb_value tr_Path (Ruby * ruby ,mrb_value self,  struct RClass * klass); 
 
 Ruby * rh_new(void);
 

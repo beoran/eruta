@@ -1,3 +1,5 @@
+script "load_me.rb"
+
 puts "Hi from ruby!"
 
 def Alex(text)
@@ -15,8 +17,8 @@ end
 # Berun %{Sure, but like this is also "possible"...} 
 # Alex 'I this is also "fine".'
 
-pa = path("script/main.lua")
-pa = nil
+# pa = path("script/main.lua")
+# pa = nil
 
 def on_start(s)
   puts "on_start #{s}"
@@ -35,6 +37,7 @@ def on_update(dt)
   # log "Update nr #{$count}!"
   return nil
 end
+
 
 
 # log "this is for the console."
