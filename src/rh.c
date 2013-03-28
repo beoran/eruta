@@ -17,11 +17,14 @@
  * Converts C like arguments to an array of mruby mrb_values.
  * Returns amount of arguments parsed, negative on failure.
  * 
- * Format specifiers: 
- * z: null terminated C string (String [char*])
- * s: String  [char*, int] 
- * f: Float   [double]
- * i: Integer [int]
+ * Format specifier characters for the format argument: 
+ * z: String from null terminated C string      [char*]
+ * s: String                                    [char*, int] 
+ * f: Float                                     [double]
+ * i: Integer                                   [int]
+ * b: Boolean                                   [int] 
+ * 0: nil
+ * Other characters: Error. Will return -(index or erroneous character) .
  */ 
 int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, va_list list) {
   int ch; int index;
@@ -30,6 +33,7 @@ int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, va_list 
   
   for (ch = (*format) ; (ch) && (index < size) ; format++ , ch = (*format)) {
     mrb_value val;
+    int error = FALSE;
     switch(ch) {
       case 's':
         str = va_arg(list, const char*);
@@ -52,9 +56,21 @@ int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, va_list 
         val = mrb_float_value(d);
         break;
         
-      default:
+      case 'b': 
+        i   = va_arg(list, int);
+        val = ( i ? mrb_true_value() : mrb_false_value());
+        break;
+      
+      case '0':
         val = mrb_nil_value();
         break;
+        
+      default:
+        error = TRUE;
+        break;
+    }
+    if (error) { 
+      return -index;
     }
     values[index] = val;
     index ++;
