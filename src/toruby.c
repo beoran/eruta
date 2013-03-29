@@ -204,19 +204,99 @@ static mrb_value tr_sprite_loadulpcss(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(result);
 }
 
+static mrb_value tr_newthing(mrb_state * mrb, mrb_value self) {
+  int thing  = -1;
+  State * state    = state_get();
+  int result;
+  mrb_int   kind, x, y, z, w, h;
+  mrb_get_args(mrb, "iiiiii", &kind, &x, &y, &z, &w, &h);  
+  if (kind<0) {
+    return mrb_nil_value();
+  } 
+  thing = state_newthingindex(state, kind, x, y, z, w, h);
+  return mrb_fixnum_value(thing);
+}
+
+static mrb_value tr_camera_track(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  int result;
+  mrb_int   thing_index;
+  mrb_get_args(mrb, "i", &thing_index);  
+  result = state_camera_track_(state, thing_index);
+  return mrb_fixnum_value(result);
+}
+
+static mrb_value tr_lockin_maplayer(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  int result;
+  mrb_int   layer;
+  mrb_get_args(mrb, "i", &layer);  
+  result = state_lockin_maplayer(state, layer);
+  return mrb_fixnum_value(result);
+}
+
+static mrb_value tr_loadtilemap_vpath(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  int result;
+  mrb_value rvpath;
+  mrb_get_args(mrb, "S", &rvpath);  
+  result = state_loadtilemap_vpath(state, mrb_str_to_cstr(mrb, rvpath));
+  return mrb_fixnum_value(result);
+}
+
+
+static mrb_value tr_thing_sprite_(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  int result;
+  int thing, sprite;
+  mrb_get_args(mrb, "ii", &thing, &sprite);  
+  result = state_thing_sprite_(state, thing, sprite);
+  return mrb_fixnum_value(result);
+}
+
+static mrb_value tr_thing_pose_(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  int result;
+  int thing, pose;
+  mrb_get_args(mrb, "ii", &thing, &pose);  
+  result = state_thing_pose_(state, thing, pose);
+  return mrb_fixnum_value(result);
+}
+
+static mrb_value tr_thing_direction_(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  int result;
+  int thing, direction;
+  mrb_get_args(mrb, "ii", &thing, &direction);  
+  result = state_thing_direction_(state, thing, direction);
+  return mrb_fixnum_value(result);
+}
+
+static mrb_value tr_actorindex_(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  int result;
+  int thing;
+  mrb_get_args(mrb, "i", &thing);  
+  result = state_actorindex_(state, thing);
+  return mrb_fixnum_value(result);
+}
+
+
+static mrb_value tr_actorindex(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  Thing * thing;
+  int result;
+  
+  thing = state_actor(state);
+  if (!thing) {
+    return mrb_nil_value();
+  }
+  return mrb_fixnum_value(thing_id(thing));
+}
+
+
+
 /*
-Thing * state_thing(State * state, int index);
-Thing * state_newthing(State * state, int kind, 
-                        int x, int y, int z, int w, int h);
-
-int state_camera_track_(State * state, int thing_index);
-int state_lockin_maplayer(State * state, int layer);
-int state_loadtilemap_vpath(State * self, char * vpath);
-
-void state_draw(State * self);
-void state_flip_display(State * self);
-void state_update(State * self);
-
 int state_newthingindex(State * state, int kind, 
                         int x, int y, int z, int w, int h);
 int state_thing_sprite_(State * state, int thing_index, int sprite_index); 
@@ -227,7 +307,21 @@ int state_actorindex_(State * self, int thing_index);
 Thing * state_actor(State * self);
 */
 
-
+/*
+tr_getornewsprite
+tr_newsprite
+tr_sprite
+tr_sprite_loadulpcss
+tr_newthing
+tr_camera_track
+tr_lockin_maplayer 
+tr_loadtilemap_vpath
+tr_thing_sprite_
+tr_thing_pose_
+tr_thing_direction_
+tr_actorindex_
+tr_actorindex
+*/
 
 
 /* Initializes the functionality that Eruta exposes to Ruby. */
@@ -245,7 +339,20 @@ int tr_init(mrb_state * mrb) {
                     tr_test, ARGS_REQ(1));
   mrb_define_method(mrb, krn, "log" , tr_log , ARGS_REQ(1));
   mrb_define_method(mrb, krn, "script" , tr_script , ARGS_REQ(1));
-  
+  mrb_define_method(mrb, krn, "sprite_getornew", tr_getornewsprite, ARGS_REQ(1));
+  mrb_define_method(mrb, krn, "sprite_new", tr_newsprite, ARGS_REQ(1));
+  mrb_define_method(mrb, krn, "sprite_get", tr_sprite, ARGS_REQ(1));
+  mrb_define_method(mrb, krn, "sprite_loadulpcss", tr_sprite_loadulpcss, ARGS_REQ(3));
+  mrb_define_method(mrb, krn, "thing_new"    , tr_newthing, ARGS_REQ(6));
+  mrb_define_method(mrb, krn, "camera_track" , tr_camera_track, ARGS_REQ(1));
+  mrb_define_method(mrb, krn, "camera_lockin", tr_lockin_maplayer, ARGS_REQ(1));
+  mrb_define_method(mrb, krn, "tilemap_load" , tr_loadtilemap_vpath, ARGS_REQ(1));
+  mrb_define_method(mrb, krn, "thing_sprite_", tr_thing_sprite_, ARGS_REQ(2));
+  mrb_define_method(mrb, krn, "thing_pose_"  , tr_thing_pose_, ARGS_REQ(2));
+  mrb_define_method(mrb, krn, "thing_direction_", tr_thing_direction_, ARGS_REQ(2));
+  mrb_define_method(mrb, krn, "actor_index_", tr_actorindex_, ARGS_REQ(1));
+  mrb_define_method(mrb, krn, "actor_index", tr_actorindex, ARGS_NONE());
+ 
   // must restore gc area here ????
   mrb_gc_arena_restore(mrb, 0);
   

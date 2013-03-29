@@ -1,4 +1,4 @@
-script "load_me.rb"
+script "helpers.rb"
 
 puts "Hi from ruby!"
 
