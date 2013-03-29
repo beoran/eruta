@@ -59,7 +59,12 @@ int rh_runfunction_console(BBConsole * console, Ruby * ruby, mrb_value rubyself,
 int rh_runtopfunction_console(BBConsole * console, Ruby * ruby, 
                               char * name, int argc, mrb_value * argv);
 
+int rh_runfunctionargs_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, char * name, char * format, ...);
 
+int rh_runtopfunctionargs_console(BBConsole * console, Ruby * ruby, 
+                                  char * name, char * format, ...);
+                              
+                              
 #endif
 
 

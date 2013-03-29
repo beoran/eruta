@@ -25,6 +25,10 @@ def on_start(s)
   return 1234567
 end
 
+def on_bump(t1, t2, kind = nil)
+  puts "BUMP! #{t1} #{t2} #{kind}"
+end
+
 def ok!
   log "OK, it works!"
 end

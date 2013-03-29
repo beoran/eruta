@@ -6,6 +6,7 @@
 #include "flags.h"
 #include "draw.h"
 #include "sprite.h"
+#include "collide.h"
 
 /** Scale factor. */
 #define AREA_SCALE_BY (32.0lf)
@@ -36,7 +37,88 @@ struct Area_ {
   Thing       * things_todraw[AREA_THINGS];
 };
 
-/** Gest the amount of possible things for this area */
+/* Gets the Thing for theg iven body. If tht is not found, 
+gets the thing from the shape in stead. */
+Thing * cp_body_shape_things(cpBody * body, cpShape * shape) {
+  Thing * result = NULL;
+  if (body) result = cpBodyGetUserData(body);
+  if (result) return result; 
+  if (shape) result = cpShapeGetUserData(shape);
+  if (result) return result; 
+  return NULL;
+}
+
+
+/* Gets the Thing  involved in the collision from the arbiter */
+void cp_arbiter_things(cpArbiter * arb, Thing ** t1, Thing ** t2) {
+  cpBody  * b1, * b2;
+  cpShape * s1, * s2;
+  
+  cpArbiterGetShapes(arb, &s1, &s2);
+  cpArbiterGetBodies(arb, &b1, &b2);
+  if (t1) {   
+    (*t1) = cp_body_shape_things(b1, s1); 
+  }
+  if (t2) {   
+    (*t2) = cp_body_shape_things(b2, s2); 
+  }
+}
+
+
+/* Chipmunk collision handlers for the Area */
+int 
+area_collision_begin(cpArbiter *arb, struct cpSpace *space, void *data) {
+  Thing * t1, * t2;
+  int res;
+  cp_arbiter_things(arb, &t1, &t2);
+  res = collide_things(t1, t2, COLLIDE_BEGIN, data);
+  return res;
+}
+
+
+int 
+area_collision_presolve(cpArbiter *arb, struct cpSpace *space, void *data) {
+  Thing * t1, * t2;
+  int res;
+  cp_arbiter_things(arb, &t1, &t2);
+  res = collide_things(t1, t2, COLLIDE_PRESOLVE, data);
+  return res;
+}
+
+
+void
+area_collision_postsolve(cpArbiter *arb, struct cpSpace *space, void *data) {
+  Thing * t1, * t2;
+  int res;
+  cp_arbiter_things(arb, &t1, &t2);
+  res = collide_things(t1, t2, COLLIDE_POSTSOLVE, data);
+  return;
+}
+
+void
+area_collision_separate(cpArbiter *arb, struct cpSpace *space, void *data) {
+  Thing * t1, * t2;
+  int res;
+  cp_arbiter_things(arb, &t1, &t2);
+  res = collide_things(t1, t2, COLLIDE_SEPARATE, data);
+  return;
+}
+
+Area * area_setup_default_collision_handlers(Area * area, void * data) { 
+  cpSpace * space;
+  if (!area) return NULL;
+  space = area->space;
+  if (!space) return NULL;
+  cpSpaceSetDefaultCollisionHandler(space, 
+                                    area_collision_begin    ,
+                                    area_collision_presolve ,
+                                    area_collision_postsolve,
+                                    area_collision_separate , 
+                                    data);
+  return area;
+}
+
+/** Gets the amount of possible things for this area */
 int area_maxthings(Area * area) {
   return AREA_THINGS;
 }
@@ -182,11 +264,11 @@ Area * area_init(Area * self) {
   if(!self) return NULL;
   self->lastid  = 0;
   self->space   = cpSpaceNew();
+  if (!self->space) goto out_of_memory;
   area_emptythings(self);
-
-
+  area_setup_default_collision_handlers(self, self);
   return self;
-  
+
   out_of_memory:
   area_done(self);
   return NULL;

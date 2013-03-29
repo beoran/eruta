@@ -26,7 +26,7 @@
  * 0: nil
  * Other characters: Error. Will return -(index or erroneous character) .
  */ 
-int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, va_list list) {
+int rh_args_va(Ruby * ruby, mrb_value * values,  int size,  char * format, va_list list) {
   int ch; int index;
   int i; double d; const char * str;
   index = 0; 
@@ -78,7 +78,15 @@ int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, va_list 
   return index;
 }
 
-
+/* Helps convert C values to mruby values in an array. */
+int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, ...) {
+  int res;
+  va_list list;
+  va_start(list, format);
+  res = rh_args_va(ruby, values, size, format, list);
+  va_end(list);
+  return res;
+}
 
 
 
@@ -342,6 +350,51 @@ int rh_runtopfunction_console(BBConsole * console, Ruby * ruby,
                            char * name, int argc, mrb_value * argv) {
   return rh_dotopfunctionreport(ruby, rh_errorreporter_console, console, 
                                 name, argc, argv);
+}
+
+
+/** Runs a function in the ruby interpreter, with C arguments according to the 
+ * given format string, logging results and errors back to
+ * the reporte. The limit is 32 arguments.
+ */
+int 
+rh_dofunctionargs_report_va(Ruby * self, 
+                        RhReporter reporter, void * extra,
+                        mrb_value rubyself,
+                        const char * funcname,
+                        char * format, va_list list) {
+  mrb_value argv[32];
+  int argc;
+  argc = rh_args_va(self, argv, 32, format, list);
+  if (argc < 0) return argc;
+  return 
+  rh_dofunctionreport(self, reporter, extra, rubyself, funcname, argc, argv);
+}
+
+/** Runs a function in the ruby interpreter, logging results and errors back to
+ * the console.
+ */
+int rh_runfunctionargs_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, 
+                           char * name, char * format, ...) {
+  int res; 
+  va_list list;
+  va_start(list, format);
+  res = rh_dofunctionargs_report_va(ruby, rh_errorreporter_console, console, rubyself, name, format, list);
+  va_end(list);
+  return res;
+}
+
+/** Runs a function in the ruby interpreter, logging results and errors back to
+ * the console.
+ */
+int rh_runtopfunctionargs_console(BBConsole * console, Ruby * ruby, 
+                                  char * name, char * format, ...) {
+  int res; 
+  va_list list;
+  va_start(list, format);
+  res = rh_dofunctionargs_report_va(ruby, rh_errorreporter_console, console, mrb_top_self(ruby), name, format, list);
+  va_end(list);
+  return res;
 }
 
 
