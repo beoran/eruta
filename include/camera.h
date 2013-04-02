@@ -1,9 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "eruta.h"
-#include "inli.h"
-#include "rebox.h"
 
 
 /** Forward declaration of structs and types. */
@@ -13,10 +10,6 @@ typedef struct Panner_      Panner;
 typedef struct PannerList_  PannerList;  
 typedef struct Lockin_      Lockin;  
 typedef struct LockinList_  LockinList;
-
-#include "area.h"
-
-
 
 /** Flags for the camera. */
 enum CameraFlags_ {
@@ -33,6 +26,16 @@ enum CameraFlags_ {
   */
   CAMERA_TRACKLOCK  = 1 << 5  
 };
+
+
+#include "eruta.h"
+#include "inli.h"
+#include "rebox.h"
+#include "thing.h"
+#include "area.h"
+
+
+
 
 /** A Panner is a goal for panning the Camera. */
 struct Panner_ {

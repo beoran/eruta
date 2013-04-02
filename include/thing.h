@@ -2,9 +2,30 @@
 #define thing_H_INCLUDED
 
 
-#include "eruta.h"
-#include "sprite.h"
-#include "area.h"
+typedef struct Thing_ Thing; 
+
+
+
+/* Thing types. Generally speaking, there are 
+things that can move and those that cannot. 
+Chipmunks treats them differently in the sense that
+static things will all use a single (or one of 
+a few) static bodies, which does not need to be 
+freed when the thing isn't needed anymore.
+*/
+#define THING_UNUSED -1
+#define THING_WALL   1
+#define THING_WATER  2
+#define THING_STAIR  3
+#define THING_ACTOR  4
+#define THING_MOBILE 5
+#define THING_ZONE   6
+#define THING_SEARCH 10
+#define THING_ATTACK 11
+#define THING_EFFECT 12
+
+#define THING_LINKED_MAX 16
+
 
 
 enum Thingflags_ {
@@ -16,6 +37,14 @@ enum Thingflags_ {
    Especially useful (and automatcical) for PCs. */
   THING_FLAGS_PERSISTENT       = 8,
 };
+
+
+#include "eruta.h"
+#include "sprite.h"
+#include "area.h"
+
+
+
 
 /**
 * A Thing is any in-game object that appears the world/map view.
@@ -41,6 +70,10 @@ struct Thing_ {
   /* Sprite information. Also is the reference for the direction the thing is facing. 
    */
   SpriteState spritestate;
+  /* Link back to "owner" for attacks, etc. Null if independent. */
+  Thing     * owner; 
+  /* Linked things, such as searchers, attacks, spells. */
+  Thing     * linked[THING_LINKED_MAX];     
 };
 
 

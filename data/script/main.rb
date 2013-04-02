@@ -27,6 +27,7 @@ end
 
 def on_bump(t1, t2, kind = nil)
   puts "BUMP! #{t1} #{t2} #{kind}"
+  return true
 end
 
 def ok!

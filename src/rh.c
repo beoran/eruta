@@ -6,6 +6,7 @@
 #include "widget.h"
 #include "str.h"
 #include "mem.h"
+#include "state.h"
 
 #include <stdarg.h>
 #include <mruby.h>
@@ -180,12 +181,9 @@ char * rh_inspect_cstr(mrb_state *mrb, mrb_value value) {
   return mrb_string_value_cstr(mrb, &res);
 }
 
-int script_
-
-int script_report(Script * self, mrb_value v) {
-  int    res = 0;
+int script_report_exception(Script * self, mrb_value v) {
+  int res = 0;
   char * str;
-
   /* Report exceptions */
   str = rh_exceptionstring(self->mrb);
   if(str) {
@@ -198,10 +196,29 @@ int script_report(Script * self, mrb_value v) {
     free(str);
     return res;
   }
+  return res;
+}
+
+int script_report_result(Script * self, mrb_value v) {
+  char * str;
+  int res = 0;
+  /* Report result value if it's not nil. */
+  if (self->reporter && (!mrb_nil_p(v))) {
+    str = rh_inspect_cstr(self->mrb, v);
+    res = self->reporter(self, 0, str);
+    return res;
+  }
+  return res;
+}
+
+int script_report(Script * self, mrb_value v) {
+  int    res = 0;
+  char * str;
+  res = script_report_exception(self, v);
   if (!self->report_result) return res;
   /* Report result if needed. */
-  
-  
+  res = script_report_result(self, v);
+  return res;
 }
 
 
@@ -345,7 +362,7 @@ int rh_dostringreport(Ruby * self, const char * command,
 
 /* Executes a ruby function with parameters. 
 Errors are reported to the reporter callback if it isn't NULL. */
-int rh_dofunctionreport(Ruby * self, 
+mrb_value rh_dofunctionreport(Ruby * self, 
                         RhReporter reporter, void * extra,
                         mrb_value rubyself,                        
                         const char * funcname,    
@@ -359,12 +376,12 @@ int rh_dofunctionreport(Ruby * self,
   v = mrb_funcall_argv(self, rubyself, mrb_intern(self, funcname), argc, argv);
   res = rh_make_report(self, v, reporter, extra);
   mrb_gc_arena_restore(self, ai);
-  return res;
+  return v;
 }
 
 /* Executes a ruby function with the toplevel self as the ruby's object.
 Errors are reported to the reporter callback if it isn't NULL. */
-int rh_dotopfunctionreport(Ruby * self, 
+mrb_value rh_dotopfunctionreport(Ruby * self, 
                         RhReporter reporter, void * extra,
                         const char * funcname, 
                         int argc, mrb_value * argv) {
@@ -388,6 +405,15 @@ int rh_errorreporter_console(int status, const char * msg, void * extra) {
   return 0;
 }
 
+/* Error report, depending on State. */
+int rh_errorreporter_state(int status, const char * msg, void * extra) {
+  State * state         = state_get();
+  BBConsole * console   = state_console(state);
+  if(bbconsole_active(console)) {
+    return rh_errorreporter_console(status, msg, console);
+  }
+  return rh_errorreporter_file(status, msg, stderr);
+}
 
 /** Runs a ruby string in the console, logging results and errors back to it.
 */
@@ -407,7 +433,7 @@ int rh_runfilename_console(BBConsole * console, char * name, void * extra) {
 /** Runs a function in the ruby interpreter, logging results and errors back to
  * the console.
  */
-int rh_runfunction_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, 
+mrb_value rh_runfunction_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, 
                            char * name, int argc, mrb_value * argv) {
   return rh_dofunctionreport(ruby, rh_errorreporter_console, console, 
                              rubyself, name, argc, argv);
@@ -416,7 +442,8 @@ int rh_runfunction_console(BBConsole * console, Ruby * ruby, mrb_value rubyself,
 /** Runs a toplevel function in the ruby interpreter, logging results and errors back to
  * the console.
  */
-int rh_runtopfunction_console(BBConsole * console, Ruby * ruby, 
+mrb_value 
+rh_runtopfunction_console(BBConsole * console, Ruby * ruby, 
                            char * name, int argc, mrb_value * argv) {
   return rh_dotopfunctionreport(ruby, rh_errorreporter_console, console, 
                                 name, argc, argv);
@@ -425,9 +452,9 @@ int rh_runtopfunction_console(BBConsole * console, Ruby * ruby,
 
 /** Runs a function in the ruby interpreter, with C arguments according to the 
  * given format string, logging results and errors back to
- * the reporte. The limit is 32 arguments.
+ * the reporter. The limit is 32 arguments.
  */
-int 
+mrb_value 
 rh_dofunctionargs_report_va(Ruby * self, 
                         RhReporter reporter, void * extra,
                         mrb_value rubyself,
@@ -436,7 +463,7 @@ rh_dofunctionargs_report_va(Ruby * self,
   mrb_value argv[32];
   int argc;
   argc = rh_args_va(self, argv, 32, format, list);
-  if (argc < 0) return argc;
+  if (argc < 0) return mrb_nil_value();
   return 
   rh_dofunctionreport(self, reporter, extra, rubyself, funcname, argc, argv);
 }
@@ -444,9 +471,10 @@ rh_dofunctionargs_report_va(Ruby * self,
 /** Runs a function in the ruby interpreter, logging results and errors back to
  * the console.
  */
-int rh_runfunctionargs_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, 
+mrb_value 
+rh_runfunctionargs_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, 
                            char * name, char * format, ...) {
-  int res; 
+  mrb_value res; 
   va_list list;
   va_start(list, format);
   res = rh_dofunctionargs_report_va(ruby, rh_errorreporter_console, console, rubyself, name, format, list);
@@ -457,9 +485,10 @@ int rh_runfunctionargs_console(BBConsole * console, Ruby * ruby, mrb_value rubys
 /** Runs a function in the ruby interpreter, logging results and errors back to
  * the console.
  */
-int rh_runtopfunctionargs_console(BBConsole * console, Ruby * ruby, 
+mrb_value 
+rh_runtopfunctionargs_console(BBConsole * console, Ruby * ruby, 
                                   char * name, char * format, ...) {
-  int res; 
+  mrb_value res; 
   va_list list;
   va_start(list, format);
   res = rh_dofunctionargs_report_va(ruby, rh_errorreporter_console, console, mrb_top_self(ruby), name, format, list);
@@ -467,6 +496,36 @@ int rh_runtopfunctionargs_console(BBConsole * console, Ruby * ruby,
   return res;
 }
 
+
+/** Runs a function in the ruby interpreter, logging results and errors back to
+ * the state console or stderr if it's not active.
+ */
+mrb_value 
+rh_runfunctionargs(Ruby * ruby, mrb_value rubyself, 
+                   char * name, char * format, ...) {
+  mrb_value res; 
+  va_list list;
+  va_start(list, format);
+  res = rh_dofunctionargs_report_va(ruby, rh_errorreporter_state, state_get(), 
+                                    rubyself, name, format, list);
+  va_end(list);
+  return res;
+}
+
+/** Runs a function in the ruby interpreter, under the stoplevel self. 
+ * This logs results and errors back to the state console or stderr 
+ * if it's not active.
+ */
+mrb_value 
+rh_runtopfunctionargs(Ruby * ruby, char * name, char * format, ...) {
+  mrb_value res; 
+  va_list list;
+  va_start(list, format);
+  res = rh_dofunctionargs_report_va(ruby, rh_errorreporter_state, state_get(),
+                                    mrb_top_self(ruby), name, format, list);
+  va_end(list);
+  return res;
+}
 
 
 
@@ -488,7 +547,7 @@ int rh_runfilename_stderr(char * name, void * extra) {
 
 
 /* Calls a function, doesn't log anything. */
-int rh_simple_funcall(char * name, void * ruby) {
+mrb_value rh_simple_funcall(char * name, void * ruby) {
   int ai;  
   Ruby * mrb = (Ruby *) ruby;  
   mrb_value args[16];
@@ -501,16 +560,21 @@ int rh_simple_funcall(char * name, void * ruby) {
     if (!mrb_undef_p(v)) {        
       mrb_p(mrb, mrb_obj_value(mrb->exc));
     }
-    return -1;
+    return mrb_nil_value();
   }
   // mrb_gc_arena_restore(mrb, 0);
-  return 0;
+  return v;
 }
 
 /* Maybe wrap this too? 
 mrb_value mrb_funcall_argv(mrb_state*, mrb_value, mrb_sym, int, mrb_value*);
 */
 
+/* Converts and mrb_value to a C boolean as per the ruby interpretation. */
+int rh_tobool(mrb_value v) {
+  if (mrb_nil_p(v))             return FALSE;
+  return mrb_bool(v);
+}
 
 /* Documentation for mrb_get_args
   retrieve arguments from mrb_state.

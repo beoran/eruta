@@ -7,7 +7,7 @@
 
 /* Collision handler. Calls an mr*/
 int collide_things(Thing * t1, Thing * t2, int kind, void * data) { 
-  int res;
+  mrb_value res;
   BBConsole * console;
   State * state;
   int ti1, ti2;
@@ -17,10 +17,8 @@ int collide_things(Thing * t1, Thing * t2, int kind, void * data) {
   state     = state_get();
   ruby      = state_ruby(state);
   console   = state_console(state);
-
-  res = rh_runtopfunctionargs_console(console, ruby, "on_bump", "iii", ti1, ti2, kind);
-
-  return TRUE;
+  res = rh_runtopfunctionargs(ruby, "on_bump", "iii", ti1, ti2, kind);
+  return rh_tobool(res);
 }
 
 

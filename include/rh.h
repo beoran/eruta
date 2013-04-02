@@ -52,22 +52,29 @@ int rh_dostring_stderr(char * command, void * extra);
 
 int rh_runfilename_stderr(char * name, void * extra);
 
-int rh_simple_funcall(char * name, void * ruby);
+mrb_value rh_simple_funcall(char * name, void * ruby);
 
 int rh_runfilename_console(BBConsole * console, char * name, void * extra);
 
-int rh_runfunction_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, 
+mrb_value rh_runfunction_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, 
                            char * name, int argc, mrb_value * argv);
 
-int rh_runtopfunction_console(BBConsole * console, Ruby * ruby, 
+mrb_value rh_runtopfunction_console(BBConsole * console, Ruby * ruby, 
                               char * name, int argc, mrb_value * argv);
 
-int rh_runfunctionargs_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, char * name, char * format, ...);
+mrb_value rh_runfunctionargs_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, char * name, char * format, ...);
 
-int rh_runtopfunctionargs_console(BBConsole * console, Ruby * ruby, 
+mrb_value rh_runtopfunctionargs_console(BBConsole * console, Ruby * ruby, 
                                   char * name, char * format, ...);
+int rh_tobool(mrb_value v);                              
                               
-                              
+mrb_value 
+rh_runfunctionargs(Ruby * ruby, mrb_value rubyself, 
+                   char * name, char * format, ...);
+
+mrb_value 
+rh_runtopfunctionargs(Ruby * ruby, char * name, char * format, ...);
+
 #endif
 
 
