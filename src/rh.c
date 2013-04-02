@@ -5,6 +5,7 @@
 #include "fifi.h"
 #include "widget.h"
 #include "str.h"
+#include "mem.h"
 
 #include <stdarg.h>
 #include <mruby.h>
@@ -89,10 +90,53 @@ int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, ...) {
 }
 
 
-
-
 /* Error reporter function type  */
 typedef int (RhReporter)(int status, const char * msg, void * extra);
+
+/* Error reporter function type  */
+typedef int (ScriptReporter)(Script * script, int status, const char * msg);
+
+
+/* Enhanced wrapper around mruby. */
+struct Script_ { 
+  mrb_state       * mrb;
+  ScriptReporter  * reporter;
+  void            * report_to;
+  int               report_result;
+};
+
+Script * script_alloc() {
+  return STRUCT_ALLOC(Script);
+}
+
+Script * script_done(Script * self) {
+  if(!self) return NULL;
+  mrb_close(self->mrb);
+  self->mrb           = NULL;
+  self->report_to     = NULL;
+  self->reporter      = NULL;
+  self->report_result = FALSE;
+  return self;
+}
+
+Script * script_free(Script * self) {
+  script_done(self);
+  mem_free(self);
+  return NULL;
+}
+
+Script * script_init(Script * self, ScriptReporter * report, void * report_to) {
+  if (!self) return NULL;
+  self->mrb       = mrb_open();
+  self->reporter  = report;
+  self->report_to = report_to;
+  return self;
+}
+
+Script * script_new(ScriptReporter * report, void * report_to) { 
+  return script_init(script_alloc(), report, report_to);
+}
+
 
 /** Calulates the execption string. Result only tempoarily available..
 XXX: check if this doesn't leak memory... you must free the results manually.
@@ -136,6 +180,31 @@ char * rh_inspect_cstr(mrb_state *mrb, mrb_value value) {
   return mrb_string_value_cstr(mrb, &res);
 }
 
+int script_
+
+int script_report(Script * self, mrb_value v) {
+  int    res = 0;
+  char * str;
+
+  /* Report exceptions */
+  str = rh_exceptionstring(self->mrb);
+  if(str) {
+    if ((self->reporter) && (self->report_to)) { 
+      res = self->reporter(self, -1, str);
+    } else {
+      fprintf(stderr, "mruby error: %s\n", str);
+      res = -1;
+    }
+    free(str);
+    return res;
+  }
+  if (!self->report_result) return res;
+  /* Report result if needed. */
+  
+  
+}
+
+
 /* Does the actual reporting  depending on the current state of 
  ruby and the returned value. */
 int rh_make_report(Ruby * self, mrb_value v, RhReporter * reporter, void * extra) { 
@@ -163,6 +232,7 @@ int rh_make_report(Ruby * self, mrb_value v, RhReporter * reporter, void * extra
   }
   return res;
 }
+
 
 /* Runs a file and reports any errors over the reporter calback if it isn't
 NULL. */

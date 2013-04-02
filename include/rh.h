@@ -10,6 +10,9 @@
 // shortcut typedef
 typedef mrb_state Ruby;
 
+typedef struct Script_ Script;
+
+
 #include "widget.h"
 
 void toruby_Font_free(mrb_state * state , void * ptr );
