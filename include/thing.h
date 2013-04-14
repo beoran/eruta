@@ -61,7 +61,7 @@ struct Thing_ {
   /* Chipmunk makes it rather hard to get to the size of a 
   shape, and also since static shapes all have the same body, the position 
   of static shapes is lost. And getting the box is
-  not reliable neough. So keep the size and position 
+  not reliable enough. So keep the size and position 
   for static shapes here even if it's slightly redundant.
   */
   Point       size; /* size of outline of shape */
@@ -73,7 +73,7 @@ struct Thing_ {
   /* Link back to "owner" for attacks, etc. Null if independent. */
   Thing     * owner; 
   /* Linked things, such as searchers, attacks, spells. */
-  Thing     * linked[THING_LINKED_MAX];     
+  Thing     * linked[THING_LINKED_MAX];
 };
 
 
