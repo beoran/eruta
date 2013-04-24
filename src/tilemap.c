@@ -8,6 +8,11 @@
 
 #define TILEMAP_PANES 4
 
+/* Hide tiles for debuggging, or not. */
+#ifdef ERUTA_NOGFX_MODE
+#define TILEMAP_NO_TILES
+#endif
+
 /** A tile map is a game map, roughly equivalent to a "level" that uses tiled 
  * panes for it's display. It also contains an Area for the physical, logical
  * and graphical representation of in-game objects.  
@@ -200,6 +205,7 @@ Thing * tilemap_addtilething(Tilemap * self, int kind, int tx, int ty, int layer
 void tilemap_draw(Tilemap * map, Camera * camera) {
   int index;
   Tilepane * pane;
+#ifndef TILEMAP_NO_TILES
   for(index  = 0; index < TILEMAP_PANES; index++) {
     pane     = tilemap_pane(map, index);
     if(pane) {
@@ -208,7 +214,12 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
       // fprintf(stderr, "pane missing: %d", index);
     }
   }
+#else 
+  al_clear_to_color(al_map_rgb(0,0,0));
+#endif 
+#ifndef TILEMAP_NO_AREA
   area_draw(map->area, camera);
+#endif
 }
 
 /** Updates the tile map. Currently this animates the tiles. */

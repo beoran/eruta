@@ -448,7 +448,9 @@ void thing_draw(Thing * self, Camera * camera) {
   if(thing_sprite(self)) {
     Point spriteat = cpv(drawx, drawy);
     draw_box(drawx, drawy, w, h, color, t);
+#ifndef ERUTA_NOGFX_MODE
     spritestate_draw(&self->spritestate, &spriteat);
+#endif    
   } else {    
     draw_box(drawx, drawy, w, h, color, t);
   }

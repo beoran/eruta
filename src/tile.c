@@ -214,6 +214,7 @@ static Silut tile_flagnames[] = {
   { TILE_SOUTH  , "south"   },
   { TILE_EAST   , "east"    },
   { TILE_WEST   , "west"    },
+  { TILE_ICE    , "ice"     },
   SILUT_DONE  
 };
 

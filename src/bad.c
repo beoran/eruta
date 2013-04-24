@@ -1309,7 +1309,15 @@ badvarlist_initf(BadVarList * self, char * format, ...) {
   return result;  
 }
 
+/*
+ 
+This even works on gcc!
 
+struct try_structfunc2_ { int value; int error ;} try_structfunc(int x, int y) {
+  struct try_structfunc2_ result = { 1, 1};
+  return result;
+}
+*/
 
 
 

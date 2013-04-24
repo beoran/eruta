@@ -24,7 +24,10 @@ enum TILE_FLAGS_ {
   TILE_NORTH        = 1 << 6,
   TILE_SOUTH        = 1 << 7,
   TILE_EAST         = 1 << 8,
-  TILE_WEST         = 1 << 9,
+  TILE_WEST         = 1 << 9,  
+  TILE_UP           = 1 << 10,
+  TILE_DOWN         = 1 << 11,
+  TILE_ICE          = 1 << 12,
 };
 
 

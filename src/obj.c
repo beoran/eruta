@@ -3,6 +3,60 @@
 
 
 
+/* Beoran's Objects, Objective-C/Smalltalk-ish */
+struct BObject_;
+typedef struct BObject_ BObject;
+
+/* A Class is simply an object too. */
+typedef struct BObject_ BClass;
+
+
+struct BMethod_;
+typedef struct BMethod_ BMethod;
+
+struct BMethodTable_;
+typedef struct BMethodTable_ BMethodTable;
+
+struct BInstanceVariable_;
+typedef struct BInstanceVariable_ BInstanceVariable;
+
+struct BInstanceVariableTable_;
+typedef struct BInstanceVariableTable_ BInstanceVariableTable;
+
+
+typedef BObject * BMethodFunction(BObject * self, ...);
+
+struct BMethod_ {
+  char            * name;
+  BMethodFunction * action; 
+};
+
+struct BInstanceVariable_ {
+  char            * name;
+  void            * value; 
+};
+
+struct BMethodTable_ {
+  BMethod * last;
+  BMethod * methods;
+  int size;
+};
+
+struct BInstanceVariableTable_ {
+  BInstanceVariable * last;
+  BInstanceVariable * variables;
+  int size;
+};
+
+
+struct BObject_ {
+  BMethodTable  methods_;
+  BClass      * klass_;
+  BObject     * parent_;
+};
+
+
+
 
 /* 
   Ideas for refcount/interface combo system. 
@@ -236,6 +290,8 @@ void * obj_unref(void * ptr) {
   }
   return ptr;
 }
+
+
 
 
 /** Walks though the object pool, and calls unref on each object. 

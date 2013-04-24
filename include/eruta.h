@@ -1,7 +1,7 @@
 #ifndef ERUTA_H
 #define ERUTA_H
 
-/** Commonly used includes. */
+/* Commonly used includes. */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,11 +16,14 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-/** Screen size wich will always be 640x480 (real or virtually). */
+/* Nogfx mode displays merely boxes. */
+#define ERUTA_NOGFX_MODE
+
+/* Screen size wich will always be 640x480 (real or virtually). */
 #define SCREEN_W      640
 #define SCREEN_H      480
 
-/** Bitwise operations helpers. */
+/* Bitwise operations helpers. */
 #define BIT_ISFLAG(NUM, FLAG)     ((NUM) & (FLAG))
 #define BIT_ISBIT(NUM, BIT)       BIT_ISFLAG(NUM, (1 << BIT))
 #define BIT_SETFLAG(NUM, FLAG)    ((NUM) | (FLAG))
@@ -28,13 +31,13 @@
 #define BIT_SETBIT(NUM, BIT)      BIT_SETFLAG(NUM, (1 << BIT))
 #define BIT_UNBIT(NUM, BIT)       BIT_UNFLAG(NUM, (1 << BIT))
 
-/** Clamping */
+/* Clamping */
 #define CLAMP_MAX(SET, VALUE, MAX) do {                     \
   int value___ = (VALUE), max___ = (MAX);                   \
   (SET) =  ((value___ > max___ ) ? (max___) : (value___));  \
 } while(0) 
 
-/** */
+/* */
 
 
 #ifndef TRUE
@@ -45,18 +48,17 @@
 #define FALSE (0)
 #endif
 
-/** Boolean type*/
+/* Boolean type*/
 #ifndef BOOL
 #define BOOL int
 #endif
 
-/** String type */
+/* String type */
 #ifndef STR
 #define STR ALLEGRO_USTR
 #endif
 
-
-/** Use the chipmunk vector as the Point type.
+/* Use the chipmunk vector as the Point type.
 Allegro also uses floats now for it's drawing. */
 typedef cpVect Point;
 
@@ -64,20 +66,20 @@ typedef cpVect Point;
 typedef ALLEGRO_PATH Path;
 typedef ALLEGRO_EVENT Event;
 
-/** Wrapper macros */
+/* Wrapper macros */
 #define point(X, Y) cpv(X, Y);
 
-/** Some univerally useful function declarations. */
-/** Helper to convert paths to C strings */
+/* Some univerally useful function declarations. */
+/* Helper to convert paths to C strings */
 const char * fifi_path_cstr(Path * path);
-/** Helper for al_filename_exists wuth a path. */
+/* Helper for al_filename_exists with a Fifi path. */
 int fifi_path_exists(Path * path);
 
-/** Shorthand macros. */
+/* Shorthand macros. */
 #define PATH_CSTR(PATH)   (fifi_path_cstr(PATH))
 #define PATH_EXISTS(PATH) (fifi_path_exists(PATH))
 
-/**
+/*
 These macros can be used in the body of a function with ... args to
 map it to a functions with va_arg arguments as last. Use them like this:
 blah foo_va(bar last, va_args args);
@@ -105,7 +107,7 @@ blah foo(bar last, ...) {
 
 
 
-/** Commonly used types and typedefs. */
+/* Commonly used types and typedefs. */
 
 struct Program_;
 typedef struct Program_ Program;
