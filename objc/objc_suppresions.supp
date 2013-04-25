@@ -56,6 +56,7 @@
    fun:__libc_csu_init
    fun:(below main)
 }
+
 {                                                                     
    <objc_5>
    Memcheck:Leak                                                      
