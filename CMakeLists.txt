@@ -17,6 +17,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 
+
 if(CMAKE_COMPILER_IS_GNUCC)
  set(COMPILER_GCC 1)
 set(CMAKE_C_FLAGS "-W -Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math -fno-strict-aliasing -Wstrict-aliasing")
@@ -44,13 +45,22 @@ find_package(JPEG REQUIRED)
 
 # Set include and lib dirs. 
 include_directories(${ALLEGRO_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${JPEG_INCLUDE_DIR} ${LUA_INCLUDE_DIR} ${MRUBY_INCLUDE_DIR} ${CHIPMUNK_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIR}) 
+set(OBJC_LIBRARIES -lobjc)
 
-set(ERUTA_LIBS ${LIBS} ${ALLEGRO_LIBRARIES} ${PNG_LIBRARY} ${JPEG_LIBRARY}
+
+set(ERUTA_LIBS ${LIBS} ${OBJC_LIBRARIES} ${ALLEGRO_LIBRARIES} ${PNG_LIBRARY} ${JPEG_LIBRARY}
 ${LUA_LIBRARIES} ${MRUBY_LIBRARIES} ${CHIPMUNK_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 include_directories("include")
 # add_subdirectory("src")
 include(ErutaFiles)
+set_source_files_properties(${ERUTA_SRC_FILES} PROPERTIES LANGUAGE C)
+
+# set_source_files_properties(${ERUTA_OBJC_SRC_FILES} PROPERTIES LANGUAGE C)
+# src/BNObject.m 
+# set_source_files_properties(BNObject.m PROPERTIES LANGUAGE C)
+
+
 
 
 # eruta exe in the bin subdir (first one should work, but doesnt, hmmm...)

@@ -1,7 +1,12 @@
 # All source files except main.c to enable testing
 # by using cmake's fake library feature. Don't forget to add new source 
 # files here manually.
+set(ERUTA_OBJC_SRC_FILES
+  src/BNObject.m
+)
+
 set(ERUTA_SRC_FILES
+  src/BNObject.m
   src/alps.c
   src/area.c
   src/bad.c

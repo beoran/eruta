@@ -26,6 +26,15 @@ typedef struct BInstanceVariableTable_ BInstanceVariableTable;
 
 typedef BObject * BMethodFunction(BObject * self, ...);
 
+union BValue_ {
+  BObject * bobject;
+  int       integer;
+  double    number;
+  void    * pointer;
+  char    * cstr;
+};
+
+
 struct BMethod_ {
   char            * name;
   BMethodFunction * action; 
