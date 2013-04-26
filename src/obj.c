@@ -1,9 +1,9 @@
 
 #include "obj.h"
+#include "dynar.h"
 
 
-
-/* Beoran's Objects, Objective-C/Smalltalk-ish */
+/* Beoran's Objects, Objective-C/Smalltalk/Javascript-ish */
 struct BObject_;
 typedef struct BObject_ BObject;
 
@@ -24,7 +24,7 @@ struct BInstanceVariableTable_;
 typedef struct BInstanceVariableTable_ BInstanceVariableTable;
 
 
-typedef BObject * BMethodFunction(BObject * self, ...);
+typedef BObject * BMethodFunction(BObject * self, int argc, Bobject * argv[]);
 
 union BValue_ {
   BObject * bobject;
@@ -53,16 +53,24 @@ struct BMethodTable_ {
 
 struct BInstanceVariableTable_ {
   BInstanceVariable * last;
-  BInstanceVariable * variables;
+  Dynar             * variables;
   int size;
 };
 
 
+
 struct BObject_ {
   BMethodTable  methods_;
-  BClass      * klass_;
-  BObject     * parent_;
+  BObject     * prototype_;
 };
+
+
+
+BObject * bobject_init(BObject * self) {
+  
+}
+
+
 
 
 

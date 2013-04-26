@@ -6,7 +6,15 @@ set(ERUTA_OBJC_SRC_FILES
 )
 
 set(ERUTA_SRC_FILES
-  src/BNObject.m
+  src/bn/BNArray.m
+  src/bn/BNDouble.m
+  src/bn/BNLong.m
+  src/bn/BNMap.m
+  src/bn/BNObject.m
+  src/bn/BNPair.m
+  src/bn/BNStringConstant.m
+  src/bn/BNString.m
+  src/bn/BNWrapper.m
   src/alps.c
   src/area.c
   src/bad.c

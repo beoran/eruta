@@ -1,0 +1,3 @@
+[submodule "vendor/corefw"]
+	path = vendor/corefw
+	url = https://webkeks.org/git/corefw.git

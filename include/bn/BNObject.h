@@ -15,7 +15,6 @@
   - retain;
   - release; 
   - (int) references;  
-  int references_;    
 @end
 
 
