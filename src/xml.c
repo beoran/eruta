@@ -66,7 +66,7 @@ void print_all_attributes(xmlNode * node) {
 /** Finds a sibling node. If name is not null
 or type is strictly positive, return matching nodes.
 Also searches node itself, so pass node->next if you don't want that.*/
-xmlNode * xmlFindNextType(xmlNode * node, const char * name, int type) {
+xmlNode * xmlFindNextType(xmlNode * node, const char * name, xmlElementType type) {
   xmlNode * now;
   for(now = node; now; now = now->next) {
     if ((type < 1) || (now->type == type)) {

@@ -12,7 +12,6 @@ typedef struct BumpHoopHull_    BumpHoopHull;
 typedef struct BumpBoxHull_     BumpBoxHull;
 typedef struct BumpTilemap_     BumpTilemap;
 typedef struct BumpWorld_       BumpWorld;
-typedef enum   BumpTile_        BumpTile;
 
 enum BumpTile_  {
   BUMP_TILE_NONE   = 0,
@@ -29,6 +28,9 @@ enum BumpTile_  {
   BUMP_TILE_DOWN   = 1 << 11,
   BUMP_TILE_ICE    = 1 << 12,
 };
+
+typedef enum   BumpTile_        BumpTile;
+
 
 /* 2D Vector */
 struct BumpVec_  {  double x, y;            };

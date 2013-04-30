@@ -24,9 +24,9 @@ struct Test_ {
 
 // some cute ANSI colors, can be disabled by defining TESTING_NO_ANSI
 #ifndef TESTING_NO_ANSI
-#define TEST_ANSI_R(S) ("\e[1;31m" S "\e[0m")
-#define TEST_ANSI_G(S) ("\e[1;32m" S "\e[0m")
-#define TEST_ANSI_Y(S) ("\e[1;33m" S "\e[0m")
+#define TEST_ANSI_R(S) ("\033[1;31m" S "\033[0m")
+#define TEST_ANSI_G(S) ("\033[1;32m" S "\033[0m")
+#define TEST_ANSI_Y(S) ("\033[1;33m" S "\033[0m")
 #else
 #define TEST_ANSI_R(S) (S)
 #define TEST_ANSI_G(S) (S)

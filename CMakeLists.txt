@@ -20,10 +20,10 @@ include(CheckCXXSourceCompiles)
 
 if(CMAKE_COMPILER_IS_GNUCC)
  set(COMPILER_GCC 1)
-set(CMAKE_C_FLAGS "-W -Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math -fno-strict-aliasing -Wstrict-aliasing")
+set(CMAKE_C_FLAGS "-W -Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math -fno-strict-aliasing -Wstrict-aliasing=1")
 # always use gnu99, debugging, all warnings except unused and unknown pragmas.
-# when compiling with gnu compiler  Also turn of stricat aliasing,
-# but do warn about it because other compiler may not be able to turn it off.
+# when compiling with gnu compiler.  
+# Warn about alisasing because otherwise aliasing problems it may not be detected.
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 # or for PCC

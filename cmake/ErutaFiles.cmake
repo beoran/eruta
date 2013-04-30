@@ -1,20 +1,19 @@
 # All source files except main.c to enable testing
 # by using cmake's fake library feature. Don't forget to add new source 
 # files here manually.
-set(ERUTA_OBJC_SRC_FILES
-  src/BNObject.m
+set(BF_SRC_FILES
+  src/bf/BFObject.c
+  src/bf/BFClass.c
+  src/bf/BFArray.c
+  src/bf/BFMap.c
+  src/bf/BFInteger.c
+  src/bf/BFDouble.c
+  src/bf/BFString.c
+  src/bf/BFValue.c
 )
 
 set(ERUTA_SRC_FILES
-  src/bn/BNArray.m
-  src/bn/BNDouble.m
-  src/bn/BNLong.m
-  src/bn/BNMap.m
-  src/bn/BNObject.m
-  src/bn/BNPair.m
-  src/bn/BNStringConstant.m
-  src/bn/BNString.m
-  src/bn/BNWrapper.m
+  ${BF_SRC_FILES}
   src/alps.c
   src/area.c
   src/bad.c

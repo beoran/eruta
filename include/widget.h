@@ -41,9 +41,6 @@ typedef struct BBConsole_ BBConsole;
 typedef struct BBWidgetMetab_ BBWidgetMetab;
 
 
-/* Predefine widget state flags . */
-typedef enum BBWidgetFlags_ BBWidgetFlags;
-
 /* Very simple array based event handler. It's O(N) for now,
  but N is very small here, so the simplicity of creating a method table 
  is more important. */
@@ -65,13 +62,18 @@ struct BBWidgetAction_ {
 * Selected is for checkboxes that are selected or buttons that are down, etc...
 * 
 */
-enum BBWidgetFlags {
+enum BBWidgetFlags_ {
   BBWIDGET_FLAG_VISIBLE    = 1,
   BBWIDGET_FLAG_LISTENING  = 2,
   BBWIDGET_FLAG_ACTIVE     = 3,
   BBWIDGET_FLAG_FOCUSED    = 4,
   BBWIDGET_FLAG_SELECTED   = 8,
 };
+
+/* Widget state flags . */
+typedef enum BBWidgetFlags_ BBWidgetFlags;
+
+
 
 /* Flag testing macros. */
 

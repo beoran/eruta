@@ -24,7 +24,7 @@ struct BInstanceVariableTable_;
 typedef struct BInstanceVariableTable_ BInstanceVariableTable;
 
 
-typedef BObject * BMethodFunction(BObject * self, int argc, Bobject * argv[]);
+typedef BObject * BMethodFunction(BObject * self, int argc, BObject * argv[]);
 
 union BValue_ {
   BObject * bobject;
@@ -67,7 +67,7 @@ struct BObject_ {
 
 
 BObject * bobject_init(BObject * self) {
-  
+  return self;
 }
 
 
@@ -234,6 +234,7 @@ ObjClass * obj_class(void * ptr) {
 }
 
 /** Looks up a function pointer in the class at the given offset. */
+/** XXX: this approach is not ISO C. */
 ObjMethod * objclass_method_at(ObjClass * klass, size_t offset) { 
   char * aid;
   if(!klass) return NULL;

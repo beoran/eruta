@@ -570,11 +570,11 @@ void hatab_printgraph(Hatab * self) {
       continue;
     }
     if (oldpail) {
-       printf("t%p -> t%p [color=red];\n", oldpail, pail);
+       printf("t%p -> t%p [color=red];\n", (void *)oldpail, (void *)pail);
     }
     linkpail = pail ; nextpail = pail_next(linkpail);
     while (nextpail) {
-      printf("t%p -> t%p [color=green];\n", linkpail, nextpail);
+      printf("t%p -> t%p [color=green];\n", (void *)linkpail, (void *)nextpail);
       linkpail = nextpail;
       nextpail = pail_next(linkpail); 
     } 

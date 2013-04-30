@@ -782,7 +782,7 @@ Sprite * spritelayout_loadactionlayer
         ok = sprite_loadframelayerfrom(sprite, walkaction, frameindex, 
               layerindex, source, size, where, SPRITE_ACTIVE, 2.0);
         stand_in_walk = 1;
-        printf("Stand in walk found: %p %p at %d...\n", action, ok, walkaction);
+        printf("Stand in walk found: %p %p at %d...\n", (void *)action, (void *)ok, walkaction);
         /* skip standing frames. */
       } else {
         ok = sprite_loadframelayerfrom(sprite, actionindex, 
@@ -1001,7 +1001,7 @@ int spritestate_posedirection_(SpriteState * self, int pose, int direction) {
     }  
   }
   return -1;
-};
+}
 
 /* Changes the direction but keeps the pose. 
  * No effect if direction is the current active one.*/

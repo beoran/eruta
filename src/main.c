@@ -159,8 +159,8 @@ int real_main(void) {
     Sprite   * sprite           = NULL;
     SpriteState * spritestate   = NULL;
     AlpsShower shower;
-    int        actor_id;
-    int        sprite_id;
+    int        actor_id         = -1;
+    int        sprite_id        = -1;
     
     React    react;
     ALLEGRO_COLOR myblack = {0.0, 0.0, 0.0, 1.0};

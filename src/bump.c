@@ -25,11 +25,11 @@ struct BumpBody_ {
 
 struct BumpHull_ {
   int id;
-  BumpBody  body;
-  BumpVec   delta;
-  BumpAABB  bounds;
-  int       layers;
-  int       kind;
+  BumpBody  * body;
+  BumpVec     delta;
+  BumpAABB    bounds;
+  int         layers;
+  int         kind;
 };
 
 
@@ -47,8 +47,8 @@ struct BumpTilemap_ {
 #define BUMP_WORLD_MAXHULLS  5000
 
 struct BumpWorld_ {
-  BumpBody    * bodies[BUMP_WORLD_MAXBODIES];
-  BumpHull    * hulls[BUMP_WORLD_MAXHULLS];  
+  Dynar       * bodies;
+  Dynar       * hulls;  
   BumpTilemap * map;
 };
 
@@ -171,57 +171,181 @@ BumpTilemap * bumptilemap_done(BumpTilemap * self) {
   return self;
 }
 
+/* Frees a body. */
 BumpTilemap * bumptilemap_free(BumpTilemap * self) {
   bumptilemap_done(self); 
   return mem_free(self); 
 }
 
+/* Allocates a body. */
 BumpBody * bumpbody_alloc() { 
   return STRUCT_ALLOC(BumpBody);  
 }
 
-BumpBody * bumpbody_init(BumpBody * self, BumpVec p, double mass);
-BumpBody * bumpbody_new(BumpVec p, double mass);
-BumpBody * bumpbody_done(BumpBody * self);
-BumpBody * bumpbody_free(BumpBody * self);
+/* Initializes a body. */
+BumpBody * bumpbody_init(BumpBody * self, BumpVec p, double mass) {
+  if(!self) return NULL;
+  self->a         = bumpvec0();
+  self->a_impulse = bumpvec0();
+  self->a_next    = bumpvec0();
+  self->v         = bumpvec0();
+  self->v_impulse = bumpvec0();
+  self->v_next    = bumpvec0();
+  self->p_impulse = bumpvec0();
+  self->p_next    = bumpvec0();
+  self->p         = p;
+  self->m         = mass;
+  self->id        = -1;
+  self->locks     = FALSE;
+  return self;  
+}
 
-BumpVec bumpbody_p(BumpBody  * self);
-BumpVec bumpbody_v(BumpBody  * self);
-BumpVec bumpbody_a(BumpBody  * self);
+/* Allocates and initializes a body. */
+BumpBody * bumpbody_new(BumpVec p, double mass) {
+  return bumpbody_init(bumpbody_alloc(), p, mass);  
+}
 
-BumpVec bumpbody_p_(BumpBody  * self, BumpVec v);
-BumpVec bumpbody_v_(BumpBody  * self, BumpVec v);
-BumpVec bumpbody_a_(BumpBody  * self, BumpVec v);
+BumpBody * bumpbody_done(BumpBody * self) {
+  if(!self) return self;
+  self->m         = 0.0;
+  self->id        = -1;
+  return self;
+}
 
-BumpVec bumpbody_p_impulse(BumpBody  * self, BumpVec v);
-BumpVec bumpbody_v_impulse(BumpBody  * self, BumpVec v);
-BumpVec bumpbody_a_impulse(BumpBody  * self, BumpVec v);
+BumpBody * bumpbody_free(BumpBody * self) {
+  bumpbody_done(self);
+  return mem_free(self);
+}
+
+/** Helper macro to generate simple struct getter functions. */
+#define BAD_GETTER(MEMBERTYPE, SELFTYPE, PREFIX, MEMBER)  \
+  MEMBERTYPE PREFIX##_##MEMBER(SELFTYPE self) {           \
+    return self->MEMBER;                                  \
+}
+
+/* Gets position of body. */
+BAD_GETTER(BumpVec, BumpBody *, bumpbody, p)
+/* Gets speed of body. */
+BAD_GETTER(BumpVec, BumpBody *, bumpbody, v)
+/* Gets accelleration of body. */
+BAD_GETTER(BumpVec, BumpBody *, bumpbody, a)
 
 
-BumpHull * bumphull_alloc();
+BumpVec bumpbody_p_(BumpBody  * self, BumpVec v) {   
+  return self->p = v;
+}
+
+BumpVec bumpbody_v_(BumpBody  * self, BumpVec v) {   
+  return self->p = v;
+}
+
+BumpVec bumpbody_a_(BumpBody  * self, BumpVec v) {   
+  return self->a = v;
+}
+
+BumpVec bumpbody_p_impulse(BumpBody  * self, BumpVec v) {  
+  return self->p_impulse = v;
+}
+
+BumpVec bumpbody_v_impulse(BumpBody  * self, BumpVec v)  {  
+  return self->p_impulse = v;
+}
+
+BumpVec bumpbody_a_impulse(BumpBody  * self, BumpVec v) {  
+  return self->p_impulse = v;
+}
+
+
+BumpHull * bumphull_alloc() { 
+  BumpHull  * hull = STRUCT_ALLOC(BumpHull);
+  return hull;
+}
+
+/* Initializes a collision hull. */
 BumpHull * bumphull_initall(
   BumpHull * self, BumpBody * body, BumpVec delta, 
   BumpAABB bounds, int layers, int kind
-);
+) {
+  if(!self) return NULL;
+  self->body    = body;
+  self->delta   = delta;
+  self->bounds  = bounds;
+  self->layers  = layers;
+  self->kind    = kind;
+  self->id      = -1;
+  return self;
+  
+}
 
-BumpHull * bumphull_init(BumpHull * self, BumpBody * body, BumpAABB bounds);
+/* Initializes a collision hull. */
+BumpHull * bumphull_init(BumpHull * self, BumpBody * body, BumpAABB bounds) {
+  return bumphull_initall(self, body, bumpvec0(), bounds, 1, -1);
+}
 
 BumpHull * bumphull_newall(
   BumpBody * body, BumpVec delta, BumpAABB bounds, int layers, int kind
-);
-BumpHull * bumphull_new(BumpBody * body, BumpAABB bounds);
-BumpHull * bumphull_done(BumpHull * self);
-BumpHull * bumphull_free(BumpHull * self);
+) {
+  return bumphull_initall(bumphull_alloc(), body, delta, bounds, layers, kind);
+}
+
+BumpHull * bumphull_new(BumpBody * body, BumpAABB bounds) {
+  return bumphull_init(bumphull_alloc(), body, bounds);
+}
+
+BumpHull * bumphull_done(BumpHull * self) {
+  /* Do not deallocate the body, it's a weak reference only. */
+  if(!self) return NULL;
+  self->body = NULL;
+  return self;
+}
+ 
+
+BumpHull * bumphull_free(BumpHull * self) {
+  bumphull_done(self);
+  return mem_free(self);
+}
 
 
-BumpWorld * bumpworld_alloc();
-BumpWorld * bumpworld_init(BumpWorld * self);
-BumpWorld * bumpworld_new();
-BumpWorld * bumpworld_done(BumpWorld * self);
+BumpWorld * bumpworld_alloc() {
+  return STRUCT_ALLOC(BumpWorld);
+}
+
+
+
+/* Initializes a world. */
+BumpWorld * bumpworld_init(BumpWorld * self) {
+  if (!self) return NULL;
+  self->bodies = dynar_newptr(BUMP_WORLD_MAXBODIES);
+  self->hulls  = dynar_newptr(BUMP_WORLD_MAXHULLS);
+  self->map    = NULL;
+  return self;
+}
+
+/* Allocates and initializes a world. */
+BumpWorld * bumpworld_new(BumpWorld * self) {
+  return bumpworld_init(bumpworld_alloc());
+}
+
+/* Cleans up the bump map after use. */
+BumpWorld * bumpworld_done(BumpWorld * self) {
+  if(!self) return NULL;
+  bumptilemap_free(self->map);
+  self->map = NULL;
+  return self;
+}
+
 BumpWorld * bumpworld_free(BumpWorld * self);
 BumpBody * bumpworld_addbody(BumpWorld * self, BumpBody * body);
 BumpHull * bumpworld_addhull(BumpWorld * self, BumpHull * hull);
-BumpTilemap * bumpworld_tilemap_(BumpWorld * self, BumpTilemap * map);
+
+/* Sets the tile map wrapper. If an old one was set, that one will be cleaned 
+ * with bumptilemap_free up. */
+BumpTilemap * bumpworld_tilemap_(BumpWorld * self, BumpTilemap * map) {
+  if(!self) return NULL;
+  if(self->map) { bumptilemap_free(self->map); } 
+  self->map = map;
+  return map;
+}
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt);
 
