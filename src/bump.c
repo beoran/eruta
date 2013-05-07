@@ -1,10 +1,12 @@
+#include <math.h>
 
 #include "bump.h"
 #include "eruta.h"
 #include "mem.h"
 #include "dynar.h"
-
-#include <math.h>
+#include "camera.h"
+#include "state.h"
+// #include ""
 
 
 struct BumpBody_ {
@@ -49,6 +51,8 @@ struct BumpTilemap_ {
 struct BumpWorld_ {
   Dynar       * bodies;
   Dynar       * hulls;  
+  int           body_count;
+  int           hull_count;
   BumpTilemap * map;
 };
 
@@ -315,9 +319,11 @@ BumpWorld * bumpworld_alloc() {
 /* Initializes a world. */
 BumpWorld * bumpworld_init(BumpWorld * self) {
   if (!self) return NULL;
-  self->bodies = dynar_newptr(BUMP_WORLD_MAXBODIES);
-  self->hulls  = dynar_newptr(BUMP_WORLD_MAXHULLS);
-  self->map    = NULL;
+  self->body_count      = 0;
+  self->hull_count      = 0;
+  self->bodies          = dynar_newptr(BUMP_WORLD_MAXBODIES);
+  self->hulls           = dynar_newptr(BUMP_WORLD_MAXHULLS);
+  self->map             = NULL;
   return self;
 }
 
@@ -330,13 +336,34 @@ BumpWorld * bumpworld_new(BumpWorld * self) {
 BumpWorld * bumpworld_done(BumpWorld * self) {
   if(!self) return NULL;
   bumptilemap_free(self->map);
-  self->map = NULL;
+  self->bodies = dynar_free(self->bodies);
+  self->hulls  = dynar_free(self->hulls);
+  self->map    = NULL;
   return self;
 }
 
-BumpWorld * bumpworld_free(BumpWorld * self);
-BumpBody * bumpworld_addbody(BumpWorld * self, BumpBody * body);
-BumpHull * bumpworld_addhull(BumpWorld * self, BumpHull * hull);
+BumpWorld * bumpworld_free(BumpWorld * self) {
+  if(self) bumpworld_done(self);
+  return mem_free(self);
+}
+
+BumpBody * bumpworld_addbody(BumpWorld * self, BumpBody * body) {
+  if(!self) return NULL;
+  if(!body) return NULL;
+  if(!dynar_putptr(self->bodies, self->body_count, body)) return NULL;
+  body->id = self->body_count;
+  self->body_count++;
+  return body;
+}
+
+BumpHull * bumpworld_addhull(BumpWorld * self, BumpHull * hull) {
+  if(!self) return NULL;
+  if(!hull) return NULL;
+  if(!dynar_putptr(self->bodies, self->hull_count, hull)) return NULL;
+  hull->id = self->hull_count;
+  self->hull_count++;
+  return hull;
+}
 
 /* Sets the tile map wrapper. If an old one was set, that one will be cleaned 
  * with bumptilemap_free up. */
@@ -349,7 +376,48 @@ BumpTilemap * bumpworld_tilemap_(BumpWorld * self, BumpTilemap * map) {
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt);
 
-BumpWorld * bumpworld_draw_debug(BumpWorld * self);
+
+static void bumpworld_draw_tilemap_debug(BumpTilemap * self, Camera * camera) {
+  
+}
+
+static void bumphull_draw_debug(BumpHull * self, Camera * camera) {
+  int cx      ; 
+  int cy      ;
+  int drawx, x;
+  int drawy, y;
+  int w, h    ;
+  int t       = 2;
+  Color color;
+  // don't draw null things.
+  if(!self) return;
+  cx          = camera_at_x(camera);
+  cy          = camera_at_y(camera);
+  w           = self->bounds.hs.x;
+  h           = self->bounds.hs.y;
+  color       = color_rgb(128, 255, 255);
+  { 
+  BumpVec pos = thing_p(self);
+    x         = pos.x;
+    y         = pos.y;
+    t         = 8;
+  }
+  /* Do not draw out of camera range. */
+  if(!camera_cansee(camera, x, y, w, h)) {
+    return;
+  }
+  drawx = x - cx;
+  drawy = y - cy;
+  draw_box(drawx, drawy, w, h, color, t);
+}
+
+BumpWorld * bumpworld_draw_debug(BumpWorld * self) {
+  State  * state  = state_get();
+  Camera * camera = state_camera(state);
+  
+  
+  return NULL;
+}
 
 
 
