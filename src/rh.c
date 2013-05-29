@@ -55,7 +55,7 @@ int rh_args_va(Ruby * ruby, mrb_value * values,  int size,  char * format, va_li
         
       case 'f':
         d   = va_arg(list, double);
-        val = mrb_float_value(d);
+        val = mrb_float_value(ruby, d);
         break;
         
       case 'b': 

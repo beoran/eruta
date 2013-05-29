@@ -6,6 +6,7 @@
 #include "dynar.h"
 #include "camera.h"
 #include "state.h"
+#include "draw.h"
 // #include ""
 
 
@@ -397,9 +398,8 @@ static void bumphull_draw_debug(BumpHull * self, Camera * camera) {
   h           = self->bounds.hs.y;
   color       = color_rgb(128, 255, 255);
   { 
-  BumpVec pos = thing_p(self);
-    x         = pos.x;
-    y         = pos.y;
+    x         = self->bounds.p.x;
+    y         = self->bounds.p.y;
     t         = 8;
   }
   /* Do not draw out of camera range. */
@@ -412,10 +412,13 @@ static void bumphull_draw_debug(BumpHull * self, Camera * camera) {
 }
 
 BumpWorld * bumpworld_draw_debug(BumpWorld * self) {
+  int index;
   State  * state  = state_get();
   Camera * camera = state_camera(state);
-  
-  
+  for (index = 0 ; index < self->hull_count; index ++) { 
+    BumpHull * hull = dynar_getptr(self->hulls, index);
+    bumphull_draw_debug(hull, camera);
+  }  
   return NULL;
 }
 

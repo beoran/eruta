@@ -511,7 +511,7 @@ void state_update(State * self) {
   if (self->nowmap) tilemap_update(self->nowmap, state_frametime(self));
   camera_update(self->camera);
   // call ruby update callback 
-  mval = mrb_float_value(state_frametime(self));
+  mval = mrb_float_value(state_ruby(self), state_frametime(self));
   rh_runtopfunction_console(state_console(self), state_ruby(self), 
                                  "on_update", 1, &mval);
   
