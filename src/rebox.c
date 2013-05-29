@@ -5,6 +5,8 @@
 
 /* bounds functions */
 
+#define point(X, Y) bumpvec((X), (Y))
+
 /** Makes a new bounds box struct. */
 Rebox rebox_make(int x, int y, int w, int h) {
   Point p = point(x, y);
@@ -44,7 +46,7 @@ Point rebox_at(Rebox * self) {
 
 /** Return position of Rebox bottom right corner. */
 Point rebox_br(Rebox * self) {
-  return cpvadd(self->at, self-> size);
+  return bumpvec_add(self->at, self-> size);
 }
 
 
@@ -116,7 +118,7 @@ float rebox_center_y(Rebox * self) {
 
 /** Return position of Rebox view center. */
 Point rebox_center(Rebox * self) {
-  return cpv(rebox_center_x(self), rebox_center_y(self));
+  return bumpvec(rebox_center_x(self), rebox_center_y(self));
 }
 
 

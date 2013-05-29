@@ -45,8 +45,8 @@ or lying on that top layer.
 Thing * thing_z_(Thing * self, int z) {
   if (!self) return NULL;
   self->z = z;
-  if(self->shape) {
-    cpShapeSetLayers(self->shape, 1 << z);
+  if(self->hull) {
+    bumphull_layers_(self->hull, 1 << z);
   }  
   return self;
 }
@@ -76,14 +76,10 @@ int thing_flag(Thing * self, int flag) {
 /** Uninitializes a thing. */
 Thing * thing_done(Thing * self) {
   if(!self) return NULL;
-  if(self->body && thing_flag(self, THING_FLAGS_OWNBODY)) {
-    cpBodyFree(self->body); 
-  }
-  if(self->shape && thing_flag(self, THING_FLAGS_OWNSHAPE)) {
-    cpShapeFree(self->shape);
-  }
-  self->body    = NULL;
-  self->shape   = NULL;
+  bumphull_free(self->hull); 
+  bumpbody_free(self->physical); 
+  self->physical= NULL;
+  self->hull    = NULL;
   self->area    = NULL;
   self->z       = -1;
   self->kind    = THING_UNUSED;
@@ -133,27 +129,11 @@ int thing_direction_(Thing * thing, int direction) {
 }
 
 
-/** Generates a rectangular shape for the given body
-with the given position, size and offset */
-cpShape * shape_rectnew(cpBody * body, 
-                        cpFloat x, cpFloat y, cpFloat w, cpFloat h, 
-                        cpFloat xoff, cpFloat yoff
-                        ) {
-    cpVect points[4]  = { cpv(x, y), cpv(x, y + h), cpv(x + w, y + h), cpv(x + w, y)};
-    cpVect offset     = cpv(xoff, yoff); 
-    cpShape * shape   = cpPolyShapeNew(body, 4, points, offset);
-    return shape;
-}
-
-/** Returns true if the thing is static, false if not or if the Thing has no 
-body. */
+/** Returns true if the thing is static, Alwyas false since with Bump, all shapes
+ are dynamic (the tile map is static) */
 int thing_static_p(Thing * self) { 
-  if (!self->body) return FALSE;
-  return cpBodyIsStatic(self->body);
+  return FALSE;
 }
-
-
-
 
 /** Generic initialization of a thing Initializes a Thing. 
 Sets the given values and some flags. Links the Shape given
@@ -161,13 +141,13 @@ to the Thing if shape is not NULL.
 Does NOT call area_addthing on the given area. 
 Returns null if that failed, but does no cleanup.  */
 Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
-                   cpBody * body, cpShape * shape) {
+                          BumpBody * body, BumpHull * shape) {
   if(!self) return NULL;
   self->kind    = kind;
   self->id      = -1;
   self->area    = area;
-  self->body    = body;
-  self->shape   = shape;
+  self->physical= body;
+  self->hull    = shape;
   thing_z_(self, z);
   spritestate_init(&self->spritestate, NULL);
   
@@ -175,70 +155,40 @@ Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
   assume it is owned by this thing and must be freed when calling 
   thing_done.
   */
-  if (self->body && !cpBodyIsStatic(self->body)) {
-    thing_setflag(self, THING_FLAGS_OWNBODY);
-    // set this thing in the data of the body
-    cpBodySetUserData(self->body, self);
-  }
-  /* Assume the shape is owned. */
-  if (self->shape) {
-    thing_setflag(self, THING_FLAGS_OWNSHAPE);
-    /* Shapes's friction (u) should be set to 0 so only pushing is possible, 
-       not "rubbing" */
-    cpShapeSetFriction(self->shape, 0.0);
-    cpShapeSetUserData(self->shape, self);
-    /* */
-  }
+  bumpbody_data_(self->physical, self);
   return self;
 }
 
 /** Initializes a rectangular, static, non-rotating Thing. Uses the 
 area's static body, and makes a new rectangular shape for it. 
-Returns NULL on error. Uses the area's static body. */
-Thing * thing_initstatic(Thing * self, Area * area, 
-                       int kind, 
-                       int x, int y, int z, int w, int h) { 
-    cpBody * body     = area_staticbody(area); 
-    cpShape * shape   ; 
-    if(!self) return NULL;
-    if(!area) return NULL;
-    // static things are not positioned but simply generated at an offset
-    shape       = shape_rectnew(body, 0, 0, w, h, x, y); 
-    if(!shape) goto out_of_memory;
-    // set spos and size;
-    self->spos   = cpv(x, y);
-    self->size   = cpv(w, h);
-    
-    return thing_initgeneric(self, area, kind, z, body, shape);
-    out_of_memory:
-    thing_done(self); 
-    return NULL; 
-}
+Returns NULL on error. Uses the area's static body. 
+thing_initstatic isn't needed since bump understands tile maps.
+*/
 
 /** Initializes a rectangular, dynamic, non-rotating Thing, with mass 1 
 and makes a new body  and rectangular shape for it. Returns NULL on error. 
 Uses the area's static body. */
 Thing * thing_initdynamic(Thing * self, Area * area, 
                        int kind, int x, int y, int z, int w, int h) { 
-    cpBody  * body    = NULL; 
-    cpShape * shape   = NULL; 
+    BumpBody  * body    = NULL; 
+    BumpHull  * shape   = NULL; 
+    BumpVec     pos     , delta;
+    BumpAABB    bounds;
     if(!self) return NULL;
     if(!area) return NULL;
-    body              = cpBodyNew(THING_ACTOR_MASS, INFINITY); 
-    if(!body) goto out_of_memory;
+    pos                 = bumpvec(x, y);
+    body                = bumpbody_new(pos, 1.0);
+    if(!body) goto out_of_memory;    
     // dynamic things ARE positioned correctly and do not use an offset
     // the object's shape is locally around the body
-    shape             = shape_rectnew(body, 0, 0, w, h, 0, 0);
-    if(!shape) goto out_of_memory;
-    // set spos and size;
-    self->spos   = cpv(x, y);
-    self->size   = cpv(w, h);
-    // set position of body
-    cpBodySetPos(body, self->spos);
-    
+    bounds              = bumpaabb(x + w / 2, y + h / 2, w / 2, h / 2);
+    delta               = bumpvec0();
+    shape               = bumphull_newall(body, delta, bounds,  1 << z, kind);
+    if(!shape) goto out_of_memory;    
     return thing_initgeneric(self, area, kind, z, body, shape);
+    
     out_of_memory:
-    cpBodyFree(body);
+    bumpbody_free(body);
     thing_done(self); 
     return NULL; 
 }
@@ -272,40 +222,44 @@ of the thing. **/
 
 
 /** Position of the thing. */
-Point thing_p(Thing * self) {
-  return cpBodyGetPos(self->body);
+BumpVec thing_p(Thing * self) {
+  return bumpbody_p(self->physical);
 }
 
-/** Position X coordinates. */
-int thing_x(Thing * self) {
-  return cpBodyGetPos(self->body).x;
-}
 
-/** Position Y coordinates. */
-int thing_y(Thing * self) {
-  return cpBodyGetPos(self->body).y;
+/** Bounds box of the thing */
+BumpAABB thing_aabb(Thing *self) {
+  return bumphull_aabb(self->hull);
 }
 
 /** Width  of thing. */
 int thing_w(Thing * self) {
-  return self->size.x;
+  return thing_aabb(self).hs.x * 2;
 }
 
 /** Height of thing. */
 int thing_h(Thing * self) {
-  return self->size.y;
+  return thing_aabb(self).hs.y * 2;
 }
 
+/** Position X coordinates (top left). */
+int thing_x(Thing * self) {
+  return thing_p(self).x - thing_aabb(self).hs.x ;
+}
 
+/** Position Y coordinates (top left). */
+int thing_y(Thing * self) {
+  return thing_p(self).y - thing_aabb(self).hs.y ;
+}
 
-/** Center of thing on x axis. */
+/** Position X coordinates (center). */
 int thing_cx(Thing * self) {
-  return thing_x(self) + thing_w(self) / 2;
+  return thing_p(self).x;
 }
 
-/** Height of thing. */
+/** Position Y coordinates (center). */
 int thing_cy(Thing * self) {
-  return thing_y(self) + thing_h(self) / 2;
+  return thing_p(self).y;
 }
 
 /** Layer of thing. */
@@ -314,99 +268,96 @@ int thing_z(Thing * self) {
 }
 
 /** Velocity of the thing. */
-Point thing_v(Thing * self) {
-  return cpBodyGetVel(self->body);
+BumpVec thing_v(Thing * self) {
+  return bumpbody_v(self->physical);
 }
 
 /** Speed X coordinates. */
 int thing_vx(Thing * self) {
-  return cpBodyGetVel(self->body).x;
+  return thing_v(self).x;
 }
 
 /** Speed Y coordinates. */
-int thing_vy(Thing * self) {
-  return cpBodyGetVel(self->body).y;
+int thing_vy(Thing * self) {  
+  return thing_v(self).y;
 }
 
 /** Set velocity. */
-void thing_v_(Thing * self, Point v) {
-  cpBodySetVel(self->body, v);
+void thing_v_(Thing * self, BumpVec v) {
+  bumpbody_v_(self->physical, v);
 }
 
 /** Set velocity by xy. */
 void thing_vxy_(Thing * self, int vx, int vy) {
-  Point v = cpv(vx, vy);
-  cpBodySetVel(self->body, v);
+  BumpVec v = bumpvec(vx, vy);
+  thing_v_(self, v);
 }
 
 /** Set x velocity only, leaving y unchanged . */
 void thing_vx_(Thing * self, int vx) {
-  Point v = thing_v(self);
+  BumpVec v = thing_v(self);
   v.x     = vx;
   thing_v_(self, v);
 }
 
 /** Set y velocity only, leaving x unchanged . */
 void thing_vy_(Thing * self, int vy) {
-  Point v = thing_v(self);
+  BumpVec v = thing_v(self);
   v.y     = vy;
   thing_v_(self, v);
 }
 
 /** Sets position of thing's body. */
-void thing_p_(Thing * self, Point p) {
-  cpBodySetPos(self->body, p);
+void thing_p_(Thing * self, BumpVec p) {
+  bumpbody_p_(self->physical, p);
 }
 
 /** Adds delta to the position of thing's body. */
-void thing_deltap(Thing * self, Point delta) {
-  Point old = thing_p(self);
-  thing_p_(self, cpvadd(old, delta));
-  // cpBodySetPos(self->body, p);
+void thing_deltap(Thing * self, BumpVec delta) {
+  BumpVec old = thing_p(self);
+  thing_p_(self, bumpvec_add(old, delta));
 }
 
 /** Set position by xy. */
 void thing_pxy_(Thing * self, int x, int y) {
-  Point p = cpv(x, y);
-  cpBodySetPos(self->body, p);
+  BumpVec p = bumpvec(x, y);
+  thing_p_(self, p);
 }
 
 /** Set x velocity only, leaving y unchanged . */
 void thing_x_(Thing * self, int x) {
-  Point p = thing_p(self);
+  BumpVec p = thing_p(self);
   p.x     = x;
   thing_p_(self, p);
 }
 
 /** Set x velocity only, leaving y unchanged . */
 void thing_y_(Thing * self, int y) {
-  Point p = thing_p(self); 
+  BumpVec p = thing_p(self); 
   p.y     = y;
   thing_p_(self, p);
 }
 
 /** Applies a force on the center of gravity of the thing. */
-void thing_applyforce(Thing * thing, const Point f) {
-  cpBodyApplyForce(thing->body, f, cpvzero);
+void thing_applyforce(Thing * thing, const BumpVec f) {
+  bumpbody_applyforce(thing->physical, f, bumpvec0());
 }
 
 /** Applies an impulse on the center of gravity of the thing. */
-void thing_applyimpulse(Thing * thing, const Point f) {
-  cpBodyApplyImpulse(thing->body, f, cpvzero);
+void thing_applyimpulse(Thing * thing, const BumpVec f) {
+  bumpbody_applyimpulse(thing->physical, f, bumpvec0());
 }
 
 /* Resets the force on this thing to 0. */
 void thing_resetforces(Thing * thing) {
-  cpBodyResetForces(thing->body);
+  bumpbody_resetforces(thing->physical);
 }
 
-/* Returns the position of self, works both for static and dynamic things. */
-Point thing_sdp(Thing * self) {
-  if (thing_static_p(self) || (!self->body)) {
-    return self->spos;
-  } else {
-    return thing_p(self);
-  }
+/* Returns the position of self, works both for static and dynamic things. 
+ * Redundant but kept for backcompat.
+ */
+BumpVec thing_sdp(Thing * self) {
+  return thing_p(self);
 }
 
 
@@ -433,7 +384,7 @@ void thing_draw(Thing * self, Camera * camera) {
     color     = color_rgbaf(1.0, 1.0, 0.0, 0.001);
   } else {
     color     = color_rgb(128, 255, 255);
-    Point pos = thing_p(self);
+    BumpVec pos = thing_p(self);
     x         = pos.x;
     y         = pos.y;
     t         = 8;
@@ -446,7 +397,7 @@ void thing_draw(Thing * self, Camera * camera) {
   drawy = y - cy;
   /* draw sprite if available, otherwise debug box if needed. */
   if(thing_sprite(self)) {
-    Point spriteat = cpv(drawx, drawy);
+    BumpVec spriteat = bumpvec(drawx, drawy);
     draw_box(drawx, drawy, w, h, color, t);
 #ifndef ERUTA_NOGFX_MODE
     spritestate_draw(&self->spritestate, &spriteat);
@@ -481,8 +432,8 @@ int thing_poseifold_(Thing * self, int oldpose, int newpose) {
 void thing_update(Thing * self, double dt) {
   if(!flags_get(self->flags, THING_FLAGS_LOCK_DIRECTION)) { 
     int newdir; 
-    Point vel = cpBodyGetVel(self->body);
-    double magnitude = cpvlength(vel);
+    BumpVec vel = thing_v(self);
+    double magnitude = bumpvec_length(vel);
     if (fabs(magnitude) > 0.00) { 
      /* could change dir if moving. TODO: take the old direction into
         account for more control of facing when moving diagonally. */
@@ -518,7 +469,7 @@ void thing_update(Thing * self, double dt) {
 int thing_compare_for_drawing(const void * p1, const void * p2) {
   Thing * self  = (Thing *) p1;
   Thing * other = (Thing *) p2;
-  Point pos1, pos2;
+  BumpVec pos1, pos2;
   if(!p1) { 
     if(!p2) {
       return 0;

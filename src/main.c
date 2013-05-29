@@ -61,7 +61,7 @@ void puts_standard_path(int path, char * name) {
  
  
 React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {  
-  Point f = cpvzero;
+  Point f = bumpvec0();
   State * state = (State *) self->data;
   Camera * camera = NULL;
   Thing * actor_data;
@@ -105,7 +105,7 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
 
 
 React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
-  Point f         = cpvzero;
+  Point f         = bumpvec0();
   State * state   = (State *) self->data;
   Camera * camera = NULL;
   Thing  * actor_data = NULL;
@@ -176,7 +176,7 @@ int real_main(void) {
       return 1;
     }
     
-    alpsshower_init(&shower, state_camera(state), 100, 1.0, cpv(10.0, 10000.0));
+    alpsshower_init(&shower, state_camera(state), 100, 1.0, bumpvec(10.0, 10000.0));
  
  
     /* Initializes the reactor, the game state is it's data. */
@@ -246,7 +246,7 @@ int real_main(void) {
   /* Main game loop, controlled by the State object. */  
   while(state_busy(state)) { 
       mrb_value mval;
-      Point spritenow = cpv(100, 120); 
+      Point spritenow = bumpvec(100, 120); 
       react_poll(&react, state);
       alpsshower_update(&shower, state_frametime(state));
       state_update(state);

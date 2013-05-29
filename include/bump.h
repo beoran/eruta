@@ -49,6 +49,8 @@ BumpVec bumpvec0();
 BumpVec bumpvec_add(BumpVec v1, BumpVec v2);
 BumpVec bumpvec_sub(BumpVec v1, BumpVec v2);
 BumpVec bumpvec_mul(BumpVec v1, double factor);
+#define bumpvec_mult bumpvec_mul
+
 BumpVec bumpvec_neg(BumpVec v1);
 double  bumpvec_dot(BumpVec v1, BumpVec v2);
 BumpVec bumpvec_div_unsafe(BumpVec v1, double factor);
@@ -61,6 +63,8 @@ BumpVec bumpvec_project(BumpVec vec , BumpVec on);
 BumpVec bumpvec_rightnormal(BumpVec vec);
 BumpVec bumpvec_leftnormal(BumpVec vec);
 double  bumpvec_perproduct(BumpVec v1, BumpVec v2);
+BumpVec bumpvec_forangle(double angle);
+double bumpvec_toangle(BumpVec v1);
 
 BumpAABB bumpaabb(double cx, double cy, double w, double h);
 
@@ -101,20 +105,24 @@ BumpVec bumpbody_v_impulse(BumpBody  * self, BumpVec v);
 BumpVec bumpbody_a_impulse(BumpBody  * self, BumpVec v);
 
 
-BumpHull * bumphull_alloc();
-BumpHull * bumphull_initall(
-  BumpHull * self, BumpBody * body, BumpVec delta, 
-  BumpAABB bounds, int layers, int kind
-);
+BumpHull *      bumphull_alloc();
+BumpHull *      bumphull_initall(BumpHull * self, 
+                  BumpBody * body, BumpVec delta, 
+                  BumpAABB bounds, int layers, int kind);
 
-BumpHull * bumphull_init(BumpHull * self, BumpBody * body, BumpAABB bounds);
+BumpHull *      bumphull_init(BumpHull * self, BumpBody * body, BumpAABB bounds);
+BumpHull *      bumphull_newall(BumpBody * body, 
+                  BumpVec delta, BumpAABB bounds, int layers, int kind);
 
-BumpHull * bumphull_newall(
-  BumpBody * body, BumpVec delta, BumpAABB bounds, int layers, int kind
-);
-BumpHull * bumphull_new(BumpBody * body, BumpAABB bounds);
-BumpHull * bumphull_done(BumpHull * self);
-BumpHull * bumphull_free(BumpHull * self);
+BumpHull *      bumphull_new(BumpBody * body, BumpAABB bounds);
+BumpHull *      bumphull_done(BumpHull * self);
+BumpHull *      bumphull_free(BumpHull * self);
+BumpHull *      bumphull_layers_(BumpHull * hull, int layers);
+int             bumphull_layers(BumpHull * hull);
+BumpHull *      bumphull_kind_(BumpHull * hull, int kind);
+int             bumphull_layers(BumpHull * hull);
+BumpAABB bumphull_aabb(BumpHull * hull);
+BumpAABB * bumphull_aabbptr(BumpHull * hull);
 
 
 BumpWorld * bumpworld_alloc();
@@ -130,6 +138,10 @@ BumpHull * bumpworld_addhull(BumpWorld * self, BumpHull * hull);
 BumpHull * bumpworld_removehull(BumpWorld * self, BumpHull * hull);
 
 BumpTilemap * bumpworld_tilemap_(BumpWorld * self, BumpTilemap * map);
+
+BumpTilemap * 
+bumpworld_newtilemap(BumpWorld * self, void * map, 
+                     int w, int h, int tw, int th, BumpTilemapQuery * query);
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt);
 

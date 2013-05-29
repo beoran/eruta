@@ -77,7 +77,7 @@ Panner * panner_init(Panner * self, Point goal, float speed, int immediate) {
 /** Cleans up a panner after use. */
 Panner * panner_done(Panner * self) {
   if(!self) return NULL;
-  self->goal  = cpvzero;
+  self->goal  = bumpvec0();
   self->speed = 0.0;
   return self;
 }
@@ -303,13 +303,13 @@ int camera_applypanners(Camera * self) {
   }
   /**/
   
-  delta = cpvsub(camera_center(self), panner->goal);
+  delta = bumpvec_sub(camera_center(self), panner->goal);
   /* Delta has the OPPOSITE direction or angle in which 
   the camera has to scroll, however, normally delta will be 
   bigger than the speed of the panning. We only have to move 
   a fraction of that delta, at least as long 
   as the length of delta is bigger than the speed */
-  length      = cpvlength(delta);
+  length      = bumpvec_length(delta);
   if (length < 1.0) {
     /* Less than one pixel to move, the goal has been reached. */
     camera_center_(self, panner->goal);
@@ -328,8 +328,8 @@ int camera_applypanners(Camera * self) {
   /* Construct the speed vector, it has the same angle as the 
   OPPOSITE of the delta vector, so that is why the magnitude 
   is the negative of the needed speed. */
-  vspeed      = cpvforangle(cpvtoangle(delta)); 
-  self->speed = cpvmult(vspeed, -speed); 
+  vspeed      = bumpvec_forangle(bumpvec_toangle(delta)); 
+  self->speed = bumpvec_mult(vspeed, -speed); 
   return 1;  
 }
 
@@ -346,8 +346,8 @@ int camera_applylockins(Camera * self) {
   }
   dx          = rebox_delta_x(&lockin->box, &self->box);
   dy          = rebox_delta_y(&lockin->box, &self->box);
-  delta       = point(dx, dy);
-  self->box.at= cpvadd(self->box.at, delta);
+  delta       = bumpvec(dx, dy);
+  self->box.at= bumpvec_add(self->box.at, delta);
   if(dx != 0.0) self->speed.x = 0.0;
   if(dy != 0.0) self->speed.y = 0.0; 
   return 0;
@@ -363,7 +363,7 @@ Camera * camera_update(Camera * self) {
   /* Apply the lockins, that limit the camera's motion. */
   camera_applylockins(self);
   /* Finally move at the set speed. */
-  camera_at_(self, cpvadd(camera_at(self), self->speed));
+  camera_at_(self, bumpvec_add(camera_at(self), self->speed));
   return self;
 }
 
@@ -463,7 +463,7 @@ camera_centerdelta_(Camera * self, Point newcenter, float deltax, float deltay){
   double ty       = thing_cy(thing);
   
   Point oldcenter = camera_center(self);
-  Point vdelta    = cpvsub(oldcenter, newcenter);
+  Point vdelta    = bumpvec_sub(oldcenter, newcenter);
   movecenter      = oldcenter;
   deltax          = 128.0;
   deltay          = 128.0;  
@@ -612,14 +612,14 @@ int camera_cansee(Camera * self, int x, int y, int w, int h) {
  * screen/camera coordinates. 
  */
 Point camera_worldtoscreen(Camera * self, Point world_pos) {
-  return cpvsub(world_pos, self->box.at);
+  return bumpvec_sub(world_pos, self->box.at);
 }
 
 /* Transforms screen/camera coordinates to "world" (ie area/tilemap/level) 
  * coordinates. 
  */
 Point camera_screentoworld(Camera * self, Point screen_pos) {
-  return cpvsub(screen_pos, self->box.at);
+  return bumpvec_sub(screen_pos, self->box.at);
 }
 
 

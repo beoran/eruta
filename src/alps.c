@@ -41,14 +41,14 @@ Point rand_point(Point low, Point high) {
   double x, y;
   x = rand_betweend(low.x, high.x);
   y = rand_betweend(low.y, high.y);
-  return cpv(x, y);  
+  return bumpvec(x, y);  
 }
 
 
 
 AlpsDrop * alpsdrop_initrandom(AlpsDrop *drop, Camera * camera) {
   Point p = rand_point(camera_at(camera), camera_br(camera));
-  Point v = cpv(0.0, 80.0 + ((double)(rand() % 600)) / 10.0);
+  Point v = bumpvec(0.0, 80.0 + ((double)(rand() % 600)) / 10.0);
   Point pw = camera_screentoworld(camera, p);
   double life = 1.0 + ((double)(rand() % 50)) / 10.0;
   return alpsdrop_init(drop, pw, v, life);
@@ -61,7 +61,7 @@ AlpsDrop * alpsdrop_initrandom(AlpsDrop *drop, Camera * camera) {
  camera view, the effects are disabled. */
 void alpsdrop_update(AlpsDrop *drop, Camera * camera,  double dt) {
   Point screenp;
-  drop->position = cpvadd(drop->position, cpvmult(drop->velocity, dt));
+  drop->position = bumpvec_add(drop->position, bumpvec_mul(drop->velocity, dt));
   screenp = camera_worldtoscreen(camera, drop->position);
   drop->life -= dt;
   if (drop->life <= 0.0) { 

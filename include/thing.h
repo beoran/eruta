@@ -41,6 +41,7 @@ enum Thingflags_ {
 
 #include "eruta.h"
 #include "sprite.h"
+#include "bump.h"
 #include "area.h"
 
 
@@ -54,8 +55,8 @@ struct Thing_ {
   int         id;    /* Numercial ID. */
   int         flags; /* State flags.  */
   Area      * area; /* Area the thing is in if any. */
-  cpBody    * body; /* Physical body of the thing. Is NULL for statical body. */
-  cpShape   * shape; /* Main collision shape of the thing. */
+  BumpBody  * physical; /* Physical body of the thing. Is NULL for statical body. */
+  BumpHull  * hull;
   int         z; /* Layer the thing is in. */
   void *      data; /* Logical data of the thing. */
   /* Chipmunk makes it rather hard to get to the size of a 
@@ -64,8 +65,8 @@ struct Thing_ {
   not reliable enough. So keep the size and position 
   for static shapes here even if it's slightly redundant.
   */
-  Point       size; /* size of outline of shape */
-  Point       spos; /* Position, merely for static shapes, for dynamic
+  BumpVec       size; /* size of outline of shape */
+  BumpVec       spos; /* Position, merely for static shapes, for dynamic
   bodies, use cpBodyGetPos*/
   /* Sprite information. Also is the reference for the direction the thing is facing. 
    */
@@ -104,7 +105,7 @@ cpShape * shape_rectnew(cpBody * body,
 int thing_static_p(Thing * self);
 
 Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
-                   cpBody * body, cpShape * shape);
+                          BumpBody * body, BumpHull * shape);
 
 Thing * thing_initstatic(Thing * self, Area * area, 
                        int kind, 
@@ -122,7 +123,7 @@ Thing * thing_newdynamic(Area * area,
                        int kind, 
                        int x, int y, int z, int w, int h);
 
-Point thing_p(Thing * self);
+BumpVec thing_p(Thing * self);
 int thing_x(Thing * self);
 int thing_y(Thing * self);
 int thing_w(Thing * self);
@@ -130,22 +131,22 @@ int thing_h(Thing * self);
 int thing_cx(Thing * self);
 int thing_cy(Thing * self);
 int thing_z(Thing * self);
-Point thing_v(Thing * self);
+BumpVec thing_v(Thing * self);
 int thing_vx(Thing * self);
 int thing_vy(Thing * self);
-void thing_v_(Thing * self, Point v);
+void thing_v_(Thing * self, BumpVec v);
 void thing_vxy_(Thing * self, int vx, int vy);
 void thing_vx_(Thing * self, int vx);
 void thing_vy_(Thing * self, int vy);
-void thing_p_(Thing * self, Point p);
-void thing_deltap(Thing * self, Point delta);
+void thing_p_(Thing * self, BumpVec p);
+void thing_deltap(Thing * self, BumpVec delta);
 void thing_pxy_(Thing * self, int x, int y);
 void thing_x_(Thing * self, int x);
 void thing_y_(Thing * self, int y);
-void thing_applyforce(Thing * thing, const Point f);
-void thing_applyimpulse(Thing * thing, const Point f);
+void thing_applyforce(Thing * thing, const BumpVec f);
+void thing_applyimpulse(Thing * thing, const BumpVec f);
 void thing_resetforces(Thing * thing);
-Point thing_sdp(Thing * self);
+BumpVec thing_sdp(Thing * self);
 void thing_draw(Thing * self, Camera * camera);
 int thing_direction(Thing * self);
 int thing_pose(Thing * self);

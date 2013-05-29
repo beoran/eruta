@@ -15,6 +15,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
+#include "bump.h"
 
 /* Nogfx mode displays merely boxes. */
 #define ERUTA_NOGFX_MODE
@@ -58,9 +59,9 @@
 #define STR ALLEGRO_USTR
 #endif
 
-/* Use the chipmunk vector as the Point type.
+/* Use the Bump vector as the Point type.
 Allegro also uses floats now for it's drawing. */
-typedef cpVect Point;
+typedef BumpVec Point;
 
 /** Other shorthand types */
 typedef ALLEGRO_PATH Path;

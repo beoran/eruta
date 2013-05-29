@@ -7,7 +7,7 @@
 #include "camera.h"
 #include "state.h"
 #include "draw.h"
-// #include ""
+
 
 
 struct BumpBody_ {
@@ -139,6 +139,16 @@ double bumpvec_perproduct(BumpVec v1, BumpVec v2) {
   return bumpvec_dot(v1, bumpvec_rightnormal(v2));  
 }
 
+BumpVec bumpvec_forangle(double angle) {
+  // Check this:
+  return bumpvec(sin(angle), cos(angle));
+}
+
+double bumpvec_toangle(BumpVec v1) {
+  return atan2(v1.y, v1.x);
+}
+
+
 
 BumpAABB bumpaabb(double cx, double cy, double w, double h) {
   BumpAABB result = { bumpvec(cx, cy), bumpvec(w/2.0, h/2.0) }; 
@@ -163,7 +173,7 @@ BumpTilemap * bumptilemap_init(
   return self;
 }
 
-BumpTilemap * bumptilemap_new(
+BumpTilemap * bumptilemap_new(  
   void * map, int w, int h, int tw, int th, BumpTilemapQuery * query
 ) {
   return bumptilemap_init(bumptilemap_alloc(), map, w, h, tw, th, query);  
@@ -304,6 +314,44 @@ BumpHull * bumphull_done(BumpHull * self) {
   return self;
 }
  
+ 
+/** Sets the layers of a bumphull */
+BumpHull * bumphull_layers_(BumpHull * hull, int layers) {
+  if(!hull) return NULL;
+  hull->layers = layers;
+  return hull;
+} 
+
+/** Gets the layers of a bumphull. Returns negative on error.*/
+int bumphull_layers(BumpHull * hull) {
+  if (!hull) return -1;
+  return hull->layers;
+} 
+
+
+/** Sets the kind of a bumphull. */
+BumpHull * bumphull_kind_(BumpHull * hull, int kind) {
+  if(!hull) return NULL;
+  hull->kind = kind;
+  return hull;
+} 
+
+/** Gets the kind of a bumphull. Returns negative on error.*/
+int bumphull_kind(BumpHull * hull) {
+  if (!hull) return -1;
+  return hull->kind;
+} 
+
+/** Gets the bounds box of the bump hull. */
+BumpAABB bumphull_aabb(BumpHull * hull) {
+  return hull->bounds;
+}
+
+/** Gets a pointer to the the bounds box of the bump hull. */
+BumpAABB * bumphull_aabbptr(BumpHull * hull) {
+  return &(hull->bounds);
+}
+
 
 BumpHull * bumphull_free(BumpHull * self) {
   bumphull_done(self);
@@ -339,7 +387,7 @@ BumpWorld * bumpworld_done(BumpWorld * self) {
   bumptilemap_free(self->map);
   self->bodies = dynar_free(self->bodies);
   self->hulls  = dynar_free(self->hulls);
-  self->map    = NULL;
+  if(self->map) { bumptilemap_free(self->map); } 
   return self;
 }
 
@@ -373,6 +421,15 @@ BumpTilemap * bumpworld_tilemap_(BumpWorld * self, BumpTilemap * map) {
   if(self->map) { bumptilemap_free(self->map); } 
   self->map = map;
   return map;
+}
+
+/* Allocates a new tile map wrapper and sets it as this world's tile map. */
+BumpTilemap * 
+bumpworld_newtilemap(BumpWorld * self, void * map, 
+                     int w, int h, int tw, int th, BumpTilemapQuery * query) {
+  BumpTilemap * bumptilemap;
+  bumptilemap = bumptilemap_new(map, w, h, tw, th, query);
+  return bumpworld_tilemap_(self, bumptilemap);
 }
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt);

@@ -1,6 +1,7 @@
 #include "eruta.h"
 
 #include "area.h"
+#include "bump.h"
 #include "thing.h"
 #include "mem.h"
 #include "flags.h"
@@ -31,92 +32,12 @@ Logic/game/character data: in scripting engine.
 #define AREA_THINGS 20000
 
 struct Area_ {
-  cpSpace     * space;
+  BumpWorld   * world;  
   int           lastid;
   Thing       * things[AREA_THINGS];
   Thing       * things_todraw[AREA_THINGS];
 };
 
-/* Gets the Thing for theg iven body. If tht is not found, 
-gets the thing from the shape in stead. */
-Thing * cp_body_shape_things(cpBody * body, cpShape * shape) {
-  Thing * result = NULL;
-  if (body) result = cpBodyGetUserData(body);
-  if (result) return result; 
-  if (shape) result = cpShapeGetUserData(shape);
-  if (result) return result; 
-  return NULL;
-}
-
-
-/* Gets the Thing  involved in the collision from the arbiter */
-void cp_arbiter_things(cpArbiter * arb, Thing ** t1, Thing ** t2) {
-  cpBody  * b1, * b2;
-  cpShape * s1, * s2;
-  
-  cpArbiterGetShapes(arb, &s1, &s2);
-  cpArbiterGetBodies(arb, &b1, &b2);
-  if (t1) {   
-    (*t1) = cp_body_shape_things(b1, s1); 
-  }
-  if (t2) {   
-    (*t2) = cp_body_shape_things(b2, s2); 
-  }
-}
-
-
-/* Chipmunk collision handlers for the Area */
-int 
-area_collision_begin(cpArbiter *arb, struct cpSpace *space, void *data) {
-  Thing * t1, * t2;
-  int res;
-  cp_arbiter_things(arb, &t1, &t2);
-  res = collide_things(t1, t2, COLLIDE_BEGIN, data);
-  return res;
-}
-
-
-int 
-area_collision_presolve(cpArbiter *arb, struct cpSpace *space, void *data) {
-  Thing * t1, * t2;
-  int res;
-  cp_arbiter_things(arb, &t1, &t2);
-  res = collide_things(t1, t2, COLLIDE_PRESOLVE, data);
-  return res;
-}
-
-
-void
-area_collision_postsolve(cpArbiter *arb, struct cpSpace *space, void *data) {
-  Thing * t1, * t2;
-  int res;
-  cp_arbiter_things(arb, &t1, &t2);
-  res = collide_things(t1, t2, COLLIDE_POSTSOLVE, data);
-  return;
-}
-
-void
-area_collision_separate(cpArbiter *arb, struct cpSpace *space, void *data) {
-  Thing * t1, * t2;
-  int res;
-  cp_arbiter_things(arb, &t1, &t2);
-  res = collide_things(t1, t2, COLLIDE_SEPARATE, data);
-  return;
-}
-
-Area * area_setup_default_collision_handlers(Area * area, void * data) { 
-  cpSpace * space;
-  if (!area) return NULL;
-  space = area->space;
-  if (!space) return NULL;
-  cpSpaceSetDefaultCollisionHandler(space, 
-                                    area_collision_begin    ,
-                                    area_collision_presolve ,
-                                    area_collision_postsolve,
-                                    area_collision_separate , 
-                                    data);
-  return area;
-}
 
 /** Gets the amount of possible things for this area */
 int area_maxthings(Area * area) {
@@ -169,19 +90,21 @@ Thing * area_addthing(Area * area, Thing * thing) {
   if(!area_thing_(area, id, thing)) return NULL;
   thing_id_(thing, id);
   /* Don't forget to add body and shape to the space if needed. */
-  cpSpaceAddShape(area->space, thing->shape);
-  if(!thing_static_p(thing)) {
-    cpSpaceAddBody(area->space, thing->body); 
-  }
+  bumpworld_addbody(area->world, thing->physical);
+  bumpworld_addhull(area->world, thing->hull);
   return thing;
 }
 
-/** Returns the static body that this area uses for static things. */
-cpBody * area_staticbody(Area * area) {
-  if(!area) { return NULL; }
-  if(!area->space) { return NULL; }
-  return cpSpaceGetStaticBody(area->space);
+/** Set the tile map to use for this area. */
+BumpTilemap * 
+area_addmaplayer(Area * area, void *map, 
+                 int w, int h, int tw, int th, BumpTilemapQuery * query) {
+  return bumpworld_newtilemap(area->world, map, w, h, tw, th, query);
 }
+
+/** Returns the static body that this area uses for static things.
+ * Removed, since not needed because bump uses real tile maps and not static bodies.
+ */
 
 
 /* Removes the thing from the area, but does not deallocate it. 
@@ -190,15 +113,9 @@ Thing * area_removething(Area * area, Thing * thing) {
   if (!thing)                           return NULL;
   if (thing->id<0)                      return NULL;
   if (thing->kind == THING_UNUSED)      return NULL;
+  bumpworld_removehull(area->world, thing->hull);
+  bumpworld_removebody(area->world, thing->physical);
   area_thing_(area, thing->id, NULL);
-  if (cpSpaceContainsShape(area->space, thing->shape)) { 
-    cpSpaceRemoveShape(area->space, thing->shape);
-  }
-  if (cpSpaceContainsBody(area->space, thing->body)) { 
-    if(!thing_static_p(thing) && (thing->body != area_staticbody(area)) ) {
-      cpSpaceRemoveBody(area->space, thing->body); 
-    }
-  }
   return thing;
 }
 
@@ -239,10 +156,10 @@ Area * area_emptythings(Area * self) {
 /** Deinitializes an area and returns self. */
 Area * area_done(Area * self) {
   if(!self) return self;
-  if(!self->space) return self;
+  if(!self->world) return self;
   area_cleanupthings(self);
-  cpSpaceFree(self->space);
-  self->space = NULL;
+  bumpworld_free(self->world);
+  self->world = NULL;
   return self;
 }
 
@@ -263,10 +180,10 @@ Area * area_alloc() {
 Area * area_init(Area * self) {
   if(!self) return NULL;
   self->lastid  = 0;
-  self->space   = cpSpaceNew();
-  if (!self->space) goto out_of_memory;
+  self->world   = bumpworld_new();
+  if (!self->world) goto out_of_memory;
   area_emptythings(self);
-  area_setup_default_collision_handlers(self, self);
+  // area_setup_default_collision_handlers(self, self);
   return self;
 
   out_of_memory:
@@ -280,10 +197,10 @@ Area * area_new() {
 }
 
 
-/** Returns the cpSpace that the area uses for dynamics modelling. */
-cpSpace * area_space(Area * self) {
+/** Returns the BumpWorld that the area uses for dynamics modelling. */
+BumpWorld * area_world(Area * self) {
   if (!self) return NULL;
-  return self->space;
+  return self->world;
 }
 
 
@@ -324,13 +241,14 @@ void area_draw(Area * self, Camera * camera) {
     if (thing) */
     thing_draw(thing, camera);
   }
+  bumpworld_draw_debug(self->world);
 }
 
 /** Updates the area */
 void area_update(Area * self, double dt) {
   int subindex = 0;
   int index;
-  cpSpaceStep(self->space, dt);  
+  bumpworld_update(self->world, dt);  
   for(index = 0; index <  (self->lastid + 1); index++) {
     Thing * thing = area_thing(self, index);
     if (thing) { 
