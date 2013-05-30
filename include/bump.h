@@ -98,11 +98,15 @@ void * bumpbody_data(BumpBody  * self);
 BumpVec bumpbody_p_(BumpBody  * self, BumpVec v);
 BumpVec bumpbody_v_(BumpBody  * self, BumpVec v);
 BumpVec bumpbody_a_(BumpBody  * self, BumpVec v);
-void * bumpbody_data_(BumpBody  * self, void * data);
+void bumpbody_data_(BumpBody  * self, void * data);
 
 BumpVec bumpbody_p_impulse(BumpBody  * self, BumpVec v);
 BumpVec bumpbody_v_impulse(BumpBody  * self, BumpVec v);
 BumpVec bumpbody_a_impulse(BumpBody  * self, BumpVec v);
+
+void bumpbody_applyforce(BumpBody  * self, BumpVec v);
+void bumpbody_applyimpulse(BumpBody  * self, BumpVec v);
+void bumpbody_resetforces(BumpBody  * self);
 
 
 BumpHull *      bumphull_alloc();

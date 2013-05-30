@@ -12,7 +12,7 @@ TEST_FUNC(sprite) {
   SpriteAction  * act;
   SpriteFrame   * frame;
   SpriteLayer   * layer;
-  Point           offset = cpv(1.0, 2.0);
+  Point           offset = bumpvec(1.0, 2.0);
   sprite = sprite_new(1);
   list = spritelist_new();
   TEST_NOTNULL(list);

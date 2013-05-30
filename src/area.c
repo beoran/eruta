@@ -204,15 +204,12 @@ BumpWorld * area_world(Area * self) {
 }
 
 
-/** Makes a new static thing and adds it to the area. Return it or NULL on error. */
+/** Makes a new static thing and adds it to the area. Return it or NULL on error. 
+ Not needed anymore. 
+ */
 Thing * area_newstatic(Area * self, int kind, 
                         int x, int y, int z, int w, int h) {
-  Thing * thing;
-  thing = thing_newstatic(self, kind, x, y, w, w, h);
-  if (!area_addthing(self, thing)) { 
-    return thing_free(thing);
-  }
-  return thing;
+  return NULL;
 }
 
 
@@ -236,8 +233,7 @@ void area_draw(Area * self, Camera * camera) {
   for(index = 0; index <  (self->lastid + 1); index++) {
     Thing * thing = self->things_todraw[index];
     if(!thing) break;
-    /*
-    area_thing(self, index);
+    /*  area_thing(self, index);
     if (thing) */
     thing_draw(thing, camera);
   }

@@ -195,16 +195,9 @@ Thing * thing_initdynamic(Thing * self, Area * area,
 
 
 
-/** Allocates and initializes a new static Thing. */
-Thing * thing_newstatic(Area * area, 
-                       int kind, 
-                       int x, int y, int z, int w, int h) {
-  Thing * self = thing_alloc();
-  if(!thing_initstatic(self, area, kind, x, y, z, w, h)) {
-    return thing_free(self); 
-  }
-  return self;
-}
+/** Allocates and initializes a new static Thing. Not needed anymore. */
+/* thing_newstatic */
+
 
 /** Allocates and initializes a new dynamic Thing. */
 Thing * thing_newdynamic(Area * area, 
@@ -340,12 +333,12 @@ void thing_y_(Thing * self, int y) {
 
 /** Applies a force on the center of gravity of the thing. */
 void thing_applyforce(Thing * thing, const BumpVec f) {
-  bumpbody_applyforce(thing->physical, f, bumpvec0());
+  bumpbody_applyforce(thing->physical, f);
 }
 
 /** Applies an impulse on the center of gravity of the thing. */
 void thing_applyimpulse(Thing * thing, const BumpVec f) {
-  bumpbody_applyimpulse(thing->physical, f, bumpvec0());
+  bumpbody_applyimpulse(thing->physical, f);
 }
 
 /* Resets the force on this thing to 0. */

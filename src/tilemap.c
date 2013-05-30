@@ -4,7 +4,6 @@
 #include "image.h"
 #include "tilemap.h"
 #include "dynar.h"
-#include "area.h"
 
 #define TILEMAP_PANES 4
 
@@ -27,7 +26,6 @@ struct Tilemap_ {
   int         gridh;
   Tileset   * set;
   Dynar     * panes;
-  Area      * area;
 };
 
 #define TEXTURE_TILE    "tile"
@@ -55,7 +53,6 @@ Tilemap * tilemap_done(Tilemap * self) {
     tilepane_free(dynar_getptr(self->panes, index));
   }
   dynar_free(self->panes);
-  area_free(self->area);
   tileset_free(self->set);
   // tilemap_initempty(self);
   return self;
@@ -75,7 +72,6 @@ Tilemap* tilemap_init(Tilemap * self, Tileset * set, int w, int h) {
   for(index = 0; index < TILEMAP_PANES; index++) {
     dynar_putptr(self->panes, index, NULL);
   }
-  self->area      = area_new();
   return self;
 }
 

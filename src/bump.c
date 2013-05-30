@@ -21,8 +21,10 @@ struct BumpBody_ {
   BumpVec p_next;
   BumpVec v_next;
   BumpVec a_next;
+  BumpVec f;
   float   m;
   int     locks;
+  void   *data;
 };
 
 
@@ -207,11 +209,14 @@ BumpBody * bumpbody_init(BumpBody * self, BumpVec p, double mass) {
   self->v_impulse = bumpvec0();
   self->v_next    = bumpvec0();
   self->p_impulse = bumpvec0();
-  self->p_next    = bumpvec0();
+  self->p_next    = bumpvec0();  
+  self->f         = bumpvec0();
   self->p         = p;
+  
   self->m         = mass;
   self->id        = -1;
   self->locks     = FALSE;
+  self->data      = NULL;
   return self;  
 }
 
@@ -238,12 +243,27 @@ BumpBody * bumpbody_free(BumpBody * self) {
     return self->MEMBER;                                  \
 }
 
+/** Helper macro to generate simple struct setter functions. */
+#define BAD_SETTER(MEMBERTYPE, SELFTYPE, PREFIX, MEMBER)              \
+  void PREFIX##_##MEMBER##_(SELFTYPE self, MEMBERTYPE value) {        \
+  if (!self) return;                                                  \
+  self->MEMBER = value;                                               \
+}
+
+
+
 /* Gets position of body. */
 BAD_GETTER(BumpVec, BumpBody *, bumpbody, p)
 /* Gets speed of body. */
 BAD_GETTER(BumpVec, BumpBody *, bumpbody, v)
 /* Gets accelleration of body. */
 BAD_GETTER(BumpVec, BumpBody *, bumpbody, a)
+
+/* Gets data of body. */
+BAD_GETTER(void *, BumpBody *, bumpbody, data)
+
+/* Sets data of body. */
+BAD_SETTER(void *, BumpBody *, bumpbody, data)
 
 
 BumpVec bumpbody_p_(BumpBody  * self, BumpVec v) {   
@@ -268,6 +288,21 @@ BumpVec bumpbody_v_impulse(BumpBody  * self, BumpVec v)  {
 
 BumpVec bumpbody_a_impulse(BumpBody  * self, BumpVec v) {  
   return self->p_impulse = v;
+}
+
+
+void bumpbody_applyforce(BumpBody  * self, BumpVec v) {
+  if (!self) return;
+  self->f = bumpvec_add(self->f, v);  
+}
+
+void bumpbody_applyimpulse(BumpBody  * self, BumpVec v) {
+  if (!self) return;
+  self->p_impulse = bumpvec_add(self->p_impulse, v);  
+}
+
+void bumpbody_resetforces(BumpBody  * self) {
+  self->f = bumpvec0();
 }
 
 
@@ -414,6 +449,27 @@ BumpHull * bumpworld_addhull(BumpWorld * self, BumpHull * hull) {
   return hull;
 }
 
+/* Removes the hull but does not free it. */
+BumpHull * bumpworld_removehull(BumpWorld * self, BumpHull * hull) {
+  if(!self) return NULL;
+  if(!hull) return NULL;  
+  if (hull->id < 0) return NULL;
+  dynar_putptr(self->bodies, hull->id, NULL);
+  hull->id = -1;  
+  return hull;
+}
+
+/* Removes the body but does not free it. */
+BumpBody * bumpworld_removebody(BumpWorld * self, BumpBody * body) {
+  if(!self) return NULL;
+  if(!body) return NULL;  
+  if (body->id < 0) return NULL;
+  dynar_putptr(self->bodies, body->id, NULL);
+  body->id = -1;  
+  return body;
+}
+
+
 /* Sets the tile map wrapper. If an old one was set, that one will be cleaned 
  * with bumptilemap_free up. */
 BumpTilemap * bumpworld_tilemap_(BumpWorld * self, BumpTilemap * map) {
@@ -432,7 +488,26 @@ bumpworld_newtilemap(BumpWorld * self, void * map,
   return bumpworld_tilemap_(self, bumptilemap);
 }
 
-BumpWorld * bumpworld_update(BumpWorld * self, double dt);
+void bumpbody_update(BumpBody * self, double dt) {
+  if (!self) return;
+  self->a_next = bumpvec_add(self->a, bumpvec_div(self->f, self->m));
+  self->v_next = bumpvec_add(self->v, bumpvec_mul(self->a_next, dt));
+  self->p_next = bumpvec_add(self->p, bumpvec_mul(self->v_next, dt));
+  self->a      = self->a_next;
+  self->v      = self->v_next;
+  self->p      = self->p_next;
+}
+
+BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
+  int index; 
+  /* simple integration for now. */
+  for (index = 0; index < self->body_count; index ++) {
+    BumpBody * body = dynar_getptr(self->bodies, index);
+    bumpbody_update(body, dt);
+  }
+  
+  return self;
+}
 
 
 static void bumpworld_draw_tilemap_debug(BumpTilemap * self, Camera * camera) {
