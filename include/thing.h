@@ -39,10 +39,6 @@ enum Thingflags_ {
 };
 
 
-#include "eruta.h"
-#include "sprite.h"
-#include "bump.h"
-#include "area.h"
 
 
 

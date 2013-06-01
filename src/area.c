@@ -1,6 +1,7 @@
 #include "eruta.h"
 
 #include "area.h"
+#include "tilemap.h"
 #include "bump.h"
 #include "thing.h"
 #include "mem.h"
@@ -36,6 +37,7 @@ struct Area_ {
   int           lastid;
   Thing       * things[AREA_THINGS];
   Thing       * things_todraw[AREA_THINGS];
+  BumpTilemap * bumpmap;
 };
 
 
@@ -96,10 +98,9 @@ Thing * area_addthing(Area * area, Thing * thing) {
 }
 
 /** Set the tile map to use for this area. */
-BumpTilemap * 
-area_addmaplayer(Area * area, void *map, 
-                 int w, int h, int tw, int th, BumpTilemapQuery * query) {
-  return bumpworld_newtilemap(area->world, map, w, h, tw, th, query);
+Tilemap * 
+area_addmap(Area * area, Tilemap * map) {
+  return bumpworld_tilemap_(area->world, map);
 }
 
 /** Returns the static body that this area uses for static things.
@@ -183,6 +184,7 @@ Area * area_init(Area * self) {
   self->world   = bumpworld_new();
   if (!self->world) goto out_of_memory;
   area_emptythings(self);
+  self->bumpmap = NULL;
   // area_setup_default_collision_handlers(self, self);
   return self;
 
@@ -224,6 +226,15 @@ Thing * area_newdynamic(Area * self, int kind,
   return thing;
 }
 
+
+/** Sets the current tile map of the area. */
+ERES area_tilemap_(Area * self, Tilemap * map) {
+  int wide, high;
+  wide = tilemap_gridwide(map);
+  high = tilemap_gridhigh(map);
+  bumpworld_tilemap_(self->world, map);
+  return ERES_OK;
+}
 
 
 /** Draws all things in an area taking the camera into account. */

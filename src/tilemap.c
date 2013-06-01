@@ -26,6 +26,7 @@ struct Tilemap_ {
   int         gridh;
   Tileset   * set;
   Dynar     * panes;
+  Area      * area;
 };
 
 #define TEXTURE_TILE    "tile"
@@ -54,18 +55,21 @@ Tilemap * tilemap_done(Tilemap * self) {
   }
   dynar_free(self->panes);
   tileset_free(self->set);
+  /* the area is not owned so we don't free that */
   // tilemap_initempty(self);
   return self;
 }
 
 
 /** Initializes a tile map */
-Tilemap* tilemap_init(Tilemap * self, Tileset * set, int w, int h) {
+Tilemap* tilemap_init(Tilemap * self, Tileset * set, int w, int h, Area * area) {
   int index;
   if(!self) return NULL;
   self->gridw     = w;
   self->gridh     = h;
   self->set       = set;
+  self->area      = area;
+  area_tilemap_(area, self);
   if(!self->set)   { return NULL; }
   self->panes     = dynar_new(TILEMAP_PANES, sizeof(Tilepane *));
   if(!self->panes) { return NULL; }   
@@ -83,9 +87,9 @@ Tilemap * tilemap_free(Tilemap * map) {
 }
 
 /** Allocates a new tile map and initializes it. */
-Tilemap * tilemap_new(Tileset * set, int w, int h) {
+Tilemap * tilemap_new(Tileset * set, int w, int h, Area * area ) {
   Tilemap * map = STRUCT_ALLOC(Tilemap);
-  if(!tilemap_init(map, set, w, h)) {
+  if(!tilemap_init(map, set, w, h, area)) {
     return tilemap_free(map);
   }
   return map;
@@ -137,14 +141,11 @@ int tile_thingkind(Tile * tile) {
 
 /** Makes sure that the tile gets properly physically represented in the 
 Area of the tilemap. Returns the Thing generated or NULL when no physical
-representation is needed.
+representation is needed. With the Bump branch, this isn't needed anymore, 
+so always returns NULL.
 */
 Thing * tilemap_tiletothing(Tilemap * self, int l, int x, int y, Tile * tile) {
-  int kind;
-  if (!self || !tile) return NULL;
-  kind = tile_thingkind(tile);
-  if ( kind < 0 ) return NULL;  
-  return tilemap_addtilething(self, kind, x, y, l); 
+  return NULL;
 }
 
 
@@ -155,7 +156,6 @@ Tile * tilemap_settile(Tilemap * self, int l, int x, int y, Tile * tile) {
   if(!pane) return NULL;
   aidt            = tilepane_set(pane, x, y, tile);
   if(!aidt) return NULL;
-  tilemap_tiletothing(self, l, x, y, aidt);
   return tile;
 }
 
@@ -166,7 +166,6 @@ Tile * tilemap_setindex(Tilemap * self, int l, int x, int y, int index) {
   if(!pane) return NULL;
   tile            = tilepane_setindex(pane, x, y, index);
   if(!tile) return NULL;
-  tilemap_tiletothing(self, l, x, y, tile);
   return tile;
 }
 
@@ -190,13 +189,6 @@ int tilemap_getindex(Tilemap * self, int l, int x, int y) {
   return (int) tilepane_getindex(pane, x, y);
 }
 
-/** Makes a static Thing in the Area of the map at the given 
-tile coordinates with the size of one tile. Returns the Thing thus represented. */
-Thing * tilemap_addtilething(Tilemap * self, int kind, int tx, int ty, int layer) {
-  return area_newstatic(self->area, THING_WALL,
-                        tx * TILE_W, ty * TILE_H, layer, TILE_W, TILE_H);
-}
-
 /** Draws a tile map. */
 void tilemap_draw(Tilemap * map, Camera * camera) {
   int index;
@@ -212,16 +204,12 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
   }
 #else 
   al_clear_to_color(al_map_rgb(0,0,0));
-#endif 
-#ifndef TILEMAP_NO_AREA
-  area_draw(map->area, camera);
 #endif
 }
 
 /** Updates the tile map. Currently this animates the tiles. */
 void tilemap_update(Tilemap * map, double dt) {
   tileset_update(map->set, dt);
-  area_update(map->area, dt);  
 }
 
 /** Adds a dynamic thing of the given type to the tile map's area */
@@ -271,103 +259,34 @@ Thing * tilemap_thing(Tilemap * self, int index) {
   return area_thing(area, index);
 }
 
-
-
-
-#ifdef COMMENT_
-Tilemap * tilemap_load(lua_State * lua, int index) {  
-  char buf[1024];
-  sprintf(buf, "data/script/map_%04d.lua", index);
-  if(luaL_dofile(lua, buf)) {
-    printf("Error: %s\n", lua_tostring(lua, 1)); 
-    return NULL;
-  }  
-  sprintf(buf, "data/script/mex_%04d.lua", index);
-  if(!luaL_dofile(lua, buf)) {
-    printf("Warning: %s\n", lua_tostring(lua, 1));
-    // xxx: should display some error here...
-  }
-  return tilemap_getcurrent();
-}
-
-
-Tilepane * tilepane_savefile(Tilepane *pane, int paneid, FILE *fout) {
-  int xx, yy, gw, gh;
-  gw = tilepane_gridwide(pane);
-  gh = tilepane_gridhigh(pane);
-  for(yy = 0; yy < gh; yy++) {
-    fprintf(fout, "mapsetrow{ %d, %d ", paneid, yy);    
-    for(xx = 0; xx < gw; xx++) {
-      int tile = (int) tilepane_get(pane, xx, yy);
-      fprintf(fout, ", %d", tile);
-    }
-    fprintf(fout, "}\n");
-  }
-  return pane;
-}
-
-Tilemap * tilemap_savefile(Tilemap * map, FILE * fout) {
-  int index, tds;
-  if(!fout) return NULL;
-  fprintf(fout, "-- Automatical save of map, DO NOT HAND EDIT.\n");
-  fprintf(fout, "-- In stead, edit mex_xxxx.lua .\n--\n");  
-  fprintf(fout, "-- Initialize map.\n");
-  fprintf(fout, "map = mapinit(%d, %d, %d)\n", 
-          map->textureid, map->gridw, map->gridh);
-  /* save tile info */
-  fprintf(fout, "-- Tile info.\n");
-  /*
-  tds = gytiledata_size(map->tiledata);
-  fprintf(fout, "maptiledata { ");
-  for (index = 0; index < tds; index++) {
-    int info = tilemap_tileinfo(map, index);
-    if(info) { 
-      fprintf(fout, "[%d] = %d; ", index, info);
-      //fprintf(fout, "maptileinfo(%d, %d)\n", index, info);
+/* Gets the map's grid size from the largest tile layer */
+int tilemap_gridwide(Tilemap * self) {
+  int wide = 0;
+  int index;
+  for (index = 0; index < TILEMAP_PANES; index++) {
+    int aid = tilepane_gridwide(tilemap_pane(self, index));
+    if (aid > wide) {
+      wide = aid;
     } 
   }
-  */
-  fprintf(fout, "}\n");
-  fprintf(fout, "-- Layer data.\n");        
-  for(index = 0; index < TILEMAP_PANES; index++) {
-    fprintf(fout, "-- Layer nr %d.\n", index);
-    fprintf(fout, "mapfill(%d, %d)\n", index, -1);
-    tilepane_savefile(tilemap_pane(map, index), index, fout);
+  return wide;
+} 
+
+/* Gets the map's grid size from the largest tile layer */
+int tilemap_gridhigh(Tilemap * self) {
+  int high = 0;
+  int index;
+  for (index = 0; index < TILEMAP_PANES; index++) {
+    int aid = tilepane_gridhigh(tilemap_pane(self, index));
+    if (aid > high) {
+      high = aid;
+    } 
   }
-  return map;
+  return high;
+} 
+
+/** Returns the almount of tile panes in this map. */
+int tilemap_panes(Tilemap * self) {
+  return TILEMAP_PANES;
 }
 
-
-Tilemap * tilemap_save(Tilemap * map, int index) {
-  char buf[1024];
-  FILE * fout;
-  Tilemap * res;
-  sprintf(buf, "data/script/map_%04d.lua", index);
-  fout = fopen(buf, "wt");
-  res  = tilemap_savefile(map, fout);
-  fclose(fout);
-  return res;
-  
-}
-
-
-
-
-/** A tracker function for tracking an area. Simply keeps the camera in 
-the bounds of the tile map. Doesn't work yet since areas are yet without any size. */
-int tilemap_track(Tracker * tracker, void * data) {
-  Tilemap * map = NULL;
-  Camera * camera = NULL;
-
-  if(!tracker || !tracker->camera) return TRACKER_ERROR;
-  camera = tracker->camera;
-  map           = (Tilemap *) tracker->target;
-  if (camera_at_x(camera) < 0) { camera_at_x_(camera, 0.0); }
-  if (camera_at_y(camera) < 0) { camera_at_y_(camera, 0.0); }
-/*   if (camera_at_x(camera) < 0) { camera_at_x_(0.0) }
-  if (camera_at_y(camera) < 0) { camera_at_y_(0.0) } */
-  
-  return TRACKER_DONE;  
-}
-
-#endif

@@ -17,11 +17,14 @@ Image * image_loadtexture (const char * category , int index );
 
 Tilemap * tilemap_done (Tilemap * self );
 
-Tilemap * tilemap_init (Tilemap * self , Tileset * set , int w , int h );
+Tilemap * tilemap_init (Tilemap * self , Tileset * set , int w , int h, Area * areq );
 
 Tilemap * tilemap_free (Tilemap * map );
 
-Tilemap * tilemap_new (Tileset * set , int w , int h );
+Tilemap * tilemap_new (Tileset * set , int w , int h, Area * area );
+
+int tilemap_panes(Tilemap * self);
+
 
 Tilepane * tilemap_pane (Tilemap * self , int index );
 
@@ -57,9 +60,13 @@ Lockin * tilepane_lockin (Tilepane * pane , Camera * camera );
 
 Lockin * tilemap_layer_lockin (Tilemap * map , int layer , Camera * camera );
 
+int tilemap_gridwide(Tilemap * self);
+int tilemap_gridhigh(Tilemap * self);
+
 Area * tilemap_area(Tilemap * self);
 
 Thing * tilemap_thing(Tilemap * self, int index);
+
 
 
 

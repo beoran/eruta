@@ -279,9 +279,11 @@ int state_lockin_maplayer(State * state, int layer) {
 
 /* Loads a named tile map from the map folder. */
 int state_loadtilemap_vpath(State * self, char * vpath) {
-  self->loadingmap = fifi_loadsimple_vpath((FifiSimpleLoader*) tilemap_load, vpath);
+  TilemapLoadExtra extra;
+  extra.area = self->area;
+  self->loadingmap = fifi_load_vpath(tilemap_fifi_load, &extra, vpath);
   if(!self->loadingmap) return -1;
-  /* TODO: some preposcessing, and move the PCs from the old map to the new... */
+  /* TODO: some preproscessing, and move the PCs from the old map to the new... */
   tilemap_free(self->nowmap);
   self->nowmap = self->loadingmap;
   return 0;
@@ -465,7 +467,7 @@ State * state_init(State * self, BOOL fullscreen) {
   /* Initialize Area. */
   self->area = area_new();
   
-  /* Initialize sprite lisst. */
+  /* Initialize sprite list. */
   self->sprites = spritelist_new();
   
   return self;

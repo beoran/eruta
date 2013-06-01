@@ -1,10 +1,12 @@
 #include <math.h>
 
-#include "bump.h"
 #include "eruta.h"
+#include "camera.h"
+#include "bump.h"
+
 #include "mem.h"
 #include "dynar.h"
-#include "camera.h"
+
 #include "state.h"
 #include "draw.h"
 
@@ -37,17 +39,6 @@ struct BumpHull_ {
   int         kind;
 };
 
-
-struct BumpTilemap_ {
-  int                map_w;
-  int                map_h;
-  int                tile_w;
-  int                tile_h;  
-  int                map_layers;
-  void             * handle; 
-  BumpTilemapQuery * query;
-};
-
 #define BUMP_WORLD_MAXBODIES 1000
 #define BUMP_WORLD_MAXHULLS  5000
 
@@ -56,7 +47,7 @@ struct BumpWorld_ {
   Dynar       * hulls;  
   int           body_count;
   int           hull_count;
-  BumpTilemap * map;
+  Tilemap     * map;
 };
 
 
@@ -157,42 +148,6 @@ BumpAABB bumpaabb(double cx, double cy, double w, double h) {
   return result;
 }
 
-
-BumpTilemap * bumptilemap_alloc() {
-  return STRUCT_ALLOC(BumpTilemap);  
-}
-
-BumpTilemap * bumptilemap_init(
-  BumpTilemap * self, void * map, int w, int h, int tw, int th, BumpTilemapQuery * query
-) {
-  if(!self) return NULL;
-  self->map_w   = w;
-  self->map_h   = h;
-  self->tile_w  = tw;
-  self->tile_h  = th;
-  self->query   = query;
-  self->handle  = map;
-  return self;
-}
-
-BumpTilemap * bumptilemap_new(  
-  void * map, int w, int h, int tw, int th, BumpTilemapQuery * query
-) {
-  return bumptilemap_init(bumptilemap_alloc(), map, w, h, tw, th, query);  
-}
-
-BumpTilemap * bumptilemap_done(BumpTilemap * self) {
-  if(!self) return NULL;
-  self->handle = NULL;
-  self->query  = NULL;
-  return self;
-}
-
-/* Frees a body. */
-BumpTilemap * bumptilemap_free(BumpTilemap * self) {
-  bumptilemap_done(self); 
-  return mem_free(self); 
-}
 
 /* Allocates a body. */
 BumpBody * bumpbody_alloc() { 
@@ -419,10 +374,8 @@ BumpWorld * bumpworld_new(BumpWorld * self) {
 /* Cleans up the bump map after use. */
 BumpWorld * bumpworld_done(BumpWorld * self) {
   if(!self) return NULL;
-  bumptilemap_free(self->map);
   self->bodies = dynar_free(self->bodies);
   self->hulls  = dynar_free(self->hulls);
-  if(self->map) { bumptilemap_free(self->map); } 
   return self;
 }
 
@@ -469,23 +422,22 @@ BumpBody * bumpworld_removebody(BumpWorld * self, BumpBody * body) {
   return body;
 }
 
-
-/* Sets the tile map wrapper. If an old one was set, that one will be cleaned 
- * with bumptilemap_free up. */
-BumpTilemap * bumpworld_tilemap_(BumpWorld * self, BumpTilemap * map) {
+/* Gets the tile map that this world must use to check collisions. 
+ * Bumpworld doesn't own the map, and won't clean it up on bumpworld_free.
+ */
+Tilemap * bumpworld_tilemap(BumpWorld * self) {
   if(!self) return NULL;
-  if(self->map) { bumptilemap_free(self->map); } 
-  self->map = map;
-  return map;
+  return self->map;
 }
 
-/* Allocates a new tile map wrapper and sets it as this world's tile map. */
-BumpTilemap * 
-bumpworld_newtilemap(BumpWorld * self, void * map, 
-                     int w, int h, int tw, int th, BumpTilemapQuery * query) {
-  BumpTilemap * bumptilemap;
-  bumptilemap = bumptilemap_new(map, w, h, tw, th, query);
-  return bumpworld_tilemap_(self, bumptilemap);
+
+/* Sets the tile map that this world must use to check collisions. 
+ * Does not clean up the tile map since bumpworld doesn't own the map.
+ */
+Tilemap * bumpworld_tilemap_(BumpWorld * self, Tilemap * map) {
+  if(!self) return NULL;
+  self->map = map;
+  return map;
 }
 
 void bumpbody_update(BumpBody * self, double dt) {

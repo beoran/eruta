@@ -5,6 +5,9 @@
 loading of files over fifi. */
 typedef void * (FifiSimpleLoader)(const char * filename);
 
+/* For cases when just the vpath isn't enough */
+typedef void * (FifiLoader)(void * extra, const char * filename);
+
 /* This file was generated with:
 'cfunctions -c -aoff -n -w fifi_proto src/fifi.c' */
 #ifndef CFH_FIFI_PROTO
@@ -49,6 +52,12 @@ void * fifi_loadsimple_vpath (FifiSimpleLoader * load , const char * vpath );
 void * fifi_loadsimple_va (FifiSimpleLoader * load , const char * filename , va_list args );
 
 void * fifi_loadsimple (FifiSimpleLoader * load , const char * filename , ... );
+
+void * fifi_load_vpath (FifiLoader * load , void * extra, const char * vpath );
+
+void * fifi_load_va (FifiLoader * load , void * extra, const char * filename , va_list args );
+
+void * fifi_load(FifiLoader * load , void * extra, const char * filename , ... );
 
 ALLEGRO_FONT * fifi_loadfont (const char * filename , int size , int flags );
 

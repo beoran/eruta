@@ -203,7 +203,7 @@ Tilemap * tilemap_loadpanesxml(Tilemap * map, xmlNode * xlayer) {
 
 /** Loads a tile map from a tmx xml document
 */
-Tilemap * tilemap_loadxml(xmlDoc * xml) {
+Tilemap * tilemap_loadxml(xmlDoc * xml, TilemapLoadExtra * extra) {
   Tilemap * result;
   Tileset * set;
   xmlNode *root   = NULL;
@@ -242,7 +242,7 @@ Tilemap * tilemap_loadxml(xmlDoc * xml) {
   // load the tile set
   
   /// How to integrate with Area? 
-  result = tilemap_new(set, wide, high);
+  result = tilemap_new(set, wide, high, extra->area);
   // load the layers
   if(!result) return NULL;
   
@@ -259,7 +259,7 @@ Tilemap * tilemap_loadxml(xmlDoc * xml) {
 /**
 * Loads a tile map from a tmx file.
 */
-Tilemap * tilemap_loadtmx(const char * filename) {
+Tilemap * tilemap_loadtmx(const char * filename, TilemapLoadExtra * extra) {
   Tilemap * result;
   xmlDoc  * xml    = NULL;
   /* Parse the file and get the DOM */
@@ -268,7 +268,7 @@ Tilemap * tilemap_loadtmx(const char * filename) {
     printf("error: could not parse file %s\n", filename);
     return NULL;
   }
-  result = tilemap_loadxml(xml);
+  result = tilemap_loadxml(xml, extra);
   /*free the document XXX:this crashes after here, and not of it's not freed, so
   it means we have stray pointers into the xml doc */
   xmlFreeDoc(xml);
@@ -280,17 +280,16 @@ Tilemap * tilemap_loadtmx(const char * filename) {
 /**
 * Loads a tile map.
 */
-Tilemap * tilemap_load(char * filename) {
+Tilemap * tilemap_load(char * filename, TilemapLoadExtra * extra) {
   Tilemap * result;
-  //fin = fopen(filename, "r");
-  //if(!fin) return NULL;
-  result = tilemap_loadtmx(filename);
-  //fclose(fin);
+  result = tilemap_loadtmx(filename, extra);
   return result;
 }
 
 
-
+Tilemap * tilemap_fifi_load(void * extra, char * filename) {
+  return tilemap_load(filename, extra);
+}
 
 
 

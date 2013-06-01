@@ -15,7 +15,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
-#include "bump.h"
+#include "bumpvec.h"
 
 /* Nogfx mode displays merely boxes. */
 #define ERUTA_NOGFX_MODE
@@ -131,6 +131,15 @@ enum ProgramMode_ {
 
 typedef enum ProgramMode_ ProgramMode;
 
+/* Error or RESult.  Zero if OK, negative if an error occurred. */
+enum Eres_ {
+  ERES_OK       =  0,
+  ERES_NULL     = -1,
+  ERES_NOMEM    = -2,
+  ERES_NOFILE   = -3,
+};
+
+typedef int ERES;
 
 
 

@@ -1,9 +1,10 @@
-#ifndef bump_H_INCLUDED
-#define bump_H_INCLUDED
+#ifndef BUMP_H_INCLUDED
+#define BUMP_H_INCLUDED
 
 
-struct BumpVec;
-typedef struct BumpVec_         BumpVec;
+/* The include for this file needs to be oreceded by an include fo the tilemap.h */
+
+
 struct BumpAABB;
 typedef struct BumpAABB_        BumpAABB;
 typedef struct BumpBody_        BumpBody;
@@ -31,57 +32,13 @@ enum BumpTile_  {
 
 typedef enum   BumpTile_        BumpTile;
 
-
-/* 2D Vector */
-struct BumpVec_  {  double x, y;            };
 /* Axes aligned bounds box. */
 struct BumpAABB_ {  BumpVec p; BumpVec hs;  };
 
-/* Point query the tile map at the given x and y coordinates, with the layers 
- * as a layers flag (1 is in layer 0, 2 is in layer 1, etc ) .
- Should Return one of the BumpTile enum values. */
-typedef BumpTile BumpTilemapQuery(void * tilemap, int x, int y, int layers);
 
 
-
-BumpVec bumpvec(double x, double y);
-BumpVec bumpvec0();
-BumpVec bumpvec_add(BumpVec v1, BumpVec v2);
-BumpVec bumpvec_sub(BumpVec v1, BumpVec v2);
-BumpVec bumpvec_mul(BumpVec v1, double factor);
-#define bumpvec_mult bumpvec_mul
-
-BumpVec bumpvec_neg(BumpVec v1);
-double  bumpvec_dot(BumpVec v1, BumpVec v2);
-BumpVec bumpvec_div_unsafe(BumpVec v1, double factor);
-BumpVec bumpvec_div(BumpVec v1, double factor);
-double  bumpvec_lengthsq(BumpVec v1);
-double  bumpvec_length(BumpVec v1);
-BumpVec bumpvec_normalize(BumpVec v1);
-BumpVec bumpvec_normalize_unsafe(BumpVec v1);
-BumpVec bumpvec_project(BumpVec vec , BumpVec on);
-BumpVec bumpvec_rightnormal(BumpVec vec);
-BumpVec bumpvec_leftnormal(BumpVec vec);
-double  bumpvec_perproduct(BumpVec v1, BumpVec v2);
-BumpVec bumpvec_forangle(double angle);
-double bumpvec_toangle(BumpVec v1);
 
 BumpAABB bumpaabb(double cx, double cy, double w, double h);
-
-
-BumpTilemap * bumptilemap_alloc();
-
-BumpTilemap * bumptilemap_init(
-  BumpTilemap * self, void * map, int w, int h, 
-  int tw, int th, BumpTilemapQuery * query
-);
-
-BumpTilemap * bumptilemap_new(
-  void * map, int w, int h, int tw, int th, BumpTilemapQuery * query
-);
-
-BumpTilemap * bumptilemap_done(BumpTilemap * self);
-BumpTilemap * bumptilemap_free(BumpTilemap * self);
 
 BumpBody * bumpbody_alloc();
 BumpBody * bumpbody_init(BumpBody * self, BumpVec p, double mass);
@@ -141,11 +98,7 @@ BumpBody * bumpworld_movebody(BumpWorld * to, BumpWorld * from, BumpBody * body)
 BumpHull * bumpworld_addhull(BumpWorld * self, BumpHull * hull);
 BumpHull * bumpworld_removehull(BumpWorld * self, BumpHull * hull);
 
-BumpTilemap * bumpworld_tilemap_(BumpWorld * self, BumpTilemap * map);
-
-BumpTilemap * 
-bumpworld_newtilemap(BumpWorld * self, void * map, 
-                     int w, int h, int tw, int th, BumpTilemapQuery * query);
+Tilemap * bumpworld_tilemap_(BumpWorld * self, Tilemap * map);
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt);
 

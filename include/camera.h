@@ -28,11 +28,7 @@ enum CameraFlags_ {
 };
 
 
-#include "eruta.h"
-#include "inli.h"
-#include "rebox.h"
-#include "thing.h"
-#include "area.h"
+
 
 
 

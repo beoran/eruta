@@ -1,4 +1,11 @@
 
+#include "bumpvec.h"
+#include "eruta.h"
+#include "dynar.h"
+#include "rebox.h"
+#include "sprite.h"
+#include "area.h"
+#include "thing.h"
 #include "camera.h"
 #include "alps.h"
 

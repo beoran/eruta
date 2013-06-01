@@ -248,6 +248,35 @@ void fifi_data_vpath_print(const char * vpath) {
 
 
 /**
+* Loads file that is in the data directory using the given loader.
+* returns NULL if the file doesn't exist or wasn't loaded correctly.
+*/
+void * fifi_load_vpath(FifiLoader * load, void * extra, const char * vpath) {
+  void * data   = NULL;
+  ALLEGRO_PATH * path;
+  if(!load) return NULL;
+  path          = fifi_data_vpath(vpath);
+  if(!path) return NULL;
+  if(!al_get_path_filename(path)) {
+    printf("Filename not set for path: %s.\n", PATH_CSTR(path));
+    goto cleanup;  
+  }
+  printf("Loading: %s for %s\n", PATH_CSTR(path), vpath);
+  if(PATH_EXISTS(path)) {
+    data = load(extra, PATH_CSTR(path)); // load the data
+  } else {
+   printf("File %s does not exist!?", PATH_CSTR(path));
+  }  
+  cleanup:
+  // if we get here, we must destroy the path any way.
+  al_destroy_path(path);
+  // return the data anyway.
+  return data;
+}
+
+
+
+/**
 * Loads file  that is in the data directory using the given loader.
 * returns NULL if the file doesn't exist or wasn't loaded correctly.
 */
