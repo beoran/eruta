@@ -280,14 +280,14 @@ Tilemap * tilemap_loadtmx(const char * filename, TilemapLoadExtra * extra) {
 /**
 * Loads a tile map.
 */
-Tilemap * tilemap_load(char * filename, TilemapLoadExtra * extra) {
+Tilemap * tilemap_load(const char * filename, TilemapLoadExtra * extra) {
   Tilemap * result;
   result = tilemap_loadtmx(filename, extra);
   return result;
 }
 
 
-Tilemap * tilemap_fifi_load(void * extra, char * filename) {
+void * tilemap_fifi_load(void * extra, const char * filename) {
   return tilemap_load(filename, extra);
 }
 

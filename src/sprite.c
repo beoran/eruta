@@ -125,10 +125,10 @@ void spritelayer_draw(SpriteLayer * self, Point * at) {
   Point real, delta, aid;
   /*    - size_w/2 + tile_w / 2   */
   if(!self) return;
-  delta = bumpvec(-self->size.x / 2 + SPRITE_TILE_WIDE / 2, 
+  delta = bevec(-self->size.x / 2 + SPRITE_TILE_WIDE / 2, 
               -self->size.y + SPRITE_TILE_HIGH);
-  aid  = bumpvec_add((*at), self->offset);
-  real = bumpvec_add(aid, delta);  
+  aid  = bevec_add((*at), self->offset);
+  real = bevec_add(aid, delta);  
   /* Adjust for tile size and frame size. */
   al_draw_bitmap(self->image, real.x, real.y, self->drawflags);
 }
@@ -141,7 +141,7 @@ spritelayer_done(SpriteLayer * self) {
   self->image           = NULL;
   self->drawflags       = 0;
   self->index           = -1;
-  self->offset          = bumpvec(0.0, 0.0);
+  self->offset          = bevec(0.0, 0.0);
   return self;
 }
 
@@ -624,7 +624,7 @@ SpriteLayer * sprite_loadlayerfrom(Sprite * self, int actionindex,
     fprintf(stderr, "Cannot allocate bitmap for: %d %d %d\n", actionindex, frameindex, layerindex);
     return NULL;
   }  
-  offset = bumpvec(0,0); 
+  offset = bevec(0,0); 
   al_set_target_bitmap(aid);
   al_clear_to_color(glass);  
   al_draw_bitmap_region(source, where.x, where.y, size.x, size.y, 0, 0, 0);
@@ -752,8 +752,8 @@ Sprite * spritelayout_loadactionlayer
 (SpriteLayout * layout, Sprite * sprite, 
  Image * source, int actionindex, int layerindex) {
     int frameindex;
-    Point where           = bumpvec(0, layout->size_y * actionindex);
-    Point size            = bumpvec(layout->size_x, layout->size_y);
+    Point where           = bevec(0, layout->size_y * actionindex);
+    Point size            = bevec(layout->size_x, layout->size_y);
     int inrow             = layout->per_row[actionindex];
     int actionflags       = layout->row_dir[actionindex];
     int actiontype        = layout->row_type[actionindex];

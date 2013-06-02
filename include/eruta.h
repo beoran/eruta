@@ -15,10 +15,10 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
-#include "bumpvec.h"
+#include "bevec.h"
 
 /* Nogfx mode displays merely boxes. */
-#define ERUTA_NOGFX_MODE
+// #define ERUTA_NOGFX_MODE
 
 /* Screen size wich will always be 640x480 (real or virtually). */
 #define SCREEN_W      640
@@ -61,14 +61,14 @@
 
 /* Use the Bump vector as the Point type.
 Allegro also uses floats now for it's drawing. */
-typedef BumpVec Point;
+typedef BeVec Point;
 
 /** Other shorthand types */
 typedef ALLEGRO_PATH Path;
 typedef ALLEGRO_EVENT Event;
 
 /* Wrapper macros */
-#define point(X, Y) cpv(X, Y);
+#define point(X, Y) bevec(X, Y);
 
 /* Some univerally useful function declarations. */
 /* Helper to convert paths to C strings */

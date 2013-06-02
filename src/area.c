@@ -10,6 +10,8 @@
 #include "sprite.h"
 #include "collide.h"
 
+#include "thing_struct.h"
+
 /** Scale factor. */
 #define AREA_SCALE_BY (32.0lf)
 

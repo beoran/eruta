@@ -490,6 +490,10 @@ void state_draw(State * self) {
     if (self->nowmap) {
        tilemap_draw(self->nowmap, self->camera);    
     }
+    if (self->area) {
+      area_draw(self->area, self->camera);
+    }
+    
     // draw fps  
     al_draw_textf(state_font(self), COLOR_WHITE,
                         10, 10, 0, "FPS: %lf, %d", state_fps(self), 
@@ -511,6 +515,10 @@ void state_update(State * self) {
   mrb_value mval;
   // alpsshower_update(&shower, state_frametime(state));    
   if (self->nowmap) tilemap_update(self->nowmap, state_frametime(self));
+  if (self->area) {
+      area_update(self->area, state_frametime(self));
+  }
+  
   camera_update(self->camera);
   // call ruby update callback 
   mval = mrb_float_value(state_ruby(self), state_frametime(self));

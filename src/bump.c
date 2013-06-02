@@ -14,16 +14,16 @@
 
 struct BumpBody_ {
   int id;
-  BumpVec p;
-  BumpVec v;
-  BumpVec a;
-  BumpVec p_impulse;
-  BumpVec v_impulse;
-  BumpVec a_impulse;
-  BumpVec p_next;
-  BumpVec v_next;
-  BumpVec a_next;
-  BumpVec f;
+  BeVec p;
+  BeVec v;
+  BeVec a;
+  BeVec p_impulse;
+  BeVec v_impulse;
+  BeVec a_impulse;
+  BeVec p_next;
+  BeVec v_next;
+  BeVec a_next;
+  BeVec f;
   float   m;
   int     locks;
   void   *data;
@@ -33,7 +33,7 @@ struct BumpBody_ {
 struct BumpHull_ {
   int id;
   BumpBody  * body;
-  BumpVec     delta;
+  BeVec     delta;
   BumpAABB    bounds;
   int         layers;
   int         kind;
@@ -52,99 +52,10 @@ struct BumpWorld_ {
 
 
 
-BumpVec bumpvec(double x, double y) { 
-  BumpVec result = { x, y } ;
-  return result;
-}
-
-BumpVec bumpvec0() { 
-  return bumpvec(0.0, 0.0);
-}
-
-BumpVec bumpvec_add(BumpVec v1, BumpVec v2) { 
-  return bumpvec(v1.x + v2.x, v1.y + v2.y);
-}
-
-BumpVec bumpvec_sub(BumpVec v1, BumpVec v2) { 
-  return bumpvec(v1.x - v2.x, v1.y - v2.y);
-}
-
-BumpVec bumpvec_mul(BumpVec v1, double factor) { 
-  return bumpvec(v1.x * factor, v1.y * factor);
-}
-
-BumpVec bumpvec_neg(BumpVec v1) { 
-  return bumpvec(-v1.x, -v1.y);
-}
-
-double bumpvec_dot(BumpVec v1, BumpVec v2) { 
-  return (v1.x * v2.x) + (v1.y * v2.y);
-}
-
-
-BumpVec bumpvec_div_unsafe(BumpVec v1, double factor) { 
-  return bumpvec(v1.x / factor, v1.y / factor);
-}
-
-BumpVec bumpvec_div(BumpVec v1, double factor) { 
-  if (factor == 0.0) {
-    return bumpvec0();
-  }
-  return bumpvec_div_unsafe(v1, factor);
-}
-
-
-double bumpvec_lengthsq(BumpVec v1) { 
-  return (v1.x * v1.x) + (v1.y * v1.y); 
-}
-
-double bumpvec_length(BumpVec v1) { 
-  return sqrt((v1.x * v1.x) + (v1.y * v1.y)); 
-}
-
-BumpVec bumpvec_normalize(BumpVec v1) {
-  double length = bumpvec_length(v1);
-  return bumpvec_div(v1, length);
-}
-
-BumpVec bumpvec_normalize_unsafe(BumpVec v1) {
-  double length = bumpvec_length(v1);
-  return bumpvec_div_unsafe(v1, length);
-}
-
-BumpVec bumpvec_project(BumpVec vec , BumpVec on) {
-  double dot            = bumpvec_dot(vec, on);
-  double lengthsq       = bumpvec_lengthsq(on);
-  double x              = on.x * dot / lengthsq;
-  double y              = on.y * dot / lengthsq;
-  return bumpvec(x, y);
-}
-
-BumpVec bumpvec_rightnormal(BumpVec vec) {
-  return bumpvec(-vec.y, vec.x);
-}
-
-BumpVec bumpvec_leftnormal(BumpVec vec) {
-  return bumpvec(vec.y, -vec.x);
-}
-
-double bumpvec_perproduct(BumpVec v1, BumpVec v2) {
-  return bumpvec_dot(v1, bumpvec_rightnormal(v2));  
-}
-
-BumpVec bumpvec_forangle(double angle) {
-  // Check this:
-  return bumpvec(sin(angle), cos(angle));
-}
-
-double bumpvec_toangle(BumpVec v1) {
-  return atan2(v1.y, v1.x);
-}
-
 
 
 BumpAABB bumpaabb(double cx, double cy, double w, double h) {
-  BumpAABB result = { bumpvec(cx, cy), bumpvec(w/2.0, h/2.0) }; 
+  BumpAABB result = { bevec(cx, cy), bevec(w/2.0, h/2.0) }; 
   return result;
 }
 
@@ -155,17 +66,17 @@ BumpBody * bumpbody_alloc() {
 }
 
 /* Initializes a body. */
-BumpBody * bumpbody_init(BumpBody * self, BumpVec p, double mass) {
+BumpBody * bumpbody_init(BumpBody * self, BeVec p, double mass) {
   if(!self) return NULL;
-  self->a         = bumpvec0();
-  self->a_impulse = bumpvec0();
-  self->a_next    = bumpvec0();
-  self->v         = bumpvec0();
-  self->v_impulse = bumpvec0();
-  self->v_next    = bumpvec0();
-  self->p_impulse = bumpvec0();
-  self->p_next    = bumpvec0();  
-  self->f         = bumpvec0();
+  self->a         = bevec0();
+  self->a_impulse = bevec0();
+  self->a_next    = bevec0();
+  self->v         = bevec0();
+  self->v_impulse = bevec0();
+  self->v_next    = bevec0();
+  self->p_impulse = bevec0();
+  self->p_next    = bevec0();  
+  self->f         = bevec0();
   self->p         = p;
   
   self->m         = mass;
@@ -176,7 +87,7 @@ BumpBody * bumpbody_init(BumpBody * self, BumpVec p, double mass) {
 }
 
 /* Allocates and initializes a body. */
-BumpBody * bumpbody_new(BumpVec p, double mass) {
+BumpBody * bumpbody_new(BeVec p, double mass) {
   return bumpbody_init(bumpbody_alloc(), p, mass);  
 }
 
@@ -192,72 +103,68 @@ BumpBody * bumpbody_free(BumpBody * self) {
   return mem_free(self);
 }
 
-/** Helper macro to generate simple struct getter functions. */
-#define BAD_GETTER(MEMBERTYPE, SELFTYPE, PREFIX, MEMBER)  \
-  MEMBERTYPE PREFIX##_##MEMBER(SELFTYPE self) {           \
-    return self->MEMBER;                                  \
+
+BeVec bumpbody_p(BumpBody  * self) {   
+  return self->p;
 }
 
-/** Helper macro to generate simple struct setter functions. */
-#define BAD_SETTER(MEMBERTYPE, SELFTYPE, PREFIX, MEMBER)              \
-  void PREFIX##_##MEMBER##_(SELFTYPE self, MEMBERTYPE value) {        \
-  if (!self) return;                                                  \
-  self->MEMBER = value;                                               \
+BeVec bumpbody_v(BumpBody  * self) {   
+  return self->v;
 }
 
-
-
-/* Gets position of body. */
-BAD_GETTER(BumpVec, BumpBody *, bumpbody, p)
-/* Gets speed of body. */
-BAD_GETTER(BumpVec, BumpBody *, bumpbody, v)
-/* Gets accelleration of body. */
-BAD_GETTER(BumpVec, BumpBody *, bumpbody, a)
+BeVec bumpbody_a(BumpBody  * self) {   
+  return self->a;
+}
 
 /* Gets data of body. */
-BAD_GETTER(void *, BumpBody *, bumpbody, data)
+void * bumpbody_data(BumpBody  * self) {   
+  return self->data;
+}
 
 /* Sets data of body. */
-BAD_SETTER(void *, BumpBody *, bumpbody, data)
-
-
-BumpVec bumpbody_p_(BumpBody  * self, BumpVec v) {   
-  return self->p = v;
+void bumpbody_data_(BumpBody  * self, void * data) {   
+  self->data = data;
 }
 
-BumpVec bumpbody_v_(BumpBody  * self, BumpVec v) {   
-  return self->p = v;
+
+BeVec bumpbody_p_(BumpBody  * self, BeVec vec) {   
+  return self->p = vec;
 }
 
-BumpVec bumpbody_a_(BumpBody  * self, BumpVec v) {   
-  return self->a = v;
+BeVec bumpbody_v_(BumpBody  * self, BeVec vec) {   
+  self->v = vec;
+  return self->v;
 }
 
-BumpVec bumpbody_p_impulse(BumpBody  * self, BumpVec v) {  
+BeVec bumpbody_a_(BumpBody  * self, BeVec vec) {   
+  return self->a = vec;
+}
+
+BeVec bumpbody_p_impulse(BumpBody  * self, BeVec v) {  
   return self->p_impulse = v;
 }
 
-BumpVec bumpbody_v_impulse(BumpBody  * self, BumpVec v)  {  
-  return self->p_impulse = v;
+BeVec bumpbody_v_impulse(BumpBody  * self, BeVec v)  {  
+  return self->v_impulse = v;
 }
 
-BumpVec bumpbody_a_impulse(BumpBody  * self, BumpVec v) {  
-  return self->p_impulse = v;
+BeVec bumpbody_a_impulse(BumpBody  * self, BeVec v) {  
+  return self->a_impulse = v;
 }
 
 
-void bumpbody_applyforce(BumpBody  * self, BumpVec v) {
+void bumpbody_applyforce(BumpBody  * self, BeVec v) {
   if (!self) return;
-  self->f = bumpvec_add(self->f, v);  
+  self->f = bevec_add(self->f, v);  
 }
 
-void bumpbody_applyimpulse(BumpBody  * self, BumpVec v) {
+void bumpbody_applyimpulse(BumpBody  * self, BeVec v) {
   if (!self) return;
-  self->p_impulse = bumpvec_add(self->p_impulse, v);  
+  self->p_impulse = bevec_add(self->p_impulse, v);  
 }
 
 void bumpbody_resetforces(BumpBody  * self) {
-  self->f = bumpvec0();
+  self->f = bevec0();
 }
 
 
@@ -268,7 +175,7 @@ BumpHull * bumphull_alloc() {
 
 /* Initializes a collision hull. */
 BumpHull * bumphull_initall(
-  BumpHull * self, BumpBody * body, BumpVec delta, 
+  BumpHull * self, BumpBody * body, BeVec delta, 
   BumpAABB bounds, int layers, int kind
 ) {
   if(!self) return NULL;
@@ -284,11 +191,11 @@ BumpHull * bumphull_initall(
 
 /* Initializes a collision hull. */
 BumpHull * bumphull_init(BumpHull * self, BumpBody * body, BumpAABB bounds) {
-  return bumphull_initall(self, body, bumpvec0(), bounds, 1, -1);
+  return bumphull_initall(self, body, bevec0(), bounds, 1, -1);
 }
 
 BumpHull * bumphull_newall(
-  BumpBody * body, BumpVec delta, BumpAABB bounds, int layers, int kind
+  BumpBody * body, BeVec delta, BumpAABB bounds, int layers, int kind
 ) {
   return bumphull_initall(bumphull_alloc(), body, delta, bounds, layers, kind);
 }
@@ -396,7 +303,7 @@ BumpBody * bumpworld_addbody(BumpWorld * self, BumpBody * body) {
 BumpHull * bumpworld_addhull(BumpWorld * self, BumpHull * hull) {
   if(!self) return NULL;
   if(!hull) return NULL;
-  if(!dynar_putptr(self->bodies, self->hull_count, hull)) return NULL;
+  if(!dynar_putptr(self->hulls, self->hull_count, hull)) return NULL;
   hull->id = self->hull_count;
   self->hull_count++;
   return hull;
@@ -407,7 +314,7 @@ BumpHull * bumpworld_removehull(BumpWorld * self, BumpHull * hull) {
   if(!self) return NULL;
   if(!hull) return NULL;  
   if (hull->id < 0) return NULL;
-  dynar_putptr(self->bodies, hull->id, NULL);
+  dynar_putptr(self->hulls, hull->id, NULL);
   hull->id = -1;  
   return hull;
 }
@@ -434,7 +341,7 @@ Tilemap * bumpworld_tilemap(BumpWorld * self) {
 /* Sets the tile map that this world must use to check collisions. 
  * Does not clean up the tile map since bumpworld doesn't own the map.
  */
-Tilemap * bumpworld_tilemap_(BumpWorld * self, Tilemap * map) {
+void * bumpworld_tilemap_(BumpWorld * self, void * map) {
   if(!self) return NULL;
   self->map = map;
   return map;
@@ -442,10 +349,13 @@ Tilemap * bumpworld_tilemap_(BumpWorld * self, Tilemap * map) {
 
 void bumpbody_update(BumpBody * self, double dt) {
   if (!self) return;
-  self->a_next = bumpvec_add(self->a, bumpvec_div(self->f, self->m));
-  self->v_next = bumpvec_add(self->v, bumpvec_mul(self->a_next, dt));
-  self->p_next = bumpvec_add(self->p, bumpvec_mul(self->v_next, dt));
-  self->a      = self->a_next;
+  /*
+  self->a_next = bevec_add(self->a, bevec_div(self->f, self->m));
+  self->v_next = bevec_add(self->v, bevec_mul(self->a_next, dt));
+  */
+  printf("Update body: %d v(%lf, %lf)\n", self->id, self->v.x, self->v.y);
+  self->v_next = self->v;
+  self->p_next = bevec_add(self->p, bevec_mul(self->v_next, dt)); 
   self->v      = self->v_next;
   self->p      = self->p_next;
 }
@@ -495,6 +405,39 @@ static void bumphull_draw_debug(BumpHull * self, Camera * camera) {
   draw_box(drawx, drawy, w, h, color, t);
 }
 
+static void bumpbody_draw_debug(BumpBody * self, Camera * camera) {
+  int cx      ; 
+  int cy      ;
+  int drawx, x;
+  int drawy, y;
+  int w, h    ;
+  int t       = 2;
+  Color color;
+  // don't draw null things.
+  if(!self) return;
+  cx          = camera_at_x(camera);
+  cy          = camera_at_y(camera);
+  w           = 32;
+  h           = 32;
+  color       = color_rgb(128, 255, 255);
+  { 
+    x         = self->p.x;
+    y         = self->p.y;
+    t         = 8;
+  }
+  /* Do not draw out of camera range. */
+  if(!camera_cansee(camera, x, y, w, h)) {
+    return;
+  }
+  drawx = x - cx;
+  drawy = y - cy;
+  draw_box(drawx, drawy, w, h, color, t);
+  color = color_rgb(128, 16, 16);
+
+   
+  al_draw_line(drawx, drawy, drawx + self->v.x, drawy + self->v.y, color, 1);  
+}
+
 BumpWorld * bumpworld_draw_debug(BumpWorld * self) {
   int index;
   State  * state  = state_get();
@@ -502,6 +445,10 @@ BumpWorld * bumpworld_draw_debug(BumpWorld * self) {
   for (index = 0 ; index < self->hull_count; index ++) { 
     BumpHull * hull = dynar_getptr(self->hulls, index);
     bumphull_draw_debug(hull, camera);
+  }  
+  for (index = 0 ; index < self->body_count; index ++) { 
+    BumpBody * body = dynar_getptr(self->bodies, index);
+    bumpbody_draw_debug(body, camera);
   }  
   return NULL;
 }

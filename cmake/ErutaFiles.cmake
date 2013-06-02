@@ -17,6 +17,7 @@ set(ERUTA_SRC_FILES
   src/alps.c
   src/area.c
   src/bad.c
+  src/bevec.c
   src/brex.c
   src/bump.c
   src/bxml.c

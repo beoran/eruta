@@ -36,9 +36,9 @@ Tilemap * tilemap_loadxml (xmlDoc * xml, TilemapLoadExtra * extra );
 
 Tilemap * tilemap_loadtmx (const char * filename, TilemapLoadExtra * extra);
 
-Tilemap * tilemap_load (char * filename, TilemapLoadExtra * extra);
+Tilemap * tilemap_load (const char * filename, TilemapLoadExtra * extra);
 
-Tilemap * tilemap_fifi_load (void * extra, char * filename );
+void * tilemap_fifi_load (void * extra, const char * filename );
 
 
 

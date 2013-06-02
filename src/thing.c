@@ -11,6 +11,9 @@
 #include "draw.h"
 #include "mem.h"
 
+#include "thing_struct.h"
+
+
 
 #define THING_WALL_MASS   INFINITY
 #define THING_ACTOR_MASS  1.0
@@ -172,17 +175,17 @@ Thing * thing_initdynamic(Thing * self, Area * area,
                        int kind, int x, int y, int z, int w, int h) { 
     BumpBody  * body    = NULL; 
     BumpHull  * shape   = NULL; 
-    BumpVec     pos     , delta;
+    BeVec     pos     , delta;
     BumpAABB    bounds;
     if(!self) return NULL;
     if(!area) return NULL;
-    pos                 = bumpvec(x, y);
+    pos                 = bevec(x, y);
     body                = bumpbody_new(pos, 1.0);
     if(!body) goto out_of_memory;    
     // dynamic things ARE positioned correctly and do not use an offset
     // the object's shape is locally around the body
     bounds              = bumpaabb(x + w / 2, y + h / 2, w / 2, h / 2);
-    delta               = bumpvec0();
+    delta               = bevec0();
     shape               = bumphull_newall(body, delta, bounds,  1 << z, kind);
     if(!shape) goto out_of_memory;    
     return thing_initgeneric(self, area, kind, z, body, shape);
@@ -215,7 +218,7 @@ of the thing. **/
 
 
 /** Position of the thing. */
-BumpVec thing_p(Thing * self) {
+BeVec thing_p(Thing * self) {
   return bumpbody_p(self->physical);
 }
 
@@ -261,7 +264,7 @@ int thing_z(Thing * self) {
 }
 
 /** Velocity of the thing. */
-BumpVec thing_v(Thing * self) {
+BeVec thing_v(Thing * self) {
   return bumpbody_v(self->physical);
 }
 
@@ -276,68 +279,68 @@ int thing_vy(Thing * self) {
 }
 
 /** Set velocity. */
-void thing_v_(Thing * self, BumpVec v) {
+void thing_v_(Thing * self, BeVec v) {
   bumpbody_v_(self->physical, v);
 }
 
 /** Set velocity by xy. */
 void thing_vxy_(Thing * self, int vx, int vy) {
-  BumpVec v = bumpvec(vx, vy);
+  BeVec v = bevec(vx, vy);
   thing_v_(self, v);
 }
 
 /** Set x velocity only, leaving y unchanged . */
 void thing_vx_(Thing * self, int vx) {
-  BumpVec v = thing_v(self);
+  BeVec v = thing_v(self);
   v.x     = vx;
   thing_v_(self, v);
 }
 
 /** Set y velocity only, leaving x unchanged . */
 void thing_vy_(Thing * self, int vy) {
-  BumpVec v = thing_v(self);
+  BeVec v = thing_v(self);
   v.y     = vy;
   thing_v_(self, v);
 }
 
 /** Sets position of thing's body. */
-void thing_p_(Thing * self, BumpVec p) {
+void thing_p_(Thing * self, BeVec p) {
   bumpbody_p_(self->physical, p);
 }
 
 /** Adds delta to the position of thing's body. */
-void thing_deltap(Thing * self, BumpVec delta) {
-  BumpVec old = thing_p(self);
-  thing_p_(self, bumpvec_add(old, delta));
+void thing_deltap(Thing * self, BeVec delta) {
+  BeVec old = thing_p(self);
+  thing_p_(self, bevec_add(old, delta));
 }
 
 /** Set position by xy. */
 void thing_pxy_(Thing * self, int x, int y) {
-  BumpVec p = bumpvec(x, y);
+  BeVec p = bevec(x, y);
   thing_p_(self, p);
 }
 
 /** Set x velocity only, leaving y unchanged . */
 void thing_x_(Thing * self, int x) {
-  BumpVec p = thing_p(self);
+  BeVec p = thing_p(self);
   p.x     = x;
   thing_p_(self, p);
 }
 
 /** Set x velocity only, leaving y unchanged . */
 void thing_y_(Thing * self, int y) {
-  BumpVec p = thing_p(self); 
+  BeVec p = thing_p(self); 
   p.y     = y;
   thing_p_(self, p);
 }
 
 /** Applies a force on the center of gravity of the thing. */
-void thing_applyforce(Thing * thing, const BumpVec f) {
+void thing_applyforce(Thing * thing, const BeVec f) {
   bumpbody_applyforce(thing->physical, f);
 }
 
 /** Applies an impulse on the center of gravity of the thing. */
-void thing_applyimpulse(Thing * thing, const BumpVec f) {
+void thing_applyimpulse(Thing * thing, const BeVec f) {
   bumpbody_applyimpulse(thing->physical, f);
 }
 
@@ -349,7 +352,7 @@ void thing_resetforces(Thing * thing) {
 /* Returns the position of self, works both for static and dynamic things. 
  * Redundant but kept for backcompat.
  */
-BumpVec thing_sdp(Thing * self) {
+BeVec thing_sdp(Thing * self) {
   return thing_p(self);
 }
 
@@ -377,7 +380,7 @@ void thing_draw(Thing * self, Camera * camera) {
     color     = color_rgbaf(1.0, 1.0, 0.0, 0.001);
   } else {
     color     = color_rgb(128, 255, 255);
-    BumpVec pos = thing_p(self);
+    BeVec pos = thing_p(self);
     x         = pos.x;
     y         = pos.y;
     t         = 8;
@@ -390,7 +393,7 @@ void thing_draw(Thing * self, Camera * camera) {
   drawy = y - cy;
   /* draw sprite if available, otherwise debug box if needed. */
   if(thing_sprite(self)) {
-    BumpVec spriteat = bumpvec(drawx, drawy);
+    BeVec spriteat = bevec(drawx, drawy);
     draw_box(drawx, drawy, w, h, color, t);
 #ifndef ERUTA_NOGFX_MODE
     spritestate_draw(&self->spritestate, &spriteat);
@@ -425,8 +428,8 @@ int thing_poseifold_(Thing * self, int oldpose, int newpose) {
 void thing_update(Thing * self, double dt) {
   if(!flags_get(self->flags, THING_FLAGS_LOCK_DIRECTION)) { 
     int newdir; 
-    BumpVec vel = thing_v(self);
-    double magnitude = bumpvec_length(vel);
+    BeVec vel = thing_v(self);
+    double magnitude = bevec_length(vel);
     if (fabs(magnitude) > 0.00) { 
      /* could change dir if moving. TODO: take the old direction into
         account for more control of facing when moving diagonally. */
@@ -462,7 +465,7 @@ void thing_update(Thing * self, double dt) {
 int thing_compare_for_drawing(const void * p1, const void * p2) {
   Thing * self  = (Thing *) p1;
   Thing * other = (Thing *) p2;
-  BumpVec pos1, pos2;
+  BeVec pos1, pos2;
   if(!p1) { 
     if(!p2) {
       return 0;

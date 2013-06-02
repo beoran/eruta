@@ -1,8 +1,7 @@
 #ifndef BUMP_H_INCLUDED
 #define BUMP_H_INCLUDED
 
-
-/* The include for this file needs to be oreceded by an include fo the tilemap.h */
+#include "bevec.h"
 
 
 struct BumpAABB;
@@ -33,7 +32,7 @@ enum BumpTile_  {
 typedef enum   BumpTile_        BumpTile;
 
 /* Axes aligned bounds box. */
-struct BumpAABB_ {  BumpVec p; BumpVec hs;  };
+struct BumpAABB_ {  BeVec p; BeVec hs;  };
 
 
 
@@ -41,39 +40,39 @@ struct BumpAABB_ {  BumpVec p; BumpVec hs;  };
 BumpAABB bumpaabb(double cx, double cy, double w, double h);
 
 BumpBody * bumpbody_alloc();
-BumpBody * bumpbody_init(BumpBody * self, BumpVec p, double mass);
-BumpBody * bumpbody_new(BumpVec p, double mass);
+BumpBody * bumpbody_init(BumpBody * self, BeVec p, double mass);
+BumpBody * bumpbody_new(BeVec p, double mass);
 BumpBody * bumpbody_done(BumpBody * self);
 BumpBody * bumpbody_free(BumpBody * self);
 
-BumpVec bumpbody_p(BumpBody  * self);
-BumpVec bumpbody_v(BumpBody  * self);
-BumpVec bumpbody_a(BumpBody  * self);
+BeVec bumpbody_p(BumpBody  * self);
+BeVec bumpbody_v(BumpBody  * self);
+BeVec bumpbody_a(BumpBody  * self);
 void * bumpbody_data(BumpBody  * self);
 
 
-BumpVec bumpbody_p_(BumpBody  * self, BumpVec v);
-BumpVec bumpbody_v_(BumpBody  * self, BumpVec v);
-BumpVec bumpbody_a_(BumpBody  * self, BumpVec v);
+BeVec bumpbody_p_(BumpBody  * self, BeVec v);
+BeVec bumpbody_v_(BumpBody  * self, BeVec v);
+BeVec bumpbody_a_(BumpBody  * self, BeVec v);
 void bumpbody_data_(BumpBody  * self, void * data);
 
-BumpVec bumpbody_p_impulse(BumpBody  * self, BumpVec v);
-BumpVec bumpbody_v_impulse(BumpBody  * self, BumpVec v);
-BumpVec bumpbody_a_impulse(BumpBody  * self, BumpVec v);
+BeVec bumpbody_p_impulse(BumpBody  * self, BeVec v);
+BeVec bumpbody_v_impulse(BumpBody  * self, BeVec v);
+BeVec bumpbody_a_impulse(BumpBody  * self, BeVec v);
 
-void bumpbody_applyforce(BumpBody  * self, BumpVec v);
-void bumpbody_applyimpulse(BumpBody  * self, BumpVec v);
+void bumpbody_applyforce(BumpBody  * self, BeVec v);
+void bumpbody_applyimpulse(BumpBody  * self, BeVec v);
 void bumpbody_resetforces(BumpBody  * self);
 
 
 BumpHull *      bumphull_alloc();
 BumpHull *      bumphull_initall(BumpHull * self, 
-                  BumpBody * body, BumpVec delta, 
+                  BumpBody * body, BeVec delta, 
                   BumpAABB bounds, int layers, int kind);
 
 BumpHull *      bumphull_init(BumpHull * self, BumpBody * body, BumpAABB bounds);
 BumpHull *      bumphull_newall(BumpBody * body, 
-                  BumpVec delta, BumpAABB bounds, int layers, int kind);
+                  BeVec delta, BumpAABB bounds, int layers, int kind);
 
 BumpHull *      bumphull_new(BumpBody * body, BumpAABB bounds);
 BumpHull *      bumphull_done(BumpHull * self);
@@ -98,7 +97,7 @@ BumpBody * bumpworld_movebody(BumpWorld * to, BumpWorld * from, BumpBody * body)
 BumpHull * bumpworld_addhull(BumpWorld * self, BumpHull * hull);
 BumpHull * bumpworld_removehull(BumpWorld * self, BumpHull * hull);
 
-Tilemap * bumpworld_tilemap_(BumpWorld * self, Tilemap * map);
+void * bumpworld_tilemap_(BumpWorld * self, void * map);
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt);
 

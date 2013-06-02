@@ -1,10 +1,12 @@
 #ifndef thing_H_INCLUDED
 #define thing_H_INCLUDED
 
+#include "camera.h"
+#include "bump.h"
+#include "sprite.h"
+
 
 typedef struct Thing_ Thing; 
-
-
 
 /* Thing types. Generally speaking, there are 
 things that can move and those that cannot. 
@@ -43,38 +45,6 @@ enum Thingflags_ {
 
 
 
-/**
-* A Thing is any in-game object that appears the world/map view.
-*/
-struct Thing_ {
-  int         kind;  /* What kind of thing it is. Same as collision type. */
-  int         id;    /* Numercial ID. */
-  int         flags; /* State flags.  */
-  Area      * area; /* Area the thing is in if any. */
-  BumpBody  * physical; /* Physical body of the thing. Is NULL for statical body. */
-  BumpHull  * hull;
-  int         z; /* Layer the thing is in. */
-  void *      data; /* Logical data of the thing. */
-  /* Chipmunk makes it rather hard to get to the size of a 
-  shape, and also since static shapes all have the same body, the position 
-  of static shapes is lost. And getting the box is
-  not reliable enough. So keep the size and position 
-  for static shapes here even if it's slightly redundant.
-  */
-  BumpVec       size; /* size of outline of shape */
-  BumpVec       spos; /* Position, merely for static shapes, for dynamic
-  bodies, use cpBodyGetPos*/
-  /* Sprite information. Also is the reference for the direction the thing is facing. 
-   */
-  SpriteState spritestate;
-  /* Link back to "owner" for attacks, etc. Null if independent. */
-  Thing     * owner; 
-  /* Linked things, such as searchers, attacks, spells. */
-  Thing     * linked[THING_LINKED_MAX];
-};
-
-
-
 
 
 int thing_id(Thing * thing);
@@ -100,26 +70,9 @@ cpShape * shape_rectnew(cpBody * body,
 
 int thing_static_p(Thing * self);
 
-Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
-                          BumpBody * body, BumpHull * shape);
-
-Thing * thing_initstatic(Thing * self, Area * area, 
-                       int kind, 
-                       int x, int y, int z, int w, int h);
-
-Thing * thing_initdynamic(Thing * self, Area * area, 
-                       int kind, int x, int y, int z, int w, int h);
 
 
-Thing * thing_newstatic(Area * area, 
-                       int kind, 
-                       int x, int y, int z, int w, int h) ;
-                       
-Thing * thing_newdynamic(Area * area, 
-                       int kind, 
-                       int x, int y, int z, int w, int h);
-
-BumpVec thing_p(Thing * self);
+BeVec thing_p(Thing * self);
 int thing_x(Thing * self);
 int thing_y(Thing * self);
 int thing_w(Thing * self);
@@ -127,22 +80,22 @@ int thing_h(Thing * self);
 int thing_cx(Thing * self);
 int thing_cy(Thing * self);
 int thing_z(Thing * self);
-BumpVec thing_v(Thing * self);
+BeVec thing_v(Thing * self);
 int thing_vx(Thing * self);
 int thing_vy(Thing * self);
-void thing_v_(Thing * self, BumpVec v);
+void thing_v_(Thing * self, BeVec v);
 void thing_vxy_(Thing * self, int vx, int vy);
 void thing_vx_(Thing * self, int vx);
 void thing_vy_(Thing * self, int vy);
-void thing_p_(Thing * self, BumpVec p);
-void thing_deltap(Thing * self, BumpVec delta);
+void thing_p_(Thing * self, BeVec p);
+void thing_deltap(Thing * self, BeVec delta);
 void thing_pxy_(Thing * self, int x, int y);
 void thing_x_(Thing * self, int x);
 void thing_y_(Thing * self, int y);
-void thing_applyforce(Thing * thing, const BumpVec f);
-void thing_applyimpulse(Thing * thing, const BumpVec f);
+void thing_applyforce(Thing * thing, const BeVec f);
+void thing_applyimpulse(Thing * thing, const BeVec f);
 void thing_resetforces(Thing * thing);
-BumpVec thing_sdp(Thing * self);
+BeVec thing_sdp(Thing * self);
 void thing_draw(Thing * self, Camera * camera);
 int thing_direction(Thing * self);
 int thing_pose(Thing * self);
@@ -151,7 +104,8 @@ void thing_update(Thing * self, double dt);
 
 int thing_compare_for_drawing(const void * p1, const void * p2);
 
-
+/* This is declared here to avoid a cyclical dependency. */
+Thing * camera_track_ (Camera * self , Thing * track );
 
 
 #endif

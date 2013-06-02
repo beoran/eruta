@@ -1,8 +1,6 @@
 #ifndef area_H_INCLUDED
 #define area_H_INCLUDED
 
-#include <chipmunk.h>
-
 
 
 /*
@@ -62,6 +60,27 @@ Thing * area_newdynamic (Area * self , int kind , int x , int y , int z , int w 
 void area_draw (Area * self , Camera * camera );
 
 void area_update (Area * self , double dt );
+
+/* There are thing related but go here to avoid cyclical dependency problems. */
+
+Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
+                          BumpBody * body, BumpHull * shape);
+
+Thing * thing_initstatic(Thing * self, Area * area, 
+                       int kind, 
+                       int x, int y, int z, int w, int h);
+
+Thing * thing_initdynamic(Thing * self, Area * area, 
+                       int kind, int x, int y, int z, int w, int h);
+
+
+Thing * thing_newstatic(Area * area, 
+                       int kind, 
+                       int x, int y, int z, int w, int h) ;
+                       
+Thing * thing_newdynamic(Area * area, 
+                       int kind, 
+                       int x, int y, int z, int w, int h);
 
 
 #ifdef COMMENT_

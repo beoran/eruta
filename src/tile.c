@@ -149,7 +149,7 @@ Tile * tile_recalculate(Tile * tile) {
   if(!tile->set) return NULL;
   x = TILE_SHEET_X(tile, tile->set);
   y = TILE_SHEET_Y(tile, tile->set);
-  tile->now = bumpvec(x, y); 
+  tile->now = bevec(x, y); 
   return tile;
 }
 
