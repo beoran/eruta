@@ -347,17 +347,41 @@ void * bumpworld_tilemap_(BumpWorld * self, void * map) {
   return map;
 }
 
-void bumpbody_update(BumpBody * self, double dt) {
+/* Calculates the motion and speed of the body 
+ disregarding any collisions. v_next and p_next will be set, but p and v not.
+ Call bumpbody_update_commit after collision calculation top finalize the motion. */
+void bumpbody_integrate(BumpBody * self, double dt) {
   if (!self) return;
   /*
   self->a_next = bevec_add(self->a, bevec_div(self->f, self->m));
   self->v_next = bevec_add(self->v, bevec_mul(self->a_next, dt));
   */
-  printf("Update body: %d v(%lf, %lf)\n", self->id, self->v.x, self->v.y);
   self->v_next = self->v;
   self->p_next = bevec_add(self->p, bevec_mul(self->v_next, dt)); 
+}
+
+/* Uses the values in p_next and v_next as */
+void bumpbody_commit(BumpBody * self) {
   self->v      = self->v_next;
   self->p      = self->p_next;
+}
+
+void bumpworld_collide_hull(BumpWorld * self, BumpHull * hull, int dt) {
+  /* Collide the hull with the grid, setting lock flags to disallow further motion 
+   in the direction. For now, no swept collisions are supported, and 
+   the tile map is purely rectilinear (no diagonals yet). 
+   The tilemap tiles that could overlap with the outline of the hull have to be 
+   checked for collision at the future location of this hull;
+   */
+  BeVec    next_p;
+  BumpAABB next_box;
+  if ((!hull) || (!hull->body)) return; 
+  next_p        = bevec_add(hull->body->p_next, hull->delta);
+  next_box.hs   = hull->bounds.hs; 
+  
+  
+  
+  
 }
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
@@ -365,8 +389,20 @@ BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
   /* simple integration for now. */
   for (index = 0; index < self->body_count; index ++) {
     BumpBody * body = dynar_getptr(self->bodies, index);
-    bumpbody_update(body, dt);
+    bumpbody_integrate(body, dt);
   }
+  /* Hull to grid collisions. */
+  for (index = 0; index < self->hull_count; index ++) {
+    BumpHull * hull = dynar_getptr(self->hulls, index);
+    bumpworld_collide_hull(self, hull, dt);
+  }
+  
+  /* Commit motions. */
+  for (index = 0; index < self->body_count; index ++) {
+    BumpBody * body = dynar_getptr(self->bodies, index);
+    bumpbody_commit(body);
+  }
+  
   
   return self;
 }

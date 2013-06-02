@@ -74,16 +74,16 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
   }
   switch(event->keycode) {
     case ALLEGRO_KEY_UP:
-      f.y = -10;
+      f.y = -100;
     break;
     case ALLEGRO_KEY_DOWN:
-      f.y = +10;
+      f.y = +100;
     break;
     case ALLEGRO_KEY_LEFT:
-      f.x = -10;
+      f.x = -100;
     break;
     case ALLEGRO_KEY_RIGHT:
-      f.x = +10;
+      f.x = +100;
     break;
     case ALLEGRO_KEY_F1:
       bbconsole_active_(state_console(state), TRUE);
@@ -133,7 +133,7 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     default:
     break;
   }
-  if(actor_data) {
+  if (actor_data) {
     thing_v_(actor_data, f);
   } else {
     puts("No actor data!");
