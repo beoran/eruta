@@ -33,14 +33,164 @@ struct BumpBody_ {
 struct BumpHull_ {
   int id;
   BumpBody  * body;
-  BeVec     delta;
+  BeVec       delta;
   BumpAABB    bounds;
   int         layers;
   int         kind;
 };
 
+typedef struct BumpHash_        BumpHash;
+typedef struct BumpHashElement_ BumpHashElement;
+typedef struct BumpHashBucket_  BumpHashBucket;
+
+/* Elemenst to store in a BumpHash spatial hash table. */
+struct BumpHashElement_ {
+  BumpHashElement * next;
+  void * data;
+  int    mult_x;
+  int    mult_y;
+  int    tile_x;
+  int    tile_y;
+};
+
+/* A Hash bucket. */
+struct BumpHashBucket_ {
+  struct BumpHashElement_ * element;
+  int size;
+};
+
+/* Spacial hashing with a twist: so the size of the table can stay constant, 
+ * the virtual grid  of the hash is "repeated" in the x and Y direction. 
+ * This means that very distant objects can be together in one hash cell, however,
+ * it should still be fast to do collision since a multiplier is set, and if that 
+ * isn't equal, the far-away object cqn be filtered out.  
+ */
+
+#define BUMPHASH_TILE_W 64
+#define BUMPHASH_TILE_H 64
+#define BUMPHASH_GRID_W 64
+#define BUMPHASH_GRID_H 64
+#define BUMPHASH_BUCKETS        ((BUMPHASH_GRID_W)*(BUMPHASH_GRID_H))
+#define BUMPHASH_W              ((BUMPHASH_GRID_W)*(BUMPHASH_TILE_W))
+#define BUMPHASH_H              ((BUMPHASH_GRID_H)*(BUMPHASH_TILE_H))
+
 #define BUMP_WORLD_MAXBODIES 1000
 #define BUMP_WORLD_MAXHULLS  5000
+#define BUMPHASH_ELEMENTS    5000
+
+
+struct BumpHash_ {  
+  /* Elements. */
+  BumpHashElement elements[BUMPHASH_ELEMENTS];
+  int last_element;
+  /* Buckets. */
+  BumpHashBucket buckets[BUMPHASH_BUCKETS];
+};
+
+
+/* AABB helper functions. */
+
+/* X coordinate of left side of box. */
+double bumpaabb_left(BumpAABB * self) {
+  return self->p.x - self->hs.x;
+}
+
+/* X coordinate of right side of box. */
+double bumpaabb_right(BumpAABB * self) {
+  return self->p.x + self->hs.x;
+}
+
+/* Y coordinate of top side of box. */
+double bumpaabb_top(BumpAABB * self) {
+  return self->p.y - self->hs.y;
+}
+
+/* X coordinate of bottom side of box. */
+double bumpaabb_down(BumpAABB * self) {
+  return self->p.y + self->hs.y;
+}
+
+
+BumpHash * bumphash_empty(BumpHash * self) {
+  int index;
+  if (!self) return NULL;
+  self->last_element = 0;
+  for(index = 0; index < BUMPHASH_BUCKETS; index++) {
+      BumpHashBucket * bucket = self->buckets + index;
+      bucket->element = NULL;
+      bucket->size    = 0;
+  }
+  for(index = 0; index < BUMPHASH_ELEMENTS; index++) {
+      BumpHashElement * element = self->elements + index;
+      element->data   = NULL;
+      element->next   = NULL;
+      element->mult_x = -1;
+      element->mult_x = -1;
+  }
+  return self;
+};
+
+
+BumpHash * bumphash_init(BumpHash * self) {
+  return bumphash_empty(self);
+}
+
+
+BumpHashElement * 
+bumphashelement_init(BumpHashElement * element, int x, int y, void * data) {  
+  element->data         = data;
+  element->tile_x       = x / BUMPHASH_W;
+  element->tile_y       = y / BUMPHASH_H;  
+  element->mult_x       = x % BUMPHASH_W;
+  element->mult_y       = y % BUMPHASH_H;  
+  return element;
+}
+
+
+int bumphash_index(BumpHash * self, int x, int y) {
+  int index = x / BUMPHASH_W;
+  index    += (y / BUMPHASH_H) * BUMPHASH_GRID_W;
+  /* convert 2d index to 1d index. */
+  return index;
+}
+
+BumpHashBucket * bumphash_getbucket(BumpHash * self, int x, int y) {
+  int index            = bumphash_index(self, x, y);
+  return self->buckets + index;  
+}
+
+BumpHashElement * bumphash_add(BumpHash * self, int x, int y, void * data) {
+  int index;
+  BumpHashElement * element, *next_element;
+  BumpHashBucket  * bucket;
+  if (self->last_element >= BUMPHASH_ELEMENTS) {
+    return NULL;
+  }
+  element               = self->elements + self->last_element;
+  bumphashelement_init(element, x, y, data);  
+  bucket                = bumphash_getbucket(self, x, y);
+  next_element          = bucket->element; 
+  element->next         = next_element;
+  bucket->element       = element;
+  return element;
+}
+
+/* First bump hash element. Use bumphashelement_next_at to get other objects in the same location. 
+ * That are linked to this one. 
+ */
+BumpHashElement * bumphash_getelement(BumpHash * self, int x, int y) {
+  BumpHashElement       * element;
+  BumpHashBucket        * bucket;
+  bucket                = bumphash_getbucket(self, x, y);
+  return bucket->element;  
+}
+
+int bumphashelement_ok(BumpHashElement * self, int x, int y) {
+  int mult_x       = x % BUMPHASH_W;
+  int mult_y       = y % BUMPHASH_H;  
+  return ((self->mult_x == mult_x) && (self->mult_y == mult_y));
+}
+
 
 struct BumpWorld_ {
   Dynar       * bodies;
@@ -48,6 +198,7 @@ struct BumpWorld_ {
   int           body_count;
   int           hull_count;
   Tilemap     * map;
+  BumpHash      hash;
 };
 
 
@@ -249,6 +400,31 @@ BumpAABB * bumphull_aabbptr(BumpHull * hull) {
   return &(hull->bounds);
 }
 
+/** Gets the bounds box of the bump hull and moves it to the 
+ * correct position relative to the hull's body (if any). 
+ */
+BumpAABB bumphull_aabb_real(BumpHull * hull) {
+  BumpAABB bounds = hull->bounds;
+  if (hull->body) { 
+    bounds.p        = bevec_add(hull->body->p, hull->delta);
+  } else {
+    bounds.p        = hull->delta;
+  }
+  return bounds;
+}
+
+/** Gets the bounds box of the bump hull and moves it to the 
+ * correct position relative to NEXT position of the the hull's body (if any). 
+ */
+BumpAABB bumphull_aabb_next(BumpHull * hull) {
+  BumpAABB bounds = hull->bounds;
+  if (hull->body) { 
+    bounds.p        = bevec_add(hull->body->p_next, hull->delta);
+  } else {
+    bounds.p        = hull->delta;
+  }
+  return bounds;
+}
 
 BumpHull * bumphull_free(BumpHull * self) {
   bumphull_done(self);
@@ -270,6 +446,7 @@ BumpWorld * bumpworld_init(BumpWorld * self) {
   self->bodies          = dynar_newptr(BUMP_WORLD_MAXBODIES);
   self->hulls           = dynar_newptr(BUMP_WORLD_MAXHULLS);
   self->map             = NULL;
+  bumphash_init(&self->hash);
   return self;
 }
 
@@ -366,6 +543,11 @@ void bumpbody_commit(BumpBody * self) {
   self->p      = self->p_next;
 }
 
+/* Calculates the displacement vector that is needed to push back 
+ * to_push out of pushed. Pvec is the motion vector of the collision motion. 
+ * It is used to push out 
+ */
+
 void bumpworld_collide_hull(BumpWorld * self, BumpHull * hull, int dt) {
   /* Collide the hull with the grid, setting lock flags to disallow further motion 
    in the direction. For now, no swept collisions are supported, and 
@@ -375,14 +557,54 @@ void bumpworld_collide_hull(BumpWorld * self, BumpHull * hull, int dt) {
    */
   BeVec    next_p;
   BumpAABB next_box;
+  BumpAABB bounds;
+  int x, y, z, tx, ty;
   if ((!hull) || (!hull->body)) return; 
+  if (!self->map) return;
+  
   next_p        = bevec_add(hull->body->p_next, hull->delta);
-  next_box.hs   = hull->bounds.hs; 
+  bounds        = bumphull_aabb_next(hull);
+  for (y = bumpaabb_top(&bounds); y <= bumpaabb_down(&bounds) ; y += TILE_H) {
+    for (x = bumpaabb_left(&bounds); x <= bumpaabb_right(&bounds) ; x += TILE_W) {
+      for (z = 0; z < tilemap_panes(self->map) ; z++) {
+        tx = x / TILE_W;
+        ty = y / TILE_H;
+        Tile * tile = tilemap_get(self->map, x, y, z);
+        // Check if the point collides with a wall...
+        if (tile_isflag(tile, TILE_WALL)) { 
+          // Check the direction vector of motion. 
+          BeVec push;
+          BeVec pdir = bevec_sub(next_p, hull->body->p);
+          /* calculate x and y displacements and project them on the motion vector. */
+          
+          
+          
+        }
+      }  
+    }
+  }  
+  
   
   
   
   
 }
+
+
+/**
+ * Adds a hull to a spatial hash. 
+ */
+void bumphash_addhull(BumpHash * hash, BumpHull * hull) {
+  int x, y;
+  BumpAABB bounds = bumphull_aabb_real(hull);
+  for (y = bumpaabb_top(&bounds); y <= bumpaabb_down(&bounds) ; y += BUMPHASH_TILE_H) {
+    for (x = bumpaabb_left(&bounds); x <= bumpaabb_right(&bounds) ; x += BUMPHASH_TILE_W) {
+      bumphash_add(hash, x, y, hull);      
+    }
+  }  
+}
+
+
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
   int index; 
@@ -391,6 +613,16 @@ BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
     BumpBody * body = dynar_getptr(self->bodies, index);
     bumpbody_integrate(body, dt);
   }
+  /* Update the spatial hash. */
+  bumphash_empty(&self->hash);
+   
+  for (index = 0; index < self->hull_count; index ++) {
+    BumpHull * hull = dynar_getptr(self->hulls, index);
+    bumphash_addhull(&self->hash, hull);    
+  }
+  
+ 
+  
   /* Hull to grid collisions. */
   for (index = 0; index < self->hull_count; index ++) {
     BumpHull * hull = dynar_getptr(self->hulls, index);
@@ -419,17 +651,19 @@ static void bumphull_draw_debug(BumpHull * self, Camera * camera) {
   int drawy, y;
   int w, h    ;
   int t       = 2;
+  BumpAABB bounds;
   Color color;
   // don't draw null things.
   if(!self) return;
   cx          = camera_at_x(camera);
   cy          = camera_at_y(camera);
-  w           = self->bounds.hs.x;
-  h           = self->bounds.hs.y;
-  color       = color_rgb(128, 255, 255);
+  bounds      = bumphull_aabb_real(self);
+  w           = bounds.hs.x;
+  h           = bounds.hs.y;
+  color       = color_rgb(64, 255, 64);
   { 
-    x         = self->bounds.p.x;
-    y         = self->bounds.p.y;
+    x         = bounds.p.x;
+    y         = bounds.p.y;
     t         = 8;
   }
   /* Do not draw out of camera range. */
@@ -459,7 +693,7 @@ static void bumpbody_draw_debug(BumpBody * self, Camera * camera) {
   { 
     x         = self->p.x;
     y         = self->p.y;
-    t         = 8;
+    t         = 4;
   }
   /* Do not draw out of camera range. */
   if(!camera_cansee(camera, x, y, w, h)) {

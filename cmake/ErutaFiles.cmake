@@ -14,6 +14,7 @@ set(BF_SRC_FILES
 
 set(ERUTA_SRC_FILES
   ${BF_SRC_FILES}
+  src/aline.c
   src/alps.c
   src/area.c
   src/bad.c

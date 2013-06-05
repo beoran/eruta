@@ -310,6 +310,7 @@ given coordinates. Does nothing if tile is NULL.  */
 void tile_draw(Tile * tile, int x, int y) {  
   Tileset * set;
   Image * sheet;
+  Color dcolor = al_map_rgb(0xee, 0xee, 0x00);
   if (!tile) return;
   set   =  tile->set;
   sheet = set->sheet;
@@ -321,6 +322,10 @@ void tile_draw(Tile * tile, int x, int y) {
   float sh      = (float) TILE_H;
   // printf("%f %f\n", sx, sy);
   al_draw_bitmap_region(sheet, sx, sy, sw, sh, dx, dy, 0);
+  // debugging solid tiles
+  if (tile_isflag(tile, TILE_WALL)) {
+    al_draw_rectangle(dx, dy, dx+TILE_W, dy+TILE_H, dcolor, 2);
+  } 
   // al_draw_bitmap(sheet, dx, dy, 0);
 }
 
