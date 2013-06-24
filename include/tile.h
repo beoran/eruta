@@ -16,18 +16,18 @@ enum TILE_ANIME_OPCODE_ {
 
 /* Tile flags. */ 
 enum TILE_FLAGS_ {
-  TILE_WALL         = 1 << 1,
-  TILE_WATER        = 1 << 2,
-  TILE_LEDGE        = 1 << 3,
-  TILE_STAIR        = 1 << 4,
-  TILE_PUSH         = 1 << 5,
-  TILE_NORTH        = 1 << 6,
-  TILE_SOUTH        = 1 << 7,
-  TILE_EAST         = 1 << 8,
-  TILE_WEST         = 1 << 9,  
-  TILE_UP           = 1 << 10,
-  TILE_DOWN         = 1 << 11,
-  TILE_ICE          = 1 << 12,
+  TILE_WALL         = 1 << 0,
+  TILE_WATER        = 1 << 1,
+  TILE_LEDGE        = 1 << 2,
+  TILE_STAIR        = 1 << 3,
+  TILE_PUSH         = 1 << 4,
+  TILE_NORTH        = 1 << 5,
+  TILE_SOUTH        = 1 << 6,
+  TILE_EAST         = 1 << 7,
+  TILE_WEST         = 1 << 8,  
+  TILE_UP           = 1 << 9,
+  TILE_DOWN         = 1 << 10,
+  TILE_ICE          = 1 << 11,
 };
 
 

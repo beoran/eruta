@@ -184,7 +184,7 @@ Thing * thing_initdynamic(Thing * self, Area * area,
     if(!body) goto out_of_memory;    
     // dynamic things ARE positioned correctly and do not use an offset
     // the object's shape is locally around the body
-    bounds              = bumpaabb(x + w / 2, y + h / 2, w / 2, h / 2);
+    bounds              = bumpaabb(x, y, w, h);
     delta               = bevec0();
     shape               = bumphull_newall(body, delta, bounds,  1 << z, kind);
     if(!shape) goto out_of_memory;    

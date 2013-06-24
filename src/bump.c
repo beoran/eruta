@@ -426,6 +426,66 @@ BumpAABB bumphull_aabb_next(BumpHull * hull) {
   return bounds;
 }
 
+/* Returns overlap of the bounds boxes of self and other in x direction. 
+ * May be zero or negative if no overlap.
+ */ 
+double bumpaabb_overlap_x(BumpAABB self, BumpAABB other) {
+    if (self.p.x < other.p.x) { 
+      return self.hs.x - (other.p.x - self.p.x ); 
+    } else { 
+      return other.hs.x - (self.p.x - other.p.x);
+    } 
+}
+
+/* Returns overlap of the bounds boxes of self and other in y direction. 
+ * May be zero or negative if no overlap.
+ */ 
+double bumpaabb_overlap_y(BumpAABB self, BumpAABB other) {
+    if (self.p.y < other.p.y) { 
+      return self.hs.y - (other.p.y - self.p.y ); 
+    } else { 
+      return other.hs.y - (self.p.y - other.p.y);
+    } 
+}
+
+
+/* Returns the overlap vector between two bounds boxes. */
+BeVec bumpaabb_overlap_vector(BumpAABB self, BumpAABB other) {
+ return bevec(bumpaabb_overlap_x(self, other), bumpaabb_overlap_y(self, other));
+}
+
+/* Returns whether or not there is overlap between two bounds boxes. */
+int bumpaabb_overlap_p(BumpAABB self, BumpAABB other) {
+ if (bumpaabb_overlap_x(self, other) < 0) return FALSE; 
+ return (bumpaabb_overlap_y(self, other) > 0);
+}
+
+
+/* Collision pushback vector. */
+BeVec bumpaabb_collision_pushback(BumpAABB self, BumpAABB other, BeVec motion, double dt) {
+  BeVec overlap = bumpaabb_overlap_vector(self, other);
+  double angle  = bevec_toangle(motion);
+  BeVec dp      = bevec_sub(other.p, self.p);
+  double fact_x, fact_y, delta_x, delta_y;
+  BeVec delta;
+  double xprod  = dp.x * overlap.x;
+  double yprod  = dp.x * overlap.y;
+  fact_x        = dp.x < 0 ? 1 : -1;  
+  fact_y        = dp.y < 0 ? 1 : -1;
+
+  if (abs(xprod) > abs(yprod)) { 
+    delta_x     = overlap.x * fact_x;
+    delta_y     = tan(M_PI - angle) * overlap.x * fact_y;
+  } else { 
+    delta_x     = tan(M_PI - angle) * overlap.y * fact_x;
+    delta_y     = overlap.y * fact_y;
+  }
+  delta         = bevec(delta_x, delta_y);
+  return delta;
+}
+
+
+
 BumpHull * bumphull_free(BumpHull * self) {
   bumphull_done(self);
   return mem_free(self);
@@ -555,39 +615,47 @@ void bumpworld_collide_hull(BumpWorld * self, BumpHull * hull, int dt) {
    The tilemap tiles that could overlap with the outline of the hull have to be 
    checked for collision at the future location of this hull;
    */
+  double drawx1, drawy1, drawx2, drawy2;
   BeVec    next_p;
   BumpAABB next_box;
   BumpAABB bounds;
+  ALLEGRO_COLOR col = al_map_rgba(255,0, 128, 128);
   int x, y, z, tx, ty;
   if ((!hull) || (!hull->body)) return; 
-  if (!self->map) return;
+  if (!self->map) return;  
   
   next_p        = bevec_add(hull->body->p_next, hull->delta);
   bounds        = bumphull_aabb_next(hull);
-  for (y = bumpaabb_top(&bounds); y <= bumpaabb_down(&bounds) ; y += TILE_H) {
-    for (x = bumpaabb_left(&bounds); x <= bumpaabb_right(&bounds) ; x += TILE_W) {
+  drawy1        =  bumpaabb_top(&bounds);
+  drawy2        =  bumpaabb_down(&bounds);
+  drawx1        =  bumpaabb_left(&bounds);
+  drawx2        =  bumpaabb_right(&bounds);  
+  
+  for (y = bumpaabb_top(&bounds); y <= (bumpaabb_down(&bounds) + 1) ; y += (TILE_H ) ) {
+    for (x = bumpaabb_left(&bounds); x <= (bumpaabb_right(&bounds) + 1) ; x += (TILE_W / 2 )) {
       for (z = 0; z < tilemap_panes(self->map) ; z++) {
-        tx = x / TILE_W;
-        ty = y / TILE_H;
-        Tile * tile = tilemap_get(self->map, x, y, z);
-        // Check if the point collides with a wall...
-        if (tile_isflag(tile, TILE_WALL)) { 
-          // Check the direction vector of motion. 
-          BeVec push;
-          BeVec pdir = bevec_sub(next_p, hull->body->p);
-          /* calculate x and y displacements and project them on the motion vector. */
-          
-          
-          
+        tx = (x / TILE_W);
+        ty = (y / TILE_H);
+        // remeber, z goes first since it's a layer. 
+        Tile * tile = tilemap_get(self->map, z, tx, ty);
+        // Check if the point collides with a wall...                
+        if (tile_isflag(tile, TILE_WALL)) {           
+          printf("!\n");
+          double   tcx          = TILE_W * tx + TILE_W / 2;
+          double   tcy          = TILE_H * ty + TILE_H / 2;          
+          BumpAABB tileaabb     = bumpaabb(tcx, tcy, TILE_W / 2, TILE_H / 2); 
+          // continue if no collision 
+          if(!bumpaabb_overlap_p(bounds, tileaabb)) {
+            continue;
+          }          
+          // Calculate the pushback vector. 
+          BeVec push            = bumpaabb_collision_pushback(bounds, tileaabb, hull->body->v,  dt);
+          /* Add the pushback to the next motion of this hull's body */
+          hull->body->p_next    = bevec_add(hull->body->p_next, push);
         }
       }  
     }
   }  
-  
-  
-  
-  
-  
 }
 
 
@@ -613,14 +681,14 @@ BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
     BumpBody * body = dynar_getptr(self->bodies, index);
     bumpbody_integrate(body, dt);
   }
-  /* Update the spatial hash. */
+  /* XXX: Update the spatial hash. 
   bumphash_empty(&self->hash);
    
   for (index = 0; index < self->hull_count; index ++) {
     BumpHull * hull = dynar_getptr(self->hulls, index);
     bumphash_addhull(&self->hash, hull);    
   }
-  
+  */
  
   
   /* Hull to grid collisions. */
@@ -644,13 +712,15 @@ static void bumpworld_draw_tilemap_debug(BumpTilemap * self, Camera * camera) {
   
 }
 
-static void bumphull_draw_debug(BumpHull * self, Camera * camera) {
+static void bumphull_draw_debug(BumpWorld * world, BumpHull * self, Camera * camera) {
   int cx      ; 
   int cy      ;
   int drawx, x;
   int drawy, y;
+  double drawx1, drawy1, drawx2, drawy2;
   int w, h    ;
   int t       = 2;
+  BeVec next_p; 
   BumpAABB bounds;
   Color color;
   // don't draw null things.
@@ -658,9 +728,9 @@ static void bumphull_draw_debug(BumpHull * self, Camera * camera) {
   cx          = camera_at_x(camera);
   cy          = camera_at_y(camera);
   bounds      = bumphull_aabb_real(self);
-  w           = bounds.hs.x;
-  h           = bounds.hs.y;
-  color       = color_rgb(64, 255, 64);
+  w           = bounds.hs.x * 2; 
+  h           = bounds.hs.y * 2;
+  color       = color_rgba(64, 255, 64, 128);
   { 
     x         = bounds.p.x;
     y         = bounds.p.y;
@@ -673,6 +743,42 @@ static void bumphull_draw_debug(BumpHull * self, Camera * camera) {
   drawx = x - cx;
   drawy = y - cy;
   draw_box(drawx, drawy, w, h, color, t);
+  
+  
+  next_p        =  /*bevec_add( */ self->body->p_next /* , self->delta) */ ;
+  bounds.p      =  next_p;
+  drawy1        =  bumpaabb_top(&bounds)   - (double)cy;
+  drawy2        =  bumpaabb_down(&bounds)  - (double)cy;
+  drawx1        =  bumpaabb_left(&bounds)  - (double)cx;
+  drawx2        =  bumpaabb_right(&bounds) - (double)cx;
+  color         = color_rgba(64, 0, 128, 128);
+  al_draw_rectangle(drawx1, drawx2, drawy1, drawy2, color, 1);
+   color         = color_rgba(255, 0, 64, 128);
+  
+  for (y = bumpaabb_top(&bounds); y <= (bumpaabb_down(&bounds) + 1) ; y += (TILE_H) ) {
+    for (x = bumpaabb_left(&bounds); x <= (bumpaabb_right(&bounds) + 1) ; x += (TILE_W)) {
+        int tx = (x / TILE_W);
+        int ty = (y / TILE_H);
+        Tile * tile = tilemap_get(world->map, 1, tx, ty);
+        // Check if the point collides with a wall...                
+        if (tile_isflag(tile, TILE_WALL)) { 
+          drawx = (tx * TILE_W)  - cx;
+          drawy = (ty * TILE_H)  - cy;          
+          draw_box(drawx, drawy, TILE_W, TILE_H, color, 2);
+        }
+        
+        drawx = x - cx;
+        drawy = y - cy;
+        al_draw_filled_circle(drawx, drawy, 3, color);
+
+      
+            
+      
+    }
+  }
+  
+  
+  
 }
 
 static void bumpbody_draw_debug(BumpBody * self, Camera * camera) {
@@ -689,7 +795,7 @@ static void bumpbody_draw_debug(BumpBody * self, Camera * camera) {
   cy          = camera_at_y(camera);
   w           = 32;
   h           = 32;
-  color       = color_rgb(128, 255, 255);
+  color       = color_rgba(128, 255, 255, 128);
   { 
     x         = self->p.x;
     y         = self->p.y;
@@ -701,12 +807,11 @@ static void bumpbody_draw_debug(BumpBody * self, Camera * camera) {
   }
   drawx = x - cx;
   drawy = y - cy;
-  draw_box(drawx, drawy, w, h, color, t);
-  color = color_rgb(128, 16, 16);
-
-   
+  draw_box(drawx - (w / 2), drawy - (h / 2), w, h, color, t);
+  color = color_rgba(128, 16, 16, 128);
   al_draw_line(drawx, drawy, drawx + self->v.x, drawy + self->v.y, color, 1);  
 }
+
 
 BumpWorld * bumpworld_draw_debug(BumpWorld * self) {
   int index;
@@ -714,7 +819,7 @@ BumpWorld * bumpworld_draw_debug(BumpWorld * self) {
   Camera * camera = state_camera(state);
   for (index = 0 ; index < self->hull_count; index ++) { 
     BumpHull * hull = dynar_getptr(self->hulls, index);
-    bumphull_draw_debug(hull, camera);
+    bumphull_draw_debug(self, hull, camera);
   }  
   for (index = 0 ; index < self->body_count; index ++) { 
     BumpBody * body = dynar_getptr(self->bodies, index);
