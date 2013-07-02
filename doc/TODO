@@ -15,12 +15,13 @@ Eruta will be a 2D or 2.5D game.
 
 Programmed in C with mruby scripting:
   Rationale: I tried many other things but no matter how easy normal Ruby is to
-  use, I ended up wrining a lot of C anyway to support it. For gaming, speed is
+  use, I ended up writing a lot of C anyway to support it. For gaming, speed is
   essential since a slow game is hard to enjoy, especially for an action game.
   At first the choice of scripting languages was on Lua, but the mruby idea 
   and open source development on github came through, and I switched to that 
   since it does give me the sweet, easy Ruby syntax for the scripts. :)
-  And no, Don't even dare mention C++, it complicates matters  without being actually helpful. And too bad that Objective C is not well supported on 
+  And no, don't even dare mention C++, it complicates matters without being 
+  actually helpful. And too bad that Objective C is not well supported on 
   Windows and messy on Linux.
 
 Using Allegro 5.x. 
@@ -33,7 +34,7 @@ Using Allegro 5.x.
   waste not to use it when using plain C.
 
 Virtual screen resolution exactly 640x480. Color depth minimum 16bpp or better. 
-  Also implement scaling to other resolutons trough OpenGL or 2xSai, etc 
+  Also implement scaling to other resolutions trough OpenGL or 2xSai, etc 
   to achieve resolution dependence later.
   Rationale: Old-style feeling and limit art requrements.
 
@@ -44,7 +45,7 @@ Particle engine
 Camera module
 Physical world
 Collision detection
-UI Sybsystem
+UI Subsystem
 Input mapping (to commands/events)
 Music handling
 Sound handling

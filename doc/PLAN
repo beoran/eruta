@@ -1,0 +1,245 @@
+
+= ERUTA PLAN =
+ 
+== General ==
+
+Eruta will be a 2D or 2.5D game. 
+  Rationale: I like the old-school 2D look. 3D games are more resource hungry 
+  and time-consuming to implement, so that's for the next project.
+
+Programmed in C with mruby scripting:
+  Rationale: I love Ruby, but no matter how easy normal Ruby is to use, 
+  I ended up writing a lot of C anyway to support it. For gaming, speed is
+  essential since a slow game is hard to enjoy, especially for an action game.
+  So I decided to rather than ruse ruby extended with C, to use C 
+  extended with a scripting language.
+  At first the choice of scripting languages was on Lua, but the mruby idea 
+  and open source development on github came through, and I switched to mruby 
+  since it does give me the sweet, easy Ruby syntax for the scripts. :)
+  And no, don't even dare mention C++, it complicates matters without being 
+  actually that helpful. And too bad that Objective C is not well supported on 
+  Windows and messy on Linux.
+
+Using Allegro 5.x. 
+  Rationale: SDL may be the de facto standard for open source games, but it's
+  very poor in functionality. So I ended up having to write a lot of
+  functionality myself. And SDL 2.0 is not as mature as allegro 5 is. I thought
+  Allegro 5 was slower, but when  using plain C, and taking care to
+  load the images after opening the screen, Allegro 5 was actually plenty
+  fast enough. Allegro has so much nice functionality built in, it would be a
+  waste not to use it when using plain C.
+
+Virtual screen resolution exactly 640x480. Color depth minimum 16bpp or better. 
+  Also implement scaling to other resolutions trough OpenGL or 2xSai, etc 
+  to achieve resolution dependence later.
+  Rationale: Old-style feeling and limit art requrements.
+
+A role playing game with much onus on the story.
+  Rationale: I want Eruta to be to RPG's what Katawa Shoujo is to Visual Novels.
+
+Multi player game:
+  Rationale: I want to be able to play together with someone on the same PC. 
+  To begin just 2 players together is OK. Perhaps implement 
+  split screen. 2 to 4 players are probably OK to divide the screen between. The 
+  maximum should be the amount of 12 characters, but it will be hard to fit all 
+  those on one screen. So perhaps allow networked play as well.
+  
+  
+Full Action RPG or Chrono Trigger style menu-driven tactical or more FF12 style RPG?
+  I'm still unsure actually! Oh my! FF6 shows that a menu driven game can be
+  played by several players. Each player simply controls one character during 
+  battles. And since all characters will always be visible and on the screen,
+  the idea would be to allow controlling them even outside of battle. 
+  They can talk and get small side-dialogs. They can search and help solve puzzles.
+  Only the player who controls the main character will be able to make plot
+  determining decisions, and control of secondary characters will be disabled in 
+  camp. 
+  Even if I decide that the battles should be menu based, the players will be able 
+  to use various forceful actions outside of combat as well.
+  Ponderings about the 3 different options: action, tactical and hybrid. Strategic
+  is not under consideration since I don't like strategic RPG's too much due to 
+  too slow and too battle-oriented.
+  Action RPG: 
+  + Easy to get in to. 
+  + Action based battles normally are the most "fun" at least to me.
+  - May be difficult to control 12 or 6 characters all at once.
+  - Action based battles lack depth in RPG's since you'd need the controls 
+    of a fighting game to make the moves complex. That would work, but make the game
+    less accessible again. I don't like to have to button mash or memorize button
+    combinations.
+  +- AI implementation is somewhat more complex. 
+  Tactical RPG: (Classic menu driven)
+  + If done correctly, and with some enhancements, can be deeper than action RPG.
+  + For some players, and for me too the menu-based approach is more relaxed.
+    The game becomes more like a tactical puzzle. This may also interest ladies 
+    more.
+  - If done 100% classic style, the battles can devolve into boring bouts 
+    of doing nothing but selecting "fight/fight/fight..." (or X X X, FFXIII :p) 
+    over and over. More creativity and challenge even in normal battles is needed.
+  - Could be harder to get in to.
+  Hybrid (FF12/MMORPG style):
+  + Can be as deep as tactical. 
+  + Easier to implement networked and multiplayer.
+  - Isn't as relaxing to play as pure menu driven.
+ -+ Game engine is somewhat more complex than tactical and probably even more 
+    than action based alone.
+  
+  
+  
+== Needed Functionality ==
+
+The Eruta game engine will need the following general functionality: 
+
+Tile map 
+Sprites
+Physics, collision detection and resolution
+Particle engine for effects
+Camera module
+UI Subsystem
+Input mapping (to commands/events)
+Music handling
+Sound handling
+Scripting of maps and events.
+Game system: stats, skills, techniques, battle resolution, etc, etc.
+
+
+=== Tile Map Requirements ===
+
+Tile map with tiles of 32x32 pixels. Before, 40x40 or 64x64 were considered, but
+these are too large and make the art requirements too high. Also, 32x32 is easy 
+to accelerate with OpenGL later, and fits the resolution of 640x480 well.
+
+Tile map distinguishes between tile layers wich dictate rendering and world
+layers which dictate gameplay (ie, on which levels the sprites can “be”).
+Tile map has 4 drawing layers of tiles. Testing shows 4 is optimal for speed.
+Layers are usually grouped in pairs for the “world layers”. Layer 1 is the first
+floor, layer 2 is anything that stands on that floor and any fringes/overlaps
+from one kind of floor to another. Layers 1 and 2 are always under all sprites.
+Layer 3 and 4 are normally the “floor above” the player, however, the player may
+walk there in case of bridges, overlays, or parallax.
+
+Every layer may have a background image that is drawn before the tiles of the layer 
+are drawn. the tiles can also be made invisible if the background layer by itself is 
+enough visually. In that case the tiles influence the game play and physics only. 
+Although only one bitmap background can be displayed per layer, it's possible for 
+a layer to change the background depending on what's needed. 
+(night/day/scripting/etc). The background bitmap width and 
+height must have a size that is an integer multiple of 32 pixels.
+
+There will be options for parallax scrolling of the background bitmap versus the 
+tiles in a layer, or, for paralax between the layers in total. Scrolling
+can be locked or unlocked in x and y directions though scripts or by using
+special "scroll lock" tiles.
+
+View culling will be possible, in that, if enabled, only the direct area around the 
+player sprite will be shown, and anything outside a rectangle set by special 
+culling tiles will not be drawn. This to allow inside areas to be stored more 
+compactly.
+
+Every map layer uses exactly one tile set based on a single tile image. Tile images 
+are are files in .png format with a width and height that are integer multiples of
+32, and that contain many individual tiles.
+
+Keeping with convention over configuration, the tile maps are read in, split up
+in 32x32 tiles and interpreted according to the following rules:
+
+Every map describes the names of the tile it uses. The file name of the 
+set is of the form set_name_xxx000.png where xxx000 is a number with at least 4 
+digits that signifies the start index of the set. Tiles in a set are numbered 
+from left to right and from top to bottom, starting from 0. So, for instance  
+the second tile at  the top left of a tile set will be numbered 1.
+
+The idea of this is for maps broadly compatible with each other even if 
+they use different tile sets, and also to make it easy to swap tile sets if 
+needed.
+
+The map engine loads tiled .tmx map files. The properties of a tile, such as 
+solidity or animation are loaded from the Tiled file. The anim= parameter 
+sets the tile to animate to.
+
+
+Particle and effect engine
+--------------------------
+
+This module can display effects like rain, snow, blood, bursts. Explosions and spell 
+effects would be nice as well. Will use the camera for correct views. 
+allow bitmaps as well as drawing for the particles. Need to allow bitmap
+animations for certain effects.  
+
+
+Camera module
+-------------
+The camera module should models a camera, that is, a view of a
+rectangular area that can move in the “world” of the game and translate these
+world coordinates to screen coordinates. 
+
+
+Physics
+-------
+Finally got rid of Chipmunk. I was able to implement a useful system 
+that's simpler than chipmunk but that works well and doesn't require bazillions
+of static shapes for the tile map walls.
+
++---------+
+| Modules |
++---------+
+
+According to the requirements, the following modules will be needed, each
+in one C file (although smaller modules may be joined tohgether into one c
+file if appropriate)
+
+camera.c  : Camera, active view of current area.
+bevec.c   : 2D vectors and points.
+bump.c    : Physics and collision detection.
+dynar.c   : Dynamic arrays.
+alps.c    : Graphical effects using particle engine and likewise.
+every.c   : Iterator for dunamic arrays, etc.
+toruby.c  : Functions that will be used in the ruby scripts
+glh.c     : OpenGL helper functionality.
+rh.c      : Ruby helpers.
+main.c    : Main function of program.
+mem.c     : Memory management and malloc wrappers.
+mobile.c  : Mobile entities 
+sound.c   : Sound and music helpers.
+state.c   : Program state, and also, high level functionality.
+tile.c    : Tile functionality.
+tilemap.c : Tile map functionality.
+tilepane.c: Tile Layer functionality.
+sprite.c  : Sprites on the tile map.
+mode.c    : Different game modes (menu, normal, ect)
+menumode.c: Menu mode
+playmode.c: Play mode
+openmode.c: Opening (intro) mode
+confmode.c: Configuration/settings mode.
+editmode.c: Edit mode for built in editor.
+goal.c    : Goal of motion of mobile or camera.
+player.c  : Player control and data.
+ncp.c     : Npc control and data.
+foe.c     : Foe control and data.
+switch.c  : Switches.
+treasure.c: Treasures.
+door.c    : Doors.
+obstacle.c: Obstacles, pushblocks, etc.
+route.c   : Path finding and planning.
+item.c    : Items player can have.
+gear.c    : Equippable items.
+useable.c : Useable items.
+being.c   : Logical and play-related information about beings.
+inmap.c   : Input mapping (links input to in-game action).
+ai.c      : AI for npc's and foes.
+saveload.c: Saving and loading state.
+initfile.c: Loading and saving settings.
+react.c   : Map events and NPC/Item/Foe reactions.
+world.c   : World state.
+ui.c      : UI.
+widget.c  : UI widget.
+wimenu.c  : UI menu widget.    
+wibox.c   : UI text box widget (more widgets needed).
+
+(Probably more...)
+
+Maybe     : 
+intmap.c  : Maps game objects to integers and vice versa for easy lua wrapping?
+
+47 modules/c files -> upper estimate 80 modules.
+80 * 1000lines per file (upper limit) = 80kloc.
