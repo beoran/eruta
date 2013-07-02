@@ -161,6 +161,9 @@ int real_main(void) {
     AlpsShower shower;
     int        actor_id         = -1;
     int        sprite_id        = -1;
+    int        npc1_id          = -1;
+    int        npc2_id          = -1;
+    
     
     React    react;
     ALLEGRO_COLOR myblack = {0.0, 0.0, 0.0, 1.0};
@@ -192,6 +195,8 @@ int real_main(void) {
     /* Initialize empty sprite and load a few layers. */
     sprite_id   = 1;
     sprite      = state_getornewsprite(state, sprite_id);
+    sprite      = state_getornewsprite(state, 2);
+    sprite      = state_getornewsprite(state, 3);
     spritestate = spritestate_new(sprite);
     if(state_sprite_loadulpcss(state, 1, 0, "image/ulpcss/body/male/light.png") < 0 
       ) { 
@@ -201,6 +206,17 @@ int real_main(void) {
     state_sprite_loadulpcss(state, 1, 2, "image/ulpcss/torso/white_shirt_male.png");
     state_sprite_loadulpcss(state, 1, 3, "image/ulpcss/legs/green_pants_male.png");
     state_sprite_loadulpcss(state, 1, 4, "image/ulpcss/feet/brown_shoes_male.png");
+    
+    state_sprite_loadulpcss(state, 2, 0, "image/ulpcss/body/female/light.png");
+    state_sprite_loadulpcss(state, 2, 1, "image/ulpcss/hair/female/ponytail/raven.png");
+    state_sprite_loadulpcss(state, 2, 2, "image/ulpcss/torso/pirate_shirt_female.png");
+    state_sprite_loadulpcss(state, 2, 3, "image/ulpcss/legs/green_pants_female.png");
+    state_sprite_loadulpcss(state, 2, 4, "image/ulpcss/feet/black_shoes_female.png");
+    state_sprite_loadulpcss(state, 3, 0, "image/ulpcss/body/male/light.png");
+    state_sprite_loadulpcss(state, 3, 1, "image/ulpcss/hair/male/messy2/raven.png");
+    state_sprite_loadulpcss(state, 3, 2, "image/ulpcss/torso/white_shirt_male.png");
+    state_sprite_loadulpcss(state, 3, 3, "image/ulpcss/legs/green_pants_male.png");
+    state_sprite_loadulpcss(state, 3, 4, "image/ulpcss/feet/brown_shoes_male.png");
     /*
     spritestate_now_(spritestate, 0, 0);
     if(spritestate_posedirection_(spritestate, SPRITE_WALK, SPRITE_EAST)) {
@@ -217,12 +233,21 @@ int real_main(void) {
     if(!map) {
       puts("Map is NULL!");
     } else {
-      actor_id = state_newthingindex(state, THING_ACTOR, 120, 100, 1, 32, 32);
+      actor_id = state_newthingindex(state, 1, THING_ACTOR, 120, 100, 1, 32, 32);
       if(actor_id >= 0) {
         state_camera_track_(state, actor_id);
       }
       state_lockin_maplayer(state, 0);
     }
+    
+    npc1_id = state_newthingindex(state, 2, THING_MOBILE, 200, 120, 1, 32, 32);
+    npc2_id = state_newthingindex(state, 3, THING_MOBILE, 100, 300, 1, 32, 32);
+    { int ti; 
+      for (ti = 4; ti < 20; ti ++) { 
+        state_newthingindex(state, ti, THING_MOBILE, 100, 300 + 35 * ti, 1, 32, 32);
+      }
+    }
+    printf("Things IDs: %d %d %d\n", actor_id, npc1_id, npc2_id);
 
   // Try to load the mainruby file.
   rh_runfilename_console(state_console(state), "main.rb", state_ruby(state));
@@ -237,9 +262,16 @@ int real_main(void) {
   }
   
   if ((actor_id >= 0) && (sprite_id >= 0)) {
-    state_actorindex_(state, actor_id);
-    state_thing_sprite_(state, actor_id, sprite_id);
-    state_thing_pose_(state, actor_id, SPRITE_WALK);
+    state_actorindex_(state, 1);
+    state_thing_sprite_(state, 1, sprite_id);
+    state_thing_pose_(state, 1, SPRITE_WALK);
+    state_thing_direction_(state, 1, SPRITE_NORTH);
+    state_thing_sprite_(state, 2, 2);
+    state_thing_pose_(state, 2, SPRITE_WALK);
+    state_thing_direction_(state, 2, SPRITE_SOUTH);
+    state_thing_sprite_(state, 3, 3);
+    state_thing_pose_(state, 3, SPRITE_WALK);
+    state_thing_direction_(state, 3, SPRITE_SOUTH);
   }
   // spritestate_speedup_(spritestate, 2.0);
 

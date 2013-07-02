@@ -46,7 +46,7 @@ struct State_ {
   Ruby                * ruby;
   BBConsole           * console; 
   // The ruby and error message GUI console.
-  /* The curtrent actor, controlled by the plater. */
+  /* The curtrent actor, controlled by the player. */
   Thing               * actor;
   
 };
@@ -199,18 +199,18 @@ Thing * state_thing(State * state, int index) {
 }
 
 /* Makes a new dynamic thing in the state's active tile map/area. */
-Thing * state_newthing(State * state, int kind, 
+Thing * state_newthing(State * state, int index, int kind, 
                         int x, int y, int z, int w, int h) {
   Tilemap * map = state_nowmap(state);
-  return tilemap_addthing(map, kind, x, y, z, w, h);
+  return tilemap_addthing(map, index, kind, x, y, z, w, h);
 }
 
 /* Makes a new dynamic thing and returns it's index, or 
  negative if it could not be created. */
-int state_newthingindex(State * state, int kind, 
+int state_newthingindex(State * state, int index, int kind, 
                         int x, int y, int z, int w, int h) {
                           
-  Thing * thing = state_newthing(state, kind, x, y, z, w, h);
+  Thing * thing = state_newthing(state, index, kind, x, y, z, w, h);
   if (!thing) return -1;
   return thing_id(thing);
 }

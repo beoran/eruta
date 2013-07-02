@@ -86,14 +86,15 @@ int area_thingid(Area * self) {
 /** Puts a thing inside the area. Returns NULL on error. 
 returns the thing set if ok. Sets the thing's id to it's 
 position in the internal array for things the area has. */
-Thing * area_addthing(Area * area, Thing * thing) {
-  int id; 
+Thing * area_addthing(Area * area, int index, Thing * thing) {
   if (!thing)  return NULL;
-  id = area_thingid(area);
-  if (id < 0 ) return NULL;
-  if(!area_thing_(area, id, thing)) return NULL;
-  thing_id_(thing, id);
-  /* Don't forget to add body and shape to the space if needed. */
+  if (index < 0 ) return NULL;
+  if (index > AREA_THINGS) return NULL;
+  if(!area_thing_(area, index, thing)) return NULL;
+  thing_id_(thing, index);
+  /* Set last used id to index if needed */
+  if (area->lastid < index)  { area->lastid = index; } 
+  /* Don't forget to add physical body and hull to the space if needed. */
   bumpworld_addbody(area->world, thing->physical);
   bumpworld_addhull(area->world, thing->hull);
   return thing;
@@ -211,18 +212,18 @@ BumpWorld * area_world(Area * self) {
 /** Makes a new static thing and adds it to the area. Return it or NULL on error. 
  Not needed anymore. 
  */
-Thing * area_newstatic(Area * self, int kind, 
-                        int x, int y, int z, int w, int h) {
+Thing * area_newstatic(Area * self, int index , int kind, 
+                       int x, int y, int z, int w, int h) {
   return NULL;
 }
 
 
 /** Makes a new dynamic thing and adds it to the area. Return it or NULL on error. */
-Thing * area_newdynamic(Area * self, int kind, 
+Thing * area_newdynamic(Area * self, int index, int kind, 
                         int x, int y, int z, int w, int h) {
   Thing * thing;
   thing = thing_newdynamic(self, kind, x, y, w, w, h);
-  if (!area_addthing(self, thing)) { 
+  if (!area_addthing(self, index, thing)) { 
     return thing_free(thing);
   }
   return thing;
@@ -242,15 +243,15 @@ ERES area_tilemap_(Area * self, Tilemap * map) {
 /** Draws all things in an area taking the camera into account. */
 void area_draw(Area * self, Camera * camera) {
   int index;
-  //printf("Rendering %d things\n",  self->lastid);
   for(index = 0; index <  (self->lastid + 1); index++) {
     Thing * thing = self->things_todraw[index];
+    /* If we encounter a NULL, we're all done drawing. */
     if(!thing) break;
-    /*  area_thing(self, index);
-    if (thing) */
     thing_draw(thing, camera);
   }
+#ifdef ERUTA_DEBUG_DRAW  
   bumpworld_draw_debug(self->world);
+#endif
 }
 
 /** Updates the area */
@@ -260,13 +261,14 @@ void area_update(Area * self, double dt) {
   bumpworld_update(self->world, dt);  
   for(index = 0; index <  (self->lastid + 1); index++) {
     Thing * thing = area_thing(self, index);
-    if (thing) { 
+    /* this is a bandaid, somehow uninitialized things are stored in the area. */
+    if (thing &&  thing->physical) { 
       thing_update(thing, dt);
       self->things_todraw[subindex] = thing;
       subindex++;
     }
   }
-  /** Sort drawing array for drawing. */
+  /** Sort drawing array so the painter's algorihm can be used. */
   qsort(self->things_todraw, subindex, sizeof(Thing*), thing_compare_for_drawing); 
 }
 

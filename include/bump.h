@@ -101,6 +101,8 @@ void * bumpworld_tilemap_(BumpWorld * self, void * map);
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt);
 
+BumpWorld * bumpworld_commit(BumpWorld * self);
+
 BumpWorld * bumpworld_draw_debug(BumpWorld * self);
 
 

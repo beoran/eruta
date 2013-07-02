@@ -64,7 +64,7 @@ enum SpriteFlags_ {
   SPRITE_NO_DIRECTION   = 0,
   SPRITE_SOUTH          = 1 << 8,
   SPRITE_EAST           = 1 << 9,
-  SPRITE_NORTH          = 1 << 1,
+  SPRITE_NORTH          = 1 << 10,
   SPRITE_WEST           = 1 << 11,
   SPRITE_ALL            = SPRITE_SOUTH + SPRITE_EAST + SPRITE_NORTH + SPRITE_WEST
 };

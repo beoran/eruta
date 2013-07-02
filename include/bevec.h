@@ -31,4 +31,27 @@ double  bevec_perproduct(BeVec v1, BeVec v2);
 BeVec bevec_forangle(double angle);
 double bevec_toangle(BeVec v1);
 
+BeVec bevec_project_2(BeVec self, BeVec other);
+
+BeVec bevec_perp(BeVec self);
+BeVec bevec_nperp(BeVec self);
+BeVec bevec_project_2(BeVec self, BeVec other);
+      
+BeVec bevec_rotate(BeVec self, BeVec other);
+
+BeVec bevec_unrotate(BeVec self, BeVec other);
+BeVec bevec_lerp(BeVec self, BeVec other, double tx);
+BeVec bevec_cliplength(BeVec self, double m);
+
+BeVec bevec_delta(BeVec self, BeVec other);
+double bevec_distance(BeVec self, BeVec other); 
+double bevec_distsq(BeVec self, BeVec other);
+double bevec_near_p(BeVec self, BeVec other, double d);
+double bevec_angle(BeVec self);
+BeVec bevec_xvec(BeVec self);
+BeVec bevec_yvec(BeVec self); 
+BeVec bevec_abs(BeVec self);
+
+
+
 #endif

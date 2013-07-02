@@ -54,7 +54,7 @@ void tilemap_draw (Tilemap * map , Camera * camera );
 
 void tilemap_update (Tilemap * map , double dt );
 
-Thing * tilemap_addthing (Tilemap * self , int kind , int x , int y , int z , int w , int h );
+Thing * tilemap_addthing(Tilemap * self , int index, int kind , int x , int y , int z , int w , int h);
 
 Lockin * tilepane_lockin (Tilepane * pane , Camera * camera );
 

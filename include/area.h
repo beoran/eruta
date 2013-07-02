@@ -31,7 +31,7 @@ Thing * area_thing_ (Area * area , int index , Thing * set );
 
 int area_thingid (Area * self );
 
-Thing * area_addthing (Area * area , Thing * thing );
+Thing * area_addthing (Area * area , int index, Thing * thing);
 
 cpBody * area_staticbody (Area * area );
 
@@ -53,9 +53,11 @@ Area * area_new(void);
 
 cpSpace * area_space (Area * self );
 
-Thing * area_newstatic (Area * self , int kind , int x , int y , int z , int w , int h );
+Thing * 
+area_newstatic(Area * self, int index, int kind , int x , int y , int z , int w , int h);
 
-Thing * area_newdynamic (Area * self , int kind , int x , int y , int z , int w , int h );
+Thing * 
+area_newdynamic(Area * self, int index, int kind , int x , int y , int z , int w , int h);
 
 void area_draw (Area * self , Camera * camera );
 

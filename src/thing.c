@@ -151,6 +151,7 @@ Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
   self->area    = area;
   self->physical= body;
   self->hull    = shape;
+  self->flags   = 0;
   thing_z_(self, z);
   spritestate_init(&self->spritestate, NULL);
   
@@ -374,15 +375,18 @@ void thing_draw(Thing * self, Camera * camera) {
   cy          = camera_at_y(camera);
   w           = self->size.x;
   h           = self->size.y;
+  if ((self->physical) && (self->hull)) {
+    x         = bumpbody_p(self->physical).x - bumphull_aabb(self->hull).hs.x;
+    y         = bumpbody_p(self->physical).y - bumphull_aabb(self->hull).hs.y;
+    w         = bumphull_aabb(self->hull).hs.x * 2;
+    h         = bumphull_aabb(self->hull).hs.y * 2;
+  } 
+  
   if (thing_static_p(self)) {
-    x         = self->spos.x;
-    y         = self->spos.y;
     color     = color_rgbaf(1.0, 1.0, 0.0, 0.001);
+    t         = 2;
   } else {
-    color     = color_rgb(128, 255, 255);
-    BeVec pos = thing_p(self);
-    x         = pos.x;
-    y         = pos.y;
+    color     = color_rgba(0xee, 0x44, 0x00, 0x88);
     t         = 8;
   }
   /* Do not draw out of camera range. */
@@ -391,13 +395,15 @@ void thing_draw(Thing * self, Camera * camera) {
   }
   drawx = x - cx;
   drawy = y - cy;
-  /* draw sprite if available, otherwise debug box if needed. */
+  /* Draw sprite if available, otherwise debug box to alert scripters of it's 
+   * absence. */
   if(thing_sprite(self)) {
-    BeVec spriteat = bevec(drawx, drawy);
-    draw_box(drawx, drawy, w, h, color, t);
 #ifndef ERUTA_NOGFX_MODE
+    BeVec spriteat = bevec(drawx, drawy);
     spritestate_draw(&self->spritestate, &spriteat);
-#endif    
+#else
+    draw_box(drawx, drawy, w, h, color, t);
+#endif
   } else {    
     draw_box(drawx, drawy, w, h, color, t);
   }
@@ -463,17 +469,17 @@ void thing_update(Thing * self, double dt) {
  z come before those with high z, and with same z, low y comes before high y. 
  qsort compatible. */
 int thing_compare_for_drawing(const void * p1, const void * p2) {
-  Thing * self  = (Thing *) p1;
-  Thing * other = (Thing *) p2;
+  Thing * self  = *((Thing **) p1);
+  Thing * other = *((Thing **) p2);
   BeVec pos1, pos2;
-  if(!p1) { 
-    if(!p2) {
+  if(!self) { 
+    if(!other) {
       return 0;
     }
     /* Sort nulls to the back. */
     return 1;
   }
-  if(!p2) return -1;
+  if(!self) return -1;
   /* Compare Z if no nulls. */
   if (self->z < other->z) return -1;
   if (self->z > other->z) return  1;

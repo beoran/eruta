@@ -81,7 +81,7 @@ int state_sprite_loadulpcss
 (State * state, int sprite_index, int layer_index, char * vpath);
 
 Thing * state_thing(State * state, int index);
-Thing * state_newthing(State * state, int kind, 
+Thing * state_newthing(State * state, int index, int kind,
                         int x, int y, int z, int w, int h);
 
 int state_camera_track_(State * state, int thing_index);
@@ -92,7 +92,7 @@ void state_draw(State * self);
 void state_flip_display(State * self);
 void state_update(State * self);
 
-int state_newthingindex(State * state, int kind, 
+int state_newthingindex(State * state, int index, int kind, 
                         int x, int y, int z, int w, int h);
 int state_thing_sprite_(State * state, int thing_index, int sprite_index); 
 int state_thing_pose_(State * state, int thing_index, int pose);

@@ -208,12 +208,12 @@ static mrb_value tr_newthing(mrb_state * mrb, mrb_value self) {
   int thing  = -1;
   State * state    = state_get();
   int result;
-  mrb_int   kind, x, y, z, w, h;
-  mrb_get_args(mrb, "iiiiii", &kind, &x, &y, &z, &w, &h);  
-  if (kind<0) {
+  mrb_int   index, kind, x, y, z, w, h;
+  mrb_get_args(mrb, "iiiiiii", &index, &kind, &x, &y, &z, &w, &h);  
+  if ((index<0) || (kind < 0)) {
     return mrb_nil_value();
   } 
-  thing = state_newthingindex(state, kind, x, y, z, w, h);
+  thing = state_newthingindex(state, index, kind, x, y, z, w, h);
   return mrb_fixnum_value(thing);
 }
 

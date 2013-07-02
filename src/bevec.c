@@ -6,7 +6,9 @@
 
 
 BeVec bevec(double x, double y) { 
-  BeVec result = { x, y } ;
+  BeVec result;
+  result.x = x;
+  result.y = y;
   return result;
 }
 
@@ -195,6 +197,12 @@ BeVec bevec_xvec(BeVec self) {
 BeVec bevec_yvec(BeVec self) { 
       return bevec(0.0, self.y);
 }
+
+/* Returns a vector with fabs applied to the components of vec. */
+BeVec bevec_abs(BeVec self) {
+  return bevec(fabs(self.x), fabs(self.y));
+}
+ 
  
 /*    
   Returns the overlap of the x component of self, of other, where  
