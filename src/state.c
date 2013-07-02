@@ -627,7 +627,7 @@ Camera * state_camera(State * state) {
 * 
 * Needed scripts so far: start.mrb, newgame.mrb, loadgame.mrb, savegame.mrb, 
 * main.mrb, and one map_0001.mrb, etc for every map. Other scripts can be loaded by 
-* these scripts for modulaization, but only from the script directory.  
+* these scripts for modulization, but only from the script directory.  
 *  
 */
 
@@ -646,6 +646,15 @@ Tilemap * state_preloadmap_index(State * state, int index) {
   return NULL;
 }
 
+/* Tints a whole layer of a given sprite */
+int state_sprite_tintlayer
+(State * state, int sprite_index, int layer_index, int r, int g, int b, int a) {
+  Sprite * sprite = state_sprite(state, sprite_index);
+  Color color   = al_map_rgba(r, g, b, a);
+  if (!sprite) { return -1; }
+  sprite_tintlayer(sprite, layer_index, color);
+  return 0;
+}
 
 
 

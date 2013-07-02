@@ -204,6 +204,24 @@ static mrb_value tr_sprite_loadulpcss(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(result);
 }
 
+static mrb_value tr_sprite_tint(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  int result       = 0;
+  mrb_int   rindex = -1;
+  mrb_int   rlayer = -1;
+  mrb_int   rr     = 255;
+  mrb_int   rg     = 255;
+  mrb_int   rb     = 255;
+  mrb_int   ra     = 255;
+  mrb_get_args(mrb, "iiiiii", &rindex, &rlayer, &rr, &rg, &rb, &ra); 
+  if ((rindex<0) || (rlayer<0)) {
+    return mrb_nil_value();
+  }
+  result = 
+  state_sprite_tintlayer(state, rindex, rlayer, rr, rg, rb, ra);
+  return mrb_fixnum_value(result);
+}
+
 static mrb_value tr_newthing(mrb_state * mrb, mrb_value self) {
   int thing  = -1;
   State * state    = state_get();
@@ -343,7 +361,8 @@ int tr_init(mrb_state * mrb) {
   mrb_define_method(mrb, krn, "sprite_new", tr_newsprite, ARGS_REQ(1));
   mrb_define_method(mrb, krn, "sprite_get", tr_sprite, ARGS_REQ(1));
   mrb_define_method(mrb, krn, "sprite_loadulpcss", tr_sprite_loadulpcss, ARGS_REQ(3));
-  mrb_define_method(mrb, krn, "thing_new"    , tr_newthing, ARGS_REQ(6));
+  mrb_define_method(mrb, krn, "sprite_tint_rgba", tr_sprite_tint, ARGS_REQ(6));
+  mrb_define_method(mrb, krn, "thing_new"    , tr_newthing, ARGS_REQ(7));
   mrb_define_method(mrb, krn, "camera_track" , tr_camera_track, ARGS_REQ(1));
   mrb_define_method(mrb, krn, "camera_lockin", tr_lockin_maplayer, ARGS_REQ(1));
   mrb_define_method(mrb, krn, "tilemap_load" , tr_loadtilemap_vpath, ARGS_REQ(1));

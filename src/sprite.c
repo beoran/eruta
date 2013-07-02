@@ -57,11 +57,13 @@ struct SpriteLayer_ {
   Point   size;
   int     index;
   int     drawflags;
+  int     tinted;
+  Color   tint;
 };
 
 
 /* A SpriteFrame is a single frame of animation of a sprite.
- * It consists of a set of layers, a duration, flags, and the almount of used layers.  
+ * It consists of a set of layers, a duration, flags, and the amount of used layers.  
  */
 struct SpriteFrame_ {
   int                index;
@@ -113,6 +115,8 @@ spritelayer_initall(SpriteLayer * self, int index, Image * image, Point size, Po
   self->offset          = offset;
   self->size            = size;
   self->drawflags       = 0;
+  self->tinted          = 0;
+  self->tint            = al_map_rgb(255, 255, 255);
   return self;
 }
 
@@ -130,7 +134,8 @@ void spritelayer_draw(SpriteLayer * self, Point * at) {
   aid  = bevec_add((*at), self->offset);
   real = bevec_add(aid, delta);  
   /* Adjust for tile size and frame size. */
-  al_draw_bitmap(self->image, real.x, real.y, self->drawflags);
+  al_draw_tinted_bitmap(self->image, self->tint, real.x, real.y, self->drawflags);
+  
 }
 
 /* Cleans up a layer after use, also frees the layer's Image. */
@@ -158,6 +163,14 @@ spritelayer_drawflags_(SpriteLayer * self, int drawflags) {
   self->drawflags = drawflags;
   return self;
 }
+
+SpriteLayer * 
+spritelayer_tint_(SpriteLayer * self, Color tint) {
+  if (!self) return NULL;  
+  self->tinted = true;
+  self->tint   = tint;
+  return self;
+} 
 
 
 int spriteframe_maxlayers(SpriteFrame * self) {
@@ -782,7 +795,6 @@ Sprite * spritelayout_loadactionlayer
         ok = sprite_loadframelayerfrom(sprite, walkaction, frameindex, 
               layerindex, source, size, where, SPRITE_ACTIVE, 2.0);
         stand_in_walk = 1;
-        printf("Stand in walk found: %p %p at %d...\n", (void *)action, (void *)ok, walkaction);
         /* skip standing frames. */
       } else {
         ok = sprite_loadframelayerfrom(sprite, actionindex, 
@@ -840,6 +852,28 @@ Sprite * sprite_loadlayer_ulpcss_vpath
   return res;
 }
 
+/* Applies a tint to a whole layer of a sprite */
+Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color) {
+  int actionstop, framestop;
+  int actionindex, frameindex;
+  SpriteAction * action;
+  SpriteFrame * frame;
+  SpriteLayer * layer;
+  actionstop        =  dynar_size(self->actions);
+  for (actionindex  = 0 ; actionindex < actionstop ; actionindex++ ) {
+    action          = sprite_action(self, actionindex);
+    if(!action) continue;
+    framestop       = dynar_size(action->frames);
+    for (frameindex = 0 ; frameindex < framestop ; frameindex++) {
+      frame         = spriteaction_frame(action, frameindex);
+      if(!frame) continue;
+      layer         = spriteframe_layer(frame, layerindex);
+      if(!layer) continue;
+      spritelayer_tint_(layer, color);
+    }
+  }
+  return self; 
+}
 
 
 

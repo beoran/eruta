@@ -80,6 +80,10 @@ Sprite * state_getornewsprite(State * state, int index);
 int state_sprite_loadulpcss
 (State * state, int sprite_index, int layer_index, char * vpath);
 
+int state_sprite_tintlayer
+(State * state, int sprite_index, int layer_index, int, int g, int b, int a);
+
+
 Thing * state_thing(State * state, int index);
 Thing * state_newthing(State * state, int index, int kind,
                         int x, int y, int z, int w, int h);

@@ -96,17 +96,17 @@ enum SpriteActionType_ {
 
 /* Sprite layer suggested uses. */
 enum SpriteLayerKind_   { 
-  SPRITELAYER_BEHINDBODY,
-  SPRITELAYER_BODY,
-  SPRITELAYER_HEAD,
-  SPRITELAYER_EYES,
-  SPRITELAYER_HAIR,
-  SPRITELAYER_HANDS,
-  SPRITELAYER_FEET,
-  SPRITELAYER_LEGS,
-  SPRITELAYER_TORSO,
-  SPRITELAYER_ACCESSORIES,
-  SPRITELAYER_WEAPONS, 
+  SPRITELAYER_BEHINDBODY = 0,
+  SPRITELAYER_BODY       = 1,
+  SPRITELAYER_HEAD       = 2,
+  SPRITELAYER_EYES       = 3,
+  SPRITELAYER_HAIR       = 4,
+  SPRITELAYER_HANDS      = 5,
+  SPRITELAYER_FEET       = 6,
+  SPRITELAYER_LEGS       = 7,
+  SPRITELAYER_TORSO      = 8,
+  SPRITELAYER_ACCESSORIES= 9,
+  SPRITELAYER_WEAPONS    = 10, 
 };
 
 
@@ -187,7 +187,8 @@ Sprite     * spritelist_getornew(SpriteList * self, int index);
 Sprite     * spritelist_loadlayer_ulpcss_vpath(
               SpriteList * self, int index,  int layerindex, char * vpath);
 
-
+/* Applies a tint to a whole layer of a sprite. */
+Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color);
 
 #endif
 
