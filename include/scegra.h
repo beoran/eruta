@@ -10,6 +10,10 @@ typedef struct ScegraPoints_    ScegraPoints;
 
 typedef void ScegraDraw  (ScegraNode * node);
 typedef void ScegraUpdate(ScegraNode * node, double dt);
+typedef void ScegraDone  (ScegraNode * node);
+
+
+#define SCEGRA_VERTEX_MAX 32
 
 
 /* A very simple scene graph, mainly for drawing the UI that will be managed from 

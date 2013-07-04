@@ -387,4 +387,30 @@ int badvar_fromarrayva(BadVar argv[], int argc, va_list args);
 int badvar_fromarray(BadVar argv[], int argc, ...);
 
 
+/* a "Stab" is a String Table, that is, a table of void * pointers 
+ index by strings. The Stab does not own it's pointers
+ but it does own copies of the string keys, which 
+ it will clean up when needed. */
+typedef struct BadStab_ BadStab;
+typedef struct BadStabEntry_ BadStabEntry;
+
+struct BadStabEntry_ {
+  char * key;
+  void * value;
+};  
+
+struct BadStab_ {
+  BadStabEntry * entries;
+  int size;
+};
+
+BadStab * badstab_init(BadStab * self);
+BadStab * badstab_done(BadStab * self);
+void * badstab_put(BadStab * self, char * key, void * value);   
+void * badstab_get(BadStab * self, char * key);   
+
+
+
+
+
 #endif /* BAD_H_INCLUDED */

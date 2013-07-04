@@ -9,7 +9,8 @@ functionality. */
 algorithm. This splits the bitmap in 9 parts, keeps the 4 corners unscaled, but
 scales the 4 edges and the center according to the desired size.
 The 4 corners should be rectangles of identical size corner_w by corner_h in
-the original image. Pass a nonpositive number to have the corner sizes automatically calculated.
+the original image. Pass a non-positive number to have the corner sizes 
+automatically calculated.
 new_w and new_h are the new dimensions the new image should have.
 This is useful for GUI backgrounds.
 */
