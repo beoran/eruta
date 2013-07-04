@@ -33,7 +33,8 @@ requirements are installed. Then do on the command line:
 cmake . ; make
 
 Or if you want to build with Ninja, use the latest version of cmake and go
-cmake -G ninja . ; ninja 
+cmake -G Ninja . ; ninja 
+Please note that cmake and the word "Ninja" is case-sensitive!
 
 How to try it:
 
