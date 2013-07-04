@@ -3,6 +3,9 @@ find_package(PkgConfig)
 # Find main allegro and assume the rest is there too
 pkg_check_modules(Allegro5_PKGCONF allegro-5)
 
+# Perhaps use this later? 
+# pkg_search_module(ALLEGRO5 REQUIRED allegro-5 allegro-5.0)
+
 # MESSAGE("lib: ${Allegro5_PKGCONF_LIBRARY_DIRS}")
 # MESSAGE("include: ${Allegro5_PKGCONF_INCLUDE_DIRS}")
 

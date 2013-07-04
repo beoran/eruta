@@ -13,7 +13,6 @@ Requirements:
 * OS: Linux for now. Windows port is under development. OSX may work too.
 * Allegro 5.1.5 or later (5.1.5 is in vendor directory). 
   Earlier versions won't be found by the build script.  
-* Chipmunk 6.x (see vendor directory).
 * libxml2 (www.xmlsoft.org)
 * mruby (latest gitub version). To install globally in /usr/local 
   use  
@@ -33,7 +32,8 @@ requirements are installed. Then do on the command line:
 cmake . ; make
 
 Or if you want to build with Ninja, use the latest version of cmake and go
-cmake -G ninja . ; ninja 
+cmake -G Ninja . ; ninja 
+Please note that cmake and the word "Ninja" is case-sensitive!
 
 How to try it:
 
