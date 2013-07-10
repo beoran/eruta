@@ -410,7 +410,17 @@ void * badstab_put(BadStab * self, char * key, void * value);
 void * badstab_get(BadStab * self, char * key);   
 
 
+void * badgar_new(size_t nmemb, size_t size);
+void * badgar_resize(void ** arr, size_t *  nmemb, size_t size, int delta);
+void * badgar_get(void * arr, size_t nmemb, size_t size, size_t index);
+void * badgar_put(void * arr, size_t nmemb, size_t size, size_t index, void * data);
+void * badgar_free(void * arr);
 
+void * badpar_new(size_t nmemb);
+void * badpar_resize(void ** arr, size_t * nmemb, int delta);
+void * badpar_get(void * arr, size_t nmemb, size_t index);
+void * badpar_put(void * arr, size_t nmemb, size_t index, void * data);
+void * badpar_free(void * arr);
 
 
 #endif /* BAD_H_INCLUDED */

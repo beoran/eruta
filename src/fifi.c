@@ -1,11 +1,31 @@
 #include <stdarg.h>
+#include <allegro5/allegro_ttf.h>
 
 #include "eruta.h"
 #include "fifi.h"
 
 /* Fifi contain functionality that helps finding back the file resouces,
-such as images, music, etc that Eruta needs. Also will have data file
-handling support. */
+such as images, music, etc that Eruta needs. 
+
+An important concept here is the "virtual path", that is the path under the 
+location of the data directory. So, for example, if the data of the 
+app is installed on Linux in /usr/share/app/data,
+then a vpath of 
+font/my_nice_font.ttf 
+will be resolved as 
+/usr/share/app/data/font/my_nice_font.ttf.  
+Or, if, on another OS, the data of the app is installed in 
+C:\Program Files\App\data
+then the same vpath will refer to
+C:\Program Files\App\data\font\my_nice_font.ttf.
+
+So Fifi is a nice way to get OS-independence and location-independence of 
+the data files all at once. 
+
+For save files or scores, the vpath is similar, but relative to the
+"writeable" directory of the application.
+
+*/
 
 /*
 
@@ -113,7 +133,7 @@ const char * fifi_data_path_cstr(void) {
 * const char * strings in args, of which the last one should be NULL.
 * modifies * path
 */
-ALLEGRO_PATH * path_append_va(ALLEGRO_PATH * path, va_list args) {
+static ALLEGRO_PATH * path_append_va(ALLEGRO_PATH * path, va_list args) {
   const char * aid; 
    if(!path) return NULL;
   for(aid = va_arg(args, const char *); aid; aid = va_arg(args, const char *)){
@@ -126,7 +146,7 @@ ALLEGRO_PATH * path_append_va(ALLEGRO_PATH * path, va_list args) {
 * Returns an ALLEGRO_PATH path concatednated with the 
 * const char * strings, of which the last one should be NULL.
 */
-ALLEGRO_PATH * path_append(ALLEGRO_PATH * path, ...) {
+static ALLEGRO_PATH * path_append(ALLEGRO_PATH * path, ...) {
   ALLEGRO_PATH * result;
   va_list args;
   va_start(args, path);
@@ -141,7 +161,7 @@ ALLEGRO_PATH * path_append(ALLEGRO_PATH * path, ...) {
 * amount is actual characters to copy , space is space available.
 * Does nothing if space is less than 1.
 */
-char *help_strncpy(char * dest, const char * src, size_t amount, size_t space){
+static char *help_strncpy(char * dest, const char * src, size_t amount, size_t space){
   if (space < 1) return NULL; 
   if (amount > (space-1)) amount = space - 1;
   strncpy(dest, src, amount);
@@ -153,7 +173,7 @@ char *help_strncpy(char * dest, const char * src, size_t amount, size_t space){
 /**
 * Helper function to split up character strings with a separator.
 */
-char * help_strsplit(const char * in, int ch, char * store, size_t space) {
+static char * help_strsplit(const char * in, int ch, char * store, size_t space) {
   char * aid = strchr(in, ch);
   if (aid) {
     help_strncpy(store, in, aid - in, space);
@@ -172,7 +192,7 @@ char * help_strsplit(const char * in, int ch, char * store, size_t space) {
 * is constructed like that. .. or . is not supported.
 * if the last part contains a . it will be added as a file part.
 **/
-ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath) {
+static ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath) {
   char part[PATH_APPEND_VPATH_SIZE], * aid;
   if(!vpath) return path;
   aid = strchr(vpath, '/');
@@ -436,6 +456,116 @@ ALLEGRO_PATH * fifi_tileset_filename(const char * name) {
 * 8) Sprites of course!
 */
 
+
+/**
+* Loads a TTF font from the data directory, with the given virtual path, width, height 
+* and flags. 
+*/
+ALLEGRO_FONT * fifi_load_ttf_font_stretch(const char * vpath, int w, int h,  int flags) {
+  ALLEGRO_FONT * font = NULL;
+  ALLEGRO_PATH * path;  
+  path         = fifi_data_vpath(vpath);
+  if (!path) return NULL;
+  font = al_load_ttf_font_stretch(PATH_CSTR(path), w, h, flags);
+  al_destroy_path(path);
+  return font;
+}
+
+
+/**
+* Loads a TTF font from the data directory, with the given virtual path, height
+* and flags. 
+*/
+ALLEGRO_FONT * fifi_load_ttf_font(const char * vpath, int h,  int flags) {
+  ALLEGRO_FONT * font = NULL;
+  ALLEGRO_PATH * path;  
+  path         = fifi_data_vpath(vpath);
+  if (!path) return NULL;
+  font = al_load_ttf_font(PATH_CSTR(path), h, flags);
+  al_destroy_path(path);
+  return font;
+}
+
+
+/**
+* Loads a bitmap font from the data directory, with the given virtual path, 
+* and flags. 
+*/
+ALLEGRO_FONT * fifi_load_bitmap_font_flags(const char * vpath, int flags) {
+  ALLEGRO_FONT * font = NULL;
+  ALLEGRO_PATH * path;  
+  path         = fifi_data_vpath(vpath);
+  if (!path) return NULL;
+  font = al_load_bitmap_font_flags(PATH_CSTR(path), flags);
+  al_destroy_path(path);
+  return font;
+}
+
+
+/**
+* Loads a bitmap font from the data directory, with the given virtual path. 
+*/
+ALLEGRO_FONT * fifi_load_bitmap_font(const char * vpath) {
+  ALLEGRO_FONT * font = NULL;
+  ALLEGRO_PATH * path;  
+  path         = fifi_data_vpath(vpath);
+  if (!path) return NULL;
+  font = al_load_bitmap_font(PATH_CSTR(path));
+  al_destroy_path(path);
+  return font;
+}
+
+
+/**
+* Loads an audio stream from the data directory, with the given virtual path, 
+* and parameters as per al_load_audio_stream. 
+*/
+ALLEGRO_AUDIO_STREAM * fifi_load_audio_stream(const char * vpath, size_t buffer_count, int samples) {
+  ALLEGRO_AUDIO_STREAM * data = NULL;
+  ALLEGRO_PATH        * path;  
+  path         = fifi_data_vpath(vpath);
+  if (!path) return NULL;
+  data = al_load_audio_stream(PATH_CSTR(path), buffer_count, samples);
+  al_destroy_path(path);
+  return data;
+}
+
+
+/**
+* Loads a sample from the data directory, with the given virtual path, 
+* and parameters as per al_load_sample. 
+*/
+ALLEGRO_SAMPLE * fifi_load_sample(const char * vpath) {
+  ALLEGRO_SAMPLE      * data = NULL;
+  ALLEGRO_PATH        * path;  
+  path         = fifi_data_vpath(vpath);
+  if (!path) return NULL;
+  data = al_load_sample(PATH_CSTR(path));
+  al_destroy_path(path);
+  return data;
+}
+
+
+/**
+* Loads a bitmap from the data directory, with the given virtual path, 
+* and parameters as per al_load_bitmap_flags. 
+*/
+ALLEGRO_BITMAP * fifi_load_bitmap_flags(const char * vpath, int flags) {
+  ALLEGRO_BITMAP      * data = NULL;
+  ALLEGRO_PATH        * path;  
+  path         = fifi_data_vpath(vpath);
+  if (!path) return NULL;
+  data = al_load_bitmap_flags(PATH_CSTR(path), flags);
+  al_destroy_path(path);
+  return data;
+}
+
+/**
+* Loads a bitmap from the data directory, with the given virtual path. 
+*/
+ALLEGRO_BITMAP * fifi_load_bitmap(const char * vpath) {
+  return fifi_load_bitmap_flags(vpath, 0);
+}
 
 
 

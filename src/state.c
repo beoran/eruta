@@ -15,6 +15,7 @@
 #include "area.h"
 #include "thing.h"
 #include "sprite.h"
+#include <store.h>
 
 /* The data struct contains all global state and other data of the application.
 */
@@ -112,7 +113,9 @@ void state_free(State * self) {
   rh_free(self->ruby);
   bbconsole_free((BBWidget *)self->console, NULL);
   self->console = NULL; // disable console immediately.
-  font_free(self->font);
+  store_done();
+ 
+  // font_free(self->font);
   al_destroy_display(self->display);
   camera_free(self->camera);
   audio_stop();
@@ -412,12 +415,24 @@ State * state_init(State * self, BOOL fullscreen) {
   if(!fifi_init()) { 
     return state_errmsg_(self, "Could not find data folder!\n");
   }
+  
+  // initialize the resource storage so we can store the data files
+  if(!store_init()) { 
+    return state_errmsg_(self, "Could not initialize data store.\n");
+  }
 
   // Tuffy.ttf
   // "OpenBaskerville-0.0.53.otf"
-  #define STATE_FONTNAME "GranaPadano.ttf"
+  #define STATE_FONTNAME        "GranaPadano.ttf"
+  #define STATE_FONT_INDEX      20000
   
-  self->font = fifi_loadfont(STATE_FONTNAME, 16, 0);
+  if(!store_load_ttf_font(STATE_FONT_INDEX, "font/" STATE_FONTNAME, -16, 0)) {
+    return state_errmsg_(self, "Error loading " STATE_FONTNAME);
+  }
+  
+  self->font = store_get_font(STATE_FONT_INDEX);
+  
+  // fifi_loadfont(STATE_FONTNAME, 16, 0);
   if (!self->font) {
     return state_errmsg_(self, "Error loading " STATE_FONTNAME);
   }

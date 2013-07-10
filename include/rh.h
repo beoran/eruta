@@ -75,6 +75,9 @@ rh_runfunctionargs(Ruby * ruby, mrb_value rubyself,
 mrb_value 
 rh_runtopfunctionargs(Ruby * ruby, char * name, char * format, ...);
 
+#define rh_bool_value(B) ( (B) ? mrb_true_value() : mrb_false_value())
+
+
 #endif
 
 

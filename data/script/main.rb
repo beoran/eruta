@@ -123,9 +123,19 @@ def start_load_sprites
   
 end
 
+ZIGZAG_LEAF = 10001
+
+def start_load_stuff
+  res = load_bitmap(ZIGZAG_LEAF, "image/ui/icon/gin/zigzag-leaf_64.png")
+  puts "start_load_stuff: #{res}"
+  res = store_kind(ZIGZAG_LEAF)
+  puts "type: #{res}"
+end
+
 def on_start(s)
   puts "on_start #{s}"
-  start_load_sprites
+  # start_load_sprites
+  start_load_stuff
   return 1234567
 end
 

@@ -95,6 +95,7 @@ Sprites
 Physics, collision detection and resolution
 Particle engine for effects
 Camera module
+Resource loading
 UI Subsystem
 Input mapping (to commands/events)
 Music handling

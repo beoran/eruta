@@ -1320,6 +1320,88 @@ struct try_structfunc2_ { int value; int error ;} try_structfunc(int x, int y) {
 */
 
 
+/* Generic array handling that use no structs itself. */
+
+/* New generic array. */
+void * badgar_new(size_t nmemb, size_t size) {
+  return calloc(nmemb, size);
+}
+
+/* Resizes the array. Returns NULL on failiure (it leaves arr untouched then)
+ * On success arr is overwritten with the new reallocated pointer and 
+ * non-null is returned. 
+ */
+void * badgar_resize(void ** arr, size_t  * nmemb, size_t size, int delta) {
+  void * res;
+  void * old;
+  size_t old_nmemb;
+  size_t res_nmemb;
+  size_t copy_nmemb;
+  
+  if (!arr)   return NULL;
+  if (!nmemb)   return NULL;
+  
+  old           = (*arr);
+  old_nmemb     = (*nmemb);
+  if(!(old)) return NULL;
+  res_nmemb     = (size_t)((int)old_nmemb + delta);  
+  if(res_nmemb < 1) return NULL;  
+  res           = realloc(old, res_nmemb * size);
+  (*arr)        = res;    
+  (*nmemb)      = res_nmemb;
+  return res;
+}
+
+/* Gets a pointer to an element of the generic array. Returns NULL on range error 
+ * or if arr is null. */
+void * badgar_get(void * arr, size_t nmemb, size_t size, size_t index) {
+  char * ptr = arr; /* char * pointer avoids strict aliasing. */
+  if(!arr) return NULL;
+  if (index >= nmemb) return NULL;
+  return ptr + (index * size);
+}
+
+/* Stores data in the generic array arr using memmove. */
+void * badgar_put(void * arr, size_t nmemb, size_t size, size_t index, void * data) 
+{
+  char * ptr = arr; /* char * pointer avoids strict aliasing. */
+  if(!arr) return NULL;
+  if (index >= nmemb) return NULL;
+  memmove(ptr + (index * size), data, size);
+  return ptr + (index * size);
+}
+
+/* Just a wrapper for free(). Retruns NULL  */
+void * badgar_free(void * arr) {
+  free(arr);
+  return NULL;
+}
+
+
+/* badpar is for generic arrays of void pointers */
+
+void * badpar_new(size_t nmemb) {
+  return badgar_new(nmemb, sizeof(void*));
+}
+
+void * badpar_resize(void ** arr, size_t * nmemb, int delta) {
+  return badgar_resize(arr, nmemb, sizeof(void*), delta);
+}
+
+void * badpar_get(void * arr, size_t nmemb, size_t index) {
+  return badgar_get(arr, nmemb, sizeof(void*), index);
+}
+
+void * badpar_put(void * arr, size_t nmemb, size_t index, void * data) {
+  return badgar_put(arr, nmemb, sizeof(void*), index, data);  
+}
+
+void * badpar_free(void * arr) {
+  return badgar_free(arr);
+}
+
+
+
 
 
 

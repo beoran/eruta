@@ -1,14 +1,13 @@
 #include <string.h>
 #include "bad.h"
 #include "dynar.h"
+#include "resor.h"
 #include "castor.h"
 
 
 /* Castor is a CAche and in-memory STOrage for Resources.  
-* It's used to keep long-lived resources such as images, etc in memory
-* and reference count them. The resources can be looked up by name. 
-* Permanent resources are never unloaded.  
-* Every type of data needs to be registered though a CastorType.
+* It's a simple array used to keep long-lived Resor resources such 
+* as images in memory.
 */
 
 
@@ -125,8 +124,6 @@ Castor * castor_done(Castor * self) {
   self->types      = dynar_free(self->types);
   /* Clean up nodes */
   self->nodes      =   dynar_free_destroy(self->nodes, castor_node_destructor);
-  self->used_types = -1;
-  self->last_node = -1;
   return self;
 }
 
@@ -141,8 +138,6 @@ Castor * castor_init(Castor * self) {
   }
   dynar_putnullall(self->types);
   dynar_putnullall(self->nodes);
-  self->used_types = 0;
-  self->last_node = 0;
   self->sorted     = FALSE;
   return self;
 }
@@ -170,8 +165,7 @@ CastorType * castor_gettype(Castor * self, int type) {
 
 CastorNode * castor_appendnode(Castor * self, CastorNode * node) {
   if (!self) return NULL;
-  if (!dynar_putptr(self->nodes, self->last_node, node)) return NULL;
-  self->last_node++;
+  if (!dynar_putptr(self->nodes, 0, node)) return NULL;
   return node;  
 }
 

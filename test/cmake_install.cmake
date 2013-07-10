@@ -1,4 +1,4 @@
-# Install script for directory: /home/bjorn/eruta/test
+# Install script for directory: /home/bjorn/src/eruta/test
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)

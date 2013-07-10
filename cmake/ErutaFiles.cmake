@@ -43,12 +43,14 @@ set(ERUTA_SRC_FILES
   src/react.c
   src/rebl.c
   src/rebox.c
+  src/resor.c
   src/rh.c    
   src/scegra.c
   src/silut.c
   src/sound.c
   src/sprite.c
   src/state.c
+  src/store.c
   src/str.c
   src/thing.c
   src/tile.c
