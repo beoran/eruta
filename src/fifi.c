@@ -198,14 +198,12 @@ static ALLEGRO_PATH * path_append_vpath(ALLEGRO_PATH * path, const char * vpath)
   aid = strchr(vpath, '/');
   aid = help_strsplit(vpath, '/', part, PATH_APPEND_VPATH_SIZE); 
   while(aid) {
-    printf("append_vpath : %s\n", part);
     al_append_path_component(path, part);
     vpath = aid + 1;
     aid = help_strsplit(vpath, '/', part, PATH_APPEND_VPATH_SIZE); 
   }
   size_t len = strlen(part);
   if (len > 0) {
-    printf("append_vpath last: %s\n", part);
     if(strchr(part, '.')) { // it's a file name
       al_set_path_filename(path, part);
     } else {
@@ -234,7 +232,7 @@ ALLEGRO_PATH * fifi_data_pathva(const char * filename, va_list args) {
   if(!path) return NULL;
   path_append_va(path, args);
   al_set_path_filename(path, filename);
-  printf("Loading: %s for %s\n", PATH_CSTR(path), filename);
+  // printf("Loading: %s for %s\n", PATH_CSTR(path), filename);
   if(PATH_EXISTS(path)) { return path;  }
   // if we get here, we must destroy the path any way.
   al_destroy_path(path);
@@ -281,7 +279,7 @@ void * fifi_load_vpath(FifiLoader * load, void * extra, const char * vpath) {
     printf("Filename not set for path: %s.\n", PATH_CSTR(path));
     goto cleanup;  
   }
-  printf("Loading: %s for %s\n", PATH_CSTR(path), vpath);
+  // printf("Loading: %s for %s\n", PATH_CSTR(path), vpath);
   if(PATH_EXISTS(path)) {
     data = load(extra, PATH_CSTR(path)); // load the data
   } else {

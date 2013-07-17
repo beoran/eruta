@@ -55,11 +55,13 @@ Silut * silut_lsearchi(Silut lut[], int integer) {
 * The look up table should have NULL as it's final element.
 * strcmp is used to compare the strings.
 * If not found, NULL is returned. If found the matching record is returned.
+* Returns null if string is null.
 */
 Silut * silut_lsearchcstr(Silut lut[], const char * string) {
   int index = 0;
   Silut * aid;
   if(!lut) return NULL;  
+  if(!string) return NULL;  
   for(index = 0, aid = lut + index;
       aid && aid->string ;
       index++, aid = lut + index)

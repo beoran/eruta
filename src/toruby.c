@@ -554,10 +554,21 @@ static mrb_value tr_store_grab_font(mrb_state * mrb, mrb_value self) {
 #define TR_METHOD(MRB, CLASS, NAME, IMPL, FLAGS)\
         mrb_define_method((MRB), (CLASS), (NAME), (IMPL), (FLAGS))
 
+#define TR_METHOD_ARGC(MRB, CLASS, NAME, IMPL, ARGC)\
+        mrb_define_method((MRB), (CLASS), (NAME), (IMPL), ARGS_REQ(ARGC))
+
+#define TR_METHOD_NOARG(MRB, CLASS, NAME, IMPL)\
+        mrb_define_method((MRB), (CLASS), (NAME), (IMPL), ARGS_NONE())
+
 #define TR_CLASS_METHOD(MRB, CLASS, NAME, IMPL, FLAGS)\
         mrb_define_class_method((MRB), (CLASS), (NAME), (IMPL), (FLAGS))
 
-        
+#define TR_CLASS_METHOD_ARGC(MRB, CLASS, NAME, IMPL, ARGC)\
+        mrb_define_class_method((MRB), (CLASS), (NAME), (IMPL), ARGS_REQ(ARGC))
+
+#define TR_CLASS_METHOD_NOARG(MRB, CLASS, NAME, IMPL)\
+        mrb_define_class_method((MRB), (CLASS), (NAME), (IMPL), ARGS_NONE())
+
 
 /* Initializes the functionality that Eruta exposes to Ruby. */
 int tr_init(mrb_state * mrb) {
@@ -572,36 +583,53 @@ int tr_init(mrb_state * mrb) {
   
   krn = mrb_class_get(mrb, "Kernel");
   if(!krn) return -1;
-  mrb_define_method(mrb, krn, "test", 
-                    tr_test, ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "log" , tr_log , ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "script" , tr_script , ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "sprite_getornew", tr_getornewsprite, ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "sprite_new", tr_newsprite, ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "sprite_get", tr_sprite, ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "sprite_loadulpcss", tr_sprite_loadulpcss, ARGS_REQ(3));
-  mrb_define_method(mrb, krn, "sprite_tint_rgba", tr_sprite_tint, ARGS_REQ(6));
-  mrb_define_method(mrb, krn, "thing_new"    , tr_newthing, ARGS_REQ(7));
-  mrb_define_method(mrb, krn, "camera_track" , tr_camera_track, ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "camera_lockin", tr_lockin_maplayer, ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "tilemap_load" , tr_loadtilemap_vpath, ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "thing_sprite_", tr_thing_sprite_, ARGS_REQ(2));
-  mrb_define_method(mrb, krn, "thing_pose_"  , tr_thing_pose_, ARGS_REQ(2));
-  mrb_define_method(mrb, krn, "thing_direction_", tr_thing_direction_, ARGS_REQ(2));
-  mrb_define_method(mrb, krn, "actor_index_", tr_actorindex_, ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "actor_index", tr_actorindex, ARGS_NONE());
+  TR_METHOD_ARGC(mrb, krn, "test",  tr_test, 1);
+  TR_METHOD_ARGC(mrb, krn, "log" , tr_log , 1);
+  TR_METHOD_ARGC(mrb, krn, "script" , tr_script , 1);
+  TR_METHOD_ARGC(mrb, krn, "sprite_getornew", tr_getornewsprite, 1);
+  TR_METHOD_ARGC(mrb, krn, "sprite_new", tr_newsprite, 1);
+  TR_METHOD_ARGC(mrb, krn, "sprite_get", tr_sprite, 1);
+  TR_METHOD_ARGC(mrb, krn, "sprite_loadulpcss", tr_sprite_loadulpcss, 3);
+  TR_METHOD_ARGC(mrb, krn, "sprite_tint_rgba", tr_sprite_tint, 6);
+  TR_METHOD_ARGC(mrb, krn, "thing_new"    , tr_newthing, 7);
+  TR_METHOD_ARGC(mrb, krn, "camera_track" , tr_camera_track, 1);
+  TR_METHOD_ARGC(mrb, krn, "camera_lockin", tr_lockin_maplayer, 1);
+  TR_METHOD_ARGC(mrb, krn, "tilemap_load" , tr_loadtilemap_vpath, 1);
+  TR_METHOD_ARGC(mrb, krn, "thing_sprite_", tr_thing_sprite_, 2);
+  TR_METHOD_ARGC(mrb, krn, "thing_pose_"  , tr_thing_pose_, 2);
+  TR_METHOD_ARGC(mrb, krn, "thing_direction_", tr_thing_direction_, 2);
+  TR_METHOD_ARGC(mrb, krn, "actor_index_", tr_actorindex_, 1);
+  TR_METHOD_NOARG(mrb, krn, "actor_index", tr_actorindex);
 
-  mrb_define_method(mrb, krn, "store_kind", tr_store_kind, ARGS_REQ(1));
-  mrb_define_method(mrb, krn, "load_bitmap", tr_store_load_bitmap, ARGS_REQ(2));
+  TR_METHOD_ARGC(mrb, krn, "store_kind", tr_store_kind, 1);
+  TR_METHOD_ARGC(mrb, krn, "load_bitmap", tr_store_load_bitmap, 2);
+  TR_METHOD_ARGC(mrb, krn, "load_bitmap", tr_store_load_bitmap, 2);  
+  TR_METHOD_ARGC(mrb, krn, "load_bitmap_flags", 
+                       tr_store_load_bitmap_flags, 3);
+  TR_METHOD_ARGC(mrb, krn, "load_audio_stream", tr_store_load_audio_stream, 4);
+  TR_METHOD_ARGC(mrb, krn, "load_sample", tr_store_load_sample, 2);
+  TR_METHOD_ARGC(mrb, krn, "load_ttf_font", tr_store_load_ttf_font, 4);
+  TR_METHOD_ARGC(mrb, krn, "load_ttf_stretch", tr_store_load_ttf_font_stretch, 5);
+  TR_METHOD_ARGC(mrb, krn, "load_bitmap_font", tr_store_load_bitmap_font, 2);
+  TR_METHOD_ARGC(mrb, krn, "load_bitmap_font_flags", tr_store_load_bitmap, 3);
+ 
   
-  TR_CLASS_METHOD(mrb, sto, "kind", tr_store_kind, ARGS_REQ(1) );
-  TR_CLASS_METHOD(mrb, sto, "load_bitmap", tr_store_load_bitmap, ARGS_REQ(2) );
-  TR_CLASS_METHOD(mrb, sto, "load_bitmap_flags", 
-                  tr_store_load_bitmap_flags, ARGS_REQ(3) );
-  TR_CLASS_METHOD(mrb, sto, "drop", tr_store_drop, ARGS_REQ(1));
-  TR_CLASS_METHOD(mrb, sto, "bitmap_flags", tr_store_get_bitmap_flags, ARGS_REQ(1));
-  TR_CLASS_METHOD(mrb, sto, "bitmap_width", tr_store_get_bitmap_width, ARGS_REQ(1));
-  TR_CLASS_METHOD(mrb, sto, "bitmap_height", tr_store_get_bitmap_height, ARGS_REQ(1));
+  TR_CLASS_METHOD_ARGC(mrb, sto, "kind", tr_store_kind, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap", tr_store_load_bitmap, 2);  
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_flags", 
+                       tr_store_load_bitmap_flags, 3);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_audio_stream", tr_store_load_audio_stream, 4);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_sample", tr_store_load_sample, 2);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_ttf_font", tr_store_load_ttf_font, 4);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_ttf_stretch", tr_store_load_ttf_font_stretch, 5);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_font", tr_store_load_bitmap_font, 2);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_font_flags", tr_store_load_bitmap, 3);
+  
+  
+  TR_CLASS_METHOD_ARGC(mrb, sto, "drop", tr_store_drop, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_flags", tr_store_get_bitmap_flags, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_width", tr_store_get_bitmap_width, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_height", tr_store_get_bitmap_height, 1);
    
   // must restore gc area here ????
   mrb_gc_arena_restore(mrb, 0);

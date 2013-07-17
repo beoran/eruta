@@ -25,6 +25,9 @@ struct Tileset_ {
   int        h;
 };
 
+
+
+
 /** 
 * A single tile from a tile map.
 * Tiles can be animated. This works like this: a tile has an animation
@@ -56,12 +59,14 @@ struct Tile_ {
   /* Time since last animation in s. */
   /* Sub-position in the tile sheet image of the tileset. */
   Point         now;
+  /* Automatic blending activation and priority. */
+  int           blend;
 };
 
 /* NOTE: Tiles could be implemented using sub bitmaps as they seem to be
 * slightly faster if they are preallocated. however the speed gain would
 * be around 2%, so it's not a priority yet. It could simplify some of
-* the code, though, but I'll use sub-bitmaps for spites first.
+* the code, though.
 */
 
 
@@ -165,6 +170,7 @@ Tile * tile_init(Tile * tile, Tileset * set, int index) {
   tile->time    = 0.0;
   tile->wait    = 0.250;
   tile->active  = index;
+  tile->blend   = 0;
   tile_recalculate(tile);
   return tile;
 }
@@ -329,6 +335,66 @@ void tile_draw(Tile * tile, int x, int y) {
   // al_draw_bitmap(sheet, dx, dy, 0);
 }
 
+/* Used for drawing masked tiles. */
+static Image  * tile_mask_buffer = NULL;   
+
+
+/** Draw a tile to the current active drawing target at the
+given coordinates, applying the given mask bitmap, where the mask will 
+be flipped as per the given mask_flags. The mask bitmap
+should be white, but with different alpha levels on the white 
+which will be applied as the mask. Does nothing if tile is NULL.  
+This requires al_hold_bitmap_drawing to be turned off!
+*/
+void tile_draw_masked(Tile * tile, int x, int y, Image * mask, int mask_flags) {  
+  /* This function need a mask buffer. */
+  Tileset * set;
+  Image * sheet;
+  ALLEGRO_BITMAP * target;
+  Color dcolor = al_map_rgb(0xee, 0x00, 0xee);
+  float dx, dy, sx, sy, sw, sh;
+  
+  if (!tile) return;
+  /* Create a 32x32 tile bitmap that will be used thanks to 
+   it being static. And leaked at program shutdown, but I don't care :p. */
+  tile_mask_buffer = al_create_bitmap(TILE_W, TILE_H);
+  /* Keep the target bitmap. */
+  target = al_get_target_bitmap();
+  
+  /* Copy the tile into the buffer.  */
+  al_set_target_bitmap(tile_mask_buffer);
+  set   =  tile->set;
+  sheet = set->sheet;
+  dx      = x;
+  dy      = y; 
+  sx      = (float) tile->now.x;
+  sy      = (float) tile->now.y;
+  sw      = (float) TILE_W;
+  sh      = (float) TILE_H;
+  // printf("%f %f\n", sx, sy);
+  /* Set blender to copy mode. */
+  // al_clear_to_color(al_map_rgba_f(0,0,0,0));
+  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);  
+  al_draw_bitmap_region(sheet, sx, sy, sw, sh, 0, 0, 0);
+  
+  
+  /* Draw the mask over the tile, taking the alpha of the mask  */
+  //al_set_blender(ALLEGRO_ADD, ALLEGRO_ZERO, ALLEGRO_ALPHA);
+  //al_draw_bitmap(mask, 0, 0, mask_flags);
+
+  /* Restore normal Allegro blending and target bitmap (i.e., the display). */
+  al_set_target_bitmap(target);
+  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+  
+  /* Finally draw the tile mask buffer to the right place on the display */
+  // al_draw_bitmap(tile_mask_buffer, dx, dy, 0);
+  al_draw_bitmap(mask, dx, dy, mask_flags);
+  // Debug rectangle to see where blend was applied. 
+  al_draw_rectangle(dx, dy, dx+TILE_W, dy+TILE_H, dcolor, 1);
+  al_destroy_bitmap(tile_mask_buffer);
+  printf("Mask: %p %lf %lf %d\n", mask, dx, dy, mask_flags);
+}
+
 /** Tile's index. Returns -1 if tile is NULL; */
 int tile_index(Tile * tile) { 
   if (!tile) return -1;
@@ -341,7 +407,17 @@ int tile_kind(Tile * tile) {
   return tile->kind;
 }
 
+/** Information about tile's blending properties and priority.
+ * Zero means no blending, positive is a blend priority.
+ */
+int tile_blend(Tile * tile) {
+  if (!tile) return 0;
+  return tile->blend;
+}
 
-
-
+/** Set the tile's blending and priority */
+int tile_blend_(Tile * tile, int priority) {
+  if (!tile) return 0;
+  return tile->blend = priority;
+}
 

@@ -6,6 +6,30 @@ PointerGrid * pointergrid_alloc(void) {
   return mem_alloc(sizeof(PointerGrid));
 }
 
+
+/** Nulls out all the data in pointergrid.  If memdestructor is not NULL,
+ * it will be called with the old value in the cell before NULL is set.
+*/
+int pointergrid_nullall(PointerGrid * self, MemDestructor * destroy) {
+  int w, h, x, y;
+  if (!self)        return -1;
+  if (!self->data)  return -1;
+  w = pointergrid_w(self);
+  h = pointergrid_h(self);  
+  for(y = 0; y < h ; y++) {
+    for(x = 0; x < w ; x++) {
+      void * cell = pointergrid_getraw(self, x, y);
+      if (destroy && cell) {
+        destroy(cell); 
+      }
+      pointergrid_putraw(self, x, y, NULL);
+    }
+  }
+  return 0;
+}
+
+
+
 /** Cleans up and deinitializes the PointerGrid self, 
 using the destructor if needed  */
 PointerGrid * pointergrid_done(PointerGrid * self, MemDestructor * destroy) {
@@ -15,14 +39,8 @@ PointerGrid * pointergrid_done(PointerGrid * self, MemDestructor * destroy) {
   for (index = 0; index < self->h; index ++) {    
     if(self->data[index]) { 
       /* Clean up elements if needed. */
-      if(destroy) { 
-        int jdex;
-        for(jdex = 0 ; jdex < self->w; index++) {
-          void * ptr = self->data[index][jdex];
-          if(ptr) {
-            destroy(ptr);
-          }
-        }
+      if(destroy) {
+        pointergrid_nullall(self, destroy);
       }
       mem_free(self->data[index]);
     }
@@ -175,7 +193,4 @@ int pointergrid_copy(PointerGrid * self, PointerGrid * other) {
   }
   return 0;
 }
-
-
-
 

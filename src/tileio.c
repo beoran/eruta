@@ -19,7 +19,7 @@ Image * tileset_image_load(const char * filename) {
 
 Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   char * sflags = NULL;
-  int ianim     = 0, iwait = 0;
+  int ianim     = 0, iwait = 0, iblend = 0;
   xmlNode * firstprop;
   int id        = xmlGetPropInt(xtil, "id");
   Tile  * tile  = tileset_get(set, id);
@@ -27,17 +27,22 @@ Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   // printf("Tile id: %d %p\n", id, tile);
   // use properties of tile...
   firstprop     = xmlFindChildDeep(xtil, "properties", "property", NULL);
-  // get type, animation and wait
+  /* Now, get type, animation, wait and blend. */
+  /* Here, sflags sometimes is null, I guess when there is a type without a type. */
   sflags        = xmlPropertyValue(firstprop, "type");
+  tile_property_(tile, sflags);
   xmlPropertyValueInt(firstprop, "anim", &ianim);
   xmlPropertyValueInt(firstprop, "wait", &iwait);
-  tile_property_(tile, sflags);
+  xmlPropertyValueInt(firstprop, "blend", &iblend);
+
   if(ianim) { 
     tile_anim_(tile, ianim);
     if(iwait > 0) tile_wait_(tile, iwait);
     else tile_wait_(tile, 200);
   }
-  //printf("Tile type: %s, anim: %d, wait: %d, flags:%d\n", sflags, ianim, iwait, tile_flags(tile));
+  
+  tile_blend_(tile, iblend);
+  //printf("Tile type: %s, anim: %d, wait: %d, blend %d, flags:%d\n", sflags, ianim, iwait, iblend, tile_flags(tile));
   return tile;
 }
 
@@ -283,6 +288,10 @@ Tilemap * tilemap_loadtmx(const char * filename, TilemapLoadExtra * extra) {
 Tilemap * tilemap_load(const char * filename, TilemapLoadExtra * extra) {
   Tilemap * result;
   result = tilemap_loadtmx(filename, extra);
+  /* Set up blending if loaded OK. */
+  if (result) {
+    tilemap_init_blend(result);
+  }
   return result;
 }
 

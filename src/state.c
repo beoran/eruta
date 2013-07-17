@@ -446,10 +446,10 @@ State * state_init(State * self, BOOL fullscreen) {
   state_eventsource(self, al_get_mouse_event_source());
   state_eventsource(self, al_get_joystick_event_source());
   al_set_window_title(self->display, "Eruta!");
-  // set up fps counter. 
-  self->fps        = 0.0;
+  // set up fps counter. Start with assuming we have 60 fps. 
+  self->fps        = 60.0;
   self->fpstime    = al_get_time();
-  self->frames     = 0;  
+  self->frames     = 60;  
   self->loadingmap = NULL;
   self->nowmap     = NULL;
   

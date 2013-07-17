@@ -38,13 +38,6 @@ typedef struct Tileset_ Tileset;
 typedef struct Tile_ Tile;
 
 
-/* This file was generated with:
-'cfunctions -c -aoff -n -w tile_proto src/tile.c' */
-#ifndef CFH_TILE_PROTO
-#define CFH_TILE_PROTO
-
-/* From 'src/tile.c': */
-
 void tileset_done (Tileset * set );
 
 void tileset_free (Tileset * set );
@@ -93,11 +86,14 @@ int tile_index (Tile * tile );
 
 int tile_kind (Tile * tile );
 
-#endif /* CFH_TILE_PROTO */
+int tile_blend_(Tile * tile , int priority);
+
+int tile_blend(Tile * tile );
+
+void tile_draw_masked(Tile * tile, int x, int y, Image * mask, int mask_flags);
 
 
 
 #endif
-
 
 

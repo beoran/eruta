@@ -193,6 +193,7 @@ int tilemap_getindex(Tilemap * self, int l, int x, int y) {
 void tilemap_draw(Tilemap * map, Camera * camera) {
   int index;
   Tilepane * pane;
+ 
 #ifndef TILEMAP_NO_TILES
   for(index  = 0; index < TILEMAP_PANES; index++) {
     pane     = tilemap_pane(map, index);
@@ -289,4 +290,21 @@ int tilemap_gridhigh(Tilemap * self) {
 int tilemap_panes(Tilemap * self) {
   return TILEMAP_PANES;
 }
+
+
+/** Sets up automatic blending for this tile map. This is called automatically 
+  after loading the Tilemap */
+bool tilemap_init_blend(Tilemap * self) {
+  bool res = true;
+  bool aid;
+  int index;
+  for (index = 0; index < TILEMAP_PANES; index++) {
+    aid = tilepane_init_blend(tilemap_pane(self, index), index);
+    res = aid && res;
+  }  
+  return res;
+}
+
+
+
 

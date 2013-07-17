@@ -130,6 +130,12 @@ def start_load_stuff
   puts "start_load_stuff: #{res}"
   res = store_kind(ZIGZAG_LEAF)
   puts "type: #{res}"
+  res = store_kind(ZIGZAG_LEAF + 1)
+  puts "type: #{res}"
+  h   = Store.bitmap_height(ZIGZAG_LEAF)
+  w   = Store.bitmap_width(ZIGZAG_LEAF)
+  puts "h: #{h} w: #{w}"
+  
 end
 
 def on_start(s)

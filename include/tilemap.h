@@ -67,6 +67,8 @@ Area * tilemap_area(Tilemap * self);
 
 Thing * tilemap_thing(Tilemap * self, int index);
 
+bool tilemap_init_blend(Tilemap * self);
+
 
 
 

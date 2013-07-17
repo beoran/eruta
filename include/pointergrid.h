@@ -95,7 +95,7 @@ void pointergrid_putraw(PointerGrid * self, int x, int y, void * el);
 int pointergrid_copy(PointerGrid * self, PointerGrid * other);
 
 
-
+int pointergrid_nullall(PointerGrid * self, MemDestructor * destroy);
 
 
 #endif
