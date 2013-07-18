@@ -169,6 +169,27 @@ int pointergrid_put(PointerGrid * self, int x, int y, void * el) {
 }
 
 
+/** Sets and element info the matrix self. 
+* If all goes well, this function returns el.
+* If w and h are out of range, or the matrix isn't correctly initialized, 
+* does nothing and returns NULL in stead.
+*/
+void * pointergrid_store(PointerGrid * self, int x, int y, void * el) {
+  if(pointergrid_outofrange(self,x,y)) { return NULL; }  
+  pointergrid_putraw(self,x,y,el);
+  return el;
+}
+
+/** Fetched an element from the matrix self. 
+* If all goes well, this returns the result.
+* If w and h are out of range, or the matrix isn't correctly initialized, 
+* returns NULL. 
+*/
+void * pointergrid_fetch(PointerGrid * self, int x, int y) {
+  if (pointergrid_outofrange(self,x,y)) { return NULL; }  
+  return pointergrid_getraw(self,x,y);
+}
+
 /** Copies the data from one matrix to the other. 
 * If the matrixes are of unequal size, copies the smallest of both 
 * heights and widths.
