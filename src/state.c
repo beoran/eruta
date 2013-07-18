@@ -403,6 +403,7 @@ State * state_init(State * self, BOOL fullscreen) {
   // flags |= ALLEGRO_OPENGL;
  
   al_set_new_display_flags(flags);
+ /*  al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST); */
   // Create a window to display things on: 640x480 pixels.
   self->display = al_create_display(SCREEN_W, SCREEN_H);
   if (!self->display) {
@@ -583,8 +584,9 @@ void state_frames_update(State * state) {
   if((now - state->fpstime) > 1.0) {
      /* Measure only last second of frames, which means FPS gets updated every second or so. */
      state->fps     = ((double)state->frames) / (now - state->fpstime);
-     state->frames  = 0;
-     state->fpstime = now;
+     /* A little trick, keep half the frames; and half the time  */
+     state->frames  = state->frames / 2;
+     state->fpstime = now - 0.5;
   } 
 }
 
