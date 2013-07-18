@@ -90,7 +90,7 @@ int tile_blend_(Tile * tile , int priority);
 
 int tile_blend(Tile * tile );
 
-void tile_draw_masked(Tile * tile, int x, int y, Image * mask, int mask_flags);
+void tile_draw_masked(Tile * tile, int x, int y, Image * mask, float angle, int mask_flags);
 
 
 

@@ -346,18 +346,23 @@ should be white, but with different alpha levels on the white
 which will be applied as the mask. Does nothing if tile is NULL.  
 This requires al_hold_bitmap_drawing to be turned off!
 */
-void tile_draw_masked(Tile * tile, int x, int y, Image * mask, int mask_flags) {  
+void tile_draw_masked(Tile * tile, int x, int y, Image * mask, float angle, int mask_flags) {  
   /* This function need a mask buffer. */
   Tileset * set;
   Image * sheet;
   ALLEGRO_BITMAP * target;
   Color dcolor = al_map_rgb(0xee, 0x00, 0xee);
   float dx, dy, sx, sy, sw, sh;
+  int bmpflags;
   
   if (!tile) return;
   /* Create a 32x32 tile bitmap that will be used thanks to 
    it being static. And leaked at program shutdown, but I don't care :p. */
-  tile_mask_buffer = al_create_bitmap(TILE_W, TILE_H);
+  bmpflags         = al_get_new_bitmap_flags();
+  al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+  if (!tile_mask_buffer) tile_mask_buffer = al_create_bitmap(TILE_W, TILE_H);
+  al_set_new_bitmap_flags(bmpflags);
+ 
   /* Keep the target bitmap. */
   target = al_get_target_bitmap();
   
@@ -379,20 +384,33 @@ void tile_draw_masked(Tile * tile, int x, int y, Image * mask, int mask_flags) {
   
   
   /* Draw the mask over the tile, taking the alpha of the mask  */
-  //al_set_blender(ALLEGRO_ADD, ALLEGRO_ZERO, ALLEGRO_ALPHA);
-  //al_draw_bitmap(mask, 0, 0, mask_flags);
+  al_set_blender(ALLEGRO_ADD, ALLEGRO_ZERO, ALLEGRO_ALPHA);
+  al_draw_bitmap(mask, 0, 0, mask_flags);
 
   /* Restore normal Allegro blending and target bitmap (i.e., the display). */
   al_set_target_bitmap(target);
   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
   
+  sx = 0.0;
+  sy = 0.0;
+  if (angle > 0.0) {
+    sx = TILE_H / 2.0;
+    sy = TILE_W / 2.0;
+    dx += sx;
+    dy += sy;
+  } else if (angle < 0.0) {
+    sx = TILE_H / 2.0;
+    sy = TILE_W / 2.0;
+    dx += sx;
+    dy += sy;
+  }
+  
   /* Finally draw the tile mask buffer to the right place on the display */
-  // al_draw_bitmap(tile_mask_buffer, dx, dy, 0);
-  al_draw_bitmap(mask, dx, dy, mask_flags);
+  al_draw_rotated_bitmap(tile_mask_buffer, sx, sy, dx, dy, angle, 0);
+  // al_draw_bitmap(mask, dx, dy, mask_flags);
   // Debug rectangle to see where blend was applied. 
-  al_draw_rectangle(dx, dy, dx+TILE_W, dy+TILE_H, dcolor, 1);
-  al_destroy_bitmap(tile_mask_buffer);
-  printf("Mask: %p %lf %lf %d\n", mask, dx, dy, mask_flags);
+  // al_draw_rectangle(dx, dy, dx+TILE_W, dy+TILE_H, dcolor, 1);
+  // al_destroy_bitmap(tile_mask_buffer);
 }
 
 /** Tile's index. Returns -1 if tile is NULL; */
