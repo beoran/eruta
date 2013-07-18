@@ -147,7 +147,6 @@ Image * tilepane_prepare_blend
   mask         = tile_blend_masks[0][side];
   if (!mask) return NULL;
   tile_draw_masked_to(blend, blendtile, mask, angle, flags);
-  printf("blend %p\n", blend);
   return blend;
 } 
 
@@ -569,8 +568,6 @@ tilepane_init_blend_tile(Tilepane * self, int index, int x, int y, Tile * tile) 
   }
 
   tileprio = tile_blend(tile);
-  /* printf("Blend tile at %d %d %d\n", index, x, y); */
-
 
   /* Look for the tiles around self. */
   for (bindex = 0; bindex < TILE_BLEND_DIRECTION_MAX ; bindex++) { 
@@ -584,9 +581,7 @@ tilepane_init_blend_tile(Tilepane * self, int index, int x, int y, Tile * tile) 
     aidprio = tile_blend(aidtile);
     /* Only blend if blend priority of other is higher. */
     if (aidprio <= tileprio) continue;
-    tilepane_prepare_blend(blend, tile, aidtile, bindex); 
-    printf("Tile at %d %d %d will blend with tile at %d %d\n", index, x, y, xn, yn);
-    
+    tilepane_prepare_blend(blend, tile, aidtile, bindex);    
   }
  
   return TRUE;  
@@ -617,49 +612,6 @@ bool tilepane_init_masks() {
   tile_blend_masks[0][TILE_BLEND_CORNER] = image1;
   tile_blend_masks[0][TILE_BLEND_SIDE]   = image2;
   return TRUE;
-  
-  
-#ifndef XXX_DRAW_MASK  
-  /* */
-  image1 = al_create_bitmap(TILE_W, TILE_H);
-  image2 = al_create_bitmap(TILE_W, TILE_H);
-  /* Make top image like this: image like this : \_/ */
-  if (!(image1 && image2)) {
-    al_destroy_bitmap(image1);
-    al_destroy_bitmap(image2);
-    return false;
-  } 
-  /* Make corner image like this : / */
-  solid         = al_map_rgba_f(1.0, 1.0, 1.0, 1.0);
-  // transparent   = al_map_rgba_f(1.0, 1.0, 1.0, 0.0);
-  transparent   = al_map_rgba_f(0.0, 0.0, 0.0, 0.0);
-  tile_blend_masks[0][TILE_BLEND_CORNER] = image1;
-  tile_blend_masks[0][TILE_BLEND_SIDE]   = image2;
-  
-  target= al_get_target_bitmap();
-  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-  /* Draw corner mask. */
-  al_set_target_bitmap(image1);
-  al_clear_to_color(transparent);
-  al_draw_filled_triangle( 0,0,  MASK_CORNER_W,0, 0,MASK_CORNER_H, solid);
-  
-  /* Draw side mask. like this: \_/ */
-  al_set_target_bitmap(image2);
-  al_clear_to_color(transparent);
-  al_draw_filled_triangle
-  ( 0,0,  MASK_SIDE_W, 0, MASK_SIDE_W, MASK_SIDE_H, solid);
-  al_draw_filled_triangle
-  (TILE_W - MASK_SIDE_W, 
-   0, TILE_W, 0,  
-   TILE_W - MASK_SIDE_W, MASK_SIDE_H, solid);
-  al_draw_filled_rectangle
-  (MASK_SIDE_W, 0, TILE_W - MASK_SIDE_W, MASK_SIDE_H, solid);
-  
-  /* Restore normal Allegro blending and target bitmap (i.e., the display). */
-  al_set_target_bitmap(target);
-  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
-  return TRUE;
-#endif
 };
 
 
@@ -670,6 +622,7 @@ bool tilepane_init_blend(Tilepane * self, int index) {
   if (!self->blends)     return FALSE; 
   w = tilepane_gridwide(self);
   h = tilepane_gridhigh(self);
+  /* Load the masks. */
   tilepane_init_masks();
   for (y = 0  ; y < h; y++) { 
     for (x = 0; x < w; x++) {

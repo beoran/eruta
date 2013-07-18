@@ -360,9 +360,9 @@ void tile_draw_masked_to
   /* Create a 32x32 tile bitmap that will be used thanks to 
    it being static. And leaked at program shutdown, but I don't care :p. */
   bmpflags         = al_get_new_bitmap_flags();
-  al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+  //al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
   if (!tile_mask_buffer) tile_mask_buffer = al_create_bitmap(TILE_W, TILE_H);
-  al_set_new_bitmap_flags(bmpflags);
+  //al_set_new_bitmap_flags(bmpflags);
  
   /* Keep the target bitmap. */
   target = al_get_target_bitmap();
