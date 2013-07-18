@@ -578,15 +578,14 @@ ALLEGRO_FONT * state_font(State * state) {
 /** Call this every frame to update the FPS and frames value */
 void state_frames_update(State * state) {
   double now = al_get_time();
-  // tthis algoritm gives a
   state->frames++;
-  if(state->frames < 0)  { // oops, overflow, so handle it.
-    state->frames  = 0;
-    state->fps     = 0;
-    state->fpstime = now;
-  } else { 
-    state->fps     = ((double)state->frames) / (now - state->fpstime);
-  }   
+
+  if((now - state->fpstime) > 1.0) {
+     /* Measure only last second of frames, which means FPS gets updated every second or so. */
+     state->fps     = ((double)state->frames) / (now - state->fpstime);
+     state->frames  = 0;
+     state->fpstime = now;
+  } 
 }
 
 /** Returns the amount of frames rendered during this second. */

@@ -519,7 +519,7 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
   al_hold_bitmap_drawing(FALSE);  
   
   // Now, after the hold are released , draw the blends. 
-  tilepane_draw_blends(pane, camera);
+  // tilepane_draw_blends(pane, camera);
   
 }
 

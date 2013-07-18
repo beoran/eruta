@@ -199,6 +199,9 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
     pane     = tilemap_pane(map, index);
     if(pane) {
       tilepane_draw(pane, camera);
+      if(index == 0) {
+        tilepane_draw_blends(pane, camera);
+      }
     } else {
       // fprintf(stderr, "pane missing: %d", index);
     }

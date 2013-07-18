@@ -57,5 +57,6 @@ Tile * tilepane_fillindex (Tilepane * pane , int index );
 
 bool tilepane_init_blend(Tilepane * self, int index);
 
+void tilepane_draw_blends(Tilepane * pane, Camera * camera);
 
 #endif
