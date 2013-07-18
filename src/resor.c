@@ -15,7 +15,7 @@
 #include <assert.h>
 
 
-typedef int ResorDestructor(Resor * self); 
+/* typedef int ResorDestructor(Resor * self);  */
 
 struct Resor_ { 
   ResorKind             kind; 

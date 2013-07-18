@@ -398,6 +398,69 @@ void tilepane_draw_tile_blend
 #define TIMES_TILEHIGH(V) ((V) << 5)
 
 
+
+
+/** Draws the blends of the tile pane, with the part that camera describes in view
+* to the current active display.
+*/
+void tilepane_draw_blends(Tilepane * pane, Camera * camera) {
+  // Copy everything to the stack since that should be faster than always
+  // referring to pointers.
+  int gridwide    = pane->gridwide;
+  int gridhigh    = pane->gridhigh;
+  int tilewide    = TILE_W;
+  int tilehigh    = TILE_H;
+  int x           = (int) camera_at_x(camera);
+  int y           = (int) camera_at_y(camera);  
+  int txstart     = x / tilewide;
+  int tystart     = y / tilehigh;
+  int xtilestop   = (camera_w(camera) / tilewide) + 1;
+  int ytilestop   = (camera_h(camera) / tilehigh) + 1;
+  int txstop      = xtilestop + txstart;
+  int tystop      = ytilestop + tystart;
+  int drawx       = 0;
+  int drawy       = 0;
+  int ty_index    = 0;
+  int tx_index    = 0;
+  int realwide    = pane->realwide;
+  int realhigh    = pane->realhigh;
+  Tile ** row     = NULL;
+  Tile * tile     = NULL;
+  Image* blend    = NULL;
+  Color color     = al_map_rgb(200,200,200);
+  Color color2    = al_map_rgb(0,50,0);
+    
+  if (txstart >= realwide) return;
+  if (tystart >= realhigh) return;
+  // hold drawing since all tile draws come from the same tile sheet
+  // al_hold_bitmap_drawing(TRUE);
+  txstart         = (txstart < 0) ? 0 : txstart;
+  tystart         = (tystart < 0) ? 0 : tystart;
+  txstop          = (txstop > gridwide) ? gridwide : txstop;
+  tystop          = (tystop > gridhigh) ? gridhigh : tystop;  
+  drawy           = -y + TIMES_TILEHIGH(tystart-1);
+  for (ty_index = tystart; ty_index < tystop ; ty_index++) {
+    drawy        += tilehigh;
+    drawx         = -x + TIMES_TILEWIDE(txstart-1);
+    row           = (Tile **) pointergrid_rowraw(pane->tiles, ty_index);
+    if(!row) continue;
+    for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
+      drawx      += tilewide;
+      blend = pointergrid_fetch(pane->blends, tx_index, ty_index);
+      if (blend) {
+        al_draw_bitmap(blend, drawx, drawy, 0);
+      }
+      
+    }
+  }
+  // Let go of hold 
+  
+  // Now, after the hold are released , draw the blends. 
+  // tilepane_draw_blends(pane, camera);
+  
+}
+
+
 /** Draws the tile pane, with x and y as the top left corner,
 * to the current active display  X and y may be negative.
 */
@@ -449,19 +512,14 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
       /* tile_draw(tile, drawx, drawy); */
       if(tile) {
         tile_draw(tile, drawx, drawy);
-      } 
-      blend = pointergrid_fetch(pane->blends, tx_index, ty_index);
-      if (blend) {
-        al_draw_bitmap(blend, drawx, drawy, 0);
       }
-      
     }
   }
   // Let go of hold 
   al_hold_bitmap_drawing(FALSE);  
   
   // Now, after the hold are released , draw the blends. 
-  // tilepane_draw_blends(pane, camera);
+  tilepane_draw_blends(pane, camera);
   
 }
 
@@ -554,13 +612,28 @@ tilepane_init_blend_tile(Tilepane * self, int index, int x, int y, Tile * tile) 
   void      * aid   = NULL;
   Image     * blend = NULL;
   Tile      * aidtile;
+  int oldbflags, oldformat;
   int tileprio, aidprio;
   blend     = tilepane_get_blend(self, x, y);
   /** Reuse (draw over) old blend if set, otherwise make new one. */
   if (!blend) { 
     Image * target;
+    oldbflags = al_get_new_bitmap_flags();
+    oldformat = al_get_new_bitmap_format();
     target = al_get_target_bitmap();
+    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
+    al_set_new_bitmap_format(al_get_display_format(al_get_current_display()));
     blend = al_create_bitmap(TILE_W, TILE_H);
+    al_set_new_bitmap_flags(oldbflags);
+    al_set_new_bitmap_format(oldformat);
+
+    
+
+    if(!blend) {
+       fprintf(stderr, "Cannot alloc video bitmap for blends.\n");
+       return FALSE;
+    }
+
     al_set_target_bitmap(blend);
     al_clear_to_color(al_map_rgba_f(0,0,0,0));
     tilepane_set_blend_raw(self, x, y, blend);

@@ -100,44 +100,76 @@ different arrangments. :)
 
 Credits and third party licenses: 
 
-File:
+json-parser (src/json.c and include/json.h):
+
+  Copyright (C) 2012 James McLaughlin, Alex Gartrell, Peter Scott, 
+  Mathias Kaerlev, Emiel Mols, Czarek Tomczak, Nicholas Braden, 
+  Ivan Kozub, Árpád Goretity.  All rights reserved.
+  https://github.com/udp/json-parser
+ 
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+ 
+  1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 
+  2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
+
+
 ext/gari/test/test_music.ogg, data/music/musictest.ogg
-Original title: : Town in ruins loop
-Artist: Brandon Morris
-License: CC-BY 3.0
+  Original title: : Town in ruins loop
+  Artist: Brandon Morris
+  License: CC-BY 3.0
 
 data/font/Tuffy.ttf
-Tuffy fonts License: 
-I have placed these fonts in the Public Domain. This is all 100% my
-own work. Usage is totally unrestricted. If you want to make
-derivative works for any purpose, please go ahead.
+  - Thatcher Ulrich <tu@tulrich.com> http://tulrich.com
+  Tuffy fonts License: 
+  I have placed these fonts in the Public Domain. This is all 100% my
+  own work. Usage is totally unrestricted. If you want to make
+  derivative works for any purpose, please go ahead.
 
--Thatcher Ulrich <tu@tulrich.com> http://tulrich.com
+data/font/GranaPadano.ttf  
+  Daniel Johnson (font maintainer)
+  il.basso.buffo at gmail dot com
+  http://io.debian.net/~danielj/
+  Licensed under the Open Font License (OFL). 
 
-data/font/GranaPadano.ttf:  licensed under the Open Font License (OFL). Contributors:
-Daniel Johnson (font maintainer)
-il.basso.buffo at gmail dot com
-http://io.debian.net/~danielj/
+data/image/ulpcss/*
+  See README and AUTHORS in that directory. 
+  These images are temporary open source placeholders for the game sprites.
 
-data/image/ulpcss: See README and AUTHORS in that directory. 
-These images are temporary open source placeholders for the game sprites.
+data/image/ui/icon/gin/* 
+  Icons made by Lorc, Delapoite and John Colbutn.   
+  Icons provided under the Creative Commons 3.0 BY license.
+  See licence.txt in that directory for more details.
 
-data/image/ui/icon/gin: See licence.txt in that directory.
-Icons provided under the Creative Commons 3.0 BY license.
-Icons made by Lorc, Delapoite en John Colbutn. 
 
 data/music: 
-data/music/*_com64.ogg : Com64 under CC-BY 3.0.
-data/music/*_joclemons.ogg : Jo Clemons under CC-BY 3.0.
-
-
+data/music/*_com64.ogg  
+  By Com64 under CC-BY 3.0 license.
+data/music/*_joclemons.ogg  
+  By Jo Clemons under CC-BY 3.0 license.
 
 
 Thanks to the following people for their suggestions:
 
 Alexbond45, LunarKnite, Mikka, Sagephoenix.
 
- 
 Remarks for developers:
 
 bin/mkproto is an automatic function prototype extraction tool that is 
@@ -175,6 +207,7 @@ src/glh.c         : OpenGL helper functions. Currently not in use.
 src/hatab.c       : Hash table. Needs work, so not in use yet.
 src/ifa.c         : Generic interfaces for C. Currently not used.
 src/inli.c        : Intrusive linked ist, currently not used.
+src/json.c	  : JSON support.
 src/main.c        : Main function and many helpers and tests.
 src/mem.c         : Memory handling helpers.
 src/miniz.c       : Minimalistic zip library for later use.
