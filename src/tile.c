@@ -61,6 +61,8 @@ struct Tile_ {
   Point         now;
   /* Automatic blending activation and priority. */
   int           blend;
+  /* Mask number to use for automatic blending, if any. */
+  int           mask;
 };
 
 /* NOTE: Tiles could be implemented using sub bitmaps as they seem to be
@@ -171,6 +173,7 @@ Tile * tile_init(Tile * tile, Tileset * set, int index) {
   tile->wait    = 0.250;
   tile->active  = index;
   tile->blend   = 0;
+  tile->mask    = 0;
   tile_recalculate(tile);
   return tile;
 }
@@ -434,5 +437,21 @@ int tile_blend(Tile * tile) {
 int tile_blend_(Tile * tile, int priority) {
   if (!tile) return 0;
   return tile->blend = priority;
+}
+
+/** Information about tile's blending mask
+ * Returns 0 for the default mask if not set.
+ */
+int tile_mask(Tile * tile) {
+  if (!tile) return 0;
+  return tile->mask;
+}
+
+/** Set the tile's blending mask */
+int tile_mask_(Tile * tile, int mask) {
+  if (!tile) return 0;
+  if (mask < 0) mask = 0;
+  if (mask > 2) mask = 0;
+  return tile->mask = mask;
 }
 

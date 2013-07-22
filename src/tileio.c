@@ -19,7 +19,7 @@ Image * tileset_image_load(const char * filename) {
 
 Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   char * sflags = NULL;
-  int ianim     = 0, iwait = 0, iblend = 0;
+  int ianim     = 0, iwait = 0, iblend = 0, imask = 0;
   xmlNode * firstprop;
   int id        = xmlGetPropInt(xtil, "id");
   Tile  * tile  = tileset_get(set, id);
@@ -34,14 +34,16 @@ Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   xmlPropertyValueInt(firstprop, "anim", &ianim);
   xmlPropertyValueInt(firstprop, "wait", &iwait);
   xmlPropertyValueInt(firstprop, "blend", &iblend);
+  xmlPropertyValueInt(firstprop, "blendmask", &imask);
 
   if(ianim) { 
     tile_anim_(tile, ianim);
     if(iwait > 0) tile_wait_(tile, iwait);
     else tile_wait_(tile, 200);
   }
-  
+
   tile_blend_(tile, iblend);
+  tile_mask_(tile, imask);
   //printf("Tile type: %s, anim: %d, wait: %d, blend %d, flags:%d\n", sflags, ianim, iwait, iblend, tile_flags(tile));
   return tile;
 }

@@ -143,9 +143,12 @@ Image * tilepane_prepare_blend
   int     side = tile_blend_sides[direction];
   float  angle = tile_blend_angles[direction];
   int    flags = tile_blend_flags[direction];
-  if (!blend) return NULL;
-  mask         = tile_blend_masks[0][side];
-  if (!mask) return NULL;
+  int   maskid = tile_mask(blendtile);
+  if (!blend)                       return NULL;
+  if (maskid > TILE_BLEND_TYPE_MAX) return NULL;
+  if (maskid < 0)                   return NULL;
+  mask         = tile_blend_masks[maskid][side];
+  if (!mask)                        return NULL;
   tile_draw_masked_to(blend, blendtile, mask, angle, flags);
   return blend;
 } 
@@ -354,43 +357,6 @@ Image * tilepane_get_blend(Tilepane * pane, int tx, int ty) {
 Image * tilepane_set_blend_raw(Tilepane * pane, int tx, int ty, Image * blend) {
   return (Image*) pointergrid_store(pane->blends, tx, ty, blend);
 }
-
-
-#ifdef COMMENT
-/* Draws the blends of the tile pane for the given tile. */
-void tilepane_draw_tile_blend
-(Tilepane * self, int tx, int ty, int drawx, int drawy, Tile * tile) {
-  Image * mask;
-  Tile * other;
-  Tileblend * blend;
-  // Color color;
-  int flags, side;
-  int index;
-  float angle;
-  blend = tilepane_blend_xy(self, tx, ty);
-  if(!blend) return;
-  // al_draw_bitmap(tile_blend_masks[0][0], 20, 60, 0);
-  // al_draw_bitmap(tile_blend_masks[0][1], 60, 60, 0);
-  
-  /*color = al_map_rgb(0, 20, 255);
-  al_draw_filled_circle(30, 50, 4, color);
-  puts("OK!");*/
-
-  for (index= 0 ; index < TILE_BLEND_DIRECTION_MAX; index ++) {
-    other = blend->blends[index];
-    if(!other) { continue; } 
-    // color = al_map_rgba(20 * index, 20 * index, 20 * index, 255);
-    side  = tile_blend_sides[index];
-    mask  = tile_blend_masks[0][side];
-    angle = tile_blend_turns[index];
-    flags = tile_blend_flips[index];
-    // printf("Blend %d %d %p %p at %d %d & %d %d.\n", side, flags, other, mask, tx, ty, drawx, drawy);
-    tile_draw_masked(other, drawx, drawy, mask, angle, flags);
-    // al_draw_filled_rectangle(fx, fy, fx+4, fy+4, color);
-  }
-} 
-
-#endif
 
 
 // Since tile size is 32, shifts can be used in stead of multiplications.
@@ -604,7 +570,9 @@ static struct TileblendOffset tile_blend_offsets[] = {
   { 1,  1}, /* TILE_BLEND_SOUTHEAST 7 */
 };
 
-
+/*
+Wrapper around Allegro bitmap creation.
+*/
 ALLEGRO_BITMAP * 
 eruta_create_bitmap(int x, int h, int flags) {
   ALLEGRO_BITMAP * result;
@@ -623,7 +591,7 @@ eruta_create_bitmap(int x, int h, int flags) {
 
 
 
-/** Sets up automatic blending for this paneand this tile in the pane. */
+/** Sets up automatic blending for this pane and this tile in the pane. */
 bool
 tilepane_init_blend_tile(Tilepane * self, int index, int x, int y, Tile * tile) {
   int bindex, yn, xn;
@@ -707,10 +675,18 @@ bool tilepane_init_masks() {
   
   if (tile_blend_masks[0][0]) return TRUE;
   /* Load the masks */
-  image1 = fifi_load_bitmap("/image/masks/corner_mask.png");
-  image2 = fifi_load_bitmap("/image/masks/side_mask.png");
+  image1 = fifi_load_bitmap("/image/masks/corner_mask_0.png");
+  image2 = fifi_load_bitmap("/image/masks/side_mask_0.png");
   tile_blend_masks[0][TILE_BLEND_CORNER] = image1;
   tile_blend_masks[0][TILE_BLEND_SIDE]   = image2;
+  image1 = fifi_load_bitmap("/image/masks/corner_mask_1.png");
+  image2 = fifi_load_bitmap("/image/masks/side_mask_1.png");
+  tile_blend_masks[1][TILE_BLEND_CORNER] = image1;
+  tile_blend_masks[1][TILE_BLEND_SIDE]   = image2;
+  image1 = fifi_load_bitmap("/image/masks/corner_mask_2.png");
+  image2 = fifi_load_bitmap("/image/masks/side_mask_2.png");
+  tile_blend_masks[2][TILE_BLEND_CORNER] = image1;
+  tile_blend_masks[2][TILE_BLEND_SIDE]   = image2;
   return TRUE;
 };
 
@@ -736,7 +712,7 @@ bool tilepane_init_blend(Tilepane * self, int index) {
     for (x = 0; x < w; x++) {
       Tile * tile = tilepane_get(self, x, y);
       if (!tile) continue;
-      if(!tile_blend(tile)) continue;
+      if(tile_blend(tile) < 1) continue;
       tilepane_init_blend_tile(self, index, x, y, tile);
     }
   }

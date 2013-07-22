@@ -93,7 +93,9 @@ int tile_blend(Tile * tile );
 void tile_draw_masked_to
 (Image * result, Tile * tile, Image * mask, float angle, int mask_flags);
 
+int tile_mask(Tile * tile);
 
+int tile_mask_(Tile * tile, int mask);
 
 #endif
 
