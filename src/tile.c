@@ -357,13 +357,16 @@ void tile_draw_masked_to
   int bmpflags;
   
   if (!tile) return;
+  
   /* Create a 32x32 tile bitmap that will be used thanks to 
    it being static. And leaked at program shutdown, but I don't care :p. */
-  bmpflags         = al_get_new_bitmap_flags();
-  //al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-  if (!tile_mask_buffer) tile_mask_buffer = al_create_bitmap(TILE_W, TILE_H);
-  //al_set_new_bitmap_flags(bmpflags);
- 
+  if (!tile_mask_buffer) { 
+    bmpflags         = al_get_new_bitmap_flags();
+    al_set_new_bitmap_flags(ALLEGRO_CONVERT_BITMAP);
+    tile_mask_buffer = al_create_bitmap(TILE_W, TILE_H);
+    al_set_new_bitmap_flags(bmpflags);
+  } 
+  
   /* Keep the target bitmap. */
   target = al_get_target_bitmap();
   
@@ -380,9 +383,9 @@ void tile_draw_masked_to
   // printf("%f %f\n", sx, sy);
   /* Set blender to copy mode. */
   // al_clear_to_color(al_map_rgba_f(0,0,0,0));
+
   al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);  
   al_draw_bitmap_region(sheet, sx, sy, sw, sh, 0, 0, 0);
-  
   
   /* Draw the mask over the tile, taking the alpha of the mask  */
   al_set_blender(ALLEGRO_ADD, ALLEGRO_ZERO, ALLEGRO_ALPHA);
@@ -393,29 +396,18 @@ void tile_draw_masked_to
   
   sx = 0.0;
   sy = 0.0;
-  if (angle > 0.0) {
+  if (angle != 0.0) {
     sx = TILE_H / 2.0;
     sy = TILE_W / 2.0;
     dx += sx;
     dy += sy;
-  } else if (angle < 0.0) {
-    sx = TILE_H / 2.0;
-    sy = TILE_W / 2.0;
-    dx += sx;
-    dy += sy;
-  }
+  } 
   
   /* Draw the tile mask buffer to the result bitmap */
   al_set_target_bitmap(result);
   al_draw_rotated_bitmap(tile_mask_buffer, sx, sy, dx, dy, angle, 0);
   /* And restore the target bitmap. */ 
   al_set_target_bitmap(target);
- 
-  
-  // al_draw_bitmap(mask, dx, dy, mask_flags);
-  // Debug rectangle to see where blend was applied. 
-  // al_draw_rectangle(dx, dy, dx+TILE_W, dy+TILE_H, dcolor, 1);
-  // al_destroy_bitmap(tile_mask_buffer);
 }
 
 /** Tile's index. Returns -1 if tile is NULL; */

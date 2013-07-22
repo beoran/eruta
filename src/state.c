@@ -512,8 +512,7 @@ void state_draw(State * self) {
     
     // draw fps  
     al_draw_textf(state_font(self), COLOR_WHITE,
-                        10, 10, 0, "FPS: %lf, %d", state_fps(self), 
-                        state_frames(self));
+                        10, 10, 0, "FPS: %.0f", state_fps(self));
     // alpsshower_draw(&shower, state_camera(state));
     // draw the console (will autohide if not active).
     bbwidget_draw((BBWidget *)state_console(self));
@@ -582,9 +581,14 @@ void state_frames_update(State * state) {
   state->frames++;
 
   if((now - state->fpstime) > 1.0) {
+    double realfps;
      /* Measure only last second of frames, which means FPS gets updated every second or so. */
-     state->fps     = ((double)state->frames) / (now - state->fpstime);
-     /* A little trick, keep half the frames; and half the time  */
+     realfps = ((double)state->frames) / (now - state->fpstime);
+     /* Display and use a rounded value for FPS, the number after the comma is normally due to jitter anyway. */
+     state->fps = floor(realfps + 0.5);
+
+     /* A little trick, to prefent jerkyness, 
+      * keep half the frames; and half the time  */
      state->frames  = state->frames / 2;
      state->fpstime = now - 0.5;
   } 

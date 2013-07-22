@@ -605,41 +605,44 @@ static struct TileblendOffset tile_blend_offsets[] = {
 };
 
 
+ALLEGRO_BITMAP * 
+eruta_create_bitmap(int x, int h, int flags) {
+  ALLEGRO_BITMAP * result;
+  int oldbflags, oldformat;  
+  oldbflags = al_get_new_bitmap_flags();
+  oldformat = al_get_new_bitmap_format();
+  al_set_new_bitmap_flags(flags);
+    // al_set_new_bitmap_format(al_get_display_format(al_get_current_display()));
+  /* Somehow, al_create_bitmap is very slow here... */
+  result = al_create_bitmap(TILE_W, TILE_H);
+  al_set_new_bitmap_flags(oldbflags);
+  al_set_new_bitmap_format(oldformat);
+  return result;
+}
+
+
+
+
 /** Sets up automatic blending for this paneand this tile in the pane. */
 bool
 tilepane_init_blend_tile(Tilepane * self, int index, int x, int y, Tile * tile) {
   int bindex, yn, xn;
   void      * aid   = NULL;
+  Image     * target= NULL;
   Image     * blend = NULL;
+  Image     * result = NULL;
   Tile      * aidtile;
   int oldbflags, oldformat;
   int tileprio, aidprio;
+  static int created = 0;
+
   blend     = tilepane_get_blend(self, x, y);
-  /** Reuse (draw over) old blend if set, otherwise make new one. */
-  if (!blend) { 
-    Image * target;
-    oldbflags = al_get_new_bitmap_flags();
-    oldformat = al_get_new_bitmap_format();
-    target = al_get_target_bitmap();
-    al_set_new_bitmap_flags(ALLEGRO_VIDEO_BITMAP);
-    al_set_new_bitmap_format(al_get_display_format(al_get_current_display()));
-    blend = al_create_bitmap(TILE_W, TILE_H);
-    al_set_new_bitmap_flags(oldbflags);
-    al_set_new_bitmap_format(oldformat);
-
-    
-
-    if(!blend) {
-       fprintf(stderr, "Cannot alloc video bitmap for blends.\n");
-       return FALSE;
-    }
-
-    al_set_target_bitmap(blend);
-    al_clear_to_color(al_map_rgba_f(0,0,0,0));
-    tilepane_set_blend_raw(self, x, y, blend);
-    al_set_target_bitmap(target);
-  }
-
+  /* Destroy old blend if any */
+  if (blend) {
+    al_destroy_bitmap(blend);
+    blend = NULL;
+  }  
+  target    = al_get_target_bitmap();
   tileprio = tile_blend(tile);
 
   /* Look for the tiles around self. */
@@ -654,8 +657,32 @@ tilepane_init_blend_tile(Tilepane * self, int index, int x, int y, Tile * tile) 
     aidprio = tile_blend(aidtile);
     /* Only blend if blend priority of other is higher. */
     if (aidprio <= tileprio) continue;
+    
+    /* If we get here, create a blend bitmap. 
+     * This is done on demand, because this function is called once for every 
+     * tile in the tile map.
+     */
+    if(!blend) {
+      blend = eruta_create_bitmap(TILE_W, TILE_H, ALLEGRO_CONVERT_BITMAP);
+      if (!blend) return FALSE;
+      /* Set resulting bitmap as blend tile. */
+      tilepane_set_blend_raw(self, x, y, blend);
+      al_set_target_bitmap(blend);
+      al_clear_to_color(al_map_rgba_f(0,0,0,0));
+    }
     tilepane_prepare_blend(blend, tile, aidtile, bindex);    
+    /* break; Interestingly enough, this break doesn't speed up 
+     * blend generation AT ALL. The slowdown seems to be due to 
+     * setting up the video bitmap, or perhaps the iteration?.
+     */     
   }
+
+  /* Restore original target bitmap. */
+  al_set_target_bitmap(target);
+  /* That's it. */ 
+  /* I tried to speed this by using an extra memory bitmap 
+   for the intermediate blits, but that interestingly enough 
+   slowed down the generation by about 3 times (from 2 to 6 seconds) */
  
   return TRUE;  
 } 
@@ -690,13 +717,21 @@ bool tilepane_init_masks() {
 
 /** Sets up automatic blending for this tile pane. */
 bool tilepane_init_blend(Tilepane * self, int index) {
+  double stop, start;
   int x, y, w, h;
   if (!self)             return FALSE;
   if (!self->blends)     return FALSE; 
+  if (index != 0)        return FALSE;
   w = tilepane_gridwide(self);
   h = tilepane_gridhigh(self);
+  start = al_get_time();
   /* Load the masks. */
   tilepane_init_masks();
+  stop = al_get_time();
+  printf("Loading masks took %f seconds\n", stop - start);
+
+  start = al_get_time();  
+  /* And do the blends. */
   for (y = 0  ; y < h; y++) { 
     for (x = 0; x < w; x++) {
       Tile * tile = tilepane_get(self, x, y);
@@ -705,6 +740,9 @@ bool tilepane_init_blend(Tilepane * self, int index) {
       tilepane_init_blend_tile(self, index, x, y, tile);
     }
   }
+  stop = al_get_time();
+  printf("Preparing blends took %f seconds\n", stop - start);
+
   return TRUE;
 }
 
