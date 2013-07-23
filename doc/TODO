@@ -1,50 +1,54 @@
-
-  
 +------+
 | TODO |
 +------+
 
-o Main 
-  * Configurable controls
-  
 
-o Tile map 
-  * Background images.
-  * Parallax.
-  * Scripting.
-  * Transition from one map to another.
-  
-o Physics: 
+o Physics:
   * Implement stairs.
-  * Implement shallow and deep water.
   * Implement interaction between players characters/NPC's/foes, etc.
   * Implement attacks for action based or hybrid style battle gaming.
   * Implement sensors for AI and line of sight.
+  * Implement shallow and deep water.
 
-o Sprites: 
+
+o GUI:
+  * Maybe a small scene graph so the GUI can be implemented in mruby.
+  * All sorts of widgets to display dialogs, status screens, menus, etc.
+
+o Main:
+  * Configurable controls
+  * Loading and saving settings
+  * Loading and saving data
+
+o Tile map:
+  * Transition from one map to another.
+  * Background images.
+  * Parallax.
+  * Scripting.
+
+o Sprites:
+  * Shadows under the sprites.
   * Speed up loading a bit? 
 
-o AI: 
+o AI:
   * Implement D* lite.
   * Player char pathfinding.
-  
+
+
 o Particle Engine Alps (Allegro Particle System)
+  * Damge display
   * Group for flexibility.
   * Allow bitmaps as well as colors/shapes.
   * Explosions.
   * Spell effects.
-  
-o GUI:
-  * Maybe a small scene graph so the GUI can be implemented in mruby.
-  * All sorts of widgets to display dialogs, status screens, menus, etc.
-    
-o Scripting: 
+
+o Scripting:
   * Wire it all up so game content becomes accessible in mruby.
 
 o AND MUCH MORE! ^_^;;;
-  
 
-  
+
+
 +------+
 | DONE |
 +------+
