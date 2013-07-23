@@ -25,6 +25,11 @@ VSYLLABLES = [
   'aa', 'ee', 'yi', 'oo', 'wu'
 ]
 
+#  č = c = ch (tʃ), š = x = sh (ʃ)  ʃ  ʒ
+#  č = c = ch (tʃ), š = x = sh (ʃ)
+#  ž = j = (ʒ) ,      ʒ      š, č, ř, c, j, ď, ť, ň
+
+
 CSYLLABLES = [
 # 'fa', 'fe', 'fi', 'fo', 'fu',
 # 'va', 've', 'vi', 'vo', 'vu', 
@@ -32,6 +37,7 @@ CSYLLABLES = [
 # 'da', 'de', 'di', 'do', 'du',
 # 'ga', 'ge', 'gi', 'go', 'gu',
 # 'za', 'ze', 'zi', 'zo', 'zu',
+  'ča', 'če', 'či', 'čo', 'ču',
   'ha', 'he', 'hi', 'ho', 'hu',
   'ka', 'ke', 'ki', 'ko', 'ku',
   'la', 'le', 'li', 'lo', 'lu',
@@ -54,11 +60,22 @@ ASSONANCE =  {
   'ha' => 'va', 'he' => 've', 'hi' => 'vi', 'ho' => 'vo', 'hu' => 'vu',
 }
 
+VASSONANCE = {
+  'aa' => 'ngaa', 'ee' => 'ngee', 'yi' => 'ngii', 'oo' => 'ngoo', 'wu' => 'nguu'
+}
+
 def assonance(syl)
   res = ASSONANCE[syl]
   return res if res
   return 'nm' + syl
 end
+
+def vassonance(syl)
+  res = VASSONANCE[syl]
+  return res if res
+  return 'ng' + syl
+end
+
 
 words = []
 
@@ -70,7 +87,7 @@ CSYLLABLES.each do | cs1 |
     next if cs1[1] == vs1[0]
     words << cs1 + vs1
   end
-  words << cs1 + 'nn'
+  # words << cs1 + 'nn'
 end
 
 VSYLLABLES.each do | vs1 |
@@ -82,16 +99,21 @@ VSYLLABLES.each do | vs1 |
     next if vs1[1] == vs2[0]
     words << vs1 + vs2
   end
-  words << vs1 + 'nn'
+  # words << vs1 + 'nn'
 end
 
-=begin
 words2 = words.dup
 words3 = []
 
 words2.each do |word |
   CSYLLABLES.each do | cs1 |
     aid = word + assonance(cs1)
+    puts aid
+    words3 << aid
+  end
+  VSYLLABLES.each do | vs1 |
+    next if word[-1] == vs1[0]
+    aid = word + vassonance(vs1)
     puts aid
     words3 << aid
   end
@@ -105,11 +127,16 @@ words3.each do |word |
     puts aid
     words4 << aid
   end
+  VSYLLABLES.each do | vs1 |
+    next if word[-1] == vs1[0]
+    aid = word + vassonance(vs1)
+    puts aid
+    words4 << aid
+  end
 end
 
 words += words3
 words += words4
-=end
 
 words.sort!.uniq!
 
