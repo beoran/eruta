@@ -222,7 +222,7 @@ Thing * area_newstatic(Area * self, int index , int kind,
 Thing * area_newdynamic(Area * self, int index, int kind, 
                         int x, int y, int z, int w, int h) {
   Thing * thing;
-  thing = thing_newdynamic(self, kind, x, y, w, w, h);
+  thing = thing_newdynamic(self, kind, x, y, z, w, h);
   if (!area_addthing(self, index, thing)) { 
     return thing_free(thing);
   }
@@ -253,6 +253,25 @@ void area_draw(Area * self, Camera * camera) {
   bumpworld_draw_debug(self->world);
 #endif
 }
+
+/** Draws all things in an area taking the camera and layer into account. */
+void area_draw_layer (Area * self, Camera * camera, int layer) {
+  int index;
+  for (index = 0; index <  (self->lastid + 1); index++) {
+    Thing * thing = self->things_todraw[index];
+    /* If we encounter a NULL, we're all done drawing. */
+    if(!thing) break;
+    /* Only draw current layer. */
+    if(thing_z(thing) != layer) { 
+      continue;
+    }
+    thing_draw(thing, camera);
+  }
+#ifdef ERUTA_DEBUG_DRAW  
+  bumpworld_draw_debug(self->world);
+#endif
+}
+
 
 /** Updates the area */
 void area_update(Area * self, double dt) {

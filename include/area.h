@@ -85,6 +85,9 @@ Thing * thing_newdynamic(Area * area,
                        int x, int y, int z, int w, int h);
 
 
+void area_draw_layer (Area * self, Camera * camera, int layer);
+
+
 #ifdef COMMENT_
 int thing_track (Tracker * tracker , void * data );
 

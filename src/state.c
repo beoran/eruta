@@ -280,7 +280,7 @@ int state_lockin_maplayer(State * state, int layer) {
   return 0; 
 }
 
-/* Loads a named tile map from the map folder. */
+// /* Loads a named tile map from the map folder. */
 int state_loadtilemap_vpath(State * self, char * vpath) {
   TilemapLoadExtra extra;
   extra.area = self->area;
@@ -503,13 +503,17 @@ BOOL state_busy(State * self) {
 
 /* Draws all inside the state that needs to be drawn. */
 void state_draw(State * self) {
-    if (self->nowmap) {
-       tilemap_draw(self->nowmap, self->camera);    
+    int layer;
+   
+    for (layer = 0; layer < TILEMAP_PANES; layer ++) {
+      if (self->nowmap) {
+        tilemap_draw_layer(self->nowmap, self->camera, layer);
+      }
+      if (self->area) {
+        area_draw_layer(self->area, self->camera, layer);
+      }
     }
-    if (self->area) {
-      area_draw(self->area, self->camera);
-    }
-    
+
     // draw fps  
     al_draw_textf(state_font(self), COLOR_WHITE,
                         10, 10, 0, "FPS: %.0f", state_fps(self));

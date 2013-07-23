@@ -6,12 +6,10 @@ typedef struct Tilemap_ Tilemap;
 #include "area.h"
 #include "tile.h"
 #include "tilepane.h"
-/* This file was generated with:
-'cfunctions -c -aoff -n -w tilemap_proto src/tilemap.c' */
-#ifndef CFH_TILEMAP_PROTO
-#define CFH_TILEMAP_PROTO
 
-/* From 'src/tilemap.c': */
+/* Tile maps have at most 4 panes. */
+#define TILEMAP_PANES 4
+
 
 Image * image_loadtexture (const char * category , int index );
 
@@ -69,6 +67,7 @@ Thing * tilemap_thing(Tilemap * self, int index);
 
 bool tilemap_init_blend(Tilemap * self);
 
+void tilemap_draw_layer(Tilemap * map, Camera * camera, int layer);
 
 
 
@@ -85,7 +84,6 @@ int tilemap_track (Tracker * tracker , void * data );
 
 #endif
 
-#endif /* CFH_TILEMAP_PROTO */
 
 
 #endif

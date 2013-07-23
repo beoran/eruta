@@ -5,7 +5,7 @@
 #include "tilemap.h"
 #include "dynar.h"
 
-#define TILEMAP_PANES 4
+
 
 /* Hide tiles for debuggging, or not. */
 #ifdef ERUTA_NOGFX_MODE
@@ -211,27 +211,17 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
 #endif
 }
 
-/** Draws a pane in the tile map with the given index, 
+/** Draws a layer in the tile map with the given index, 
  if it exists. Otherwise does nothing. */
-void tilemap_drawpane(Tilemap * map, Camera * camera) {
-  int index;
+void tilemap_draw_layer(Tilemap * map, Camera * camera, int layer) {
   Tilepane * pane;
- 
-#ifndef TILEMAP_NO_TILES
-  for(index  = 0; index < TILEMAP_PANES; index++) {
-    pane     = tilemap_pane(map, index);
-    if(pane) {
-      tilepane_draw(pane, camera);
-      if(index == 0) {
+  pane     = tilemap_pane(map, layer);
+  if(pane) {
+    tilepane_draw(pane, camera);
+    if(layer == 0) {
         tilepane_draw_blends(pane, camera);
-      }
-    } else {
-      // fprintf(stderr, "pane missing: %d", index);
     }
   }
-#else 
-  al_clear_to_color(al_map_rgb(0,0,0));
-#endif
 }
 
 

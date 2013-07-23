@@ -505,7 +505,6 @@ BeVec bevec_lock(BeVec vec, int lock) {
 
 
 
-#define BUMP_PUSHBACK_COLLISION
 
 /* Calculate the collision pushback vector. */
 BeVec bumpaabb_collision_pushback(BumpAABB self, BumpAABB other, BeVec motion, double dt) {
@@ -520,35 +519,16 @@ BeVec bumpaabb_collision_pushback(BumpAABB self, BumpAABB other, BeVec motion, d
     step        = bevec_sub(other.p, self.p);
     angle       = bevec_toangle(step);
   }
-  /* Calculate the normal speed. Do not resolve collision if objects are already 
-   * moving away from each other. The advantage of this is that objects that are 
-   * moving away and that would be pushed back by collision resolution might 
-   * jump back too far. It also seems to have some sabilizing side effects.
+  
+  /* Calculate the normal speed. Do not resolve collision if 
+   * objects are already moving away from each other. The advantage of 
+   * this is that objects that are  moving away and that would be pushed 
+   * back by collision resolution might  jump back too far. It also seems 
+   * to have some sabilizing side effects.
    */ 
   vn = bevec_dot(step, dp);
   if (vn < 0.0) {  return res; }
 
-  
-  /* The iteration collision resolution below is simpler, but has a more 
-   * "sticky" resolution, that tends for boxes to be pushed out of the way in case 
-   * of three way collisions. 
-   * Pusback resolution has more of a "slidy" feel and three way collisions seem a 
-   * bit more "natural". 
-   */
-#ifdef BUMP_ITER_COLLISION  
-  /* opposite to motion vector */
-  BeVec pun     = bevec_mul(bevec_forangle(M_PI + angle), 0.01);
-
-  /* For now just push back iteratively until no more overlap */
-  int index; 
-  while(bumpaabb_overlap_p(self, other)) {
-    res    = bevec_add(res, pun);
-    self.p = bevec_add(self.p, pun);
-  }
-  return res; 
-#endif 
-
-#ifdef BUMP_PUSHBACK_COLLISION
   
   /* Calculate overlap based push back vector. */
   fx = 1.0;
@@ -573,43 +553,16 @@ BeVec bumpaabb_collision_pushback(BumpAABB self, BumpAABB other, BeVec motion, d
     aidy = bumpaabb_overlap_y(self, other);     
     if (self.p.y < other.p.y) fy = -1.0;
   }
-  /*
-  if (fabs(aidx) == fabs(aidy)) {
-    res.y = aidy * fy; 
-    res.x = aidx * fx; 
-  } else  
-  */  
+  
   if (fabs(aidx) < fabs(aidy)) {
     res.x = aidx * fx;     
   } else if (fabs(aidx) > fabs(aidy)) { 
     res.y = aidy * fy; 
   } else {
     res.x = aidx * fx;     
-    /* res.y = aidy * fy; */ 
   }
-#endif /* BUMP_PUSHBACK_COLLISION  */
 
   return res; 
-  /*
-  double fact_x, fact_y, delta_x, delta_y;
-  BeVec delta;
-  double xprod  = dp.x * overlap.x;
-  double yprod  = dp.y * overlap.y;
-  fact_x        = dp.x < 0 ? 1 : -1;  
-  fact_y        = dp.y < 0 ? 1 : -1;
-
-  if (abs(xprod) > abs(yprod)) { 
-    delta_x     = overlap.x * fact_x;
-    delta_y     = tan(M_PI - angle) * overlap.x * fact_y;
-  } else { 
-    delta_x     = tan(M_PI - angle) * overlap.y * fact_x;
-    delta_y     = overlap.y * fact_y;
-  }
-  
-  delta         = bevec_project_2(pun, bevec_xvec(overlap));  
-  delta         = bevec_cliplength(delta, 5.0);
-  return delta;
-  */
 }
 
 
@@ -752,11 +705,7 @@ void bumpworld_collide_hull_tilemap(BumpWorld * self, BumpHull * hull, double dt
   for (y = bumpaabb_top(&bounds); y <= (bumpaabb_down(&bounds) + 1) ; y += (TILE_H ) ) {
     for (x = bumpaabb_left(&bounds); x <= (bumpaabb_right(&bounds) + 1) ; x += (TILE_W / 2 )) {
       for (z = 0; z < tilemap_panes(self->map) ; z++) {
-        /* Only collide when in same layers as tile. 
-         * XXX: this condition is a bit iffy, because player is on level 1
-         * or 3 ....
-         */
-        if ((hull->layers & (1 << (z-1))) != (1 << (z-1))) {
+        if ((hull->layers & (1 << (z))) != (1 << (z))) {
           continue;
         }
         
