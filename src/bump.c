@@ -686,9 +686,8 @@ void bumpbody_commit(BumpBody * self) {
 
 /* Calculates the displacement vector that is needed to push back 
  * to_push out of pushed. Pvec is the motion vector of the collision motion. 
- * It is used to push out 
+ * It is used to push out the hull.
  */
-
 void bumpworld_collide_hull_tilemap(BumpWorld * self, BumpHull * hull, double dt) {
   /* Collide the hull with the grid, setting lock flags to disallow further motion 
    in the direction. For now, no swept collisions are supported, and 
@@ -735,7 +734,7 @@ void bumpworld_collide_hull_tilemap(BumpWorld * self, BumpHull * hull, double dt
   }  
 }
 
-
+/* Perform one round of hull-to-hull collisions. */
 void 
 bumpworld_collide_hulls
 (BumpWorld * self, int round, BumpHull * hull1, BumpHull * hull2, double dt) {
@@ -763,10 +762,10 @@ bumpworld_collide_hulls
   
   if (round == 0) {
     hull1->body->locks = 0;
-    hull2->body->locks = 0;    
+    hull2->body->locks = 0;
   } else {
     push1 = bevec_lock(push1, hull1->body->locks);
-    push2 = bevec_lock(push2, hull2->body->locks);    
+    push2 = bevec_lock(push2, hull2->body->locks);
   }
   hull1->body->p_next    = bevec_add(hull1->body->p_next, push1);
   hull2->body->p_next    = bevec_add(hull2->body->p_next, push2);
@@ -778,7 +777,10 @@ bumpworld_collide_hulls
 
 
 /**
- * Adds a hull to a spatial hash. 
+ * Adds a hull to a spatial hash. Not currently used.
+ * since current collision detection still seems fast enough.
+ * Perhaps add as an optimization to support really a lot of 
+ * hulls later.
  */
 void bumphash_addhull(BumpHash * hash, BumpHull * hull) {
   int x, y;
