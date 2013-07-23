@@ -4,18 +4,25 @@
 | TODO |
 +------+
 
+o Main 
+  * Configurable controls
+  
+
 o Tile map 
   * Background images.
   * Parallax.
-  * Scripting
+  * Scripting.
   * Transition from one map to another.
   
 o Physics: 
   * Implement stairs.
   * Implement shallow and deep water.
   * Implement interaction between players characters/NPC's/foes, etc.
-  * Implement attacks for action based or hybrid style battle gaming. 
-  * Implement sensors for AI and line of sight. 
+  * Implement attacks for action based or hybrid style battle gaming.
+  * Implement sensors for AI and line of sight.
+
+o Sprites: 
+  * Speed up loading a bit? 
 
 o AI: 
   * Implement D* lite.
@@ -26,12 +33,13 @@ o Particle Engine Alps (Allegro Particle System)
   * Allow bitmaps as well as colors/shapes.
   * Explosions.
   * Spell effects.
-
+  
 o GUI:
+  * Maybe a small scene graph so the GUI can be implemented in mruby.
   * All sorts of widgets to display dialogs, status screens, menus, etc.
     
 o Scripting: 
-  * Wire it all up so game content becomes accessible.
+  * Wire it all up so game content becomes accessible in mruby.
 
 o AND MUCH MORE! ^_^;;;
   
@@ -48,6 +56,16 @@ o Tile map:
   * Load tilemapeditor.org TMX maps.
   * Tile map tile animations.
   * Tile properties.
-  
+  * Tile map layers.
+
+o Sprites:
+  * Loading.
+  * Coloring.
+  * Positioning.
+
 o Physics:
-  * Vump based physics.
+  * Bump based physics.
+  * Physical layers.
+
+o Asset loading: 
+  * resor and store subsystems, both already scripted. 
