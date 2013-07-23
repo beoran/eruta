@@ -143,7 +143,7 @@ Image * tilepane_prepare_blend
   int     side = tile_blend_sides[direction];
   float  angle = tile_blend_angles[direction];
   int    flags = tile_blend_flags[direction];
-  int   maskid = tile_mask(blendtile);
+  int   maskid = tile_mask(tile);
   if (!blend)                       return NULL;
   if (maskid > TILE_BLEND_TYPE_MAX) return NULL;
   if (maskid < 0)                   return NULL;
@@ -669,24 +669,22 @@ ALLEGRO_BITMAP * fifi_load_bitmap(const char * vpath);
 
 /* Sets up the tile blend masks if needed. */
 bool tilepane_init_masks() {
+  int index;
+  char buf[64];
   Image * image1, * image2, *target;
   Color solid, transparent, color; 
   /* Already initialized. */
   
   if (tile_blend_masks[0][0]) return TRUE;
   /* Load the masks */
-  image1 = fifi_load_bitmap("/image/masks/corner_mask_0.png");
-  image2 = fifi_load_bitmap("/image/masks/side_mask_0.png");
-  tile_blend_masks[0][TILE_BLEND_CORNER] = image1;
-  tile_blend_masks[0][TILE_BLEND_SIDE]   = image2;
-  image1 = fifi_load_bitmap("/image/masks/corner_mask_1.png");
-  image2 = fifi_load_bitmap("/image/masks/side_mask_1.png");
-  tile_blend_masks[1][TILE_BLEND_CORNER] = image1;
-  tile_blend_masks[1][TILE_BLEND_SIDE]   = image2;
-  image1 = fifi_load_bitmap("/image/masks/corner_mask_2.png");
-  image2 = fifi_load_bitmap("/image/masks/side_mask_2.png");
-  tile_blend_masks[2][TILE_BLEND_CORNER] = image1;
-  tile_blend_masks[2][TILE_BLEND_SIDE]   = image2;
+  for (index = 0; index < TILE_BLEND_TYPE_MAX; index ++) { 
+    sprintf(buf, "/image/masks/corner_mask_%d.png", index);
+    image1 = fifi_load_bitmap(buf);
+    sprintf(buf, "/image/masks/side_mask_%d.png", index);
+    image2 = fifi_load_bitmap(buf);
+    tile_blend_masks[index][TILE_BLEND_CORNER] = image1;
+    tile_blend_masks[index][TILE_BLEND_SIDE]   = image2;
+  } 
   return TRUE;
 };
 
