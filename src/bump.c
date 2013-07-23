@@ -752,6 +752,14 @@ void bumpworld_collide_hull_tilemap(BumpWorld * self, BumpHull * hull, double dt
   for (y = bumpaabb_top(&bounds); y <= (bumpaabb_down(&bounds) + 1) ; y += (TILE_H ) ) {
     for (x = bumpaabb_left(&bounds); x <= (bumpaabb_right(&bounds) + 1) ; x += (TILE_W / 2 )) {
       for (z = 0; z < tilemap_panes(self->map) ; z++) {
+        /* Only collide when in same layers as tile. 
+         * XXX: this condition is a bit iffy, because player is on level 1
+         * or 3 ....
+         */
+        if ((hull->layers & (1 << (z-1))) != (1 << (z-1))) {
+          continue;
+        }
+        
         tx = (x / TILE_W);
         ty = (y / TILE_H);
         // remeber, z goes first since it's a layer. 

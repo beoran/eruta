@@ -27,7 +27,8 @@ VSYLLABLES = [
 
 #  č = c = ch (tʃ), š = x = sh (ʃ)  ʃ  ʒ
 #  č = c = ch (tʃ), š = x = sh (ʃ)
-#  ž = j = (ʒ) ,      ʒ      š, č, ř, c, j, ď, ť, ň
+#          ď = j = dj (dʒ)  (, ž = y =  (ʒ) )
+#  š, č, ř, c, j, ď, ť, ň
 
 
 CSYLLABLES = [
@@ -37,7 +38,8 @@ CSYLLABLES = [
 # 'da', 'de', 'di', 'do', 'du',
 # 'ga', 'ge', 'gi', 'go', 'gu',
 # 'za', 'ze', 'zi', 'zo', 'zu',
-  'ča', 'če', 'či', 'čo', 'ču',
+  'xa', 'xe', 'xi', 'xo', 'xu',
+  'ca', 'ce', 'ci', 'co', 'cu',
   'ha', 'he', 'hi', 'ho', 'hu',
   'ka', 'ke', 'ki', 'ko', 'ku',
   'la', 'le', 'li', 'lo', 'lu',
@@ -51,17 +53,19 @@ CSYLLABLES = [
 NSYLLABLES = [ 'nn' ]
 
 ASSONANCE =  {
+  'xa' => 'ja', 'xe' => 'je', 'xi' => 'ji', 'xo' => 'jo', 'xu' => 'ju',
+  'ca' => 'ja', 'ce' => 'je', 'ci' => 'ji', 'co' => 'co', 'ju' => 'ju',
   'ka' => 'ga', 'ke' => 'ge', 'ki' => 'gi', 'ko' => 'go', 'ku' => 'gu',
   'pa' => 'ba', 'pe' => 'be', 'pi' => 'bi', 'po' => 'bo', 'pu' => 'bu',
   'sa' => 'za', 'se' => 'ze', 'si' => 'zi', 'so' => 'zo', 'su' => 'zu',
   'ta' => 'da', 'te' => 'de', 'ti' => 'di', 'to' => 'so', 'tu' => 'du',
   'na' => 'ma', 'ne' => 'me', 'ni' => 'mi', 'no' => 'mo', 'nu' => 'mu',
   'ma' => 'na', 'me' => 'ne', 'mi' => 'ni', 'mo' => 'no', 'mu' => 'nu',
-  'ha' => 'va', 'he' => 've', 'hi' => 'vi', 'ho' => 'vo', 'hu' => 'vu',
+  'ha' => 'ha', 'he' => 'he', 'hi' => 'hi', 'ho' => 'ho', 'hu' => 'hu',
 }
 
 VASSONANCE = {
-  'aa' => 'ngaa', 'ee' => 'ngee', 'yi' => 'ngii', 'oo' => 'ngoo', 'wu' => 'nguu'
+  'aa' => 'nnaa', 'ee' => 'nnee', 'yi' => 'nnii', 'oo' => 'nnoo', 'wu' => 'nnuu'
 }
 
 def assonance(syl)
@@ -102,6 +106,7 @@ VSYLLABLES.each do | vs1 |
   # words << vs1 + 'nn'
 end
 
+=begin
 words2 = words.dup
 words3 = []
 
@@ -137,6 +142,7 @@ end
 
 words += words3
 words += words4
+=end
 
 words.sort!.uniq!
 

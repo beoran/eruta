@@ -104,7 +104,7 @@ def start_load_sprites
   hair_tint   101, 255, 255, 0
   hair_tint   100,   0, 255, 0
   torso_tint  100, 255, 64 , 64
-  torso_tint  101,  64,  64, 255
+  torso_tint  101,  128,  128, 255
   sprite_tint_rgba  1,  2,  64,  64, 255, 255
   
   
@@ -118,7 +118,7 @@ def start_load_sprites
   thing_direction_ 100, SPRITE_SOUTH
   thing_direction_ 101, SPRITE_SOUTH
  
-  
+  puts "Things and sprites loaded."
   
   
 end
@@ -140,7 +140,7 @@ end
 
 def on_start(s)
   puts "on_start #{s}"
-  # start_load_sprites
+  start_load_sprites
   start_load_stuff
   return 1234567
 end
@@ -159,7 +159,10 @@ $count = 0
 def on_update(dt)  
   $count += 1 
   # log "dt: #{dt}"
-  # log "Update nr #{$count}!"
+  # puts "Update nr #{$count}!"
+  if ($count % 71) == 0  
+    thing_direction_ 101, 1 << (8 + $count % 4)
+  end
   return nil
 end
 
@@ -168,7 +171,7 @@ end
 # log "this is for the console."
 # 
 # test()
-# log "Hi from lua! Björn"
+# log "Hi from Ruby! Björn"
 # path = PathForData "script/main.lua"
 # if path then
 #   log(path:to_s())

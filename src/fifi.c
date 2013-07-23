@@ -308,7 +308,7 @@ void * fifi_loadsimple_vpath(FifiSimpleLoader * load, const char * vpath) {
     printf("Filename not set for path: %s.\n", PATH_CSTR(path));
     goto cleanup;  
   }
-  printf("Loading: %s for %s\n", PATH_CSTR(path), vpath);
+  // printf("Loading: %s for %s\n", PATH_CSTR(path), vpath);
   if(PATH_EXISTS(path)) {
     data = load(PATH_CSTR(path)); // load the data
   } else {
@@ -335,7 +335,7 @@ void * fifi_loadsimple_va(FifiSimpleLoader * load, const char * filename,
   if(!path) return NULL;
   path_append_va(path, args);
   al_set_path_filename(path, filename);
-  printf("Loading: %s for %s\n", PATH_CSTR(path), filename);
+  // printf("Loading: %s for %s\n", PATH_CSTR(path), filename);
   if(PATH_EXISTS(path)) {
     data = load(PATH_CSTR(path)); // load the data
   } else {

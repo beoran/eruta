@@ -211,6 +211,30 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
 #endif
 }
 
+/** Draws a pane in the tile map with the given index, 
+ if it exists. Otherwise does nothing. */
+void tilemap_drawpane(Tilemap * map, Camera * camera) {
+  int index;
+  Tilepane * pane;
+ 
+#ifndef TILEMAP_NO_TILES
+  for(index  = 0; index < TILEMAP_PANES; index++) {
+    pane     = tilemap_pane(map, index);
+    if(pane) {
+      tilepane_draw(pane, camera);
+      if(index == 0) {
+        tilepane_draw_blends(pane, camera);
+      }
+    } else {
+      // fprintf(stderr, "pane missing: %d", index);
+    }
+  }
+#else 
+  al_clear_to_color(al_map_rgb(0,0,0));
+#endif
+}
+
+
 /** Updates the tile map. Currently this animates the tiles. */
 void tilemap_update(Tilemap * map, double dt) {
   tileset_update(map->set, dt);
