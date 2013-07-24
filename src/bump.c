@@ -44,6 +44,7 @@ struct BumpHull_ {
   BumpAABB    bounds;
   int         layers;
   int         kind;
+  int         support;
 };
 
 typedef struct BumpHash_        BumpHash;
@@ -343,9 +344,28 @@ BumpHull * bumphull_initall(
   self->layers  = layers;
   self->kind    = kind;
   self->id      = -1;
+  self->support = -1;
   return self;
   
 }
+
+
+/* Returns the level of support of a hull. This is 
+ the highest level UNDER the lowest layer the hull is in. In other words, it's
+  a measure for if something is under the "feet" of the hull of not.
+  This can be used to see if the hukk's thing needs to "drop down" a level or not.
+  -1 is returnded if no support.  
+*/
+int bumphull_support(BumpHull * self) {
+  return self->support;
+}
+
+/* Sets the hull's support level */
+int bumphull_support_(BumpHull * self, int level) {
+  return self->support = level;
+}
+
+
 
 /* Initializes a collision hull. */
 BumpHull * bumphull_init(BumpHull * self, BumpBody * body, BumpAABB bounds) {
@@ -684,6 +704,53 @@ void bumpbody_commit(BumpBody * self) {
   self->p      = self->p_next;
 }
 
+
+
+/* Collides a hull with a single tile in the tile map. *
+ */
+void 
+bumpworld_collide_hull_tile
+(BumpWorld * self, BumpHull * hull, BumpAABB * bounds, 
+ int x, int y, int z, double dt) {
+  int tx, ty;
+  tx = (x / TILE_W);
+  ty = (y / TILE_H);
+  // Remember, z goes first since it's a layer. 
+  Tile * tile = tilemap_get(self->map, z, tx, ty);
+  // No tile, no collision, sorry. 
+  if (!tile) return;
+  
+  double   tcx          = TILE_W * tx + TILE_W / 2;
+  double   tcy          = TILE_H * ty + TILE_H / 2;          
+  BumpAABB tileaabb     = bumpaabb(tcx, tcy, TILE_W, TILE_H); 
+  // No overlap, no collision, sorry. ;)  
+  if(!bumpaabb_overlap_p((*bounds), tileaabb)) {
+    return;
+  }  
+ 
+  if ((hull->layers & (1 << (z-1))) != (1 << (z-1))) {
+    /* the tile is in the layer UNDER the lowest layer of the hull. */
+    printf("Support %p %d %d %d\n", hull, tx, ty, z);
+  }
+
+  /* Tile in non-colliding layer. Ignore collision. */
+  if ((hull->layers & (1 << (z))) != (1 << (z))) {
+    return;
+  }
+
+  // Check if the point collides with a wall...                
+  if (tile_isflag(tile, TILE_WALL)) {           
+    // Calculate the pushback vector. 
+    BeVec push            = 
+    bumpaabb_collision_pushback((*bounds), tileaabb, hull->body->v,  dt);
+    /* Add the pushback to the next motion of this hull's body */
+    hull->body->p_next    = bevec_add(hull->body->p_next, push);
+    bounds->p             = hull->body->p_next;
+    hull->body->locks     = hull->body->locks | bevec_lock_flags(push); 
+  }
+}
+
+
 /* Calculates the displacement vector that is needed to push back 
  * to_push out of pushed. Pvec is the motion vector of the collision motion. 
  * It is used to push out the hull.
@@ -696,7 +763,7 @@ void bumpworld_collide_hull_tilemap(BumpWorld * self, BumpHull * hull, double dt
    checked for collision at the future location of this hull;
    */
   BumpAABB bounds;
-  int x, y, z, tx, ty;
+  int x, y, z;
   if ((!hull) || (!hull->body)) return;
   if (!self->map) return;
   bounds        = bumphull_aabb_next(hull);
@@ -704,33 +771,9 @@ void bumpworld_collide_hull_tilemap(BumpWorld * self, BumpHull * hull, double dt
   for (y = bumpaabb_top(&bounds); y <= (bumpaabb_down(&bounds) + 1) ; y += (TILE_H ) ) {
     for (x = bumpaabb_left(&bounds); x <= (bumpaabb_right(&bounds) + 1) ; x += (TILE_W / 2 )) {
       for (z = 0; z < tilemap_panes(self->map) ; z++) {
-        if ((hull->layers & (1 << (z))) != (1 << (z))) {
-          continue;
-        }
-        
-        tx = (x / TILE_W);
-        ty = (y / TILE_H);
-        // remeber, z goes first since it's a layer. 
-        Tile * tile = tilemap_get(self->map, z, tx, ty);
-        // Check if the point collides with a wall...                
-        if (tile_isflag(tile, TILE_WALL)) {           
-          double   tcx          = TILE_W * tx + TILE_W / 2;
-          double   tcy          = TILE_H * ty + TILE_H / 2;          
-          BumpAABB tileaabb     = bumpaabb(tcx, tcy, TILE_W, TILE_H); 
-          // continue if no collision 
-          if(!bumpaabb_overlap_p(bounds, tileaabb)) {
-            continue;
-          }  
-          // Calculate the pushback vector. 
-          BeVec push            = 
-          bumpaabb_collision_pushback(bounds, tileaabb, hull->body->v,  dt);
-          /* Add the pushback to the next motion of this hull's body */
-          hull->body->p_next    = bevec_add(hull->body->p_next, push);
-          bounds.p              = hull->body->p_next;
-          hull->body->locks     = hull->body->locks | bevec_lock_flags(push);
-        }
-      }  
-    }
+        bumpworld_collide_hull_tile(self, hull, &bounds, x, y, z, dt); 
+      }
+    }  
   }  
 }
 
@@ -805,6 +848,17 @@ BumpWorld * bumpworld_commit(BumpWorld * self) {
 
 #undef BUMPWORLD_COMMIT_AFTER_DEBUG
 
+/* Makes unsupported hulls fall down from upper to lower level. */
+BumpWorld * bumpworld_hulls_fall_down(BumpWorld * self, double dt) {
+  int index, jndex; 
+  /* simple integration for now. */
+  for (index = 0; index < self->body_count; index ++) {
+    BumpBody * body = dynar_getptr(self->bodies, index);
+    bumpbody_integrate(body, dt);
+  }
+  return self;
+}
+
 
 BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
   int index, jndex; 
@@ -851,7 +905,11 @@ BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
     }
   }
 
-  
+  /* Make hulls (things) fall down from the upper levels if 
+   * not supported by a tile on tile map level 3 or 4. 
+   * (implement flying later) 
+   */
+  // bumpworld_hulls_fall_down(self, dt);
 
   
   /* Commit motions if not showing debug drawing. */ 
