@@ -233,7 +233,7 @@ int real_main(void) {
     if(!map) {
       puts("Map is NULL!");
     } else {
-      actor_id = state_newthingindex(state, 1, THING_ACTOR, 120, 100, 1, 32, 32);
+      actor_id = state_newthingindex(state, 1, THING_ACTOR, 1200, 600, 1, 32, 32);
       if(actor_id >= 0) {
         state_camera_track_(state, actor_id);
       }

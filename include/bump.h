@@ -105,7 +105,7 @@ BumpWorld * bumpworld_commit(BumpWorld * self);
 
 BumpWorld * bumpworld_draw_debug(BumpWorld * self);
 
-
+int bumphull_support(BumpHull * hull);
 
 
 

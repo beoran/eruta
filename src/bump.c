@@ -344,23 +344,21 @@ BumpHull * bumphull_initall(
   self->layers  = layers;
   self->kind    = kind;
   self->id      = -1;
-  self->support = -1;
+  self->support = FALSE;
   return self;
   
 }
 
 
-/* Returns the level of support of a hull. This is 
- the highest level UNDER the lowest layer the hull is in. In other words, it's
-  a measure for if something is under the "feet" of the hull of not.
-  This can be used to see if the hukk's thing needs to "drop down" a level or not.
-  -1 is returnded if no support.  
+/* Returns the true if the hull is "supported", that is, if there was
+* any non-null tile under it last time the world was updates. 
+* Return false if not.
 */
 int bumphull_support(BumpHull * self) {
   return self->support;
 }
 
-/* Sets the hull's support level */
+/* Sets the hull's support state */
 int bumphull_support_(BumpHull * self, int level) {
   return self->support = level;
 }
@@ -712,6 +710,7 @@ void
 bumpworld_collide_hull_tile
 (BumpWorld * self, BumpHull * hull, BumpAABB * bounds, 
  int x, int y, int z, double dt) {
+  Thing * thing         = NULL;
   int tx, ty;
   tx = (x / TILE_W);
   ty = (y / TILE_H);
@@ -726,20 +725,25 @@ bumpworld_collide_hull_tile
   // No overlap, no collision, sorry. ;)  
   if(!bumpaabb_overlap_p((*bounds), tileaabb)) {
     return;
-  }  
+  } 
+  
+  if((hull) && (hull->body)) {
+    thing = hull->body->data;
+  }
+  
  
-  if ((hull->layers & (1 << (z-1))) != (1 << (z-1))) {
-    /* the tile is in the layer UNDER the lowest layer of the hull. */
-    printf("Support %p %d %d %d\n", hull, tx, ty, z);
+  if ( thing && (thing_z(thing) > 1) && (z == 2)  ) {
+    /* There tile is in the second-to upper layer, so if the hull is there, it is supported. */
+    bumphull_support_(hull, TRUE);
   }
 
   /* Tile in non-colliding layer. Ignore collision. */
-  if ((hull->layers & (1 << (z))) != (1 << (z))) {
+  if ((hull->layers & (1 << (z))) != (1 << (z))) {    
     return;
   }
 
-  // Check if the point collides with a wall...                
-  if (tile_isflag(tile, TILE_WALL)) {           
+  // Check if the point collides with a wall
+  if (tile_isflag(tile, TILE_WALL)) {
     // Calculate the pushback vector. 
     BeVec push            = 
     bumpaabb_collision_pushback((*bounds), tileaabb, hull->body->v,  dt);
@@ -747,7 +751,14 @@ bumpworld_collide_hull_tile
     hull->body->p_next    = bevec_add(hull->body->p_next, push);
     bounds->p             = hull->body->p_next;
     hull->body->locks     = hull->body->locks | bevec_lock_flags(push); 
+  } else if (tile_isflag(tile, TILE_STAIR) && thing) {
+    /* Up to the upper level if stair is touched. */
+    thing_z_(thing, 3);
+    /* Give it a "support" boost so it doesn't drop down right away. */
+    bumphull_support_(hull, TRUE);
   }
+  
+  
 }
 
 
@@ -766,7 +777,11 @@ void bumpworld_collide_hull_tilemap(BumpWorld * self, BumpHull * hull, double dt
   int x, y, z;
   if ((!hull) || (!hull->body)) return;
   if (!self->map) return;
+  /* Get bounds of hull, these will be changed. */
   bounds        = bumphull_aabb_next(hull);
+  /* Reset hull support to false. */
+  bumphull_support_(hull, FALSE);
+
   
   for (y = bumpaabb_top(&bounds); y <= (bumpaabb_down(&bounds) + 1) ; y += (TILE_H ) ) {
     for (x = bumpaabb_left(&bounds); x <= (bumpaabb_right(&bounds) + 1) ; x += (TILE_W / 2 )) {

@@ -36,7 +36,7 @@ o AI:
 
 
 o Particle Engine Alps (Allegro Particle System)
-  * Damge display
+  * Damage display.
   * Group for flexibility.
   * Allow bitmaps as well as colors/shapes.
   * Explosions.

@@ -430,8 +430,19 @@ int thing_poseifold_(Thing * self, int oldpose, int newpose) {
   return -1;
 }
 
+
+
 /* Updates the thing, especialy it's spite state direction and animation. */
 void thing_update(Thing * self, double dt) {
+  /* Update the things layer if uit has no support under hit's feet and
+  it's level is greater than 1 and it's flying. */
+  if ((thing_z(self) > 1) && (self->hull)) {
+    if(!bumphull_support(self->hull)) {
+      /* No support, drop down. */
+      thing_z_(self, 1);
+    }
+  }
+  
   if(!flags_get(self->flags, THING_FLAGS_LOCK_DIRECTION)) { 
     int newdir; 
     BeVec vel = thing_v(self);
