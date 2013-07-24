@@ -367,6 +367,8 @@ void thing_draw(Thing * self, Camera * camera) {
   int drawx, x;
   int drawy, y;
   int w, h    ;
+  int sw, sh  ;
+  int sx, sy  ;
   int t       = 2;
   Color color;
   // don't draw null things.
@@ -400,7 +402,17 @@ void thing_draw(Thing * self, Camera * camera) {
   if(thing_sprite(self)) {
 #ifndef ERUTA_NOGFX_MODE
     BeVec spriteat = bevec(drawx, drawy);
+    /* Draw elliptical shadow under sprite */
+#ifndef ERUTA_NOSHADOW_MODE
+    color     = color_rgbaf(0.0, 0.0, 0.0, 0.5);
+    sx        = drawx + w / 2;
+    sy        = drawy + ((4*h)/5);
+    sw        = (4 * w) / 11;
+    sh        = h / 3;
+    al_draw_filled_ellipse(sx, sy, sw, sh, color);
+#endif
     spritestate_draw(&self->spritestate, &spriteat);
+    
 #else
     draw_box(drawx, drawy, w, h, color, t);
 #endif

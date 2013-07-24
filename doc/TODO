@@ -4,7 +4,6 @@
 
 
 o Physics:
-  * Implement stairs.
   * Implement interaction between players characters/NPC's/foes, etc.
   * Implement attacks for action based or hybrid style battle gaming.
   * Implement sensors for AI and line of sight.
@@ -60,7 +59,8 @@ o Tile map:
   * Load tilemapeditor.org TMX maps.
   * Tile map tile animations.
   * Tile properties.
-  * Tile map layers.
+  * Tile map layers. 
+
 
 o Sprites:
   * Loading.
@@ -68,6 +68,7 @@ o Sprites:
   * Positioning.
 
 o Physics:
+  * Implement stairs. Ned to use stair and invisible support tiles in tile map.
   * Bump based physics.
   * Physical layers.
 
