@@ -11,7 +11,7 @@ Programmed in C with mruby scripting:
   Rationale: I love Ruby, but no matter how easy normal Ruby is to use, 
   I ended up writing a lot of C anyway to support it. For gaming, speed is
   essential since a slow game is hard to enjoy, especially for an action game.
-  So I decided to rather than ruse ruby extended with C, to use C 
+  So I decided to rather than use ruby extended with C, to use C 
   extended with a scripting language.
   At first the choice of scripting languages was on Lua, but the mruby idea 
   and open source development on github came through, and I switched to mruby 
@@ -141,7 +141,7 @@ Every map layer uses exactly one tile set based on a single tile image. Tile ima
 are are files in .png format with a width and height that are integer multiples of
 32, and that contain many individual tiles.
 
-Keeping with convention over configuration, the tile maps are read in, split up
+Keeping with convention over configuration, the tile sets are read in, split up
 in 32x32 tiles and interpreted according to the following rules:
 
 Every map describes the names of the tile it uses. The file name of the 

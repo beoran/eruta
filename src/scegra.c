@@ -2,33 +2,48 @@
 
 #include "scegra.h"
 #include "eruta.h"
+#include "bevec.h"
 #include "image.h"
 #include "rebox.h"
 #include "bad.h"
 #include "draw.h"
 #include "str.h"
+#include "flags.h"
+#include "store.h"
+#include "state.h"
+
+#define SCEGRA_TEXT_MAX 128
+
+enum ScegraNodeFlags_ {
+  SCEGRA_NODE_HIDE      = 1
+};
+
 
 /* A very simple scene graph, mainly for drawing the UI that will be managed from 
  * the scripting side of things. To avoid memory allocation, limit the amount of 
- * vertices allowed to SCERGRA_VERTEX_MAX (32)
+ * vertices allowed to SCERGRA_VERTEX_MAX (32) and characters allowed for a 
+ * string to 128. (enough to fill the screen with a font of 5 pixels wide).
+ * Of course this is all for a LINE of text, the scegra will use multiple text 
+ * text lines for multiline displays.
  */
 
 struct ScegraRound_ {
-  float cx, cy, rx, ry, start_theta, delta_theta;
+  float start_theta, delta_theta;
 };
 
 struct ScegraBitmap_ {
-  float sx, sy, sw, sh;
-  float cx, cy, dx, dy, xscale, yscale, angle;
+  BeVec src_pos, src_size;
+  float angle;
   int flags;
+  int image_id;
 };
 
 struct ScegraBox_ {
-  float x1, y1, x2, y2, rx, ry; 
+  BeVec round; 
 };
 
 struct ScegraLine_ {
-  float x1, y1, x2, y2;
+  float _unused;
 }; 
 
 struct ScegraTriangle_ {
@@ -57,7 +72,7 @@ struct ScegraPrim_ {
 struct ScegraText_ {
   float x1, x2, y, diff;
   int flags;
-  char *text;
+  char text[SCEGRA_TEXT_MAX];
   int text_owned, from, until;
 };
 
@@ -80,20 +95,11 @@ union ScegraData_ {
   struct ScegraText_            text;
 };
 
+typedef union ScegraData_ ScegraData;
 
-/* Struct: ScegraStyle 
-* Describes the style of a Scene graph node.
-*/
-struct ScegraStyle_ {
-  ALLEGRO_COLOR         color;
-  int                   thickness;
-  ALLEGRO_BITMAP      * bitmap;
-  ALLEGRO_FONT        * font;
-  int                   bitmap_owned;
-  int                   font_owned;
-  ALLEGRO_LINE_JOIN     join_style; 
-  float                 miter_limit;
-};
+
+
+
 
 
 struct ScegraNode_ {
@@ -101,6 +107,10 @@ struct ScegraNode_ {
   int                   z;
   int                   step;
   int                   kind;
+  int                   flags;
+  BeVec                 pos;
+  BeVec                 size;
+  BeVec                 speed;
   struct ScegraStyle_   style;
   union   ScegraData_   data;
   ScegraDraw          * draw;
@@ -115,16 +125,32 @@ struct Scegra_ {
 };
 
 
+#define SCEGRA_NODES_MAX 10000
+
+static ScegraNode   scegra_nodes[SCEGRA_NODES_MAX];
+static ScegraNode * scegra_nodes_todraw[SCEGRA_NODES_MAX];
+
+
+
+
+
+
 ScegraNode * 
-scegranode_initall(ScegraNode * node, int id, ScegraStyle style, 
-                   ScegraDraw * draw, ScegraUpdate * update) {
+scegranode_initall(ScegraNode * node, int id, BeVec pos, BeVec siz, 
+                   ScegraData data,
+                   ScegraStyle style, ScegraDraw * draw, ScegraUpdate * update) {
   if(!node) return NULL;
   node->id      = id;
   node->z       = id;
+  node->pos     = pos;
+  node->size    = siz;
+  node->speed   = bevec0();
+  node->data    = data;
   node->style   = style;
   node->draw    = draw;
   node->update  = update;
   node->step    = 0;
+  node->flags   = 0;
   return node;
 }
 
@@ -137,14 +163,381 @@ scegranode_done(ScegraNode * self) {
 }
 
 
+void scegra_update_generic(ScegraNode * self, double dt) {
+  bevec_add(self->pos, bevec_mul(self->speed, dt));
+}
+
+void scegra_draw_box(ScegraNode * self) {
+  BeVec p2;
+  p2 = bevec_add(self->pos, self->size);
+  float thick = self->style.border_thickness;
+  
+  if (self->style.background_image_id >= 0) {
+    ALLEGRO_BITMAP * bmp = store_get_bitmap(self->style.background_image_id);
+    /* XXX: need another param for corner size or is the autodetect OK? */
+    image_blitscale9(bmp, self->pos.x, self->pos.y, self->size.x, self->size.y,
+                     -1, -1);
+   // self->data.box.round.x, self->data.box.round.y);
+  } else {   
+    al_draw_filled_rounded_rectangle(self->pos.x, self->pos.y, p2.x, p2.y,
+      self->data.box.round.x, self->data.box.round.y, self->style.background_color
+    );
+  }
+  if (self->style.border_thickness > 0.0f) {
+      al_draw_rounded_rectangle(self->pos.x + thick/2, self->pos.y + thick/2, p2.x - thick/2, p2.y - thick/2,
+    self->data.box.round.x - thick/4,   self->data.box.round.y - thick/4, self->style.border_color,    
+    thick);
+  }
+}
 
 
-Scegra * 
-scegra_init(Scegra * self) {
+void scegra_draw_text(ScegraNode * self) {
+  Font * font;
+  int flags;
+  /*  Use default font if font not loeaded. */
+  font = store_get_font(self->style.font_id);
+  if (!font) font =  state_font(state_get());
+  flags = ALLEGRO_ALIGN_INTEGER;
+  al_draw_text(font, self->style.color, self->pos.x, self->pos.y, flags, self->data.text.text);
+}
+
+
+void scegra_draw_image(ScegraNode * self) {
+  Image * image;
+  int flags     = self->data.bitmap.flags;
+  float angle   = self->data.bitmap.angle;
+  float cx, cy, dx, dy, xscale, yscale;
+  cx     = self->data.bitmap.src_pos.x + self->data.bitmap.src_size.x / 2;
+  cy     = self->data.bitmap.src_pos.y + self->data.bitmap.src_size.y / 2;
+  dx     = self->pos.x + self->size.x / 2;
+  dy     = self->pos.y + self->size.y / 2;
+  xscale = self->size.x / self->data.bitmap.src_size.x;
+  yscale = self->size.y / self->data.bitmap.src_size.y;
+  
+  image = store_get_bitmap(self->data.bitmap.image_id);
+  /* Draw missing image rectangle. */
+  if (!image) { 
+    BeVec p2;
+    p2 = bevec_add(self->pos, self->size);
+    al_draw_filled_rounded_rectangle(self->pos.x, self->pos.y, p2.x, p2.y,
+      self->data.box.round.x, self->data.box.round.y, self->style.background_color
+    );
+  } else { 
+    al_draw_tinted_scaled_rotated_bitmap(image, self->style.color, cx, cy, dx, dy, xscale, yscale, angle, flags);
+  }
+}
+
+
+
+ScegraStyle * scegrastyle_initempty(ScegraStyle * self) {
   if (!self) return NULL;
-  self->nodes = NULL;
+  self->background_image_id     = -1;
+  self->color                   = al_map_rgba_f(1.0,1.0,1.0,1.0);
+  self->background_color        = al_map_rgba_f(0.0,0.0,0.0,0.0);
+  self->border_color            = al_map_rgba_f(1.0,1.0,1.0,1.0);
+  self->font_id                 = -1;
+  self->line_join_style         = 0;
+  self->line_miter_limit        = 1;
+  self->border_thickness        = -1;
   return self;
 }
+
+
+
+ScegraNode * 
+scegranode_init_box(ScegraNode * self, int id, BeVec pos, BeVec siz,  BeVec round, ScegraStyle style) {
+  ScegraData data;
+  if (!self) return NULL;
+  data.box.round = round;
+  scegranode_initall(self, id, pos, siz, data, style, scegra_draw_box, scegra_update_generic);
+  return self;
+}
+
+ScegraNode * 
+scegranode_init_text(ScegraNode * self, int id, BeVec pos, const char * text, ScegraStyle style) {
+  ScegraData data;
+  if (!self) return NULL;
+  strncpy(data.text.text, text, SCEGRA_TEXT_MAX);
+  data.text.text[SCEGRA_TEXT_MAX - 1] = '\0';
+  
+  scegranode_initall(self, id, pos, bevec0(), data, style, scegra_draw_text, scegra_update_generic);
+  return self;
+}
+
+
+ScegraNode * 
+scegranode_init_image_ex(
+  ScegraNode * self, int id, BeVec pos, BeVec siz, int image_id, ScegraStyle style,
+  BeVec spos, BeVec ssiz, float angle, int flags) {
+  ScegraData data;
+  if (!self) return NULL;
+  data.bitmap.angle     = angle;
+  data.bitmap.image_id  = image_id;
+  data.bitmap.flags     = flags;
+  data.bitmap.src_pos   = spos;
+  data.bitmap.src_size  = ssiz; 
+  scegranode_initall(self, id, pos, siz, data, style, scegra_draw_image, scegra_update_generic);
+  return self;
+}
+
+ScegraNode * 
+scegranode_init_image(ScegraNode * self, int id, BeVec pos,  int image_id, ScegraStyle style) {
+  int w, h;
+  BeVec siz;
+  if(!store_get_bitmap_width(image_id, &w)) return NULL;
+  if(!store_get_bitmap_height(image_id, &h)) return NULL;
+  siz = bevec(w, h);  
+  return scegranode_init_image_ex(self, id, pos, siz, image_id, style, bevec0(), siz, 0.0, 0);
+}
+
+
+
+
+/* Returns maximum amount of nodes. */
+int scegra_nodes_max() {
+  return SCEGRA_NODES_MAX;
+}
+
+/* Initializes the simple 2D scene graph */
+void scegra_init() {
+  int index;  
+  for (index = 0; index < SCEGRA_NODES_MAX; index++) {
+    ScegraNode * node = scegra_nodes + index;
+    node->id = -1; /* Negative id means unused; */
+  }
+}
+
+
+/* Compares a scene graph node with another, for drawing order. Things with low 
+ z come before those with high z, and with same z, low id comes before high id. 
+ qsort compatible. */
+int scegranode_compare_for_drawing(const void * p1, const void * p2) {
+  ScegraNode  * self  = *((ScegraNode **) p1);
+  ScegraNode  * other = *((ScegraNode **) p2);
+  BeVec pos1, pos2;
+  if(!self) { 
+    if(!other) {
+      return 0;
+    }
+    /* Sort nulls to the back. */
+    return 1;
+  }
+  if(!self) return -1;
+  /* Compare Z if no nulls. */
+  if (self->z < other->z) return -1;
+  if (self->z > other->z) return  1;  
+  /* compare id if z is equal */
+  if ( self->id > other->id ) return -1;
+  if ( self->id < other->id ) return 1;
+  return 0;
+}
+
+
+/* Updates the 2d scene graph. */
+void scegra_update(double dt) {
+  int index;
+  
+  for (index = 0; index < SCEGRA_NODES_MAX; index++) {
+    ScegraNode * node = scegra_nodes + index;
+    if (node->id < 0) continue; /* Negative id means unused; */
+    if(node->update) {
+      node->update(node, dt);
+    }
+    scegra_nodes_todraw[index] = node;
+  }  
+  /* Sort scene graph nodes for drawing. */
+  qsort(scegra_nodes_todraw, SCEGRA_NODES_MAX, sizeof(ScegraNode*), scegranode_compare_for_drawing); 
+}
+
+
+/* Draws the 2d scene graph. */
+void scegra_draw() {
+  int index;  
+  for (index = 0; index < SCEGRA_NODES_MAX; index++) {
+    ScegraNode * node = scegra_nodes_todraw[index];
+    if (node->id < 0) continue; /* Negative id means unused; */
+      /* Draw if not hidden. */
+    if(node->draw && (!flags_get(node->flags, SCEGRA_NODE_HIDE))) {
+      node->draw(node);
+    } 
+  }
+}
+
+/* Returns true if out of bounds for the scene graph, or false if ok. */
+int scegra_out_of_bounds(int index) {
+  if (index < 0)                  return TRUE;
+  if (index > scegra_nodes_max()) return TRUE;
+  return FALSE;
+}
+
+/* Returns a node from the scene graph or NULL if out of bounds. */
+ScegraNode * scegra_get_node(int index) {
+  if (scegra_out_of_bounds(index)) return NULL;
+  return scegra_nodes + index;
+}
+
+/* Returns the ID of the scene graph node at index. -1 means it's free, 
+ *-2 means out of range.  */
+int scegra_get_id(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  return node->id;
+}
+
+/* Sets the scene graph node as not in use.  */
+int scegra_disable_node(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  return node->id = -1; 
+}
+
+/* Initializes the node as a box. */
+int scegra_make_box(int id, BeVec pos, BeVec siz, BeVec round, ScegraStyle style) {
+  ScegraNode * node = scegra_get_node(id);
+  if (!node) return -2;
+  scegranode_init_box(node, id, pos, siz, round, style);
+  return node->id;
+}
+
+
+/* Initialies the node at index as a text. Text can only span one line and must be short.
+ Line wrapping must be implemented by making many text nodes for every line of text. */
+int scegra_make_text(int id, BeVec pos, const char * text, ScegraStyle style) {
+  ScegraNode * node = scegra_get_node(id);
+  if (!node) return -2;  
+  scegranode_init_text(node, id, pos, text, style);
+  return node->id;
+}
+
+
+/* Initializes the node at index as an image node. */
+int scegra_make_image(int id, BeVec pos, int image_id, ScegraStyle style) {
+  ScegraNode * node = scegra_get_node(id);
+  if (!node) return -2;  
+  scegranode_init_image(node, id, pos, image_id, style);
+  return node->id;
+} 
+
+
+/* Returns the Z level of the scene graph node at index. -1 means it's free, 
+ *-2 means out of range.  */
+int scegra_z(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  return node->z;
+}
+
+/* Sets the Z level of the scene graph node at index. -1 means it's free, 
+ *-2 means out of range.  */
+int scegra_z_(int index, int z) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  return node->z = z;
+}
+
+/* Sets the FG color of the scegra node (used to draw, e.g. text or lines (but not borders) */
+int scegra_color_(int index, int r, int g, int b, int a) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->style.color = al_map_rgba(r, g, b, a);  
+  return node->z;
+}
+
+/* Sets the border color of the scegra node (used to draw, e.g. text or lines (but not borders) */
+int scegra_border_color_(int index, int r, int g, int b, int a) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->style.border_color = al_map_rgba(r, g, b, a);  
+  return node->z;
+}
+
+/* Sets the background color of the scegra node (used to draw, e.g. text or lines (but not borders) */
+int scegra_background_color_(int index, int r, int g, int b, int a) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->style.background_color = al_map_rgba(r, g, b, a);  
+  return node->z;
+}
+
+/* Sets the border thickness. Set 0 or negative to disable border.  */
+int scegra_border_thickness_(int index, float t) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->style.border_thickness = t;  
+  return node->z;
+}
+
+/* Sets the scegra node's position . */
+int scegra_position_(int index, float x, float y) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->pos = bevec(x, y);  
+  return node->z;
+}
+
+/* Sets the scegra node's size. */
+int scegra_size_(int index, float w, float h) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->size = bevec(w, h);  
+  return node->z;
+}
+
+/* Sets the scegra node's speed. */
+int scegra_speed_(int index, float x, float y) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->speed = bevec(x, y);  
+  return node->z;
+}
+
+
+/* Sets the scegra node's background image id . */
+int scegra_background_image_id_(int index, int rindex) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->style.background_image_id  = rindex;  
+  return node->z;
+}
+
+/* Sets the scegra node's background font id . */
+int scegra_font_id_(int index, int rindex) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->style.font_id  = rindex;  
+  return node->z;
+}
+
+/* Sets the scegra node's foreground image id . */
+int scegra_image_id_(int index, int rindex) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->data.bitmap.image_id = rindex;
+  return node->z;
+}
+
+
+/* Sets the scegra node  to be visible or hidden depending on is_visible. */
+int scegra_visible_(int index, int is_visible) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;  
+  if (node->id < 0) return -1;
+  flags_put(&node->flags, SCEGRA_NODE_HIDE, is_visible); 
+  return node->z;
+}
+
 
 /*
 void scegra_drawframe(ScegraNode * self) {

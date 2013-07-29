@@ -15,6 +15,7 @@
 #include "area.h"
 #include "thing.h"
 #include "sprite.h"
+#include "scegra.h"
 #include <store.h>
 
 /* The data struct contains all global state and other data of the application.
@@ -513,6 +514,9 @@ void state_draw(State * self) {
         area_draw_layer(self->area, self->camera, layer);
       }
     }
+    
+    /* Draw UI scene graph */
+    scegra_draw();
 
     // draw fps  
     al_draw_textf(state_font(self), COLOR_WHITE,
@@ -543,6 +547,8 @@ void state_update(State * self) {
   mval = mrb_float_value(state_ruby(self), state_frametime(self));
   rh_runtopfunction_console(state_console(self), state_ruby(self), 
                                  "on_update", 1, &mval);
+  // Update the scene graph
+  scegra_update(state_frametime(self));
   
 }
 

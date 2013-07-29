@@ -18,6 +18,8 @@
 #include "str.h"
 #include "sprite.h"
 #include "alps.h"
+#include "store.h"
+#include "scegra.h"
 
 
 
@@ -274,6 +276,32 @@ int real_main(void) {
     state_thing_direction_(state, 3, SPRITE_SOUTH);
   }
   // spritestate_speedup_(spritestate, 2.0);
+  
+  // test scene graph 
+  { 
+    ScegraStyle style, style2, style3;
+    scegrastyle_initempty(&style);
+    scegrastyle_initempty(&style2);
+    scegrastyle_initempty(&style3); 
+    style.background_color      = al_map_rgba_f(0.0, 0.1, 0.9, 0.5);
+    style.border_color          = al_map_rgba_f(1.0, 1.0, 1.0, 0.9);
+    style.border_thickness      = -1;
+    store_load_bitmap(543 , "/image/ui/background/border_004.png");
+    store_load_bitmap(544 , "/image/ui/icon/gin/wizard-staff_32.png");
+    style.background_image_id   = 543;
+    
+    scegra_make_box(1, bevec(20, 30), bevec(200, 100), bevec(5, 5),  style);
+    scegra_make_box(2, bevec(120, 80), bevec(200, 100), bevec(5, 5),  style);
+    
+    style2.background_color     = al_map_rgba_f(1.0, 0.1, 0.1, 1.0);
+    style2.border_thickness      = -1;
+    
+    
+    scegra_make_box(10, bevec(130, 100), bevec(180, 20), bevec(3, 3),  style2);
+    scegra_make_text(11, bevec(140, 100), "Hello SCEGRA!",  style);
+    scegra_make_image(12, bevec(20, 30), 544,  style);
+    scegra_color_(12, 255, 255, 0, 128);
+  }
 
   /* Main game loop, controlled by the State object. */  
   while(state_busy(state)) { 
