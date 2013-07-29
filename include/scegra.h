@@ -87,6 +87,14 @@ void scegra_draw_text(ScegraNode *self);
 void scegra_draw_box(ScegraNode *self);
 void scegra_update_generic(ScegraNode *self,double dt);
 
+int scegra_angle_(int index, float angle);
+
+int scegra_make_box_style_from(int id, BeVec pos, BeVec siz, BeVec round, int sindex);
+int scegra_make_text_style_from(int id, BeVec pos, const char * text, int sindex);
+int scegra_make_image_style_from(int id, BeVec pos, int image_id, int sindex);
+
+
+
 
 
 #endif

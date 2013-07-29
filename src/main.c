@@ -97,6 +97,7 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     case ALLEGRO_KEY_ENTER:
       state_done(state);
     default:
+      return NULL;
     break;
   }
   if(actor_data) {
@@ -133,6 +134,7 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
       f.x = 0.0;
     break;
     default:
+      return NULL;
     break;
   }
   if (actor_data) {
@@ -290,7 +292,7 @@ int real_main(void) {
     store_load_bitmap(544 , "/image/ui/icon/gin/wizard-staff_32.png");
     style.background_image_id   = 543;
     
-    scegra_make_box(1, bevec(20, 30), bevec(200, 100), bevec(5, 5),  style);
+    scegra_make_box_style_from(1, bevec(20, 30), bevec(200, 100), bevec(5, 5),  -1);
     scegra_make_box(2, bevec(120, 80), bevec(200, 100), bevec(5, 5),  style);
     
     style2.background_color     = al_map_rgba_f(1.0, 0.1, 0.1, 1.0);
@@ -301,6 +303,8 @@ int real_main(void) {
     scegra_make_text(11, bevec(140, 100), "Hello SCEGRA!",  style);
     scegra_make_image(12, bevec(20, 30), 544,  style);
     scegra_color_(12, 255, 255, 0, 128);
+    // scegra_angle_(12, 3.0);
+    scegra_size_(12, 32, 32);
   }
 
   /* Main game loop, controlled by the State object. */  

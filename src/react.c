@@ -97,6 +97,7 @@ React * react_react(React * self, ALLEGRO_EVENT * event) {
 
 /** Polls for allegro events and reacts to them. */
 React * react_poll(React * self, void * state) {
+  int res;
   ALLEGRO_EVENT * event;
   if(!self) return NULL;
   // yes an assignment is fine here :)
@@ -106,7 +107,12 @@ React * react_poll(React * self, void * state) {
     if(bbconsole_handle((BBWidget *)console, event) < 1 ) { 
       event_free(event); // here we must free the event...
     } else {
-      react_react(self, event);
+      rh_poll_event(state_ruby(state_get()), event);
+      if(!react_react(self, event))  { 
+        rh_poll_event(state_ruby(state_get()), event);
+      }
+      
+      
       event_free(event);
       // here we must free the event...
       // for now still use react system... 

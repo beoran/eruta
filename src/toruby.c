@@ -10,6 +10,7 @@
 #include "image.h"
 #include "fifi.h"
 #include "store.h"
+#include "scegra.h"
 #include <mruby/hash.h>
 #include <mruby/class.h>
 #include <mruby/data.h>
@@ -551,6 +552,102 @@ static mrb_value tr_store_grab_font(mrb_state * mrb, mrb_value self) {
 } 
 
 
+
+#define TORUBY_0ICALLER(NAME, TOCALL)                                       \
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
+  return mrb_fixnum_value(TOCALL(index));                                   \
+  }
+
+TORUBY_0ICALLER(tr_scegra_nodes_max, scegra_nodes_max)
+
+
+#define SCEGRA_ICALLER(NAME, TOCALL)                                        \
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
+  int index;                                                                \
+  mrb_get_args(mrb, "i", &index);                                           \
+  return mrb_fixnum_value(TOCALL(index));                                   \
+  }
+
+SCEGRA_ICALLER(tr_scegra_z, scegra_z)
+SCEGRA_ICALLER(tr_scegra_disable_node, scegra_disable_node)
+SCEGRA_ICALLER(tr_scegra_get_id, scegra_get_id)
+SCEGRA_ICALLER(tr_scegra_out_of_bounds, scegra_out_of_bounds)
+
+
+#define SCEGRA_ISETTER(NAME, TOCALL)                                        \
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
+  int index, value;                                                         \
+  mrb_get_args(mrb, "ii", &index, &value);                                  \
+  return mrb_fixnum_value(TOCALL(index, value));                            \
+  }
+
+SCEGRA_ISETTER(tr_scegra_z_, scegra_z_)
+SCEGRA_ISETTER(tr_scegra_visible_, scegra_visible_)
+SCEGRA_ISETTER(tr_scegra_image_id_, scegra_image_id_)
+SCEGRA_ISETTER(tr_scegra_font_id_, scegra_font_id_)
+SCEGRA_ISETTER(tr_scegra_background_image_id_, scegra_background_image_id_)
+SCEGRA_ISETTER(tr_scegra_border_thickness_, scegra_border_thickness_)
+
+
+#define SCEGRA_PSETTER(NAME, TOCALL)                                         \
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                   \
+  int index, x, y;                                                           \
+  mrb_get_args(mrb, "iii", &index, &x, &y);                                  \
+  return mrb_fixnum_value(TOCALL(index, x, y));                              \
+  }
+
+SCEGRA_PSETTER(tr_scegra_speed_, scegra_speed_)
+SCEGRA_PSETTER(tr_scegra_size_ , scegra_size_)
+SCEGRA_PSETTER(tr_scegra_position_, scegra_position_)
+  
+#define SCEGRA_CSETTER(NAME, TOCALL)                                         \
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                   \
+  int index, r, g, b, a;                                                     \
+  mrb_get_args(mrb, "iiiii", &index, &r, &g, &b, &a);                        \
+  return mrb_fixnum_value(TOCALL(index, r, g, b, a));                        \
+  }
+
+SCEGRA_CSETTER(tr_scegra_background_color_, scegra_background_color_)
+SCEGRA_CSETTER(tr_scegra_border_color_, scegra_border_color_)
+SCEGRA_CSETTER(tr_scegra_color_, scegra_color_)
+  
+#define SCEGRA_FSETTER(NAME, TOCALL)                                        \
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
+  int index; mrb_float value;                                               \
+  mrb_get_args(mrb, "if", &index, &value);                                  \
+  return mrb_fixnum_value(TOCALL(index, value));                            \
+  }
+
+SCEGRA_FSETTER(tr_scegra_angle_, scegra_angle_)
+
+static mrb_value tr_scegra_make_box(mrb_state * mrb, mrb_value self) {
+  mrb_int id            = -1, sindex = -1;
+  mrb_int x             =  0, y      =  0;
+  mrb_int w             = 32, h      = 32;
+  mrb_int rx            =  4, ry     =  4;  
+  mrb_get_args(mrb, "iiiiiiii", &id, &x, &y, &w, &h, &rx, &ry, &sindex);
+  return mrb_fixnum_value(scegra_make_box_style_from(id, bevec(x, y), bevec(w, h), bevec(rx, ry), sindex));
+}
+
+static mrb_value tr_scegra_make_text(mrb_state * mrb, mrb_value self) {
+  char * str            = NULL;
+  mrb_int id            = -1, size   =  0, sindex = -1;
+  mrb_int x             =  0, y      =  0;
+  mrb_get_args(mrb, "iiisi", &id, &x, &y, &str, &size, &sindex);
+  return mrb_fixnum_value(scegra_make_text_style_from(id, bevec(x, y), str, sindex));
+}
+
+static mrb_value tr_scegra_make_image(mrb_state * mrb, mrb_value self) {
+  char * str            = NULL;
+  mrb_int id            = -1, image_id  =  -1, sindex = -1;
+  mrb_int x             =  0, y      =  0;
+  mrb_get_args(mrb, "iiiii", &id, &x, &y, &image_id, &sindex);
+  return mrb_fixnum_value(scegra_make_image_style_from(id, bevec(x, y), image_id, sindex));
+}
+
+
+
+
 #define TR_METHOD(MRB, CLASS, NAME, IMPL, FLAGS)\
         mrb_define_method((MRB), (CLASS), (NAME), (IMPL), (FLAGS))
 
@@ -576,10 +673,16 @@ int tr_init(mrb_state * mrb) {
   struct RClass *krn;
   struct RClass *pth;
   struct RClass *sto;
+  struct RClass *gra;
+  struct RClass *thi;
   pth = mrb_define_class(mrb, "Path", mrb->object_class);
   MRB_SET_INSTANCE_TT(pth, MRB_TT_DATA);
+  /* Storage. */
   sto = mrb_define_class(mrb, "Store", mrb->object_class);
-
+  /* Scene graph. */
+  gra = mrb_define_class(mrb, "Graph", mrb->object_class);
+  /* Entities. */
+  gra = mrb_define_class(mrb, "Thing", mrb->object_class);
   
   krn = mrb_class_get(mrb, "Kernel");
   if(!krn) return -1;
@@ -600,6 +703,8 @@ int tr_init(mrb_state * mrb) {
   TR_METHOD_ARGC(mrb, krn, "thing_direction_", tr_thing_direction_, 2);
   TR_METHOD_ARGC(mrb, krn, "actor_index_", tr_actorindex_, 1);
   TR_METHOD_NOARG(mrb, krn, "actor_index", tr_actorindex);
+  
+  TR_METHOD_ARGC(mrb, thi, "make"    , tr_newthing, 7);
 
   TR_METHOD_ARGC(mrb, krn, "store_kind", tr_store_kind, 1);
   TR_METHOD_ARGC(mrb, krn, "load_bitmap", tr_store_load_bitmap, 2);
@@ -626,10 +731,42 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_font_flags", tr_store_load_bitmap, 3);
   
   
-  TR_CLASS_METHOD_ARGC(mrb, sto, "drop", tr_store_drop, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_flags", tr_store_get_bitmap_flags, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_width", tr_store_get_bitmap_width, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_height", tr_store_get_bitmap_height, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "drop"           , tr_store_drop, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_flags"   , tr_store_get_bitmap_flags, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_width"   , tr_store_get_bitmap_width, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_height"  , tr_store_get_bitmap_height, 1);
+  
+  TR_CLASS_METHOD_ARGC(mrb, sto, "font_ascent"    , tr_store_get_font_ascent, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "font_descent"   , tr_store_get_font_descent, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "font_ascent"    , tr_store_get_font_line_height, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "text_dimensions", tr_store_get_text_dimensions, 2);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "text_width"     , tr_store_get_text_width, 2);
+  
+  TR_CLASS_METHOD_ARGC(mrb, gra, "nodes_max"       , tr_scegra_nodes_max, 0);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "z"               , tr_scegra_z, 1);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "disable"         , tr_scegra_disable_node, 1);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "id"              , tr_scegra_get_id, 1);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "out_of_bounds?"  , tr_scegra_out_of_bounds, 1);
+  
+  TR_CLASS_METHOD_ARGC(mrb, gra, "z_"              , tr_scegra_z_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "visible_"        , tr_scegra_visible_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "image_"          , tr_scegra_image_id_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "font_"           , tr_scegra_font_id_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "background_image_", tr_scegra_background_image_id_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "border_thickness_", tr_scegra_border_thickness_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "speed_"          , tr_scegra_speed_, 3);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "size_"           , tr_scegra_size_, 3);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "position_"       , tr_scegra_position_, 3);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "speed_"          , tr_scegra_speed_, 3);
+  
+  TR_CLASS_METHOD_ARGC(mrb, gra, "angle_"          , tr_scegra_angle_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "background_color_", tr_scegra_background_color_, 4);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "border_color_"    , tr_scegra_border_color_, 4);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "color_"           , tr_scegra_color_       , 4);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "make_box"         , tr_scegra_make_box,  8); 
+  TR_CLASS_METHOD_ARGC(mrb, gra, "make_image"       , tr_scegra_make_image, 5); 
+  TR_CLASS_METHOD_ARGC(mrb, gra, "make_text"        , tr_scegra_make_text, 5); 
+  
    
   // must restore gc area here ????
   mrb_gc_arena_restore(mrb, 0);

@@ -418,6 +418,39 @@ int scegra_make_image(int id, BeVec pos, int image_id, ScegraStyle style) {
   return node->id;
 } 
 
+/* Gets the style of the scegra object, or if not active, gets a default style.  */
+ScegraStyle scegra_get_style(int sindex) {
+  ScegraStyle style;
+  ScegraNode * snode = scegra_get_node(sindex);
+  if (snode && (snode->id >= 0)) {
+    style = snode->style;
+  } else {
+    scegrastyle_initempty(&style);
+  }  
+  return style;
+}
+
+
+/* Initializes the node as a box with a style copied from the node at sindex, 
+ * or if that is not in use, a default style. */
+int scegra_make_box_style_from(int id, BeVec pos, BeVec siz, BeVec round, int sindex) {
+   return scegra_make_box(id, pos, siz, round, scegra_get_style(sindex));
+}
+
+/* Initializes the node as a text with a style copied from the node at sindex, 
+ * or if that is not in use, a default style. */
+int scegra_make_text_style_from(int id, BeVec pos, const char * text, int sindex) {
+   return scegra_make_text(id, pos, text, scegra_get_style(sindex));
+}
+
+/* Initializes the node as a image with a style copied from the node at sindex, 
+ * or if that is not in use, a default style. */
+int scegra_make_image_style_from(int id, BeVec pos, int image_id, int sindex) {
+   return scegra_make_image(id, pos, image_id, scegra_get_style(sindex));
+}
+
+
+
 
 /* Returns the Z level of the scene graph node at index. -1 means it's free, 
  *-2 means out of range.  */
@@ -537,6 +570,17 @@ int scegra_visible_(int index, int is_visible) {
   flags_put(&node->flags, SCEGRA_NODE_HIDE, is_visible); 
   return node->z;
 }
+
+
+/* Sets the scegra node's drawing angle for images. */
+int scegra_angle_(int index, float angle) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->data.bitmap.angle = angle;
+  return node->z;
+}
+
 
 
 /*

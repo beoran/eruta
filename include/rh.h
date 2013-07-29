@@ -77,6 +77,11 @@ rh_runtopfunctionargs(Ruby * ruby, char * name, char * format, ...);
 
 #define rh_bool_value(B) ( (B) ? mrb_true_value() : mrb_false_value())
 
+/* Send the even to the ruby  main "on_poll"   */
+int rh_poll_event(mrb_state * mrb, ALLEGRO_EVENT * event);
+
+int rh_poll_events(mrb_state * mrb, ALLEGRO_EVENT_QUEUE * queue);
+
 
 #endif
 

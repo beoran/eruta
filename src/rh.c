@@ -20,8 +20,12 @@
  * Returns amount of arguments parsed, negative on failure.
  * 
  * Format specifier characters for the format argument: 
+ *
  * z: String from null terminated C string      [char*]
  * s: String                                    [char*, int] 
+ * Y: sYmbol from null terminated C string      [char*]
+ * y: symbol                                    [char*, int] 
+ * 
  * f: Float                                     [double]
  * i: Integer                                   [int]
  * b: Boolean                                   [int] 
@@ -47,6 +51,17 @@ int rh_args_va(Ruby * ruby, mrb_value * values,  int size,  char * format, va_li
         str = va_arg(list, const char*);
         val = mrb_str_new_cstr(ruby, str);
         break;
+        
+      case 'y':
+        str = va_arg(list, const char*);
+        i   = va_arg(list, int);
+        val = mrb_symbol_value(mrb_intern2(ruby, str, i));
+        break;
+        
+      case 'Y':
+        str = va_arg(list, const char*);
+        val = mrb_symbol_value(mrb_intern_cstr(ruby, str));
+        break; 
         
       case 'i':
         i   = va_arg(list, int);
@@ -598,10 +613,148 @@ int rh_tobool(mrb_value v) {
    &: Block [mrb_value]
    *: rest argument [mrb_value*,int]
    |: optional
- */
+*/
+
+#define RH_EVARGS_MAX 32
 
 
+/* Returns the current number of the joystick, that is it's index in the allegro 
+ * JS list. Too bad but this number may change. Returns -1 if not found; */
+static int joystick_nr(ALLEGRO_JOYSTICK * stick) {
+  int index;
+  ALLEGRO_JOYSTICK * aid;
+  for(index = 0 ; index < al_get_num_joysticks(); index ++) {
+    aid = al_get_joystick(index);
+    if (aid == stick) return index;
+  }
+  return -1;
+}
 
+/* Send the even to the ruby  main "on_poll"   */
+int rh_poll_event(mrb_state * mrb, ALLEGRO_EVENT * event) {
+  State * state = state_get();
+  mrb_value event_args[RH_EVARGS_MAX];
+  int nargs = 0;
+  
+  if (!event) return FALSE;
+  switch (event->type) {
+    case ALLEGRO_EVENT_JOYSTICK_AXIS:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiif", "joystick_axis",
+              event->any.timestamp,
+              joystick_nr(event->joystick.id), event->joystick.stick, event->joystick.axis, event->joystick.pos);
+    break;
+    case ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiif", "joystick_button_down", 
+              event->any.timestamp,
+              joystick_nr(event->joystick.id), event->joystick.button);
+    break;
+    case ALLEGRO_EVENT_JOYSTICK_BUTTON_UP:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiif", "joystick_button_up", 
+              event->any.timestamp,
+              joystick_nr(event->joystick.id), event->joystick.button);
+    break;
+    case ALLEGRO_EVENT_JOYSTICK_CONFIGURATION:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiif", "joystick_configuration", 
+              event->any.timestamp);
+    break;
+    case ALLEGRO_EVENT_KEY_DOWN:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfi", "key_down",
+              event->any.timestamp,
+              event->keyboard.keycode   );
+    break;
+    case ALLEGRO_EVENT_KEY_UP:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfi", "key_up",
+              event->any.timestamp,
+              event->keyboard.keycode   );
+    break;
+    case ALLEGRO_EVENT_KEY_CHAR:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiib", "key_char",
+              event->any.timestamp,
+              event->keyboard.keycode, event->keyboard.unichar,
+              event->keyboard.modifiers, event->keyboard.repeat
+             );
+    break;
+    
+    case ALLEGRO_EVENT_MOUSE_AXES:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiiiiiii", "mouse_axes",
+              event->any.timestamp,
+              event->mouse.x, event->mouse.y, event->mouse.z, event->mouse.w,
+              event->mouse.dx, event->mouse.dy, event->mouse.dz, event->mouse.dw
+             );
+    break;
+
+    case ALLEGRO_EVENT_MOUSE_WARPED:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiiiiiii", "mouse_warped",
+              event->any.timestamp,
+              event->mouse.x, event->mouse.y, event->mouse.z, event->mouse.w,
+              event->mouse.dx, event->mouse.dy, event->mouse.dz, event->mouse.dw
+             );
+    break;
+    
+    case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiiii", "mouse_button_down",
+              event->any.timestamp,
+              event->mouse.x, event->mouse.y, event->mouse.z, event->mouse.w,
+              event->mouse.button
+             );
+    break;
+    
+    case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiiii", "mouse_button_up",
+              event->any.timestamp,
+              event->mouse.x, event->mouse.y, event->mouse.z, event->mouse.w,
+              event->mouse.button
+             );
+    break;
+    
+    case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiii", "mouse_enter_display",
+              event->any.timestamp,
+              event->mouse.x, event->mouse.y, event->mouse.z, event->mouse.w
+             );
+    break;
+    
+    case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
+      nargs = 
+      rh_args(mrb, event_args, RH_EVARGS_MAX, "Yfiiii", "mouse_leave_display",
+              event->any.timestamp,
+              event->mouse.x, event->mouse.y, event->mouse.z, event->mouse.w
+             );
+    break;
+       
+    
+    default:
+      nargs = rh_args(mrb, event_args, RH_EVARGS_MAX, "Yf", "unknown",
+        event->any.timestamp
+      );
+    break;
+  }  
+  rh_runtopfunction_console(state_console(state), state_ruby(state), 
+                                 "on_poll", nargs, event_args);
+  return true;
+}
+
+/* Polls the event queue and while events are available, send them to the ruby 
+ main "on_poll"   */
+int rh_poll_events(mrb_state * mrb, ALLEGRO_EVENT_QUEUE * queue) {
+  ALLEGRO_EVENT event;
+  while(al_get_next_event(queue, &event)) { 
+    rh_poll_event(mrb, &event);
+  }
+  return TRUE;
+}
 
 
 

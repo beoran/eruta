@@ -138,10 +138,26 @@ def start_load_stuff
   
 end
 
+
+def start_setup_ui
+  box = Graph.make_box(51, 570, 10, 60, 240, 4, 4, -1)
+  Graph.background_color_(box, 20, 128, 20, 190)
+  Graph.border_color_(box, 255, 255, 255, 255)
+  Graph.border_thickness_(box, 1)
+  res = load_bitmap(ZIGZAG_LEAF, "image/ui/icon/gin/zigzag-leaf_64.png")
+  puts "start_load_stuff: #{res}"
+  img = Graph.make_image(52, 123, 245, ZIGZAG_LEAF, -1)
+  Graph.color_(img, 20, 200, 20, 190)
+  Graph.size_(img, 32, 32)
+  Graph.angle_(img, 1.23)
+  puts "img: #{img}"
+end
+
 def on_start(s)
   puts "on_start #{s}"
   start_load_sprites
   start_load_stuff
+  start_setup_ui
   return 1234567
 end
 
@@ -166,6 +182,12 @@ def on_update(dt)
   return nil
 end
 
+# Called when an input event occurs 
+def on_poll(*args)
+  puts "input"
+  p (args)
+  p args
+end
 
 
 # log "this is for the console."
