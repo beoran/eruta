@@ -75,6 +75,7 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     f = thing_v(actor_data);
   }
   switch(event->keycode) {
+    /*
     case ALLEGRO_KEY_UP:
       f.y = -100;
     break;
@@ -87,15 +88,25 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     case ALLEGRO_KEY_RIGHT:
       f.x = +100;
     break;
-    case ALLEGRO_KEY_F1:
+    */
+    /* Console control */
+    case ALLEGRO_KEY_F3:
       bbconsole_active_(state_console(state), TRUE);
     break;
-    case ALLEGRO_KEY_F2:
+    case ALLEGRO_KEY_F4:
       bbconsole_active_(state_console(state), FALSE);
     break;  
-    case ALLEGRO_KEY_ESCAPE:
-    case ALLEGRO_KEY_ENTER:
+    /* Reload main script (and hence all other scripts that it loads)  on F5 */
+    case ALLEGRO_KEY_F5:
+      rh_load_main();
+      rh_on_reload();
+    break;    
+    /* Emergency exit keys. */
+    case ALLEGRO_KEY_F12:
+    case ALLEGRO_KEY_PAUSE:
       state_done(state);
+    break;
+    /* Otherwise it's up to the script. */
     default:
       return NULL;
     break;
@@ -121,6 +132,7 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     f = thing_v(actor_data);
   }
   switch(event->keycode) {
+    /*
     case ALLEGRO_KEY_UP:
       f.y = 0.0;
     break;
@@ -133,6 +145,7 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     case ALLEGRO_KEY_RIGHT:
       f.x = 0.0;
     break;
+    */
     default:
       return NULL;
     break;
@@ -254,16 +267,9 @@ int real_main(void) {
     printf("Things IDs: %d %d %d\n", actor_id, npc1_id, npc2_id);
 
   // Try to load the mainruby file.
-  rh_runfilename_console(state_console(state), "main.rb", state_ruby(state));
-  // rh_runfilename_stderr("main.rb", state_ruby(state));
-
-  // Call the on_start function.
-  { 
-    USTR * com = ustr_newf("on_start('%s')", "OK!");
-    rh_dostring_console(state_console(state), (char *) ustr_c(com), state_ruby(state));
-    // rh_dostring_stderr(ustr_c(com), state_ruby(state));
-    ustr_free(com);
-  }
+  rh_load_main();
+  // And call the on_start function.
+  rh_on_start();
   
   if ((actor_id >= 0) && (sprite_id >= 0)) {
     state_actorindex_(state, 1);
@@ -279,6 +285,7 @@ int real_main(void) {
   }
   // spritestate_speedup_(spritestate, 2.0);
   
+#ifdef ERUTA_TEST_SCENE_GRAPH
   // test scene graph 
   { 
     ScegraStyle style, style2, style3;
@@ -306,6 +313,7 @@ int real_main(void) {
     // scegra_angle_(12, 3.0);
     scegra_size_(12, 32, 32);
   }
+#endif /* ERUTA_TEST_SCENE_GRAPH */
 
   /* Main game loop, controlled by the State object. */  
   while(state_busy(state)) { 

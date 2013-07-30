@@ -1,3 +1,7 @@
+
+
+script "sub/in_sub.rb"
+
 # Flags of a Sprite, frame or layer. */
 # Zero flag means sprite , frame, etc not in use. */
   SPRITE_EMPTY          = 0
@@ -153,13 +157,19 @@ def start_setup_ui
   puts "img: #{img}"
 end
 
-def on_start(s)
-  puts "on_start #{s}"
+def on_start(*args)
+  puts "on_start #{args}"
   start_load_sprites
   start_load_stuff
   start_setup_ui
-  return 1234567
+  return :ok
 end
+
+def on_reload(*args)
+  puts "on_reload #{args}"
+  return :ok
+end
+
 
 def on_bump(t1, t2, kind = nil)
   puts "BUMP! #{t1} #{t2} #{kind}"

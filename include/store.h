@@ -2,6 +2,7 @@
 #define STORE_H_INCLUDED
 
 #include "resor.h"
+#include "xresor.h"
 
 int store_kind(int index);
 Resor *store_load_bitmap(int index,const char *vpath);

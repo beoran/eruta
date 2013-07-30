@@ -154,6 +154,15 @@ store_load_bitmap
   return store_put(index, resor_load_bitmap(vpath));
 }
 
+
+/* Loads a tile map and puts it in the storage. */
+Resor * 
+store_load_tilemap
+(int index, const char * vpath) {
+  return store_put(index, xresor_load_tilemap(vpath, NULL));
+}
+
+
 /* Returns the kind of stored item. */
 int store_kind(int index) {
   return resor_kind(store_get(index));

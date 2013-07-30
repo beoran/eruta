@@ -83,6 +83,11 @@ int rh_poll_event(mrb_state * mrb, ALLEGRO_EVENT * event);
 int rh_poll_events(mrb_state * mrb, ALLEGRO_EVENT_QUEUE * queue);
 
 
+int rh_load_main();
+int rh_on_start();
+int rh_on_reload(); 
+
+
 #endif
 
 

@@ -322,6 +322,67 @@ bool tilemap_init_blend(Tilemap * self) {
   return res;
 }
 
+#ifdef SEPARATE_TILEMAP_LOADER
+
+/* Amount of tilemaps that can be loaded at oce. */
+#ifndef ERUTA_TILEMAPS_MAX
+#define ERUTA_TILEMAPS_MAX 16
+#endif
+
+
+/* "Globally" loaded tile maps. Allow up to ERUTA_TILEMAPS_MAX tile maps to be 
+ * loaded at the same time. */
+static Tilemap * tilemaps[ERUTA_TILEMAPS_MAX];
+
+static int active_tilemap = -1;
+/* Currently active tile map, if any. Negative means, none active. */
+
+int tilemaps_max(void) {
+  return ERUTA_TILEMAPS_MAX;
+}
+
+
+int tilemaps_out_of_bounds(int index) {
+  if (index < 0)                return TRUE;
+  if (index >tilemaps_max())    return TRUE;
+  return false;
+}
+
+Tilemap * tilemaps_put_raw(int index, Tilemap * map) {
+  if(tilemaps_out_of_bounds(index)) return NULL;
+  return tilemaps[index] = map;
+}
+
+/* Puts map at index, unloading any previously loaded map. */
+Tilemap * tilemaps_put(int index, Tilemap * map) {
+  if(tilemaps_out_of_bounds(index)) return NULL;
+  if(tilemaps[index]) tilemap_free(tilemaps[index]);
+  return tilemaps[index] = map;
+}
+
+int tilemaps_init(void) {
+  int index;
+  for(index = 0; index < tilemaps_max(); index ++) {
+    tilemaps_put_raw(index, NULL);
+  }
+}
+
+Tilemap * tilemaps_get(int index) {
+  if(tilemaps_out_of_bounds(index)) return NULL;
+  return tilemaps[index];
+}
+
+/* Deallocates all loaded tile maps. */
+int tilemaps_done(void) {
+  int index;
+  for(index = 0; index < tilemaps_max(); index ++) {
+    tilemaps_put(index, NULL);
+  }  
+}
+
+#endif
+
+
 
 
 

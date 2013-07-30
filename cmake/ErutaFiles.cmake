@@ -62,5 +62,6 @@ set(ERUTA_SRC_FILES
   src/ui.c
   src/widget.c
   src/xml.c
+  src/xresor.c
   src/zori.c
 )

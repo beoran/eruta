@@ -293,6 +293,46 @@ static mrb_value tr_thing_direction_(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(result);
 }
 
+static mrb_value tr_thing_v_(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  Thing * thing    = NULL;
+  int result;
+  mrb_int thingid; mrb_float x, y;
+  mrb_get_args(mrb, "iff", &thingid, &x, &y); 
+  thing = state_thing(state, thingid);
+  if (!thing) {
+    return mrb_nil_value();
+  }
+  thing_v_(thing, bevec(x , y)); 
+  return mrb_fixnum_value(thingid);
+}
+
+/* Converts a bevec to an array of 2 floats */
+mrb_value bevec2mrb(mrb_state * mrb, BeVec vec) { 
+    mrb_value vals[2];
+    mrb_value marr;
+    vals[0] = mrb_fixnum_value(vec.x);
+    vals[1] = mrb_fixnum_value(vec.y);
+    marr = mrb_ary_new_from_values(mrb, 2, vals);
+    return marr;
+}
+
+static mrb_value tr_thing_v(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  Thing * thing    = NULL;
+  BeVec result;
+  mrb_int thingid; mrb_float x, y;
+  mrb_get_args(mrb, "i", &thingid); 
+  thing = state_thing(state, thingid);
+  if (!thing) {
+    return mrb_nil_value();
+  }
+  result = thing_v(thing); 
+  return bevec2mrb(mrb, result);
+}
+
+
+
 static mrb_value tr_actorindex_(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
@@ -682,7 +722,7 @@ int tr_init(mrb_state * mrb) {
   /* Scene graph. */
   gra = mrb_define_class(mrb, "Graph", mrb->object_class);
   /* Entities. */
-  gra = mrb_define_class(mrb, "Thing", mrb->object_class);
+  thi = mrb_define_class(mrb, "Thing", mrb->object_class);
   
   krn = mrb_class_get(mrb, "Kernel");
   if(!krn) return -1;

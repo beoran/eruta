@@ -320,6 +320,7 @@ int rh_runfilename(Ruby * self, const char * filename) {
   return rh_runfilenamereport(self, filename, NULL, NULL);
 }
 
+
 /**
 * Executes a ruby file in Eruta's data/script directory with reporting.
 * Returns -2 if the file was not found.
@@ -327,11 +328,20 @@ int rh_runfilename(Ruby * self, const char * filename) {
 */
 int rh_dofilereport(Ruby * self, const char * filename, 
               RhReporter * report, void * extra) {
+  char * buf;
   int runres;
-  ALLEGRO_PATH * path = fifi_data_pathargs(filename, "script", NULL);
-  if(!path) return -3;
+  buf = malloc(strlen(filename) + 256);   
+  if(!buf) return -3;
+  strcpy(buf, "script/");
+  strncat(buf, filename, strlen(filename));      
+  ALLEGRO_PATH * path = fifi_data_vpath(buf);
+  if(!path) { 
+    free(buf);
+    return -3;
+  }
   runres = rh_runfilenamereport(self, PATH_CSTR(path), report, extra);
   al_destroy_path(path);
+  free(buf);
   return runres;
 }
 
@@ -754,6 +764,30 @@ int rh_poll_events(mrb_state * mrb, ALLEGRO_EVENT_QUEUE * queue) {
     rh_poll_event(mrb, &event);
   }
   return TRUE;
+}
+
+
+/* Tries to (re-)load the main ruby file, output to console. */
+int rh_load_main() { 
+  State * state = state_get();
+  // Try to load the mainruby file.
+  if(state_console(state)) { 
+    return rh_runfilename_console(state_console(state), "main.rb", state_ruby(state));
+  } else {
+    return rh_runfilename_stderr("main.rb", state_ruby(state));
+  }
+}
+  
+/* Calls the on_start function  */ 
+int rh_on_start() { 
+  State * state = state_get();
+  return rh_dostring_console(state_console(state), "on_start()", state_ruby(state));
+}
+
+/* Calls the on_reload function  */ 
+int rh_on_reload() { 
+  State * state = state_get();
+  return rh_dostring_console(state_console(state), "on_reload()", state_ruby(state));
 }
 
 

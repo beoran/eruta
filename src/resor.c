@@ -150,6 +150,14 @@ Resor * resor_new_audio_stream(ALLEGRO_AUDIO_STREAM * stream) {
   return resor_new(RESOR_AUDIO_STREAM, data, resor_free_audio_stream);
 }
 
+/* Allocate and initialize a resor struct for use with other data . */
+Resor * resor_new_other(ResorKind kind, void * data, ResorDestructor * free) {
+  Resor * self;
+  ResorData rdata;
+  rdata.other = data;
+  self = resor_alloc();
+  return resor_init(self, kind, rdata, free);
+}
 
 /*
 * Loads a TTF font from the data directory as a resource.
@@ -210,6 +218,17 @@ Resor * resor_load_bitmap(const char * vpath) {
   return resor_new_bitmap(fifi_load_bitmap(vpath));
 }
 
+/* Loads an other resource using the loader callback */
+Resor *
+resor_load_other(const char *vpath, ResorKind kind, 
+                 ResorLoader * loader, ResorDestructor * destroy, void *extra) {
+  void * data = loader(vpath, extra);  
+  if (!data) return NULL;
+  return resor_new_other(kind, data, destroy);
+}
+
+
+
 
 /* Grabs a font from an ALLEGRO_BITMAP and puts it in a resor */
 Resor * 
@@ -262,6 +281,14 @@ ALLEGRO_SAMPLE * resor_sample(Resor * self) {
   if(self->kind != RESOR_SAMPLE) return NULL;
   return self->data.sample;
 }
+
+/** Gets the other data stored in resor, but checks the type. If type not correct returns NULL too. */
+void * resor_other(Resor * self, unsigned kind) {
+  if(!self) return NULL;
+  if(self->kind != kind) return NULL;
+  return self->data.other;
+}
+
 
 
 /* If the resource is a font, stores the ascent of the font into value 
