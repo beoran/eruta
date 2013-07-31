@@ -61,7 +61,7 @@ void puts_standard_path(int path, char * name) {
   al_destroy_path(testpath);
 }
  
- 
+/* Low level keys, not handled by the script. */ 
 React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {  
   Point f = bevec0();
   State * state = (State *) self->data;
@@ -75,20 +75,6 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     f = thing_v(actor_data);
   }
   switch(event->keycode) {
-    /*
-    case ALLEGRO_KEY_UP:
-      f.y = -100;
-    break;
-    case ALLEGRO_KEY_DOWN:
-      f.y = +100;
-    break;
-    case ALLEGRO_KEY_LEFT:
-      f.x = -100;
-    break;
-    case ALLEGRO_KEY_RIGHT:
-      f.x = +100;
-    break;
-    */
     /* Console control */
     case ALLEGRO_KEY_F3:
       bbconsole_active_(state_console(state), TRUE);
@@ -103,7 +89,7 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     break;    
     /* Emergency exit keys. */
     case ALLEGRO_KEY_F12:
-    case ALLEGRO_KEY_PAUSE:
+    case ALLEGRO_KEY_ESCAPE:
       state_done(state);
     break;
     /* Otherwise it's up to the script. */

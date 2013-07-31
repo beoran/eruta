@@ -714,16 +714,20 @@ int tr_init(mrb_state * mrb) {
   struct RClass *pth;
   struct RClass *sto;
   struct RClass *gra;
+  struct RClass *spr;
   struct RClass *thi;
-  pth = mrb_define_class(mrb, "Path", mrb->object_class);
+  struct RClass *eru;
+  eru = mrb_define_module(mrb, "Eruta");
+  pth = mrb_define_class_under(mrb, eru, "Path", mrb->object_class);
   MRB_SET_INSTANCE_TT(pth, MRB_TT_DATA);
   /* Storage. */
-  sto = mrb_define_class(mrb, "Store", mrb->object_class);
+  sto = mrb_define_class_under(mrb, eru, "Store", mrb->object_class);
   /* Scene graph. */
-  gra = mrb_define_class(mrb, "Graph", mrb->object_class);
+  gra = mrb_define_class_under(mrb, eru, "Graph", mrb->object_class);
   /* Entities. */
-  thi = mrb_define_class(mrb, "Thing", mrb->object_class);
-  
+  thi = mrb_define_class_under(mrb, eru, "Thing", mrb->object_class);
+  /* Sprites */
+  spr = mrb_define_class_under(mrb, eru, "Sprite", mrb->object_class);
   krn = mrb_class_get(mrb, "Kernel");
   if(!krn) return -1;
   TR_METHOD_ARGC(mrb, krn, "test",  tr_test, 1);
@@ -744,7 +748,16 @@ int tr_init(mrb_state * mrb) {
   TR_METHOD_ARGC(mrb, krn, "actor_index_", tr_actorindex_, 1);
   TR_METHOD_NOARG(mrb, krn, "actor_index", tr_actorindex);
   
-  TR_METHOD_ARGC(mrb, thi, "make"    , tr_newthing, 7);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "thing_new", tr_newthing, 7);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "v"        , tr_thing_v , 1);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "v_"       , tr_thing_v_, 3);
+  
+  TR_CLASS_METHOD_ARGC(mrb, spr, "get_or_new"    , tr_getornewsprite, 1);
+  TR_CLASS_METHOD_ARGC(mrb, spr, "sprite_new"    , tr_newsprite, 1);
+  TR_CLASS_METHOD_ARGC(mrb, spr, "get", tr_sprite, 1);
+  TR_CLASS_METHOD_ARGC(mrb, spr, "load_ulpcss"   , tr_sprite_loadulpcss, 3);
+  TR_CLASS_METHOD_ARGC(mrb, spr, "tint_rgba"     , tr_sprite_tint, 6);
+
 
   TR_METHOD_ARGC(mrb, krn, "store_kind", tr_store_kind, 1);
   TR_METHOD_ARGC(mrb, krn, "load_bitmap", tr_store_load_bitmap, 2);

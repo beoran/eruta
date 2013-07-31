@@ -567,7 +567,7 @@ int scegra_visible_(int index, int is_visible) {
   ScegraNode * node = scegra_get_node(index);
   if (!node) return -2;  
   if (node->id < 0) return -1;
-  flags_put(&node->flags, SCEGRA_NODE_HIDE, is_visible); 
+  flags_put(&node->flags, SCEGRA_NODE_HIDE, !is_visible); 
   return node->z;
 }
 

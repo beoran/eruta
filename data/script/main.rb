@@ -1,58 +1,12 @@
+# Main eruta script
 
+# Load keycodes
+script "keycode.rb"
+# Load thing OO wrapper
+script "thing.rb"
+script "sprite.rb"
+script "graph.rb"
 
-script "sub/in_sub.rb"
-
-# Flags of a Sprite, frame or layer. */
-# Zero flag means sprite , frame, etc not in use. */
-  SPRITE_EMPTY          = 0
-# Sprite elemnt is in use if this is set, not if not. */ 
-  SPRITE_ACTIVE         = 1
-# Sprite element does not need to be updated. */
-  SPRITE_FREEZE         = 2
-# Direction flags */
-  SPRITE_NO_DIRECTION   = 0
-  SPRITE_SOUTH          = 1 << 8
-  SPRITE_EAST           = 1 << 9
-  SPRITE_NORTH          = 1 << 10
-  SPRITE_WEST           = 1 << 11
-  SPRITE_ALL            = SPRITE_SOUTH + SPRITE_EAST + SPRITE_NORTH + SPRITE_WEST
-
-# /* Type of the sprite action. The numbers correspond with the 
-#  * row in the liberated pixel cup sprite sheet compilation divided by 4, 
-#  * which is used  placeholder art now. The real art will have the same structure 
-#  * for it's sprite sheets.
-#  * 
-#  * To limit art requirements, emotions will be showed with emoticons and through
-#  * the character portraits in the dialogues.
-#  * 
-#  */
-  SPRITE_CAST           = 0
-  SPRITE_STAB           = 1
-  SPRITE_WALK           = 2
-  SPRITE_SLASH          = 3
-  SPRITE_SHOOT          = 4
-  SPRITE_DOWN           = 5
-  
-#   /* The positions below are not in the LPC 
-#    * sprite sheet but could be synthesized or used in the real art. */  
-  SPRITE_RUN            = 6
-  SPRITE_HURT           = 7
-  SPRITE_STAND          = 8
-  SPRITE_DEFEND         = 9
-  
-
-# /* Sprite layer suggested uses. */
-  SPRITELAYER_BEHINDBODY = 0
-  SPRITELAYER_BODY       = 1
-  SPRITELAYER_HEAD       = 2
-  SPRITELAYER_EYES       = 3
-  SPRITELAYER_HAIR       = 4
-  SPRITELAYER_HANDS      = 5
-  SPRITELAYER_FEET       = 6
-  SPRITELAYER_LEGS       = 7
-  SPRITELAYER_TORSO      = 8
-  SPRITELAYER_ACCESSORIES= 9
-  SPRITELAYER_WEAPONS    = 10 
 
 
 
@@ -95,35 +49,33 @@ end
 
 def start_load_sprites
   puts "Loading some things and sprites"
-  thing_new  100, 1, 300, 400, 1, 32, 32
-  thing_new  101, 0, 400, 400, 1, 32, 32
-  sprite_new 100
-  sprite_new 101
-  ulpcss_load 100, 1, "body/female/light.png"
-  ulpcss_load 101, 1, "body/female/dark.png"
-  ulpcss_load 100, SPRITELAYER_TORSO, "torso/dress_female/underdress.png"
-  ulpcss_load 101, SPRITELAYER_TORSO, "torso/dress_w_sash_female.png"
-  ulpcss_load 100, SPRITELAYER_HAIR , "hair/female/bangslong.png"
-  ulpcss_load 101, SPRITELAYER_HAIR , "hair/female/bangsshort.png"
-  hair_tint   101, 255, 255, 0
-  hair_tint   100,   0, 255, 0
-  torso_tint  100, 255, 64 , 64
-  torso_tint  101,  128,  128, 255
-  sprite_tint_rgba  1,  2,  64,  64, 255, 255
+  $thing_100  = Thing.make(1, 300, 400, 1, 32, 32, 100)
+  $sprite_100 = Sprite.make(100)
+  $sprite_100.load_ulpcss(1, "body/female/light.png")
+  $sprite_100.load_ulpcss(SPRITELAYER_TORSO, "torso/dress_female/underdress.png")
+  $sprite_100.load_ulpcss(SPRITELAYER_HAIR, "hair/female/bangslong.png")
+  $sprite_100.tint_hair(0, 255, 0)
+  $sprite_100.tint_torso(255, 64, 64)
+  $thing_100.sprite    = $sprite_100
+  $thing_100.direction = SPRITE_SOUTH
+  $thing_100.pose      = SPRITE_STAND
   
-  
-            
-            
-
-  thing_sprite_ 100, 100
-  thing_sprite_ 101, 101
-  thing_pose_ 100, SPRITE_STAND
-  thing_pose_ 101, SPRITE_STAND
-  thing_direction_ 100, SPRITE_SOUTH
-  thing_direction_ 101, SPRITE_SOUTH
+# ulpcss_load $sprite_100.id, 1, "body/female/dark.png"   
+#   thing_new  101, 0, 400, 400, 1, 32, 32
+#   sprite_new 101
+#   ulpcss_load 101, 1, "body/female/dark.png"
+#   ulpcss_load 101, SPRITELAYER_TORSO, "torso/dress_w_sash_female.png"
+#   ulpcss_load 101, SPRITELAYER_HAIR , "hair/female/bangsshort.png"
+#   hair_tint   101, 255, 255, 0
+#   torso_tint  101,  128,  128, 255
+#   sprite_tint_rgba  1,  2,  64,  64, 255, 255
+#   
+# 
+#   thing_sprite_ 101, 101
+#   thing_pose_ 101, SPRITE_STAND
+#   thing_direction_ 101, SPRITE_SOUTH
  
   puts "Things and sprites loaded."
-  
   
 end
 
@@ -136,24 +88,24 @@ def start_load_stuff
   puts "type: #{res}"
   res = store_kind(ZIGZAG_LEAF + 1)
   puts "type: #{res}"
-  h   = Store.bitmap_height(ZIGZAG_LEAF)
-  w   = Store.bitmap_width(ZIGZAG_LEAF)
+  h   = Eruta::Store.bitmap_height(ZIGZAG_LEAF)
+  w   = Eruta::Store.bitmap_width(ZIGZAG_LEAF)
   puts "h: #{h} w: #{w}"
   
 end
 
 
 def start_setup_ui
-  box = Graph.make_box(51, 570, 10, 60, 240, 4, 4, -1)
-  Graph.background_color_(box, 20, 128, 20, 190)
-  Graph.border_color_(box, 255, 255, 255, 255)
-  Graph.border_thickness_(box, 1)
+  box = Eruta::Graph.make_box(51, 570, 10, 60, 240, 4, 4, -1)
+  Eruta::Graph.background_color_(box, 20, 128, 20, 190)
+  Eruta::Graph.border_color_(box, 255, 255, 255, 255)
+  Eruta::Graph.border_thickness_(box, 1)
   res = load_bitmap(ZIGZAG_LEAF, "image/ui/icon/gin/zigzag-leaf_64.png")
   puts "start_load_stuff: #{res}"
-  img = Graph.make_image(52, 123, 245, ZIGZAG_LEAF, -1)
-  Graph.color_(img, 20, 200, 20, 190)
-  Graph.size_(img, 32, 32)
-  Graph.angle_(img, 1.23)
+  img = Eruta::Graph.make_image(52, 123, 245, ZIGZAG_LEAF, -1)
+  Eruta::Graph.color_(img, 20, 200, 20, 190)
+  Eruta::Graph.size_(img, 32, 32)
+  Eruta::Graph.angle_(img, 1.23)
   puts "img: #{img}"
 end
 
@@ -165,8 +117,12 @@ def on_start(*args)
   return :ok
 end
 
+
 def on_reload(*args)
   puts "on_reload #{args}"
+  puts "load thing ok: #{Thing.methods - Object.methods}"
+  puts "load thing ok: #{Eruta::Thing.methods - Object.methods}"
+  $t1 = Thing.make(1, 700, 700, 1, 32, 32) 
   return :ok
 end
 
@@ -192,11 +148,73 @@ def on_update(dt)
   return nil
 end
 
+def actor_switch(new_id)
+  actor_id = actor_index
+  # Ensure the told thing stops walking. 
+  Thing.v_(actor_id, 0, 0)
+  actor_index_(new_id)
+  camera_track(new_id)
+  return actor_id
+end
+
+
+# Handle key down 
+def on_key_down(time, key)
+  actor_id = actor_index
+  vx, vy = Eruta::Thing.v(actor_id)
+  case key
+  when KEY_A
+    actor_switch(1)
+  when KEY_B
+    actor_switch(100)
+  when KEY_H
+    Eruta::Graph.visible_(52, 0)
+  when KEY_S
+    Eruta::Graph.visible_(52, 1)
+  when KEY_UP
+    vy -= 50.0
+  when KEY_DOWN 
+    vy += 50.0
+  when KEY_LEFT
+    vx -= 50.0
+  when KEY_RIGHT
+    vx += 50.0
+  else
+  end 
+  Eruta::Thing.v_(actor_id, vx, vy)
+  return nil
+end
+
+# Handle key up
+def on_key_up(time, key)
+  actor_id = actor_index
+  vx, vy = Eruta::Thing.v(actor_id)
+  case key
+  when KEY_UP
+    vy = 0.0
+  when KEY_DOWN 
+    vy = 0.0
+  when KEY_LEFT
+    vx = 0.0
+  when KEY_RIGHT
+    vx = 0.0
+  else
+  end 
+  Eruta::Thing.v_(actor_id, vx, vy) 
+  return nil
+end
+
+
 # Called when an input event occurs 
 def on_poll(*args)
-  puts "input"
-  p (args)
-  p args
+  type = args.shift
+  meth = "on_#{type}".to_sym
+  if self.respond_to?(meth) 
+    self.send(meth, *args)
+  else
+    # ignore 
+    # puts "input #{type} #{meth} #{args}"
+  end  
 end
 
 
