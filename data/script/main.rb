@@ -60,20 +60,16 @@ def start_load_sprites
   $thing_100.direction = SPRITE_SOUTH
   $thing_100.pose      = SPRITE_STAND
   
-# ulpcss_load $sprite_100.id, 1, "body/female/dark.png"   
-#   thing_new  101, 0, 400, 400, 1, 32, 32
-#   sprite_new 101
-#   ulpcss_load 101, 1, "body/female/dark.png"
-#   ulpcss_load 101, SPRITELAYER_TORSO, "torso/dress_w_sash_female.png"
-#   ulpcss_load 101, SPRITELAYER_HAIR , "hair/female/bangsshort.png"
-#   hair_tint   101, 255, 255, 0
-#   torso_tint  101,  128,  128, 255
-#   sprite_tint_rgba  1,  2,  64,  64, 255, 255
-#   
-# 
-#   thing_sprite_ 101, 101
-#   thing_pose_ 101, SPRITE_STAND
-#   thing_direction_ 101, SPRITE_SOUTH
+  $thing_101  = Thing.make(0, 400, 400, 1, 32, 32, 101)
+  $sprite_101 = Sprite.make(101)
+  $sprite_101.load_ulpcss(1, "body/female/dark.png")
+  $sprite_101.load_ulpcss(SPRITELAYER_TORSO,  "torso/dress_w_sash_female.png")
+  $sprite_101.load_ulpcss(SPRITELAYER_HAIR, "hair/female/bangsshort.png")
+  $sprite_101.tint_hair(255, 255, 0)
+  $sprite_101.tint_torso(128,  128, 255)
+  $thing_101.sprite     = $sprite_101
+  $thing_101.pose       = SPRITE_STAND
+  $thing_101.direction  = SPRITE_SOUTH
  
   puts "Things and sprites loaded."
   
@@ -143,7 +139,9 @@ def on_update(dt)
   # log "dt: #{dt}"
   # puts "Update nr #{$count}!"
   if ($count % 71) == 0  
-    thing_direction_ 101, 1 << (8 + $count % 4)
+    if $thing_101
+      $thing_101.direction = (1 << (8 + $count % 4))
+    end
   end
   return nil
 end

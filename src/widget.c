@@ -720,7 +720,6 @@ int bbconsole_handle_keychar(BBWidget * widget, void * data) {
   int kc = event->keyboard.keycode;
   switch(kc) {
     // ignore the start-console key
-    case ALLEGRO_KEY_F1   : return BBWIDGET_HANDLE_OK;
     case ALLEGRO_KEY_PGUP : return bbconsole_scroll(self, 1);
     case ALLEGRO_KEY_PGDN : return bbconsole_scroll(self, -1);
     case ALLEGRO_KEY_BACKSPACE:
@@ -739,7 +738,7 @@ int bbconsole_handle_keychar(BBWidget * widget, void * data) {
       // empty string by truncating it
       return BBWIDGET_HANDLE_OK;
       }
-    case ALLEGRO_KEY_ESCAPE:
+    case ALLEGRO_KEY_F2:
       bbconsole_active_(self, false); 
       // disable console if esc is pressed.
       return BBWIDGET_HANDLE_OK;

@@ -38,7 +38,7 @@ class Thing < Eruta::Thing
     Eruta::Thing.v(@id)
   end
   
-  def v=(*p)
+  def v=(p)
     Eruta::Thing.v_(@id, *p)
   end
   

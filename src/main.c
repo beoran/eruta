@@ -76,10 +76,10 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
   }
   switch(event->keycode) {
     /* Console control */
-    case ALLEGRO_KEY_F3:
+    case ALLEGRO_KEY_F1:
       bbconsole_active_(state_console(state), TRUE);
     break;
-    case ALLEGRO_KEY_F4:
+    case ALLEGRO_KEY_F2:
       bbconsole_active_(state_console(state), FALSE);
     break;  
     /* Reload main script (and hence all other scripts that it loads)  on F5 */
