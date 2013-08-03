@@ -106,7 +106,7 @@ def start_setup_ui
   # Eruta::Graph.border_thickness_(box, 1)
   
   
-  res  = Eruta::Store.load_bitmap(ZIGZAG_LEAF, "image/ui/icon/gin/zigzag-leaf_64.png")
+  res  = Eruta::Store.load_bitmap(ZIGZAG_LEAF, "image/gin/zigzag-leaf_64.png")
   res2 = nil
   # res2 = Eruta::Store.mask_to_alpha(ZIGZAG_LEAF, 0, 0, 0)
   # res2 = Eruta::Store.average_to_alpha(ZIGZAG_LEAF, 0, 0, 255)
