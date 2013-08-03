@@ -6,6 +6,7 @@
 #include "tilemap.h"
 #include "tileio.h"
 #include "dynar.h"
+#include "draw.h"
 #include "mode.h"
 #include "fifi.h"
 #include "rh.h"
@@ -21,35 +22,75 @@
 /* The data struct contains all global state and other data of the application.
 */
 struct State_ {
+  /* State flags. */
   BOOL                  busy;
   BOOL                  fullscreen;
   BOOL                  audio;
+  
+  /* Graphics mode. XXX: I think???? :P */
   int32_t               modeno;
-  // there are two fonts for now, ttf and font. Font is a plain font
-  // for emergency use, ttf is the normal font.
+  
+  /* 
+   There are two fonts for now, ttf and font. Font is a plain font
+   for emergency use, ttf is the normal font for the console.
+  */
   ALLEGRO_FONT        * font;
   ALLEGRO_FONT        * ttf;
+  /* Some default colors */
   ALLEGRO_COLOR         colors[STATE_COLORS];
+  
+  
+  
+  /* Display */
   ALLEGRO_DISPLAY     * display;
-  ALLEGRO_BITMAP      * bkg;
+  
   ALLEGRO_EVENT_QUEUE * queue;
   char                * errmsg;
+  
+  
+  /* FPS handling. */
   double                fpsnow, fpstime, fps;
   int                   frames;
-  Tilemap             * nowmap;     // active tile map
-  Tilemap             * loadingmap; // new tile map that's being loaded.
-  Tilemap             * worldmap; /* World map that stays loaded. */
-  Mode                * mode; // active mode
-  Dynar               * modes;
-  Camera              * camera;
+  
+  /* Background image that can be set behind the tile map. */
+  ALLEGRO_BITMAP      * background_image;
+  
+  /* Background color, in case of no tile map */
+  ALLEGRO_COLOR         background_color;
+  
+  
+  /* Active tile map, linked from and loaded through a Store ID. */
+  Tilemap             * active_map; 
+  int                   active_map_id;
+  
+  /* Does the area needs to be displayed or not. */
+  int                   show_area;
+  
+  /* Does the graph needs to be displayed or not */
+  int                   show_graph;
+  
+  /* Does the FPS counter needs to be displayed or not? */
+  int                   show_fps;
+  
+  /* Logical and physical game objects. This one is always active, regardless of the tile map. */
   Area                * area;
-  /* Logical and physical game objects. */
+  // View camera for the area, tile map and particle engine. 
+  Camera              * camera;
+  
+  /* Mode is removed, this will be handled on the scripting side. */
+    
+  /* Sprite subsystem */
   SpriteList          * sprites;
-  Ruby                * ruby;
-  BBConsole           * console; 
-  // The ruby and error message GUI console.
-  /* The curtrent actor, controlled by the player. */
+  /* Ruby subsystem  */
+  Ruby                * ruby;  
+  /* 
+   The ruby and error message GUI console.
+   Implemented in C so it's usable even if there are script bugs.   
+  */
+  BBConsole           * console;   
+  /* The current actor, controlled by the player. */
   Thing               * actor;
+
   
 };
 
@@ -70,17 +111,64 @@ State * state_set(State * state) {
   return oldstate;
 }
 
-/** Return's the state's active tile map. */
-Tilemap * state_nowmap(State * state) {
+/** Returns the state's active tile map. */
+Tilemap * state_active_map(State * state) {
   if(!state) return NULL;
-  return state->nowmap;
+  return state->active_map;
 }
 
-/** Return's the state's loading tile map. */
-Tilemap * state_loadingmap(State * state) {
+
+/** Sets the state's active tile map. Also sets it in the state's area, and
+  disables all previous camera panners and lockins, and sets up a basic lockin on 
+  map layer 0 if the map is not NULL. */
+Tilemap * state_active_map_(State * state, Tilemap * map) {
   if(!state) return NULL;
-  return state->loadingmap;
+  
+  if (state->area) {
+    area_tilemap_(state->area, map);
+  }      
+  
+  if (state->camera) { 
+    camera_freepanners(state->camera);
+    camera_freelockins(state->camera);
+  }
+  
+  state->active_map = map;
+  
+  if(state->active_map) {
+    tilemap_layer_lockin(state->active_map, 0, state->camera);
+  }
+  
+  return state->active_map;
 }
+
+/** Gets the store index of the state's active tile map, or -1 if none set. */
+int state_active_map_id(State * state) {
+  if(!state) return -1;  
+  return state->active_map_id;
+}
+
+
+/** Sets the state's active tile from the Store system index. 
+ * Returns negative on failure, or the index set. Disables the active tile map if index is < 0 */
+int state_active_map_id_(State * state, int index) {
+  Tilemap * map;
+  if (!state) return -1;  
+  if (index < 0) {
+    state->active_map_id = -1;
+    state_active_map_(state, NULL);
+    return -1;
+  }
+  map = store_get_other(index, RESOR_TILEMAP);
+  if (!map) {
+    // refuse to load nonexisting map
+    return -2;
+  }
+  state_active_map_(state, map);
+  return -1;
+}
+
+
 
 /* Returns the state's area. */
 Area * state_area(State * state) {
@@ -106,14 +194,13 @@ void state_free(State * self) {
   self->sprites = NULL;
   area_free(self->area);
   self->area    = NULL;
-  if (self->nowmap) {
-    tilemap_free(self->nowmap);
-    self->nowmap = NULL;
-  }
-  dynar_free(self->modes);
+  /* Disable the active tile map */
+  state_active_map_id_(self, -1);
+  
   rh_free(self->ruby);
   bbconsole_free((BBWidget *)self->console, NULL);
-  self->console = NULL; // disable console immediately.
+  self->console = NULL; /* disable console immediately. */
+  /* Deallocate stored objects. */
   store_done();
  
   // font_free(self->font);
@@ -196,17 +283,17 @@ int state_sprite_loadulpcss
   }
 }
 
-/*  Gets a thing from the state's active tile map/area. */
+/*  Gets a thing from the state's area. */
 Thing * state_thing(State * state, int index) {
-  Tilemap * map = state_nowmap(state);
-  return tilemap_thing(map, index);
+  Area * area = state_area(state);
+  return area_thing(area, index);
 }
 
-/* Makes a new dynamic thing in the state's active tile map/area. */
+/* Makes a new dynamic thing in the state's active area. */
 Thing * state_newthing(State * state, int index, int kind, 
                         int x, int y, int z, int w, int h) {
-  Tilemap * map = state_nowmap(state);
-  return tilemap_addthing(map, index, kind, x, y, z, w, h);
+  Area * area = state_area(state);
+  return area_newdynamic(area, index, kind, x, y, z, w, h);
 }
 
 /* Makes a new dynamic thing and returns it's index, or 
@@ -275,28 +362,37 @@ int state_cameratrackthing(State * state, int thing_index) {
   return -1;
 }
 
-/* Lock in the state's camera to the current active tile map's given layer. */
-int state_lockin_maplayer(State * state, int layer) {
-  tilemap_layer_lockin(state_nowmap(state), layer, state_camera(state));
+/* Lock in the state's camera to the current active tile map's given layer. 
+ * Returns negative if no tile map is currently active. 
+ */
+int state_lockin_maplayer(State * state, int layer) {  
+  if(!state_active_map(state)) {
+    -1;
+  } else { 
+    tilemap_layer_lockin(state_active_map(state), layer, state_camera(state));
+  }
   return 0; 
 }
 
-// /* Loads a named tile map from the map folder. */
+
+/* Loads a named tile map from the map folder. */
+/* This function is obsolete. Load tile maps though script / store now. 
 int state_loadtilemap_vpath(State * self, char * vpath) {
   TilemapLoadExtra extra;
   extra.area = self->area;
   self->loadingmap = fifi_load_vpath(tilemap_fifi_load, &extra, vpath);
   if(!self->loadingmap) return -1;
-  /* TODO: some preproscessing, and move the PCs from the old map to the new... */
   tilemap_free(self->nowmap);
   self->nowmap = self->loadingmap;
   return 0;
 }
-
+*/
 
 /* Sets the state current active actor to the thing with the given index.
  * Does not change if no such thing is found;
  */
+
+/* Obsolete.  The scripts manage the active actor now. 
 int state_actorindex_(State * self, int thing_index) {
   Thing * thing;
   thing = state_thing(self, thing_index);
@@ -304,12 +400,16 @@ int state_actorindex_(State * self, int thing_index) {
   self->actor = thing;
   return thing_index;
 }
+*/
 
 /* Returns the current active actor of the state. */
+/* Obsolete.  The scripts manage the active actor now. 
 Thing * state_actor(State * self) {
   if(!self) return NULL;
   return self->actor;
 }
+*/
+
 
 
 
@@ -451,15 +551,12 @@ State * state_init(State * self, BOOL fullscreen) {
   // set up fps counter. Start with assuming we have 60 fps. 
   self->fps        = 60.0;
   self->fpstime    = al_get_time();
-  self->frames     = 60;  
-  self->loadingmap = NULL;
-  self->nowmap     = NULL;
+  self->frames     = 60;    
+  /* No active map yet. */
+  state_active_map_id_(self, -1);
   
-  // set up modes
-  self->modes   = dynar_new(ERUTA_MODE_MAX, sizeof(Mode *));
-  if(!self->modes) {
-    return state_errmsg_(self, "Out of memory when allocating modes.");
-  }
+  /* Background color. */
+  self->background_color = al_map_rgb(64,128,64);
   
   // set up camera
   self->camera = camera_new(-100, -100, SCREEN_W, SCREEN_H);
@@ -487,6 +584,11 @@ State * state_init(State * self, BOOL fullscreen) {
   /* Initialize sprite list. */
   self->sprites = spritelist_new();
   
+  /* Show all by default. */
+  self->show_area = TRUE;
+  self->show_fps  = TRUE;
+  self->show_graph= TRUE;
+  
   return self;
 }
 
@@ -505,24 +607,37 @@ BOOL state_busy(State * self) {
 /* Draws all inside the state that needs to be drawn. */
 void state_draw(State * self) {
     int layer;
-   
+    
+    /* Draw background color if no map active. */
+    if (!self->active_map) {
+      al_clear_to_color(self->background_color);
+    }    
+    
+    /* Draw the layers of the map and area interleaved. */
     for (layer = 0; layer < TILEMAP_PANES; layer ++) {
-      if (self->nowmap) {
-        tilemap_draw_layer(self->nowmap, self->camera, layer);
+      if (self->active_map) {
+        tilemap_draw_layer(self->active_map, self->camera, layer);
       }
-      if (self->area) {
+      if (self->area && self->show_area) {
         area_draw_layer(self->area, self->camera, layer);
       }
     }
     
     /* Draw UI scene graph */
-    scegra_draw();
-
-    // draw fps  
-    al_draw_textf(state_font(self), COLOR_WHITE,
-                        10, 10, 0, "FPS: %.0f", state_fps(self));
+    if (self->show_graph) { 
+      scegra_draw();
+    }
+    /* Draw the particles from the particle engine. */
     // alpsshower_draw(&shower, state_camera(state));
-    // draw the console (will autohide if not active).
+    
+    
+    /* Draw fps.  */
+    if (self->show_fps) { 
+      al_draw_textf(state_font(self), COLOR_WHITE,
+                        10, 10, 0, "FPS: %.0f", state_fps(self));
+    } 
+    
+    /* draw the console (will autohide if not active). */
     bbwidget_draw((BBWidget *)state_console(self));
 }
 
@@ -537,7 +652,11 @@ void state_flip_display(State * self) {
 void state_update(State * self) { 
   mrb_value mval;
   // alpsshower_update(&shower, state_frametime(state));    
-  if (self->nowmap) tilemap_update(self->nowmap, state_frametime(self));
+  
+  if (self->active_map) { 
+    tilemap_update(self->active_map, state_frametime(self));
+  }
+  
   if (self->area) {
       area_update(self->area, state_frametime(self));
   }
@@ -628,7 +747,47 @@ Camera * state_camera(State * state) {
   return state->camera;
 }
 
+/* Get display state */
+int global_state_show_fps() {
+  State * state = state_get();
+  if (!state) return FALSE;
+  return state->show_fps; 
+}
 
+/* Set display state */
+int global_state_show_fps_(int show) {
+  State * state = state_get();
+  if (!state) return FALSE;
+  return state->show_fps = show;
+}
+
+/* Get display state */
+int global_state_show_graph() {
+  State * state = state_get();
+  if (!state) return FALSE;
+  return state->show_graph; 
+}
+
+/* Set display state */
+int global_state_show_graph_(int show) {
+  State * state = state_get();
+  if (!state) return FALSE;
+  return state->show_graph = show;
+}
+
+/* Get display state */
+int global_state_show_area() {
+  State * state = state_get();
+  if (!state) return FALSE;
+  return state->show_area; 
+}
+
+/* Set display state */
+int global_state_show_area_(int show) {
+  State * state = state_get();
+  if (!state) return FALSE;
+  return state->show_area = show;
+}
 
 
 
@@ -676,7 +835,7 @@ Tilemap * state_preloadmap_index(State * state, int index) {
   return NULL;
 }
 
-/* Tints a whole layer of a given sprite */
+/* Tints a whole layer of a given sprite. */
 int state_sprite_tintlayer
 (State * state, int sprite_index, int layer_index, int r, int g, int b, int a) {
   Sprite * sprite = state_sprite(state, sprite_index);
@@ -687,34 +846,24 @@ int state_sprite_tintlayer
 }
 
 
-
-#ifdef _COMMENT
-
-/* Returns the active mode of the state if any. */
-Mode * state_mode(State * state) {
-  if(!state) return NULL;
-  return (state->mode);
+/* Transforms a mask color of an image in storage into an alpha. */
+int state_image_mask_to_alpha(State * state, int store_index, int r, int g, int b) {
+  Image * image = store_get_bitmap(store_index);
+  Color color   = al_map_rgb(r, g, b);
+  if (!image) return -1;  
+  al_convert_mask_to_alpha(image, color);
+  return store_index;
 }
 
-/* Sets the active mode of the state to the one with the given index.
-* returns the mode set or NULL if not set.
-*/
-Mode * state_modeindex_(State * state, int index) {
-  State * old, * next;
-  if(!state) return NULL;
-  if((index<0) || (index > ERUTA_MODE_MAX)) return NULL;
-  old  = state->mode;
-  next = state->modes[index];
-  // try to leave old mode 
-  if(!mode_leave(old)) return NULL;
-  // couldn't enter next mode, return to previous mode.
-  if(!mode_enter(next)) {
-    mode_enter(old);
-    return NULL;
-  }
-  // If we get here the mode was entered correctly.
-  state->mode = next;  
-  return state->mode;
+
+
+/* Transforms an image in storage where the average is assigned to the alpha value. */
+int state_image_average_to_alpha(State * state, int store_index, int r, int g, int b) {
+  Image * image = store_get_bitmap(store_index);
+  Color color   = al_map_rgb(r, g, b);
+  if (!image) return -1;  
+  draw_convert_average_to_alpha(image, color);
+  return store_index;
 }
 
-#endif
+

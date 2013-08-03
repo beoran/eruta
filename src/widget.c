@@ -720,8 +720,11 @@ int bbconsole_handle_keychar(BBWidget * widget, void * data) {
   int kc = event->keyboard.keycode;
   switch(kc) {
     // ignore the start-console key
-    case ALLEGRO_KEY_PGUP : return bbconsole_scroll(self, 1);
-    case ALLEGRO_KEY_PGDN : return bbconsole_scroll(self, -1);
+    case ALLEGRO_KEY_F1:
+    case ALLEGRO_KEY_F3:
+      return BBWIDGET_HANDLE_OK;
+    case ALLEGRO_KEY_PGUP: return bbconsole_scroll(self, 1);
+    case ALLEGRO_KEY_PGDN: return bbconsole_scroll(self, -1);
     case ALLEGRO_KEY_BACKSPACE:
       // remove last character typed.
       ustr_remove_chr(self->input, ustr_offset(self->input, -1));
@@ -738,17 +741,34 @@ int bbconsole_handle_keychar(BBWidget * widget, void * data) {
       // empty string by truncating it
       return BBWIDGET_HANDLE_OK;
       }
-    case ALLEGRO_KEY_F2:
-      bbconsole_active_(self, false); 
-      // disable console if esc is pressed.
-      return BBWIDGET_HANDLE_OK;
-    default: break;
+    default:
+    break;
   }
   
   ustr_appendch(self->input, ch);
   return BBWIDGET_HANDLE_OK;
 }
 
+
+/* Key down event handler for console. */
+int bbconsole_handle_keydown(BBWidget * widget, void * data) { 
+  BBConsole * self       = bbwidget_console(widget);
+  ALLEGRO_EVENT * event  = (ALLEGRO_EVENT *) data;
+  int ch = event->keyboard.unichar;
+  int kc = event->keyboard.keycode;
+  switch(kc) {
+    case ALLEGRO_KEY_F1:  
+    case ALLEGRO_KEY_F3:
+      bbconsole_active_(self, false); 
+      /* disable console if F1 is pressed. 
+       * Note: this shouldnever happen if react is set up well.
+       */ 
+      return BBWIDGET_HANDLE_OK;
+    default:
+    break;
+  }
+  return BBWIDGET_HANDLE_IGNORE;
+}
 
 /* Mouse axe event handler for console */
 int bbconsole_handle_mouseaxes(BBWidget * widget, void * data) { 
@@ -761,14 +781,14 @@ int bbconsole_handle_mouseaxes(BBWidget * widget, void * data) {
   return BBWIDGET_HANDLE_OK;
 }
 
-int bbconsole_handle_ok(BBWidget * widget, void * data) { 
-  return BBWIDGET_HANDLE_OK;
+int bbconsole_handle_ignore(BBWidget * widget, void * data) { 
+  return BBWIDGET_HANDLE_IGNORE;
 }
 
 
 static BBWidgetAction bbconsole_actions[] = {  
-  { ALLEGRO_EVENT_KEY_DOWN  , bbconsole_handle_ok         }, 
-  { ALLEGRO_EVENT_KEY_UP    , bbconsole_handle_ok         },
+  { ALLEGRO_EVENT_KEY_DOWN  , bbconsole_handle_keydown    }, 
+  { ALLEGRO_EVENT_KEY_UP    , bbconsole_handle_ignore     },
   { ALLEGRO_EVENT_KEY_CHAR  , bbconsole_handle_keychar    },
   { ALLEGRO_EVENT_MOUSE_AXES, bbconsole_handle_mouseaxes  },
   { BBWIDGET_EVENT_DRAW     , bbconsole_draw              },

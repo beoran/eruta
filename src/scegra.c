@@ -198,7 +198,12 @@ void scegra_draw_text(ScegraNode * self) {
   font = store_get_font(self->style.font_id);
   if (!font) font =  state_font(state_get());
   flags = ALLEGRO_ALIGN_INTEGER;
+  /* Draw the text twice, once offset in bg color to produce a shadow, 
+   and once normally with foreground color. */
+  al_draw_text(font, self->style.background_color, self->pos.x + 1, self->pos.y + 1, flags, self->data.text.text);
   al_draw_text(font, self->style.color, self->pos.x, self->pos.y, flags, self->data.text.text);
+  
+    
 }
 
 

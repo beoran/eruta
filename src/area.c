@@ -233,11 +233,18 @@ Thing * area_newdynamic(Area * self, int index, int kind,
 /** Sets the current tile map of the area. */
 ERES area_tilemap_(Area * self, Tilemap * map) {
   int wide, high;
-  wide = tilemap_gridwide(map);
-  high = tilemap_gridhigh(map);
+  if (map) { 
+    wide = tilemap_gridwide(map);
+    high = tilemap_gridhigh(map);
+  } else { 
+    /* No map so this is whatever, I think. */
+    wide = 640;
+    high = 480;
+  }
   bumpworld_tilemap_(self->world, map);
   return ERES_OK;
 }
+
 
 
 /** Draws all things in an area taking the camera into account. */

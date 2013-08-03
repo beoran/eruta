@@ -249,7 +249,7 @@ Tilemap * tilemap_loadxml(xmlDoc * xml, TilemapLoadExtra * extra) {
   // load the tile set
   
   /// How to integrate with Area? 
-  result = tilemap_new(set, wide, high, extra->area);
+  result = tilemap_new(set, wide, high, NULL);
   // load the layers
   if(!result) return NULL;
   

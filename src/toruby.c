@@ -132,6 +132,30 @@ static mrb_value tr_script(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(res);
 }
 
+/* Sets the active map for the engine   */
+static mrb_value tr_active_map_(mrb_state * mrb, mrb_value self) {
+  Tilemap * map = NULL;
+  int id;
+  State * state   = state_get();
+  mrb_int index   = -1;
+  mrb_get_args(mrb, "i", &index); 
+  // Negative index means "disable the map" 
+  id = state_active_map_id_(state, index);
+  if (index < 0) {
+    return mrb_nil_value();
+  }
+  return mrb_fixnum_value(id);
+} 
+
+
+/* Gets the active map for the state   */
+static mrb_value tr_active_map(mrb_state * mrb, mrb_value self) {
+  int id;
+  State * state   = state_get();
+  id = state_active_map_id(state);
+  return mrb_fixnum_value(id);  
+} 
+
 
 
 /* Wraps an Allegro event for use in ruby into an mruby hash. */
@@ -256,6 +280,7 @@ static mrb_value tr_lockin_maplayer(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(result);
 }
 
+/* Obsolete, tile maps will be loaded through store. 
 static mrb_value tr_loadtilemap_vpath(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
@@ -264,7 +289,7 @@ static mrb_value tr_loadtilemap_vpath(mrb_state * mrb, mrb_value self) {
   result = state_loadtilemap_vpath(state, mrb_str_to_cstr(mrb, rvpath));
   return mrb_fixnum_value(result);
 }
-
+*/
 
 static mrb_value tr_thing_sprite_(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
@@ -331,7 +356,32 @@ static mrb_value tr_thing_v(mrb_state * mrb, mrb_value self) {
   return bevec2mrb(mrb, result);
 }
 
+/* Allows to set a color of a loaded image as the mask color. Somewhat slow. */
+static mrb_value tr_image_mask_to_alpha(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  Thing * thing    = NULL;
+  BeVec result;
+  int store_index, r, g, b;
+  mrb_int thingid; mrb_float x, y;
+  mrb_get_args(mrb, "iiii", &store_index, &r, &g, &b); 
+  return mrb_fixnum_value(state_image_mask_to_alpha(state, store_index, r, g, b));
+}
 
+/* Allows to set the colors of a loaded image with the image itselmf acting as a mask. 
+ * Somewhat slow. */
+static mrb_value tr_image_average_to_alpha(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  Thing * thing    = NULL;
+  BeVec result;
+  int store_index, r, g, b;
+  mrb_int thingid; mrb_float x, y;
+  mrb_get_args(mrb, "iiii", &store_index, &r, &g, &b); 
+  return mrb_fixnum_value(state_image_average_to_alpha(state, store_index, r, g, b));
+}
+
+
+
+#ifdef OBSOLETE_ 
 
 static mrb_value tr_actorindex_(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
@@ -355,7 +405,7 @@ static mrb_value tr_actorindex(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(thing_id(thing));
 }
 
-
+#endif
 
 /*
 int state_newthingindex(State * state, int kind, 
@@ -448,7 +498,7 @@ static mrb_value tr_store_load_ttf_font(mrb_state * mrb, mrb_value self) {
   mrb_int index    = -1;
   mrb_int h        = 10;  
   mrb_int flags    =  0;
-  mrb_get_args(mrb, "iziii", &index, &vpath, &h, &flags);  
+  mrb_get_args(mrb, "izii", &index, &vpath, &h, &flags);
   return rh_bool_value(
     store_load_ttf_font(index, (const char *)vpath, h, flags)
   );
@@ -466,6 +516,16 @@ static mrb_value tr_store_load_ttf_font_stretch(mrb_state * mrb, mrb_value self)
     store_load_ttf_font_stretch(index, (const char *)vpath, w, h, flags)
   );
 }
+
+static mrb_value tr_store_load_tilemap(mrb_state * mrb, mrb_value self) {
+  char * vpath     = NULL; 
+  mrb_int index    = -1;
+  mrb_int h        = 10;  
+  mrb_int flags    =  0;
+  mrb_get_args(mrb, "iz", &index, &vpath);  
+  return rh_bool_value(store_load_tilemap(index, (const char *)vpath));
+}
+
 
 static mrb_value tr_store_drop(mrb_state * mrb, mrb_value self) {
   mrb_int index    = -1;
@@ -593,12 +653,20 @@ static mrb_value tr_store_grab_font(mrb_state * mrb, mrb_value self) {
 
 
 
-#define TORUBY_0ICALLER(NAME, TOCALL)                                       \
+#define TORUBY_0_ICALLER(NAME, TOCALL)                                       \
   static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
-  return mrb_fixnum_value(TOCALL(index));                                   \
+  return mrb_fixnum_value(TOCALL());                                        \
   }
 
-TORUBY_0ICALLER(tr_scegra_nodes_max, scegra_nodes_max)
+TORUBY_0_ICALLER(tr_scegra_nodes_max, scegra_nodes_max)
+
+#define TORUBY_0_FGETTER(NAME, TOCALL)                                      \
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
+  return mrb_float_value(mrb, TOCALL());                                    \
+  }
+
+TORUBY_0_FGETTER(tr_get_time, al_get_time)
+
 
 
 #define SCEGRA_ICALLER(NAME, TOCALL)                                        \
@@ -685,7 +753,32 @@ static mrb_value tr_scegra_make_image(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(scegra_make_image_style_from(id, bevec(x, y), image_id, sindex));
 }
 
+#define TR_WRAP_NOARG_BOOL(NAME, TOCALL)                                        \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                        \
+  return rh_bool_value(TOCALL());                                               \
+}
 
+#define TR_WRAP_I_BOOL(NAME, TOCALL)                                            \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                        \
+  mrb_int i1;                                                                   \
+  mrb_get_args(mrb, "i", &i1);                                                  \
+  return rh_bool_value(TOCALL(i1));                                             \
+}
+
+#define TR_WRAP_B_BOOL(NAME, TOCALL)                                            \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                        \
+  mrb_value b1;                                                                 \
+  mrb_get_args(mrb, "o", &b1);                                                  \
+  return rh_bool_value(TOCALL(rh_tobool(b1)));                                  \
+}
+
+
+TR_WRAP_NOARG_BOOL(tr_show_fps, global_state_show_fps)
+TR_WRAP_NOARG_BOOL(tr_show_graph, global_state_show_graph)
+TR_WRAP_NOARG_BOOL(tr_show_area, global_state_show_area)
+TR_WRAP_B_BOOL(tr_show_fps_, global_state_show_fps_)
+TR_WRAP_B_BOOL(tr_show_graph_, global_state_show_graph_)
+TR_WRAP_B_BOOL(tr_show_area_, global_state_show_area_)
 
 
 #define TR_METHOD(MRB, CLASS, NAME, IMPL, FLAGS)\
@@ -741,12 +834,28 @@ int tr_init(mrb_state * mrb) {
   TR_METHOD_ARGC(mrb, krn, "thing_new"    , tr_newthing, 7);
   TR_METHOD_ARGC(mrb, krn, "camera_track" , tr_camera_track, 1);
   TR_METHOD_ARGC(mrb, krn, "camera_lockin", tr_lockin_maplayer, 1);
-  TR_METHOD_ARGC(mrb, krn, "tilemap_load" , tr_loadtilemap_vpath, 1);
+  /* TR_METHOD_ARGC(mrb, krn, "tilemap_load" , tr_loadtilemap_vpath, 1); */
   TR_METHOD_ARGC(mrb, krn, "thing_sprite_", tr_thing_sprite_, 2);
   TR_METHOD_ARGC(mrb, krn, "thing_pose_"  , tr_thing_pose_, 2);
   TR_METHOD_ARGC(mrb, krn, "thing_direction_", tr_thing_direction_, 2);
+  TR_METHOD_NOARG(mrb, krn, "active_map", tr_active_map);
+  TR_METHOD_ARGC(mrb, krn, "active_map_", tr_active_map_, 1);
+  
+  TR_CLASS_METHOD_NOARG(mrb, eru, "active_map", tr_active_map);
+  TR_CLASS_METHOD_ARGC(mrb, eru, "active_map_", tr_active_map_, 1);
+  TR_CLASS_METHOD_NOARG(mrb, eru, "show_fps", tr_show_fps);
+  TR_CLASS_METHOD_NOARG(mrb, eru, "show_area", tr_show_area);
+  TR_CLASS_METHOD_NOARG(mrb, eru, "show_graph", tr_show_graph);
+  TR_CLASS_METHOD_ARGC(mrb, eru, "show_fps="  , tr_show_fps_, 1);
+  TR_CLASS_METHOD_ARGC(mrb, eru, "show_area=" , tr_show_area_, 1);
+  TR_CLASS_METHOD_ARGC(mrb, eru, "show_graph=", tr_show_graph_, 1);
+  
+  TR_CLASS_METHOD_NOARG(mrb, eru, "time", tr_get_time);
+  
+  /* 
   TR_METHOD_ARGC(mrb, krn, "actor_index_", tr_actorindex_, 1);
   TR_METHOD_NOARG(mrb, krn, "actor_index", tr_actorindex);
+  */
   
   TR_CLASS_METHOD_ARGC(mrb, thi, "thing_new", tr_newthing, 7);
   TR_CLASS_METHOD_ARGC(mrb, thi, "v"        , tr_thing_v , 1);
@@ -754,7 +863,7 @@ int tr_init(mrb_state * mrb) {
   
   TR_CLASS_METHOD_ARGC(mrb, spr, "get_or_new"    , tr_getornewsprite, 1);
   TR_CLASS_METHOD_ARGC(mrb, spr, "sprite_new"    , tr_newsprite, 1);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "get", tr_sprite, 1);
+  TR_CLASS_METHOD_ARGC(mrb, spr, "get"           , tr_sprite, 1);
   TR_CLASS_METHOD_ARGC(mrb, spr, "load_ulpcss"   , tr_sprite_loadulpcss, 3);
   TR_CLASS_METHOD_ARGC(mrb, spr, "tint_rgba"     , tr_sprite_tint, 6);
 
@@ -770,6 +879,7 @@ int tr_init(mrb_state * mrb) {
   TR_METHOD_ARGC(mrb, krn, "load_ttf_stretch", tr_store_load_ttf_font_stretch, 5);
   TR_METHOD_ARGC(mrb, krn, "load_bitmap_font", tr_store_load_bitmap_font, 2);
   TR_METHOD_ARGC(mrb, krn, "load_bitmap_font_flags", tr_store_load_bitmap, 3);
+  TR_METHOD_ARGC(mrb, krn, "load_tilemap", tr_store_load_tilemap, 3);
  
   
   TR_CLASS_METHOD_ARGC(mrb, sto, "kind", tr_store_kind, 1);
@@ -782,6 +892,11 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_ARGC(mrb, sto, "load_ttf_stretch", tr_store_load_ttf_font_stretch, 5);
   TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_font", tr_store_load_bitmap_font, 2);
   TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_font_flags", tr_store_load_bitmap, 3);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_tilemap", tr_store_load_tilemap, 3);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "mask_to_alpha", tr_image_mask_to_alpha, 4);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "average_to_alpha", tr_image_average_to_alpha, 4);
+  
+  
   
   
   TR_CLASS_METHOD_ARGC(mrb, sto, "drop"           , tr_store_drop, 1);

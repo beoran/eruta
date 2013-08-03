@@ -804,7 +804,7 @@ bumpworld_collide_hulls
   int x, y, z, tx, ty;
   if ((!hull1) || (!hull1->body)) return;
   if ((!hull2) || (!hull2->body)) return;
-  if (!self->map) return;
+  
   serno++;
   bounds1       = bumphull_aabb_next(hull1);
   bounds2       = bumphull_aabb_next(hull2);
@@ -902,10 +902,12 @@ BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
   }
 
   
-  /* Hull to tile map collisions. */
-  for (index = 0; index < self->hull_count; index ++) {
-    BumpHull * hull = dynar_getptr(self->hulls, index);
-    bumpworld_collide_hull_tilemap(self, hull, dt);
+  /* Hull to tile map collisions, if needed. */
+  if (self->map) { 
+    for (index = 0; index < self->hull_count; index ++) {
+      BumpHull * hull = dynar_getptr(self->hulls, index);
+      bumpworld_collide_hull_tilemap(self, hull, dt);
+    }
   }
   
   /* Resolve the hull to hull collisions, taking the lock set by the grid 

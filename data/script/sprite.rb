@@ -91,17 +91,17 @@ class Sprite < Eruta::Sprite
   end  
   
   # Applies a tint to the torso layer of the sprite.
-  def tint_torso(r, g, b, a = 255) 
+  def tint_torso(r, g, b, a = 255)
     tint(SPRITELAYER_TORSO, r, g, b, a)
   end 
   
   # Applies a tint to the hair layer of the sprite.
-  def tint_hair(r, g, b, a = 255) 
+  def tint_hair(r, g, b, a = 255)
     tint(SPRITELAYER_HAIR, r, g, b, a)
   end 
   
   # Loads an ULPCSS formatted sprite sheet as a layer.
-  def load_ulpcss(layer, vpath) 
+  def load_ulpcss(layer, vpath)
     Sprite.ulpcss_load(@id, layer, vpath)
   end
   

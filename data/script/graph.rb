@@ -8,27 +8,34 @@ class Graph < Eruta::Graph
       Graph.register(self)
     end
     
-    def background_color=(r, g, b, a=255)
+    def background_color=(col)
+      r, g, b, a = *col
+      a ||= 255
       Eruta::Graph.background_color_(@id, r, g, b, a)
     end
     
-    def border_color=(r, g, b, a=255)
+    def border_color=(col)
+      r, g, b, a = *col
+      a ||= 255
       Eruta::Graph.border_color_(@id, r, g, b, a)
     end
     
-    def color=(r, g, b, a=255)
+    def color=(col)
+      r, g, b, a = *col
+      a ||= 255
       Eruta::Graph.color_(@id, r, g, b, a)
     end
     
     def border_thickness=(t)
-      Eruta::Graph.border_thickness_(@id, r, g, b, a)
+      Eruta::Graph.border_thickness_(@id, t)
     end
     
     def angle=(a)
       Eruta::Graph.angle_(@id, r, g, b, a)
     end
     
-    def size=(w, h)
+    def size=(size)
+      w, h = *size
       Eruta::Graph.size_(@id, w, h)
     end
   end
@@ -50,9 +57,9 @@ class Graph < Eruta::Graph
     return nil
   end
   
-  def self.make_box(x, y, w, h, rx, ry, style_id = -1)
+  def self.make_box(x, y, w, h, rx = 4, ry = 4, style_id = -1)
     id  = self.get_unused_id
-    nid = Eruta::Graph.make_box(id, x, y, w, h, rw, ry, style_id) 
+    nid = Eruta::Graph.make_box(id, x, y, w, h, rx, ry, style_id) 
     return nil if (nid < 0)
     return Node.new(nid)
   end

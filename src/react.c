@@ -99,27 +99,22 @@ React * react_react(React * self, ALLEGRO_EVENT * event) {
 React * react_poll(React * self, void * state) {
   int res;
   ALLEGRO_EVENT * event;
+  BBConsole * console = state_console(state);
+
   if(!self) return NULL;
   // yes an assignment is fine here :)
-  while( (event = state_pollnew((State *)state)) ) {
-    // React to all incoming events, except if the console catches them.
-    BBConsole * console = state_console(state);
-    if(bbconsole_handle((BBWidget *)console, event) < 1 ) { 
-      event_free(event); // here we must free the event...
-    } else {
-      rh_poll_event(state_ruby(state_get()), event);
-      if(!react_react(self, event))  { 
+  while( (event = state_pollnew((State *)state)) ) { 
+    /* Let react react first, then if that fails, send to the console,
+    but only if it is active. If not active, send the event to ruby */
+    if(!react_react(self, event))  { 
+      if (bbconsole_active(console)) { 
+        bbconsole_handle((BBWidget *)console, event);
+      } else {
         rh_poll_event(state_ruby(state_get()), event);
       }
-      
-      
-      event_free(event);
-      // here we must free the event...
-      // for now still use react system... 
-      // here lua will free the event for us ...
-      // react_react(self, &event);
-      // no more react system...
     }
+    event_free(event);
+    // here we must free the event...
   }
   return self;
 }  

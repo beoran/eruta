@@ -13,8 +13,7 @@
 void * xresor_tilemap_loader(const char * vpath, void * extra_) {  
   Tilemap * map;
   TilemapLoadExtra extra;
-  extra.area = NULL;
-  map = fifi_load_vpath(tilemap_fifi_load, &extra, vpath);
+  map = fifi_load_vpath(tilemap_fifi_load, NULL, vpath);
   return map;
 }
 

@@ -70,8 +70,8 @@ class Thing < Eruta::Thing
     thing_direction_(@id, dir_id)
   end
   
-  def self.actor=(t)
-    @actor = thing
+  def self.actor=(new_actor)
+    @actor = new_actor
   end
 
   def self.actor

@@ -90,26 +90,58 @@ def start_load_stuff
   
 end
 
+FONT_ID = 987
 
 def start_setup_ui
-  box = Eruta::Graph.make_box(51, 570, 10, 60, 240, 4, 4, -1)
-  Eruta::Graph.background_color_(box, 20, 128, 20, 190)
-  Eruta::Graph.border_color_(box, 255, 255, 255, 255)
-  Eruta::Graph.border_thickness_(box, 1)
-  res = load_bitmap(ZIGZAG_LEAF, "image/ui/icon/gin/zigzag-leaf_64.png")
-  puts "start_load_stuff: #{res}"
+  begin 
+  font = Eruta::Store.load_ttf_font(FONT_ID, '/font/Tuffy.ttf', 18, 0)
+  $box_1 = Graph.make_box(570, 10, 60, 240, 4, 4, -1)
+  $box_1.background_color = [ 16, 16, 64, 190 ]
+  $box_1.border_color     = [ 255, 255, 255 ]
+  $box_1.border_thickness = 1
+  
+  #" box  = Eruta::Graph.make_box(51, 570, 10, 60, 240, 4, 4, -1)
+  # Eruta::Graph.background_color_(box, 20, 128, 20, 190)
+  # Eruta::Graph.border_color_(box, 255, 255, 255, 255)
+  # Eruta::Graph.border_thickness_(box, 1)
+  
+  
+  res  = Eruta::Store.load_bitmap(ZIGZAG_LEAF, "image/ui/icon/gin/zigzag-leaf_64.png")
+  res2 = nil
+  # res2 = Eruta::Store.mask_to_alpha(ZIGZAG_LEAF, 0, 0, 0)
+  # res2 = Eruta::Store.average_to_alpha(ZIGZAG_LEAF, 0, 0, 255)
+  
+  puts "start_load_stuff: #{font} #{res} #{res2}"
   img = Eruta::Graph.make_image(52, 123, 245, ZIGZAG_LEAF, -1)
-  Eruta::Graph.color_(img, 20, 200, 20, 190)
-  Eruta::Graph.size_(img, 32, 32)
-  Eruta::Graph.angle_(img, 1.23)
+  
+  
+  # Eruta::Graph.color_(img, 0, 0, 20, 255)
+  Eruta::Graph.size_(img, 16, 16)
+  # Eruta::Graph.angle_(img, 1.23)
   puts "img: #{img}"
+  
+  box = Eruta::Graph.make_text(53, 0, 70, "i"*128, -1)
+  Eruta::Graph.font_(53, FONT_ID)
+  Eruta::Graph.background_color_(53, 0, 0, 0, 255)
+  Eruta::Graph.border_color_(53, 0, 0, 0, 0)
+  rescue Exception
+    puts "#{$!}"
+  end
+end
+
+def start_load_tilemap  
+  $tilemap_id = 20001
+  Eruta.load_tilemap($tilemap_id, 'map/map_0001.tmx')
+  active_map_ $tilemap_id 
 end
 
 def on_start(*args)
-  puts "on_start #{args}"
+  puts "on_start #{args}"  
+  start_load_tilemap
   start_load_sprites
   start_load_stuff
   start_setup_ui
+  actor_switch($thing_100)
   return :ok
 end
 
@@ -143,50 +175,60 @@ def on_update(dt)
       $thing_101.direction = (1 << (8 + $count % 4))
     end
   end
+  # could use Eruta.time as well 
   return nil
 end
 
-def actor_switch(new_id)
-  actor_id = actor_index
-  # Ensure the told thing stops walking. 
-  Thing.v_(actor_id, 0, 0)
-  actor_index_(new_id)
-  camera_track(new_id)
-  return actor_id
+def actor_switch(new_actor)
+  # Ensure the old actor stops walking. 
+  new_actor.v = [ 0, 0 ]
+  Thing.actor = new_actor
+  new_actor.track
+  return new_actor
 end
 
 
 # Handle key down 
 def on_key_down(time, key)
-  actor_id = actor_index
-  vx, vy = Eruta::Thing.v(actor_id)
+  actor         = Thing.actor
+  vx, vy        = * actor.v
   case key
   when KEY_A
-    actor_switch(1)
+    actor_switch($thing_100)
   when KEY_B
-    actor_switch(100)
+    actor_switch($thing_101)
   when KEY_H
     Eruta::Graph.visible_(52, 0)
+  when KEY_M 
+    active_map_ $tilemap_id
+  when KEY_N
+    active_map_ -1
   when KEY_S
     Eruta::Graph.visible_(52, 1)
+  when KEY_F
+    Eruta.show_fps = ! Eruta.show_fps 
+  when KEY_R
+    Eruta.show_area= ! Eruta.show_area
+  when KEY_G
+    Eruta.show_graph= ! Eruta.show_graph 
   when KEY_UP
-    vy -= 50.0
+    vy -= 100.0
   when KEY_DOWN 
-    vy += 50.0
+    vy += 100.0
   when KEY_LEFT
-    vx -= 50.0
+    vx -= 100.0
   when KEY_RIGHT
-    vx += 50.0
+    vx += 100.0
   else
   end 
-  Eruta::Thing.v_(actor_id, vx, vy)
+  actor.v = [vx, vy]
   return nil
 end
 
 # Handle key up
 def on_key_up(time, key)
-  actor_id = actor_index
-  vx, vy = Eruta::Thing.v(actor_id)
+  actor         = Thing.actor
+  vx, vy        = * actor.v
   case key
   when KEY_UP
     vy = 0.0
@@ -198,7 +240,7 @@ def on_key_up(time, key)
     vx = 0.0
   else
   end 
-  Eruta::Thing.v_(actor_id, vx, vy) 
+  actor.v = [vx, vy]
   return nil
 end
 

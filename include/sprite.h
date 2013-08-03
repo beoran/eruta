@@ -190,6 +190,8 @@ Sprite     * spritelist_loadlayer_ulpcss_vpath(
 /* Applies a tint to a whole layer of a sprite. */
 Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color);
 
+
+
 #endif
 
 

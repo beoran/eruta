@@ -66,18 +66,15 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
   Point f = bevec0();
   State * state = (State *) self->data;
   Camera * camera = NULL;
-  Thing * actor_data;
   if (!state) return NULL;
   camera = state_camera(state);
   if (!camera) return NULL;
-  actor_data = state_actor(state);
-  if (actor_data) {
-    f = thing_v(actor_data);
-  }
   switch(event->keycode) {
     /* Console control */
     case ALLEGRO_KEY_F1:
-      bbconsole_active_(state_console(state), TRUE);
+    case ALLEGRO_KEY_F3:
+      /* Toggle the console here. */
+      bbconsole_active_(state_console(state), !bbconsole_active(state_console(state)));
     break;
     case ALLEGRO_KEY_F2:
       bbconsole_active_(state_console(state), FALSE);
@@ -91,32 +88,25 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     case ALLEGRO_KEY_F12:
     case ALLEGRO_KEY_ESCAPE:
       state_done(state);
+      return self;
     break;
     /* Otherwise it's up to the script. */
     default:
       return NULL;
     break;
   }
-  if(actor_data) {
-    thing_v_(actor_data, f);
-  } 
   return self;
 }
 
 
 React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
-  Point f         = bevec0();
-  State * state   = (State *) self->data;
-  Camera * camera = NULL;
-  Thing  * actor_data = NULL;
+  Point f               = bevec0();
+  State * state         = (State *) self->data;
+  Camera * camera       = NULL;
   if (!state) return NULL;
-  camera = state_camera(state);
+  camera                = state_camera(state);
   if (!camera) return NULL;
   // os = camera_speed(camera);
-  actor_data = state_actor(state);
-  if (actor_data) {
-    f = thing_v(actor_data);
-  }
   switch(event->keycode) {
     /*
     case ALLEGRO_KEY_UP:
@@ -135,11 +125,6 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     default:
       return NULL;
     break;
-  }
-  if (actor_data) {
-    thing_v_(actor_data, f);
-  } else {
-    puts("No actor data!");
   }
   return self;
 }
@@ -196,6 +181,7 @@ int real_main(void) {
     //music   = music_load("musictest.ogg");
     // if(!music) perror("musictest.ogg");
     /* Initialize empty sprite and load a few layers. */
+    /*
     sprite_id   = 1;
     sprite      = state_getornewsprite(state, sprite_id);
     sprite      = state_getornewsprite(state, 2);
@@ -220,6 +206,7 @@ int real_main(void) {
     state_sprite_loadulpcss(state, 3, 2, "image/ulpcss/torso/white_shirt_male.png");
     state_sprite_loadulpcss(state, 3, 3, "image/ulpcss/legs/green_pants_male.png");
     state_sprite_loadulpcss(state, 3, 4, "image/ulpcss/feet/brown_shoes_male.png");
+    */
     /*
     spritestate_now_(spritestate, 0, 0);
     if(spritestate_posedirection_(spritestate, SPRITE_WALK, SPRITE_EAST)) {
@@ -231,7 +218,7 @@ int real_main(void) {
 
     /*border  = fifi_loadbitmap("border_004.png",
                             "image", "ui", "background", NULL);*/
-    state_loadtilemap_vpath(state, "map/map_0001.tmx");
+    /* state_loadtilemap_vpath(state, "map/map_0001.tmx");
     map = state_nowmap(state);
     if(!map) {
       puts("Map is NULL!");
@@ -242,7 +229,8 @@ int real_main(void) {
       }
       state_lockin_maplayer(state, 0);
     }
-    
+    */
+    /*
     npc1_id = state_newthingindex(state, 2, THING_MOBILE, 200, 120, 1, 32, 32);
     npc2_id = state_newthingindex(state, 3, THING_MOBILE, 100, 300, 1, 32, 32);
     { int ti; 
@@ -251,12 +239,12 @@ int real_main(void) {
       }
     }
     printf("Things IDs: %d %d %d\n", actor_id, npc1_id, npc2_id);
-
+    */
   // Try to load the mainruby file.
   rh_load_main();
   // And call the on_start function.
   rh_on_start();
-  
+  /*
   if ((actor_id >= 0) && (sprite_id >= 0)) {
     state_actorindex_(state, 1);
     state_thing_sprite_(state, 1, sprite_id);
@@ -269,6 +257,7 @@ int real_main(void) {
     state_thing_pose_(state, 3, SPRITE_WALK);
     state_thing_direction_(state, 3, SPRITE_SOUTH);
   }
+  */
   // spritestate_speedup_(spritestate, 2.0);
   
 #ifdef ERUTA_TEST_SCENE_GRAPH

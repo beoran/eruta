@@ -149,16 +149,20 @@ store_load_bitmap_flags
 
 /* Loads a bitmap and puts it in the storage. */
 Resor * 
-store_load_bitmap
-(int index, const char * vpath) {
+store_load_bitmap(int index, const char * vpath) {
   return store_put(index, resor_load_bitmap(vpath));
 }
 
 
-/* Loads a tile map and puts it in the storage. */
+/* Loads "other" data and puts it in the storage. */
 Resor * 
-store_load_tilemap
-(int index, const char * vpath) {
+store_load_other(int index, const char* vpath, ResorKind kind, ResorLoader* loader, 
+                 ResorDestructor* destroy, void* extra) {
+  return store_put(index, resor_load_other(vpath, kind, loader, destroy, extra));
+}
+
+/* Loads a tile map and puts it in the storage. */
+Resor * store_load_tilemap(int index, const char * vpath) {
   return store_put(index, xresor_load_tilemap(vpath, NULL));
 }
 
@@ -187,6 +191,11 @@ ALLEGRO_SAMPLE * store_get_sample(int index) {
  * sample.*/
 ALLEGRO_AUDIO_STREAM * store_get_audio_stream(int index) {
   return resor_audio_stream(store_get(index));
+}
+
+/* Returns an "other" type of data from storage. */
+void * store_get_other(int index, unsigned kind) {
+  return resor_other(store_get(index), kind);
 }
 
 
@@ -236,5 +245,6 @@ bool store_get_font_descent(int index, int * value) {
 bool store_get_font_line_height(int index, int * value) {
   return resor_get_font_line_height(store_get(index), value);  
 }
+
 
 

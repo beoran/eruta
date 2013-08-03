@@ -62,14 +62,12 @@ Tilemap * tilemap_done(Tilemap * self) {
 
 
 /** Initializes a tile map */
-Tilemap* tilemap_init(Tilemap * self, Tileset * set, int w, int h, Area * area) {
+Tilemap* tilemap_init(Tilemap * self, Tileset * set, int w, int h, Area * unused__) {
   int index;
   if(!self) return NULL;
   self->gridw     = w;
   self->gridh     = h;
   self->set       = set;
-  self->area      = area;
-  area_tilemap_(area, self);
   if(!self->set)   { return NULL; }
   self->panes     = dynar_new(TILEMAP_PANES, sizeof(Tilepane *));
   if(!self->panes) { return NULL; }   
@@ -87,9 +85,9 @@ Tilemap * tilemap_free(Tilemap * map) {
 }
 
 /** Allocates a new tile map and initializes it. */
-Tilemap * tilemap_new(Tileset * set, int w, int h, Area * area ) {
+Tilemap * tilemap_new(Tileset * set, int w, int h, Area * unused__ ) {
   Tilemap * map = STRUCT_ALLOC(Tilemap);
-  if(!tilemap_init(map, set, w, h, area)) {
+  if(!tilemap_init(map, set, w, h, NULL)) {
     return tilemap_free(map);
   }
   return map;

@@ -42,6 +42,20 @@ bool store_get_font_ascent(int index,int *value);
 
 
 
+/* Loads "other" data and puts it in the storage. */
+Resor * 
+store_load_other(int index, const char* vpath, ResorKind kind, ResorLoader* loader, 
+                 ResorDestructor* destroy, void* extra);
+
+/* Loads a tile map and puts it in the storage. */
+Resor * store_load_tilemap(int index, const char * vpath);
+/* Returns a pointer to an "other" type of data from storage. Kind must match. */
+void * store_get_other(int index, unsigned kind);
+
+
+
+
+
 
 #endif /* STORE_H_INCLUDED */ 
 

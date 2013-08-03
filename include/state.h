@@ -105,6 +105,18 @@ int state_thing_direction_(State * state, int thing_index, int direction);
 int state_actorindex_(State * self, int thing_index);
 Thing * state_actor(State * self);
 
+int state_active_map_id(State * state);
+int state_active_map_id_(State * state, int index);
+
+int state_image_mask_to_alpha(State * state, int store_index, int r, int g, int b);
+int state_image_average_to_alpha(State * state, int store_index, int r, int g, int b);
+
+int global_state_show_fps();
+int global_state_show_fps_(int show);
+int global_state_show_graph();
+int global_state_show_graph_(int show);
+int global_state_show_area();
+int global_state_show_area_(int show);
 
 
 

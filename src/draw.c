@@ -120,3 +120,49 @@ void draw_roundframe(int xx, int yy, int ww, int hh, int tt, Color fg, Color bg)
 }
 
 
+
+/* Function that maps black to transparent black, white to transparent white, and 
+ * any grayscale or color in between to white with an alpha value
+ * that corresponds to the average of the r, g and b components. Mosty for use 
+ * with the "GIN" icons. The color in draw color will be used for the r, g and b
+ * of the color (premultiplied by the average as well)
+ */
+bool draw_convert_average_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR draw_color)
+{
+   ALLEGRO_LOCKED_REGION *lr;
+   int x, y;
+   float dr, dg, db;
+   float avg, r, g, b;
+   ALLEGRO_COLOR pixel;
+   ALLEGRO_COLOR alpha_pixel;
+   ALLEGRO_STATE state;
+
+   if (!(lr = al_lock_bitmap(bitmap, ALLEGRO_PIXEL_FORMAT_ANY, 0))) {
+      return FALSE;
+   }
+
+   al_store_state(&state, ALLEGRO_STATE_TARGET_BITMAP);
+   al_set_target_bitmap(bitmap);
+
+   alpha_pixel = al_map_rgba(0, 0, 0, 0);
+   al_unmap_rgb_f(draw_color, &dr, &dg, &db);
+
+   for (y = 0; y < al_get_bitmap_height(bitmap); y++) {
+      for (x = 0; x < al_get_bitmap_width(bitmap); x++) {
+         pixel = al_get_pixel(bitmap, x, y);
+         al_unmap_rgb_f(pixel, &r, &g, &b);
+         avg = (r + g + b) / 3.0;  
+         alpha_pixel = al_map_rgba_f(dr * avg, dg * avg, db * avg, avg);
+         al_put_pixel(x, y, alpha_pixel);
+      }
+   }
+
+   al_unlock_bitmap(bitmap);
+
+   al_restore_state(&state);
+   return TRUE;
+}
+
+
+
+

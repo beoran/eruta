@@ -88,6 +88,11 @@ Thing * thing_newdynamic(Area * area,
 void area_draw_layer (Area * self, Camera * camera, int layer);
 
 
+/* There are some tile map related functionalities that are declared in tilemap.h 
+ * in stead to avoid cyclical dependencies. 
+ */
+
+
 #ifdef COMMENT_
 int thing_track (Tracker * tracker , void * data );
 

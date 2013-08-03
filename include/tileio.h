@@ -16,7 +16,7 @@
 typedef struct TilemapLoadExtra_ TilemapLoadExtra;
 
 struct TilemapLoadExtra_ {
-  Area * area;
+  int unused__;
 };
 
 
