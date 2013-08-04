@@ -419,14 +419,16 @@ int rh_errorreporter_file(int status, const char * msg, void * extra) {
   return fprintf((FILE *) extra, "Error %d: %s\n", status, msg);
 }
 
-/* Error report to console */
+/* Error report to console, AND to stderr if available. */
 int rh_errorreporter_console(int status, const char * msg, void * extra) {
   char buf[80]; 
   if (status != 0) { 
     snprintf(buf, 80, "Error %d:", status);
     bbconsole_puts((BBConsole *)extra, buf);
+    fprintf(stderr, "Error %d:\n", status);
   } 
   bbconsole_puts((BBConsole *)extra, msg);
+  fprintf(stderr, "%s\n", msg);
   return 0;
 }
 

@@ -2,10 +2,11 @@
 
 # Load keycodes
 script "keycode.rb"
-# Load thing OO wrapper
+# Load OO wrappers
 script "thing.rb"
 script "sprite.rb"
 script "graph.rb"
+script "store.rb"
 
 
 
@@ -106,13 +107,15 @@ def start_setup_ui
   # Eruta::Graph.border_thickness_(box, 1)
   
   
-  res  = Eruta::Store.load_bitmap(ZIGZAG_LEAF, "image/gin/zigzag-leaf_64.png")
+  $zigzag = Store.load_bitmap("image/gin/zigzag-leaf_64.png")
   res2 = nil
+  puts "start_load_stuff: #{font}, #{res2}, #{$zigzag},"
+    
   # res2 = Eruta::Store.mask_to_alpha(ZIGZAG_LEAF, 0, 0, 0)
-  # res2 = Eruta::Store.average_to_alpha(ZIGZAG_LEAF, 0, 0, 255)
+  res2 = $zigzag.average_to_alpha(0, 0, 255)
   
-  puts "start_load_stuff: #{font} #{res} #{res2}"
-  img = Eruta::Graph.make_image(52, 123, 245, ZIGZAG_LEAF, -1)
+  puts "start_load_stuff: #{font}, #{res2}, #{$zigzag},"
+  img = Eruta::Graph.make_image(52, 123, 245, $zigzag.id, -1)
   
   
   # Eruta::Graph.color_(img, 0, 0, 20, 255)
@@ -120,7 +123,7 @@ def start_setup_ui
   # Eruta::Graph.angle_(img, 1.23)
   puts "img: #{img}"
   
-  box = Eruta::Graph.make_text(53, 0, 70, "i"*128, -1)
+  box = Eruta::Graph.make_text(53, 0, 70, "i"*256, -1)
   Eruta::Graph.font_(53, FONT_ID)
   Eruta::Graph.background_color_(53, 0, 0, 0, 255)
   Eruta::Graph.border_color_(53, 0, 0, 0, 0)
@@ -131,8 +134,8 @@ end
 
 def start_load_tilemap  
   $tilemap_id = 20001
-  Eruta.load_tilemap($tilemap_id, 'map/map_0001.tmx')
-  active_map_ $tilemap_id 
+  $tilemap_1 = Store.load_tilemap('map/map_0001.tmx', $tilemap_id)
+  active_map_ $tilemap_1.id 
 end
 
 def on_start(*args)
@@ -200,9 +203,9 @@ def on_key_down(time, key)
   when KEY_H
     Eruta::Graph.visible_(52, 0)
   when KEY_M 
-    active_map_ $tilemap_id
+    active_map_($tilemap_id)
   when KEY_N
-    active_map_ -1
+    active_map_(-1)
   when KEY_S
     Eruta::Graph.visible_(52, 1)
   when KEY_F

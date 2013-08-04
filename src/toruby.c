@@ -892,7 +892,7 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_ARGC(mrb, sto, "load_ttf_stretch", tr_store_load_ttf_font_stretch, 5);
   TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_font", tr_store_load_bitmap_font, 2);
   TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_font_flags", tr_store_load_bitmap, 3);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_tilemap", tr_store_load_tilemap, 3);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "load_tilemap", tr_store_load_tilemap, 2);
   TR_CLASS_METHOD_ARGC(mrb, sto, "mask_to_alpha", tr_image_mask_to_alpha, 4);
   TR_CLASS_METHOD_ARGC(mrb, sto, "average_to_alpha", tr_image_average_to_alpha, 4);
   
@@ -906,7 +906,7 @@ int tr_init(mrb_state * mrb) {
   
   TR_CLASS_METHOD_ARGC(mrb, sto, "font_ascent"    , tr_store_get_font_ascent, 1);
   TR_CLASS_METHOD_ARGC(mrb, sto, "font_descent"   , tr_store_get_font_descent, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "font_ascent"    , tr_store_get_font_line_height, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "font_line_height", tr_store_get_font_line_height, 1);
   TR_CLASS_METHOD_ARGC(mrb, sto, "text_dimensions", tr_store_get_text_dimensions, 2);
   TR_CLASS_METHOD_ARGC(mrb, sto, "text_width"     , tr_store_get_text_width, 2);
   
