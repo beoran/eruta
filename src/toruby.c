@@ -11,6 +11,7 @@
 #include "fifi.h"
 #include "store.h"
 #include "scegra.h"
+#include "sound.h"
 #include <mruby/hash.h>
 #include <mruby/class.h>
 #include <mruby/data.h>
@@ -753,23 +754,51 @@ static mrb_value tr_scegra_make_image(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(scegra_make_image_style_from(id, bevec(x, y), image_id, sindex));
 }
 
-#define TR_WRAP_NOARG_BOOL(NAME, TOCALL)                                        \
-static mrb_value NAME(mrb_state * mrb, mrb_value self) {                        \
-  return rh_bool_value(TOCALL());                                               \
+#define TR_WRAP_NOARG_BOOL(NAME, TOCALL)                                       \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  return rh_bool_value(TOCALL());                                              \
 }
 
-#define TR_WRAP_I_BOOL(NAME, TOCALL)                                            \
-static mrb_value NAME(mrb_state * mrb, mrb_value self) {                        \
-  mrb_int i1;                                                                   \
-  mrb_get_args(mrb, "i", &i1);                                                  \
-  return rh_bool_value(TOCALL(i1));                                             \
+#define TR_WRAP_I_BOOL(NAME, TOCALL)                                           \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  mrb_int i1;                                                                  \
+  mrb_get_args(mrb, "i", &i1);                                                 \
+  return rh_bool_value(TOCALL(i1));                                            \
 }
 
-#define TR_WRAP_B_BOOL(NAME, TOCALL)                                            \
-static mrb_value NAME(mrb_state * mrb, mrb_value self) {                        \
-  mrb_value b1;                                                                 \
-  mrb_get_args(mrb, "o", &b1);                                                  \
-  return rh_bool_value(TOCALL(rh_tobool(b1)));                                  \
+#define TR_WRAP_B_BOOL(NAME, TOCALL)                                           \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  mrb_value b1;                                                                \
+  mrb_get_args(mrb, "o", &b1);                                                 \
+  return rh_bool_value(TOCALL(rh_tobool(b1)));                                 \
+}
+
+#define TR_WRAP_I_INT(NAME, TOCALL)                                            \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  mrb_int i1;                                                                  \
+  mrb_get_args(mrb, "i", &i1);                                                 \
+  return mrb_fixnum_value(TOCALL(i1));                                         \
+}
+
+#define TR_WRAP_IIII_INT(NAME, TOCALL)                                         \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  mrb_int i1, i2, i3, i4;                                                      \
+  mrb_get_args(mrb, "iiii", &i1, &i2, &i3, &i4);                               \
+  return mrb_fixnum_value(TOCALL(i1, i2, i3, i4));                             \
+}
+
+#define TR_WRAP_IIIIB_INT(NAME, TOCALL)                                        \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  mrb_int i1, i2, i3, i4;                                                      \
+  mrb_value b5;                                                                \
+  mrb_get_args(mrb, "iiiib", &i1, &i2, &i3, &i4, &b5);                         \
+  return mrb_fixnum_value(TOCALL(i1, i2, i3, i4, rh_tobool(b5)));              \
+}
+
+
+#define TR_WRAP_NOARG_INT(NAME, TOCALL)                                        \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  return mrb_fixnum_value(TOCALL());                                           \
 }
 
 
@@ -779,6 +808,18 @@ TR_WRAP_NOARG_BOOL(tr_show_area, global_state_show_area)
 TR_WRAP_B_BOOL(tr_show_fps_, global_state_show_fps_)
 TR_WRAP_B_BOOL(tr_show_graph_, global_state_show_graph_)
 TR_WRAP_B_BOOL(tr_show_area_, global_state_show_area_)
+
+
+TR_WRAP_NOARG_INT(tr_playing_samples_max, audio_playing_samples_max)
+TR_WRAP_IIIIB_INT(tr_play_sound_ex, audio_play_sound_ex)
+TR_WRAP_I_INT(tr_play_sound, audio_play_sound)
+TR_WRAP_I_BOOL(tr_stop_sound,audio_stop_sound)
+
+TR_WRAP_I_BOOL(tr_set_music, audio_set_music)
+TR_WRAP_NOARG_BOOL(tr_play_music, audio_play_music)
+TR_WRAP_NOARG_BOOL(tr_stop_music, audio_stop_music)
+TR_WRAP_NOARG_BOOL(tr_music_playing_p, audio_music_playing_p)
+
 
 
 #define TR_METHOD(MRB, CLASS, NAME, IMPL, FLAGS)\
@@ -810,17 +851,22 @@ int tr_init(mrb_state * mrb) {
   struct RClass *spr;
   struct RClass *thi;
   struct RClass *eru;
+  struct RClass *aud;
+  
   eru = mrb_define_module(mrb, "Eruta");
-  pth = mrb_define_class_under(mrb, eru, "Path", mrb->object_class);
+  pth = mrb_define_class_under(mrb, eru, "Path"  , mrb->object_class);
   MRB_SET_INSTANCE_TT(pth, MRB_TT_DATA);
   /* Storage. */
-  sto = mrb_define_class_under(mrb, eru, "Store", mrb->object_class);
+  sto = mrb_define_class_under(mrb, eru, "Store" , mrb->object_class);
   /* Scene graph. */
-  gra = mrb_define_class_under(mrb, eru, "Graph", mrb->object_class);
+  gra = mrb_define_class_under(mrb, eru, "Graph" , mrb->object_class);
   /* Entities. */
-  thi = mrb_define_class_under(mrb, eru, "Thing", mrb->object_class);
+  thi = mrb_define_class_under(mrb, eru, "Thing" , mrb->object_class);
   /* Sprites */
   spr = mrb_define_class_under(mrb, eru, "Sprite", mrb->object_class);
+  /* Audio */
+  aud = mrb_define_class_under(mrb, eru, "Audio" , mrb->object_class);
+  
   krn = mrb_class_get(mrb, "Kernel");
   if(!krn) return -1;
   TR_METHOD_ARGC(mrb, krn, "test",  tr_test, 1);
@@ -934,6 +980,16 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_ARGC(mrb, gra, "make_box"         , tr_scegra_make_box,  8); 
   TR_CLASS_METHOD_ARGC(mrb, gra, "make_image"       , tr_scegra_make_image, 5); 
   TR_CLASS_METHOD_ARGC(mrb, gra, "make_text"        , tr_scegra_make_text, 5); 
+  
+  // Audio 
+  TR_CLASS_METHOD_NOARG(mrb, aud, "playing_sounds_max", tr_playing_samples_max);
+  TR_CLASS_METHOD_ARGC(mrb, aud , "play_sound_ex"     , tr_play_sound_ex, 4);
+  TR_CLASS_METHOD_ARGC(mrb, aud , "play_sound"        , tr_play_sound, 1);
+  TR_CLASS_METHOD_ARGC(mrb, aud , "stop_sound"        , tr_stop_sound, 1);
+  TR_CLASS_METHOD_ARGC(mrb, aud , "music_id="         , tr_set_music, 1);
+  TR_CLASS_METHOD_NOARG(mrb, aud , "play_music"       , tr_play_music);
+  TR_CLASS_METHOD_NOARG(mrb, aud , "stop_music"       , tr_stop_music);
+  TR_CLASS_METHOD_NOARG(mrb, aud , "music_playing?"   , tr_music_playing_p);
   
    
   // must restore gc area here ????

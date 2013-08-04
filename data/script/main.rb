@@ -8,6 +8,9 @@ script "sprite.rb"
 script "graph.rb"
 script "store.rb"
 
+# Main menu
+script "mainmenu.rb"
+
 
 
 
@@ -138,13 +141,34 @@ def start_load_tilemap
   active_map_ $tilemap_1.id 
 end
 
+# 
+# def load_main_menu
+#   $main_music   = Store.load_audio_stream('/music/hiver_com64.ogg')
+#   $main_back    = Store.load_bitmap('/image/background/eruta_mainmenu.png')
+#   $main_graph   = Graph.make_image(0, 0, $main_back.id)
+#   Eruta::Audio.music_id = $main_music.id
+#   res = Eruta::Audio.play_music
+#   puts "play_music #{res} #{$main_music.id}"
+# end
+
+def do_main_menu
+  $main_menu = MainMenu.new
+  $main_menu.active = true 
+end
+
+START_TEST_MAP = false
+
 def on_start(*args)
-  puts "on_start #{args}"  
-  start_load_tilemap
-  start_load_sprites
-  start_load_stuff
-  start_setup_ui
-  actor_switch($thing_100)
+  puts "on_start #{args}"
+  do_main_menu()
+  
+  if START_TEST_MAP
+    start_load_tilemap
+    start_load_sprites
+    start_load_stuff
+    start_setup_ui
+    actor_switch($thing_100)
+  end
   return :ok
 end
 
@@ -250,14 +274,19 @@ end
 
 # Called when an input event occurs 
 def on_poll(*args)
-  type = args.shift
-  meth = "on_#{type}".to_sym
-  if self.respond_to?(meth) 
-    self.send(meth, *args)
+  if $main_menu && $main_menu.active
+    $main_menu.on_poll(*args)
+    nil
   else
-    # ignore 
-    # puts "input #{type} #{meth} #{args}"
-  end  
+    type = args.shift
+    meth = "on_#{type}".to_sym
+    if self.respond_to?(meth) 
+      self.send(meth, *args)
+    else
+      # ignore 
+      # puts "input #{type} #{meth} #{args}"
+    end
+  end
 end
 
 

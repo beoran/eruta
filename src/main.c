@@ -137,7 +137,6 @@ int real_main(void) {
     Tileset  * tileset  = NULL;
     Tile     * tile     = NULL;
     State    * state    = NULL;
-    Music    * music    = NULL;
     Camera   * camera   = NULL;
     Tilepane * tilepane = NULL;
     Tilemap  * map      = NULL;
@@ -178,7 +177,6 @@ int real_main(void) {
     puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
 
     camera  = state_camera(state);
-    //music   = music_load("musictest.ogg");
     // if(!music) perror("musictest.ogg");
     /* Initialize empty sprite and load a few layers. */
     /*

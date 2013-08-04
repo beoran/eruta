@@ -190,6 +190,10 @@ State * state_alloc() {
 
 /** Frees a state struct. */
 void state_free(State * self) {
+  
+  /* Shut down audio */
+  audio_done();
+  
   spritelist_free(self->sprites);
   self->sprites = NULL;
   area_free(self->area);
@@ -206,7 +210,7 @@ void state_free(State * self) {
   // font_free(self->font);
   al_destroy_display(self->display);
   camera_free(self->camera);
-  audio_stop();
+
   al_uninstall_system();
   STRUCT_FREE(self);
 }
@@ -493,7 +497,9 @@ State * state_init(State * self, BOOL fullscreen) {
     perror("Joysticks not started.");
   }
 
-  if(!audio_start()) {
+  /* Set up the audio system */
+  self->audio = audio_init();
+  if(!self->audio) {
     perror("Sound not started.");
   }
 
@@ -588,6 +594,9 @@ State * state_init(State * self, BOOL fullscreen) {
   self->show_area = TRUE;
   self->show_fps  = TRUE;
   self->show_graph= TRUE;
+  
+  
+  
   
   return self;
 }
