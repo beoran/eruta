@@ -13,11 +13,6 @@ struct Audio_;
 typedef struct Audio_ Audio;
 
 
-/* This file was generated with:
-'cfunctions -c -aoff -n -w sound_proto src/sound.c' */
-#ifndef CFH_SOUND_PROTO
-#define CFH_SOUND_PROTO
-
 /* From 'src/sound.c': */
 
 Audio * audio_done (Audio * audio );
@@ -48,7 +43,30 @@ Sound * sound_playback (Sound * sound , float gain , float pan , float speed , B
 
 Sound * sound_play (Sound * sound );
 
-#endif /* CFH_SOUND_PROTO */
+
+/* New api based on "global" state. */
+
+int audio_init_global();
+int audio_done_global();
+int audio_samples_max();
+
+int audio_play_sample_ex
+(int store_id, float gian, float pan, float speed, BOOL loop);
+
+int audio_play_sample(int store_id);
+int audio_stop_sample(int play_id);
+
+int audi_sample_playing_p(int play_id);
+
+int audio_play_id();
+int audio_play_music(int store_id);
+int audio_stop_music();
+int audio_pause_music();
+int audio_music_playing_p();
+
+
+
 
 
 #endif
+
