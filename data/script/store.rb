@@ -66,10 +66,10 @@ class Store
     end 
   end
    
-  # Loads a truetype or opentype font 
-  def self.load_ttf_font(vpath, height, flags, id = nil)
+  # Loads a truetype or opentype font
+  def self.load_ttf_font(vpath, height, flags = 0, id = nil)
     load_something(id) do | nid |
-      Eruta::Store.load_ttf_font(nid, vpath, height, flags)
+      Eruta::Store.load_ttf_font(nid, vpath, height, flags=0)
     end 
   end
    

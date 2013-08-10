@@ -8,6 +8,10 @@ script "sprite.rb"
 script "graph.rb"
 script "store.rb"
 
+# Load UI subsystem.
+script 'zori.rb'
+
+
 # Main menu
 script "mainmenu.rb"
 
@@ -160,6 +164,8 @@ START_TEST_MAP = false
 
 def on_start(*args)
   puts "on_start #{args}"
+  Zori.open
+
   do_main_menu()
   
   if START_TEST_MAP
@@ -247,7 +253,7 @@ def on_key_down(time, key)
   when KEY_RIGHT
     vx += 100.0
   else
-  end 
+  end
   actor.v = [vx, vy]
   return nil
 end
@@ -274,16 +280,18 @@ end
 
 # Called when an input event occurs 
 def on_poll(*args)
-  if $main_menu && $main_menu.active
-    $main_menu.on_poll(*args)
-    nil
+  # Send to Zori ui first. If it returns non-nil the event is handled, 
+  # otherwise, pass on to key handler.
+  res = Zori.on_event(*args)
+  if res
+    return nil
   else
     type = args.shift
     meth = "on_#{type}".to_sym
-    if self.respond_to?(meth) 
+    if self.respond_to?(meth)
       self.send(meth, *args)
     else
-      # ignore 
+      # ignore
       # puts "input #{type} #{meth} #{args}"
     end
   end

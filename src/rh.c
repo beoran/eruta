@@ -395,9 +395,14 @@ mrb_value rh_dofunctionreport(Ruby * self,
   int res = 0;
   char * str;
   mrb_value v;
+  mrb_sym symname = mrb_intern(self, funcname);
   int ai;
-  ai = mrb_gc_arena_save(self);
+  if(!mrb_respond_to(self, rubyself, )) {
+    return mrb_nil_value();
+  }  
   
+  ai = mrb_gc_arena_save(self);
+  mrb_gc_mark();
   v = mrb_funcall_argv(self, rubyself, mrb_intern(self, funcname), argc, argv);
   res = rh_make_report(self, v, reporter, extra);
   mrb_gc_arena_restore(self, ai);

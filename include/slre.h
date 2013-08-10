@@ -89,7 +89,9 @@
 // If SLRE_CALLBACK is passed as the first variable arument, then the 2 next 
 // arguments must be a function pointer of the type * slre_callback, and a void *
 // that points to extra data or to NULL. The callback will be called once 
-// for every match.
+// for every match. It should return 0 to signal success or any of slre_result
+// to signal failure. The nonzero result of the callback will be returned from 
+// slre_match().
 //
 // If SLRE_CAPTURED is passed, addresses to slre_captured structs must be passed 
 // for storage of the results.
