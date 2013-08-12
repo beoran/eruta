@@ -1,0 +1,28 @@
+Design of the Eruta Zori UI Library. 
+
+Goal: Simplified yet complete UI library. 
+
+Ideas:
+
+The UI consists of multiple pages. Only one page can be active at the 
+time, however, every page remembers it's last state, and may be visible
+under the current active page, if so desired for aestectic or practical
+reasons.
+
+The default page is the main UI that is always active for displaying the 
+HUD.
+
+Pages may have borders and background colors or images. 
+
+On every page there are one or more controls. Controls are higher level 
+divisions of the UI, such as a vertical or horizontal menu, a dialog 
+box, a question box, etc. Controls may overlap each other, but only if 
+they do not respond to input. Only one control that responds to input 
+may be displayed overlapping other non-input controls, this to simplify 
+mouse click input.
+
+Controls in tun are made up out of elements. Elements are elementary 
+GUI parts such as buttons, labels, images.
+
+
+
