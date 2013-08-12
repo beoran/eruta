@@ -2,42 +2,82 @@
 class Graph < Eruta::Graph
   class Node
     attr_accessor :id
-    
+  
     def initialize(id) 
       @id = id
       Graph.register(self)
     end
-    
+  
     def background_color=(col)
       r, g, b, a = *col
       a ||= 255
       Eruta::Graph.background_color_(@id, r, g, b, a)
     end
-    
+  
     def border_color=(col)
       r, g, b, a = *col
       a ||= 255
       Eruta::Graph.border_color_(@id, r, g, b, a)
     end
-    
+  
     def color=(col)
       r, g, b, a = *col
       a ||= 255
       Eruta::Graph.color_(@id, r, g, b, a)
     end
-    
+  
     def border_thickness=(t)
       Eruta::Graph.border_thickness_(@id, t)
     end
-    
+  
     def angle=(a)
       Eruta::Graph.angle_(@id, r, g, b, a)
     end
-    
+  
     def size=(size)
       w, h = *size
       Eruta::Graph.size_(@id, w, h)
     end
+  
+    def visible=(value) 
+      Eruta::Graph.visible_(@id, value)
+    end
+  
+    def z
+      Eruta::Graph.z(@id)
+    end
+  
+    def z=(newz)
+      Eruta::Graph.z_(@id, z)
+    end
+  
+    def font=(store_id) 
+      Eruta::Graph.font_(@id, store_id)
+    end
+  
+    def image=(store_id) 
+      Eruta::Graph.image_(@id, store_id)
+    end
+  
+    def background_image=(store_id) 
+      Eruta::Graph.background_image_(@id, store_id)
+    end
+  
+    def speed=(v) 
+      x, y = *v
+      Eruta::Graph.font_(@id, x, y)
+    end
+  
+    def size=(sz) 
+      x, y = *sz
+      Eruta::Graph.size_(@id, x, y)
+    end
+  
+    def position=(p) 
+      x, y = *p
+      Eruta::Graph.position_(@id, x, y)
+    end
+
   end
   
   def self.registry
@@ -79,16 +119,4 @@ class Graph < Eruta::Graph
   end
   
 end
-
-
-
-
-
-
-
-
-
-
-
-
 

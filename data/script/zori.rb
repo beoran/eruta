@@ -63,7 +63,7 @@ module Zori
   script 'zori/rect.rb'
   script 'zori/state.rb'
   script 'zori/capability.rb'
-  
+  script 'zori/graphic.rb'
   
   script 'zori/page.rb'
   
@@ -130,6 +130,13 @@ module Zori
   def self.active
     p @hanao
     return @hanao
+  end
+  
+  # Makes a new UI page 
+  def self.make_page(name)
+    page = Zori::Page.new(name)
+    yield page if block_given?
+    return page
   end
 
   # send an event to the UI subsystem. this may NOT be named on_poll

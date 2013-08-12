@@ -10,6 +10,9 @@
 # 
 module Zori
   class Page
+    include Zori::Graphic
+    
+    
     attr_reader :name
     attr_reader :widgets
     attr_reader :state
@@ -17,23 +20,24 @@ module Zori
 
     # Creates a new UI page with the given name.
     def initialize(name)
+      super()
       @can      = Capability.new
       @state    = State.new
       @name     = name.to_sym
       @widgets  = []
-      self.class.register(page)
+      self.class.register(self)
     end
     
     # Unregisters a page
     def self.register(page)
       @pages ||= {}
-      @pages[page.id] = page
+      @pages[page.name] = page
     end
     
     # Registers a page
     def self.unregister(page)
       @pages ||= {}
-      @pages[page.id] = nil
+      @pages[page.name] = nil
     end
     
     # Returns the page for the given name. 
@@ -51,7 +55,7 @@ module Zori
     # Returns the currently active page id or nil for none.
     def self.active_id
       return nil unless @active
-      return @active.id
+      return @active.name
     end
     
     # Activates the named page, and passes the data if any.
@@ -91,7 +95,7 @@ module Zori
         res = widget.on_event(*data)
         return res if res
       end
-      res = on_page_event(fata)
+      res = on_page_event(*data)
     end
 
     # Called when an event comes in from the Eruta engine.
