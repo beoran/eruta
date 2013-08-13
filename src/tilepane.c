@@ -390,7 +390,7 @@ void tilepane_draw_blends(Tilepane * pane, Camera * camera) {
   int tx_index    = 0;
   int realwide    = pane->realwide;
   int realhigh    = pane->realhigh;
-  Tile ** row     = NULL;
+  void * row      = NULL;
   Tile * tile     = NULL;
   Image* blend    = NULL;
   Color color     = al_map_rgb(200,200,200);
@@ -408,8 +408,8 @@ void tilepane_draw_blends(Tilepane * pane, Camera * camera) {
   for (ty_index = tystart; ty_index < tystop ; ty_index++) {
     drawy        += tilehigh;
     drawx         = -x + TIMES_TILEWIDE(txstart-1);
-    row           = (Tile **) pointergrid_rowraw(pane->tiles, ty_index);
-    if(!row) continue;
+    row           = pointergrid_rowraw(pane->tiles, ty_index);
+    if (!row) continue;
     for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
       drawx      += tilewide;
       blend = pointergrid_fetch(pane->blends, tx_index, ty_index);
@@ -451,7 +451,7 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
   int tx_index    = 0;
   int realwide    = pane->realwide;
   int realhigh    = pane->realhigh;
-  Tile ** row     = NULL;
+  void * row      = NULL;
   Tile * tile     = NULL;
   Image* blend    = NULL;
   Color color     = al_map_rgb(200,200,200);
@@ -469,11 +469,13 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
   for (ty_index = tystart; ty_index < tystop ; ty_index++) {
     drawy        += tilehigh;
     drawx         = -x + TIMES_TILEWIDE(txstart-1);
-    row           = (Tile **) pointergrid_rowraw(pane->tiles, ty_index);
+    row           =  pointergrid_rowraw(pane->tiles, ty_index);
     if(!row) continue;
     for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
       drawx      += tilewide;
-      tile        = row[tx_index];
+      tile        = pointergrid_fetch(pane->tiles, tx_index, ty_index);
+
+// row[tx_index];
       // Null tile will not be drawn by tile_draw
       /* tile_draw(tile, drawx, drawy); */
       if(tile) {

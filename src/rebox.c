@@ -25,7 +25,7 @@ Rebox * rebox_init(Rebox * self, int x, int y, int w, int h) {
 }
 
 /** Returns a newly initialised rectangular box. */
-Rebox rebox_new(cpFloat x, cpFloat y, cpFloat w, cpFloat h) {
+Rebox rebox_new(float x, float y, float w, float h) {
   Rebox result;
   /** Avoid negative widths and heights by adjusting x and y accordingly */
   if (w < 0) { x = x - w ; w = -w ; } 

@@ -63,11 +63,6 @@ int thing_pose_(Thing * thing, int pose);
 int thing_direction_(Thing * thing, int direction);
 
 
-cpShape * shape_rectnew(cpBody * body, 
-                        cpFloat x, cpFloat y, cpFloat w, cpFloat h, 
-                        cpFloat xoff, cpFloat yoff
-                        );
-
 int thing_static_p(Thing * self);
 
 
