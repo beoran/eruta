@@ -443,7 +443,7 @@ bbtextinfo_linefromtext(BBTextInfo * self, USTR * ustr, Font * font) {
   USTR_INFO  lineuinfo;
   const USTR     * line;
 
-  USTR_INFO  worduinfo = { 0 };
+  USTR_INFO  worduinfo = { 0, 0, 0};
   const USTR     * word;
   int ch;
   int index;
@@ -626,7 +626,7 @@ int bbconsole_puts(BBConsole * self, const char * str) {
   int leftsize = size;
   int lines = 0;
   USTR_INFO uinfo;
-  BBTextInfo info = { 0 };
+  BBTextInfo info = { 0, 0, 0, 0};
   info.maxwidth   = bbwidget_w(&self->widget) - 10;
   USTR * ustr;
   const USTR * uline;

@@ -27,7 +27,7 @@ Rebox * rebox_initbounds (Rebox * self , Rebox bounds );
 
 Rebox * rebox_init (Rebox * self , int x , int y , int w , int h );
 
-Rebox rebox_new (cpFloat x , cpFloat y , cpFloat w , cpFloat h );
+Rebox rebox_new (float x , float y , float w , float h );
 
 Point rebox_at (Rebox * self );
 

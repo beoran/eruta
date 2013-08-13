@@ -33,8 +33,6 @@ int area_thingid (Area * self );
 
 Thing * area_addthing (Area * area , int index, Thing * thing);
 
-cpBody * area_staticbody (Area * area );
-
 int area_deletething (Area * area , int index );
 
 Area * area_cleanupthings (Area * self );
@@ -50,8 +48,6 @@ Area * area_alloc(void);
 Area * area_init (Area * self );
 
 Area * area_new(void);
-
-cpSpace * area_space (Area * self );
 
 Thing * 
 area_newstatic(Area * self, int index, int kind , int x , int y , int z , int w , int h);

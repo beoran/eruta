@@ -21,7 +21,6 @@ set(ERUTA_SRC_FILES
   src/bump.c
   src/bxml.c
   src/camera.c
-  src/ch.c
   src/collide.c
   src/draw.c
   src/dynar.c

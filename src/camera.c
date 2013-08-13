@@ -1,4 +1,3 @@
-#include <chipmunk.h>
 #include "eruta.h"
 #include "camera.h"
 #include "camera_struct.h"
@@ -292,8 +291,8 @@ int camera_applypanners(Camera * self) {
   Point delta;
   Point vspeed;
   Panner * panner;
-  cpFloat speed, length;
-  cpFloat ratio;
+  float speed, length;
+  float ratio;
   if(!camera_panning_p(self)) return -1;
   /* Immediate panning. */
   panner = &self->panners->panner;
@@ -368,88 +367,92 @@ Camera * camera_update(Camera * self) {
   return self;
 }
 
+Rebox * camera_rebox(Camera * self) {
+ return &self->box;
+}
+
 /** Return position of camera top left corner. */
 Point camera_at(Camera * self) {
-  return rebox_at((Rebox *)self);
+  return rebox_at(camera_rebox(self));
 }
 
 /** Return position of camera bottom top left corner. */
 Point camera_br(Camera * self) {
-  return rebox_br((Rebox *)self);
+  return rebox_br(camera_rebox(self));
 }
 
 /** Sets position by individual components. */
 Point camera_at_x_(Camera * self, float x) {
-  return rebox_x_((Rebox *)self, x);
+  return rebox_x_(camera_rebox(self), x);
 }
 
 /** Sets position by individual components. */
 Point camera_at_y_(Camera * self, float y) {
-  return rebox_y_((Rebox *)self, y);
+  return rebox_y_(camera_rebox(self), y);
 }
 
 
 /** Sets position by individual components. */
 Point camera_at_xy_(Camera * self, float x, float y) {
-  return rebox_xy_((Rebox *)self, x, y);
+  return rebox_xy_(camera_rebox(self), x, y);
 }
 
 /** Sets position. */
 Point camera_at_(Camera * self, Point at) {
-  return rebox_at_((Rebox *)self, at);
+  return rebox_at_(camera_rebox(self), at);
 }
 
 
 /** Return x position of camera top left corner. */
 float camera_at_x(Camera * self) {
-  return rebox_x((Rebox *)self);
+  return rebox_x(camera_rebox(self));
 }
 
 
 /** Return y position of camera top left corner. */
 float camera_at_y(Camera * self) {
-  return rebox_y((Rebox *)self);
+  return rebox_y(camera_rebox(self));
 }
 
 /** Return width of camera view. */
 float camera_w(Camera * self) {
-  return rebox_w((Rebox *)self);
+  return rebox_w(camera_rebox(self));
 }
 
 /** Return height of camera view. */
 float camera_h(Camera * self) {
-  return rebox_h((Rebox *)self);
+  return rebox_h(camera_rebox(self));
 }
 
 /** Return x position of camera bottom right corner. */
 float camera_br_x(Camera * self) {
-  return rebox_br_x((Rebox *)self);;
+  return rebox_br_x(camera_rebox(self));
 }
 
 /** Return y position of camera bottom right corner. */
 float camera_br_y(Camera * self) {
-  return rebox_br_y((Rebox *)self);
+  return rebox_br_y(camera_rebox(self));
 }
 
 /** Return x position of camera view center. */
 float camera_center_x(Camera * self) {
-  return rebox_center_x((Rebox *)self);
+  return rebox_center_x(camera_rebox(self));
 }
 
 /** Return y position of camera bottom center */
 float camera_center_y(Camera * self) {
-  return rebox_center_y((Rebox *)self);
+  return rebox_center_y(camera_rebox(self));
 }
 
 /** Return position of camera view center. */
 Point camera_center(Camera * self) {
-  return rebox_center((Rebox *)self);
+  return rebox_center(camera_rebox(self));
 }
 
 
 /** Sets position of center of camera to center. */
 Point camera_center_(Camera * self, Point center) {
-  return rebox_center_((Rebox *)self, center);
+  return rebox_center_(camera_rebox(self), center);
 }
 
 /** Adjusts the position of center of camera to center if new center 
