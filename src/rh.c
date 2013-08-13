@@ -1,4 +1,4 @@
-
+	
 #include "eruta.h"
 #include "image.h"
 #include "rh.h"
@@ -7,6 +7,8 @@
 #include "str.h"
 #include "mem.h"
 #include "state.h"
+
+#include <string.h>
 
 #include <stdarg.h>
 #include <mruby.h>
@@ -95,6 +97,14 @@ int rh_args_va(Ruby * ruby, mrb_value * values,  int size,  char * format, va_li
   return index;
 }
 
+
+/* strdup isn't ANSI C, just posix... :p so we need our own version.*/
+char *rh_strdup(const char *str) {
+    char * res = malloc(strlen(str) + 1);
+    if(res) { strcpy(res, str); }
+    return res;
+}
+
 /* Helps convert C values to mruby values in an array. */
 int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, ...) {
   int res;
@@ -166,7 +176,7 @@ char * rh_exceptionstring(Ruby * self) {
   // reset exception since we have it's string value.
   // Does this leak memory or not???
   self->exc = NULL;
-  return strdup(mrb_string_value_cstr(self, &value));
+  return rh_strdup(mrb_string_value_cstr(self, &value));
 }
 
 

@@ -20,7 +20,7 @@ include(CheckCXXSourceCompiles)
 
 if(CMAKE_COMPILER_IS_GNUCC)
  set(COMPILER_GCC 1)
-set(CMAKE_C_FLAGS "-W -Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math -fstrict-aliasing -Wstrict-aliasing=1")
+set(CMAKE_C_FLAGS "-W -Wall -Wno-unused -Wno-unknown-pragmas -g -std=c99 -ffast-math -fstrict-aliasing -Wstrict-aliasing=2")
 # always use gnu99, debugging, all warnings except unused and unknown pragmas.
 # when compiling with gnu compiler.  
 # Warn about alisasing because otherwise aliasing problems it may not be detected.
