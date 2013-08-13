@@ -7,8 +7,8 @@ module Zori
     include Element
     include Handler
     
-    BUTTON_BACKGROUND = [0x55, 0x55, 0xff, 128]
-    HOVER_BACKGROUND  = [0x66, 0x66, 0xff, 128]
+    BUTTON_BACKGROUND = [0x33, 0x33, 0xff, 0xaa]
+    HOVER_BACKGROUND  = [0x55, 0x55, 0xff, 0xaa]
 
     def initialize(x, y, w, h, heading=nil, &block)
       super(x, y, w, h)

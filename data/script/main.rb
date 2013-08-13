@@ -169,7 +169,7 @@ def do_main_menu
     $main_button_4= m.make_button(260, 320, 100, 30, "Instructions")
     $main_button_5= m.make_button(260, 360, 100, 30, "Credits")
     Zori::Page.go(:main_menu)
-    res = Eruta::Audio.music = $main_music
+    # Eruta::Audio.music = $main_music
     # res = Eruta::Audio.play_music
     # puts "play_music #{res} #{@main_music.id}"
   end
@@ -179,9 +179,6 @@ START_TEST_MAP = false
 
 def on_start(*args)
   puts "on_start #{args}"
-  Zori.open
-
-  do_main_menu()
   
   if START_TEST_MAP
     start_load_tilemap
@@ -189,6 +186,9 @@ def on_start(*args)
     start_load_stuff
     start_setup_ui
     actor_switch($thing_100)
+  else 
+    Zori.open
+    do_main_menu()
   end
   return :ok
 end

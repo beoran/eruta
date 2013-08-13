@@ -78,7 +78,7 @@ ScegraNode *scegra_get_node(int index);
 int scegra_out_of_bounds(int index);
 void scegra_draw();
 void scegra_update(double dt);
-int scegranode_compare_for_drawing(const void *p1,const void *p2);
+
 void scegra_init();
 int scegra_nodes_max();
 ScegraStyle *scegrastyle_initempty(ScegraStyle *self);

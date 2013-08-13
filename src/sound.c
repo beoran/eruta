@@ -149,6 +149,7 @@ BOOL audio_ok(void) {
 /* Set the music with the given index as the active usic. 
 If the index is negative, sets no music as active. */
 BOOL audio_set_music(int store_id)  {
+  double length;
   ALLEGRO_AUDIO_STREAM * stream;
   if (!audio_ok()) return FALSE;
   
@@ -167,6 +168,12 @@ BOOL audio_set_music(int store_id)  {
   }
   audio_state->stream = stream;
   
+  /* Automaticallly loop the music over it's whole length. */
+  length = al_get_audio_stream_length_secs(audio_state->stream);
+  if (length > 0.0) { 
+    al_set_audio_stream_loop_secs(audio_state->stream, 0.0, length);
+    al_set_audio_stream_playmode(audio_state->stream, ALLEGRO_PLAYMODE_LOOP);
+  }
   
   al_attach_audio_stream_to_mixer(audio_state->stream, audio_state->mixer);
   return TRUE;

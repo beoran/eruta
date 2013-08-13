@@ -127,8 +127,14 @@ struct Scegra_ {
 
 #define SCEGRA_NODES_MAX 10000
 
+/* Static storage for nodes. */
 static ScegraNode   scegra_nodes[SCEGRA_NODES_MAX];
+
+/* Nodes pointers sorted in drawing order. */
 static ScegraNode * scegra_nodes_todraw[SCEGRA_NODES_MAX];
+
+/* How many nodes to draw this time. */
+static int scegra_to_draw = 0;
 
 
 
@@ -308,61 +314,63 @@ void scegra_init() {
     ScegraNode * node = scegra_nodes + index;
     node->id = -1; /* Negative id means unused; */
   }
+  scegra_to_draw = 0;
 }
 
 
 /* Compares a scene graph node with another, for drawing order. Things with low 
  z come before those with high z, and with same z, low id comes before high id. 
- qsort compatible. */
-int scegranode_compare_for_drawing(const void * p1, const void * p2) {
-  ScegraNode  * self  = *((ScegraNode **) p1);
-  ScegraNode  * other = *((ScegraNode **) p2);
-  BeVec pos1, pos2;
-  if(!self) { 
-    if(!other) {
-      return 0;
-    }
-    /* Sort nulls to the back. */
-    return 1;
-  }
-  if(!self) return -1;
+ qsort compatible. No NULL values allowed!!! */
+static inline int scegranode_compare_for_drawing(const void * p1, const void * p2) {
+  register const ScegraNode  * self  = *((ScegraNode **) p1);
+  register const ScegraNode  * other = *((ScegraNode **) p2);
+  register int self_val, other_val;
   /* Compare Z if no nulls. */
-  if (self->z < other->z) return -1;
-  if (self->z > other->z) return  1;  
+  self_val  = self->z; 
+  other_val = other->z;
+  if (self_val < other_val) return -1;
+  if (self_val > other_val) return  1;  
   /* compare id if z is equal */
-  if ( self->id > other->id ) return -1;
-  if ( self->id < other->id ) return 1;
+  self_val  = self->id; 
+  other_val = other->id;
+  if (self_val < other_val) return -1;
+  if (self_val > other_val) return  1;  
   return 0;
 }
 
 
 /* Updates the 2d scene graph. */
 void scegra_update(double dt) {
-  int index;
+  register int index;
+  scegra_to_draw = 0;
   
   for (index = 0; index < SCEGRA_NODES_MAX; index++) {
-    ScegraNode * node = scegra_nodes + index;
+    register ScegraNode * node = scegra_nodes + index;
     if (node->id < 0) continue; /* Negative id means unused; */
+  
     if(node->update) {
       node->update(node, dt);
     }
-    scegra_nodes_todraw[index] = node;
+    /* Only add node to draw array if not hidden and drawable. */
+    if((!flags_get(node->flags, SCEGRA_NODE_HIDE)) && (node->draw)) {    
+      scegra_nodes_todraw[scegra_to_draw] = node;
+      scegra_to_draw++;
+    }
   }  
   /* Sort scene graph nodes for drawing. */
-  qsort(scegra_nodes_todraw, SCEGRA_NODES_MAX, sizeof(ScegraNode*), scegranode_compare_for_drawing); 
+  qsort(scegra_nodes_todraw, scegra_to_draw, 
+        sizeof(ScegraNode*), scegranode_compare_for_drawing); 
 }
 
 
 /* Draws the 2d scene graph. */
 void scegra_draw() {
   int index;  
-  for (index = 0; index < SCEGRA_NODES_MAX; index++) {
+  /* All nodes in the todraw will be drawn up to scegra_to_draw,
+   there are no other drawable bodes in there. */
+  for (index = 0; index < scegra_to_draw; index++) {
     ScegraNode * node = scegra_nodes_todraw[index];
-    if (node->id < 0) continue; /* Negative id means unused; */
-      /* Draw if not hidden. */
-    if(node->draw && (!flags_get(node->flags, SCEGRA_NODE_HIDE))) {
-      node->draw(node);
-    } 
+    node->draw(node);
   }
 }
 

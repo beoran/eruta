@@ -412,7 +412,7 @@ void tilepane_draw_blends(Tilepane * pane, Camera * camera) {
     if (!row) continue;
     for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
       drawx      += tilewide;
-      blend = pointergrid_fetch(pane->blends, tx_index, ty_index);
+      blend = pointergrid_getraw(pane->blends, tx_index, ty_index);
       if (blend) {
         al_draw_bitmap(blend, drawx, drawy, 0);
       }
@@ -473,7 +473,7 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
     if(!row) continue;
     for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
       drawx      += tilewide;
-      tile        = pointergrid_fetch(pane->tiles, tx_index, ty_index);
+      tile        = pointergrid_getraw(pane->tiles, tx_index, ty_index);
 
 // row[tx_index];
       // Null tile will not be drawn by tile_draw
