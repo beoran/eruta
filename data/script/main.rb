@@ -102,7 +102,7 @@ FONT_ID = 987
 
 def start_setup_ui
   begin 
-  font = Eruta::Store.load_ttf_font(FONT_ID, '/font/Tuffy.ttf', 18, 0)
+  font   = Eruta::Store.load_ttf_font(FONT_ID, '/font/Tuffy.ttf', 18, 0)
   $box_1 = Graph.make_box(570, 10, 60, 240, 4, 4, -1)
   $box_1.background_color = [ 16, 16, 64, 190 ]
   $box_1.border_color     = [ 255, 255, 255 ]
@@ -141,7 +141,7 @@ end
 
 def start_load_tilemap  
   $tilemap_id = 20001
-  $tilemap_1 = Store.load_tilemap('map/map_0001.tmx', $tilemap_id)
+  $tilemap_1  = Store.load_tilemap('map/map_0001.tmx', $tilemap_id)
   active_map_ $tilemap_1.id 
 end
 
@@ -157,12 +157,19 @@ end
 
 def do_main_menu
   # $main_menu = MainMenu.new
-  # $main_menu.active = true 
+  # $main_menu.active = true
   $main_menu = Zori.make_page(:main_menu) do |m| 
     $main_music   = Store.load_audio_stream('/music/hiver_com64.ogg')
     $main_back    = Store.load_bitmap('/image/background/eruta_mainmenu.png')
     m.graph_image(0, 0, $main_back.id)
     Eruta::Audio.music_id = $main_music.id
+    $main_button_1= m.make_button(260, 200, 100, 30, "Continue")
+    $main_button_2= m.make_button(260, 240, 100, 30, "New")
+    $main_button_3= m.make_button(260, 280, 100, 30, "Settings")
+    $main_button_4= m.make_button(260, 320, 100, 30, "Instructions")
+    $main_button_5= m.make_button(260, 360, 100, 30, "Credits")
+    Zori::Page.go(:main_menu)
+    res = Eruta::Audio.music = $main_music
     # res = Eruta::Audio.play_music
     # puts "play_music #{res} #{@main_music.id}"
   end
@@ -232,6 +239,7 @@ end
 # Handle key down 
 def on_key_down(time, key)
   actor         = Thing.actor
+  return nil unless actor
   vx, vy        = * actor.v
   case key
   when KEY_A
@@ -269,6 +277,7 @@ end
 # Handle key up
 def on_key_up(time, key)
   actor         = Thing.actor
+  return nil unless actor
   vx, vy        = * actor.v
   case key
   when KEY_UP

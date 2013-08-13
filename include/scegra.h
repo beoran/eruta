@@ -93,7 +93,10 @@ int scegra_make_box_style_from(int id, BeVec pos, BeVec siz, BeVec round, int si
 int scegra_make_text_style_from(int id, BeVec pos, const char * text, int sindex);
 int scegra_make_image_style_from(int id, BeVec pos, int image_id, int sindex);
 
+int scegra_image_flags_(int index, int flags);
+int scegra_text_flags_(int index, int flags);
 
+int scegra_show_system_mouse_cursor(int show);
 
 
 

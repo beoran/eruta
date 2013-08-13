@@ -164,7 +164,7 @@ scegranode_done(ScegraNode * self) {
 
 
 void scegra_update_generic(ScegraNode * self, double dt) {
-  bevec_add(self->pos, bevec_mul(self->speed, dt));
+  self->pos = bevec_add(self->pos, bevec_mul(self->speed, dt));
 }
 
 void scegra_draw_box(ScegraNode * self) {
@@ -197,13 +197,11 @@ void scegra_draw_text(ScegraNode * self) {
   /*  Use default font if font not loeaded. */
   font = store_get_font(self->style.font_id);
   if (!font) font =  state_font(state_get());
-  flags = ALLEGRO_ALIGN_INTEGER;
+  flags = self->data.text.flags | ALLEGRO_ALIGN_INTEGER;
   /* Draw the text twice, once offset in bg color to produce a shadow, 
    and once normally with foreground color. */
   al_draw_text(font, self->style.background_color, self->pos.x + 1, self->pos.y + 1, flags, self->data.text.text);
   al_draw_text(font, self->style.color, self->pos.x, self->pos.y, flags, self->data.text.text);
-  
-    
 }
 
 
@@ -569,11 +567,13 @@ int scegra_image_id_(int index, int rindex) {
 
 /* Sets the scegra node  to be visible or hidden depending on is_visible. */
 int scegra_visible_(int index, int is_visible) {
+  int result;
   ScegraNode * node = scegra_get_node(index);
   if (!node) return -2;  
   if (node->id < 0) return -1;
+  result            = flags_get(node->flags, SCEGRA_NODE_HIDE) ? 1 : 0; 
   flags_put(&node->flags, SCEGRA_NODE_HIDE, !is_visible); 
-  return node->z;
+  return result;
 }
 
 
@@ -585,6 +585,40 @@ int scegra_angle_(int index, float angle) {
   node->data.bitmap.angle = angle;
   return node->z;
 }
+
+/* Sets the scegra node's drawing flags for images. */
+int scegra_image_flags_(int index, int flags) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->data.bitmap.flags = flags;
+  return node->z;
+}
+
+
+/* Sets the scegra node's drawing flags for texts. */
+int scegra_text_flags_(int index, int flags) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->data.text.flags = flags;
+  return node->z;
+}
+
+/* Somewhat unrelated, show or hide the system mouse cursor. 
+ * Returns the sate after calling, true means show, false means not shown.
+ */
+int scegra_show_system_mouse_cursor(int show) {
+  ALLEGRO_DISPLAY * display;
+  display = al_get_current_display();
+  if(!display) return FALSE;
+  if (show) {
+    return al_show_mouse_cursor(display);
+  } else {
+    return (!al_hide_mouse_cursor(display));
+  }
+}
+
 
 
 

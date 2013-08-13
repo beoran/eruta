@@ -4,6 +4,11 @@ module Zori
     attr_reader :graph
 
     def initialize()
+      init_graph()
+    end
+    
+    
+    def init_graph()
       @graph = []
     end
     
@@ -19,16 +24,19 @@ module Zori
     def graph_box(x, y, w, h, rx = 4, ry = 4, style_id = -1)
       gr = Graph.make_box(x, y, w, h, rx, ry, style_id)
       @graph << gr
+      return gr
     end
 
     def graph_image(x, y, store_id, style_id = -1)
       gr = Graph.make_image(x, y, store_id, style_id)
       @graph << gr
+      return gr
     end
 
     def graph_text(x, y, text, style_id = -1)
       gr = Graph.make_text(x, y, text, style_id)
       @graph << gr
+      return gr
     end
 
   end

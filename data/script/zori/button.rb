@@ -2,68 +2,31 @@
 
 
 module Zori
-  class Button < Zori::Widget
-    attr_reader     :heading
-    attr_reader     :textarea
+  class Button
+    include Graphic
+    include Element
+    include Handler
     
-    def initialize(heading=nil, &block)
-      super(&block) 
-      @heading      = heading || "OK"
-      @pushed       = false
-      @textsurf     = nil
-      if heading 
-        linewide, linehigh =  *self.font.size_text(@heading)
-        self.w      = linewide  + (self.padding * 2)
-        self.h      = linehigh  + (self.padding * 2)
-      else  
-        self.w      = self.h    = 32  
-      end
-      update
+    BUTTON_BACKGROUND = [0x55, 0x55, 0xff, 128]
+    HOVER_BACKGROUND  = [0x66, 0x66, 0xff, 128]
+
+    def initialize(x, y, w, h, heading=nil, &block)
+      super(x, y, w, h)
+      @heading = heading
+      @bg      = graph_box(x, y, w, h)
+      @bg.border_thickness = 0
+      @bg.border_color     = [255, 255, 255, 128]
+      @bg.background_color = BUTTON_BACKGROUND
+      
+      @tg      = graph_text(x + (w / 2), y + 1, heading)
+      @tg.text_flags = Eruta::ALIGN_CENTER
+      @tg.font = Eruta::Zori.font.id
+      @tg.background_color = [0,0,0]
+      @tg.color            = [255,255, 64]
+      @action  = block
+      @state.set(:hover, :false)
     end
-       
-    def heading=(h)
-      @heading = h
-      @changed = true
-      update
-    end    
-   
-    def update()
-      if @heading
-        linewide, linehigh =  *self.font.size_text(@heading)
-        self.w      = linewide  + (self.padding * 2)
-        self.h      = linehigh  + (self.padding * 2)
-      end  
-    end
-    
-    def draw_heading(target, pressed = false)
-      if heading
-        dx = self.padding + (pressed ? 1 : 0)
-        dy = self.padding + (pressed ? 1 : 0)
-        self.put_text(target, self.x + dx, self.y + dy, heading)
-      end
-    end
-    
-    def draw_pressed(target)
-      bg = self.colors.background
-      self.put_background(target)
-      self.put_inset(target)
-      draw_heading(target, true)
-    end
-    
-    def draw_released(target)
-      bg = self.colors.background      
-      self.put_background(target)      
-      self.put_outset(target)
-      draw_heading(target, false)
-    end
-    
-    def draw(target)
-      if(@mouse_down)
-        draw_pressed(target)
-      else
-        draw_released(target)
-      end      
-    end
+
     
     def on_mouse_in(x, y, from)
       super(x, y)
@@ -75,11 +38,27 @@ module Zori
       @pushed  = false
     end
     
-    def on_click(x, y, b)
-      ok = super(x, y, b)
-      return false unless ok
-      act
-      return :stop # Don't let others see this click
+    def on_mouse_axes(t, x, y, z, w, dx, dy, dz, dw)
+      # Check for hovering.
+      if @bounds.inside?(x, y)
+        @bg.border_thickness = 1
+        @bg.background_color = HOVER_BACKGROUND
+        @state.set(:hover, :true)
+      else
+        @bg.border_thickness = 0
+        @bg.background_color = BUTTON_BACKGROUND
+        @state.set(:hover, :false)
+      end
+      return false # don't consume the event
+    end
+    
+    def on_mouse_button_down(t, x, y, z, w, b)
+      return false unless @bounds.inside?(x, y)
+      if @action
+        @action.call(self)
+      else
+        puts "Click! #{@heading}"
+      end
     end
     
     def can_drag?

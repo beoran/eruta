@@ -14,7 +14,7 @@ module Zori
     
     
     attr_reader :name
-    attr_reader :widgets
+    attr_reader :components
     attr_reader :state
     attr_reader :can
 
@@ -24,7 +24,7 @@ module Zori
       @can      = Capability.new
       @state    = State.new
       @name     = name.to_sym
-      @widgets  = []
+      @components  = []
       self.class.register(self)
     end
     
@@ -87,12 +87,12 @@ module Zori
     end
     
     # Called when an event comes in from the Eruta engine.
-    # Tries every widget in order and stops if a truthy value is returned.
+    # Tries every component in order and stops if a truthy value is returned.
     # Finally calls on_page_event. If that returns non-truthy, the return nil 
     # so the event can be handled by the normal non-UI controls.
     def on_event(*data)
-      @widgets.each do | widget |
-        res = widget.on_event(*data)
+      @components.each do | component |
+        res = component.on_event(*data)
         return res if res
       end
       res = on_page_event(*data)
@@ -104,9 +104,16 @@ module Zori
       @active.on_event(*data) if @active
     end
 
-    # Adds a widget to this page.
-    def <<(widget)
-      @widgets << widget
+    # Adds a component to this page.
+    def <<(component)
+      @components << component
+    end
+    
+    # Adds a button to the page 
+    def make_button(x, y, w, h, heading)
+      button = Zori::Button.new(x, y, w, h, heading)
+      self << button
+      return button
     end
     
     

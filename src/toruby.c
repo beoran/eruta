@@ -698,6 +698,9 @@ SCEGRA_ISETTER(tr_scegra_background_image_id_, scegra_background_image_id_)
 SCEGRA_ISETTER(tr_scegra_border_thickness_, scegra_border_thickness_)
 
 
+
+
+
 #define SCEGRA_PSETTER(NAME, TOCALL)                                         \
   static mrb_value NAME(mrb_state * mrb, mrb_value self) {                   \
   int index, x, y;                                                           \
@@ -766,39 +769,54 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   return rh_bool_value(TOCALL(i1));                                            \
 }
 
-#define TR_WRAP_B_BOOL(NAME, TOCALL)                                           \
+#define TR_WRAP_B_BOOL(NAME, TOCALL)                                            \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_value b1;                                                                \
   mrb_get_args(mrb, "o", &b1);                                                 \
   return rh_bool_value(TOCALL(rh_tobool(b1)));                                 \
 }
 
-#define TR_WRAP_I_INT(NAME, TOCALL)                                            \
+#define TR_WRAP_I_INT(NAME, TOCALL)                                             \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1;                                                                  \
   mrb_get_args(mrb, "i", &i1);                                                 \
-  return mrb_fixnum_value(TOCALL(i1));                                         \
+  return mrb_fixnum_value(TOCALL(i1));                                          \
 }
 
-#define TR_WRAP_IIII_INT(NAME, TOCALL)                                         \
+#define TR_WRAP_II_INT(NAME, TOCALL)                                           \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                      \
+  mrb_int i1, i2;                                                             \
+  mrb_get_args(mrb, "ii", &i1, &i2);                                          \
+  return mrb_fixnum_value(TOCALL(i1, i2));                                     \
+}
+
+#define TR_WRAP_III_INT(NAME, TOCALL)                                          \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                      \
+  mrb_int i1, i2, i3;                                                         \
+  mrb_get_args(mrb, "iii", &i1, &i2, &i3)                                     \
+  return mrb_fixnum_value(TOCALL(i1, i2, i3));                                 \
+}
+
+
+#define TR_WRAP_IIII_INT(NAME, TOCALL)                                          \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1, i2, i3, i4;                                                      \
   mrb_get_args(mrb, "iiii", &i1, &i2, &i3, &i4);                               \
-  return mrb_fixnum_value(TOCALL(i1, i2, i3, i4));                             \
+  return mrb_fixnum_value(TOCALL(i1, i2, i3, i4));                              \
 }
 
-#define TR_WRAP_IIIIB_INT(NAME, TOCALL)                                        \
+#define TR_WRAP_IIIIB_INT(NAME, TOCALL)                                         \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1, i2, i3, i4;                                                      \
   mrb_value b5;                                                                \
   mrb_get_args(mrb, "iiiib", &i1, &i2, &i3, &i4, &b5);                         \
-  return mrb_fixnum_value(TOCALL(i1, i2, i3, i4, rh_tobool(b5)));              \
+  return mrb_fixnum_value(TOCALL(i1, i2, i3, i4, rh_tobool(b5)));               \
 }
 
 
-#define TR_WRAP_NOARG_INT(NAME, TOCALL)                                        \
+#define TR_WRAP_NOARG_INT(NAME, TOCALL)                                         \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
-  return mrb_fixnum_value(TOCALL());                                           \
+  return mrb_fixnum_value(TOCALL());                                            \
 }
 
 
@@ -808,6 +826,8 @@ TR_WRAP_NOARG_BOOL(tr_show_area, global_state_show_area)
 TR_WRAP_B_BOOL(tr_show_fps_, global_state_show_fps_)
 TR_WRAP_B_BOOL(tr_show_graph_, global_state_show_graph_)
 TR_WRAP_B_BOOL(tr_show_area_, global_state_show_area_)
+TR_WRAP_B_BOOL(tr_show_mouse_cursor_, scegra_show_system_mouse_cursor)
+
 
 
 TR_WRAP_NOARG_INT(tr_playing_samples_max, audio_playing_samples_max)
@@ -820,6 +840,8 @@ TR_WRAP_NOARG_BOOL(tr_play_music, audio_play_music)
 TR_WRAP_NOARG_BOOL(tr_stop_music, audio_stop_music)
 TR_WRAP_NOARG_BOOL(tr_music_playing_p, audio_music_playing_p)
 
+TR_WRAP_II_INT(tr_scegra_image_flags_, scegra_image_flags_);
+TR_WRAP_II_INT(tr_scegra_text_flags_,  scegra_text_flags_);
 
 
 #define TR_METHOD(MRB, CLASS, NAME, IMPL, FLAGS)\
@@ -840,6 +862,9 @@ TR_WRAP_NOARG_BOOL(tr_music_playing_p, audio_music_playing_p)
 #define TR_CLASS_METHOD_NOARG(MRB, CLASS, NAME, IMPL)\
         mrb_define_class_method((MRB), (CLASS), (NAME), (IMPL), ARGS_NONE())
 
+#define TR_CONST_INT(MRB, CLASS, NAME, VALUE) \
+      mrb_define_const((MRB), (CLASS), (NAME), mrb_fixnum_value(VALUE))
+        
 
 /* Initializes the functionality that Eruta exposes to Ruby. */
 int tr_init(mrb_state * mrb) {
@@ -866,6 +891,17 @@ int tr_init(mrb_state * mrb) {
   spr = mrb_define_class_under(mrb, eru, "Sprite", mrb->object_class);
   /* Audio */
   aud = mrb_define_class_under(mrb, eru, "Audio" , mrb->object_class);
+  
+  
+  /* Define some constants. */
+  TR_CONST_INT(mrb, eru, "FLIP_HORIZONTAL", ALLEGRO_FLIP_HORIZONTAL); 
+  TR_CONST_INT(mrb, eru, "FLIP_VERTICAL"  , ALLEGRO_FLIP_VERTICAL); 
+  TR_CONST_INT(mrb, eru, "ALIGN_LEFT"     , ALLEGRO_ALIGN_LEFT);
+  TR_CONST_INT(mrb, eru, "ALIGN_CENTRE"   , ALLEGRO_ALIGN_CENTRE);
+  TR_CONST_INT(mrb, eru, "ALIGN_CENTER"   , ALLEGRO_ALIGN_CENTER);
+  TR_CONST_INT(mrb, eru, "ALIGN_RIGHT"    , ALLEGRO_ALIGN_RIGHT);
+  TR_CONST_INT(mrb, eru, "ALIGN_INTEFGER" , ALLEGRO_ALIGN_INTEGER);
+  
   
   krn = mrb_class_get(mrb, "Kernel");
   if(!krn) return -1;
@@ -895,6 +931,8 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_ARGC(mrb, eru, "show_fps="  , tr_show_fps_, 1);
   TR_CLASS_METHOD_ARGC(mrb, eru, "show_area=" , tr_show_area_, 1);
   TR_CLASS_METHOD_ARGC(mrb, eru, "show_graph=", tr_show_graph_, 1);
+  TR_CLASS_METHOD_ARGC(mrb, eru, "show_mouse_cursor=", tr_show_mouse_cursor_, 1);
+  
   
   TR_CLASS_METHOD_NOARG(mrb, eru, "time", tr_get_time);
   
@@ -973,7 +1011,9 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_ARGC(mrb, gra, "position_"       , tr_scegra_position_, 3);
   TR_CLASS_METHOD_ARGC(mrb, gra, "speed_"          , tr_scegra_speed_, 3);
   
-  TR_CLASS_METHOD_ARGC(mrb, gra, "angle_"          , tr_scegra_angle_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "image_flags_"      , tr_scegra_image_flags_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "text_flags_"       , tr_scegra_text_flags_ , 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "angle_"           , tr_scegra_angle_, 2);
   TR_CLASS_METHOD_ARGC(mrb, gra, "background_color_", tr_scegra_background_color_, 4);
   TR_CLASS_METHOD_ARGC(mrb, gra, "border_color_"    , tr_scegra_border_color_, 4);
   TR_CLASS_METHOD_ARGC(mrb, gra, "color_"           , tr_scegra_color_       , 4);

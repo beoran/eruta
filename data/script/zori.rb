@@ -63,7 +63,10 @@ module Zori
   script 'zori/rect.rb'
   script 'zori/state.rb'
   script 'zori/capability.rb'
+  script 'zori/handler.rb'
   script 'zori/graphic.rb'
+  script 'zori/element.rb'
+  script 'zori/control.rb'
   
   script 'zori/page.rb'
   
@@ -113,6 +116,52 @@ module Zori
   script 'zori/dialog.rb'
   script 'zori/console.rb'
   
+  
+  # Non-mouse cursor graph
+  def self.cursor_graph
+    @cursor_graph
+  end
+  
+  # Non-mouse cursor image
+  def self.cursor_image
+    @cursor_image
+  end
+
+  # Mouse cursor graph
+  def self.mouse_graph
+    @mouse_graph
+  end
+  
+  # Mouse cursor image
+  def self.mouse_image
+    @mouse_image
+  end
+  
+  def self.font
+    @font
+  end
+
+  
+  def self.load_common_data
+    @font           = Store.load_ttf_font('/font/Tuffy.ttf', 16)
+    
+    @mouse_image    = Store.load_bitmap('/image/gin/fountain-pen_32.png')
+    @mouse_image.average_to_alpha(255,255,255)
+    @mouse_graph    = Graph.make_image(200, 200, @mouse_image.id)
+    @mouse_graph.z  = 9999
+    @mouse_graph.image_flags  = Eruta::FLIP_HORIZONTAL | Eruta::FLIP_VERTICAL
+    
+    @cursor_image   = Store.load_bitmap('/image/gin/curled-leaf_32.png')
+    @cursor_image.average_to_alpha(255,255,255)
+    
+    
+    @cursor_graph   = Graph.make_image(100,100, @cursor_image.id)
+    @cursor_graph.z = 10000
+    @cursor_graph.speed = [ rand(10) - 5, rand(10) - 5]
+    p @cursor_graph
+    Eruta.show_mouse_cursor=false
+  end
+  
 
   # Closes the UI subsystem.
   def self.close
@@ -121,6 +170,7 @@ module Zori
 
   # Initializes the UI subsystem
   def self.open()
+    self.load_common_data
     @hanao = Zori::Hanao.new()
     p @hanao
     return @hanao
@@ -142,6 +192,12 @@ module Zori
   # send an event to the UI subsystem. this may NOT be named on_poll
   # or we get infinite recursion due to inheritance from Object.
   def self.on_event(*args)
+    if args[0] == :mouse_axes
+      x = args[2]
+      y = args[3]
+      @mouse_graph.position=[x, y]
+    end
+    
     return Zori::Page.on_event(*args)
 #     if @hanao
 #       @hanao.on_event(*args)

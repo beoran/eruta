@@ -33,6 +33,14 @@ class Graph < Eruta::Graph
     def angle=(a)
       Eruta::Graph.angle_(@id, r, g, b, a)
     end
+    
+    def image_flags=(f)
+      Eruta::Graph.image_flags_(@id,f)
+    end
+    
+    def text_flags=(f)
+      Eruta::Graph.text_flags_(@id, f)
+    end
   
     def size=(size)
       w, h = *size
@@ -48,7 +56,7 @@ class Graph < Eruta::Graph
     end
   
     def z=(newz)
-      Eruta::Graph.z_(@id, z)
+      Eruta::Graph.z_(@id, newz)
     end
   
     def font=(store_id) 
@@ -65,7 +73,7 @@ class Graph < Eruta::Graph
   
     def speed=(v) 
       x, y = *v
-      Eruta::Graph.font_(@id, x, y)
+      Eruta::Graph.speed_(@id, x, y)
     end
   
     def size=(sz) 
@@ -79,44 +87,44 @@ class Graph < Eruta::Graph
     end
 
   end
-  
+
   def self.registry
     @registry ||= {}
   end
-  
+
   def self.register(thing)
     @registry ||= {}
     @registry[thing.id] = thing
   end
-   
-  
+
+
   def self.get_unused_id
     29000.times do | i | 
       return i unless self.registry[i]
     end
     return nil
   end
-  
+
   def self.make_box(x, y, w, h, rx = 4, ry = 4, style_id = -1)
     id  = self.get_unused_id
     nid = Eruta::Graph.make_box(id, x, y, w, h, rx, ry, style_id) 
     return nil if (nid < 0)
     return Node.new(nid)
   end
-               
+
   def self.make_image(x, y, store_id, style_id = -1)
     id  = self.get_unused_id
     nid = Eruta::Graph.make_image(id, x, y, store_id, style_id) 
     return nil if (nid < 0)
     return Node.new(nid)
   end
-  
+
   def self.make_text(x, y, text, style_id = -1)
     id  = self.get_unused_id
-    nid = Eruta::Graph.make_image(id, x, y, text, style_id) 
+    nid = Eruta::Graph.make_text(id, x, y, text, style_id)
     return nil if (nid < 0)
     return Node.new(nid)
   end
-  
+
 end
 
