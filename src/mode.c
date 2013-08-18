@@ -102,7 +102,7 @@ ModeActs elsemode_acts_ = {
 
 ModeActs * elsemode_getacts() {
   return &elsemode_acts_;
-};
+}
 
 /* Returns the mode's react struct for event handling. */
 React * mode_react(Mode * self) {

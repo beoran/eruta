@@ -1,5 +1,76 @@
 
 #include "obj.h"
+#include "dynar.h"
+
+
+/* Beoran's Objects, Objective-C/Smalltalk/Javascript-ish */
+struct BObject_;
+typedef struct BObject_ BObject;
+
+/* A Class is simply an object too. */
+typedef struct BObject_ BClass;
+
+
+struct BMethod_;
+typedef struct BMethod_ BMethod;
+
+struct BMethodTable_;
+typedef struct BMethodTable_ BMethodTable;
+
+struct BInstanceVariable_;
+typedef struct BInstanceVariable_ BInstanceVariable;
+
+struct BInstanceVariableTable_;
+typedef struct BInstanceVariableTable_ BInstanceVariableTable;
+
+
+typedef BObject * BMethodFunction(BObject * self, int argc, BObject * argv[]);
+
+union BValue_ {
+  BObject * bobject;
+  int       integer;
+  double    number;
+  void    * pointer;
+  char    * cstr;
+};
+
+
+struct BMethod_ {
+  char            * name;
+  BMethodFunction * action; 
+};
+
+struct BInstanceVariable_ {
+  char            * name;
+  void            * value; 
+};
+
+struct BMethodTable_ {
+  BMethod * last;
+  BMethod * methods;
+  int size;
+};
+
+struct BInstanceVariableTable_ {
+  BInstanceVariable * last;
+  Dynar             * variables;
+  int size;
+};
+
+
+
+struct BObject_ {
+  BMethodTable  methods_;
+  BObject     * prototype_;
+};
+
+
+
+BObject * bobject_init(BObject * self) {
+  return self;
+}
+
+
 
 
 
@@ -163,6 +234,7 @@ ObjClass * obj_class(void * ptr) {
 }
 
 /** Looks up a function pointer in the class at the given offset. */
+/** XXX: this approach is not ISO C. */
 ObjMethod * objclass_method_at(ObjClass * klass, size_t offset) { 
   char * aid;
   if(!klass) return NULL;
@@ -238,6 +310,8 @@ void * obj_unref(void * ptr) {
 }
 
 
+
+
 /** Walks though the object pool, and calls unref on each object. 
 If the object is effectively destroyed, it will be removed
 from the pool too. Otherwise, it remains in the pool. */
@@ -259,6 +333,6 @@ ObjPool * objpool_unref(ObjPool * pool) {
       node = next;
     }
   }
-  
+  return pool;
 }
 

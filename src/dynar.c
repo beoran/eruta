@@ -98,6 +98,7 @@ Dynar * dynar_newempty(int elsz) {
 Dynar * dynar_size_(Dynar* self, int newsize) {
   int elsz = dynar_elementsize(self);
   void * newd = NULL;
+  int delta;
   if(!self) return NULL;
   // don't allow a newsize of 0, since that will make realloc call
   // free on self->data, which we don't want.
@@ -107,6 +108,11 @@ Dynar * dynar_size_(Dynar* self, int newsize) {
   // if we get here realloc was successful, so it should be safe to reassign
   // self->data
   self->data = newd;
+  // now, empty the unused new data, but only if growing! (XXX: is this ok???) 
+  delta =  newsize - self->size;
+  if(delta > 0) { 
+    memset(self->data + (self->size * self->elsz), 0, (delta * self->elsz));
+  }
   self->size = newsize;  
   return self;
 }
@@ -251,6 +257,40 @@ void * dynar_getdata(Dynar * self, int index) {
   return dynar_getraw(self, index);
 }
 
+/* Applies quick sort to the array using the given comparator. */
+Dynar * dynar_qsort(Dynar * self, DynarCompare  * compare) {
+  void * base; int nmemb; size_t size;
+  if(!self) return NULL;
+  base  = self->data;
+  nmemb = self->size;
+  size  = self->elsz;
+  qsort(base, nmemb, size, compare);
+  return self;
+}
+
+/* Applies a binary search to the array using the given comparator. 
+ User must call dynar_qsort first. */
+void * dynar_bsearch(Dynar * self, const void * key, DynarCompare  * compare) {
+  void * base; int nmemb; size_t size;
+  if (!self) return NULL;
+  base  = self->data;
+  nmemb = self->size;
+  size  = self->elsz;
+  return bsearch(key, base, nmemb, size, compare);
+}
+
+/* Puts NULL in every element of this array using dynar_putptr */
+Dynar * dynar_putnullall(Dynar * self) {
+  int stop = dynar_size(self);
+  int index;
+  for (index = 0; index < stop; index++) {
+    dynar_putptr(self, index, NULL);
+  }
+  return self; 
+}
+
+
+
 /* Iterator helper: fill in every->now as data. */
 Every * dynar_everynow_data(Every * every) {
   every->now   = dynar_getdata(every->on, every->index);
@@ -351,9 +391,9 @@ void * dynar_each_ptr(Dynar * self, EachDo * eachdo, void * extra) {
   return NULL;
 }
 
-/* Walks over the array using the walker interface, accessing
+/* Walks over the array using the Each interface, accessing
 the data as stored structs. */
-void * dynar_walkdata(Dynar * self, EachDo * eachdo, void * extra) {
+void * dynar_each_data(Dynar * self, EachDo * eachdo, void * extra) {
   Each each;
   int index;
   int size = dynar_size(self);
@@ -366,6 +406,91 @@ void * dynar_walkdata(Dynar * self, EachDo * eachdo, void * extra) {
     if (aid) return aid;
   }
   return NULL;
+}
+
+/* Walks over the array using the walker interface, accessing
+the data as stored pointers. */
+void * dynar_walkptrbetween(Dynar * self, int low, int high, 
+                            Walker * walker, void * extra) {
+  int index;
+  int size = dynar_size(self);
+  low  = (low < 0)      ?  0   : low;
+  high = (high > size)  ? size : high;
+  for(index = low; index < high ; index++) {
+    void * aid;
+    void * ptr = dynar_getptr(self, index);
+    aid        = walker(ptr, extra);
+    if (aid) return aid;
+  }
+  return NULL;
+}
+
+/* Walks over the array using the walker interface, accessing
+the data as stored structs. */
+void * dynar_walkptr(Dynar * self, Walker * walker, void * extra) {
+  return dynar_walkptrbetween(self, 0, dynar_size(self), walker, extra);
+}
+
+/* Walks over the array using the walker interface, accessing
+the data as stored pointers. */
+void * dynar_walkdatabetween(Dynar * self, int low, int high,
+                             Walker * walker, void * extra) {
+  int index;
+  int size = dynar_size(self);
+  low  = (low < 0)      ?  0   : low;
+  high = (high > size)  ? size : high;
+  for(index = low; index < high ; index++) {
+    void * aid;
+    void * ptr = dynar_getdata(self, index);
+    aid        = walker(ptr, extra);
+    if (aid) return aid;
+  }
+  return NULL;
+}
+
+/* Walks over the array using the walker interface, accessing
+the data as stored structs. */
+void * dynar_walkdata(Dynar * self, Walker * walker, void * extra) {
+  return dynar_walkdatabetween(self, 0, dynar_size(self), walker, extra);
+}
+
+/* Walks over the array updating it, using the walker interface, accessing
+the data as stored pointers. */
+void * dynar_walkmapptrbetween(Dynar * self, int low, int high, 
+                            Walker * walker, void * extra) {
+  int index;
+  int size = dynar_size(self);
+  low  = (low < 0)      ?  0   : low;
+  high = (high > size)  ? size : high;
+  for(index = low; index < high ; index++) {
+    void * aid;
+    void * ptr = dynar_getptr(self, index);
+    aid        = walker(ptr, extra);
+    dynar_putptr(self, index, ptr);
+  }
+  return NULL;
+}
+
+/* Walks over the array updating it using the walker interface, accessing
+the data as stored structs. */
+void * dynar_walkmapptr(Dynar * self, Walker * walker, void * extra) {
+  return dynar_walkmapptrbetween(self, 0, dynar_size(self), walker, extra);
+}
+
+/* Resizes a dynar filled with pointers, and if the dynar shrinks, calls the 
+ * given destructor on all elements that are to be removed. Returns self on success 
+ * and NULL on failure. Even in this case, the superfluous elements 
+  fmay have been removed. */
+Dynar * dynar_resize(Dynar * self, int newsize, MemDestructor * destroy) {
+  int index; 
+  int last;
+  if (!self) return NULL;
+  last = dynar_size(self);
+  for(index = newsize; index < last; index ++) {
+     void * aid = dynar_getptr(self, index);
+     dynar_putptr(self, index, destroy(aid));
+  }
+  return dynar_size_(self, newsize);
 }
 
 

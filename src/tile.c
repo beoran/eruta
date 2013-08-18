@@ -25,6 +25,9 @@ struct Tileset_ {
   int        h;
 };
 
+
+
+
 /** 
 * A single tile from a tile map.
 * Tiles can be animated. This works like this: a tile has an animation
@@ -56,17 +59,22 @@ struct Tile_ {
   /* Time since last animation in s. */
   /* Sub-position in the tile sheet image of the tileset. */
   Point         now;
+  /* Automatic blending activation and priority. */
+  int           blend;
+  /* Mask number to use for automatic blending, if any. */
+  int           mask;
 };
 
 /* NOTE: Tiles could be implemented using sub bitmaps as they seem to be
 * slightly faster if they are preallocated. however the speed gain would
 * be around 2%, so it's not a priority yet. It could simplify some of
-* the code, though, but I'll use sub-bitmaps for spites first.
+* the code, though.
 */
 
 
 /** Cleans up a tileset, and empties it.  */
 void tileset_done(Tileset * set) {
+  if(!set) return;
   if (set->tiles) {
     dynar_free(set->tiles);
     set->tiles = NULL;
@@ -77,6 +85,7 @@ void tileset_done(Tileset * set) {
 
 /** Deallocates a tileset */
 void tileset_free(Tileset * set) {
+  if(!set) return;
   tileset_done(set);
   mem_free(set);
 }
@@ -97,7 +106,7 @@ Tileset * tileset_init(Tileset * set, Image * sheet) {
     set->tiles  = NULL;
     return NULL;
   }
-  // alow re-init
+  // allow re-init
   if (set->tiles) {
     tileset_done(set);
   } 
@@ -109,7 +118,7 @@ Tileset * tileset_init(Tileset * set, Image * sheet) {
   // set->tiles    = mem_alloc(sizeof(Tile) * set->size);
   if (!set->tiles) {
     set->w      = -1;
-    set->h      = -1;    
+    set->h      = -1;
     return NULL;
   }
   // now set up the tiles
@@ -147,7 +156,7 @@ Tile * tile_recalculate(Tile * tile) {
   if(!tile->set) return NULL;
   x = TILE_SHEET_X(tile, tile->set);
   y = TILE_SHEET_Y(tile, tile->set);
-  tile->now = point(x, y); 
+  tile->now = bevec(x, y); 
   return tile;
 }
 
@@ -163,6 +172,8 @@ Tile * tile_init(Tile * tile, Tileset * set, int index) {
   tile->time    = 0.0;
   tile->wait    = 0.250;
   tile->active  = index;
+  tile->blend   = 0;
+  tile->mask    = 0;
   tile_recalculate(tile);
   return tile;
 }
@@ -212,6 +223,7 @@ static Silut tile_flagnames[] = {
   { TILE_SOUTH  , "south"   },
   { TILE_EAST   , "east"    },
   { TILE_WEST   , "west"    },
+  { TILE_ICE    , "ice"     },
   SILUT_DONE  
 };
 
@@ -303,10 +315,14 @@ void tileset_update(Tileset * set, double dt) {
 
 
 /** Draw a tile to the current active drawing target at the
-given coordinates */
-void tile_draw(Tile * tile, int x, int y) {
-  Tileset * set = tile->set;
-  Image * sheet = set->sheet;
+given coordinates. Does nothing if tile is NULL.  */
+void tile_draw(Tile * tile, int x, int y) {  
+  Tileset * set;
+  Image * sheet;
+  Color dcolor = al_map_rgb(0xee, 0xee, 0x00);
+  if (!tile) return;
+  set   =  tile->set;
+  sheet = set->sheet;
   float dx      = (float) x;
   float dy      = (float) y; 
   float sx      = (float) tile->now.x;
@@ -315,7 +331,90 @@ void tile_draw(Tile * tile, int x, int y) {
   float sh      = (float) TILE_H;
   // printf("%f %f\n", sx, sy);
   al_draw_bitmap_region(sheet, sx, sy, sw, sh, dx, dy, 0);
+  // debugging solid tiles
+#ifdef TILE_SHOW_SOLID  
+  if (tile_isflag(tile, TILE_WALL)) {
+    al_draw_rectangle(dx, dy, dx+TILE_W, dy+TILE_H, dcolor, 2);
+  } 
+#endif // TILE_SHOW_SOLID
+  
   // al_draw_bitmap(sheet, dx, dy, 0);
+}
+
+
+/* Used for drawing masked tiles. */
+static Image  * tile_mask_buffer = NULL;   
+
+
+/** Draw a tile into the given bitmap, which should be of size TILE_W, TILE_H 
+ * applying the given mask bitmap, where the mask will 
+be flipped and rotated as per the given mask_flags. The mask bitmap
+should be white, but with different alpha levels on the white 
+which will be applied as the mask. Does nothing if tile is NULL.  
+This requires al_hold_bitmap_drawing to be turned off!
+*/
+void tile_draw_masked_to
+(Image * result, Tile * tile, Image * mask, float angle, int mask_flags) {  
+  /* This function need a mask buffer. */
+  Tileset * set;
+  Image * sheet;
+  ALLEGRO_BITMAP * target;
+  Color dcolor = al_map_rgb(0xee, 0x00, 0xee);
+  float dx, dy, sx, sy, sw, sh;
+  int bmpflags;
+  
+  if (!tile) return;
+  
+  /* Create a 32x32 tile bitmap that will be used thanks to 
+   it being static. And leaked at program shutdown, but I don't care :p. */
+  if (!tile_mask_buffer) { 
+    bmpflags         = al_get_new_bitmap_flags();
+    al_set_new_bitmap_flags(ALLEGRO_CONVERT_BITMAP);
+    tile_mask_buffer = al_create_bitmap(TILE_W, TILE_H);
+    al_set_new_bitmap_flags(bmpflags);
+  } 
+  
+  /* Keep the target bitmap. */
+  target = al_get_target_bitmap();
+  
+  /* Copy the tile into the buffer.  */
+  al_set_target_bitmap(tile_mask_buffer);
+  set   =  tile->set;
+  sheet = set->sheet;
+  dx      = 0.0;
+  dy      = 0.0; 
+  sx      = (float) tile->now.x;
+  sy      = (float) tile->now.y;
+  sw      = (float) TILE_W;
+  sh      = (float) TILE_H;
+  // printf("%f %f\n", sx, sy);
+  /* Set blender to copy mode. */
+  // al_clear_to_color(al_map_rgba_f(0,0,0,0));
+
+  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);  
+  al_draw_bitmap_region(sheet, sx, sy, sw, sh, 0, 0, 0);
+  
+  /* Draw the mask over the tile, taking the alpha of the mask  */
+  al_set_blender(ALLEGRO_ADD, ALLEGRO_ZERO, ALLEGRO_ALPHA);
+  al_draw_bitmap(mask, 0, 0, mask_flags);
+
+  /* Restore normal Allegro blending. */
+  al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+  
+  sx = 0.0;
+  sy = 0.0;
+  if (angle != 0.0) {
+    sx = TILE_H / 2.0;
+    sy = TILE_W / 2.0;
+    dx += sx;
+    dy += sy;
+  } 
+  
+  /* Draw the tile mask buffer to the result bitmap */
+  al_set_target_bitmap(result);
+  al_draw_rotated_bitmap(tile_mask_buffer, sx, sy, dx, dy, angle, 0);
+  /* And restore the target bitmap. */ 
+  al_set_target_bitmap(target);
 }
 
 /** Tile's index. Returns -1 if tile is NULL; */
@@ -330,7 +429,33 @@ int tile_kind(Tile * tile) {
   return tile->kind;
 }
 
+/** Information about tile's blending properties and priority.
+ * Zero means no blending, positive is a blend priority.
+ */
+int tile_blend(Tile * tile) {
+  if (!tile) return 0;
+  return tile->blend;
+}
 
+/** Set the tile's blending and priority */
+int tile_blend_(Tile * tile, int priority) {
+  if (!tile) return 0;
+  return tile->blend = priority;
+}
 
+/** Information about tile's blending mask
+ * Returns 0 for the default mask if not set.
+ */
+int tile_mask(Tile * tile) {
+  if (!tile) return 0;
+  return tile->mask;
+}
 
+/** Set the tile's blending mask */
+int tile_mask_(Tile * tile, int mask) {
+  if (!tile) return 0;
+  if (mask < 0) mask = 0;
+  if (mask > 2) mask = 0;
+  return tile->mask = mask;
+}
 

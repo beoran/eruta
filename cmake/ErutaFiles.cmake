@@ -1,12 +1,27 @@
 # All source files except main.c to enable testing
 # by using cmake's fake library feature. Don't forget to add new source 
 # files here manually.
+set(BF_SRC_FILES
+  src/bf/BFObject.c
+  src/bf/BFClass.c
+  src/bf/BFArray.c
+  src/bf/BFMap.c
+  src/bf/BFInteger.c
+  src/bf/BFDouble.c
+  src/bf/BFString.c
+  src/bf/BFValue.c
+)
+
 set(ERUTA_SRC_FILES
-  src/rebox.c
+  src/alps.c
   src/area.c
+  src/bad.c
+  src/bevec.c
+  src/brex.c
+  src/bump.c
   src/bxml.c
   src/camera.c
-  src/ch.c
+  src/collide.c
   src/draw.c
   src/dynar.c
   src/effect.c
@@ -22,22 +37,30 @@ set(ERUTA_SRC_FILES
   src/mobile.c
   src/mode.c
   src/obj.c
+  src/pointergrid.c
   src/react.c
   src/rebl.c
-  src/rh.c  
+  src/rebox.c
+  src/resor.c
+  src/rh.c    
+  src/scegra.c
   src/silut.c
   src/sound.c
   src/sprite.c
   src/state.c
+  src/store.c
   src/str.c
+  src/thing.c
   src/tile.c
   src/tileio.c
   src/tilemap.c
   src/tilepane.c
+  src/tarray.c
   src/tmatrix.c
   src/toruby.c  
   src/ui.c
   src/widget.c
   src/xml.c
+  src/xresor.c
   src/zori.c
 )

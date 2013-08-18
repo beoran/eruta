@@ -11,11 +11,15 @@ Eruta us a futuristic jRPG under development.
 
 Requirements:
 * OS: Linux for now. Windows port is under development. OSX may work too.
-* Allegro 5.0.x
-* Chipmunk 6.x,
+* Allegro 5.1.5 or later (5.1.5 is in vendor directory). 
+  Earlier versions won't be found by the build script.  
 * libxml2 (www.xmlsoft.org)
-* mruby (latest github version) 
-* For testing and compilation: cmake, cfunction (see vendor dir) and valgrind.
+* mruby (latest gitub version). To install globally in /usr/local 
+  use  
+  `cd <directory_where_mruby_is> ; make ; sudo bin/install_mruby`
+  to compile and install mruby into /usr/local
+* For compilation: cmake 2.8.10.2 or later (see vendor directory), make or ninja.
+* For testing and debugging: gdb, ddd, valgrind.
 * For map editing: tiled (www.mapeditor.org)
 * For some of the tools and continuous testing: Ruby, watchr.
  
@@ -23,12 +27,13 @@ Installation:
 
 You have to make sure that you have all the requirements.  On Linux 
 distributitions like Ubuntu, make sure that the development packages for all 
-requirements are installed. Then do: 
+requirements are installed. Then do on the command line: 
 
 cmake . ; make
 
 Or if you want to build with Ninja, use the latest version of cmake and go
-cmake -G ninja . ; ninja 
+cmake -G Ninja . ; ninja 
+Please note that cmake and the word "Ninja" is case-sensitive!
 
 How to try it:
 
@@ -44,12 +49,6 @@ Every time you change a c file or header, the matching
 test will be compiled though cmake and make, and 
 will be run. This does compile all C files of eruta,
 so it may be a bit slow at times.
-
-How to generate function prototypes:
-When developing I find it easy to have C function prototypes generated 
-automatically. That is how all the xxx_proto.h files are generated. 
-Use bin/mkproto to regenerate these header files when making changes to
-the c files.
 
 How to generate developer's documentation:
 Use naturaldocs. 
@@ -101,50 +100,167 @@ different arrangments. :)
 
 Credits and third party licenses: 
 
-File:
+json-parser (src/json.c and include/json.h):
+
+  Copyright (C) 2012 James McLaughlin, Alex Gartrell, Peter Scott, 
+  Mathias Kaerlev, Emiel Mols, Czarek Tomczak, Nicholas Braden, 
+  Ivan Kozub, Árpád Goretity.  All rights reserved.
+  https://github.com/udp/json-parser
+ 
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+ 
+  1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 
+  2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
+
+
 ext/gari/test/test_music.ogg, data/music/musictest.ogg
-Original title: : Town in ruins loop
-Artist: Brandon Morris
-License: CC-BY 3.0
+  Original title: : Town in ruins loop
+  Artist: Brandon Morris
+  License: CC-BY 3.0
 
 data/font/Tuffy.ttf
-Tuffy fonts License: 
-I have placed these fonts in the Public Domain. This is all 100% my
-own work. Usage is totally unrestricted. If you want to make
-derivative works for any purpose, please go ahead.
+  - Thatcher Ulrich <tu@tulrich.com> http://tulrich.com
+  Tuffy fonts License: 
+  I have placed these fonts in the Public Domain. This is all 100% my
+  own work. Usage is totally unrestricted. If you want to make
+  derivative works for any purpose, please go ahead.
 
--Thatcher Ulrich <tu@tulrich.com> http://tulrich.com
+data/font/GranaPadano.ttf  
+  Daniel Johnson (font maintainer)
+  il.basso.buffo at gmail dot com
+  http://io.debian.net/~danielj/
+  Licensed under the Open Font License (OFL). 
 
-data/font/GranaPadano.ttf:  licensed under the Open Font License (OFL). Contributors:
-Daniel Johnson (font maintainer)
-il.basso.buffo at gmail dot com
-http://io.debian.net/~danielj/
+data/image/ulpcss/*
+  See README and AUTHORS in that directory. 
+  These images are temporary open source placeholders for the game sprites.
+
+data/image/ui/icon/gin/* 
+  Icons made by Lorc, Delapoite and John Colbutn.   
+  Icons provided under the Creative Commons 3.0 BY license.
+  See licence.txt in that directory for more details.
+
+data/music/nethis-the_writer.ogg
+  License: CC-BY 3.0
+  Artists: Nethis, based on vocals by myvanillaworld.
+  http://ccmixter.org/files/Nethis/38405
+
+data/music/ramblinglibrarian_how_do_i_make_you_see.ogg
+  License: CC-BY 3.0
+  Artists: ramblinglibrarian, based on vocals by myvanillaworld.
+  http://ccmixter.org/files/ramblinglibrarian/25641
+
+data/music/admiralbob77_in_peace_now.ogg
+  License: CC-BY 3.0
+  Artists: Admiralbob77, based on vocals by SackJo22
+  http://ccmixter.org/files/admiralbob77/40555
+
+http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100875
+
+data/music/*_com64.ogg  
+  By Com64 under CC-BY 3.0 license.
+
+data/music/*_joclemons.ogg  
+  By Jo Clemons under CC-BY 3.0 license.
+
+
+
 
 Thanks to the following people for their suggestions:
 
 Alexbond45, LunarKnite, Mikka, Sagephoenix.
 
-
 Remarks for developers:
 
-bin/mkproto is an automatic function prototype extraction tool that uses ruby. 
-It automatically generates .h files for .c files. It extracts the function portotype if the functions hasa comment that starts with /** before it. So 
-/** Comment here */ int foo(void) {
-  return 0;
-}
-in the src/foo.c file, wll be extracted to 
-/** Comment */ 
-int foo(void);
-in the include/foo_proto.h file.
-That's why there are so many xxx_proto.h files. These are autogenerated. 
-The xxx.h files are  semimanual. 
+bin/mkproto is an automatic function prototype extraction tool that is 
+no longer used due to it being more hassle than help. 
 
 When a new .c file is needed, use the bin/newmodule tool like this
 bin/newmodule bar 
 and automatically, empty src/bar.c and include/bar.h will be generated.
 
 As for why I use plain C and not, say C++: it's to keep the code simple, tight 
-and focused, and easy to interface wth the Lua scripts. C is a very simple
-language, but it can do anything. And to save time, some a bit of the 
-programming will happen on the mruby side. Finally, plain C is easier to wrap 
-and use in mruby.
+and focused, and easy to interface with the Ruby scripts. C is a very simple
+language, but it can do anything and it does it fast. And to save time, quite 
+a bit of the programming will happen on the mruby side. 
+
+An overview of the C files andwhat they are about: 
+
+src/area.c        : In-game areas or levels.
+src/bad.c         : Beoran's Algorithms and datastructures.
+src/base64.c      : Base64 implementation, currently unused.
+src/brex.c        : Reular expressions ,currently unused.
+src/bxml.c        : My own XML parser, currently not in use.
+src/bxmlparser.c  : My own XML parser, currently not in use.
+src/camera.c      : Camera models a view port over an in-game level.
+src/castor.c      : Cache and in memory storage for resources. Needs work.
+src/ch.c          : Chipmunk Helper functions.
+src/cocell.c      : Cons cell, currenly not used.
+src/draw.c        : Additional drawing functions.
+src/dynar.c       : Dynamic arrays in C. Used everywhere.
+src/effect.c      : Effects and particle engine. Needs a lot of work.
+src/event.c       : Additional event functions. 
+src/every.c       : Iterators and iteration in C.
+src/fifi.c        : Find Files. Helps find game data and eases resource loading.
+src/flags.c       : Simple integer bitflag setting and getting helpers.
+src/glh.c         : OpenGL helper functions. Currently not in use.
+src/hatab.c       : Hash table. Needs work, so not in use yet.
+src/ifa.c         : Generic interfaces for C. Currently not used.
+src/inli.c        : Intrusive linked ist, currently not used.
+src/json.c	  : JSON support.
+src/main.c        : Main function and many helpers and tests.
+src/mem.c         : Memory handling helpers.
+src/miniz.c       : Minimalistic zip library for later use.
+src/mobile.c      : Autonomously moving game entities.
+src/mode.c        : Game mode switching functions.
+src/obj.c         : OOP in C playground. Currently not in use.
+src/pachi.c       : Parent child tree. Currently not in use.
+src/pointergrid.c : Two dimensional grid, used for the tile map.
+src/react.c       : Input handling system. Needs to be merged with UI and mode.
+src/rebl.c        : Red black tree, under construction, unused.
+src/rebox.c       : Rectangular boxes. Used in UI, camera etc.
+src/rh.c          : MRuby helper functions.
+src/scegra.c      : Scene graph idea, may be discared, currently unused.
+src/silut.c       : Simple string lookup table.
+src/sound.c       : Sound and music helper functions.
+src/sprite.c      : Sprite functions, in use but needs work.
+src/state.c       : Manages all state data of the engine.
+src/str.c         : USTR and String helper functions.
+src/tarray.c      : XMacro template matrix. Currently unused.
+src/tile.c        : Tile map tile functionality.
+src/tileio.c      : Tile map reading and later perhaps writing for ingame edit.
+src/tilemap.c     : Tile map functonality.
+src/tilepane.c    : Tile pane, a layer in a tile map.
+src/tinfl.c       : Tiny inflater, uncompression, currently unused.
+src/tlilis.c      : Templated linked list, currently unused.
+src/tmatrix.c     : Templated matrix currently unused.
+src/toruby.c      : Functions that are exposed to the mruby scripting.
+src/ui.c          : User interface functionality.
+src/widget.c      : UI widgets, currently only script console.
+src/xml.c         : Libxml helper functions.
+src/zori.c        : UI functions, currently empty.
+
+Since I try out a lot of things, ther are quite a few unused C fils in 
+the project. Perhaps I will clean them out some day.. :)
+
+
+
+

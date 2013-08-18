@@ -15,6 +15,13 @@
 #include "hatab.h"
 /* #include "beo.h" */
 #include "assert.h"
+#include "str.h"
+#include "sprite.h"
+#include "alps.h"
+#include "store.h"
+#include "scegra.h"
+
+
 
 
 
@@ -54,64 +61,54 @@ void puts_standard_path(int path, char * name) {
   al_destroy_path(testpath);
 }
  
- 
-/* Global variable just for testing. */ 
-static Thing    * actor_data    = NULL;
-
+/* Low level keys, not handled by the script. */ 
 React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {  
-  Point f = cpvzero;
+  Point f = bevec0();
   State * state = (State *) self->data;
   Camera * camera = NULL;
   if (!state) return NULL;
   camera = state_camera(state);
   if (!camera) return NULL;
-  if (actor_data) {
-    f = thing_v(actor_data);
-  }
   switch(event->keycode) {
-    case ALLEGRO_KEY_UP:
-      f.y = -100;
-    break;
-    case ALLEGRO_KEY_DOWN:
-      f.y = +100;
-    break;
-    case ALLEGRO_KEY_LEFT:
-      f.x = -100;
-    break;
-    case ALLEGRO_KEY_RIGHT:
-      f.x = +100;
-    break;
+    /* Console control */
     case ALLEGRO_KEY_F1:
-      console_active_(state_console(state), TRUE);
+    case ALLEGRO_KEY_F3:
+      /* Toggle the console here. */
+      bbconsole_active_(state_console(state), !bbconsole_active(state_console(state)));
     break;
     case ALLEGRO_KEY_F2:
-      console_active_(state_console(state), FALSE);
+      bbconsole_active_(state_console(state), FALSE);
     break;  
+    /* Reload main script (and hence all other scripts that it loads)  on F5 */
+    case ALLEGRO_KEY_F5:
+      rh_load_main();
+      rh_on_reload();
+    break;    
+    /* Emergency exit keys. */
+    case ALLEGRO_KEY_F12:
     case ALLEGRO_KEY_ESCAPE:
-    case ALLEGRO_KEY_ENTER:
       state_done(state);
+      return self;
+    break;
+    /* Otherwise it's up to the script. */
     default:
+      return NULL;
     break;
   }
-  if(actor_data) {
-    thing_v_(actor_data, f);
-  } 
   return self;
 }
 
 
 React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
-  Point f         = cpvzero;
-  State * state   = (State *) self->data;
-  Camera * camera = NULL;
+  Point f               = bevec0();
+  State * state         = (State *) self->data;
+  Camera * camera       = NULL;
   if (!state) return NULL;
-  camera = state_camera(state);
+  camera                = state_camera(state);
   if (!camera) return NULL;
   // os = camera_speed(camera);
-  if (actor_data) {
-    f = thing_v(actor_data);
-  }
   switch(event->keycode) {
+    /*
     case ALLEGRO_KEY_UP:
       f.y = 0.0;
     break;
@@ -124,13 +121,10 @@ React * main_react_key_up(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     case ALLEGRO_KEY_RIGHT:
       f.x = 0.0;
     break;
+    */
     default:
+      return NULL;
     break;
-  }
-  if(actor_data) {
-    thing_v_(actor_data, f);
-  } else {
-    puts("No actor data!");
   }
   return self;
 }
@@ -143,18 +137,23 @@ int real_main(void) {
     Tileset  * tileset  = NULL;
     Tile     * tile     = NULL;
     State    * state    = NULL;
-    Music    * music    = NULL;
     Camera   * camera   = NULL;
     Tilepane * tilepane = NULL;
     Tilemap  * map      = NULL;
     Thing    * actor    = NULL;
-    Tracker  * tracker    = NULL;
-    Tracker  * maptracker = NULL;
-
+    Tracker  * tracker          = NULL;
+    Tracker  * maptracker       = NULL;
+    Sprite   * sprite           = NULL;
+    SpriteState * spritestate   = NULL;
+    AlpsShower shower;
+    int        actor_id         = -1;
+    int        sprite_id        = -1;
+    int        npc1_id          = -1;
+    int        npc2_id          = -1;
+    
     
     React    react;
     ALLEGRO_COLOR myblack = {0.0, 0.0, 0.0, 1.0};
-
     
     
     state = state_alloc();
@@ -167,8 +166,10 @@ int real_main(void) {
       return 1;
     }
     
-
-    /** Initialises the reactor, the game state is it's data. */
+    alpsshower_init(&shower, state_camera(state), 100, 1.0, bevec(10.0, 10000.0));
+ 
+ 
+    /* Initializes the reactor, the game state is it's data. */
     react_initempty(&react, state);
     react.keyboard_key_up   = main_react_key_up;
     react.keyboard_key_down = main_react_key_down;
@@ -176,108 +177,128 @@ int real_main(void) {
     puts_standard_path(ALLEGRO_EXENAME_PATH, "ALLEGRO_EXENAME_PATH:");
 
     camera  = state_camera(state);
-    //music   = music_load("musictest.ogg");
     // if(!music) perror("musictest.ogg");
-
-    border  = fifi_loadbitmap("border_004.png",
-                            "image", "ui", "background", NULL);
-
-    border  = fifi_loadbitmap_vpath("image/ui/background/border_004.png");
-    sheet   = fifi_loadbitmap("tiles_village_1000.png", "image", "tile", NULL);
-    // image_load(ERUTA_TEST_SHEET);
-    if(!sheet) {
-      perror(ERUTA_TEST_SHEET);
-      return 1;
+    /* Initialize empty sprite and load a few layers. */
+    /*
+    sprite_id   = 1;
+    sprite      = state_getornewsprite(state, sprite_id);
+    sprite      = state_getornewsprite(state, 2);
+    sprite      = state_getornewsprite(state, 3);
+    spritestate = spritestate_new(sprite);
+    if(state_sprite_loadulpcss(state, 1, 0, "image/ulpcss/body/male/light.png") < 0 
+      ) { 
+        fprintf(stderr, "Could not load body layer.\n");
     }
-    tileset = tileset_new(sheet);
-    tile    = tileset_get(tileset, 4);
-    tile_anim_(tile, -4);
-    tile    = tileset_get(tileset, 0);
-    tile_anim_(tile, 4);
+    state_sprite_loadulpcss(state, 1, 1, "image/ulpcss/hair/male/messy2/redhead.png");
+    state_sprite_loadulpcss(state, 1, 2, "image/ulpcss/torso/white_shirt_male.png");
+    state_sprite_loadulpcss(state, 1, 3, "image/ulpcss/legs/green_pants_male.png");
+    state_sprite_loadulpcss(state, 1, 4, "image/ulpcss/feet/brown_shoes_male.png");
+    
+    state_sprite_loadulpcss(state, 2, 0, "image/ulpcss/body/female/light.png");
+    state_sprite_loadulpcss(state, 2, 1, "image/ulpcss/hair/female/ponytail/raven.png");
+    state_sprite_loadulpcss(state, 2, 2, "image/ulpcss/torso/pirate_shirt_female.png");
+    state_sprite_loadulpcss(state, 2, 3, "image/ulpcss/legs/green_pants_female.png");
+    state_sprite_loadulpcss(state, 2, 4, "image/ulpcss/feet/black_shoes_female.png");
+    state_sprite_loadulpcss(state, 3, 0, "image/ulpcss/body/male/light.png");
+    state_sprite_loadulpcss(state, 3, 1, "image/ulpcss/hair/male/messy2/raven.png");
+    state_sprite_loadulpcss(state, 3, 2, "image/ulpcss/torso/white_shirt_male.png");
+    state_sprite_loadulpcss(state, 3, 3, "image/ulpcss/legs/green_pants_male.png");
+    state_sprite_loadulpcss(state, 3, 4, "image/ulpcss/feet/brown_shoes_male.png");
+    */
+    /*
+    spritestate_now_(spritestate, 0, 0);
+    if(spritestate_posedirection_(spritestate, SPRITE_WALK, SPRITE_EAST)) {
+      fprintf(stderr, "Could not set sprite pose!\n");
+    } else {
+      printf("Sprite pose set.\n");
+    }
+    */
 
-    tilepane= tilepane_new(tileset, 100, 100);
-    // tilepane_set(tilepane, 0, 0, tile);
-    // tilepane_set(tilepane, 1, 1, tile);
-    tilepane_fill(tilepane, tile);
-
-    // map = tilemap_load(ERUTA_MAP_TEST);
-    map = fifi_loadsimple((FifiSimpleLoader*) tilemap_load,
-                          "map_0001.tmx", "map", NULL);
+    /*border  = fifi_loadbitmap("border_004.png",
+                            "image", "ui", "background", NULL);*/
+    /* state_loadtilemap_vpath(state, "map/map_0001.tmx");
+    map = state_nowmap(state);
     if(!map) {
       puts("Map is NULL!");
     } else {
-      actor_data = tilemap_addthing(map, THING_ACTOR, 120, 100, 1, 32, 32);
-      if(actor_data) {
-        camera_track_(camera, actor_data);
+      actor_id = state_newthingindex(state, 1, THING_ACTOR, 1200, 600, 1, 32, 32);
+      if(actor_id >= 0) {
+        state_camera_track_(state, actor_id);
       }
-      tilemap_layer_lockin(map, 0, camera);    
+      state_lockin_maplayer(state, 0);
     }
-
-  // Try to load the main lua file.
-  // lh_dofile_stderr(state_lua(state), "main.lua");
-  // Call the on_start function.
-  // lh_dofunction_myconsole_args(state_lua(state), "on_start", "s", "a string argument");
-
+    */
+    /*
+    npc1_id = state_newthingindex(state, 2, THING_MOBILE, 200, 120, 1, 32, 32);
+    npc2_id = state_newthingindex(state, 3, THING_MOBILE, 100, 300, 1, 32, 32);
+    { int ti; 
+      for (ti = 4; ti < 20; ti ++) { 
+        state_newthingindex(state, ti, THING_MOBILE, 100, 300 + 35 * ti, 1, 32, 32);
+      }
+    }
+    printf("Things IDs: %d %d %d\n", actor_id, npc1_id, npc2_id);
+    */
+  // Try to load the mainruby file.
+  rh_load_main();
+  // And call the on_start function.
+  rh_on_start();
+  /*
+  if ((actor_id >= 0) && (sprite_id >= 0)) {
+    state_actorindex_(state, 1);
+    state_thing_sprite_(state, 1, sprite_id);
+    state_thing_pose_(state, 1, SPRITE_WALK);
+    state_thing_direction_(state, 1, SPRITE_NORTH);
+    state_thing_sprite_(state, 2, 2);
+    state_thing_pose_(state, 2, SPRITE_WALK);
+    state_thing_direction_(state, 2, SPRITE_SOUTH);
+    state_thing_sprite_(state, 3, 3);
+    state_thing_pose_(state, 3, SPRITE_WALK);
+    state_thing_direction_(state, 3, SPRITE_SOUTH);
+  }
+  */
+  // spritestate_speedup_(spritestate, 2.0);
+  
+#ifdef ERUTA_TEST_SCENE_GRAPH
+  // test scene graph 
+  { 
+    ScegraStyle style, style2, style3;
+    scegrastyle_initempty(&style);
+    scegrastyle_initempty(&style2);
+    scegrastyle_initempty(&style3); 
+    style.background_color      = al_map_rgba_f(0.0, 0.1, 0.9, 0.5);
+    style.border_color          = al_map_rgba_f(1.0, 1.0, 1.0, 0.9);
+    style.border_thickness      = -1;
+    store_load_bitmap(543 , "/image/ui/background/border_004.png");
+    store_load_bitmap(544 , "/image/ui/icon/gin/wizard-staff_32.png");
+    style.background_image_id   = 543;
     
+    scegra_make_box_style_from(1, bevec(20, 30), bevec(200, 100), bevec(5, 5),  -1);
+    scegra_make_box(2, bevec(120, 80), bevec(200, 100), bevec(5, 5),  style);
+    
+    style2.background_color     = al_map_rgba_f(1.0, 0.1, 0.1, 1.0);
+    style2.border_thickness      = -1;
+    
+    
+    scegra_make_box(10, bevec(130, 100), bevec(180, 20), bevec(3, 3),  style2);
+    scegra_make_text(11, bevec(140, 100), "Hello SCEGRA!",  style);
+    scegra_make_image(12, bevec(20, 30), 544,  style);
+    scegra_color_(12, 255, 255, 0, 128);
+    // scegra_angle_(12, 3.0);
+    scegra_size_(12, 32, 32);
+  }
+#endif /* ERUTA_TEST_SCENE_GRAPH */
+
+  /* Main game loop, controlled by the State object. */  
   while(state_busy(state)) { 
-    // tile_addframe(tile, 3);
-    //tile_addanime(tile, TILE_ANIME_NEXT);
-    //tile_addanime(tile, TILE_ANIME_REWIND);
+      mrb_value mval;
+      Point spritenow = bevec(100, 120); 
       react_poll(&react, state);
-      
-      // al_clear_to_color(COLOR_WHITE);
-      // al_draw_line(0, 0, SCREEN_W, SCREEN_H, COLOR_WHITE, 7);
-      
-      if(map) tilemap_update(map, state_frametime(state));
-      // tilepane_draw(tilepane, camera);
-      // tilepane_draw(tilepane, camera);
-      //tilepane_draw(tilepane, camera);
-      //tilepane_draw(tilepane, camera);
-      
-      // camera_speed_(camera, mv);
-      camera_update(camera);
-      // call lua update callback 
-      // lh_dofunction_myconsole_args(state_lua(state), "on_update", "s", "a string argument");
-      
-      
-      if(map) tilemap_draw(map, camera);
-      tile_draw(tile, 200, 300);
-      // tile_update(tile);
-      state_frames_update(state);
-      draw_roundframe(2, 2, 630, 30, 2,
-      COLOR_WHITE, color_rgba(0, 0, 64, 192));
-
-      
-      if (border) { 
-        image_blitscale9(border, 10, 400, 200, 30, -1, -1);
-        image_blitscale9(border, 220, 300, 400, 150, -1, -1);
-      }
-
-      // call lua drawing callback
-      // lh_dofunction_myconsole_args(state_lua(state), "on_draw", "s", "a string argument");
-      
-      /* lh_callglobalstderr_args(state_lua(state), "on_draw", "s", "a string 
-       argument"); */
-      
-      al_draw_textf(state_font(state), COLOR_WHITE,
-                        10, 10, 0, "FPS: %lf, %d", state_fps(state), 
-                        state_frames(state));
-      if(actor_data) {
-        al_draw_textf(state_font(state), COLOR_WHITE,
-                        200, 10, 0, "Actor: (%d, %d)", thing_x(actor_data),
-                        thing_y(actor_data));
-        // thing_resetforces(actor_data);
-      }
-      // draw the console (will autohide if not active).
-      widget_draw((Widget *)state_console(state));
-   
-      al_flip_display();
+      alpsshower_update(&shower, state_frametime(state));
+      state_update(state);
+      state_draw(state);
+      state_flip_display(state);
    }
-   tilemap_free(map);
-   tilepane_free(tilepane);
-   tileset_free(tileset);
-   image_free(border);
-   // camera_free(camera); now released by state.
+   /* image_free(border); */
    state_done(state);
    state_free(state); 
    return 0;

@@ -3,12 +3,11 @@
 #include <stdlib.h>
 #include "flags.h"
 
-/* bounds functions */
 
 /** Makes a new bounds box struct. */
 Rebox rebox_make(int x, int y, int w, int h) {
-  Point p = point(x, y);
-  Point s = point(w, h);
+  Point p = bevec(x, y);
+  Point s = bevec(w, h);
   Rebox result = { p, s };
   return result;
 }
@@ -26,13 +25,13 @@ Rebox * rebox_init(Rebox * self, int x, int y, int w, int h) {
 }
 
 /** Returns a newly initialised rectangular box. */
-Rebox rebox_new(cpFloat x, cpFloat y, cpFloat w, cpFloat h) {
+Rebox rebox_new(float x, float y, float w, float h) {
   Rebox result;
   /** Avoid negative widths and heights by adjusting x and y accordingly */
   if (w < 0) { x = x - w ; w = -w ; } 
   if (h < 0) { y = y - h ; w = -h ; } 
-  result.at   = point(x, y);
-  result.size = point(w, h);
+  result.at   = bevec(x, y);
+  result.size = bevec(w, h);
   return result;
 }
 
@@ -41,6 +40,12 @@ Rebox rebox_new(cpFloat x, cpFloat y, cpFloat w, cpFloat h) {
 Point rebox_at(Rebox * self) {
   return self->at;
 }
+
+/** Return position of Rebox bottom right corner. */
+Point rebox_br(Rebox * self) {
+  return bevec_add(self->at, self-> size);
+}
+
 
 /** Sets position by individual components. */
 Point rebox_x_(Rebox * self, float x) {
@@ -110,7 +115,7 @@ float rebox_center_y(Rebox * self) {
 
 /** Return position of Rebox view center. */
 Point rebox_center(Rebox * self) {
-  return cpv(rebox_center_x(self), rebox_center_y(self));
+  return bevec(rebox_center_x(self), rebox_center_y(self));
 }
 
 

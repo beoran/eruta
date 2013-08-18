@@ -3,22 +3,8 @@
 
 #include "eruta.h"
 
-struct Sound_;
-typedef struct Sound_ Sound;
+/*
 
-struct Music_;
-typedef struct Music_ Music;
-
-struct Audio_;
-typedef struct Audio_ Audio;
-
-
-/* This file was generated with:
-'cfunctions -c -aoff -n -w sound_proto src/sound.c' */
-#ifndef CFH_SOUND_PROTO
-#define CFH_SOUND_PROTO
-
-/* From 'src/sound.c': */
 
 Audio * audio_done (Audio * audio );
 
@@ -47,8 +33,29 @@ Music * music_load (char * filename );
 Sound * sound_playback (Sound * sound , float gain , float pan , float speed , BOOL loop );
 
 Sound * sound_play (Sound * sound );
+*/
 
-#endif /* CFH_SOUND_PROTO */
+
+/* New api based on "global" state. */
+
+BOOL audio_init();
+BOOL audio_done();
+int audio_playing_samples_max();
+
+int audio_play_sound_ex
+(int store_id, float gain, float pan, float speed, BOOL loop);
+
+int audio_play_sound(int store_id);
+BOOL audio_stop_sound(int play_id);
+
+BOOL audio_set_music(int store_id);
+BOOL audio_play_music();
+BOOL audio_stop_music();
+BOOL audio_music_playing_p();
+
+
+
 
 
 #endif
+

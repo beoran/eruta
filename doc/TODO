@@ -1,217 +1,52 @@
-
- //==============================\\  
-|| ERUTA/ERUMA PLAN AND TODO FILE ||
- \\==============================//
- 
-+------+
-| PLAN |
-+------+
-
-==== General ====
-
-Eruta will be a 2D or 2.5D game. 
-  Rationale: I like the old-school 2D look. 3D games are more resource hungry 
-  and time-consuming to implement, so that's a later project, if ever.
-
-Programmed in C with lua scripting:
-  Rationale: I tried many other things but no matter how easy Ruby is to use,
-  I ended up wrining a lot of C anyway to support it. For gaming, speed is
-  essential since a slow game is hard to enjoy, especially for an action game.
-  Lua is much faster and lighter there, too. Too bad the Rite idea (light ruby)
-  didn't seem to have come through. And no, Don't even dare mention C++, it
-  complicates matters  withou being actuall yhelpful. And too bad that Objective
-  C is not well supported on Windows and messy on Linux.  Lua is not the
-  most flexible language to use, but it's popular, lightweight and very fast.
-  
-Using Allegro 5.x. 
-  Rationale: SDL may be the de facto standard for open source games, but it's
-  very poor in functionality. So I ended up having to write a lof of
-  functionality myself. And SDL 1.3 is not as mature as allegro 5 is. I thought
-  alegro 5 was slower, but when  using plain C, and taking care to
-  load the image after openig the screen, Allegro 5 was actually plenty
-  fast enough. Allegro has so much nice functionality built in, it would be a
-  waste not to use it when using plain C.  
-
-Screen resolution exactly 640x480. Color depth minimum 16bpp or better. Perhaps
-implement scaling to other resolutons trough OpenGL or 2xSai, etc later.
-  Rationale: Old-style feeling and limit art requrements.
-
-Needed Functionality:
-Sprites
-Tile map
-Particle engine
-Camera module
-Physical world
-Collision detection
-Input mapping (to commands/events)
-Music handling
-Sound handling
-Scripting of maps and events.
-Game system: stats, skills, techniques, battle resolution, etc, etc.
-
-Tile Map
---------
-
-Tile map with tiles of 32x32 pixels. Before, 40x40 or 64x64 were considered, but
-these are too large and make the art requirements too high. Also, 32x32 is easy 
-to accelerate with OpenGL later, and fits the resolution well.
-
-Tile map distinguishes between tile layers wich dictate rendering and world
-layers which dictate gameplay (ie, on which levels the sprites can “be”).
-Tile map has 4 drawing layers of tiles. Testing shows 4 is optimal for speed.
-Layers are usually grouped in pairs for the “world layers”. Layer 1 is the first
-floor, layer 2 is anything that stands on that floor and any fringes/overlaps
-from one kind of floor to another. Layers 1 and 2 are always under all sprites.
-Layer 3 and 4 are normally the “floor above” the player, however, the player may
-walk there in case of bridges, overlays, or parallax.
-
-Every layer may have a background image that is drawn before the tiles of the layer are drawn. the tiles can also be made invisible if the background layer by itself is enough visually. In that case the tiles influence the gameplay and physics only. Although only one bitmap background can be displayed per layer, it's possible for a layer to change the background depending on what's needed. (night/day/scripting/etc). The background bitmap width and height must also
-have a size that is an integer multiple of 32 pixels.
-
-There will be options for parallax scrolling of the backkground bitmap versus the tiles in a layer, or, for paralax vbetween the layers in total. Scrolling
-can be locked or unlocked in x and y directions though scripts or by using
-special "scroll lock" tiles.
-
-Culling will be possible, in that, if enabled, only the direct area around the player sprite will be shown, and anything outside a rectangle set buy special culling tiles will not be drawn. This to allow inside areas to be stored more compactly.
-
-Everymap layer uses exactly one tile set based on a tile image. Tile images are
-are files in .png format with a width and height that are integer multiples of
-32, and that contain many individual tiles.
-
-Keeping with convention over configuration, the tile maps are read in, split up
-in 32x32 tiles and interpreted according to the following rules:
-
-Every map describes the names of the tile it uses. The file name of the 
-set is of the form set_name_xxx000.png where xxx000 is a number with at least 4 
-digits that signifies the start index of the set. Tiles in a set are numbered 
-from left to right and from top to bottom, starting with the start index of the 
-set. A set may contain at most 1000 tiles. So, for instance  the second tile at 
-the top left of a tile set named set_2000_test.png, will be numbered 2001.
-
-The idea of this is for maps to be broadly compatible with each other even if 
-they use different tile sets, and also to make it easy to swap tile sets if 
-needed.
-
-Normally, a tile is a solid tile, without transparency. If the tile contains any 
-alpha values, it is loaded as a tile with transparency.
-
-
-Particle engine
-
-Already 50% done. Can display rain, snow, blood, bursts. Explosions and spell
-effects would be nice as well. Still needs to be adapted to use camera. Need to
-allow bitmaps as well as drawing for the particles. Need to allow bitmap
-animations for certain effects.  Probably need a mixin for this.
-
-Camera module
-
-The camera module should not only model a camera (that is, a view of a
-rectangular area that can move in the “world” of the game and translate these
-world coordinates to screen coordinates. We also need a mixin to model an object
-that has a position I the world and that can move there, and that cooperates
-well with the camera. Perhaps this belongs in the physics, though.
-
-Physics
-
-Use Chipmunk anyway, but tweaked it. My own system was way too unwieldy and 
-difficult to use.
-
-+---------+
-| Modules |
-+---------+
-
-According to the requirements, the following modules will be needed, each
-in one C file (although smaller modules may be joined tohgether into one c
-file if appropriate)
-Although
-only one bitmap background can be displayed at once, it's possible for a map to
-change the background depending on what's needed. (night/day/scripting/etc). The
-background bitmap width and height must also have a size that is an integer
-multiple of 32 pixels.
-
-camera.c  : Camera, active view of current area.
-cph.c     : Chipmunk physics helpers.
-dynar.c   : Dynamic arrays.
-effect.c  : Graphical effects using particle engine and likewise.
-every.c   : Iterator for dunamic arrays, etc.
-forlua.c  : Functions that will be used in te lua scripts
-glh.c     : OpenGL helper functionality.
-lh.c      : Lua helpers.
-main.c    : Main function of program.
-mem.c     : Memory management and malloc wrappers.
-mobile.c  : Mobile entities 
-sound.c   : Sound and music helpers.
-state.c   : Program state, and also, high level functionality.
-tile.c    : Tile functionality.
-tilemap.c : Tile map functionality.
-tilepane.c: Tile Layer functionality.
-sprite.c  : Sprites on the tile map.
-mode.c    : Different game modes (menu, normal, ect)
-menumode.c: Menu mode
-playmode.c: Play mode
-openmode.c: Opening (intro) mode
-confmode.c: Configuration/settings mode.
-editmode.c: Edit mode for built in editor.
-goal.c    : Goal of motion of mobile or camera.
-player.c  : Player control and data.
-ncp.c     : Npc control and data.
-foe.c     : Foe control and data.
-switch.c  : Switches.
-treasure.c: Treasures.
-door.c    : Doors.
-obstacle.c: Obstacles, pushblocks, etc.
-route.c   : Path finding and planning.
-item.c    : Items player can have.
-gear.c    : Equippable items.
-useable.c : Useable items.
-being.c   : Logical and play-related information about beings.
-inmap.c   : Input mapping (links input to in-game action).
-ai.c      : AI for npc's and foes.
-saveload.c: Saving and loading state.
-initfile.c: Loading and saving settings.
-react.c   : Map events and NPC/Item/Foe reactions.
-world.c   : World state.
-ui.c      : UI.
-widget.c  : Ui widget.
-wimenu.c  : Ui menu widget.    
-wibox.c   : Ui text box widget (more widgets needed).
-
-(Probably more...)
-
-Maybe     : 
-intmap.c  : Maps game objects to integers and vice versa for easy lua wrapping?
-
-47 modules/c files -> upper estimate 80 modules.
-80 * 1000lines per file (upper limit) = 80kloc.
-
-  
 +------+
 | TODO |
 +------+
 
-o Tile map 
-  * Enable tile animations:
-  * Load animations.
-  * Correctly display animations.
-  
-o Particle Engine Stardust
+
+o Physics:
+  * Implement interaction between players characters/NPC's/foes, etc.
+  * Implement attacks for action based or hybrid style battle gaming.
+  * Implement sensors for AI and line of sight.
+  * Implement shallow and deep water.
+
+
+o GUI:
+  * Maybe a small scene graph so the GUI can be implemented in mruby.
+  * All sorts of widgets to display dialogs, status screens, menus, etc.
+
+o Main:
+  * Configurable controls
+  * Loading and saving settings
+  * Loading and saving data
+
+o Tile map:
+  * Transition from one map to another.
+  * Background images.
+  * Parallax.
+  * Scripting.
+
+o Sprites:
+  * Shadows under the sprites.
+  * Speed up loading a bit? 
+
+o AI:
+  * Implement D* lite.
+  * Player char pathfinding.
+
+
+o Particle Engine Alps (Allegro Particle System)
+  * Damage display.
   * Group for flexibility.
   * Allow bitmaps as well as colors/shapes.
   * Explosions.
   * Spell effects.
-  
-o Pysics:   
-  * Movable mixin (thing that can move in the real world but needs 
-    to be displayed on screen taking the camera and the current viewport 
-    into consideration)
 
-o Eruma:
-  * GUI for setting background.
+o Scripting:
+  * Wire it all up so game content becomes accessible in mruby.
 
-    
 o AND MUCH MORE! ^_^;;;
-  
-  
+
+
 
 +------+
 | DONE |
@@ -221,9 +56,21 @@ o AND MUCH MORE! ^_^;;;
 
 o Tile map:
   * Static tilesets.
-  * Static background: 
-    Use <background>name</background> tag manually, no GUI in Eruma for now.
-  * Also load tilemapeditor.org TMX maps.
-  
+  * Load tilemapeditor.org TMX maps.
+  * Tile map tile animations.
+  * Tile properties.
+  * Tile map layers. 
+
+
+o Sprites:
+  * Loading.
+  * Coloring.
+  * Positioning.
+
 o Physics:
-  * Simple rectangle bound box based collision detection.  
+  * Implement stairs. Ned to use stair and invisible support tiles in tile map.
+  * Bump based physics.
+  * Physical layers.
+
+o Asset loading: 
+  * resor and store subsystems, both already scripted. 

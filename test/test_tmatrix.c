@@ -1,5 +1,5 @@
 /**
-* This is a test for tmatrix in $package$
+* This is a test for tmatrix in tmatrix.h
 */
 #include "si_test.h"
 
@@ -10,7 +10,7 @@
 #define TEMPLATE_PREFIX intmat_
 #include "tmatrix.h"
 
-/* Get implementation for iteger type. */
+/* Get implementation for integer type. */
 #define TEMPLATE_IMPLEMENT
 #define TEMPLATE_T      int
 #define TEMPLATE_NAME   Intmat

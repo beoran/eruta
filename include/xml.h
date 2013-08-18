@@ -20,7 +20,7 @@ void print_element_names (xmlNode * node );
 
 void print_all_attributes (xmlNode * node );
 
-xmlNode * xmlFindNextType (xmlNode * node , const char * name , int type );
+xmlNode * xmlFindNextType (xmlNode * node , const char * name , xmlElementType type );
 
 xmlNode * xmlFindNext (xmlNode * node , const char * name );
 

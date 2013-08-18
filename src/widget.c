@@ -7,6 +7,8 @@
 #include "flags.h"
 #include "ui.h"
 #include "widget.h"
+#include "draw.h"
+#include "bad.h"
 
 
 /*
@@ -16,7 +18,7 @@
 * can also play the game.
 *
 * The following widgets will be needed:
-* 1 ) Console to log errors and interact with ruby/state.
+* 1 ) BBConsole to log errors and interact with ruby/state.
 * 2 ) Menu (vertical, horizontal) 
 * 3 ) Ring menu ?
 * 4 ) Notification/explanation display.
@@ -54,8 +56,26 @@
 *
 */
 
+/* Finds the BBWidgetHandler in the actions table for the given type. */
+BBWidgetHandler * bbwidgetactions_find(BBWidgetAction * actions, int type) {
+  while((actions->type != -1) && (actions->handler != NULL)) {
+    if (actions->type == type) {
+      return actions->handler;
+    }
+    actions++;
+  }
+  return NULL;
+} 
 
 
+/* Finds the BBWidgetHandler in the actions table for the given type and calls it
+ * with widget and data as parameters. */
+int bbwidgetactions_handle(BBWidgetAction * actions, int type,
+                         BBWidget * widget, void * data) {
+  BBWidgetHandler * handler = bbwidgetactions_find(actions, type);
+  if (handler) { return handler(widget, data); }
+  return BBWIDGET_HANDLE_IGNORE;
+} 
 
 
 /** Makes a new style struct. */
@@ -96,202 +116,211 @@ Font  * style_font(Style * self)        {
 
 
 
-// typedef struct WidgetMethods_ WidgetMethods;
+// typedef struct BBWidgetMethods_ BBWidgetMethods;
 
 
 
 /** Get bounds of widget. */
-Rebox widget_bounds(Widget * self) {
+Rebox bbwidget_bounds(BBWidget * self) {
   return self->bounds;
 }
 
 /** Get width of widget. */
-int widget_w(Widget * self) {  
+int bbwidget_w(BBWidget * self) {  
   return rebox_w(&self->bounds); 
 }
 /** Get height of widget. */
-int widget_h(Widget * self) {  
+int bbwidget_h(BBWidget * self) {  
   return rebox_h(&self->bounds); 
 }
 /** Get x position of widget. */
-int widget_x(Widget * self) {  
+int bbwidget_x(BBWidget * self) {  
   return rebox_x(&self->bounds); 
 }
 /** Get y position of widget. */
-int widget_y(Widget * self) {  
+int bbwidget_y(BBWidget * self) {  
   return rebox_y(&self->bounds); 
 }
 /** Get z position of widget. */
-int widget_z(Widget * self) {  
+int bbwidget_z(BBWidget * self) {  
   return self->z;
 }
 
 /** Get foreground color of widget. */
-Color widget_forecolor(Widget * self) {  
+Color bbwidget_forecolor(BBWidget * self) {  
   return style_forecolor(&self->style);  
 }
 /** Get backgrund color of widget. */
-Color widget_backcolor(Widget * self) {  
+Color bbwidget_backcolor(BBWidget * self) {  
   return style_backcolor(&self->style);  
 }
 /** Get font of widget. */
-Font * widget_font(Widget * self)     {  
+Font * bbwidget_font(BBWidget * self)     {  
   return style_font(&self->style);
 }
 
 /** Get background bitmap of widget. */
-Image * widget_background(Widget * self) {
+Image * bbwidget_background(BBWidget * self) {
   return style_background(&self->style);
 }
 
 /** Gets the flags of a widget. */
-int widget_flags(Widget * self) {
+int bbwidget_flags(BBWidget * self) {
   return self->flags;
 }
 
 /** Gets the id of a widget. */
-int widget_id(Widget * self, int id) {
+int bbwidget_id(BBWidget * self, int id) {
   return self->id;
 }
 
 /** Sets all the flags of a widget at once. */
-int widget_flags_(Widget * self, int flags) {
+int bbwidget_flags_(BBWidget * self, int flags) {
   return self->flags = flags;
 }
 
 /** Sets the id of a widget. */
-int widget_id_(Widget * self, int id) {
+int bbwidget_id_(BBWidget * self, int id) {
   return self->id = id;
 }
 
 
 /** Sets an individual flag on the widget. */
-int widget_flag(Widget * self, int flag) {
+int bbwidget_flag(BBWidget * self, int flag) {
   return flags_set(&self->flags, flag);
 }
 
 /** Unsets an individual flag on the widget. */
-int widget_unflag(Widget * self, int flag) {
+int bbwidget_unflag(BBWidget * self, int flag) {
   register int wflags = self->flags;
   return flags_unset(&self->flags, flag);
 }
 
 /** Sets or unsets an individual flag on the widget. 
 If set is true the flag is set, if false it's unset. */
-int widget_doflag(Widget * self, int flag, int set) {
+int bbwidget_doflag(BBWidget * self, int flag, int set) {
   return flags_put(&self->flags, flag, set);
 }
 
 /** Checks if an individual flag is set */
-int widget_flag_p(Widget * self, int flag) {
+int bbwidget_flag_p(BBWidget * self, int flag) {
   return flags_get(self->flags, flag);
 }
 
 /** Checks if the widget is visible or not.  */
-int widget_visible(Widget * self) {
-  return widget_flag_p(self, WIDGET_FLAG_VISIBLE);
+int bbwidget_visible(BBWidget * self) {
+  return bbwidget_flag_p(self, BBWIDGET_FLAG_VISIBLE);
 }
 
 /** Checks if the widget is listening to input or not.  */
-int widget_listening(Widget * self) {
-  return widget_flag_p(self, WIDGET_FLAG_LISTENING);
+int bbwidget_listening(BBWidget * self) {
+  return bbwidget_flag_p(self, BBWIDGET_FLAG_LISTENING);
 }
 
 /** Checks if the widget is active, hat is both visible and 
 listening to input or not.  */
-int widget_active(Widget * self) {
-  return widget_flag_p(self, WIDGET_FLAG_ACTIVE);
+int bbwidget_active(BBWidget * self) {
+  return bbwidget_flag_p(self, BBWIDGET_FLAG_ACTIVE);
 }
 
 /** Checks if the widget is focused or not.  */
-int widget_focused(Widget * self) {
-  return widget_flag_p(self, WIDGET_FLAG_FOCUSED);
+int bbwidget_focused(BBWidget * self) {
+  return bbwidget_flag_p(self, BBWIDGET_FLAG_FOCUSED);
 }
 
 /** Checks if the widget selected or not.  */
-int widget_selected(Widget * self) {
-  return widget_flag_p(self, WIDGET_FLAG_SELECTED);
+int bbwidget_selected(BBWidget * self) {
+  return bbwidget_flag_p(self, BBWIDGET_FLAG_SELECTED);
 }
 
 /** Sets the widget to be visible or not depending on set. */
-int widget_visible_(Widget * self, int set) {
-  return widget_doflag(self, WIDGET_FLAG_VISIBLE, set);
+int bbwidget_visible_(BBWidget * self, int set) {
+  return bbwidget_doflag(self, BBWIDGET_FLAG_VISIBLE, set);
 }
 
 /** Sets the widget if the widget is listening to input or not depending
 on set. */
-int widget_listening_(Widget * self, int set) {
-  return widget_doflag(self, WIDGET_FLAG_VISIBLE, set);
+int bbwidget_listening_(BBWidget * self, int set) {
+  return bbwidget_doflag(self, BBWIDGET_FLAG_VISIBLE, set);
 }
 
 /** Sets the widget to be active or not */
-int widget_active_(Widget * self, int set) {
-  return widget_doflag(self, WIDGET_FLAG_ACTIVE, set);
+int bbwidget_active_(BBWidget * self, int set) {
+  return bbwidget_doflag(self, BBWIDGET_FLAG_ACTIVE, set);
 }
 
 /** Sets if the widget is focused or not.  */
-int widget_focused_(Widget * self, int set) {
-  return widget_doflag(self, WIDGET_FLAG_FOCUSED, set);
+int bbwidget_focused_(BBWidget * self, int set) {
+  return bbwidget_doflag(self, BBWIDGET_FLAG_FOCUSED, set);
 }
 
-/** Sets if the widget selected or not.  */
-int widget_selected_(Widget * self, int set) {
-  return widget_doflag(self, WIDGET_FLAG_SELECTED, set);
+/* Sets if the widget selected or not.  */
+int bbwidget_selected_(BBWidget * self, int set) {
+  return bbwidget_doflag(self, BBWIDGET_FLAG_SELECTED, set);
 }
 
-/** Sets up the method table of a widget. */
-Widget * widget_metab_(Widget * self, WidgetMetab * metab) {
+/* Sets up the method cache of a widget based on the actions. */
+BBWidget * bbwidget_metabfromacts(BBWidget * self, BBWidgetAction * acts) {
   if(!self) return NULL;
-  self->metab = metab;
+  if(!acts) return NULL;
+  self->metab.done = bbwidgetactions_find(acts, BBWIDGET_EVENT_DONE);
+  self->metab.draw = bbwidgetactions_find(acts, BBWIDGET_EVENT_DRAW);
+  self->metab.free = bbwidgetactions_find(acts, BBWIDGET_EVENT_FREE);
   return self;
 }
 
-/** Fully initializes a widget. */
-Widget * widget_initall(Widget * self, 
-                        int id, WidgetMetab * metab, 
-                        Rebox bounds, Style style) {
+/* Sets up the acts, and also updates the method cache of a widget */
+BBWidget * bbwidget_acts_(BBWidget * self, BBWidgetAction * acts) {
+  if(!self) return NULL;
+  self->acts = acts;
+  return bbwidget_metabfromacts(self, acts);
+}
+
+/* Fully initializes a widget. */
+BBWidget * 
+bbwidget_initall(BBWidget * self,  int id, BBWidgetAction * acts, 
+                 Rebox bounds, Style style) {
   if(!self) return NULL;
   self->id     = id;
-  widget_metab_(self, metab);
+  self->acts   = acts; 
+  bbwidget_metabfromacts(self, acts);
   self->bounds = bounds;
   self->style  = style;
-  widget_active_(self, TRUE);
+  bbwidget_active_(self, TRUE);
   return self;
 }
 
-
-/** Initializes a widget with given bounds and style. */
-Widget * widget_initbounds(Widget * self, int id,
-                           WidgetMetab * metab, Rebox bounds)
-{
+/* Initializes a widget with given bounds and style. */
+BBWidget * 
+bbwidget_initbounds(BBWidget * self, int id,  BBWidgetAction * acts, Rebox bounds) {
   Color fg    = color_rgb(0,0,0);
   Color bg    = color_rgb(255,0,0);
   Style style = { fg, bg, NULL, NULL };
-  return widget_initall(self, id, metab, bounds, style);
+  return bbwidget_initall(self, id, acts, bounds, style);
 }
 
-/** Initialzes a widget from another one's bounds and style. */
-Widget * widget_initparent(Widget * self, int id, Widget * parent) {
-  return widget_initall(self, id, parent->metab, parent->bounds, parent->style);
+/* Initializes a widget from another one's bounds and style. */
+BBWidget * bbwidget_initparent(BBWidget * self, int id, BBWidget * parent) {
+  return bbwidget_initall(self, id, parent->acts, parent->bounds, parent->style);
 }
 
-/** Allocates a widget */
-Widget * widget_allocate() {
-  return STRUCT_ALLOC(Widget);
+/* Allocates a widget */
+BBWidget * bbwidget_allocate() {
+  return STRUCT_ALLOC(BBWidget);
 }
 
-/** Call when widget is not needed anymore. */
-Widget * widget_done(Widget * widget) {
+/* Call when widget is not needed anymore. */
+BBWidget * bbwidget_done(BBWidget * widget) {
   // do nothing there as background image and font are NOT owned.
   return widget;
 }
 
 
-/** Frees a widget. Calls widget->methods->done(), then mem_free if
+/* Frees a widget. Calls widget->methods->done(), then mem_free if
 the latter returns not NULL. Returns NULL. */
-Widget * widget_free(Widget * self) {
-  if (self && self->metab && self->metab->done) {
-    if(self->metab->done(self)) {
+BBWidget * bbwidget_free(BBWidget * self) {
+  if (self && self->metab.done) {
+    if(self->metab.done(self, NULL)) {
       mem_free(self);
     }
   }
@@ -299,43 +328,192 @@ Widget * widget_free(Widget * self) {
 }
 
 /** Generic widget drawing. */
-void widget_draw(Widget * self) {
-  if(self->metab->draw) {
-    self->metab->draw(self);
+void bbwidget_draw(BBWidget * self) {
+  if(self->metab.draw) {
+    self->metab.draw(self, NULL);
   }
 }
 
 
 /** Generic widget event handling. */
-void widget_handle(Widget * self, ALLEGRO_EVENT * event) {
-  if(self->metab->handle) {
-    self->metab->handle(self, event);
+void bbwidget_handle(BBWidget * self, ALLEGRO_EVENT * event) {
+  if(self->acts) {
+    bbwidgetactions_handle(self->acts, event->any.type, self, event);
   }
 }
 
 /** Generic widget update. */
-void widget_update(Widget * self, ALLEGRO_EVENT * event) {
-  if(self->metab->handle) {
-    self->metab->handle(self, event);
+void bbwidget_update(BBWidget * self, ALLEGRO_EVENT * event) {
+  if(self->metab.update) {
+    self->metab.update(self, event);
   }
 }
 
 
 
-#define WIDGET_BORDER 3 
+/* Helper struct that keeps track of the BYTE positions within 
+a c string or USTR where a line or word starts or ends with a given maxwidth. */
+typedef struct BBTextInfo_ BBTextInfo;
 
-/** Draws a rounded frame as background for a widget. */
-void widget_drawroundframe(Widget * self) {
-  if(!self) return;
-  draw_roundframe(widget_x(self), widget_y(self), 
-                  widget_w(self), widget_h(self),
-                  WIDGET_BORDER,
-                  widget_forecolor(self), widget_backcolor(self));
+struct BBTextInfo_ {
+  int from_char;
+  int start_char;
+  int stop_char;
+  int maxwidth;
+};
+
+
+/* Creates a temporary ustr as per al_ref_ustr but with 
+ start and stop as code positions, not byte positions. */
+const USTR * 
+ustrinfo_newref(
+  USTR_INFO * uinfo, const USTR * ustr, int start, int stop) {
+  return ustr_refustr(uinfo, ustr, 
+                      ustr_offset(ustr, start),
+                      ustr_offset(ustr, stop)
+                     );
 }
 
 
-struct WidgetBox_ {
-  struct Widget_ widget;
+
+/* Creates a temporary ustr that refers ustr but respecds the bounds of the 
+textinfo (start_char and enc_char) */
+const USTR * bbtextinfo_refustr(BBTextInfo * self, 
+                                USTR_INFO  * uinfo,
+                                const USTR * ustr) { 
+  return ustrinfo_newref(uinfo, ustr, self->start_char, self->stop_char);
+}
+
+
+BBTextInfo * 
+bbtextinfo_wordfromtext(BBTextInfo * self, USTR * ustr, Font * font) {
+  int found;
+  int start_pos;
+  int end_pos;
+  int now_char;
+  int end_char;
+  int len;
+  int ch;
+  if(!self) return NULL;
+  now_char         = self->from_char;
+  self->start_char = now_char;
+  ch = ustr_getnext(ustr, &now_char); 
+  while (ch > 0) { 
+    switch(ch) { 
+      case ' ': /* Found a space, here the word ends, include the space. */
+        self->stop_char = now_char;
+        return self;
+      case '\n': /* A newline ends a word, include the newline. */
+        self->stop_char = now_char;
+        return self;
+      default: /* Other characters mean the word is not finished yet. */
+        break;
+    }
+    /* XXX: Should handle the case for languages that use no spaces, 
+    * by checking with al_get_ustr_width but it's not a pressing matter yet.
+    */
+    ch = ustr_getnext(ustr, &now_char); 
+  } 
+  // no word found, just set end here and be done. 
+  self->stop_char = now_char;
+  /* return nULL to signify end */
+  return NULL;
+}
+
+
+/** Prints a ustring, since puts or printf print too much some
+ times for a refstring.*/
+int ustr_print(USTR * word) {
+  size_t index;
+    for(index = 0; index < ustr_length(word) ; index++) {
+      putchar(ustr_get(word, index));
+    }
+  return index;
+}
+
+
+/** Gets the positions of the next line of text fort he given Unicode string 
+and store them in the given info. If the info's from is set to 0 or less, 
+the first line is assumed, otherwise, the line will be started from "from".
+Uses the given font to determine the width of the text as it is built.
+*/
+BBTextInfo * 
+bbtextinfo_linefromtext(BBTextInfo * self, USTR * ustr, Font * font) {
+  BBTextInfo wordinfo;
+  USTR_INFO  lineuinfo;
+  const USTR     * line;
+
+  USTR_INFO  worduinfo = { 0, 0, 0};
+  const USTR     * word;
+  int ch;
+  int index;
+  int width;
+  int last_stop;
+  self->start_char   = self->from_char;
+  wordinfo.from_char = self->from_char;
+  
+  while(bbtextinfo_wordfromtext(&wordinfo, ustr, font)) {
+    word = bbtextinfo_refustr(&wordinfo, &worduinfo, ustr);
+    line = ustrinfo_newref(&lineuinfo, ustr, self->start_char, wordinfo.stop_char);
+    width = al_get_ustr_width(font, line);
+    if (width > self->maxwidth) { 
+      /* XXX: handle case of text overflow by bluntly retuning the word as is.
+      Should split single word based on length too.
+      There is overflow if this is still the first word as see from wordinfo_start_char.
+      */
+      if (wordinfo.start_char == self->start_char) {
+        self->stop_char  = wordinfo.stop_char;
+      } else { 
+        self->stop_char  = wordinfo.start_char;
+      }
+      return self;
+    }
+    // If we get here, the word way still end on a newline character 
+    // check this case. XXX: It works like this because 
+    // stop_char is a bit wonky... it points at the first character of the 
+    // next word in this case...
+    ch = ustr_get(ustr, wordinfo.stop_char - 1);
+    if (ch == '\n') {
+      self->start_char = self->from_char;
+      self->stop_char  = wordinfo.stop_char - 1;
+      return self;
+    }
+    wordinfo.from_char = wordinfo.stop_char;
+  }
+  /* if we get here, the whole string fits. */
+  self->start_char = self->from_char;
+  self->stop_char  = wordinfo.stop_char;
+  /* Return NULL to tell caller text has been completely split up. */
+  return NULL;
+}
+
+
+
+#define BBWIDGET_BORDER 3 
+
+/** Draws a rounded frame as background for a widget. */
+void bbwidget_drawroundframe(BBWidget * self) {
+  if(!self) return;
+  draw_roundframe(bbwidget_x(self), bbwidget_y(self), 
+                  bbwidget_w(self), bbwidget_h(self),
+                  BBWIDGET_BORDER,
+                  bbwidget_forecolor(self), bbwidget_backcolor(self));
+}
+
+
+/** Skips the text info to the next word or line of text. Must be called 
+when looping over bbtextinfo_linefromtext. */
+BBTextInfo * bbtextinfo_next(BBTextInfo * self) { 
+  if(!self) return NULL;
+  self->from_char  = self->stop_char + 1;
+  self->start_char = self->from_char;
+  return self;
+}
+
+
+    
+struct BBWidgetBox_ {
+  struct BBWidget_ widget;
 };
 
 
@@ -344,20 +522,20 @@ struct WidgetBox_ {
 * A label is simply a piece of text that is drawn at bounds.x, bounds.y
 * using style.font in style.forecolor. No background is drawn.
 
-struct WidgetLabel_ {
-  Widget        parent;
+struct BBWidgetLabel_ {
+  BBWidget        parent;
   USTR        * text;
 };
 
 
-WidgetLabel * widgetlabel_init(WidgetLabel * self, Widget * parent, Rebox bounds, 
+BBWidgetLabel * widgetlabel_init(BBWidgetLabel * self, BBWidget * parent, Rebox bounds, 
                           const char * text) {
-  if(!widget_initbounds((Widget *)self, bounds)) return NULL;
+  if(!bbwidget_initbounds((BBWidget *)self, bounds)) return NULL;
   self->text = ustr_new(text);
   return self;
 }
 
-WidgetLabel * widgetlabel_done(WidgetLabel * self) {
+BBWidgetLabel * widgetlabel_done(BBWidgetLabel * self) {
   if(!self) return NULL;
   ustr_free(self->text);
   return NULL;
@@ -365,40 +543,50 @@ WidgetLabel * widgetlabel_done(WidgetLabel * self) {
 
 
 
-struct WidgetChoose_ {
-  Widget parent;
+struct BBWidgetChoose_ {
+  BBWidget parent;
   Dynar * options;
 }; 
 */
 #endif
 
 
+
+
+
 /* A console is a console for command-line interaction and error display. When it's active it captures all input (as long as it's active) */
-struct Console_ {
-  Widget  widget;
-  Lilis * lines;
-  Lilis * last;
-  int     count;
-  int     max;
-  int     start;
-  int     charw;
-  int     cursor;
-  char  * buf;
-  USTR  * input;
-  ConsoleCommand * command; // called when a command has been entered, if set.
-  void * command_data; // command data.
+struct BBConsole_ {
+  BBWidget  widget;
+  USTRList  text;
+  int       count;
+  int       max;
+  int       start;
+  int       charw;
+  int       cursor;
+  char    * buf;
+  USTR    * input;
+  BBConsoleCommand * command; // called when a command has been entered, if set.
+  void    * command_data; // command data.
 };
 
 
+/* Converts a widget to a console. Only works if the pointer is wrapped correctly,
+ by a console. */
+BBConsole * bbwidget_console(BBWidget * widget) { 
+  if (!widget) return NULL;
+  return bad_container(widget, BBConsole, widget);
+}
+
+
 /** Sets the console's command function and data. */
-void console_command_(Console * self, ConsoleCommand * command, void * data) {
+void bbconsole_command_(BBConsole * self, BBConsoleCommand * command, void * data) {
   self->command      = command;
   self->command_data = data;
 }
 
 /** Let the console perform a command if possible. returns nonzero on error,
 zero if OK. */
-int console_docommand(Console * self, const char * text) {
+int bbconsole_docommand(BBConsole * self, const char * text) {
   if(!self) return -1;
   if(!self->command) return -2;
   return self->command(self, text, self->command_data);
@@ -407,255 +595,279 @@ int console_docommand(Console * self, const char * text) {
 
 
 /** Adds a line of text to the console. */
-int console_addstr(Console * self, char * str) {
-  USTR * storestr;
+int bbconsole_addstr(BBConsole * self, const char * str) {
   if(!self) return -1;
-  storestr = ustr_new(str);
-  if(!storestr) return -2;
-  if(!lilis_addnew(self->lines, storestr)) { 
-    ustr_free(storestr);
+  if(!ustrlist_shiftcstr(&self->text, str)) { 
     return -3;
+  }  
+  while(ustrlist_size(&self->text) >= self->max) { // remove last node(s)
+    ustrlist_droplast(&self->text);
   }
-  self->count++;
-  if(self->count > self->max) { // remove last node
-    Lilis * prev, * last;
-    // free data
-    USTR * data = (USTR *) lilis_data(self->last);
-    ustr_free(data);
-    // get prev node
-    prev        = lilis_previous(self->last);
-    // free last node
-    lilis_erase(self->last);
-    // prev to last is now last node.
-    self->last  = prev;
-    self->count --; // reduce count again.
-  }
-  return self->count;
+  return ustrlist_size(&self->text);
 }
 
+/** Adds a line of text to the console. */
+int bbconsole_addustr(BBConsole * self, const USTR * ustr) {
+  if(!self) return -1;
+  if(!ustrlist_shiftustr(&self->text, ustr)) { 
+    return -3;
+  }  
+  while(ustrlist_size(&self->text) >= self->max) { // remove last node(s)
+    ustrlist_droplast(&self->text);
+  }
+  return ustrlist_size(&self->text);
+}
+
+
 /** Puts a string on the console .*/
-int console_puts(Console * self, const char * str) {
+int bbconsole_puts(BBConsole * self, const char * str) {
   int index;
   int size     = strlen(str);
   int leftsize = size;
   int lines = 0;
-  for (index = 0; index < size; 
-       index += self->charw, 
-       leftsize -= (self->charw) ) {
-    int copysize = (leftsize > self->charw ? self->charw : leftsize);
-    help_strncpy(self->buf, str + index, copysize, self->charw + 1);
-    console_addstr(self, self->buf);
-    lines++;
+  USTR_INFO uinfo;
+  BBTextInfo info = { 0, 0, 0, 0};
+  info.maxwidth   = bbwidget_w(&self->widget) - 10;
+  USTR * ustr;
+  const USTR * uline;
+  ustr = ustr_new(str);
+  while(bbtextinfo_linefromtext(&info, ustr, self->widget.style.font)) {
+    uline = bbtextinfo_refustr(&info, &uinfo, ustr);
+    bbconsole_addustr(self, uline);
+    // don't forget to skip to next line!!!
+    bbtextinfo_next(&info);
   }
+  uline = bbtextinfo_refustr(&info, &uinfo, ustr);
+  bbconsole_addustr(self, uline);
+  ustr_free(ustr);
   return lines;
 } 
 
 
 /** Draws a console. */
-void console_draw(Widget * widget) {
-  Console * self ;
-  Font * font    ;
-  Color color    ;
+int bbconsole_draw(BBWidget * widget, void * data) {
+  BBConsole * self  ;
+  Font * font       ;
+  Color color       ;
+  USTRListNode * now;
   int high, linehigh, index, x, y, skip;
-  if (!widget_visible(widget)) return;
+  int linew;
+  if (!bbwidget_visible(widget)) return BBWIDGET_HANDLE_IGNORE;
   
-  self  = (Console *) widget;
-  font  = widget_font(widget);
-  color = widget_forecolor(widget);
+  self  = bbwidget_console(widget);
+  font  = bbwidget_font(widget);
+  color = bbwidget_forecolor(widget);
   
-  widget_drawroundframe(widget);
-  high        = widget_h(widget) - 10;
-  x           = widget_x(widget) +  5;
-  y           = widget_y(widget) -  5;
+  bbwidget_drawroundframe(widget);
+  high        = bbwidget_h(widget) - 10;
+  x           = bbwidget_x(widget) +  5;
+  y           = bbwidget_y(widget) -  5;
   linehigh    = font_lineheight(font);
-  Lilis * now = self->lines;
+  
+  now         = ustrlist_head(&self->text);
   // skip start lines (to allow scrolling backwards) 
-  for (skip = self->start; now && (skip > 0); skip --) {
-    now = lilis_next(now); // move to next line.
-  }
-  for (index = high-linehigh; index > 0; index -= linehigh) {
+  now         = ustrlist_skipnode(&self->text, self->start);
+  
+  for (index = high-(linehigh*2); index > 0; index -= linehigh) {
     USTR * textstr;
     if(!now) break;
-    textstr = (USTR *) lilis_data(now);
+    textstr = ustrlistnode_ustr(now);
     if(textstr) {
       font_drawstr(font, color, x, y + index, 0, textstr);
     }
-    now = lilis_next(now);
+    now = ustrlistnode_next(now);
   }
   // draw input string
   font_drawstr(font, color, x, y + high - linehigh, 0, self->input);
+  // Draw cursor
+  linew = al_get_ustr_width(font, self->input);
+  al_draw_line(x + linew, y + high - linehigh, x + linew, y + high, color, 1);
   // draw start for debugging
-  al_draw_textf(font, color, x, y, 0, "start: %d", self->start);
-  
+  al_draw_textf(font, color, x, y, 0, "start: %d, size: %d", self->start, 
+                ustrlist_size(&self->text));
+  return BBWIDGET_HANDLE_OK;
 }
 
 /** Activates or deactivates the console. */
-void console_active_(Console * self, int active) {
+void bbconsole_active_(BBConsole * self, int active) {
   if(!self) return;
-  widget_active_(&self->widget, active);
+  bbwidget_active_(&self->widget, active);
 }
 
 /** Returns nonzero if console is active zero if not. */
-int console_active(Console * self) {
+int bbconsole_active(BBConsole * self) {
   if(!self) return 0;
-  return widget_active(&self->widget);
+  return bbwidget_active(&self->widget);
 }
 
 /** scrolls the console 1 step in the given direction. */
-int console_scroll(Console * self, int direction) {
+int bbconsole_scroll(BBConsole * self, int direction) {
   if((!self) || (!direction)) return FALSE;
   if(direction < 0) self->start--;
   if(direction > 0) self->start++;
-  self->start = (self->start < 1) ? 0 : self->start;
-  self->start = (self->start > self->max) ? self->max : self->start;
-  return WIDGET_HANDLE_OK;
+  /* Clamp start between 0 and size of list. */
+  self->start = bad_clampi(self->start, 0, ustrlist_size(&self->text));
+  return BBWIDGET_HANDLE_OK;
 }
 
 
+
 /* Key input event handler for console. */
-int console_handle_keychar(Console * self, ALLEGRO_EVENT * event) { 
+int bbconsole_handle_keychar(BBWidget * widget, void * data) { 
+  BBConsole * self        = bbwidget_console(widget);
+  ALLEGRO_EVENT * event = (ALLEGRO_EVENT *) data;
   int ch = event->keyboard.unichar;
   int kc = event->keyboard.keycode;
   switch(kc) {
     // ignore the start-console key
-    case ALLEGRO_KEY_F1   : return WIDGET_HANDLE_OK;
-    case ALLEGRO_KEY_PGUP : return console_scroll(self, 1);
-    case ALLEGRO_KEY_PGDN : return console_scroll(self, -1);
+    case ALLEGRO_KEY_F1:
+    case ALLEGRO_KEY_F3:
+      return BBWIDGET_HANDLE_OK;
+    case ALLEGRO_KEY_PGUP: return bbconsole_scroll(self, 1);
+    case ALLEGRO_KEY_PGDN: return bbconsole_scroll(self, -1);
     case ALLEGRO_KEY_BACKSPACE:
       // remove last character typed.
       ustr_remove_chr(self->input, ustr_offset(self->input, -1));
-      return WIDGET_HANDLE_OK;
+      return BBWIDGET_HANDLE_OK;
     break;    
     case ALLEGRO_KEY_ENTER: {
       const char * command = ustr_c(self->input);
       // execute command
-      if(console_docommand(self, command)) { 
-        console_puts(self, "Error in running comand");
-        console_puts(self, command);
+      if(bbconsole_docommand(self, command)) { 
+        bbconsole_puts(self, "Error in running comand");
+        bbconsole_puts(self, command);
       }
       ustr_truncate(self->input, 0);
       // empty string by truncating it
-      return WIDGET_HANDLE_OK;
+      return BBWIDGET_HANDLE_OK;
       }
-    case ALLEGRO_KEY_ESCAPE:
-      console_active_(self, false); 
-      // disable console if esc is pressed.
-      return WIDGET_HANDLE_OK;
-    default: break;
+    default:
+    break;
   }
   
   ustr_appendch(self->input, ch);
-  return WIDGET_HANDLE_OK;
+  return BBWIDGET_HANDLE_OK;
 }
 
+
+/* Key down event handler for console. */
+int bbconsole_handle_keydown(BBWidget * widget, void * data) { 
+  BBConsole * self       = bbwidget_console(widget);
+  ALLEGRO_EVENT * event  = (ALLEGRO_EVENT *) data;
+  int ch = event->keyboard.unichar;
+  int kc = event->keyboard.keycode;
+  switch(kc) {
+    case ALLEGRO_KEY_F1:  
+    case ALLEGRO_KEY_F3:
+      bbconsole_active_(self, false); 
+      /* disable console if F1 is pressed. 
+       * Note: this shouldnever happen if react is set up well.
+       */ 
+      return BBWIDGET_HANDLE_OK;
+    default:
+    break;
+  }
+  return BBWIDGET_HANDLE_IGNORE;
+}
 
 /* Mouse axe event handler for console */
-int console_handle_mouseaxes(Console * self, ALLEGRO_EVENT * event) { 
-  int z = event->mouse.dz;
+int bbconsole_handle_mouseaxes(BBWidget * widget, void * data) { 
+  BBConsole * self        = bbwidget_console(widget);
+  ALLEGRO_EVENT * event = (ALLEGRO_EVENT *) data;  int z = event->mouse.dz;
   // only capture mouse scroll wheel...
-  if(z == 0) return WIDGET_HANDLE_IGNORE;
-  if(z < 0) return console_scroll(self, -1);
-  if(z > 0) return console_scroll(self, +1);
-  return WIDGET_HANDLE_OK;
+  if(z == 0) return BBWIDGET_HANDLE_IGNORE;
+  if(z < 0) return bbconsole_scroll(self, -1);
+  if(z > 0) return bbconsole_scroll(self, +1);
+  return BBWIDGET_HANDLE_OK;
+}
+
+int bbconsole_handle_ignore(BBWidget * widget, void * data) { 
+  return BBWIDGET_HANDLE_IGNORE;
 }
 
 
-/** Let the console handle allegro events. Returns 0 if event was consumed,
-postoive if not, and negative on error. */
-
-int console_handle(Widget * widget, ALLEGRO_EVENT * event) { 
-  Console * self = (Console *) widget;
-  if(!widget) return WIDGET_HANDLE_ERROR;
-  if(!widget_active(widget)) return WIDGET_HANDLE_IGNORE;
-  
-  
-  switch(event->type) {
-    case ALLEGRO_EVENT_KEY_DOWN:
-      return WIDGET_HANDLE_OK;
-    case ALLEGRO_EVENT_KEY_UP:
-      return WIDGET_HANDLE_OK;
-    case ALLEGRO_EVENT_KEY_CHAR:
-      return console_handle_keychar(self, event);
-    case ALLEGRO_EVENT_MOUSE_AXES:
-      return console_handle_mouseaxes(self, event);
-  }
-  
-  return WIDGET_HANDLE_IGNORE;
-}
-
-/* Global console method table. */
-static WidgetMetab console_metab_ = {
-  console_free,
-  console_done,
-  console_draw,
-  console_handle,
-  NULL,
+static BBWidgetAction bbconsole_actions[] = {  
+  { ALLEGRO_EVENT_KEY_DOWN  , bbconsole_handle_keydown    }, 
+  { ALLEGRO_EVENT_KEY_UP    , bbconsole_handle_ignore     },
+  { ALLEGRO_EVENT_KEY_CHAR  , bbconsole_handle_keychar    },
+  { ALLEGRO_EVENT_MOUSE_AXES, bbconsole_handle_mouseaxes  },
+  { BBWIDGET_EVENT_DRAW     , bbconsole_draw              },
+  { BBWIDGET_EVENT_DONE     , bbconsole_done              },
+  { BBWIDGET_EVENT_FREE     , bbconsole_free              },
+  { -1, NULL }
 };
 
 
-/** Cleans up a console */
-void * console_done(void * widget) {
-  Console * self = (Console *) widget;
+/** Let the console handle allegro events. Returns 0 if event was consumed,
+positive if not, and negative on error. */
+
+int bbconsole_handle(BBWidget * widget, ALLEGRO_EVENT * event) { 
+  if (!widget) return BBWIDGET_HANDLE_ERROR;
+  if (!bbwidget_active(widget)) return BBWIDGET_HANDLE_IGNORE;
+  return bbwidgetactions_handle(bbconsole_actions, event->type, widget, event);
+}
+
+
+/** Cleans up a console. */
+int bbconsole_done(BBWidget * widget, void * data) {
+  BBConsole * self = bbwidget_console(widget);
   Lilis * aid;
-  if(!self) return NULL;
-  for (aid = self->lines; aid; aid = lilis_next(aid))  {
-    ustr_free((USTR *)lilis_data(aid));
-  }
-  self->lines   = lilis_free(self->lines);
+  if(!self) return BBWIDGET_HANDLE_IGNORE;
   self->buf     = mem_free(self->buf);
   ustr_free(self->input);
   self->input   = NULL;
-  return widget;
+  ustrlist_done(&self->text);
+  return BBWIDGET_HANDLE_OK;
 }
 
 
 /** Deallocates a console. */
-void * console_free(void * widget) {
-  Console * self = (Console *) widget;
-  console_done(self);
+int bbconsole_free(BBWidget * widget, void * data) {
+  BBConsole * self = bbwidget_console(widget);
+  bbconsole_done(&self->widget, data);
   mem_free(self);
-  return NULL;
+  return BBWIDGET_HANDLE_OK;
 }
 
 /** Allocates a console. */
-Console * console_alloc() {
-  return STRUCT_ALLOC(Console);
+BBConsole * bbconsole_alloc() {
+  return STRUCT_ALLOC(BBConsole);
 }
 
-#define CONSOLE_MAX 1000
+/* Amount of lines of display the console hat o keep track of. */
+#define BBCONSOLE_MAX 200
 
 /** Initializes a console. */
-Console * console_initall(Console * self, int id, Rebox bounds, Style style) {
+BBConsole * bbconsole_initall(BBConsole * self, int id, Rebox bounds, Style style) {
   if(!self) return NULL;
-  if(!widget_initall(&self->widget, id, &console_metab_, bounds, style)) { 
+  if(!bbwidget_initall(&self->widget, id, bbconsole_actions, bounds, style)) { 
     return NULL;
   }
-  self->lines = lilis_newempty();
-  if(!self->lines) return NULL;
-  self->last  = lilis_addnew(self->lines, NULL);
-  if(!self->last) { console_done(self); return NULL; }
-  widget_active_(&self->widget, FALSE);
+  ustrlist_init(&self->text);
+  // ustrlist_shiftcstr(&self->text, "empty line");
+  bbwidget_active_(&self->widget, FALSE);
   self->count = 0;
   // max MUST be at least 2, 3 to see anything...
-  self->max   = 1000; 
+  self->max   = BBCONSOLE_MAX;
   self->start = 0;
   self->charw = 80; 
   self->buf   = mem_alloc(self->charw + 1);
    // one extra for NULL at end . 
-  if(!self->buf) { console_done(self); return NULL; }
+  if(!self->buf) { bbconsole_done(&self->widget, NULL); return NULL; }
   self->input = ustr_new("");
   self->cursor= 0;
-  if(!self->input) { console_done(self); return NULL; }
+  if(!self->input) { bbconsole_done(&self->widget, NULL); return NULL; }
   self->command      = NULL;
   self->command_data = NULL;
   return self;
 }
 
 /** Initializes a new console. */
-Console * console_new(int id, Rebox bounds, Style style) {
-  Console * self = console_alloc();
-  if(!console_initall(self, id, bounds, style)) {
-    return console_free(self);
+BBConsole * bbconsole_new(int id, Rebox bounds, Style style) {
+  BBConsole * self = bbconsole_alloc();
+  if(!bbconsole_initall(self, id, bounds, style)) {
+    bbconsole_free(&self->widget, NULL);
+    return NULL;
   }
   return self;
 }

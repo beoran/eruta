@@ -6,22 +6,23 @@ typedef struct Tilemap_ Tilemap;
 #include "area.h"
 #include "tile.h"
 #include "tilepane.h"
-/* This file was generated with:
-'cfunctions -c -aoff -n -w tilemap_proto src/tilemap.c' */
-#ifndef CFH_TILEMAP_PROTO
-#define CFH_TILEMAP_PROTO
 
-/* From 'src/tilemap.c': */
+/* Tile maps have at most 4 panes. */
+#define TILEMAP_PANES 4
+
 
 Image * image_loadtexture (const char * category , int index );
 
 Tilemap * tilemap_done (Tilemap * self );
 
-Tilemap * tilemap_init (Tilemap * self , Tileset * set , int w , int h );
+Tilemap * tilemap_init (Tilemap * self , Tileset * set , int w , int h, Area * areq );
 
 Tilemap * tilemap_free (Tilemap * map );
 
-Tilemap * tilemap_new (Tileset * set , int w , int h );
+Tilemap * tilemap_new (Tileset * set , int w , int h, Area * area );
+
+int tilemap_panes(Tilemap * self);
+
 
 Tilepane * tilemap_pane (Tilemap * self , int index );
 
@@ -51,11 +52,27 @@ void tilemap_draw (Tilemap * map , Camera * camera );
 
 void tilemap_update (Tilemap * map , double dt );
 
-Thing * tilemap_addthing (Tilemap * self , int kind , int x , int y , int z , int w , int h );
+Thing * tilemap_addthing(Tilemap * self , int index, int kind , int x , int y , int z , int w , int h);
 
 Lockin * tilepane_lockin (Tilepane * pane , Camera * camera );
 
 Lockin * tilemap_layer_lockin (Tilemap * map , int layer , Camera * camera );
+
+int tilemap_gridwide(Tilemap * self);
+int tilemap_gridhigh(Tilemap * self);
+
+Area * tilemap_area(Tilemap * self);
+
+Thing * tilemap_thing(Tilemap * self, int index);
+
+bool tilemap_init_blend(Tilemap * self);
+
+void tilemap_draw_layer(Tilemap * map, Camera * camera, int layer);
+
+
+/* This is here in stead of in area.h to avoid cyclical dependencies. */
+ERES area_tilemap_(Area * self, Tilemap * map);
+
 
 
 #ifdef COMMENT_
@@ -71,7 +88,6 @@ int tilemap_track (Tracker * tracker , void * data );
 
 #endif
 
-#endif /* CFH_TILEMAP_PROTO */
 
 
 #endif

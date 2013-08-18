@@ -1,0 +1,37 @@
+#!/bin/bash
+
+function mkdir_new {
+  if [ ! -d $1 ] 
+  then
+  mkdir $1
+  fi
+}
+
+if [ -z $MRUBY_DIR ] 
+then
+  export MRUBY_DIR=.
+fi
+
+if [ -z $MRUBY_PREFIX ] 
+then
+  export MRUBY_PREFIX=/usr/local
+fi
+
+
+cd $MRUBY_DIR
+
+echo "Building mruby in $MRUBY_DIR ..."
+
+make
+
+echo "Installing mruby into $MRUBY_PREFIX ..."
+
+mkdir_new $MRUBY_PREFIX/lib
+mkdir_new $MRUBY_PREFIX/include
+mkdir_new $MRUBY_PREFIX/bin
+
+cp -a $MRUBY_DIR/include/* $MRUBY_PREFIX/include
+cp -a $MRUBY_DIR/bin/* $MRUBY_PREFIX/bin
+cp -a $MRUBY_DIR/build/host/lib/*.a $MRUBY_PREFIX/lib
+
+echo "Install of mruby done."

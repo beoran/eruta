@@ -19,7 +19,7 @@ Image * tileset_image_load(const char * filename) {
 
 Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   char * sflags = NULL;
-  int ianim     = 0, iwait = 0;
+  int ianim     = 0, iwait = 0, iblend = 0, imask = 0;
   xmlNode * firstprop;
   int id        = xmlGetPropInt(xtil, "id");
   Tile  * tile  = tileset_get(set, id);
@@ -27,17 +27,24 @@ Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   // printf("Tile id: %d %p\n", id, tile);
   // use properties of tile...
   firstprop     = xmlFindChildDeep(xtil, "properties", "property", NULL);
-  // get type, animation and wait
+  /* Now, get type, animation, wait and blend. */
+  /* Here, sflags sometimes is null, I guess when there is a type without a type. */
   sflags        = xmlPropertyValue(firstprop, "type");
+  tile_property_(tile, sflags);
   xmlPropertyValueInt(firstprop, "anim", &ianim);
   xmlPropertyValueInt(firstprop, "wait", &iwait);
-  tile_property_(tile, sflags);
+  xmlPropertyValueInt(firstprop, "blend", &iblend);
+  xmlPropertyValueInt(firstprop, "blendmask", &imask);
+
   if(ianim) { 
     tile_anim_(tile, ianim);
     if(iwait > 0) tile_wait_(tile, iwait);
     else tile_wait_(tile, 200);
   }
-  //printf("Tile type: %s, anim: %d, wait: %d, flags:%d\n", sflags, ianim, iwait, tile_flags(tile));
+
+  tile_blend_(tile, iblend);
+  tile_mask_(tile, imask);
+  //printf("Tile type: %s, anim: %d, wait: %d, blend %d, flags:%d\n", sflags, ianim, iwait, iblend, tile_flags(tile));
   return tile;
 }
 
@@ -203,7 +210,7 @@ Tilemap * tilemap_loadpanesxml(Tilemap * map, xmlNode * xlayer) {
 
 /** Loads a tile map from a tmx xml document
 */
-Tilemap * tilemap_loadxml(xmlDoc * xml) {
+Tilemap * tilemap_loadxml(xmlDoc * xml, TilemapLoadExtra * extra) {
   Tilemap * result;
   Tileset * set;
   xmlNode *root   = NULL;
@@ -240,7 +247,9 @@ Tilemap * tilemap_loadxml(xmlDoc * xml) {
     return NULL;
   }
   // load the tile set
-  result = tilemap_new(set, wide, high);
+  
+  /// How to integrate with Area? 
+  result = tilemap_new(set, wide, high, NULL);
   // load the layers
   if(!result) return NULL;
   
@@ -257,7 +266,7 @@ Tilemap * tilemap_loadxml(xmlDoc * xml) {
 /**
 * Loads a tile map from a tmx file.
 */
-Tilemap * tilemap_loadtmx(const char * filename) {
+Tilemap * tilemap_loadtmx(const char * filename, TilemapLoadExtra * extra) {
   Tilemap * result;
   xmlDoc  * xml    = NULL;
   /* Parse the file and get the DOM */
@@ -266,7 +275,7 @@ Tilemap * tilemap_loadtmx(const char * filename) {
     printf("error: could not parse file %s\n", filename);
     return NULL;
   }
-  result = tilemap_loadxml(xml);
+  result = tilemap_loadxml(xml, extra);
   /*free the document XXX:this crashes after here, and not of it's not freed, so
   it means we have stray pointers into the xml doc */
   xmlFreeDoc(xml);
@@ -278,17 +287,20 @@ Tilemap * tilemap_loadtmx(const char * filename) {
 /**
 * Loads a tile map.
 */
-Tilemap * tilemap_load(char * filename) {
+Tilemap * tilemap_load(const char * filename, TilemapLoadExtra * extra) {
   Tilemap * result;
-  //fin = fopen(filename, "r");
-  //if(!fin) return NULL;
-  result = tilemap_loadtmx(filename);
-  //fclose(fin);
+  result = tilemap_loadtmx(filename, extra);
+  /* Set up blending if loaded OK. */
+  if (result) {
+    tilemap_init_blend(result);
+  }
   return result;
 }
 
 
-
+void * tilemap_fifi_load(void * extra, const char * filename) {
+  return tilemap_load(filename, extra);
+}
 
 
 

@@ -1,7 +1,8 @@
 #include <ctype.h>
 #include "eruta.h"
 #include "str.h"
-
+#include "bad.h"
+#include "mem.h"
 
 /* str contains utf-8 enables strings. It's currently nothing 
 but a thin layer over Allegro's string library since 
@@ -167,4 +168,276 @@ int cstr_simplematch(const char * expression, int ch) {
   }
   // can't reach here    
 }
+
+USTR * ustrlistnode_ustr(USTRListNode * self) {
+  if(!self) return NULL;
+  return self->ustr;
+}
+
+
+USTRListNode * ustrlistnode_alloc(void) {
+  return STRUCT_ALLOC(USTRListNode);
+}
+
+USTRListNode * ustrlistnode_init(USTRListNode * self, const USTR * ustr) {
+  if(!self) return NULL;
+  self->ustr = ustr_dup(ustr);
+  badlistnode_initempty(&self->list);
+  return self;
+}
+
+USTRListNode * ustrlistnode_initcstr(USTRListNode * self, const char * cstr) {
+  if(!self) return NULL;
+  self->ustr = ustr_new(cstr);
+  badlistnode_initempty(&self->list);
+  return self;
+}
+
+USTRListNode * ustrlistnode_new(const USTR * ustr) {
+  return ustrlistnode_init(ustrlistnode_alloc(), ustr);
+}
+
+USTRListNode * ustrlistnode_newcstr(const char * cstr) {
+  return ustrlistnode_initcstr(ustrlistnode_alloc(), cstr);
+}
+
+
+USTRListNode * ustrlistnode_done(USTRListNode * self) {
+  if(!self) return NULL;
+  ustr_free(self->ustr);
+  badlistnode_initempty(&self->list);
+  return self;
+}
+
+
+USTRListNode * badlistnode_ustrlistnode(BadListNode * elem) {
+  if(!elem) return NULL;
+  return bad_container(elem, USTRListNode, list);
+}
+
+USTRListNode * ustrlistnode_next(USTRListNode * self) {
+  BadListNode * bnode;
+  if (!self) return NULL;
+  bnode = badlistnode_next(&self->list);
+  return badlistnode_ustrlistnode(bnode);
+}
+
+USTRListNode * ustrlistnode_prev(USTRListNode * self) {
+  BadListNode * bnode;
+  if (!self) return NULL;
+  bnode = badlistnode_prev(&self->list);
+  return badlistnode_ustrlistnode(bnode);
+}
+
+
+USTRListNode * ustrlistnode_free(USTRListNode * self) {
+  if(!self) return NULL;
+  ustrlistnode_done(self);
+  return mem_free(self);
+}
+
+USTRListNode * ustrlist_head(USTRList * self) {
+  if(!self) return NULL;
+  return badlistnode_ustrlistnode(self->head);
+}
+
+USTRListNode * ustrlist_tail(USTRList * self) {
+  if(!self) return NULL;
+  return badlistnode_ustrlistnode(self->tail);
+}
+
+
+USTRList * ustrlist_alloc(void) {
+  USTRList * self;
+  self = STRUCT_ALLOC(USTRList);
+  return self;
+}
+
+USTRList * ustrlist_init(USTRList * self) {
+  if (!self) return self;
+  badlist_init(self);
+  return self;
+}
+
+USTRList * ustrlist_new() {
+  return ustrlist_init(ustrlist_alloc());
+}
+
+USTRList * ustrlist_done(USTRList * self) {
+  BadListNode      * elem;
+  USTRListNode * node;
+  if(!self) return NULL;
+  elem = badlist_head(self); 
+  while(elem) {
+    node = badlistnode_ustrlistnode(elem);
+    elem = badlistnode_next(elem); 
+    // here, elem is already pointing to next so node is safe to free
+    ustrlistnode_free(node);
+  }
+  ustrlist_init(self);
+  return self;
+}
+
+
+USTRList * ustrlist_free(USTRList * self) {
+  if(!ustrlist_done(self)) return NULL;
+  mem_free(self);
+  return NULL;
+}
+
+USTRList * ustrlist_addnode(USTRList * self, USTRListNode * node) {
+  if(!self) return NULL;
+  badlist_add(self, &node->list);
+  return self;
+}
+
+USTRList * ustrlist_shiftnode(USTRList * self, USTRListNode * node) {
+  if(!self) return NULL;
+  badlist_shift(self, &node->list);
+  return self;
+}
+
+
+/* Removes the node from the list and frees it too. */
+USTRList * ustrlist_removenode(USTRList * self, USTRListNode * node) {
+  if(!self) return NULL;
+  badlist_remove(self, &node->list);
+  ustrlistnode_free(node);
+  return self;
+}
+
+
+USTRListNode * ustrlist_addustr(USTRList * self, const USTR * ustr) {
+  USTRListNode * node = ustrlistnode_new(ustr);
+  if(!node) return NULL;
+  ustrlist_addnode(self, node);
+  return node;
+}
+
+USTRListNode * ustrlist_addcstr(USTRList * self, const char * cstr) {
+  USTRListNode * node = ustrlistnode_newcstr(cstr);
+  if(!node) return NULL;
+  ustrlist_addnode(self, node);
+  return node;
+}
+
+USTRListNode * ustrlist_shiftustr(USTRList * self, const USTR * ustr) {
+  USTRListNode * node = ustrlistnode_new(ustr);
+  if(!node) return NULL;
+  ustrlist_shiftnode(self, node);
+  return node;
+}
+
+USTRListNode * ustrlist_shiftcstr(USTRList * self, const char * cstr) {
+  USTRListNode * node = ustrlistnode_newcstr(cstr);
+  if(!node) return NULL;
+  ustrlist_shiftnode(self, node);
+  return node;
+}
+
+
+int ustrlist_size(USTRList * self) {
+  return badlist_size(self);
+}
+
+
+USTRList * ustrlist_droplast(USTRList * self) {
+  USTRListNode * node;
+  node = ustrlist_tail(self);
+  ustrlist_removenode(self, node);
+  return self;
+}
+
+/* Joins the list to a newly allocated string. The result must be freed after 
+use with (al_)ustr_free(). */
+USTR * ustrlist_join(USTRList * self) {
+  USTRListNode * node;
+  USTR * result;
+  result   = ustr_new("");
+  for(node = ustrlist_head(self); node; node = ustrlistnode_next(node)) {
+     ustr_append(result, ustrlistnode_ustr(node));
+  }
+  return result;
+}
+
+/* Joins the list to a newly allocated string, using sep as the separator.
+The result must be freed after use with (al_)ustr_free(). */
+USTR * ustrlist_joinwithcstr(USTRList * self, const char * sep) {
+  int first = true;
+  USTRListNode * node;
+  USTR * result;
+  result   = ustr_new("");
+  for(node = ustrlist_head(self); node; node = ustrlistnode_next(node)) {
+    if(first) { 
+      first  = false;
+    } else {
+      ustr_appendcstr(result, sep);
+    }
+    ustr_append(result, ustrlistnode_ustr(node));
+  }
+  return result;
+}
+
+/* Joins the list to a newly allocated string, using ch as the separator.
+The result must be freed after use with (al_)ustr_free(). */
+USTR * ustrlist_joinwithch(USTRList * self, const char ch) {
+  int first = true;
+  USTRListNode * node;
+  USTR * result;
+  result   = ustr_new("");
+  for(node = ustrlist_head(self); node; node = ustrlistnode_next(node)) {
+    if(first) { 
+      first  = false;
+    } else {
+      ustr_appendch(result, ch);
+    }
+    ustr_append(result, ustrlistnode_ustr(node));
+  }
+  return result;
+}
+
+
+/* Joins the list to a newly allocated string, using sep as the separator.
+The result must be freed after use with (al_)ustr_free(). */
+USTR * ustrlist_joinwithustr(USTRList * self, USTR * sep) {
+  int first = true;
+  USTRListNode * node;
+  USTR * result;
+  result = ustr_new("");
+  for(node = ustrlist_head(self); node; node = ustrlistnode_next(node)) {
+    if(first) { 
+      first  = false;
+    } else {
+      ustr_append(result, sep);
+    }
+    ustr_append(result, ustrlistnode_ustr(node));
+  }
+  return result;
+}
+
+/* Retruns drom the list the node reached after skipping skip nodes from head. 
+* Returns NULL if there sis no such node or on other failures.
+*/
+USTRListNode * ustrlist_skipnode(USTRList * self, int skip) { 
+  USTRListNode * now ;
+  // skip skip lines
+  for (now = ustrlist_head(self); now && (skip > 0); skip --) {
+    now = ustrlistnode_next(now); // move to next line.
+  }
+  return now;
+}
+
+
+typedef int USTRGetWidth(USTR const * ustr, void * data);
+
+/** Splits the incoming c string into a list of ustrings, each which have a width 
+less than width. The callback get_width is called to determine 
+the size of the string as it is puzzled together. The string will be split on
+spaces. Tabs are non-braking but will be replaced by spaces. Newlines will force a new line. 
+*/
+USTRList * ustrlist_splitcstr(const char * cstr, double width, 
+                              USTRGetWidth *  get_width, void * data) {
+  return NULL; /* Look for widget textinfo in stead. */
+}
+
 

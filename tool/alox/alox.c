@@ -106,7 +106,7 @@ void alox_free( void * ptr ) {
   free(ptr);
 }
 
-AloxArray alox_array$new(size_t size) {
+AloxArray alox_array_new(size_t size) {
   AloxArray result = (AloxArray) alox_allocate(sizeof(struct AloxArrayStruct));
   if(!result) return result;
   result->size  = size;

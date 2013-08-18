@@ -26,6 +26,9 @@ void draw_frame (int xx , int yy , int ww , int hh , int tt , Color fg , Color b
 
 void draw_roundframe (int xx , int yy , int ww , int hh , int tt , Color fg , Color bg );
 
+bool draw_convert_average_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color);
+
+
 #endif /* CFH_DRAW_PROTO */
 
 

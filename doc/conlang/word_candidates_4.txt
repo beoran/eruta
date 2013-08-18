@@ -1,0 +1,1229 @@
+ability: able
+adverb: about
+leaning: academy, univerity, place of higher studies
+economy; account
+techonogy: accumulator
+substance: acid
+adverb: across
+action: act
+math, science, action, quantity: addition
+greetings: adieu
+action, quantity: adjustment
+adverb: after
+adverb: again
+adverb: against
+social: agreement
+substance: air
+substance, drink: alcohol
+math, science: algebra
+adverb: all
+adverb: almost
+language: alphabet
+substance: aluminum
+substance: ammonia
+adverb: among
+math, quantity: amount
+science: ampere
+entertainment: amusement
+conjunction: and
+medical: anesthetic, pain killer
+math, architecture: angle
+emotion: angry
+animal: animal
+question, social, language: answer
+animal: ant
+adverb: any
+language: apostrophe
+technology: apparatus
+food, plant: apple
+question, social, emotion: approval
+architecture: arch
+social, language, communication: argument
+math: arithmetic
+body: arm
+war: army
+art: art
+conjunction: as
+substance: asbestos
+substance: ashes
+conjunction: at
+geography: atlas, map
+geography: atmosphere
+science: atom
+war: attack
+action: attempt
+state, social: attention
+emotion: attraction
+government: authority
+technology: automatic
+transport: automobile
+state: awake
+human: baby
+animals: bacillus, bacteria
+body: back
+judgment: bad
+item: bag
+state, economy: balance
+architecture: balcony
+shape, entertainment: ball
+entertainment, motion: ballet, dance
+food, plant: banana
+social, entertainment, music: band
+onomatopeia, sound, Banngu: Bang
+music, instrument: plucked instrument, banjo
+money economy: bank
+entertainment, drink: bar
+judgment: barbarism, barbaric
+music, voice: baritone
+plant: bark, tree bark
+direction: base
+liquid: basin
+item: basket
+liquid: bath
+war: bayonet, dagger, knife
+copula: be
+judgment: beautiful
+conjunction: because
+furniture: bed
+animal: bee
+animal: beef, cow, bull
+drink: beer
+conjunction: before
+action: behavior
+mental: belief
+music, sound, item: bell
+body: belly, lower part of body, abdomen
+state: bent
+food, plant: berry
+conjunction: between
+bicycle, Human Powered Vehicle
+judgment: big
+entertainment, game: billiards
+science: biology
+animal: bird
+occurrence: birth
+action: bite
+taste: bitter
+sight, color: black
+war: blade, sword
+sight, color: blond
+body: blood
+clothes: blouse
+action: blow
+sight, color: blue
+motion: board, ride
+transport: boat
+body: body
+state: boiling
+war: bomb
+food: bonbon
+body: bone
+learning: book
+clothes: boot
+social: boss
+liquid, item: bottle
+plant, item: bouquet
+item, container: box
+human: boy
+body: brain
+techonogy: brake
+plant: branch
+substance: brass
+judgment: brave
+exclamation: bravo
+food: bread
+body: breasts, female breasts
+body: breath
+architecture: brick
+architecture: bridge
+sight, light: bright
+judgment: broken
+family: brother
+sight, color: brown
+art, item: brush
+liquid, item: bucket
+architecture: building
+plant: bulb
+touch, action: burn
+action: burst
+economy, social: business
+conjunction: but
+food: butter
+clothes, item: button (on clothes)
+technology: button, key (technology)
+conjunction: by
+technology: cable
+entertainment, drink: cafe
+entertainment, food: cafeteria
+food: cake
+time: calendar
+technology: camera
+war: camouflage
+art: canvas
+entertainment, game, technology: card
+emotion, social, action: care
+carriage
+cart
+cat
+catastrophe
+cause
+center
+centi-, 1/100
+certain
+chain
+chalk
+champagne
+chance
+change
+chaos
+chauffeur
+cheap
+check
+cheese
+chemical
+Chemistry, chemist
+chest
+chief
+child
+chin
+chocolate
+chorus
+church
+cigarette
+circle
+citron, lemon
+civilization
+claw, nail
+clean
+clear
+clock
+cloth
+cloud
+club
+coal
+coat
+cocktail
+cocoa
+coffee
+cognac
+cold, cold weather
+collar
+colony
+color
+comb
+come
+come, to come
+comfort
+committee
+common
+company
+comparison
+competition
+complete
+complex
+computer
+condenser
+condition
+connection
+conscious
+control
+cook
+copper
+copy
+cord
+cork
+correct
+cotton
+cough
+count
+country
+cover
+cow
+crack
+credit
+crime
+crochet
+cruel
+crush
+cry
+cup
+current
+curtain
+curve
+cushion
+cut 
+dahlia
+damage
+dance
+danger
+dark
+daughter
+day
+dead
+dear
+death
+debt
+decadent
+deci-
+decision
+deep
+degree
+delicate
+dependent
+design
+desire
+dessert
+destruction
+detail
+development
+diarrhea
+dictionary
+die, to die
+different
+digestion
+direction
+dirty
+discovery
+discussion
+disease
+disgust
+distance
+distribution
+division
+do
+dog
+door
+doubt
+down
+drain
+drawer
+dress
+drink
+driving
+drop
+dry
+dull
+dust
+dynamo
+dyspepsia
+ear
+early
+earth
+east
+eat
+economic
+edge
+education
+effect
+egg
+eight
+elastic
+electric
+electricity, electron
+element
+eleven
+embassy
+empire
+end
+energy
+engine
+engineer
+enough
+ensemble
+equal
+erotic
+error
+eucalyptus
+even
+event
+ever
+every
+example
+exchange
+existence
+expansion
+experience
+expert
+eye
+façade, front of building
+face
+fact
+fall
+false
+family
+far
+farm
+fat
+father
+fear
+feather
+feather, plume
+feeble
+feeling
+female
+fertile
+fiction
+field
+fifteen
+fifth
+fifty
+fight
+film
+finger
+fire
+first
+fish
+five
+fixed
+flag
+flame
+flat
+flesh, human's flesh
+flight
+flirt
+floor
+flower
+fly
+fold
+food
+foolish
+foot
+for
+force
+fork
+form
+forty
+forward
+four
+fourteen
+fourth
+fowl
+frame
+free
+frequent
+fresco
+Friday
+friend
+frieze
+from
+front
+fruit
+full
+future
+garage
+garden
+gas
+gazette, newspaper
+general
+gentleman
+geography
+geology
+geometry
+get
+girl
+give
+glass
+glove
+glycerin
+go
+goat
+gold
+gondola
+good
+government
+grain
+gram
+grammar
+graph
+grass
+grease, fat
+great
+green
+grey/gray
+grip
+group
+growth
+guide
+gun
+gymnastics
+hair, human hair on head
+half
+hammer
+hand
+hanging
+happy
+harbor
+hard
+harmony
+hat
+hate
+have
+he
+head
+healthy
+hear
+hearing
+heart
+heat
+heavy
+helicopter
+help
+here
+high
+Hiss
+history
+hole
+hollow
+hook
+hope
+horn
+horse
+hospital
+hot
+hotel
+hour
+house
+how
+humor
+hundred
+hundredmillion, 100 000 000
+hundredthousand, 100 000
+hunt
+husband
+hyacinth
+hyena
+hygiene
+hysteria
+I
+ice
+idea
+if
+ill
+imperial
+Imperial
+important
+impromptu
+impulse
+in
+increase
+industry
+inferno
+influenza
+ink
+insect
+instrument
+insurance
+intelligent
+interest
+international
+internet
+invention
+iodine
+iron
+island
+jazz
+jelly
+jewel
+join
+journey
+judge
+jump
+kangaroo
+keep
+kettle
+key
+kick
+kill
+kilo-
+kind
+king
+kiss
+knee
+knife
+knot
+know
+knowledge
+laboratory
+lacquer
+lady
+lamp
+lancet
+land
+language
+last
+late
+latitude
+laugh
+lava
+lavatory
+law
+lead
+leaf
+leaf, plant leaf
+league
+learning
+leather, left
+leg
+legal
+lemon
+let
+letter
+level
+library
+lie, lie down, recline
+lift
+light
+like
+limit
+line
+linen
+lion
+lip
+liqueur
+liquid
+list
+liter
+little (less ,least)
+live
+liver
+living
+lock
+long
+longitude
+loose
+loss
+loud
+louse
+love
+low
+lunch
+macaroni, noodles
+machine
+madam, -san
+mademoiselle, -chan
+magnet
+make
+malaria, fever
+male
+man
+man, adult male human
+manager
+mania
+mannequin, doll
+many
+map
+mark
+market
+married
+mash
+mass
+match
+material
+Mathematics
+maximum
+may
+meal
+measure
+meat
+medical
+meeting
+memo
+memory
+menthol
+metal
+meter
+Mew
+micro-
+microscope
+middle
+military
+milk
+milli-
+million, 1 000 000
+mind
+mine
+minimum
+minus
+minute
+mist
+mixed
+modern
+money
+monkey
+monsieur, -san
+month
+moon
+moral
+morning
+mother
+motif
+motion
+motor
+mountain
+mouth
+move
+much (more, most)
+muscle
+Museum
+music
+muslin, fine woven cloth
+myriad
+nail
+name
+narcissus
+narrow
+nation
+natural
+nature
+near
+necessary
+neck
+need
+needle
+nerve
+net
+neutron
+new
+news
+nickel
+nicotine
+night
+nine
+no
+noise
+normal
+north
+nose
+not
+note
+now
+nuance
+nuclear
+number
+nut 
+oasis
+obelisk
+observation
+octave
+of
+off
+offer
+office
+oil
+old
+olive
+omelet
+on
+one
+only
+open
+opera
+operation
+opinion
+opium
+opposite
+optimism
+option
+or
+oracle
+orange
+orchestra
+order
+organism
+organization
+ornament
+other
+out
+oven
+over
+owner
+page
+pain
+paint
+pajamas
+palace
+palette
+panic
+paper
+paradise
+paradox
+parallel
+parasol
+parcel
+park
+parody
+part
+past
+paste
+pathos
+path, road, trail
+payment
+peace
+pen
+pencil
+penguin
+person
+pessimism
+petroleum
+philosophy, wisdom
+phonograph, sound recording
+photograph, still image recoring
+physical
+physics
+physiology
+piano, keyed music instrument
+picture
+pig
+pin
+pipe
+place
+plane
+plant
+plate
+platinum
+play
+please
+pleasure
+plough/plow
+plus
+pocket
+point
+poison
+police
+polish
+political
+poor
+porridge
+porter
+position
+possible
+post
+pot
+potash
+potato
+powder
+power
+present
+president
+press
+price
+prima-donna
+prince, princess
+print
+prison
+private
+probable
+process
+produce
+professor, -sensai
+profile
+profit
+program
+propaganda
+property
+prose
+protest
+psychology
+public
+pudding
+pull
+pump
+punishment
+purpose
+Purr
+push
+put
+pyramid
+Quack
+quality
+quarter
+Queen
+question
+quick
+quiet
+quite
+radio
+rail
+rain
+range
+rat
+rate
+ray
+reaction
+reading
+ready
+realism
+reason
+receipt
+record
+red
+referendum
+register
+regret
+regular
+relation
+religion
+rendezvous, meet
+representative
+request
+respect
+responsible
+rest
+restaurant
+revue
+reward
+rhetoric
+rheumatism
+rhythm
+rice
+right
+ring
+river
+road
+robot
+rock and roll
+rod
+roll
+roof
+room
+root
+root, plant root
+rope
+rotor
+rough
+roulette
+round
+rub
+rucksack
+rule
+run
+sabotage
+sad
+safe
+sail
+salad
+salon
+saloon
+salt
+same
+sand
+sapphire
+sardine
+satyr
+saxophone, blown instrument
+say
+scale
+scenario
+schema
+school
+science
+scissors
+scout
+screw
+sea
+seat
+second
+secret
+secretary
+see
+seed
+seem
+selection
+self
+send
+sense
+separate
+serious
+serum
+servant
+seven
+sex
+shade
+shake
+shame
+shampoo
+sharp
+sheep
+shelf
+ship
+shirt
+shock
+shoe
+short
+shut
+side
+sign
+silhouette, shadow
+silk
+silver
+simple
+sing
+sir, -san
+sister
+sit
+six
+sixteen
+size
+ski
+skin
+skirt
+sky
+sleep
+slip
+slope
+slow
+small
+smash
+smell
+smile
+smoke
+smooth
+snake
+sneeze
+snow
+so
+soap
+society
+sock
+soft
+solid
+solo
+some
+son
+song
+sort
+sound
+soup
+south
+souvenir
+space
+spade
+special
+spectrum
+sponge
+spoon
+sport
+spring
+square
+staccato
+stadium
+stage
+stamp
+stand
+star
+start
+statement
+station
+steam
+steel
+stem
+step
+steppe
+stick
+sticky
+stiff
+still
+stitch
+stocking
+stomach
+stone
+stop
+store
+story
+straight
+strange
+street
+stretch
+strong
+structure
+student, to study
+substance
+such
+sudden
+sugar
+suggestion
+summer
+sun
+support
+surprise
+sweet
+swim
+symbol, symbolism
+symmetry
+symphony
+synchronization
+syntax
+syringe
+system
+table
+tail
+take
+talk
+tall
+taste
+tax
+taxi
+tea
+teaching
+technique
+technology
+telephone
+television
+tempo
+ten
+tendency
+tenmillion, 10 000 000
+tenor
+terrace
+test
+text
+than
+that
+the
+theatre
+then
+theory
+there
+thermometer
+thick
+thin
+thing
+third
+thirteen
+thirty
+this
+though
+thought
+thousand
+thread
+three
+throat
+through
+thumb
+thunder
+ticket
+tight
+till
+time
+tin
+tired
+to
+tobacco
+toe
+together
+toilet
+tomato
+tomorrow
+tongue
+tooth, front tooth
+top
+torpedo
+touch
+tournament
+town
+trade
+tragedy
+train
+tramway
+transformer
+transport
+tray
+tree
+trick
+trouble
+trousers
+true
+turbine
+turn
+twelve
+twenty
+twenty-one
+twice
+twist
+two
+typhoon
+umbrella
+under
+unicorn
+unit
+universe
+university
+up
+use
+utopia
+value
+vanilla
+verse
+very
+vessel
+view
+violent
+violin
+visa
+vitamin
+vodka
+voice
+volt
+vomit
+waffle
+waiting
+walk
+wall
+war
+warm
+wash
+waste
+watch
+water
+wave
+wax
+way
+we
+weather
+week
+weight
+well
+west
+wet
+what
+wheel
+when
+where
+while
+whip
+whistle
+white
+who
+why
+wide
+wife
+will
+wind
+window
+wine
+wing
+winter
+wire
+wise
+with
+woman
+wood
+wool
+word
+work
+worm
+wound
+writing
+wrong
+xylophone, struck melodic instrument
+year
+yellow
+yes
+yesterday
+young
+you, singular, thou, ye
+zebra
+zero
+zigzag
+zinc
+zoology

@@ -1,6 +1,6 @@
-#include <chipmunk.h>
 #include "eruta.h"
 #include "camera.h"
+#include "camera_struct.h"
 #include "mem.h"
 #include "flags.h"
 
@@ -77,7 +77,7 @@ Panner * panner_init(Panner * self, Point goal, float speed, int immediate) {
 /** Cleans up a panner after use. */
 Panner * panner_done(Panner * self) {
   if(!self) return NULL;
-  self->goal  = cpvzero;
+  self->goal  = bevec0();
   self->speed = 0.0;
   return self;
 }
@@ -113,8 +113,7 @@ PannerList * pannerlist_freeall(PannerList * self) {
   return NULL;
 }
 
-/** Initializes a lockin and sets it to be active. If speed is negative
-or zero it will be replaced by 10.0 */
+/** Initializes a lockin and sets it to be active.  */
 Lockin * lockin_init(Lockin * self, float x, float y, float w, float h) {
   if(!self) return NULL;
   self->box   = rebox_new(x, y, w, h);
@@ -195,7 +194,7 @@ Camera * camera_done(Camera * self) {
   return self;
 }
 
-/** Frees the carmera after use. */
+/** Frees the camera after use. */
 Camera * camera_free(Camera * self) {
   camera_done(self);
   STRUCT_FREE(self);
@@ -292,8 +291,8 @@ int camera_applypanners(Camera * self) {
   Point delta;
   Point vspeed;
   Panner * panner;
-  cpFloat speed, length;
-  cpFloat ratio;
+  float speed, length;
+  float ratio;
   if(!camera_panning_p(self)) return -1;
   /* Immediate panning. */
   panner = &self->panners->panner;
@@ -304,15 +303,15 @@ int camera_applypanners(Camera * self) {
   }
   /**/
   
-  delta = cpvsub(camera_center(self), panner->goal);
+  delta = bevec_sub(camera_center(self), panner->goal);
   /* Delta has the OPPOSITE direction or angle in which 
   the camera has to scroll, however, normally delta will be 
   bigger than the speed of the panning. We only have to move 
   a fraction of that delta, at least as long 
   as the length of delta is bigger than the speed */
-  length      = cpvlength(delta);
+  length      = bevec_length(delta);
   if (length < 1.0) {
-    /* Less than one pixel to move, the goal hss been reached. */
+    /* Less than one pixel to move, the goal has been reached. */
     camera_center_(self, panner->goal);
     camera_freetoppanner(self);
     return 0;
@@ -329,8 +328,8 @@ int camera_applypanners(Camera * self) {
   /* Construct the speed vector, it has the same angle as the 
   OPPOSITE of the delta vector, so that is why the magnitude 
   is the negative of the needed speed. */
-  vspeed      = cpvforangle(cpvtoangle(delta)); 
-  self->speed = cpvmult(vspeed, -speed); 
+  vspeed      = bevec_forangle(bevec_toangle(delta)); 
+  self->speed = bevec_mult(vspeed, -speed); 
   return 1;  
 }
 
@@ -347,8 +346,8 @@ int camera_applylockins(Camera * self) {
   }
   dx          = rebox_delta_x(&lockin->box, &self->box);
   dy          = rebox_delta_y(&lockin->box, &self->box);
-  delta       = point(dx, dy);
-  self->box.at= cpvadd(self->box.at, delta);
+  delta       = bevec(dx, dy);
+  self->box.at= bevec_add(self->box.at, delta);
   if(dx != 0.0) self->speed.x = 0.0;
   if(dy != 0.0) self->speed.y = 0.0; 
   return 0;
@@ -364,87 +363,96 @@ Camera * camera_update(Camera * self) {
   /* Apply the lockins, that limit the camera's motion. */
   camera_applylockins(self);
   /* Finally move at the set speed. */
-  camera_at_(self, cpvadd(camera_at(self), self->speed));
+  camera_at_(self, bevec_add(camera_at(self), self->speed));
   return self;
+}
+
+Rebox * camera_rebox(Camera * self) {
+ return &self->box;
 }
 
 /** Return position of camera top left corner. */
 Point camera_at(Camera * self) {
-  return rebox_at((Rebox *)self);
+  return rebox_at(camera_rebox(self));
+}
+
+/** Return position of camera bottom top left corner. */
+Point camera_br(Camera * self) {
+  return rebox_br(camera_rebox(self));
 }
 
 /** Sets position by individual components. */
 Point camera_at_x_(Camera * self, float x) {
-  return rebox_x_((Rebox *)self, x);
+  return rebox_x_(camera_rebox(self), x);
 }
 
 /** Sets position by individual components. */
 Point camera_at_y_(Camera * self, float y) {
-  return rebox_y_((Rebox *)self, y);
+  return rebox_y_(camera_rebox(self), y);
 }
 
 
 /** Sets position by individual components. */
 Point camera_at_xy_(Camera * self, float x, float y) {
-  return rebox_xy_((Rebox *)self, x, y);
+  return rebox_xy_(camera_rebox(self), x, y);
 }
 
 /** Sets position. */
 Point camera_at_(Camera * self, Point at) {
-  return rebox_at_((Rebox *)self, at);
+  return rebox_at_(camera_rebox(self), at);
 }
 
 
 /** Return x position of camera top left corner. */
 float camera_at_x(Camera * self) {
-  return rebox_x((Rebox *)self);
+  return rebox_x(camera_rebox(self));
 }
 
 
 /** Return y position of camera top left corner. */
 float camera_at_y(Camera * self) {
-  return rebox_y((Rebox *)self);
+  return rebox_y(camera_rebox(self));
 }
 
 /** Return width of camera view. */
 float camera_w(Camera * self) {
-  return rebox_w((Rebox *)self);
+  return rebox_w(camera_rebox(self));
 }
 
 /** Return height of camera view. */
 float camera_h(Camera * self) {
-  return rebox_h((Rebox *)self);
+  return rebox_h(camera_rebox(self));
 }
 
 /** Return x position of camera bottom right corner. */
 float camera_br_x(Camera * self) {
-  return rebox_br_x((Rebox *)self);;
+  return rebox_br_x(camera_rebox(self));
 }
 
 /** Return y position of camera bottom right corner. */
 float camera_br_y(Camera * self) {
-  return rebox_br_y((Rebox *)self);
+  return rebox_br_y(camera_rebox(self));
 }
 
 /** Return x position of camera view center. */
 float camera_center_x(Camera * self) {
-  return rebox_center_x((Rebox *)self);
+  return rebox_center_x(camera_rebox(self));
 }
 
 /** Return y position of camera bottom center */
 float camera_center_y(Camera * self) {
-  return rebox_center_y((Rebox *)self);
+  return rebox_center_y(camera_rebox(self));
 }
 
 /** Return position of camera view center. */
 Point camera_center(Camera * self) {
-  return rebox_center((Rebox *)self);
+  return rebox_center(camera_rebox(self));
 }
 
 
 /** Sets position of center of camera to center. */
 Point camera_center_(Camera * self, Point center) {
-  return rebox_center_((Rebox *)self, center);
+  return rebox_center_(camera_rebox(self), center);
 }
 
 /** Adjusts the position of center of camera to center if new center 
@@ -459,7 +467,7 @@ camera_centerdelta_(Camera * self, Point newcenter, float deltax, float deltay){
   double ty       = thing_cy(thing);
   
   Point oldcenter = camera_center(self);
-  Point vdelta    = cpvsub(oldcenter, newcenter);
+  Point vdelta    = bevec_sub(oldcenter, newcenter);
   movecenter      = oldcenter;
   deltax          = 128.0;
   deltay          = 128.0;  
@@ -602,5 +610,21 @@ int camera_cansee(Camera * self, int x, int y, int w, int h) {
   if ((y+h) < camera_at_y(self)) return FALSE;
   return TRUE;
 }
+
+
+/* Transforms "world" (ie area/tilemap/level) coordinates to 
+ * screen/camera coordinates. 
+ */
+Point camera_worldtoscreen(Camera * self, Point world_pos) {
+  return bevec_sub(world_pos, self->box.at);
+}
+
+/* Transforms screen/camera coordinates to "world" (ie area/tilemap/level) 
+ * coordinates. 
+ */
+Point camera_screentoworld(Camera * self, Point screen_pos) {
+  return bevec_sub(screen_pos, self->box.at);
+}
+
 
 

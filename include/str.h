@@ -29,7 +29,7 @@ but wrap it a bit with macros to have to do less typing. */
 #define ustr_empty                         al_ustr_empty_string()
 #define ustr_refcstr(INFO, CS)             al_ref_cstr(INFO, CS)
 #define ustr_refbuffer(INFO, BUF, SZ)      al_ref_buffer(INFO, BUF, SZ)
-#define ustr_refstr(INFO, STR, FROM, TO)   al_ref_ustr(INFO, STR, FROM, TO)
+#define ustr_refustr(INFO, STR, FROM, TO)  al_ref_ustr(INFO, STR, FROM, TO)
 #define ustr_size(STR)                     al_ustr_size(STR)
 #define ustr_length(STR)                   al_ustr_length(STR)
 #define ustr_offset(STR, INDEX)            al_ustr_offset(STR, INDEX)
@@ -114,6 +114,58 @@ int cstr_charis (const char * expression , int ch );
 int cstr_simplematch (const char * expression , int ch );
 
 #endif /* CFH_STR_PROTO */
+
+
+#include "bad.h"
+
+/* An ustrlist is a list of UTF-8 enabled strings.  */
+typedef struct USTRListNode_    USTRListNode;
+typedef        BadList          USTRList; 
+
+
+struct USTRListNode_ {
+  USTR    * ustr;
+  BadListNode   list;  
+};
+
+USTR *         ustrlistnode_ustr(USTRListNode * self);
+USTRListNode * ustrlistnode_alloc(void);
+USTRListNode * ustrlistnode_init(USTRListNode * self, const USTR * ustr);
+USTRListNode * ustrlistnode_initcstr(USTRListNode * self, const char * str);
+USTRListNode * ustrlistnode_new(const USTR * ustr);
+USTRListNode * ustrlistnode_done(USTRListNode * self);
+USTRListNode * badlistnode_ustrlistnode(BadListNode * elem);
+USTRListNode * ustrlistnode_free(USTRListNode * self);
+
+USTRListNode * ustrlistnode_next(USTRListNode * self);
+USTRListNode * ustrlistnode_prev(USTRListNode * self);
+USTRListNode * ustrlist_head(USTRList * self);
+USTRListNode * ustrlist_tail(USTRList * self);
+
+
+USTRList * ustrlist_alloc(void);
+USTRList * ustrlist_init(USTRList * self);
+USTRList * ustrlist_new();
+USTRList * ustrlist_done(USTRList * self);
+USTRList * ustrlist_free(USTRList * self);
+USTRList * ustrlist_addnode(USTRList * self, USTRListNode * node);
+USTRList * ustrlist_removenode(USTRList * self, USTRListNode * node);
+
+USTRListNode * ustrlist_addustr(USTRList * self, const USTR * ustr);
+USTRListNode * ustrlist_addcstr(USTRList * self, const char * cstr);
+USTRListNode * ustrlist_shiftustr(USTRList * self, const USTR * ustr);
+USTRListNode * ustrlist_shiftcstr(USTRList * self, const char * cstr);
+
+int ustrlist_size(USTRList * self);
+
+USTRList * ustrlist_droplast(USTRList * self);
+
+USTR * ustrlist_join(USTRList * self);
+USTR * ustrlist_joinwithcstr(USTRList * self, const char * sep);
+USTR * ustrlist_joinwithch(USTRList * self, const char ch);
+USTR * ustrlist_joinwithustr(USTRList * self, USTR * sep);
+
+USTRListNode * ustrlist_skipnode(USTRList * self, int skip);
 
 
 #endif

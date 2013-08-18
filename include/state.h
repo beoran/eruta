@@ -10,6 +10,7 @@ typedef struct State_ State;
 #include "tilemap.h"
 #include "mode.h"
 #include "rh.h"
+#include "sprite.h"
 
 #define STATE_COLORS   16
 #define STATE_BLACK   0
@@ -47,7 +48,7 @@ ALLEGRO_COLOR state_color_f (State * state , int color , float r , float g , flo
 
 Ruby * state_ruby (State * state );
 
-Console * state_console (State * state );
+BBConsole * state_console (State * state );
 
 int state_initjoystick (State * self );
 
@@ -72,6 +73,50 @@ double state_fps (State * state );
 double state_frametime (State * state );
 
 Camera * state_camera (State * state );
+
+Sprite * state_newsprite(State * state, int index);
+Sprite * state_sprite(State * state, int index);
+Sprite * state_getornewsprite(State * state, int index); 
+int state_sprite_loadulpcss
+(State * state, int sprite_index, int layer_index, char * vpath);
+
+int state_sprite_tintlayer
+(State * state, int sprite_index, int layer_index, int, int g, int b, int a);
+
+
+Thing * state_thing(State * state, int index);
+Thing * state_newthing(State * state, int index, int kind,
+                        int x, int y, int z, int w, int h);
+
+int state_camera_track_(State * state, int thing_index);
+int state_lockin_maplayer(State * state, int layer);
+int state_loadtilemap_vpath(State * self, char * vpath);
+
+void state_draw(State * self);
+void state_flip_display(State * self);
+void state_update(State * self);
+
+int state_newthingindex(State * state, int index, int kind, 
+                        int x, int y, int z, int w, int h);
+int state_thing_sprite_(State * state, int thing_index, int sprite_index); 
+int state_thing_pose_(State * state, int thing_index, int pose);
+int state_thing_direction_(State * state, int thing_index, int direction);
+
+int state_actorindex_(State * self, int thing_index);
+Thing * state_actor(State * self);
+
+int state_active_map_id(State * state);
+int state_active_map_id_(State * state, int index);
+
+int state_image_mask_to_alpha(State * state, int store_index, int r, int g, int b);
+int state_image_average_to_alpha(State * state, int store_index, int r, int g, int b);
+
+int global_state_show_fps();
+int global_state_show_fps_(int show);
+int global_state_show_graph();
+int global_state_show_graph_(int show);
+int global_state_show_area();
+int global_state_show_area_(int show);
 
 
 

@@ -17,12 +17,14 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 
+
 if(CMAKE_COMPILER_IS_GNUCC)
  set(COMPILER_GCC 1)
-set(CMAKE_C_FLAGS "-W -Wall -Wno-unused -Wno-unknown-pragmas -g -std=gnu99 -ffast-math -fno-strict-aliasing -Wstrict-aliasing")
+set(CMAKE_C_FLAGS "-W -Wall -Wno-unused -Wno-unknown-pragmas -g -std=c99 -ffast-math -fstrict-aliasing -Wstrict-aliasing=2")
+# set(CMAKE_LD_FLAGS "-pg")
 # always use gnu99, debugging, all warnings except unused and unknown pragmas.
-# when compiling with gnu compiler  Also turn of stricat aliasing,
-# but do warn about it because other compiler may not be able to turn it off.
+# when compiling with gnu compiler.  
+# Warn about alisasing because otherwise aliasing problems it may not be detected.
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 # or for PCC
@@ -30,28 +32,11 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 
 
 
-# Find Allegro using pkgconfig, which means some manual copiyng of 
-# Allegro's pkgconfig files to /usr/lib/pkgconfig
-# find_package(PkgConfig)
-# pkg_check_modules(ALLEGRO REQUIRED
-#   allegro-5.0
-#   allegro_image-5.0
-#   allegro_font-5.0
-#   allegro_primitives-5.0
-#   allegro_ttf-5.0
-#   allegro_audio-5.0  
-#   allegro_dialog-5.0  
-#   allegro_memfile-5.0  
-#   allegro_acodec-5.0  
-#   allegro_color-5.0  
-#   allegro_main-5.0   
-#   allegro_physfs-5.0   
-# ) 
-# 
-# MESSAGE (${ALLEGRO})
 find_package(Mruby REQUIRED)
 find_package(Chipmunk REQUIRED)
-find_package(Allegro50 REQUIRED)
+
+# Finds Allegro using pkgconfig, so it must be configured correctly 
+find_package(Allegro5 REQUIRED)
 find_package(LibXml2 REQUIRED)
 
 
@@ -61,13 +46,22 @@ find_package(JPEG REQUIRED)
 
 # Set include and lib dirs. 
 include_directories(${ALLEGRO_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${JPEG_INCLUDE_DIR} ${LUA_INCLUDE_DIR} ${MRUBY_INCLUDE_DIR} ${CHIPMUNK_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIR}) 
+set(OBJC_LIBRARIES -lobjc)
 
-set(ERUTA_LIBS ${LIBS} ${ALLEGRO_LIBRARIES} ${PNG_LIBRARY} ${JPEG_LIBRARY}
+
+set(ERUTA_LIBS ${LIBS} ${OBJC_LIBRARIES} ${ALLEGRO_LIBRARIES} ${PNG_LIBRARY} ${JPEG_LIBRARY}
 ${LUA_LIBRARIES} ${MRUBY_LIBRARIES} ${CHIPMUNK_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 include_directories("include")
 # add_subdirectory("src")
 include(ErutaFiles)
+set_source_files_properties(${ERUTA_SRC_FILES} PROPERTIES LANGUAGE C)
+
+# set_source_files_properties(${ERUTA_OBJC_SRC_FILES} PROPERTIES LANGUAGE C)
+# src/BNObject.m 
+# set_source_files_properties(BNObject.m PROPERTIES LANGUAGE C)
+
+
 
 
 # eruta exe in the bin subdir (first one should work, but doesnt, hmmm...)
