@@ -195,7 +195,7 @@ module Zori
     if args[0] == :mouse_axes
       x = args[2]
       y = args[3]
-      @mouse_graph.position=[x, y]
+      @mouse_graph.position = [x, y] if @mouse_graph
     end
     
     return Zori::Page.on_event(*args)

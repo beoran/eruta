@@ -158,12 +158,30 @@ data/image/ui/icon/gin/*
   Icons provided under the Creative Commons 3.0 BY license.
   See licence.txt in that directory for more details.
 
+data/music/nethis-the_writer.ogg
+  License: CC-BY 3.0
+  Artists: Nethis, based on vocals by myvanillaworld.
+  http://ccmixter.org/files/Nethis/38405
 
-data/music: 
+data/music/ramblinglibrarian_how_do_i_make_you_see.ogg
+  License: CC-BY 3.0
+  Artists: ramblinglibrarian, based on vocals by myvanillaworld.
+  http://ccmixter.org/files/ramblinglibrarian/25641
+
+data/music/admiralbob77_in_peace_now.ogg
+  License: CC-BY 3.0
+  Artists: Admiralbob77, based on vocals by SackJo22
+  http://ccmixter.org/files/admiralbob77/40555
+
+http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100875
+
 data/music/*_com64.ogg  
   By Com64 under CC-BY 3.0 license.
+
 data/music/*_joclemons.ogg  
   By Jo Clemons under CC-BY 3.0 license.
+
+
 
 
 Thanks to the following people for their suggestions:

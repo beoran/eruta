@@ -713,6 +713,24 @@ group together are:
 
 
 */
+#define TUPLE(A,B) tuple_##A##B                   
+#define DEFINE_TUPLE(A, B)  typedef struct TUPLE(A,B) { A head; B tail; } TUPLE(A,B)
+#define TUPLE_HEAD(T)       (T).head
+#define TUPLE_TAIL(T)       (T).tail
+#define TUPLEPTR_HEAD(T)    (T)->head
+#define TUPLEPTR_TAIL(T)    (T)->tail
+
+
+typedef char * charp;
+
+DEFINE_TUPLE(int, charp);
+
+void scegra_foo() {
+  TUPLE(int, charp) tuple;
+  TUPLE_HEAD(tuple) = 1;
+  TUPLE_TAIL(tuple) = "Hello";
+  printf("%d %s\n", TUPLE_HEAD(tuple), TUPLE_TAIL(tuple));
+}
 
 
 

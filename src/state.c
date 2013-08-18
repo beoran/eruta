@@ -506,18 +506,23 @@ State * state_init(State * self, BOOL fullscreen) {
   // Use full screen mode if needed.
   if(self->fullscreen) { 
     flags = ALLEGRO_FULLSCREEN | ALLEGRO_GENERATE_EXPOSE_EVENTS;
-  } 
+  } else {
+    /* flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_GENERATE_EXPOSE_EVENTS; */
+  }
   // flags |= ALLEGRO_OPENGL;
  
   al_set_new_display_flags(flags);
  /*  al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST); */
   // Create a window to display things on: 640x480 pixels.
+  // self->display = al_create_display(1280, 960);
   self->display = al_create_display(SCREEN_W, SCREEN_H);
   if (!self->display) {
     return state_errmsg_(self, "Error creating display.\n");
   }
   
-  al_resize_display(self->display, SCREEN_W, SCREEN_H);
+  
+  
+  // al_resize_display(self->display, SCREEN_W, SCREEN_H);
   
   // initialize the file finder, so we can start to load the data files
   if(!fifi_init()) { 
@@ -612,6 +617,40 @@ BOOL state_busy(State * self) {
   return self->busy;
 }
 
+/* Scales and moves the display to achieve resolution independence. */
+void state_scale_display(State * self) {
+   int real_w  = al_get_display_width(self->display);
+   int real_h  = al_get_display_height(self->display);
+   int scale_x = real_w / SCREEN_W;
+   int scale_y = real_h / SCREEN_H;
+   int scale   = (scale_x < scale_y) ? scale_x : scale_y;
+   int offset_x= (real_w  - (SCREEN_W * scale)) / 2;
+   int offset_y= (real_h  - (SCREEN_H * scale)) / 2;
+   /*
+   al_draw_textf(state_font(self), COLOR_WHITE,
+                 100, 100, 0, "SCALE: w: %d, h: %d, sx: %d, sy: %d, s: %d, ox:%d, oy:%d",
+                 real_w, real_h, scale_x, scale_y, scale, offset_x, offset_y);
+    */
+   ALLEGRO_TRANSFORM transform;
+   al_identity_transform(&transform);
+   /* Now draw black bars to cover the usused areas. */
+   if (offset_y > 0) { 
+    al_draw_filled_rectangle(-offset_x , -offset_y, real_w, 0, al_map_rgb(0,0,0));
+    al_draw_filled_rectangle(-offset_x , SCREEN_H, real_w, SCREEN_H+offset_y, al_map_rgb(0,0,0));
+   }
+   if (offset_x > 0) { 
+    al_draw_filled_rectangle(-offset_x , -offset_y, 0, real_h, al_map_rgb(0,0,0));
+    al_draw_filled_rectangle(SCREEN_W  , -offset_y,  SCREEN_W + offset_x, real_h, al_map_rgb(0,0,0));
+   }
+   
+   al_scale_transform(&transform, scale, scale);
+   al_translate_transform(&transform, offset_x, offset_y);
+   al_use_transform(&transform);
+   /* al_set_clipping_rectangle(offset_x, offset_y, SCREEN_W, SCREEN_H); */
+   
+   
+}
+
 
 /* Draws all inside the state that needs to be drawn. */
 void state_draw(State * self) {
@@ -648,6 +687,7 @@ void state_draw(State * self) {
     
     /* draw the console (will autohide if not active). */
     bbwidget_draw((BBWidget *)state_console(self));
+    state_scale_display(self);
 }
 
 

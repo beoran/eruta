@@ -332,11 +332,15 @@ void tile_draw(Tile * tile, int x, int y) {
   // printf("%f %f\n", sx, sy);
   al_draw_bitmap_region(sheet, sx, sy, sw, sh, dx, dy, 0);
   // debugging solid tiles
+#ifdef TILE_SHOW_SOLID  
   if (tile_isflag(tile, TILE_WALL)) {
     al_draw_rectangle(dx, dy, dx+TILE_W, dy+TILE_H, dcolor, 2);
   } 
+#endif // TILE_SHOW_SOLID
+  
   // al_draw_bitmap(sheet, dx, dy, 0);
 }
+
 
 /* Used for drawing masked tiles. */
 static Image  * tile_mask_buffer = NULL;   

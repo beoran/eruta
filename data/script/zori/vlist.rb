@@ -1,26 +1,29 @@
-
 module Zori
-  # A menu is a control that can contain several rows and columns 
-  # of other controls.
-  class Menu < Widget
+  
+  # A Vlist is a vertical list of elements.
+  class Vlist
     include Graphic
-    include Element
+    include Component
     include Handler
-
-    def initialize(x, y, w, h, heading=nil, &block)
+    
+    def initialize(x, y, w, h, heading=nil)
       super(x, y, w, h)
       @heading = heading
-      @bg      = graph_box(x, y, w, h)
-      @bg.border_thickness = 0
-      @bg.border_color     = [255, 255, 255, 128]
-      @bg.background_color = BUTTON_BACKGROUND
-      
-      @tg      = graph_text(x + (w / 2), y + 1, heading)
-      @tg.text_flags = Eruta::ALIGN_CENTER
-      @tg.font = Eruta::Zori.font.id
-      @tg.background_color = [0,0,0]
-      @tg.color            = [255,255, 64]
-      @action  = block
+#       @bg      = graph_box(x, y, w, h)
+#       @bg.border_thickness = 0
+#       @bg.border_color     = [255, 255, 255, 128]
+#       @bg.background_color = BUTTON_BACKGROUND
+      @tg = nil
+      if @heading
+        @tg                  = graph_text(x + 1, y + 1, heading)
+        @tg.text_flags        = Eruta::ALIGN_LEFT
+        @tg.font             = Eruta::Zori.font.id
+        @tg.background_color = [0,0,0]
+        @tg.color            = [255,255, 255]
+      end
+      if block_given?
+        yield self
+      end
       @state.set(:hover, :false)
     end
 
@@ -66,4 +69,3 @@ module Zori
     
   end
 end
-  
