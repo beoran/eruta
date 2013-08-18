@@ -175,7 +175,7 @@ def do_main_menu
   end
 end
 
-START_TEST_MAP = false
+START_TEST_MAP = true
 
 def on_start(*args)
   puts "on_start #{args}"
