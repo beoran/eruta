@@ -37,13 +37,10 @@ end
 # Berun %{Sure, but like this is also "possible"...} 
 # Alex 'I this is also "fine".'
 
-# pa = path("script/main.lua")
-# pa = nil
 
 def ulpcss_load(sprite, layer, name) 
   full_name = "image/ulpcss/#{name}"
   sprite_loadulpcss sprite, layer, full_name
-
 end
 
 def torso_tint(sprite, r, g, b, a = 255) 
@@ -169,13 +166,12 @@ def do_main_menu
     $main_button_4= m.make_button(260, 320, 100, 30, "Instructions")
     $main_button_5= m.make_button(260, 360, 100, 30, "Credits")
     Zori::Page.go(:main_menu)
-    # Eruta::Audio.music = $main_music
-    # res = Eruta::Audio.play_music
-    # puts "play_music #{res} #{@main_music.id}"
+    res = Eruta::Audio.play_music
+    puts "play_music #{res} #{$main_music}"
   end
 end
 
-START_TEST_MAP = true
+START_TEST_MAP = false
 
 def on_start(*args)
   puts "on_start #{args}"
