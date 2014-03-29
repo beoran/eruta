@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!-- comment -->
+<root>
+<![CDATA[This is character data
+]]>
+  <child1>
+    <sub1 attr1="value1" attr2="value2">
+    &amp; &gt; &lt; &quote;
+      <sub2/>
+    </sub1> 
+  </child1>
+  <child2>
+    This is text.
+  </child2>
+</root>
+

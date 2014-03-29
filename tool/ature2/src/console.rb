@@ -236,20 +236,27 @@ def test
   @border_win.draw_center("Messages", 0)
   @border_win.refresh
   @mess_win = Console.new(1, @screen.h - 5, @screen.w - 2, 4)   
-  @mess_win.scrollok(true)
-  @mess_win << "start"
+  @mess_win.scrollok(true)  
+  @mess_win << "start "
   @mess_win << (@border_win.methods - Object.methods).join(', ')
-  # @screen.refresh
+  @mess_win.refresh
   # sleep 3
   x = 2
   y = 2 
   for color in Console::COLORS do 
-    @screen.draw("# ", x, y, color,false)
+    @screen.draw("# ", x, y, color, false)
     @screen.draw("# ", x + 2, y, color, true)
     y+=1
   end
     
-  @screen << "#{@screen.w} #{@screen.h}"
+  
+  @screen.draw("#\n", x, y, :white, false)
+  @screen << "#{@screen.w} #{@screen.h} "
+  @screen <<  (Curses.methods.sort - Object.methods).join(', ')
+  @screen << "\n#{Curses.color_pairs}\n"
+  
+  
+  
   # wall_image = Image.new('#', :yellow, true, false)
   # wall_image.draw(@screen, 15, 15)
   @screen.refresh

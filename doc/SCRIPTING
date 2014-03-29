@@ -1,0 +1,38 @@
+# Eruta Scripting Documentation
+
+## Introduction
+
+This file contains some documentation on how to use the Eruta engine from the 
+scripting side. 
+
+## Engine basics.
+The Eruta engine has several elements that can be used to create various 
+applications. There is a Graph that can be used to create drawable objects for the 
+UI. There is a sprite system that can be used for displaying sprites. There is 
+a Store system for loading resources.
+
+One important systems is the tilemap. You can load an arbitrary amount of tile 
+maps into the Store systems. However, only one tile map can be active at once. 
+
+Another important system is the Area/Thing system. Things are "in game" objects 
+that may or may not have a visual representation. Area is the "in game" "world"
+in which these Things exist. Unlike Tilemaps, there is only one Area. When 
+switching between tile maps, this same unique Area and all Things in it stay active.
+However, it is possible in the script to remove unneeded things (like say, NPC's 
+from the old map) or add new things (new NPCS or foes on the new map). The advantage 
+of this single Area system is that it's trivial to keep Things that have to stay 
+available always, like the PC's in the Area without having to do anything.  
+
+The Area system doesn't even require a tile map to be loaded and/or active, but
+of course, no collisions with the "wall" tiles in the map will be possible. 
+
+
+
+
+
+
+
+
+
+
+

@@ -33,7 +33,7 @@ VSYLLABLES = [
 
 CSYLLABLES = [
 # 'fa', 'fe', 'fi', 'fo', 'fu',
-# 'va', 've', 'vi', 'vo', 'vu', 
+# 'va', 've', 'vi', 'vo', 'vu',
 # 'ba', 'be', 'bi', 'bo', 'bu',
 # 'da', 'de', 'di', 'do', 'du',
 # 'ga', 'ge', 'gi', 'go', 'gu',

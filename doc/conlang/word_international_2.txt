@@ -1,0 +1,364 @@
+academy, univerity, place of higher studies
+accumulator
+adieu
+alcohol
+algebra
+alpha
+alphabet
+aluminum
+ammonia
+ampere
+anesthetic, pain killer
+apostrophe
+April
+arithmetic
+asbestos
+astronaut
+atlas
+atmosphere
+atom
+autobus
+automobile
+baby
+bacillus, bacteria
+balcony
+ballet
+banana
+Bang, sound, onomatopeia
+banjo
+bank
+bar
+barbarism, barbaric
+baritone
+bayonet
+beef
+beer
+bicycle
+billiards
+biology
+blond
+blouse
+bomb
+bonbon
+boss
+boulevard
+bouquet
+brave
+bravo
+bridge
+buffet
+cable
+cafe
+cafeteria
+calendar
+camouflage
+card
+catastrophe
+center
+centi-, 1/100
+camera
+champagne
+chaos
+chauffeur
+check
+Chemistry, chemist
+chocolate
+chorus
+cigarette
+citron, lemon
+civilization
+club
+cocktail
+cocoa
+coffee
+cognac
+colony
+computer
+condenser
+crochet
+dahlia
+dance
+decadent
+deci-
+degree
+dessert
+diarrhea
+dictionary
+dynamo
+dyspepsia
+economic
+eight
+electricity, electron
+element
+eleven
+embassy
+empire
+energy
+engineer
+ensemble
+erotic
+eucalyptus
+façade, front of building
+fifteen
+fifth
+fifty
+film
+five
+flirt
+forty
+four
+fourteen
+fourth
+fresco
+Friday
+frieze
+garage
+gas
+gazette, newspaper
+gentleman
+geography
+geology
+geometry
+glycerin
+gondola
+gram
+grammar
+graph
+gymnastics
+half
+helicopter
+Hiss
+hotel
+hundred
+hundredmillion, 100 000 000
+hundredthousand, 100 000
+hyacinth
+hyena
+hygiene
+hysteria
+imperial
+Imperial
+impromptu
+inferno
+influenza
+intelligent
+interest
+international
+internet
+iodine
+jazz
+kangaroo
+kilo-
+king
+laboratory
+lacquer
+lady
+lamp
+lancet
+latitude
+lava
+lavatory
+league
+legal
+lemon
+lion
+liqueur
+liter
+longitude
+lunch
+macaroni, noodles
+machine
+madam, -san
+mademoiselle, -chan
+magnet
+malaria, fever
+mania
+mannequin, doll
+mash
+Mathematics
+maximum
+memo
+menthol
+meter
+Mew
+micro-
+microscope
+milli-
+million, 1 000 000
+minimum
+minus
+minute
+myriad
+modern
+monsieur, -san
+moral
+motif
+motor
+Museum
+music
+muslin, fine woven cloth
+narcissus
+nature
+neutron
+nickel
+nicotine
+nine
+nuance
+nuclear
+oasis
+obelisk
+octave
+olive
+omelet
+one
+opera
+opium
+optimism
+option
+oracle
+orchestra
+organism
+pajamas
+palace
+palette
+panic
+paradise
+paradox
+parallel
+parasol
+park
+parody
+pathos
+penguin
+pessimism
+petroleum
+philosophy, wisdom
+phonograph, sound recording
+photograph, still image recoring
+physics
+physiology
+piano, keyed music instrument
+platinum
+plus
+police
+porridge
+post
+potash
+president
+press
+prima-donna
+prince, princess
+professor, -sensai
+profile
+program
+propaganda
+psychology
+public
+pudding
+Purr
+pyramid
+Quack
+quarter
+Queen
+radio
+realism
+referendum
+register
+rendezvous, meet
+restaurant
+revue
+rhetoric
+rheumatism
+rhythm
+rock and roll
+robot
+rotor
+roulette
+rucksack
+sabotage
+salad
+salon
+saloon
+sapphire
+sardine
+satyr
+saxophone, blown instrument
+scenario
+schema
+scout
+serum
+seven
+shampoo
+silhouette, shadow
+sir, -san
+six
+sixteen
+ski
+solo
+souvenir
+spectrum
+sport
+staccato
+stadium
+station
+steppe
+student, to study
+symbol, symbolism
+symmetry
+symphony
+synchronization
+syntax
+syringe
+system
+taxi
+tea
+technique
+technology
+telephone
+television
+tempo
+ten
+tenmillion, 10 000 000
+tenor
+terrace
+text
+theatre
+theory
+thermometer
+third
+thirteen
+thirty
+thousand
+three
+tobacco
+toilet
+tomato
+torpedo
+tournament
+tragedy
+tramway
+transformer
+turbine
+twelve
+twenty
+twenty-one
+twice
+two
+typhoon
+unicorn
+universe
+university
+utopia
+vanilla
+violin
+visa
+vitamin
+vodka
+volt
+waffle
+xylophone, struck melodic instrument
+zebra
+zero
+zigzag
+zinc
+zoology

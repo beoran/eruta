@@ -1,0 +1,239 @@
+
+I (Pers.Pron.1.Sg.)
+You (2.sg! 1952 thou & ye)
+we (1955: inclusive)
+this
+that
+who? (“?” not 1971)
+what? (“?” not 1971)
+not
+all (of a number)
+many
+one
+two
+big
+long (not 'wide')
+small
+woman
+man (adult male human)
+person (individual human)
+fish (noun)
+bird
+dog
+louse
+tree (not log)
+seed (noun!)
+leaf (botanics)
+root (botanics)
+bark (of tree)
+skin (1952: person’s)
+flesh (1952 meat, flesh)
+blood
+bone
+grease (1952: fat, organic substance)
+egg
+horn (of bull etc., not 1952)*7
+tail
+feather (large, not down)
+hair (on head of humans)
+head (anatomic)
+ear
+eye
+nose
+mouth
+tooth (front, rather than molar)
+tongue (anatomical)
+claw (not in 1952)*6
+foot (not leg)
+knee (not 1952)*5
+hand
+belly (lower part of body, abdomen)
+neck (not nape!)
+breasts (female; 1955 still breast)*8
+heart
+liver
+drink (verb)
+eat (verb)
+bite (verb)
+see (verb)
+hear (verb)
+know (facts)
+sleep (verb)
+die (verb)
+kill (verb)
+swim (verb)
+fly (verb)
+walk (verb)
+come (verb)
+lie (on side, recline)
+sit (verb)
+stand (verb)
+give (verb)
+say (verb)*1
+sun
+moon (not 1952)*2
+star
+water (noun)
+rain (noun, 1952 verb)
+stone
+sand (opposite to following)
+earth (=soil)
+cloud (not fog)
+smoke (noun, of fire)
+fire
+ash(es)
+burn (verb intr.!)
+path (1952 road, trail; not street)
+mountain (not hill)
+red (colour)
+green (colour)
+yellow (colour)
+white (colour)
+black (colour)
+night
+hot (adjective; 1952 warm, of weather)
+cold (of weather)
+full *4
+new
+good
+round (not 1952)*3
+dry (substance!)
+name
+
+I
+you (singular)
+this
+who
+what
+one
+two
+fish
+dog
+louse
+blood
+bone
+egg
+horn
+tail
+ear
+eye
+nose
+tooth
+tongue
+hand
+know
+die
+give
+sun
+moon
+water
+salt
+stone
+wind
+fire
+year
+full
+new
+name
+
+all
+animal
+bad
+because
+bird
+black
+blood
+child
+count
+day
+die
+dirty
+dog
+dry
+dull
+dust
+earth
+egg
+grease
+father
+feather
+fire
+fish
+flower
+good
+grass
+green
+heavy
+how
+hunt
+husband
+ice
+if
+kill
+laugh
+leaf
+lie
+live
+long
+louse
+man
+meat
+mother
+mountain
+name
+narrow
+new
+night
+not
+old
+other
+person
+play
+rain
+red
+correct
+river
+rope
+salt
+sea
+sharp
+short
+sing
+sit
+smooth
+snake
+snow
+stand
+star
+stone
+sun
+tail
+thin
+tree
+vomit
+warm
+water
+wet
+what
+when
+where
+white
+who
+wide
+wife
+wind
+with
+woman
+wood
+worm
+year
+yellow
+full
+moon
+brother
+cat
+dance
+pig
+sister
+work
+
