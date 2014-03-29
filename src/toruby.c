@@ -903,7 +903,7 @@ int tr_init(mrb_state * mrb) {
   TR_CONST_INT(mrb, eru, "ALIGN_INTEFGER" , ALLEGRO_ALIGN_INTEGER);
   
   
-  krn = mrb_class_get(mrb, "Kernel");
+  krn = mrb_module_get(mrb, "Kernel");
   if(!krn) return -1;
   TR_METHOD_ARGC(mrb, krn, "test",  tr_test, 1);
   TR_METHOD_ARGC(mrb, krn, "log" , tr_log , 1);

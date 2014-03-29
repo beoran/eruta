@@ -57,7 +57,7 @@ int rh_args_va(Ruby * ruby, mrb_value * values,  int size,  char * format, va_li
       case 'y':
         str = va_arg(list, const char*);
         i   = va_arg(list, int);
-        val = mrb_symbol_value(mrb_intern2(ruby, str, i));
+        val = mrb_symbol_value(mrb_intern(ruby, str, (size_t)i));
         break;
         
       case 'Y':
@@ -405,7 +405,7 @@ mrb_value rh_dofunctionreport(Ruby * self,
   int res = 0;
   char * str;
   mrb_value v;
-  mrb_sym symname = mrb_intern(self, funcname);
+  mrb_sym symname = mrb_intern_cstr(self, funcname);
   int ai;
   if(!mrb_respond_to(self, rubyself, symname)) {
     return mrb_nil_value();
@@ -595,7 +595,7 @@ mrb_value rh_simple_funcall(char * name, void * ruby) {
   ai = mrb_gc_arena_save(mrb);
   fprintf(stderr, "GC Area: %d\n", ai);
   // if(ai> 99) exit(0);
-  mrb_value v = mrb_funcall_argv(mrb, mrb_top_self(mrb), mrb_intern(mrb, name), 
+  mrb_value v = mrb_funcall_argv(mrb, mrb_top_self(mrb), mrb_intern_cstr(mrb, name), 
                     0, args);
   if (mrb->exc) {
     if (!mrb_undef_p(v)) {        
