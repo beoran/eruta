@@ -10,7 +10,7 @@ module Zori
       @caps = @caps.merge(caps)
     end
     
-    def do?(capa)
+    def can?(capa)
       return @caps[capa.to_sym]
     end
     

@@ -1,9 +1,9 @@
 module Zori
-  # Helper module for everyhing that uses Graph s
+  # Helper module for everyhing that uses Graphs
   module Graphic
     attr_reader :graph
 
-    def initialize()
+    def initialize(params={}, &block)
       init_graph()
     end
     

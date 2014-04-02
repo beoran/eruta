@@ -221,10 +221,15 @@ Camera * camera_new(float x, float y, float w, float h) {
 }
 
 /** Sets the object to be tracked. 
-This object is not owned by camera. */
+This object is not owned by camera. Pass in NULL to disable tracking. */
 Thing * camera_track_(Camera * self, Thing * track) {
   if(!self) return NULL;
   self->track = track;
+  if (self->track) {
+    camera_unsetflag(self, CAMERA_NOPAN);
+  } else {
+    camera_setflag(self, CAMERA_NOPAN);
+  }
   return self->track;
 }
 

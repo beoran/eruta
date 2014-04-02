@@ -11,7 +11,7 @@ applications. There is a Graph that can be used to create drawable objects for t
 UI. There is a sprite system that can be used for displaying sprites. There is 
 a Store system for loading resources.
 
-One important systems is the tilemap. You can load an arbitrary amount of tile 
+One important systems is the Tilemap. You can load an arbitrary amount of tile 
 maps into the Store systems. However, only one tile map can be active at once. 
 
 Another important system is the Area/Thing system. Things are "in game" objects 

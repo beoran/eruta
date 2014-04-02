@@ -1,0 +1,212 @@
+
+= Eruta Scripting Documentation
+
+== Introduction
+
+This file contains some documentation on how to use the Eruta engine from the 
+scripting side. 
+
+== Engine basics.
+The Eruta engine has several elements that can be used to create various 
+applications. There is a Graph that can be used to create drawable objects
+for the UI. There is a sprite system that can be used for displaying 
+sprites. There is a Store system for loading resources.
+
+One important systems is the Tilemap. You can load an arbitrary amount of 
+tile maps into the Store systems. However, only one tile map can be active 
+at once. The till map supports different tile types, such as "wall"
+types which will be effective in the physics engine and also to 
+control the camera motions.
+
+Another important system is the Area/Thing system. Things are 
+objects that may or may not have a visual representation. Area is the 
+"world" in which these Things exist. Unlike Tilemaps, there is only one 
+Area. When switching between tile maps, this same unique Area and all 
+Things in it stay active. However, it is possible in the script to remove 
+unneeded Things (like say, NPC's from the old map) or add new things 
+(new NPCS or foes on the new map). The advantage of this single Area system 
+is that it's trivial to keep Things that have to stay available always, 
+like the PC's, in the Area without having to do anything.  
+
+The Area system doesn't even require a tile map to be loaded and/or active,
+but of course, no collisions with the "wall" tiles in the map will be 
+possible. 
+
+== Reference
+
+Below if the reference of all functions that the scripting engine
+defines itself. The scripts build on these fundamentals to  
+create a more Ruby-like environment.
+
+Important to note is that most functions that load or create resources or 
+in engine objects return integer handles. These integer handles are 
+positive integer indexes. 
+
+File names used in the API should use / separators, and are always relative 
+to the Eruta data directory, except for data saving and loading methods
+in which the file name will be interpreted as relative to the data storage 
+path. It is not possible to read or write arbitrary files for 
+security reasons.
+
+
+=== Eruta::FLIP_HORIZONTAL
+Constant that can be used to set a sprite's display to horizontally flipped.
+
+=== Eruta::FLIP_VERTICAL
+Constant that can be used to set a sprite's display to vertically flipped.
+
+=== Eruta::ALIGN_LEFT
+Constant that can be used to set a text's display to left-aligned.
+=== Eruta::ALIGN_CENTRE
+Constant that can be used to set a text's display to center-aligned.
+=== Eruta::ALIGN_CENTER
+Constant that can be used to set a text's display to center-aligned.
+=== Eruta::ALIGN_RIGHT
+Constant that can be used to set a text's display to right-aligned.
+=== Eruta::ALIGN_INTEGER
+Constant that can be used to set a text's display to integer aligned.
+
+=== Eruta.quit()
+Shuts down the Eruta engine.
+
+=== Kernel::log(str)
+Sends the string str to the log and to the console. 
+
+=== Kernel::script(filename)
+Loads the script named filename and evaluates it.
+
+=== Kernel::sprite_new(id)
+Creates a new sprite with the given sprite id. A sprite is a visible
+object that has several layers, can be set to a certain "pose"
+and facing direction. A sprite can be animated.
+
+=== Kernel::sprite_get(id)
+Returns the handle of the sprite with the given sprite id, or nil
+if no such sprite exists.
+
+=== Kernel::sprite_getornew(id)
+Returns the handle of the sprite with the given sprite id. Creates 
+a new sprite with the given sprite index if it doesn't exist yet.
+
+=== Kernel::sprite_loadulpcss(id, layer, filename)
+Loads a sprite sheet in ULPCSS format into the sprite with the given 
+id, into the layer number layer of this sprite.
+
+=== Kernel::sprite_tint_rgba(index, layer, r, g, b, a)
+Tints the layer number layer of the sprite with index id with the color 
+that matches the r,g,b,a quadruplet.
+Very useful for "palette swapping" effects. This works best if the 
+sprite layer is a grayscale.
+
+=== Kernel::thing_new(id, kind, x, y, z, w, h)
+Creates a new in engine thing. Things are objects that 
+simulate a phisical presence in the Eruta physics engine.
+The thing will have the given thing id, and will be of the given kind.
+It will be initially located on position x and y, on layer z. It will
+have a width w and height h.
+
+=== Kernel::camera_track(id)
+Set the camera to actively track the thing with the given id. 
+If ID is negative, camera tracking is turned off.
+
+=== Kernel::camera_lockinlayer)
+Set the camera to lock itself in between the wall tiles of the given 
+map layer index layer. This only works if there is an active map.
+
+=== Kernel::thing_sprite_(thing_id, sprite_id)
+Associates the thing_id with the sprite_id. The result will be that the 
+thing with id thing_id will display itself using the sprite id sprite_id.
+
+=== Kernel::thing_pose_(thing_id, pose_id)
+Sets the thing's sprite, to the given pose ID. This only
+works if the thing has a sprite associated with it.
+
+=== Kernel::thing_direction_(2)
+Sets the thing's facing direction, as well as that of the thing's sprite. 
+This only works if the thing has a sprite associated with it.
+
+
+=== Kernel::active_map()
+=== Kernel::active_map_(1)
+=== Eruta.active_map()
+=== Eruta.active_map_(1)
+=== Eruta.show_fps()
+=== Eruta.show_area()
+=== Eruta.show_graph()
+=== Eruta.show_fps=(1)
+=== Eruta.show_area=(1)
+=== Eruta.show_graph=(1)
+=== Eruta.show_mouse_cursor=(1)
+=== Eruta.time()
+=== Eruta::Thing.thing_new(7)
+=== Eruta::Thing.v(1)
+=== Eruta::Thing.v_(3)
+=== Eruta::Sprite.get_or_new(1)
+=== Eruta::Sprite.sprite_new(1)
+=== Eruta::Sprite.get(1)
+=== Eruta::Sprite.load_ulpcss(3)
+=== Eruta::Sprite.tint_rgba(6)
+=== Kernel::store_kind(1)
+=== Kernel::load_bitmap(2)
+=== Kernel::load_bitmap(2)
+=== Kernel::load_bitmap_flags(3)
+=== Kernel::load_audio_stream(4)
+=== Kernel::load_sample(2)
+=== Kernel::load_ttf_font(4)
+=== Kernel::load_ttf_stretch(5)
+=== Kernel::load_bitmap_font(2)
+=== Kernel::load_bitmap_font_flags(3)
+=== Kernel::load_tilemap(3)
+=== Eruta::Store.kind(1)
+=== Eruta::Store.load_bitmap(2)
+=== Eruta::Store.load_bitmap_flags(3)
+=== Eruta::Store.load_audio_stream(4)
+=== Eruta::Store.load_sample(2)
+=== Eruta::Store.load_ttf_font(4)
+=== Eruta::Store.load_ttf_stretch(5)
+=== Eruta::Store.load_bitmap_font(2)
+=== Eruta::Store.load_bitmap_font_flags(3)
+=== Eruta::Store.load_tilemap(2)
+=== Eruta::Store.mask_to_alpha(4)
+=== Eruta::Store.average_to_alpha(4)
+=== Eruta::Store.drop(1)
+=== Eruta::Store.bitmap_flags(1)
+=== Eruta::Store.bitmap_width(1)
+=== Eruta::Store.bitmap_height(1)
+=== Eruta::Store.font_ascent(1)
+=== Eruta::Store.font_descent(1)
+=== Eruta::Store.font_line_height(1)
+=== Eruta::Store.text_dimensions(2)
+=== Eruta::Store.text_width(2)
+=== Eruta::Graph.nodes_max(0)
+=== Eruta::Graph.z(1)
+=== Eruta::Graph.disable(1)
+=== Eruta::Graph.id(1)
+=== Eruta::Graph.out_of_bounds?(1)
+=== Eruta::Graph.z_(2)
+=== Eruta::Graph.visible_(2)
+=== Eruta::Graph.image_(2)
+=== Eruta::Graph.font_(2)
+=== Eruta::Graph.background_image_(2)
+=== Eruta::Graph.border_thickness_(2)
+=== Eruta::Graph.speed_(3)
+=== Eruta::Graph.size_(3)
+=== Eruta::Graph.position_(3)
+=== Eruta::Graph.speed_(3)
+=== Eruta::Graph.image_flags_(2)
+=== Eruta::Graph.text_flags_(2)
+=== Eruta::Graph.angle_(2)
+=== Eruta::Graph.background_color_(4)
+=== Eruta::Graph.border_color_(4)
+=== Eruta::Graph.color_(4)
+=== Eruta::Graph.make_box(8)
+=== Eruta::Graph.make_image(5)
+=== Eruta::Graph.make_text(5)
+=== Eruta::Audio.playing_sounds_max()
+=== Eruta::Audio.play_sound_ex(4)
+=== Eruta::Audio.play_sound(1)
+=== Eruta::Audio.stop_sound(1)
+=== Eruta::Audio.music_id=(1)
+=== Eruta::Audio.play_music()
+=== Eruta::Audio.stop_music()
+=== Eruta::Audio.music_playing?()

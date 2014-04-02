@@ -345,9 +345,15 @@ int state_thing_direction_(State * state, int thing_index, int direction) {
   return direction;
 }
  
-/* Looks up the thing by index and let the state's camera track it. */
+/* Looks up the thing by index and let the state's camera track it. 
+ * If index is negative, stop tracking in stead.
+ */
 int state_camera_track_(State * state, int thing_index) {
   Thing * thing;
+  if (thing_index < 0) {
+    camera_track_(state_camera(state), NULL);
+    return -2;
+  }  
   thing = state_thing(state, thing_index);
   if(!thing) return -1;
   camera_track_(state_camera(state), thing);
@@ -371,7 +377,7 @@ int state_cameratrackthing(State * state, int thing_index) {
  */
 int state_lockin_maplayer(State * state, int layer) {  
   if(!state_active_map(state)) {
-    -1;
+    return -1;
   } else { 
     tilemap_layer_lockin(state_active_map(state), layer, state_camera(state));
   }

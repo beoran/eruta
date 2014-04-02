@@ -10,108 +10,39 @@
 # 
 module Zori
   class Page
-    include Zori::Graphic
+    include Zori::Widget
     
     
     attr_reader :name
-    attr_reader :components
-    attr_reader :state
-    attr_reader :can
 
     # Creates a new UI page with the given name.
-    def initialize(name)
-      super()
-      @can      = Capability.new
-      @state    = State.new
-      @name     = name.to_sym
-      @components  = []
-      self.class.register(self)
+    def initialize(params={}, &block)
+      super(params, &block)
+      @name     = params[:name].to_sym
     end
     
-    # Unregisters a page
-    def self.register(page)
-      @pages ||= {}
-      @pages[page.name] = page
-    end
-    
-    # Registers a page
-    def self.unregister(page)
-      @pages ||= {}
-      @pages[page.name] = nil
-    end
-    
-    # Returns the page for the given name. 
-    def self.for_name(name) 
-      @pages ||= {}
-      return @pages[name.to_sym]
-    end
-    
-    # Returns the currently active page or nil for none.
-    def self.active
-      @active
-    end
-    
-    
-    # Returns the currently active page id or nil for none.
-    def self.active_id
-      return nil unless @active
-      return @active.name
-    end
-    
-    # Activates the named page, and passes the data if any.
-    # Returns true on success or false if no such page is registered.
-    def self.go(name, data = {})
-      page = self.for_name(name)
-      return false unless page
-      @active.on_leave(name) if @active
-      @active = page
-      @active.on_enter(data)
-      return true
-    end
-
     # Called when this page is activated.
     def on_enter(data = {})
       @state.set(:active)
+      self.show
       on_event(:enter)
     end
     
     # Called when this page is deactivated.
     def on_leave(name=nil)
       @state.unset(:active)
+      self.hide
       on_event(:leave, name)
     end
     
     # Override this in pages to do special case handling
-    def on_page_event(*data)
+    def handle_event(*data)
       return false
     end
-    
-    # Called when an event comes in from the Eruta engine.
-    # Tries every component in order and stops if a truthy value is returned.
-    # Finally calls on_page_event. If that returns non-truthy, the return nil 
-    # so the event can be handled by the normal non-UI controls.
-    def on_event(*data)
-      @components.each do | component |
-        res = component.on_event(*data)
-        return res if res
-      end
-      res = on_page_event(*data)
-    end
-
-    # Called when an event comes in from the Eruta engine.
-    # Sends event to active page.
-    def self.on_event(*data)
-      @active.on_event(*data) if @active
-    end
-
-    # Adds a component to this page.
-    def <<(component)
-      @components << component
-    end
-    
+ 
     # Adds a button to the page 
-    def make_button(x, y, w, h, heading)
-      button = Zori::Button.new(x, y, w, h, heading)
+    def make_button(x, y, w, h, heading, &block)
+      button = Zori::Button.new(:x => x, :y => y, :w => w, :h => h, :heading => heading, &block)
       self << button
       return button
     end

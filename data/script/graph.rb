@@ -48,7 +48,7 @@ class Graph < Eruta::Graph
     end
   
     def visible=(value) 
-      Eruta::Graph.visible_(@id, value)
+      Eruta::Graph.visible_(@id, value ? 1 : 0)
     end
   
     def z

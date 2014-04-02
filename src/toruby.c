@@ -93,6 +93,18 @@ static mrb_value tr_test(mrb_state * mrb, mrb_value self) {
 }
 
 
+/* Stops the engine by calling state_done */
+static mrb_value tr_state_done(mrb_state * mrb, mrb_value self) {
+  State   * state   = NULL;
+  state             = state_get();
+  if (state) {
+    state_done(state);
+    return self;
+  } else {
+    return mrb_nil_value();
+  }
+}
+
 /* Writes to console or to stdout if console is not available. */
 static mrb_value tr_log(mrb_state * mrb, mrb_value self) {
   
@@ -900,7 +912,9 @@ int tr_init(mrb_state * mrb) {
   TR_CONST_INT(mrb, eru, "ALIGN_CENTRE"   , ALLEGRO_ALIGN_CENTRE);
   TR_CONST_INT(mrb, eru, "ALIGN_CENTER"   , ALLEGRO_ALIGN_CENTER);
   TR_CONST_INT(mrb, eru, "ALIGN_RIGHT"    , ALLEGRO_ALIGN_RIGHT);
-  TR_CONST_INT(mrb, eru, "ALIGN_INTEFGER" , ALLEGRO_ALIGN_INTEGER);
+  TR_CONST_INT(mrb, eru, "ALIGN_INTEGER"  , ALLEGRO_ALIGN_INTEGER);
+  TR_CLASS_METHOD_NOARG(mrb, eru, "quit"  , tr_state_done);
+  
   
   
   krn = mrb_module_get(mrb, "Kernel");
