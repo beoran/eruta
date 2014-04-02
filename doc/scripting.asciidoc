@@ -109,7 +109,7 @@ have a width w and height h.
 Set the camera to actively track the thing with the given id. 
 If ID is negative, camera tracking is turned off.
 
-=== Kernel::camera_lockinlayer)
+=== Kernel::camera_lockin(layer)
 Set the camera to lock itself in between the wall tiles of the given 
 map layer index layer. This only works if there is an active map.
 
@@ -125,88 +125,343 @@ works if the thing has a sprite associated with it.
 Sets the thing's facing direction, as well as that of the thing's sprite. 
 This only works if the thing has a sprite associated with it.
 
-
 === Kernel::active_map()
-=== Kernel::active_map_(1)
+Returns the id of the currently active tile map. 
+
+=== Kernel::active_map_(storage_id)
+Sets the tile map with the given storage_id, as the active tile map. 
+The tile map  should have been loaded before though 
+Eruta::Store.load_tilemap.
+
+
 === Eruta.active_map()
-=== Eruta.active_map_(1)
+Returns the id of the currently active tile map. 
+
+=== Eruta.active_map_(storage_id)
+Sets the tile map with the given storage_id, as the active tile map. 
+The tile map  should have been loaded before though 
+Eruta::Store.load_tilemap.
+
 === Eruta.show_fps()
+Returns whether or not the Frames Per Second display is activated.
+
 === Eruta.show_area()
+Returns whether or not the area display is activated.
+
 === Eruta.show_graph()
-=== Eruta.show_fps=(1)
+Returns whether or not the graph display is activated.
+
+=== Eruta.show_fps=(enable)
+Shows or hides the Frames Per Second display. This can be useful to check
+the performance of the application.
+
 === Eruta.show_area=(1)
+Shows or hides the area display. The Area display contains Tilemap 
+and all things and their sprites.
+
 === Eruta.show_graph=(1)
+Shows or hides the Graph display. The Graph is the display layer above the 
+Tilemap that is used mostly for GUI display.
+
 === Eruta.show_mouse_cursor=(1)
+Shows or hides the system mouse cursor. If the mousse cursor is hidden 
+like this, you can provide a Graph bitmap that tracks the mouse 
+to implement a custom mouse cursor.
+
 === Eruta.time()
-=== Eruta::Thing.thing_new(7)
-=== Eruta::Thing.v(1)
-=== Eruta::Thing.v_(3)
-=== Eruta::Sprite.get_or_new(1)
-=== Eruta::Sprite.sprite_new(1)
-=== Eruta::Sprite.get(1)
-=== Eruta::Sprite.load_ulpcss(3)
-=== Eruta::Sprite.tint_rgba(6)
-=== Kernel::store_kind(1)
-=== Kernel::load_bitmap(2)
-=== Kernel::load_bitmap(2)
-=== Kernel::load_bitmap_flags(3)
-=== Kernel::load_audio_stream(4)
-=== Kernel::load_sample(2)
-=== Kernel::load_ttf_font(4)
-=== Kernel::load_ttf_stretch(5)
-=== Kernel::load_bitmap_font(2)
-=== Kernel::load_bitmap_font_flags(3)
-=== Kernel::load_tilemap(3)
-=== Eruta::Store.kind(1)
-=== Eruta::Store.load_bitmap(2)
-=== Eruta::Store.load_bitmap_flags(3)
-=== Eruta::Store.load_audio_stream(4)
-=== Eruta::Store.load_sample(2)
-=== Eruta::Store.load_ttf_font(4)
-=== Eruta::Store.load_ttf_stretch(5)
-=== Eruta::Store.load_bitmap_font(2)
-=== Eruta::Store.load_bitmap_font_flags(3)
-=== Eruta::Store.load_tilemap(2)
-=== Eruta::Store.mask_to_alpha(4)
-=== Eruta::Store.average_to_alpha(4)
-=== Eruta::Store.drop(1)
-=== Eruta::Store.bitmap_flags(1)
-=== Eruta::Store.bitmap_width(1)
-=== Eruta::Store.bitmap_height(1)
-=== Eruta::Store.font_ascent(1)
-=== Eruta::Store.font_descent(1)
-=== Eruta::Store.font_line_height(1)
-=== Eruta::Store.text_dimensions(2)
-=== Eruta::Store.text_width(2)
-=== Eruta::Graph.nodes_max(0)
-=== Eruta::Graph.z(1)
-=== Eruta::Graph.disable(1)
-=== Eruta::Graph.id(1)
-=== Eruta::Graph.out_of_bounds?(1)
-=== Eruta::Graph.z_(2)
-=== Eruta::Graph.visible_(2)
-=== Eruta::Graph.image_(2)
-=== Eruta::Graph.font_(2)
-=== Eruta::Graph.background_image_(2)
-=== Eruta::Graph.border_thickness_(2)
-=== Eruta::Graph.speed_(3)
-=== Eruta::Graph.size_(3)
-=== Eruta::Graph.position_(3)
-=== Eruta::Graph.speed_(3)
-=== Eruta::Graph.image_flags_(2)
-=== Eruta::Graph.text_flags_(2)
-=== Eruta::Graph.angle_(2)
-=== Eruta::Graph.background_color_(4)
-=== Eruta::Graph.border_color_(4)
-=== Eruta::Graph.color_(4)
-=== Eruta::Graph.make_box(8)
-=== Eruta::Graph.make_image(5)
-=== Eruta::Graph.make_text(5)
+Returns the current time since the engine started in ms.
+
+=== Eruta::Thing.thing_new(id, kind, x, y, z, w, h)
+
+Creates a new in engine thing. Things are objects that 
+simulate a phisical presence in the Eruta physics engine.
+The thing will have the given thing id, and will be of the given kind.
+It will be initially located on position x and y, on layer z. It will
+have a width w and height h.)
+
+
+=== Eruta::Thing.v(id)
+Returns the speed of the Thing with the given id.
+
+=== Eruta::Thing.v_(id, vx, vy)
+Sets the speed of the Thing with the given id.Herre, vx and vy are the x 
+and y components of the speed vector.
+
+=== Eruta::Sprite.sprite_new(id)
+Creates a new sprite with the given sprite id. A sprite is a visible
+object that has several layers, can be set to a certain "pose"
+and facing direction. A sprite can be animated.
+
+=== Eruta::Sprite.get(id)
+Returns the handle of the sprite with the given sprite id, or nil
+if no such sprite exists.
+
+=== Eruta::Sprite.get_or_new(id)
+Returns the handle of the sprite with the given sprite id. Creates 
+a new sprite with the given sprite index if it doesn't exist yet.
+
+=== Eruta::Sprite.load_ulpcss(id, layer, filename)
+Loads a sprite sheet in ULPCSS format into the sprite with the given 
+id, into the layer number layer of this sprite.
+
+=== Eruta::Sprite.tint_rgba((index, layer, r, g, b, a)
+Tints the layer number layer of the sprite with index id with the color 
+that matches the r,g,b,a quadruplet.
+Very useful for "palette swapping" effects. This works best if the 
+sprite layer is a grayscale.
+
+
+
+=== [[Eruta::Store.kind]] Eruta::Store.kind(id)
+Returns a number that indicates what type the object in the Store is.
+The Store keeps various resources loaded in memory and easily
+accessible at the their store id until they are dropped.
+
+=== [[Eruta::Store.load_bitmap]] Eruta::Store.load_bitmap(id, filename)
+Loads the bitmap file named filename into storage using default flags.
+
+===  [[Eruta::Store.load_bitmap_flags]] Eruta::Store.load_bitmap_flags(id, filename, flags)
+Loads the bitmap file named filename into storage using the given bitmap 
+flags.
+
+===  [[Eruta::Store.load_audio_stream]] Eruta::Store.load_audio_stream(id, filename, buffer_count, samples)
+Loads the music file named filename into storage. The 
+buffer_count is the amount of buffers thatshould be allocated 
+for playing back the music, the samples is the amount of samples that 
+should be allocated for playing back the music. The bigger these 
+both values, the smoother the musi will play, but the more resources 
+(CPU and memory) it will require from the computer.
+
+=== [[Eruta::Store.load_sample]] Eruta::Store.load_sample(id, filename)
+Loads the sound sample file named filename into storage.
+
+=== [[Eruta::Store.load_ttf_font]] Eruta::Store.load_ttf_font(id, filename, h, flags)
+Loads the TTF or OTF file named filename into storage using 
+the given flags.The height of the font will be set to h.
+
+=== [[Eruta::Store.load_ttf_stretch]] Eruta::Store.load_ttf_stretch(id, filename, w, h, flags)
+Loads the TTF or OTF file named filename into storage using 
+the given flags.The height of the font will be set to h. The font's
+width will be stretched to width w.
+
+=== [[Eruta::Store.load_bitmap_font]] Eruta::Store.load_bitmap_font(id, filename)
+Loads the bitmap font file named filename into storage using default 
+flags.
+
+=== [[Eruta::Store.load_bitmap_font_flags]] Eruta::Store.load_bitmap_font_flags(id, filename, flags)
+Loads the bitmap font file file named filename into storage using the given 
+flags.
+
+=== [[Eruta::Store.load_tilemap]] Eruta::Store.load_tilemap(id, filename)
+Loads the tile map named filename into storage.
+
+=== Eruta::Store.mask_to_alpha(id, r, g, b)
+This converts the mask color (r, g, b) into the bitmap that is in storage 
+at with a store id id to fully transparant (alpha). Useful for bitmaps 
+that use a single color as a mask.
+
+=== Eruta::Store.average_to_alpha(id, r, g, b)
+This method modifies a bitmap in storage at storage Id id. It  maps black 
+to transparent black, white to solid  white, and any grayscale or color 
+in between to white with an alpha value that corresponds to the average 
+of the r, g and b components. 
+
+This is most useful for black and white icons such as the GIN set.
+
+=== Eruta::Store.drop(id)
+Drops the resource with the given id from the Store. Resources
+that will not be used for a certain time should be dropped to free up 
+memory.
+
+=== Eruta::Store.bitmap_flags(id)
+Returns the flags of the bitmap that is stored with the given id.
+
+=== Eruta::Store.bitmap_width(id)
+Returns the width of the bitmap that is stored with the given id.
+
+=== Eruta::Store.bitmap_height(id)
+Returns the height of the bitmap that is stored with the given id.
+
+=== Eruta::Store.font_ascent(id)
+Returns the ascender height of the font that is stored with the given id.
+
+=== Eruta::Store.font_descent(id)
+Returns the desceder height of the font that is stored with the given id.
+
+=== Eruta::Store.font_line_height(id)
+Returns the total line height of the font that is stored with the given id.
+
+=== Eruta::Store.text_dimensions(id, text)
+Returns the estimated width and height of the text when rendered in the 
+font that is stored with the given id.
+
+=== Eruta::Store.text_width(id, text)
+Returns the estimated width of the text when rendered in the 
+font that is stored with the given id.
+
+=== Eruta::Graph.nodes_max()
+Returns the maximum amount of nodes that the Graph can contain. 
+This is limited for performance reasons.
+
+=== Eruta::Graph.z(index)
+Returns the Z value (layer) of the Graph node at the given index.
+
+=== Eruta::Graph.disable(index)
+Disables a certain graph node. This is equivalent to stop using it.
+This should be used on graph nodes that are not needed anymore.
+
+=== Eruta::Graph.id(index)
+Returns the Id of the scene graph node at index index. The id is actually
+an arbitrary number.
+
+=== Eruta::Graph.out_of_bounds?(index)
+Returns true if the index is not allowed for the Graph, false if 
+it is acceptable.
+
+=== Eruta::Graph.z_(index, z)
+Sets the Z value (layer) of the graph node with the given index.
+
+=== Eruta::Graph.visible_(index, visible)
+Sets the visibility of the graph node with the given index.
+
+=== Eruta::Graph.image_(index, storage_id)
+Sets the image to use for the graph node with the given index to
+the given storage_id.
+
+=== Eruta::Graph.font_(index, storage_id)
+Sets the font to use for the graph node with the given index to
+the given storage_id.
+
+=== Eruta::Graph.background_image_(index, storage_id)
+Sets the background to use for the graph node with the given index to
+the given storage_id.
+
+=== Eruta::Graph.border_thickness_(index, thickness)
+Sets the border thickness to use for the graph node with the given index to
+the given storage_id. If the thickness is 0, no border is drawn.
+
+=== Eruta::Graph.speed(index)
+Returns the speed of the graph node with the given index. XXX:
+not yet implemented.
+
+=== Eruta::Graph.size_(index, w, h)
+Sets the size of the graph node with the given index to
+the given w and h.
+
+=== Eruta::Graph.position_(index, x, y)
+Sets the position of the graph node with the given index to
+the given x and y.
+
+=== Eruta::Graph.speed_(index, vx, vy)
+Sets the position of the graph node with the given index to
+the given x and y.
+
+=== Eruta::Graph.image_flags_(index, flags)
+Sets the image flags of the graph node with the given index.
+
+=== Eruta::Graph.text_flags_(index, flags)
+Sets the text flags of the graph node with the given index.
+
+=== Eruta::Graph.angle_(index, angle)
+Sets the angle of the graph node with the given index.
+
+=== Eruta::Graph.background_color_(index,, r, g, b)
+Sets the background color of the graph node with the given index.
+
+=== Eruta::Graph.border_color_(index, r, g, b)
+Sets the border color of the graph node with the given index.
+
+=== Eruta::Graph.color_(index, r, g, b)
+Sets the color of the graph node with the given index.
+
+=== Eruta::Graph.make_box(id, x, y, w, h, rx, ry, style_id)
+Makes a new box node in the graph with the given position (x, y), 
+size (h, w), rounding (rx, ry) and that copies the style of the possibly
+pre-existing graph node with the index style_id. If style_id is negative
+or if there is no such graph node, a default style will be used.
+Returns the index at which the box was created, or negative on error.
+
+=== Eruta::Graph.make_image(id, x, y, store_id, style_id)
+Makes a new image node in the graph with the given position (x, y), 
+that iues the image stored at store_id, and that copies the style of the 
+possibly pre-existing graph node with the index style_id. If style_id is 
+negative or if there is no such graph node, a default style will be used.
+Returns the index at which the image node was created, or negative on 
+error.
+
+=== Eruta::Graph.make_text(id, x, y, text, store_id)
+Makes a new single line text node in the graph with the given position 
+(x, y), that displays the given text text, and that copies the style of the 
+possibly pre-existing graph node with the index style_id. If style_id is 
+negative or if there is no such graph node, a default style will be used.
+Returns the index at which the image node was created, or negative on 
+error.
+
 === Eruta::Audio.playing_sounds_max()
-=== Eruta::Audio.play_sound_ex(4)
-=== Eruta::Audio.play_sound(1)
-=== Eruta::Audio.stop_sound(1)
-=== Eruta::Audio.music_id=(1)
+Returns how many sounds can be played at the same time.
+
+=== Eruta::Audio.play_sound_ex(store_id, gain, pan, speed, loop)
+Plays the sound sample stored in the Store at store_id.
+Gain is the volume multiplier (between 0.0 and 1.0), 
+pan (between -1.0 and 1.0) is the side (left/right) where the sound will
+be heard. 
+Speed is the relative speed of playback.   
+Loop is a boolean tat states if the sound should be looped or not.
+
+This method returns a play_id that can be used to control further playback
+of the sample.
+
+=== Eruta::Audio.play_sound(store_id)
+Plays the sound sample stored in the Store at store_id 
+with gain 1.0, pan 0.0n speed 1.0, and no looping.
+
+This method returns a play_id that can be used to control further playback
+of the sample.
+
+=== Eruta::Audio.stop_sound(play_id)
+Stops playing a playing sound. You have to pass in the play ID 
+returned by Eruta::Audio.play_sound or Eruta::Audio.play_sound_ex.
+
+=== Eruta::Audio.music_id=(store_id)
+Sets the active music to stream to the loaded music stream in storage 
+identified by store_id.
+
 === Eruta::Audio.play_music()
+Plays the currently active music.
+
 === Eruta::Audio.stop_music()
+Stops playing the currently active music.
+
 === Eruta::Audio.music_playing?()
+Checks if the music is currently playing.
+
+=== Kernel::store_kind(id)
+See <<Eruta::Store.kind>>
+
+=== Kernel::load_bitmap(id, filename)
+See <<Eruta::Store.load_bitmap>>
+
+=== Kernel::load_bitmap_flags(id, filename,flags)
+See <<Eruta::Store.load_bitmap_flags>>
+
+=== Kernel::load_audio_stream(id, filename, buffer_count, samples)
+See <<Eruta::Store.load_audio_stream>>
+
+=== Kernel::load_sample(id, filename)
+See <<Eruta::Store.load_sample>>
+
+=== Kernel::load_ttf_font(id, filename, h, flags)
+See <<Eruta::Store.load_ttf_font>>
+
+=== Kernel::load_ttf_stretch(id, filename, w, h, flags)
+See <<Eruta::Store.load_ttf_font_stretch>>
+
+=== Kernel::load_bitmap_font(id, filename)
+See <<Eruta::Store.load_font>>
+
+=== Kernel::load_bitmap_font_flags(id, filename, flags)
+See <<Eruta::Store.load_font_flags>>
+
+=== Kernel::load_tilemap(id, filename)
+See <<Eruta::Store.load_tilemap>>
+

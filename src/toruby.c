@@ -1020,7 +1020,7 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_ARGC(mrb, gra, "font_"           , tr_scegra_font_id_, 2);
   TR_CLASS_METHOD_ARGC(mrb, gra, "background_image_", tr_scegra_background_image_id_, 2);
   TR_CLASS_METHOD_ARGC(mrb, gra, "border_thickness_", tr_scegra_border_thickness_, 2);
-  TR_CLASS_METHOD_ARGC(mrb, gra, "speed_"          , tr_scegra_speed_, 3);
+  /*TR_CLASS_METHOD_ARGC(mrb, gra, "speed"           , tr_scegra_speed, 1);*/
   TR_CLASS_METHOD_ARGC(mrb, gra, "size_"           , tr_scegra_size_, 3);
   TR_CLASS_METHOD_ARGC(mrb, gra, "position_"       , tr_scegra_position_, 3);
   TR_CLASS_METHOD_ARGC(mrb, gra, "speed_"          , tr_scegra_speed_, 3);
