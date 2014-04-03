@@ -92,6 +92,54 @@ module Zori
       show_graph
     end
     
+    # Override this to handle resizes
+    def on_resize
+      return true
+    end
+    
+    # Coordinates of left side of widget
+    def left
+      return @x + @w
+    end
+    
+    # Coordinates of bottom side of widget
+    def bottom
+      return @y + @h
+    end
+          
+    
+    # Makes the widget fit all direct children with the given margins
+    def fit_children(margin_x = 20, margin_y = 20)
+      min_x, min_y, = 640, 480 # XXX get this from somewhere...
+      max_y, max_x = 0, 0 
+      @components.each do | child | 
+        min_x = child.x if child.x < min_x
+        min_y = child.y if child.y < min_y
+        max_x = child.left   if child.left   > max_x
+        max_y = child.bottom if child.bottom > max_y
+      end
+      @x = min_x - margin_x
+      @y = min_y - margin_y
+      @w = max_x - min_x + margin_x * 2
+      @h = max_y - min_y + margin_y * 2
+      on_resize     
+    end
+    
+    # Adds a menu to this widget as a child widget     
+    def make_menu(x, y, w, h, heading, &block)
+      menu = Zori::Menu.new(:x => x, :y => y, :w => w, :h => h, :heading => heading, &block)
+      self << menu
+      return menu
+    end
+    
+    # Adds a button to this widget as a child widget
+    def make_button(x, y, w, h, heading, &block)
+      button = Zori::Button.new(:x => x, :y => y, :w => w, :h => h, :heading => heading, &block)
+      self << button
+      return button
+    end
+
+    
     
   end
 end

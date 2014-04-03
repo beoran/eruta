@@ -167,30 +167,36 @@ end
 # end
 
 def do_main_menu
+  $main_music   = Store.load_audio_stream('/music/nethis-the_writer.ogg')
+  Eruta::Audio.music_id = $main_music.id
+  res = Eruta::Audio.play_music
+ 
   # $main_menu = MainMenu.new
   # $main_menu.active = true
   $default_ui = Zori.make_page(:default) do |m| 
   end
   
-  $main_menu = Zori.make_page(:main_menu) do |m| 
-    $main_music   = Store.load_audio_stream('/music/nethis-the_writer.ogg')
+  $main_page      = Zori.make_page(:main_menu) do |m| 
+
 #     $main_back    = Store.load_bitmap('/image/background/eruta_mainmenu.png')
 #     m.graph_image(0, 0, $main_back.id)
-    Eruta::Audio.music_id = $main_music.id
-    $main_button_1= m.make_button(260, 200, 100, 30, "Continue")
-    $main_button_2= m.make_button(260, 240, 100, 30, "New") do
+    $main_menu    = m.make_menu(0, 0, 0, 0, nil)
+    ma            = $main_menu
+    
+    $main_button_1= ma.make_button(260, 200, 100, 30, "Continue")
+    $main_button_2= ma.make_button(260, 240, 100, 30, "New") do
       do_start_test_map
       Zori.go(:default)
     end
-    $main_button_3= m.make_button(260, 280, 100, 30, "Settings")
-    $main_button_4= m.make_button(260, 320, 100, 30, "Instructions")
-    $main_button_5= m.make_button(260, 360, 100, 30, "Credits")
-    $main_button_5= m.make_button(260, 400, 100, 30, "Quit") do
+    $main_button_3= ma.make_button(260, 280, 100, 30, "Settings")
+    $main_button_4= ma.make_button(260, 320, 100, 30, "Instructions")
+    $main_button_5= ma.make_button(260, 360, 100, 30, "Credits")
+    $main_button_5= ma.make_button(260, 400, 100, 30, "Quit") do
       Eruta.quit
     end
+    $main_menu.fit_children
   end
   Zori.go(:main_menu)
-  res = Eruta::Audio.play_music
   puts "play_music #{res} #{$main_music}"
 end
 

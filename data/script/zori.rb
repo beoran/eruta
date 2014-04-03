@@ -66,15 +66,18 @@ module Zori
   # Class that models the state of a single key
   KeyInfo         = Struct.new(:pressed, :sym, :mod, :text, :repeated)
 
-  script 'zori/rect.rb'
+#  script 'zori/rect.rb'
+#  script 'zori/handler.rb'
+#  script 'zori/element.rb'
+
+  
   script 'zori/style.rb'
   script 'zori/state.rb'
   script 'zori/capability.rb'
-  script 'zori/handler.rb'
   script 'zori/graphic.rb'
-  script 'zori/element.rb'
   script 'zori/widget.rb'
   script 'zori/button.rb'
+  script 'zori/menu.rb'  
   script 'zori/page.rb'
   script 'zori/root.rb'
 

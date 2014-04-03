@@ -39,13 +39,7 @@ module Zori
     def handle_event(*data)
       return false
     end
- 
-    # Adds a button to the page 
-    def make_button(x, y, w, h, heading, &block)
-      button = Zori::Button.new(:x => x, :y => y, :w => w, :h => h, :heading => heading, &block)
-      self << button
-      return button
-    end
+    
     
     
     
