@@ -68,7 +68,16 @@ int scegra_background_color_(int index,int r,int g,int b,int a);
 int scegra_border_color_(int index,int r,int g,int b,int a);
 int scegra_color_(int index,int r,int g,int b,int a);
 int scegra_z_(int index,int z);
-int scegra_z(int index);
+
+int scegra_speed(int index, float * x, float * y);
+int scegra_size(int index, float * w, float * h);
+int scegra_position(int index, float *x, float * y);
+int scegra_border_thickness(int index, float * t);
+int scegra_background_color(int index, int * r, int * g,int * b,int * a);
+int scegra_border_color(int index,int * r,int * g,int * b, int * a);
+int scegra_color(int index, int * r, int * g, int * b,int * a);
+
+
 int scegra_make_image(int id,BeVec pos,int image_id,ScegraStyle style);
 int scegra_make_text(int id,BeVec pos,const char *text,ScegraStyle style);
 int scegra_make_box(int id,BeVec pos,BeVec siz,BeVec round,ScegraStyle style);

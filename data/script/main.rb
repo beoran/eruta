@@ -168,9 +168,9 @@ end
 
 def do_main_menu
   $main_music   = Store.load_audio_stream('/music/nethis-the_writer.ogg')
-  Eruta::Audio.music_id = $main_music.id
-  res = Eruta::Audio.play_music
- 
+  # Eruta::Audio.music_id = $main_music.id
+  # res = Eruta::Audio.play_music
+  res = nil  
   # $main_menu = MainMenu.new
   # $main_menu.active = true
   $default_ui = Zori.make_page(:default) do |m| 
@@ -402,3 +402,5 @@ end
 # 
 # 
 # 
+
+p constants

@@ -614,7 +614,7 @@ int scegra_text_flags_(int index, int flags) {
 }
 
 /* Somewhat unrelated, show or hide the system mouse cursor. 
- * Returns the sate after calling, true means show, false means not shown.
+ * Returns the state after calling, true means show, false means not shown.
  */
 int scegra_show_system_mouse_cursor(int show) {
   ALLEGRO_DISPLAY * display;
@@ -627,6 +627,44 @@ int scegra_show_system_mouse_cursor(int show) {
   }
 }
 
+
+/** Gets the speed of the scregra node. Returns negative on error. */
+int scegra_speed(int index, float * x, float * y) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!x || !y)         return -3;
+  if (!node)            return -2;
+  if (node->id < 0)     return -1;
+  (*x) = node->speed.x;
+  (*y) = node->speed.y;
+  return node->z;  
+}
+
+/** Gets the size of the scregra node. Returns negative on error. */
+int scegra_size(int index, float * w, float * h) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!w || !h)         return -3;
+  if (!node)            return -2;
+  if (node->id < 0)     return -1;
+  (*w) = node->size.x;
+  (*h) = node->size.y;
+  return node->z;  
+}
+
+int scegra_position(int index, float *x, float * y) {
+/** Gets the positiob of the scregra node. Returns negative on error. */
+  ScegraNode * node = scegra_get_node(index);
+  if (!x || !y)         return -3;
+  if (!node)            return -2;
+  if (node->id < 0)     return -1;
+  (*x) = node->pos.x;
+  (*y) = node->pos.y;
+  return node->z;  
+}
+
+int scegra_border_thickness(int index, float * t);
+int scegra_background_color(int index, int * r, int * g,int * b,int * a);
+int scegra_border_color(int index,int * r,int * g,int * b, int * a);
+int scegra_color(int index, int * r, int * g, int * b,int * a);
 
 
 

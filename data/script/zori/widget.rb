@@ -67,8 +67,10 @@ module Zori
     end
 
     # Adds a component to this widget
+    # Will try to send a on_component event with 
     def <<(component)
       @components << component
+      self.on_event(:component, component)
     end
     
     # Checks if the coordinates are inside the main rectange of the widget.
