@@ -179,6 +179,7 @@ INTRO_TEXT = "Milennia have passed since mankind first traveled to the moon. "+
 def do_main_menu
   $main_music   = Store.load_audio_stream('/music/nethis-the_writer.ogg')
   $lote         = nil
+  $lobe         = nil
   if PLAY_MUSIC
     Eruta::Audio.music_id = $main_music.id
     res = Eruta::Audio.play_music
@@ -206,9 +207,9 @@ def do_main_menu
       Zori.go(:default)
     end
     $main_button_3= ma.make_button(260, 280, 100, 30, "Settings") do 
-      $lote = Graph.make_longtext(30, 10, 200, 400, INTRO_TEXT)
-      $lote.font             = Eruta::Zori.font.id
-      $lote.background_color = [0,0,0]
+#       $lote = Graph.make_longtext(30, 10, 200, 400, INTRO_TEXT)
+#       $lote.font             = Eruta::Zori.font.id
+#       $lote.background_color = [0,0,0]
       Zori.go(:settings)
     end
     $main_button_4= ma.make_button(260, 320, 100, 30, "Instructions")
@@ -220,6 +221,7 @@ def do_main_menu
   end
   
   $settings_ui = Zori.make_page(:settings) do |se| 
+      $lote2 = se.make_longtext(30, 10, 200, 400, INTRO_TEXT)
       $settings_ok_button = se.make_button(500, 400, 100, 30, "OK") do
          Zori.go(:main_menu)
          if $lote 

@@ -77,6 +77,7 @@ module Zori
   script 'zori/graphic.rb'
   script 'zori/widget.rb'
   script 'zori/button.rb'
+  script 'zori/longtext.rb'
   script 'zori/menu.rb'  
   script 'zori/page.rb'
   script 'zori/root.rb'

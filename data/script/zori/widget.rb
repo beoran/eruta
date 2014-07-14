@@ -141,7 +141,12 @@ module Zori
       return button
     end
 
-    
+   # Adds a longtext to this widget as a child widget
+    def make_longtext(x, y, w, h, text, &block)
+      lt = Zori::LongText.new(:x => x, :y => y, :w => w, :h => h, :text => text, &block)
+      self << lt
+      return lt
+    end
     
   end
 end

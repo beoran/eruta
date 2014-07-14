@@ -238,7 +238,7 @@ void scegra_draw_longtext(ScegraNode * self) {
   /*  Use default font if font not loeaded. */
   font = store_get_font(self->style.font_id);
   if (!font) font =  state_font(state_get());
-  flags = self->data.longtext.flags | ALLEGRO_ALIGN_INTEGER;
+  flags = /*self->data.longtext.flags |*/ ALLEGRO_ALIGN_INTEGER;
   /* Draw the text twice, once offset in bg color to produce a shadow, 
    and once normally with foreground color. */
   draw_multi_line_text(font, self->style.background_color, 
