@@ -86,6 +86,14 @@ module Zori
       hide_graph
     end
     
+    # Moves the component to (x, y)
+    def move_to(x, y)
+      @components.each do |comp|
+        comp.move_to(x, y)
+      end
+      move_graph(x, y)
+    end
+    
     # Shows the widget and all it's children
     def show
       @components.each do |comp|

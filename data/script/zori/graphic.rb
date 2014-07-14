@@ -20,6 +20,10 @@ module Zori
       @graph.each  { |g| g.visible = true }
     end
    
+    def move_graph(x, y)
+      @graph.each  { |g| g.position= [x, y] }
+    end
+   
 
     def graph_box(x, y, w, h, rx = 4, ry = 4, style_id = -1)
       gr = Graph.make_box(x, y, w, h, rx, ry, style_id)
@@ -39,7 +43,7 @@ module Zori
       return gr
     end
     
-    def graph_longtext(x, y, x, h, text, style_id = -1)
+    def graph_longtext(x, y, w, h, text, style_id = -1)
       gr = Graph.make_longtext(x, y, w, h, text, style_id)
       @graph << gr
       return gr

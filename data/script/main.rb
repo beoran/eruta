@@ -221,7 +221,7 @@ def do_main_menu
   end
   
   $settings_ui = Zori.make_page(:settings) do |se| 
-      $lote2 = se.make_longtext(30, 10, 200, 400, INTRO_TEXT)
+      $lote2 = se.make_longtext(100, 10, 160, 400, INTRO_TEXT)
       $settings_ok_button = se.make_button(500, 400, 100, 30, "OK") do
          Zori.go(:main_menu)
          if $lote 
@@ -240,6 +240,8 @@ def do_main_menu
          end
       end
   end
+  
+  $settings_ui.hide
   
   
   Zori.go(:main_menu)

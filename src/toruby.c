@@ -765,9 +765,9 @@ static mrb_value tr_scegra_make_longtext(mrb_state * mrb, mrb_value self) {
   char * str            = NULL;
   mrb_int id            = -1, size   =  0, sindex = -1;
   mrb_int x             =  0, y      =  0;
-  mrb_int w             = 128, h      = 32;
-  mrb_get_args(mrb, "iiiiisi", &id, &x, &y, &x, &h, &str, &size, &sindex);
-  return mrb_fixnum_value(scegra_make_longtext_style_from(id, bevec(x, y), bevec(x, h), str, sindex));
+  mrb_int w             = 64, h      = 32;
+  mrb_get_args(mrb, "iiiiisi", &id, &x, &y, &w, &h, &str, &size, &sindex);
+  return mrb_fixnum_value(scegra_make_longtext_style_from(id, bevec(x, y), bevec(w, h), str, sindex));
 }
 
 
