@@ -761,6 +761,16 @@ static mrb_value tr_scegra_make_text(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(scegra_make_text_style_from(id, bevec(x, y), str, sindex));
 }
 
+static mrb_value tr_scegra_make_longtext(mrb_state * mrb, mrb_value self) {
+  char * str            = NULL;
+  mrb_int id            = -1, size   =  0, sindex = -1;
+  mrb_int x             =  0, y      =  0;
+  mrb_int w             = 128, h      = 32;
+  mrb_get_args(mrb, "iiiiisi", &id, &x, &y, &x, &h, &str, &size, &sindex);
+  return mrb_fixnum_value(scegra_make_longtext_style_from(id, bevec(x, y), bevec(x, h), str, sindex));
+}
+
+
 static mrb_value tr_scegra_make_image(mrb_state * mrb, mrb_value self) {
   char * str            = NULL;
   mrb_int id            = -1, image_id  =  -1, sindex = -1;
@@ -1034,6 +1044,7 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_ARGC(mrb, gra, "make_box"         , tr_scegra_make_box,  8); 
   TR_CLASS_METHOD_ARGC(mrb, gra, "make_image"       , tr_scegra_make_image, 5); 
   TR_CLASS_METHOD_ARGC(mrb, gra, "make_text"        , tr_scegra_make_text, 5); 
+  TR_CLASS_METHOD_ARGC(mrb, gra, "make_longtext"    , tr_scegra_make_longtext, 7); 
   
   // Audio 
   TR_CLASS_METHOD_NOARG(mrb, aud, "playing_sounds_max", tr_playing_samples_max);

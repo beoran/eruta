@@ -494,6 +494,34 @@ Dynar * dynar_resize(Dynar * self, int newsize, MemDestructor * destroy) {
 }
 
 
+
+/** Makes a new empty dynar to contain long integers  */
+Dynar * dynar_new_long() {
+  return dynar_newempty(sizeof(long));
+}
+
+/** Stores a long integer into a dynar (preferrably created with dynar_new_long */
+Dynar * dynar_put_long(Dynar * self, int index, long value) {
+  return dynar_putdata(self, index, &value);
+}
+
+/** Gets a long integer from a dynar */
+Dynar * dynar_get_long(Dynar * self, int index, long * value) {
+  return dynar_getcopy(self, index, value);
+}
+
+/** Grows the size of the array by 1 and appends the long in the last position */
+Dynar * dynar_append_long(Dynar * self, long value) {
+  int pos = dynar_size(self);
+  if (!dynar_size_(self, pos+1)) return NULL;
+  return dynar_put_long(self, pos, value);  
+}
+
+
+
+
+
+
 /**
 * Lilis is a doubly Linked List that points to it's members via void pointers 
 * but does not own them  in the sense that it doesn't clean them up unless requested.

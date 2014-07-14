@@ -2,6 +2,8 @@
 
 # Set this to true to start a test map in stead of the normal main menu on startup.
 START_TEST_MAP = false
+# Play music at startup
+PLAY_MUSIC = false
 
 
 # Load keycodes
@@ -166,20 +168,35 @@ end
 #   puts "play_music #{res} #{$main_music.id}"
 # end
 
+INTRO_TEXT = "Milennia have passed since mankind first traveled to the moon. "+
+             "Civilizations rose as never before, yet to fall again. " +
+             "When all hope seemed lost, the 21 trees sprouted from the earth. " +
+             "They brought mysterious powers that protected and strengthened mankind. "+
+             "Hi!\n\n" +
+             "Hello µ world, this is me, 無 life should be\nfun for everyone!"
+
+
 def do_main_menu
   $main_music   = Store.load_audio_stream('/music/nethis-the_writer.ogg')
-  # Eruta::Audio.music_id = $main_music.id
-  # res = Eruta::Audio.play_music
-  res = nil  
+  $lote         = nil
+  if PLAY_MUSIC
+    Eruta::Audio.music_id = $main_music.id
+    res = Eruta::Audio.play_music
+  end
+  # res = nil  
   # $main_menu = MainMenu.new
   # $main_menu.active = true
   $default_ui = Zori.make_page(:default) do |m| 
   end
   
+
+  
+  
+  
   $main_page      = Zori.make_page(:main_menu) do |m| 
 
-#     $main_back    = Store.load_bitmap('/image/background/eruta_mainmenu.png')
-#     m.graph_image(0, 0, $main_back.id)
+   # $main_back    = Store.load_bitmap('/image/background/eruta_mainmenu.png')
+   # m.graph_image(0, 0, $main_back.id)
     $main_menu    = m.make_menu(0, 0, 0, 0, nil)
     ma            = $main_menu
     
@@ -188,14 +205,41 @@ def do_main_menu
       do_start_test_map
       Zori.go(:default)
     end
-    $main_button_3= ma.make_button(260, 280, 100, 30, "Settings")
+    $main_button_3= ma.make_button(260, 280, 100, 30, "Settings") do 
+      $lote = Graph.make_longtext(30, 10, 200, 400, INTRO_TEXT)
+      $lote.font             = Eruta::Zori.font.id
+      $lote.background_color = [0,0,0]
+      Zori.go(:settings)
+    end
     $main_button_4= ma.make_button(260, 320, 100, 30, "Instructions")
-    $main_button_5= ma.make_button(260, 360, 100, 30, "Credits")
+    $main_button_5= ma.make_button(260, 360, 100, 30, "µ£éè")
     $main_button_5= ma.make_button(260, 400, 100, 30, "Quit") do
       Eruta.quit
     end
     $main_menu.fit_children
   end
+  
+  $settings_ui = Zori.make_page(:settings) do |se| 
+      $settings_ok_button = se.make_button(500, 400, 100, 30, "OK") do
+         Zori.go(:main_menu)
+         if $lote 
+            $lote.close 
+            $lote = nil
+         end
+      end
+      $settings_ok_button = se.make_button(500, 350, 100, 30, "Font 2") do
+         if $lote 
+            $lote.font = Eruta::Zori.font.id
+         end
+      end
+      $settings_ok_button = se.make_button(500, 300, 100, 30, "Font 1") do
+         if $lote 
+            $lote.font = 0
+         end
+      end
+  end
+  
+  
   Zori.go(:main_menu)
   puts "play_music #{res} #{$main_music}"
 end
@@ -402,5 +446,3 @@ end
 # 
 # 
 # 
-
-p constants

@@ -1,5 +1,7 @@
 
 #include "draw.h"
+#include "laytext.h"
+#include "dynar.h"
 
 /** Addinional drawing functions and wrappers for primitive drwaing 
 functionality. */
@@ -163,6 +165,47 @@ bool draw_convert_average_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR draw_co
    return TRUE;
 }
 
+/* Helper for drawing multi line text */
+static int laytext_allegro_font_callback
+(char * str, int bytes, void * extra, float * w, float * h) {
+  ALLEGRO_USTR_INFO info; 
+  ALLEGRO_USTR * ustr;
+  ustr = al_ref_buffer(&info, str, bytes);
+  (*w) = (float) al_get_ustr_width((ALLEGRO_FONT *)extra, ustr); 
+  (*h) = 1.0;
+  return bytes;
+}
 
+void draw_multi_line_text(ALLEGRO_FONT * font, ALLEGRO_COLOR color, 
+                          float x, float y, float w, float h, 
+                          int flags,
+                          char * text) 
+{
+  int index;
+  long start;
+  Dynar * result;
+  long value = 0;
+  int length;
+  int line_height = al_get_font_line_height(font);
+  ALLEGRO_USTR_INFO info; 
+  ALLEGRO_USTR * ustr;
+
+  result = laytext_layout(text, w, laytext_allegro_font_callback, font);
+  
+  length = strlen(text);
+  start = 0;
+  for(index = 0; index < dynar_size(result); index++) {    
+    dynar_get_long(result, index, &value);
+    if (value > 0) { 
+      ustr = al_ref_buffer(&info, text + start, (int) (value - start));
+      al_draw_ustr(font, color, x, y, flags, ustr);
+      y += line_height;
+    } 
+    start = value + 1;
+  }
+  ustr = al_ref_cstr(&info, text + start);
+  al_draw_ustr(font, color, x, y, flags, ustr);  
+  dynar_free(result);
+}
 
 

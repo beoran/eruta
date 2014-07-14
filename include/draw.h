@@ -29,6 +29,12 @@ void draw_roundframe (int xx , int yy , int ww , int hh , int tt , Color fg , Co
 bool draw_convert_average_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR mask_color);
 
 
+void draw_multi_line_text(ALLEGRO_FONT * font, ALLEGRO_COLOR color, 
+                          float x, float y, float w, float h, 
+                          int flags,
+                          char * text);
+
+
 #endif /* CFH_DRAW_PROTO */
 
 

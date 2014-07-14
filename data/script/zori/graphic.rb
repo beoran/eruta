@@ -38,6 +38,12 @@ module Zori
       @graph << gr
       return gr
     end
+    
+    def graph_longtext(x, y, x, h, text, style_id = -1)
+      gr = Graph.make_longtext(x, y, w, h, text, style_id)
+      @graph << gr
+      return gr
+    end
 
   end
 end

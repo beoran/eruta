@@ -11,6 +11,10 @@
 #include "flags.h"
 #include "store.h"
 #include "state.h"
+#include "laytext.h"
+#include <string.h>
+
+
 
 #define SCEGRA_TEXT_MAX 128
 
@@ -73,9 +77,15 @@ struct ScegraText_ {
   float x1, x2, y, diff;
   int flags;
   char text[SCEGRA_TEXT_MAX];
-  int text_owned, from, until;
+  int from, until;
 };
 
+struct ScegraLongText_ {
+  float x1, x2, y, diff;
+  int flags;
+  char * text;
+  int from, until;
+};
 
 
 /** Union: ScegraData. 
@@ -93,6 +103,7 @@ union ScegraData_ {
   struct ScegraSpline_          spline;
   struct ScegraPrim_            prim;
   struct ScegraText_            text;
+  struct ScegraLongText_        longtext;
 };
 
 typedef union ScegraData_ ScegraData;
@@ -115,6 +126,7 @@ struct ScegraNode_ {
   union   ScegraData_   data;
   ScegraDraw          * draw;
   ScegraUpdate        * update;
+  ScegraDone          * done;
 };
 
 
@@ -137,6 +149,14 @@ static ScegraNode * scegra_nodes_todraw[SCEGRA_NODES_MAX];
 static int scegra_to_draw = 0;
 
 
+ScegraNode * 
+scegranode_done(ScegraNode * self) {
+  if (!self) return NULL;
+  if (self->done) self->done(self);
+  self->id = -1;
+  self->z  = -1;
+  return self;
+}
 
 
 
@@ -146,6 +166,7 @@ scegranode_initall(ScegraNode * node, int id, BeVec pos, BeVec siz,
                    ScegraData data,
                    ScegraStyle style, ScegraDraw * draw, ScegraUpdate * update) {
   if(!node) return NULL;
+  scegranode_done(node);
   node->id      = id;
   node->z       = id;
   node->pos     = pos;
@@ -157,17 +178,17 @@ scegranode_initall(ScegraNode * node, int id, BeVec pos, BeVec siz,
   node->update  = update;
   node->step    = 0;
   node->flags   = 0;
+  node->done    = NULL;
   return node;
 }
 
-ScegraNode * 
-scegranode_done(ScegraNode * self) {
-  if (!self) return NULL;
-  self->id = -1;
-  self->z  = -1;
-  return self;
-}
 
+
+ScegraNode * 
+scegranode_longtext_done(ScegraNode * self) {
+   free(self->data.longtext.text);
+   self->data.longtext.text = NULL;
+}
 
 void scegra_update_generic(ScegraNode * self, double dt) {
   self->pos = bevec_add(self->pos, bevec_mul(self->speed, dt));
@@ -211,6 +232,26 @@ void scegra_draw_text(ScegraNode * self) {
 }
 
 
+void scegra_draw_longtext(ScegraNode * self) {
+  Font * font;
+  int flags;
+  /*  Use default font if font not loeaded. */
+  font = store_get_font(self->style.font_id);
+  if (!font) font =  state_font(state_get());
+  flags = self->data.longtext.flags | ALLEGRO_ALIGN_INTEGER;
+  /* Draw the text twice, once offset in bg color to produce a shadow, 
+   and once normally with foreground color. */
+  draw_multi_line_text(font, self->style.background_color, 
+                       self->pos.x + 1, self->pos.y + 1, 
+                       self->size.x, self->size.y,
+                       flags, self->data.longtext.text);
+  
+  draw_multi_line_text(font, self->style.color, 
+                       self->pos.x, self->pos.y, 
+                       self->size.x, self->size.y,
+                       flags, self->data.longtext.text);
+}
+
 void scegra_draw_image(ScegraNode * self) {
   Image * image;
   int flags     = self->data.bitmap.flags;
@@ -235,7 +276,6 @@ void scegra_draw_image(ScegraNode * self) {
     al_draw_tinted_scaled_rotated_bitmap(image, self->style.color, cx, cy, dx, dy, xscale, yscale, angle, flags);
   }
 }
-
 
 
 ScegraStyle * scegrastyle_initempty(ScegraStyle * self) {
@@ -268,8 +308,19 @@ scegranode_init_text(ScegraNode * self, int id, BeVec pos, const char * text, Sc
   if (!self) return NULL;
   strncpy(data.text.text, text, SCEGRA_TEXT_MAX);
   data.text.text[SCEGRA_TEXT_MAX - 1] = '\0';
-  
   scegranode_initall(self, id, pos, bevec0(), data, style, scegra_draw_text, scegra_update_generic);
+  return self;
+}
+
+
+ScegraNode * 
+scegranode_init_longtext
+(ScegraNode * self, int id, BeVec pos, BeVec siz, char * text, ScegraStyle style) {
+  ScegraData data;
+  if (!self) return NULL;
+  data.longtext.text  =  strdup(text);
+  scegranode_initall(self, id, pos, siz, data, style, scegra_draw_longtext, scegra_update_generic);
+  self->done = scegranode_longtext_done;
   return self;
 }
 
@@ -293,8 +344,8 @@ ScegraNode *
 scegranode_init_image(ScegraNode * self, int id, BeVec pos,  int image_id, ScegraStyle style) {
   int w, h;
   BeVec siz;
-  if(!store_get_bitmap_width(image_id, &w)) return NULL;
-  if(!store_get_bitmap_height(image_id, &h)) return NULL;
+  if(!store_get_bitmap_width(image_id, &w)) w = 0;
+  if(!store_get_bitmap_height(image_id, &h)) h = 0;
   siz = bevec(w, h);  
   return scegranode_init_image_ex(self, id, pos, siz, image_id, style, bevec0(), siz, 0.0, 0);
 }
@@ -313,6 +364,16 @@ void scegra_init() {
   for (index = 0; index < SCEGRA_NODES_MAX; index++) {
     ScegraNode * node = scegra_nodes + index;
     node->id = -1; /* Negative id means unused; */
+  }
+  scegra_to_draw = 0;
+}
+
+/* End the use of the simple 2D scene graph */
+void scegra_done() {
+  int index;  
+  for (index = 0; index < SCEGRA_NODES_MAX; index++) {
+    ScegraNode * node = scegra_nodes + index;
+    scegranode_done(node);
   }
   scegra_to_draw = 0;
 }
@@ -399,6 +460,7 @@ int scegra_get_id(int index) {
 int scegra_disable_node(int index) {
   ScegraNode * node = scegra_get_node(index);
   if (!node) return -2;
+  scegranode_done(node);
   return node->id = -1; 
 }
 
@@ -417,6 +479,15 @@ int scegra_make_text(int id, BeVec pos, const char * text, ScegraStyle style) {
   ScegraNode * node = scegra_get_node(id);
   if (!node) return -2;  
   scegranode_init_text(node, id, pos, text, style);
+  return node->id;
+}
+
+/* Initialies the node at index as a long text. Long text is arbitrary size and will
+ * wrap automatically to the width of the scegra element.  */
+int scegra_make_longtext(int id, BeVec pos, BeVec siz, char * text, ScegraStyle style) {
+  ScegraNode * node = scegra_get_node(id);
+  if (!node) return -2;  
+  scegranode_init_longtext(node, id, pos, siz, text, style);
   return node->id;
 }
 
@@ -453,6 +524,13 @@ int scegra_make_box_style_from(int id, BeVec pos, BeVec siz, BeVec round, int si
 int scegra_make_text_style_from(int id, BeVec pos, const char * text, int sindex) {
    return scegra_make_text(id, pos, text, scegra_get_style(sindex));
 }
+
+/* Initializes the node as a text long with a style copied from the node at sindex, 
+ * or if that is not in use, a default style. */
+int scegra_make_longtext_style_from(int id, BeVec pos, BeVec siz, const char * text, int sindex) {
+   return scegra_make_longtext(id, pos, siz, text, scegra_get_style(sindex));
+}
+
 
 /* Initializes the node as a image with a style copied from the node at sindex, 
  * or if that is not in use, a default style. */
@@ -666,6 +744,20 @@ int scegra_background_color(int index, int * r, int * g,int * b,int * a);
 int scegra_border_color(int index,int * r,int * g,int * b, int * a);
 int scegra_color(int index, int * r, int * g, int * b,int * a);
 
+/** Returns the natural size of the bitmap of the image. Will be 
+ * set to -1 if the bitmap isn't loaded yet.
+ */
+int scegra_image_bitmap_size(int index, int * w, int * h) {
+  int image_id;
+  ScegraNode * node = scegra_get_node(index);
+  if (!w || !h)         return -3;
+  if (!node)            return -2;
+  if (node->id < 0)     return -1;
+  image_id  = node->data.bitmap.image_id;
+  if(!store_get_bitmap_width(image_id, w))  (*w) = -1;
+  if(!store_get_bitmap_height(image_id, h)) (*h) = -1;
+  return node->z;  
+}
 
 
 /*

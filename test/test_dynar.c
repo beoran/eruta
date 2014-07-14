@@ -61,10 +61,47 @@ TEST_FUNC(dynar) {
   TEST_DONE();
 }
 
+TEST_FUNC(dynar_long) {
+  long value = 0;
+  Dynar * arr = dynar_new_long();
+  dynar_grow(arr, 10);  
+  TEST_NOTNULL(dynar_put_long(arr, 3, 12345678));
+  TEST_NOTNULL(dynar_get_long(arr, 3, &value));
+  TEST_LONGEQ(value, 12345678);
+  TEST_NOTNULL(dynar_append_long(arr, 9876));
+  TEST_NOTNULL(dynar_get_long(arr, 10, &value));
+  TEST_LONGEQ(value, 9876);
+  TEST_NOTNULL(dynar_append_long(arr, 9876));
+  TEST_NOTNULL(dynar_get_long(arr, 11, &value));
+  TEST_LONGEQ(value, 9876);
+  TEST_NOTNULL(dynar_append_long(arr, 9876));
+  TEST_NOTNULL(dynar_get_long(arr, 12, &value));
+  TEST_LONGEQ(value, 9876);
+  TEST_NOTNULL(dynar_append_long(arr, 9876));
+  TEST_NOTNULL(dynar_get_long(arr, 13, &value));
+  TEST_LONGEQ(value, 9876);
+  TEST_NOTNULL(dynar_append_long(arr, 9876));
+  TEST_NOTNULL(dynar_get_long(arr, 14, &value));
+  TEST_LONGEQ(value, 9876);
+  
+  TEST_NOTNULL(dynar_append_long(arr, 9876));
+  TEST_NOTNULL(dynar_get_long(arr, 15, &value));
+  TEST_LONGEQ(value, 9876);
+  TEST_NOTNULL(dynar_append_long(arr, 9876));
+  TEST_NOTNULL(dynar_get_long(arr, 16, &value));
+  TEST_LONGEQ(value, 9876);
+  TEST_NOTNULL(dynar_append_long(arr, 9876));
+  TEST_NOTNULL(dynar_get_long(arr, 17, &value));
+  TEST_LONGEQ(value, 9876);
+  
+  
+  TEST_DONE();
+}
 
 int main(void) {
   TEST_INIT();
   TEST_RUN(dynar);
+  TEST_RUN(dynar_long);
   TEST_REPORT();
 }
 

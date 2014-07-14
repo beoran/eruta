@@ -32,7 +32,8 @@ set(ERUTA_SRC_FILES
   src/glh.c
   src/hatab.c
   src/ifa.c
-  src/inli.c  
+  src/inli.c
+  src/laytext.c
   src/mem.c
   src/mobile.c
   src/mode.c
@@ -59,6 +60,7 @@ set(ERUTA_SRC_FILES
   src/tmatrix.c
   src/toruby.c  
   src/ui.c
+  src/utf8.c
   src/widget.c
   src/xml.c
   src/xresor.c

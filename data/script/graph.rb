@@ -85,6 +85,11 @@ class Graph < Eruta::Graph
       x, y = *p
       Eruta::Graph.position_(@id, x, y)
     end
+    
+    def close() 
+      Graph.unregister(self)
+      @id = nil
+    end
 
   end
 
@@ -98,6 +103,13 @@ class Graph < Eruta::Graph
   end
 
 
+  def self.unregister(thing)
+    @registry ||= {}
+    @registry[thing.id] = nil
+    Graph.disable(thing.id) 
+    thing = nil
+  end
+  
   def self.get_unused_id
     29000.times do | i | 
       return i unless self.registry[i]
@@ -126,5 +138,12 @@ class Graph < Eruta::Graph
     return Node.new(nid)
   end
 
+    def self.make_longtext(x, y, w, h, text, style_id = -1)
+    id  = self.get_unused_id
+    nid = Eruta::Graph.make_longtext(id, x, y, w, h, text, style_id)
+    return nil if (nid < 0)
+    return Node.new(nid)
+  end
+  
 end
 

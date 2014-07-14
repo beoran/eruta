@@ -75,6 +75,11 @@ void * dynar_walkmapptr(Dynar * self, Walker * walker, void * extra);
 Dynar * dynar_resize(Dynar * self, int newsize, MemDestructor * destroy);
 
 
+Dynar * dynar_new_long();
+Dynar * dynar_put_long(Dynar * self, int index, long value);
+Dynar * dynar_get_long(Dynar * self, int index, long * value);
+Dynar * dynar_append_long(Dynar * self, long value);
+
 Lilis * lilis_freetail (Lilis * self );
 Lilis * lilis_done (Lilis * self );
 Lilis * lilis_free (Lilis * self );
