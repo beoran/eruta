@@ -169,7 +169,7 @@ bool draw_convert_average_to_alpha(ALLEGRO_BITMAP *bitmap, ALLEGRO_COLOR draw_co
 static int laytext_allegro_font_callback
 (char * str, int bytes, void * extra, float * w, float * h) {
   ALLEGRO_USTR_INFO info; 
-  ALLEGRO_USTR * ustr;
+  const ALLEGRO_USTR * ustr;
   ustr = al_ref_buffer(&info, str, bytes);
   (*w) = (float) al_get_ustr_width((ALLEGRO_FONT *)extra, ustr); 
   (*h) = 1.0;
@@ -188,7 +188,7 @@ void draw_multi_line_text(ALLEGRO_FONT * font, ALLEGRO_COLOR color,
   int length;
   int line_height = al_get_font_line_height(font);
   ALLEGRO_USTR_INFO info; 
-  ALLEGRO_USTR * ustr;
+  const ALLEGRO_USTR * ustr;
 
   result = laytext_layout(text, w, laytext_allegro_font_callback, font);
   

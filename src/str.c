@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <string.h>
 #include "eruta.h"
 #include "str.h"
 #include "bad.h"
@@ -13,6 +14,17 @@ a) To limit typing, strings are used everywhere so I want short names for the fu
 b) To enable me to replace the string functions in case I want to reuse 
 them in something that doesn't use Allegro. 
 */
+
+/** Strdup is not ANSI standard so have to make my own version. */
+char * cstr_dup(char * str) {
+  size_t len = strlen(str);
+  char * result = malloc(len + 1);
+  if (!result) return NULL;
+  strncpy(result, str, len);
+  result[len+1] = '\0';
+  return result;
+}
+
 
 /** Converts an US string to a number as per atoi. */
 int ustr_atoi(USTR * str) {

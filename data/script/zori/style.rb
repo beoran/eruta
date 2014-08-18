@@ -120,6 +120,11 @@ module Zori
       Eruta::Graph.size_(@id, w, h)
     end
     
+    def font_id=(f) 
+      Eruta::Graph.font_(@id, f)
+    end
+    
+    
     def self.default
       @default ||= self.new()
       return @default

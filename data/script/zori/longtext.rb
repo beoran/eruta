@@ -12,16 +12,28 @@ module Zori
       super(params, &block)
       text                 = params[:text]
       @margin              = params[:margin] || 4
+      @align               = params[:align] || :right
       @text                = text
       @bg                  = graph_box(@x, @y, @w, @h)
       @bg.border_thickness = 0
       @bg.border_color     = [255, 255, 255, 128]
       @bg.background_color = BUTTON_BACKGROUND
       
-      @tg                  = graph_longtext(@x + @margin, @y  + @margin, 
-                                            @w - (2*@margin) , @h - (2*@margin), text)
+      text_w = @w - (2*@margin) 
+      text_h = @h - (2*@margin)
+      text_f = Eruta::ALIGN_LEFT
+      text_y = @y + @margin
+  
+      if @align == :center
+         text_x = @x + ((@w - (2*@margin)) / 2)
+         text_f = Eruta::ALIGN_CENTER
+      else 
+         text_x = @x + @margin
+      end
+      
+      @tg       = graph_longtext(text_x, text_y, text_w, text_h, text) 
       # XXX fix on C side
-      # @tg.text_flags       = Eruta::ALIGN_RIGHT
+      @tg.text_flags       = text_f
       @tg.font             = Eruta::Zori.font.id
       @tg.background_color = [0,0,0]
       @tg.color            = [255,255, 64]      

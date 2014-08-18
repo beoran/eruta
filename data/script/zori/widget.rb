@@ -31,7 +31,7 @@ module Zori
       self.init_graph
       @z                 = params[:z] || 0
       @style             = Zori::Style.default.dup
-      # XXX: should be copy deep of the default style
+      # deep copy the default style
       @can               = Zori::Capability.new
       @state             = Zori::State.new
       @state.set(:active)
@@ -88,6 +88,8 @@ module Zori
     
     # Moves the component to (x, y)
     def move_to(x, y)
+      @x = x
+      @y = y
       @components.each do |comp|
         comp.move_to(x, y)
       end
@@ -151,7 +153,8 @@ module Zori
 
    # Adds a longtext to this widget as a child widget
     def make_longtext(x, y, w, h, text, &block)
-      lt = Zori::LongText.new(:x => x, :y => y, :w => w, :h => h, :text => text, &block)
+      lt = Zori::LongText.new(:x => x, :y => y, :w => w, :h => h, :text => text,
+                              &block)
       self << lt
       return lt
     end

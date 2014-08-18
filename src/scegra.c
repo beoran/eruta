@@ -38,7 +38,6 @@ struct ScegraRound_ {
 struct ScegraBitmap_ {
   BeVec src_pos, src_size;
   float angle;
-  int flags;
   int image_id;
 };
 
@@ -75,14 +74,12 @@ struct ScegraPrim_ {
 
 struct ScegraText_ {
   float x1, x2, y, diff;
-  int flags;
   char text[SCEGRA_TEXT_MAX];
   int from, until;
 };
 
 struct ScegraLongText_ {
   float x1, x2, y, diff;
-  int flags;
   char * text;
   int from, until;
 };
@@ -149,13 +146,12 @@ static ScegraNode * scegra_nodes_todraw[SCEGRA_NODES_MAX];
 static int scegra_to_draw = 0;
 
 
-ScegraNode * 
+void 
 scegranode_done(ScegraNode * self) {
-  if (!self) return NULL;
+  if (!self) return;
   if (self->done) self->done(self);
   self->id = -1;
   self->z  = -1;
-  return self;
 }
 
 
@@ -184,7 +180,7 @@ scegranode_initall(ScegraNode * node, int id, BeVec pos, BeVec siz,
 
 
 
-ScegraNode * 
+void
 scegranode_longtext_done(ScegraNode * self) {
    free(self->data.longtext.text);
    self->data.longtext.text = NULL;
@@ -224,7 +220,7 @@ void scegra_draw_text(ScegraNode * self) {
   /*  Use default font if font not loeaded. */
   font = store_get_font(self->style.font_id);
   if (!font) font =  state_font(state_get());
-  flags = self->data.text.flags | ALLEGRO_ALIGN_INTEGER;
+  flags = self->style.text_flags | ALLEGRO_ALIGN_INTEGER;
   /* Draw the text twice, once offset in bg color to produce a shadow, 
    and once normally with foreground color. */
   al_draw_text(font, self->style.background_color, self->pos.x + 1, self->pos.y + 1, flags, self->data.text.text);
@@ -238,7 +234,7 @@ void scegra_draw_longtext(ScegraNode * self) {
   /*  Use default font if font not loeaded. */
   font = store_get_font(self->style.font_id);
   if (!font) font =  state_font(state_get());
-  flags = /*self->data.longtext.flags |*/ ALLEGRO_ALIGN_INTEGER;
+  flags = self->style.text_flags | ALLEGRO_ALIGN_INTEGER;
   /* Draw the text twice, once offset in bg color to produce a shadow, 
    and once normally with foreground color. */
   draw_multi_line_text(font, self->style.background_color, 
@@ -254,7 +250,7 @@ void scegra_draw_longtext(ScegraNode * self) {
 
 void scegra_draw_image(ScegraNode * self) {
   Image * image;
-  int flags     = self->data.bitmap.flags;
+  int flags     = self->style.image_flags;
   float angle   = self->data.bitmap.angle;
   float cx, cy, dx, dy, xscale, yscale;
   cx     = self->data.bitmap.src_pos.x + self->data.bitmap.src_size.x / 2;
@@ -288,6 +284,8 @@ ScegraStyle * scegrastyle_initempty(ScegraStyle * self) {
   self->line_join_style         = 0;
   self->line_miter_limit        = 1;
   self->border_thickness        = -1;
+  self->image_flags             = 0;
+  self->text_flags              = 0;
   return self;
 }
 
@@ -318,7 +316,7 @@ scegranode_init_longtext
 (ScegraNode * self, int id, BeVec pos, BeVec siz, char * text, ScegraStyle style) {
   ScegraData data;
   if (!self) return NULL;
-  data.longtext.text  =  strdup(text);
+  data.longtext.text  =  cstr_dup(text);
   scegranode_initall(self, id, pos, siz, data, style, scegra_draw_longtext, scegra_update_generic);
   self->done = scegranode_longtext_done;
   return self;
@@ -333,10 +331,10 @@ scegranode_init_image_ex(
   if (!self) return NULL;
   data.bitmap.angle     = angle;
   data.bitmap.image_id  = image_id;
-  data.bitmap.flags     = flags;
   data.bitmap.src_pos   = spos;
   data.bitmap.src_size  = ssiz; 
   scegranode_initall(self, id, pos, siz, data, style, scegra_draw_image, scegra_update_generic);
+  self->style.image_flags = flags;
   return self;
 }
 
@@ -528,7 +526,7 @@ int scegra_make_text_style_from(int id, BeVec pos, const char * text, int sindex
 /* Initializes the node as a text long with a style copied from the node at sindex, 
  * or if that is not in use, a default style. */
 int scegra_make_longtext_style_from(int id, BeVec pos, BeVec siz, const char * text, int sindex) {
-   return scegra_make_longtext(id, pos, siz, text, scegra_get_style(sindex));
+   return scegra_make_longtext(id, pos, siz, (char *)text, scegra_get_style(sindex));
 }
 
 
@@ -677,7 +675,7 @@ int scegra_image_flags_(int index, int flags) {
   ScegraNode * node = scegra_get_node(index);
   if (!node) return -2;
   if (node->id < 0) return -1;
-  node->data.bitmap.flags = flags;
+  node->style.image_flags = flags;
   return node->z;
 }
 
@@ -687,7 +685,7 @@ int scegra_text_flags_(int index, int flags) {
   ScegraNode * node = scegra_get_node(index);
   if (!node) return -2;
   if (node->id < 0) return -1;
-  node->data.text.flags = flags;
+  node->style.text_flags = flags;
   return node->z;
 }
 

@@ -23,7 +23,7 @@
  */
 
 
-/* Finds the position of the first candidate line break in the 
+/* Finds the position of the first candidate line break in the 今日は
  utf8-encoded text str. Returns -1 if no candidate could be found.  
  Returns -2 if the string is empty.
  */

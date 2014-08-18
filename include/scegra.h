@@ -43,6 +43,10 @@ struct ScegraStyle_ {
   int                   font_id;
   ALLEGRO_LINE_JOIN     line_join_style; 
   float                 line_miter_limit;
+  /* Flags to use when drawing text. */
+  int                   text_flags;
+  /* Flags to use when drawing images. */
+  int                   image_flags;
 };
 
 

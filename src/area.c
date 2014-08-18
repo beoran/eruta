@@ -16,16 +16,16 @@
 #define AREA_SCALE_BY (32.0lf)
 
 /** Scales int by scale factor */
-#define AREA_SCALE_INT(I) ((double)((INT) I)>>5)) 
+#define AREA_SCALE_INT(I) ((double)((INT) I)>>5))
 
 
 /*
 An area is an in game region that corresponds with a single loaded tile map
-and that keeps track of the physics and location of all in-game objects. 
+and that keeps track of the physics and location of all in-game objects.
 
-An area consists of a chipmunk cpSpace that simulates the dynamics, 
+An area consists of a chipmunk cpSpace that simulates the dynamics,
 and a list of Things, that is, in game objects. It also contains a reference
-to a SpriteList (that is owned by state). 
+to a SpriteList (that is owned by state).
 
 Division of the data locations: visual and physics engine: in C.
 Logic/game/character data: in scripting engine.
@@ -35,7 +35,7 @@ Logic/game/character data: in scripting engine.
 #define AREA_THINGS 20000
 
 struct Area_ {
-  BumpWorld   * world;  
+  BumpWorld   * world;
   int           lastid;
   Thing       * things[AREA_THINGS];
   Thing       * things_todraw[AREA_THINGS];
@@ -54,7 +54,7 @@ Thing * area_thing(Area * area, int index) {
   if(index > AREA_THINGS) return NULL;
   if(!area) return NULL;
   return area->things[index];
-} 
+}
 
 /** Sets the thing for the given thing ID. */
 Thing * area_thing_(Area * area, int index, Thing * set) {
@@ -62,29 +62,29 @@ Thing * area_thing_(Area * area, int index, Thing * set) {
   if(index > AREA_THINGS) return NULL;
   if(!area) return NULL;
   return area->things[index] = set;
-} 
+}
 
 
-/** Returns an ID for a thing to use. Internally walks over the 
+/** Returns an ID for a thing to use. Internally walks over the
 known things and finds an empty cell. Returns negative on error. */
 int area_thingid(Area * self) {
   int index, stop;
   if(!self) return -1;
   stop = area_maxthings(self);
   for (index= 0; index < stop; index++) {
-    Thing * thing = area_thing(self, index); 
+    Thing * thing = area_thing(self, index);
     if(!thing) {
       if(index >= self->lastid) {
         self->lastid = index;
-      } 
+      }
       return index;
     }
   }
   return -3;
 }
 
-/** Puts a thing inside the area. Returns NULL on error. 
-returns the thing set if ok. Sets the thing's id to it's 
+/** Puts a thing inside the area. Returns NULL on error.
+returns the thing set if ok. Sets the thing's id to it's
 position in the internal array for things the area has. */
 Thing * area_addthing(Area * area, int index, Thing * thing) {
   if (!thing)  return NULL;
@@ -93,7 +93,7 @@ Thing * area_addthing(Area * area, int index, Thing * thing) {
   if(!area_thing_(area, index, thing)) return NULL;
   thing_id_(thing, index);
   /* Set last used id to index if needed */
-  if (area->lastid < index)  { area->lastid = index; } 
+  if (area->lastid < index)  { area->lastid = index; }
   /* Don't forget to add physical body and hull to the space if needed. */
   bumpworld_addbody(area->world, thing->physical);
   bumpworld_addhull(area->world, thing->hull);
@@ -101,7 +101,7 @@ Thing * area_addthing(Area * area, int index, Thing * thing) {
 }
 
 /** Set the tile map to use for this area. */
-Tilemap * 
+Tilemap *
 area_addmap(Area * area, Tilemap * map) {
   return bumpworld_tilemap_(area->world, map);
 }
@@ -111,7 +111,7 @@ area_addmap(Area * area, Tilemap * map) {
  */
 
 
-/* Removes the thing from the area, but does not deallocate it. 
+/* Removes the thing from the area, but does not deallocate it.
  * Returns thing if sucessful. */
 Thing * area_removething(Area * area, Thing * thing) {
   if (!thing)                           return NULL;
@@ -126,13 +126,13 @@ Thing * area_removething(Area * area, Thing * thing) {
 
 /* Removes a thing from the area, selected by ID and deallocates it. */
 int area_deletething(Area * area, int index) {
-  Thing * thing = area_thing(area, index); 
+  Thing * thing = area_thing(area, index);
   Thing * del   = area_removething(area, thing);
   if(thing && del) {
      thing_free(thing);
   }
   return 0;
-} 
+}
 
 
 /* Cleans up the things of the area */
@@ -148,7 +148,7 @@ Area * area_cleanupthings(Area * self) {
 
 /* Empties the things of an area. Does not destroy them! */
 Area * area_emptythings(Area * self) {
-  int index, stop;  
+  int index, stop;
   if (!self) return NULL;
   stop = area_maxthings(self);
   for (index= 0; index < stop; index++) {
@@ -209,21 +209,21 @@ BumpWorld * area_world(Area * self) {
 }
 
 
-/** Makes a new static thing and adds it to the area. Return it or NULL on error. 
- Not needed anymore. 
+/** Makes a new static thing and adds it to the area. Return it or NULL on error.
+ Not needed anymore.
  */
-Thing * area_newstatic(Area * self, int index , int kind, 
+Thing * area_newstatic(Area * self, int index , int kind,
                        int x, int y, int z, int w, int h) {
   return NULL;
 }
 
 
 /** Makes a new dynamic thing and adds it to the area. Return it or NULL on error. */
-Thing * area_newdynamic(Area * self, int index, int kind, 
+Thing * area_newdynamic(Area * self, int index, int kind,
                         int x, int y, int z, int w, int h) {
   Thing * thing;
   thing = thing_newdynamic(self, kind, x, y, z, w, h);
-  if (!area_addthing(self, index, thing)) { 
+  if (!area_addthing(self, index, thing)) {
     return thing_free(thing);
   }
   return thing;
@@ -233,10 +233,10 @@ Thing * area_newdynamic(Area * self, int index, int kind,
 /** Sets the current tile map of the area. */
 ERES area_tilemap_(Area * self, Tilemap * map) {
   int wide, high;
-  if (map) { 
+  if (map) {
     wide = tilemap_gridwide(map);
     high = tilemap_gridhigh(map);
-  } else { 
+  } else {
     /* No map so this is whatever, I think. */
     wide = 640;
     high = 480;
@@ -256,7 +256,7 @@ void area_draw(Area * self, Camera * camera) {
     if(!thing) break;
     thing_draw(thing, camera);
   }
-#ifdef ERUTA_DEBUG_DRAW  
+#ifdef ERUTA_DEBUG_DRAW
   bumpworld_draw_debug(self->world);
 #endif
 }
@@ -269,12 +269,12 @@ void area_draw_layer (Area * self, Camera * camera, int layer) {
     /* If we encounter a NULL, we're all done drawing. */
     if(!thing) break;
     /* Only draw current layer. */
-    if(thing_z(thing) != layer) { 
+    if(thing_z(thing) != layer) {
       continue;
     }
     thing_draw(thing, camera);
   }
-#ifdef ERUTA_DEBUG_DRAW  
+#ifdef ERUTA_DEBUG_DRAW
   bumpworld_draw_debug(self->world);
 #endif
 }
@@ -284,18 +284,18 @@ void area_draw_layer (Area * self, Camera * camera, int layer) {
 void area_update(Area * self, double dt) {
   int subindex = 0;
   int index;
-  bumpworld_update(self->world, dt);  
+  bumpworld_update(self->world, dt);
   for(index = 0; index <  (self->lastid + 1); index++) {
     Thing * thing = area_thing(self, index);
     /* this is a bandaid, somehow uninitialized things are stored in the area. */
-    if (thing &&  thing->physical) { 
+    if (thing &&  thing->physical) {
       thing_update(thing, dt);
       self->things_todraw[subindex] = thing;
       subindex++;
     }
   }
   /** Sort drawing array so the painter's algorihm can be used. */
-  qsort(self->things_todraw, subindex, sizeof(Thing*), thing_compare_for_drawing); 
+  qsort(self->things_todraw, subindex, sizeof(Thing*), thing_compare_for_drawing);
 }
 
 
@@ -305,7 +305,7 @@ void area_update(Area * self, double dt) {
 
 
 
-#define THING_TRACK_DELTA 32.0 * 4 
+#define THING_TRACK_DELTA 32.0 * 4
 
 #ifdef COMMENT_
 
@@ -316,7 +316,7 @@ int thing_track(Tracker * tracker, void * data) {
   thing         = (Thing *) tracker->target;
   if(thing_static_p(thing)) return TRACKER_ERROR;
   // TODO: correct with half width and half height
-  camera_centerdelta_(tracker->camera, thing_p(thing), THING_TRACK_DELTA);  
+  camera_centerdelta_(tracker->camera, thing_p(thing), THING_TRACK_DELTA);
   return TRACKER_DONE;
 }
 

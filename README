@@ -7,11 +7,11 @@
 
 
 
-Eruta us a futuristic jRPG under development.
+Eruta is a futuristic jRPG under development.
 
 Requirements:
 * OS: Linux for now. Windows port is under development. OSX may work too.
-* Allegro 5.1.5 or later (5.1.5 is in vendor directory). 
+* Allegro 5.1.9 or later. 
   Earlier versions won't be found by the build script.  
 * libxml2 (www.xmlsoft.org)
 * mruby (latest gitub version). To install globally in /usr/local 
@@ -57,7 +57,7 @@ Use naturaldocs.
 License: 
 
 Eruta is copyright (C)
-2007-2012 Beoran beoran@rubyforge.org. 
+2007-2014 Beoran beoran@rubyforge.org. 
 2012 com64 (music files in data/music/*_com64.ogg)
 
 Redistribution and use in source and binary forms, with or without modification, 
@@ -225,7 +225,7 @@ src/glh.c         : OpenGL helper functions. Currently not in use.
 src/hatab.c       : Hash table. Needs work, so not in use yet.
 src/ifa.c         : Generic interfaces for C. Currently not used.
 src/inli.c        : Intrusive linked ist, currently not used.
-src/json.c	  : JSON support.
+src/json.c    : JSON support.
 src/main.c        : Main function and many helpers and tests.
 src/mem.c         : Memory handling helpers.
 src/miniz.c       : Minimalistic zip library for later use.

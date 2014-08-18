@@ -2,6 +2,11 @@
 | TODO |
 +------+
 
+o GUI:
+  * All sorts of widgets to display dialogs, status screens, menus, etc.
+  * Keyboard input.
+  * Joystick input.
+
 
 o Physics:
   * Implement interaction between players characters/NPC's/foes, etc.
@@ -10,9 +15,6 @@ o Physics:
   * Implement shallow and deep water.
 
 
-o GUI:
-  * Maybe a small scene graph so the GUI can be implemented in mruby.
-  * All sorts of widgets to display dialogs, status screens, menus, etc.
 
 o Main:
   * Configurable controls
@@ -27,7 +29,7 @@ o Tile map:
 
 o Sprites:
   * Shadows under the sprites.
-  * Speed up loading a bit? 
+  * Speed up loading a bit?
 
 o AI:
   * Implement D* lite.
@@ -52,14 +54,16 @@ o AND MUCH MORE! ^_^;;;
 | DONE |
 +------+
 
-
+o GUI:
+  * A 2D UI elements / drawing scene graph was implemented so the GUI can be
+    partially implemented in mruby.
 
 o Tile map:
   * Static tilesets.
   * Load tilemapeditor.org TMX maps.
   * Tile map tile animations.
   * Tile properties.
-  * Tile map layers. 
+  * Tile map layers.
 
 
 o Sprites:
@@ -72,5 +76,5 @@ o Physics:
   * Bump based physics.
   * Physical layers.
 
-o Asset loading: 
-  * resor and store subsystems, both already scripted. 
+o Asset loading:
+  * resor and store subsystems, both already scripted.
