@@ -8,7 +8,7 @@ module Zori
     
     
     def initialize(params={}, &block)
-      @selected= nil 
+      @marked  = 0
       super(params, &block)
       @heading = params[:heading]
       @bg      = graph_box(x, y, w, h)
@@ -32,45 +32,82 @@ module Zori
       @bg.size    = @w, @h
     end
 
-    def select_previous
+    def mark_index(index)
+      return nil if disabled?
       size = @components.size
       return nil if size < 1
-      @selected -= 1
-      if @selected < 0
-        @selected = size - 1
-      end
-      Zori.root.mark_widget(@components[@selected])
-      return @selected
-    end
-    
-    def select_next
-      size = @components.size
-      return nil if size < 1
-      @selected += 1
-      if @selected >= size
-        @selected = 0
-      end
-      Zori.root.mark_widget(@components[@selected])
-      return @selected
+      return nil if index < 0
+      return nil if index >= size
+      @marked = index
+      Zori.root.mark_widget(@components[@marked])
+      @components[@marked].mark
+      return @marked
     end
 
-    def activate_selected
+    def mark_previous
+      return nil if disabled?
       size = @components.size
       return nil if size < 1
-      @components[@selected].trigger
+      newmark = @marked - 1
+      if newmark < 0
+        newmark = size - 1
+      end
+      return mark_index(newmark)
+    end
+    
+    def mark_next
+      return nil if disabled?
+      size = @components.size
+      return nil if size < 1
+      newmark = @marked + 1
+      if newmark >= size
+        newmark = 0
+      end
+      return mark_index(newmark)
+    end
+
+    def mark_recall
+      return nil if disabled?
+      newmark = @marked || 0
+      return mark_index(newmark)
+    end
+
+    def mark_first
+      return nil if disabled?
+      return mark_index(0)
+      return true
+    end
+
+    def activate_marked
+      return nil if disabled?
+      size = @components.size
+      return nil if size < 1
+      @components[@marked].trigger
+      return true
+    end
+
+    def previous_menu
+      return nil if disabled?
+      if @parent && @parent.parent && @parent.parent.is_a?(Zori::Menu)
+        self.hide
+        @parent.parent.mark_recall
+      end
+      return true
     end
 
     def on_key_down(*args)
       time, key = *args
       case key
         when KEY_UP
-          select_previous
+          return mark_previous
         when KEY_DOWN
-          select_next
+          return mark_next
         when KEY_ENTER, KEY_SPACE
-          activate_selected
+          return activate_marked
+        when KEY_BACKSPACE, KEY_LSHIFT
+          return previous_menu
         else
-        p "#{self} on_key_down", time, key
+          p "#{self} on_key_down", time, key
       end
         
       
@@ -82,11 +119,7 @@ module Zori
 
     def fit_children
       super
-      if @components.first
-        @selected = 0
-        Zori.root.mark_widget(@components.first)
-        @components.first.mark
-      end
+      mark_first
     end
     
 

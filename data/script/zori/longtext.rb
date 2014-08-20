@@ -4,6 +4,7 @@
 module Zori
   class LongText
     include Widget
+    include Draggable
     
     BUTTON_BACKGROUND = [0x33, 0x33, 0xff, 0xaa]
     HOVER_BACKGROUND  = [0x55, 0x55, 0xff, 0xaa]
@@ -35,9 +36,7 @@ module Zori
     end
 
     def on_mouse_axes(t, x, y, z, w, dx, dy, dz, dw)
-      if drag? 
-         move_to(x, y)
-      end
+      super
       
       # Check for hovering.
       if self.inside?(x, y)
@@ -53,19 +52,15 @@ module Zori
     end
     
     def on_mouse_button_down(t, x, y, z, w, b)
+      super
       return false unless self.inside?(x, y)
       if @action
         @action.call(self)
-      else
-        self.drag
-        puts "Click! #{drag?}"
       end
     end
     
     def on_mouse_button_up(t, x, y, z, w, b)
-      self.drop if self.drag?
-      puts "Release! #{drag?}"
-      return false unless self.inside?(x, y)
+      return super
     end
         
     def can_drag?

@@ -82,14 +82,21 @@ module Zori
       end
       return false # don't consume the event
     end
+
+    def trigger
+      if @components.first.is_a? Zori::Menu
+        menu = @components.first
+        menu.show
+        menu.mark_recall
+        return true
+      end
+      super
+      return true
+    end
     
     def on_mouse_button_down(t, x, y, z, w, b)
       return false unless self.inside?(x, y)
-      if @action
-        @action.call(self)
-      else
-        puts "Click! #{@heading}"
-      end
+      self.trigger
     end
     
     def can_drag?

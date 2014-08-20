@@ -48,6 +48,13 @@ module Zori
       @active        = nil
       @cursor_widget = nil
     end
+
+    # Creates a select mark graph for any widget
+    def create_select_mark
+      select_mark         = Graph.make_image(100, 100, @cursor_image.id)
+      select_mark.z       = 9998
+      return select_mark
+    end
         
     # Unregisters a page
     def register(page)

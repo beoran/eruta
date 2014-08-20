@@ -12,7 +12,7 @@ module Zori
     # Hides the widget and all it's children
     def hide
       @components.each do |comp|
-        comp.hide
+        comp.hide_component
       end
       @state = :hidden
       unmark
@@ -20,16 +20,36 @@ module Zori
       hide_graph
     end
 
+    # Hides a child component. This hides only the graph, and does not
+    # touch the @hidden field
+    def hide_component
+      @components.each do |comp|
+        comp.hide_component
+      end
+      hide_graph
+    end
+
     # Shows the widget and all it's children
     def show
       @components.each do |comp|
-        comp.show
+        comp.show_component
       end
       @state = :active
-      unmark
-      unhover
       show_graph
     end
+
+    # Shows a child component, but only if it isn't hidden itself.  
+    def show_component
+      if hidden?
+        return
+      end
+      @components.each do |comp|
+        comp.show_component
+      end
+      show_graph
+    end
+
+
 
     
     # Moves the component and all it's children to (x, y)
@@ -42,26 +62,14 @@ module Zori
       move_graph(x, y)
     end
 
-    # Enables the widget and all it's on the children.
+    # Enables the widget, has no effect on the children
     def enable
-      @components.each do |comp|
-        comp.enable
-      end
-      unmark
-      unhover
       @state = :active
-      show_graph
     end
     
-    # Enables the widget and all it's on the children.
+    # Disables the widget, has no effect on the children.
     def disable
-      @components.each do |comp|
-        comp.disable
-      end
       @state = :disabled
-      unmark
-      unhover
-      show_graph      
     end
     
     # Marks the widget. Has no effect on the children.
@@ -93,6 +101,28 @@ module Zori
     def unhover
       return false unless hover?
       @hover = false
+      return true
+    end
+
+    # Selects the widget. Has no effect on the children.
+    # Does nothing on non-active widgets.
+    def select
+      return false if disabled?
+      @select = true
+      @select_mark          = Zori.root.create_select_mark
+      @select_mark.position = self.left - 20, self.y
+      graph_add(@select_mark)
+      return true
+    end
+
+    # Removes the hover flag from the widget. Has no effect on the children.
+    # Does noting on non-marked widgets.
+    def unselect
+      return false unless selected?
+      @select = false
+      graph_delete(@select_mark)
+      @select_mark.close
+      @select_mark = nil
       return true
     end
 
@@ -171,6 +201,12 @@ module Zori
     def hover?
       return @hover
     end
+
+    # Is the object selected?
+    def selected?
+      return @select
+    end
+
 
 
   end

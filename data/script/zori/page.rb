@@ -23,14 +23,12 @@ module Zori
     
     # Called when this page is activated.
     def on_enter(data = {})
-      self.enable
       self.show
       on_event(:enter)
     end
     
     # Called when this page is deactivated.
     def on_leave(name=nil)
-      self.disable
       self.hide
       on_event(:leave, name)
     end

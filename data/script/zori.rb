@@ -58,6 +58,7 @@
 # * active  : Ready to receive input 
 # * marked  : Currently "hovered" by keyboard cursor. Only one widget can be
 #             marked.
+# * selected: Previously "pressed" on and still relevantly "selected". 
 # * hovered: Currently "hovered" by mouse cursor. Only one widget can be hovered
 #            at most. 
 # * focused : This widget and it's children receive keyjoy input excusively
@@ -70,7 +71,9 @@
 #
 # The all states and mutually exclusive except for the "marked" and "hovered"
 # state which are different since one widget may be e.g. focused and marked
-# and hovered at the same time.
+# and hovered at the same time. Yet different is the selected flag,
+# which keeps track of previously marked items such as the marked parent menu,
+# or for exammple, when swapping two items in an item list, etc. 
 # Therefore marked and hovered are separate flag from the rest of the states.  
 #
 # Allowed transitions:
@@ -108,8 +111,9 @@ module Zori
   script 'zori/style.rb'
   script 'zori/state.rb'
   script 'zori/capability.rb'
-  script 'zori/graphic.rb'
+  script 'zori/graphic.rb'  
   script 'zori/widget.rb'
+  script 'zori/draggable.rb'
   script 'zori/button.rb'
   script 'zori/longtext.rb'
   script 'zori/menu.rb'  

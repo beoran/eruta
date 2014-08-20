@@ -19,7 +19,10 @@ module Zori
     attr_reader :can
     
     # State of the widget
-    attr_reader :state    
+    attr_reader :state
+
+    # Parent of a widget
+    attr_accessor :parent
     
     def initialize(params={}, &block)
       super(params, &block)
@@ -35,6 +38,7 @@ module Zori
       # deep copy the default style
       @can               = Zori::Capability.new
       @state             = :active
+      @parent            = nil
       # Widget is active
       # @action       = action
     end
@@ -54,6 +58,7 @@ module Zori
     # value is returned. Finally calls handle_event on self in case 
     # no component handles the event. 
     def on_event(*data)
+      return false if disabled? || hidden?
       if @components 
         @components.each do | component |
           res = component.on_event(*data)
@@ -79,6 +84,7 @@ module Zori
     # Adds a component to this widget
     # Will try to send a on_component event with 
     def <<(component)
+      component.parent = self
       @components << component
       self.on_event(:component, component)
     end
@@ -130,7 +136,8 @@ module Zori
 
     # Triggers the widget and call its action block
     def trigger
-      @action.call if @action
+      return @action.call if @action
+      return nil
     end
     
   end

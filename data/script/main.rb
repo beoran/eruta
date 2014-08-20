@@ -208,7 +208,25 @@ def do_main_menu
     $main_menu    = m.make_menu(250, 190, 120, 440, nil)
     ma            = $main_menu
 
+    
+
     $main_button_1= ma.make_button(260, 200, 100, 30, "Continue")
+
+    $sub_menu = $main_button_1.make_menu(50, 190, 120, 440, nil)
+    $sub_menu.make_button(60, 200, 100, 30, "Sub choice 1") do
+      puts "choice 1"
+    end
+    $sub_menu.make_button(60, 240, 100, 30, "Sub choice 2") do
+      puts "choice 2"
+    end
+    $sub_menu.make_button(60, 280, 100, 30, "Sub choice 3") do
+      puts "choice 3"
+    end
+    $sub_menu.fit_children
+    $sub_menu.hide
+
+
+    
     $main_button_2= ma.make_button(260, 240, 100, 30, "New") do
       do_start_test_map
       Zori.go(:default)
@@ -221,6 +239,8 @@ def do_main_menu
     end
     $main_button_4= ma.make_button(260, 320, 100, 30, "Instructions")
     $main_button_5= ma.make_button(260, 360, 100, 30, "µ£éè")
+    $main_button_5 << $sub_menu
+    
     $main_button_5= ma.make_button(260, 400, 100, 30, "Quit") do
       Eruta.quit
     end
@@ -252,7 +272,8 @@ def do_main_menu
   end
 
   $settings_ui.hide
-
+  $sub_menu.hide
+  puts "---- Hide done! ---- #{$sub_menu} #{$sub_menu.hidden?}"
 
   Zori.go(:main_menu)
   puts "play_music #{res} #{$main_music}"
