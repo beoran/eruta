@@ -37,8 +37,8 @@ module Zori
       return gr
     end
 
-    def graph_text(x, y, text, style_id = -1)
-      gr = Graph.make_text(x, y, text, style_id)
+    def graph_text(x, y, w, h, text, style_id = -1)
+      gr = Graph.make_text(x, y, w, h, text, style_id)
       @graph << gr
       return gr
     end

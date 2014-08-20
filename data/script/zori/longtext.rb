@@ -12,36 +12,30 @@ module Zori
       super(params, &block)
       text                 = params[:text]
       @margin              = params[:margin] || 4
-      @align               = params[:align] || :right
+      @align               = params[:align] || :left
       @text                = text
       @bg                  = graph_box(@x, @y, @w, @h)
       @bg.border_thickness = 0
       @bg.border_color     = [255, 255, 255, 128]
       @bg.background_color = BUTTON_BACKGROUND
-      
-      text_w = @w - (2*@margin) 
-      text_h = @h - (2*@margin)
+
       text_f = Eruta::ALIGN_LEFT
-      text_y = @y + @margin
-  
       if @align == :center
-         text_x = @x + ((@w - (2*@margin)) / 2)
-         text_f = Eruta::ALIGN_CENTER
-      else 
-         text_x = @x + @margin
+        text_f = Eruta::ALIGN_CENTER
+      elsif @align == :right
+        text_f = Eruta::ALIGN_RIGHT
       end
       
-      @tg       = graph_longtext(text_x, text_y, text_w, text_h, text) 
-      # XXX fix on C side
+      @tg                  = graph_longtext(@x, @y, @w, @h, text)
       @tg.text_flags       = text_f
       @tg.font             = Eruta::Zori.font.id
       @tg.background_color = [0,0,0]
-      @tg.color            = [255,255, 64]      
-      @state.set(:hover, :false)
+      @tg.color            = [255,255, 64]
+      @tg.margin           = @margin
     end
 
     def on_mouse_axes(t, x, y, z, w, dx, dy, dz, dw)
-      if @state.drag? 
+      if drag? 
          move_to(x, y)
       end
       
@@ -49,11 +43,11 @@ module Zori
       if self.inside?(x, y)
         @bg.border_thickness = 1
         @bg.background_color = HOVER_BACKGROUND
-        @state.set(:hover, true)
+        self.hover
       else
         @bg.border_thickness = 0
         @bg.background_color = BUTTON_BACKGROUND
-        @state.set(:hover, false)
+        self.unhover
       end
       return false # don't consume the event
     end
@@ -63,14 +57,14 @@ module Zori
       if @action
         @action.call(self)
       else
-        @state.set(:drag, true)
-        puts "Click! #{@state.drag?}"
+        self.drag
+        puts "Click! #{drag?}"
       end
     end
     
     def on_mouse_button_up(t, x, y, z, w, b)
-      @state.unset(:drag)
-      puts "Release! #{@state.drag?}"
+      self.drop if self.drag?
+      puts "Release! #{drag?}"
       return false unless self.inside?(x, y)
     end
         

@@ -3,6 +3,8 @@ module Zori
   # other sub-widgets. 
   class Root
     include Widget
+
+    # There are two cursors, a mouse cursor and a keyboard/joystick one.
     
     # Non-mouse cursor graph
     attr_reader :cursor_graph
@@ -33,8 +35,8 @@ module Zori
       
       @cursor_image   = Store.load_bitmap('/image/gin/curled-leaf_32.png')
       @cursor_image.average_to_alpha(255,255,255)    
-      @cursor_graph           = Graph.make_image(100,100, @cursor_image.id)
-      @cursor_graph.z         = 10000
+      @cursor_graph   = Graph.make_image(100,100, @cursor_image.id)
+      @cursor_graph.z = 10000
       # @cursor_graph.speed     = [ rand(10) - 5, rand(10) - 5]
       
       Eruta.show_mouse_cursor = false
@@ -98,6 +100,32 @@ module Zori
       return nil unless @active
       return @active.on_event(*args)
     end
+
+    # Moves the keyboard cursor to a given position
+    def move_cursor(x, y)
+      @cursor_graph.position = x, y
+    end
+
+    # Sets the given widget as the one widget that is marked by the keyboard
+    # cursor.
+    def mark_widget(widget)
+      return false unless widget.mark
+      @cursor_widget.unmark if @cursor_widget
+      @cursor_widget = widget
+      move_cursor(widget.x + widget.w, widget.y)
+      return true
+    end
+
+    # Sets the given widget as the one that is hovered by the mouse cursor.
+    def hover_widget(widget)
+      return false unless widget.hover
+      @mouse_widget.unmark if @mouse_widget
+      @mouse_widget = widget
+      widget.mark
+      move_cursor(widget.x + widget.w, widget.y)
+      return true
+    end
+
 
   end
 end

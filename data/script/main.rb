@@ -3,8 +3,8 @@
 # Set this to true to start a test map in stead of the normal main menu on startup.
 START_TEST_MAP = false
 # Play music at startup
-PLAY_MUSIC = true
-# show main background
+PLAY_MUSIC = false
+# Show main background
 MAIN_BACKGROUND = true
 
 
@@ -205,7 +205,7 @@ def do_main_menu
       $main_back    = Store.load_bitmap('/image/background/eruta_mainmenu.png')
     end
     m.graph_image(0, 0, $main_back.id)
-    $main_menu    = m.make_menu(0, 0, 0, 0, nil)
+    $main_menu    = m.make_menu(250, 190, 120, 440, nil)
     ma            = $main_menu
 
     $main_button_1= ma.make_button(260, 200, 100, 30, "Continue")
@@ -228,24 +228,27 @@ def do_main_menu
   end
 
   $settings_ui = Zori.make_page(:settings) do |se|
-      $lote2 = se.make_longtext(100, 10, 160, 400, INTRO_TEXT)
-      $settings_ok_button = se.make_button(500, 400, 100, 30, "OK") do
+      $lote2          = se.make_longtext(100, 10, 160, 400, INTRO_TEXT)
+      $settings_menu  = se.make_menu(480, 380, 120, 440, nil)
+      sm              = $settings_menu
+      $settings_ok_button = sm.make_button(500, 300, 100, 30, "Font 1") do
+         if $lote2
+            $lote2.graph.each { |g| g.font = 0 }
+         end
+      end
+      $settings_ok_button = sm.make_button(500, 350, 100, 30, "Font 2") do
+         if $lote2
+            $lote2.graph.each { |g| g.font = Eruta::Zori.font.id }
+         end
+      end
+      $settings_ok_button = sm.make_button(500, 400, 100, 30, "OK") do
          Zori.go(:main_menu)
          if $lote
             $lote.close
             $lote = nil
          end
       end
-      $settings_ok_button = se.make_button(500, 350, 100, 30, "Font 2") do
-         if $lote2
-            $lote2.graph.each { |g| g.font = Eruta::Zori.font.id }
-         end
-      end
-      $settings_ok_button = se.make_button(500, 300, 100, 30, "Font 1") do
-         if $lote2
-            $lote2.graph.each { |g| g.font = 0 }
-         end
-      end
+      sm.fit_children
   end
 
   $settings_ui.hide

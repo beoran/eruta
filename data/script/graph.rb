@@ -29,6 +29,11 @@ class Graph < Eruta::Graph
     def border_thickness=(t)
       Eruta::Graph.border_thickness_(@id, t)
     end
+
+      
+    def margin=(m)
+      Eruta::Graph.margin_(@id, m)
+    end
   
     def angle=(a)
       Eruta::Graph.angle_(@id, r, g, b, a)
@@ -124,21 +129,29 @@ class Graph < Eruta::Graph
     return Node.new(nid)
   end
 
+  def self.make_image_ex(x, y, w, h, store_id, style_id = -1)
+    id  = self.get_unused_id
+    nid = Eruta::Graph.make_image(id, x, y, w, h, store_id, style_id)
+    return nil if (nid < 0)
+    return Node.new(nid)
+  end
+
   def self.make_image(x, y, store_id, style_id = -1)
     id  = self.get_unused_id
-    nid = Eruta::Graph.make_image(id, x, y, store_id, style_id) 
+    nid = Eruta::Graph.make_image(id, x, y, -1, -1, store_id, style_id)
     return nil if (nid < 0)
     return Node.new(nid)
   end
 
-  def self.make_text(x, y, text, style_id = -1)
+
+  def self.make_text(x, y, w, h, text, style_id = -1)
     id  = self.get_unused_id
-    nid = Eruta::Graph.make_text(id, x, y, text, style_id)
+    nid = Eruta::Graph.make_text(id, x, y, w, h, text, style_id)
     return nil if (nid < 0)
     return Node.new(nid)
   end
 
-    def self.make_longtext(x, y, w, h, text, style_id = -1)
+  def self.make_longtext(x, y, w, h, text, style_id = -1)
     id  = self.get_unused_id
     nid = Eruta::Graph.make_longtext(id, x, y, w, h, text, style_id)
     return nil if (nid < 0)

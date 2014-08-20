@@ -51,7 +51,41 @@
 # The Widget module and the widget classes that include it the individual 
 # state and actions of the various widgets individually.
 #
-
+# Widget state:
+# A widget can be considered a state machine with the following states:
+# * hidden  : Invisible (implies inactive)
+# * inactive: Will ignore input
+# * active  : Ready to receive input 
+# * marked  : Currently "hovered" by keyboard cursor. Only one widget can be
+#             marked.
+# * hovered: Currently "hovered" by mouse cursor. Only one widget can be hovered
+#            at most. 
+# * focused : This widget and it's children receive keyjoy input excusively
+#             some simpler widgets such as buttons cannot be focused since they
+#             perform their action immediately when "clicked". Only
+#             one widget can be focused a the same time. 
+# * triggered:Widgets that can't be focused become triggered in stead while
+#             they perform their action.
+# * dragged : The widget is being dragged. 
+#
+# The all states and mutually exclusive except for the "marked" and "hovered"
+# state which are different since one widget may be e.g. focused and marked
+# and hovered at the same time.
+# Therefore marked and hovered are separate flag from the rest of the states.  
+#
+# Allowed transitions:
+# * hide    : Set to hidden state.
+# * show    : Set to active state from hidden state.
+# * disable : Set to inactive state from active state or higher.
+# * enable  : Set to active state from inactive state.
+# * mark    : Set to marked state.
+# * focus   : Set to focused state.
+# * trigger : Set to triggered state.
+#  
+# The state is orthogonal with the value of the widget. A pushbutton or
+# checkbox will have a boolean value, a slider a numerical one,
+# and a text boxt a string value.
+# 
 
 module Zori
   DEBUG   = true

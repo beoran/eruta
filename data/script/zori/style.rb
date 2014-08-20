@@ -106,8 +106,8 @@ module Zori
       node.background_color = @colors.background
       node.border_color     = @colors.border
       node.color            = @colors.foreground
-      # XXX implement this
-      # node.border_thickness = @thickness
+      node.margin           = @margin
+      node.border_thickness = @thickness
       Eruta::Graph.border_thickness_(@id, t)
     end
     

@@ -17,12 +17,13 @@ module Zori
       @bg.border_color     = [255, 255, 255, 128]
       @bg.background_color = BUTTON_BACKGROUND
       
-      @tg                  = graph_text(@x + (@w / 2), @y + 1, heading)
-      @tg.text_flags        = Eruta::ALIGN_CENTER
+      @tg                  = graph_text(@x, @y, @w, @h, heading)
+      @tg.text_flags       = Eruta::ALIGN_CENTER
       @tg.font             = Eruta::Zori.font.id
       @tg.background_color = [0,0,0]
-      @tg.color            = [255,255, 64]      
-      @state.set(:hover, :false)
+      @tg.color            = [255,255, 64]
+      @tg.margin           = 1
+      self.unhover
     end
 
     
@@ -35,17 +36,49 @@ module Zori
       super(x, y)
       @pushed  = false
     end
+
+    def marked_style
+      @bg.border_thickness = 1
+      @bg.background_color = HOVER_BACKGROUND
+    end
+
+    def unmarked_style
+      @bg.border_thickness = 0
+      @bg.background_color = BUTTON_BACKGROUND
+    end
+
+    def hover
+      marked_style
+      super
+    end
+
+    def unhover
+      unless mark?
+        unmarked_style
+      end
+      super
+    end
+
+    def mark
+      marked_style
+      super
+    end
+
+    def unmark
+      unless hover?
+        unmarked_style
+      end
+      super
+    end
+    
+
     
     def on_mouse_axes(t, x, y, z, w, dx, dy, dz, dw)
       # Check for hovering.
       if self.inside?(x, y)
-        @bg.border_thickness = 1
-        @bg.background_color = HOVER_BACKGROUND
-        @state.set(:hover, :true)
+        hover
       else
-        @bg.border_thickness = 0
-        @bg.background_color = BUTTON_BACKGROUND
-        @state.set(:hover, :false)
+        unhover
       end
       return false # don't consume the event
     end

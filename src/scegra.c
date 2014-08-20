@@ -214,38 +214,64 @@ void scegra_draw_box(ScegraNode * self) {
 }
 
 
+/* Gets pointer to the font for this scegra node, or to a default font. */
+static Font * scegra_get_font(ScegraNode * self) {
+  Font * font;
+  /*  Use default font if font not loaded. */
+  font = store_get_font(self->style.font_id);
+  if (!font) font =  state_font(state_get());
+  return font;
+}
+
+/* Calculates the x and y position where to draw text, taking alignment and
+ * margin into consideration. */
+static BeVec
+scegra_calculate_text_position(ScegraNode * self) {
+  BeVec result;
+  int flags = self->style.text_flags;
+  result.x  = self->pos.x + self->style.margin;
+  result.y  = self->pos.y + self->style.margin;
+
+  if (flags & ALLEGRO_ALIGN_CENTER) {
+    result.x  = self->pos.x + self->style.margin + self->size.x / 2;
+  } else if (flags & ALLEGRO_ALIGN_RIGHT) {
+    result.x  = self->pos.x + self->size.x - self->style.margin;
+  }
+  return result;
+}
+
 void scegra_draw_text(ScegraNode * self) {
   Font * font;
   int flags;
-  /*  Use default font if font not loeaded. */
-  font = store_get_font(self->style.font_id);
-  if (!font) font =  state_font(state_get());
-  flags = self->style.text_flags | ALLEGRO_ALIGN_INTEGER;
+  BeVec pos = scegra_calculate_text_position(self);
+  font      = scegra_get_font(self);
+  flags     = self->style.text_flags | ALLEGRO_ALIGN_INTEGER;
   /* Draw the text twice, once offset in bg color to produce a shadow, 
    and once normally with foreground color. */
-  al_draw_text(font, self->style.background_color, self->pos.x + 1, self->pos.y + 1, flags, self->data.text.text);
-  al_draw_text(font, self->style.color, self->pos.x, self->pos.y, flags, self->data.text.text);
+  al_draw_text(font, self->style.background_color, pos.x + 1, pos.y + 1,
+    flags, self->data.text.text);
+  al_draw_text(font, self->style.color, pos.x, pos.y,
+    flags, self->data.text.text);
 }
 
 
 void scegra_draw_longtext(ScegraNode * self) {
   Font * font;
   int flags;
-  /*  Use default font if font not loeaded. */
-  font = store_get_font(self->style.font_id);
-  if (!font) font =  state_font(state_get());
-  flags = self->style.text_flags | ALLEGRO_ALIGN_INTEGER;
+  const char * text;
+  float width;
+  BeVec pos = scegra_calculate_text_position(self);
+  font      = scegra_get_font(self);
+  flags     = self->style.text_flags | ALLEGRO_ALIGN_INTEGER;
+  text      = self->data.longtext.text ? self->data.longtext.text : "NULL";
+  width     = self->size.x - self->style.margin * 2;
+  
   /* Draw the text twice, once offset in bg color to produce a shadow, 
    and once normally with foreground color. */
-  draw_multi_line_text(font, self->style.background_color, 
-                       self->pos.x + 1, self->pos.y + 1, 
-                       self->size.x, self->size.y,
-                       flags, self->data.longtext.text);
-  
-  draw_multi_line_text(font, self->style.color, 
-                       self->pos.x, self->pos.y, 
-                       self->size.x, self->size.y,
-                       flags, self->data.longtext.text);
+  al_draw_multiline_text(font, self->style.background_color,
+    pos.x + 1, pos.y + 1, width, 0, flags, text);
+  al_draw_multiline_text(font, self->style.color,
+    pos.x, pos.y, width, 0, flags, text);
 }
 
 void scegra_draw_image(ScegraNode * self) {
@@ -286,6 +312,7 @@ ScegraStyle * scegrastyle_initempty(ScegraStyle * self) {
   self->border_thickness        = -1;
   self->image_flags             = 0;
   self->text_flags              = 0;
+  self->margin                  = 0;
   return self;
 }
 
@@ -301,12 +328,12 @@ scegranode_init_box(ScegraNode * self, int id, BeVec pos, BeVec siz,  BeVec roun
 }
 
 ScegraNode * 
-scegranode_init_text(ScegraNode * self, int id, BeVec pos, const char * text, ScegraStyle style) {
+scegranode_init_text(ScegraNode * self, int id, BeVec pos, BeVec siz, const char * text, ScegraStyle style) {
   ScegraData data;
   if (!self) return NULL;
   strncpy(data.text.text, text, SCEGRA_TEXT_MAX);
   data.text.text[SCEGRA_TEXT_MAX - 1] = '\0';
-  scegranode_initall(self, id, pos, bevec0(), data, style, scegra_draw_text, scegra_update_generic);
+  scegranode_initall(self, id, pos, siz, data, style, scegra_draw_text, scegra_update_generic);
   return self;
 }
 
@@ -339,12 +366,10 @@ scegranode_init_image_ex(
 }
 
 ScegraNode * 
-scegranode_init_image(ScegraNode * self, int id, BeVec pos,  int image_id, ScegraStyle style) {
+scegranode_init_image(ScegraNode * self, int id, BeVec pos, BeVec siz, int image_id, ScegraStyle style) {
   int w, h;
-  BeVec siz;
-  if(!store_get_bitmap_width(image_id, &w)) w = 0;
-  if(!store_get_bitmap_height(image_id, &h)) h = 0;
-  siz = bevec(w, h);  
+  if (siz.x <= 0.0)  { if (store_get_bitmap_width(image_id, &w)) siz.x = w;  }
+  if (siz.y <= 0.0)  { if (store_get_bitmap_height(image_id, &h)) siz.y = h; }
   return scegranode_init_image_ex(self, id, pos, siz, image_id, style, bevec0(), siz, 0.0, 0);
 }
 
@@ -473,10 +498,10 @@ int scegra_make_box(int id, BeVec pos, BeVec siz, BeVec round, ScegraStyle style
 
 /* Initialies the node at index as a text. Text can only span one line and must be short.
  Line wrapping must be implemented by making many text nodes for every line of text. */
-int scegra_make_text(int id, BeVec pos, const char * text, ScegraStyle style) {
+int scegra_make_text(int id, BeVec pos, BeVec siz, const char * text, ScegraStyle style) {
   ScegraNode * node = scegra_get_node(id);
   if (!node) return -2;  
-  scegranode_init_text(node, id, pos, text, style);
+  scegranode_init_text(node, id, pos, siz, text, style);
   return node->id;
 }
 
@@ -491,10 +516,10 @@ int scegra_make_longtext(int id, BeVec pos, BeVec siz, char * text, ScegraStyle 
 
 
 /* Initializes the node at index as an image node. */
-int scegra_make_image(int id, BeVec pos, int image_id, ScegraStyle style) {
+int scegra_make_image(int id, BeVec pos, BeVec siz, int image_id, ScegraStyle style) {
   ScegraNode * node = scegra_get_node(id);
   if (!node) return -2;  
-  scegranode_init_image(node, id, pos, image_id, style);
+  scegranode_init_image(node, id, pos, siz, image_id, style);
   return node->id;
 } 
 
@@ -519,8 +544,8 @@ int scegra_make_box_style_from(int id, BeVec pos, BeVec siz, BeVec round, int si
 
 /* Initializes the node as a text with a style copied from the node at sindex, 
  * or if that is not in use, a default style. */
-int scegra_make_text_style_from(int id, BeVec pos, const char * text, int sindex) {
-   return scegra_make_text(id, pos, text, scegra_get_style(sindex));
+int scegra_make_text_style_from(int id, BeVec pos, BeVec siz, const char * text, int sindex) {
+   return scegra_make_text(id, pos, siz, text, scegra_get_style(sindex));
 }
 
 /* Initializes the node as a text long with a style copied from the node at sindex, 
@@ -532,8 +557,8 @@ int scegra_make_longtext_style_from(int id, BeVec pos, BeVec siz, const char * t
 
 /* Initializes the node as a image with a style copied from the node at sindex, 
  * or if that is not in use, a default style. */
-int scegra_make_image_style_from(int id, BeVec pos, int image_id, int sindex) {
-   return scegra_make_image(id, pos, image_id, scegra_get_style(sindex));
+int scegra_make_image_style_from(int id, BeVec pos, BeVec siz, int image_id, int sindex) {
+   return scegra_make_image(id, pos, siz, image_id, scegra_get_style(sindex));
 }
 
 
@@ -593,7 +618,16 @@ int scegra_border_thickness_(int index, float t) {
   return node->z;
 }
 
-/* Sets the scegra node's position . */
+/* Sets the margin. Set 0 or negative to disable border.  */
+int scegra_margin_(int index, float m) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  node->style.margin = m;  
+  return node->z;
+}
+
+/* Sets the scegra node's position. */
 int scegra_position_(int index, float x, float y) {
   ScegraNode * node = scegra_get_node(index);
   if (!node) return -2;

@@ -47,6 +47,8 @@ struct ScegraStyle_ {
   int                   text_flags;
   /* Flags to use when drawing images. */
   int                   image_flags;
+  /* Margin between box and contents.  */
+  float                 margin;
 };
 
 
@@ -58,22 +60,23 @@ int scegra_make_box(int id, BeVec pos, BeVec siz, BeVec round, ScegraStyle style
 int scegra_z(int index);
 int scegra_z_(int index, int z);
 
-int scegra_make_text(int id, BeVec pos, const char * text, ScegraStyle style);
+int scegra_make_text(int id, BeVec pos, BeVec siz, const char * text, ScegraStyle style);
 int scegra_make_longtext(int id, BeVec pos, BeVec siz, char * text, ScegraStyle style);
-int scegra_make_image(int id, BeVec pos, int image_id, ScegraStyle style);
+int scegra_make_image(int id, BeVec pos, BeVec siz,int image_id, ScegraStyle style);
 
-int scegra_visible_(int index,int is_visible);
-int scegra_image_id_(int index,int rindex);
-int scegra_font_id_(int index,int rindex);
+int scegra_visible_(int index, int is_visible);
+int scegra_image_id_(int index, int rindex);
+int scegra_font_id_(int index, int rindex);
 int scegra_background_image_id_(int index,int rindex);
-int scegra_speed_(int index,float x,float y);
-int scegra_size_(int index,float w,float h);
-int scegra_position_(int index,float x,float y);
-int scegra_border_thickness_(int index,float t);
-int scegra_background_color_(int index,int r,int g,int b,int a);
-int scegra_border_color_(int index,int r,int g,int b,int a);
-int scegra_color_(int index,int r,int g,int b,int a);
+int scegra_speed_(int index, float x, float y);
+int scegra_size_(int index, float w, float h);
+int scegra_position_(int index, float x, float y);
+int scegra_border_thickness_(int index, float t);
+int scegra_background_color_(int index, int r, int g, int b, int a);
+int scegra_border_color_(int index, int r, int g, int b, int a);
+int scegra_color_(int index, int r, int g, int b, int a);
 int scegra_z_(int index, int z);
+int scegra_margin_(int index, float m);
 
 int scegra_speed(int index, float * x, float * y);
 int scegra_size(int index, float * w, float * h);
@@ -83,10 +86,11 @@ int scegra_background_color(int index, int * r, int * g,int * b,int * a);
 int scegra_border_color(int index,int * r,int * g,int * b, int * a);
 int scegra_color(int index, int * r, int * g, int * b,int * a);
 int scegra_image_bitmap_size(int index, int * w, int * h);
+int scegra_margin(int index, float * m);
 
-int scegra_make_image(int id,BeVec pos,int image_id,ScegraStyle style);
-int scegra_make_text(int id,BeVec pos,const char *text,ScegraStyle style);
-int scegra_make_box(int id,BeVec pos,BeVec siz,BeVec round,ScegraStyle style);
+int scegra_make_image(int id, BeVec pos, BeVec siz, int image_id, ScegraStyle style);
+int scegra_make_text(int id, BeVec pos, BeVec siz, const char *text, ScegraStyle style);
+int scegra_make_box(int id, BeVec pos, BeVec siz, BeVec round, ScegraStyle style);
 int scegra_disable_node(int index);
 int scegra_get_id(int index);
 ScegraNode *scegra_get_node(int index);
@@ -101,14 +105,14 @@ void scegra_draw_image(ScegraNode *self);
 void scegra_draw_text(ScegraNode *self);
 void scegra_draw_longtext(ScegraNode *self);
 void scegra_draw_box(ScegraNode *self);
-void scegra_update_generic(ScegraNode *self,double dt);
+void scegra_update_generic(ScegraNode *self, double dt);
 
 int scegra_angle_(int index, float angle);
 
 int scegra_make_box_style_from(int id, BeVec pos, BeVec siz, BeVec round, int sindex);
-int scegra_make_text_style_from(int id, BeVec pos, const char * text, int sindex);
+int scegra_make_text_style_from(int id, BeVec pos, BeVec siz, const char * text, int sindex);
 int scegra_make_longtext_style_from(int id, BeVec pos, BeVec siz, const char * text, int sindex);
-int scegra_make_image_style_from(int id, BeVec pos, int image_id, int sindex);
+int scegra_make_image_style_from(int id, BeVec pos, BeVec siz, int image_id, int sindex);
 
 int scegra_image_flags_(int index, int flags);
 int scegra_text_flags_(int index, int flags);

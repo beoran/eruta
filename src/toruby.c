@@ -708,6 +708,7 @@ SCEGRA_ISETTER(tr_scegra_image_id_, scegra_image_id_)
 SCEGRA_ISETTER(tr_scegra_font_id_, scegra_font_id_)
 SCEGRA_ISETTER(tr_scegra_background_image_id_, scegra_background_image_id_)
 SCEGRA_ISETTER(tr_scegra_border_thickness_, scegra_border_thickness_)
+SCEGRA_ISETTER(tr_scegra_margin_, scegra_margin_)
 
 
 
@@ -757,8 +758,9 @@ static mrb_value tr_scegra_make_text(mrb_state * mrb, mrb_value self) {
   char * str            = NULL;
   mrb_int id            = -1, size   =  0, sindex = -1;
   mrb_int x             =  0, y      =  0;
-  mrb_get_args(mrb, "iiisi", &id, &x, &y, &str, &size, &sindex);
-  return mrb_fixnum_value(scegra_make_text_style_from(id, bevec(x, y), str, sindex));
+  mrb_int w             = 64, h      = 32;
+  mrb_get_args(mrb, "iiiiisi", &id, &x, &y, &w, &h, &str, &size, &sindex);
+  return mrb_fixnum_value(scegra_make_text_style_from(id, bevec(x, y), bevec(w, h), str, sindex));
 }
 
 static mrb_value tr_scegra_make_longtext(mrb_state * mrb, mrb_value self) {
@@ -775,8 +777,9 @@ static mrb_value tr_scegra_make_image(mrb_state * mrb, mrb_value self) {
   char * str            = NULL;
   mrb_int id            = -1, image_id  =  -1, sindex = -1;
   mrb_int x             =  0, y      =  0;
-  mrb_get_args(mrb, "iiiii", &id, &x, &y, &image_id, &sindex);
-  return mrb_fixnum_value(scegra_make_image_style_from(id, bevec(x, y), image_id, sindex));
+  mrb_int w             =  0, h      = 0;  
+  mrb_get_args(mrb, "iiiiiii", &id, &x, &y, &w, &h, &image_id, &sindex);
+  return mrb_fixnum_value(scegra_make_image_style_from(id, bevec(x, y),  bevec(w, h), image_id, sindex));
 }
 
 #define TR_WRAP_NOARG_BOOL(NAME, TOCALL)                                       \
@@ -1030,6 +1033,7 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_ARGC(mrb, gra, "font_"           , tr_scegra_font_id_, 2);
   TR_CLASS_METHOD_ARGC(mrb, gra, "background_image_", tr_scegra_background_image_id_, 2);
   TR_CLASS_METHOD_ARGC(mrb, gra, "border_thickness_", tr_scegra_border_thickness_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "margin_"          , tr_scegra_margin_, 2);
   /*TR_CLASS_METHOD_ARGC(mrb, gra, "speed"           , tr_scegra_speed, 1);*/
   TR_CLASS_METHOD_ARGC(mrb, gra, "size_"           , tr_scegra_size_, 3);
   TR_CLASS_METHOD_ARGC(mrb, gra, "position_"       , tr_scegra_position_, 3);

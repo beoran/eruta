@@ -2,6 +2,7 @@ module Zori
   # A widget may have sub-widgets
   module Widget
     include Graphic
+    include State
     
     # Position of the widget.
     attr_reader :x
@@ -33,12 +34,21 @@ module Zori
       @style             = Zori::Style.default.dup
       # deep copy the default style
       @can               = Zori::Capability.new
-      @state             = Zori::State.new
-      @state.set(:active)
+      @state             = :active
       # Widget is active
       # @action       = action
     end
-  
+
+    # Helper dimension, equal to x + w
+    def left
+      @x + @w
+    end
+
+    # Helper dimension, equal to y + h
+    def bottom
+      @y + @h
+    end
+
     # Called when an event comes in from the Eruta engine.
     # Tries every component of this widget in order and stops if a truthy 
     # value is returned. Finally calls handle_event on self in case 
@@ -78,47 +88,6 @@ module Zori
       return (x >= @x) && (x <= (@x + w)) && (y >= @y) && (y <= (@y + h))
     end
     
-    # Hides the widget and all it's children
-    def hide
-      @components.each do |comp|
-        comp.hide
-      end
-      hide_graph
-    end
-    
-    # Moves the component to (x, y)
-    def move_to(x, y)
-      @x = x
-      @y = y
-      @components.each do |comp|
-        comp.move_to(x, y)
-      end
-      move_graph(x, y)
-    end
-    
-    # Shows the widget and all it's children
-    def show
-      @components.each do |comp|
-        comp.show
-      end
-      show_graph
-    end
-    
-    # Override this to handle resizes
-    def on_resize
-      return true
-    end
-    
-    # Coordinates of left side of widget
-    def left
-      return @x + @w
-    end
-    
-    # Coordinates of bottom side of widget
-    def bottom
-      return @y + @h
-    end
-          
     
     # Makes the widget fit all direct children with the given margins
     def fit_children(margin_x = 20, margin_y = 20)
@@ -157,6 +126,11 @@ module Zori
                               &block)
       self << lt
       return lt
+    end
+
+    # Triggers the widget and call its action block
+    def trigger
+      @action.call if @action
     end
     
   end
