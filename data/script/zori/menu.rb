@@ -4,7 +4,9 @@ module Zori
   # of buttons
   class Menu 
     include Widget
-    attr_reader
+
+    # returns the last/currently marked item for the menu. 
+    attr_reader :marked
     
     
     def initialize(params={}, &block)
@@ -86,10 +88,19 @@ module Zori
       return true
     end
 
+    def unselect_marked
+      return nil if disabled?
+      size = @components.size
+      return nil if size < 1
+      @components[@marked].unselect
+      return true    
+    end
+
     def previous_menu
       return nil if disabled?
       if @parent && @parent.parent && @parent.parent.is_a?(Zori::Menu)
         self.hide
+        @parent.parent.unselect_marked
         @parent.parent.mark_recall
       end
       return true
@@ -111,6 +122,12 @@ module Zori
       end
         
       
+    end
+
+    def on_enter
+      return false if disabled?
+      mark_recall
+      return false
     end
     
     def can_drag?

@@ -88,6 +88,7 @@ module Zori
         menu = @components.first
         menu.show
         menu.mark_recall
+        self.select
         return true
       end
       super
