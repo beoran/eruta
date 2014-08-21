@@ -113,9 +113,9 @@ module Zori
           return mark_previous
         when KEY_DOWN
           return mark_next
-        when KEY_ENTER, KEY_SPACE
+        when KEY_ENTER, KEY_SPACE, KEY_LCTRL, KEY_RCTRL
           return activate_marked
-        when KEY_BACKSPACE, KEY_LSHIFT
+        when KEY_BACKSPACE, KEY_LSHIFT, KEY_RSHIFT
           return previous_menu
         else
           p "#{self} on_key_down", time, key

@@ -66,6 +66,10 @@ module Zori
     def can_drag?
       return true
     end
+
+    def text=(t)
+      @tg.text = t
+    end
     
     
   end

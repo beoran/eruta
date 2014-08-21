@@ -116,6 +116,7 @@ int scegra_make_image_style_from(int id, BeVec pos, BeVec siz, int image_id, int
 
 int scegra_image_flags_(int index, int flags);
 int scegra_text_flags_(int index, int flags);
+int scegra_text_(int index, const char * text);
 
 int scegra_show_system_mouse_cursor(int show);
 

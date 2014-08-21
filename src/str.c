@@ -21,7 +21,7 @@ char * cstr_dup(char * str) {
   char * result = malloc(len + 1);
   if (!result) return NULL;
   strncpy(result, str, len);
-  result[len+1] = '\0';
+  result[len] = '\0';
   return result;
 }
 

@@ -46,6 +46,12 @@ class Graph < Eruta::Graph
     def text_flags=(f)
       Eruta::Graph.text_flags_(@id, f)
     end
+
+        
+    def text=(t)
+      Eruta::Graph.text_(@id, t)
+    end
+
   
     def size=(size)
       w, h = *size

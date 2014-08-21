@@ -181,6 +181,23 @@ INTRO_TEXT = "Milennia have passed since mankind first traveled to the moon. "+
              "Hi!\n\n" +
              "Hello µ world, this is me, 無 life should be\nfun for everyone!"
 
+INTRO_TEXT2 = "Something happened, and I was changed!"
+
+def make_sub_menu(parent, x, y, w, h, bh)
+  sub_menu = parent.make_menu(x, y, w, h, nil)
+  sub_menu.make_button(x, y + 20, w - 20, bh, "Sub choice 1") do
+    puts "choice 1"
+  end
+  sub_menu.make_button(x, y + 30 + bh, w - 20, bh, "Sub choice 2") do
+    puts "choice 2"
+  end
+  sub_menu.make_button(x, y + 40 + 2* bh, w - 20, bh, "Sub choice 3") do
+    puts "choice 3"
+  end
+  sub_menu.fit_children
+  sub_menu.hide
+  return sub_menu
+end
 
 def do_main_menu
   $main_music   = Store.load_audio_stream('/music/nethis-the_writer.ogg')
@@ -195,11 +212,11 @@ def do_main_menu
   # $main_menu.active = true
   $default_ui = Zori.make_page(:default) do |m|
   end
-
-
-
-
-
+  
+  
+  
+  
+  
   $main_page      = Zori.make_page(:main_menu) do |m|
     if MAIN_BACKGROUND 
       $main_back    = Store.load_bitmap('/image/background/eruta_mainmenu.png')
@@ -212,18 +229,20 @@ def do_main_menu
 
     $main_button_1= ma.make_button(260, 200, 100, 30, "Continue")
 
-    $sub_menu = $main_button_1.make_menu(50, 190, 120, 440, nil)
-    $sub_menu.make_button(60, 200, 100, 30, "Sub choice 1") do
-      puts "choice 1"
-    end
-    $sub_menu.make_button(60, 240, 100, 30, "Sub choice 2") do
-      puts "choice 2"
-    end
-    $sub_menu.make_button(60, 280, 100, 30, "Sub choice 3") do
-      puts "choice 3"
-    end
-    $sub_menu.fit_children
-    $sub_menu.hide
+    $sub_menu = make_sub_menu($main_button_1, 50, 190, 120, 440, 30)
+#~ 
+    #~ $main_button_1.make_menu(50, 190, 120, 440, nil)
+    #~ $sub_menu.make_button(60, 200, 100, 30, "Sub choice 1") do
+      #~ puts "choice 1"
+    #~ end
+    #~ $sub_menu.make_button(60, 240, 100, 30, "Sub choice 2") do
+      #~ puts "choice 2"
+    #~ end
+    #~ $sub_menu.make_button(60, 280, 100, 30, "Sub choice 3") do
+      #~ puts "choice 3"
+    #~ end
+    #~ $sub_menu.fit_children
+    #~ $sub_menu.hide
 
 
     
@@ -260,6 +279,7 @@ def do_main_menu
          if $lote2
             $lote2.graph.each { |g| g.font = Eruta::Zori.font.id }
          end
+         $lote2.text = INTRO_TEXT2
       end
       $settings_ok_button = sm.make_button(500, 400, 100, 30, "OK") do
          Zori.go(:main_menu)

@@ -22,6 +22,19 @@ enum ScegraNodeFlags_ {
   SCEGRA_NODE_HIDE      = 1
 };
 
+enum ScegraNodeKind_ {
+  SCEGRA_NODE_UNKNOWN = 0,
+  SCEGRA_NODE_BITMAP,
+  SCEGRA_NODE_BOX,
+  SCEGRA_NODE_LINE,
+  SCEGRA_NODE_TRIANGLE,
+  SCEGRA_NODE_SPLINE,
+  SCEGRA_NODE_PIXEL,
+  SCEGRA_NODE_POLYGON,
+  SCEGRA_NODE_PRIM,
+  SCEGRA_NODE_TEXT,
+  SCEGRA_NODE_LONGTEXT,
+};
 
 /* A very simple scene graph, mainly for drawing the UI that will be managed from 
  * the scripting side of things. To avoid memory allocation, limit the amount of 
@@ -158,7 +171,7 @@ scegranode_done(ScegraNode * self) {
 
 
 ScegraNode * 
-scegranode_initall(ScegraNode * node, int id, BeVec pos, BeVec siz, 
+scegranode_initall(ScegraNode * node, int kind, int id, BeVec pos, BeVec siz, 
                    ScegraData data,
                    ScegraStyle style, ScegraDraw * draw, ScegraUpdate * update) {
   if(!node) return NULL;
@@ -175,6 +188,7 @@ scegranode_initall(ScegraNode * node, int id, BeVec pos, BeVec siz,
   node->step    = 0;
   node->flags   = 0;
   node->done    = NULL;
+  node->kind    = kind;
   return node;
 }
 
@@ -323,7 +337,8 @@ scegranode_init_box(ScegraNode * self, int id, BeVec pos, BeVec siz,  BeVec roun
   ScegraData data;
   if (!self) return NULL;
   data.box.round = round;
-  scegranode_initall(self, id, pos, siz, data, style, scegra_draw_box, scegra_update_generic);
+  scegranode_initall(self, SCEGRA_NODE_BOX,
+    id, pos, siz, data, style, scegra_draw_box, scegra_update_generic);
   return self;
 }
 
@@ -333,7 +348,8 @@ scegranode_init_text(ScegraNode * self, int id, BeVec pos, BeVec siz, const char
   if (!self) return NULL;
   strncpy(data.text.text, text, SCEGRA_TEXT_MAX);
   data.text.text[SCEGRA_TEXT_MAX - 1] = '\0';
-  scegranode_initall(self, id, pos, siz, data, style, scegra_draw_text, scegra_update_generic);
+  scegranode_initall(self, SCEGRA_NODE_TEXT,
+    id, pos, siz, data, style, scegra_draw_text, scegra_update_generic);
   return self;
 }
 
@@ -344,7 +360,8 @@ scegranode_init_longtext
   ScegraData data;
   if (!self) return NULL;
   data.longtext.text  =  cstr_dup(text);
-  scegranode_initall(self, id, pos, siz, data, style, scegra_draw_longtext, scegra_update_generic);
+  scegranode_initall(self, SCEGRA_NODE_LONGTEXT,
+    id, pos, siz, data, style, scegra_draw_longtext, scegra_update_generic);
   self->done = scegranode_longtext_done;
   return self;
 }
@@ -360,7 +377,8 @@ scegranode_init_image_ex(
   data.bitmap.image_id  = image_id;
   data.bitmap.src_pos   = spos;
   data.bitmap.src_size  = ssiz; 
-  scegranode_initall(self, id, pos, siz, data, style, scegra_draw_image, scegra_update_generic);
+  scegranode_initall(self, SCEGRA_NODE_BITMAP,
+    id, pos, siz, data, style, scegra_draw_image, scegra_update_generic);
   self->style.image_flags = flags;
   return self;
 }
@@ -722,6 +740,26 @@ int scegra_text_flags_(int index, int flags) {
   node->style.text_flags = flags;
   return node->z;
 }
+
+/* Updates the scegra node's text if it is a text or longtext. Returns the node's z value
+ * on sucess or negative on failure, if it is not a text or longtext node. */
+int scegra_text_(int index, const char * text) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind == SCEGRA_NODE_TEXT) {
+    strncpy(node->data.text.text, text, SCEGRA_TEXT_MAX);
+  } else if (node->kind == SCEGRA_NODE_LONGTEXT) {
+    free(node->data.longtext.text);
+    node->data.longtext.text = cstr_dup((char *)text);
+    if (!node->data.longtext.text) return -4;
+  } else {
+    return -3;
+  }
+  return node->z;
+}
+
+
 
 /* Somewhat unrelated, show or hide the system mouse cursor. 
  * Returns the state after calling, true means show, false means not shown.

@@ -37,6 +37,7 @@ module Zori
       @cursor_image.average_to_alpha(255,255,255)    
       @cursor_graph   = Graph.make_image(100,100, @cursor_image.id)
       @cursor_graph.z = 10000
+      @cursor_graph.image_flags = Eruta::FLIP_HORIZONTAL
       # @cursor_graph.speed     = [ rand(10) - 5, rand(10) - 5]
       
       Eruta.show_mouse_cursor = false
@@ -53,6 +54,7 @@ module Zori
     def create_select_mark
       select_mark         = Graph.make_image(100, 100, @cursor_image.id)
       select_mark.z       = 9998
+      select_mark.image_flags = Eruta::FLIP_HORIZONTAL
       return select_mark
     end
         
