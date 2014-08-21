@@ -91,10 +91,14 @@ struct ScegraText_ {
   int from, until;
 };
 
+/* For long text that can scroll and display letter per letter. */
 struct ScegraLongText_ {
   float x1, x2, y, diff;
   char * text;
-  int from, until;
+  int line_start, line_stop, line_pos;
+  int scroll_by, line_max, line_height;
+  int paused;
+  double delay_total;
 };
 
 
@@ -129,6 +133,7 @@ struct ScegraNode_ {
   int                   step;
   int                   kind;
   int                   flags;
+  float                 delay;
   BeVec                 pos;
   BeVec                 size;
   BeVec                 speed;
@@ -189,9 +194,18 @@ scegranode_initall(ScegraNode * node, int kind, int id, BeVec pos, BeVec siz,
   node->flags   = 0;
   node->done    = NULL;
   node->kind    = kind;
+  node->delay   = 0.1;
   return node;
 }
 
+/* Gets pointer to the font for this scegra node, or to a default font. */
+static Font * scegra_get_font(ScegraNode * self) {
+  Font * font;
+  /*  Use default font if font not loaded. */
+  font = store_get_font(self->style.font_id);
+  if (!font) font =  state_font(state_get());
+  return font;
+}
 
 
 void
@@ -203,6 +217,57 @@ scegranode_longtext_done(ScegraNode * self) {
 void scegra_update_generic(ScegraNode * self, double dt) {
   self->pos = bevec_add(self->pos, bevec_mul(self->speed, dt));
 }
+
+
+/* This function is the helper callback that implements
+ * updating scrolled/partial text for Longtexts. 
+ */
+static bool scegra_update_custom_partial_text(int line_num, const char *line,
+  int size, void *extra) {
+  ScegraNode * self = extra;
+  struct ScegraLongText_ * st = &self->data.longtext;
+  st->line_max = line_num;
+
+  /* Don't draw lines before start but keep on drawing (for later lines) */
+  if (line_num < st->line_start) return true;
+  /* Don't draw lines after stop, but keep calculating to get correct amount of lines  */
+  if (line_num >= st->line_stop) return true;
+  /* Reveal letter by letter on last line */
+  if (line_num == (st->line_stop - 1)) {
+    st->line_pos++;
+    /* reached eol */
+    if (st->line_pos >= size) {
+      st->line_stop++;
+      st->line_pos = 0;
+    } 
+  }
+  return true;
+}
+
+
+/* Updates the longtext, enables scrolling and per cheracter display. */
+void scegra_update_longtext(ScegraNode * self, double dt) {
+  scegra_update_generic(self, dt);
+  float width = self->size.x - self->style.margin * 2;
+  struct ScegraLongText_ * st = &self->data.longtext;
+  char * text      = self->data.longtext.text ?
+              self->data.longtext.text : "NULL";
+
+  /* Delay advence of characters somewhat. */
+  st->delay_total += dt;
+  if (st->delay_total < self->delay) return;
+  st->delay_total = 0;
+  
+  st->line_max = 0;
+  al_do_multiline_text(scegra_get_font(self), width,
+      (const char *) text, scegra_update_custom_partial_text, self);
+  st->line_max++;
+  if (st->line_stop > st->line_max) {
+    st->line_pos = 99999;
+    st->line_stop = st->line_max;
+  }
+}
+
 
 void scegra_draw_box(ScegraNode * self) {
   BeVec p2;
@@ -228,14 +293,7 @@ void scegra_draw_box(ScegraNode * self) {
 }
 
 
-/* Gets pointer to the font for this scegra node, or to a default font. */
-static Font * scegra_get_font(ScegraNode * self) {
-  Font * font;
-  /*  Use default font if font not loaded. */
-  font = store_get_font(self->style.font_id);
-  if (!font) font =  state_font(state_get());
-  return font;
-}
+
 
 /* Calculates the x and y position where to draw text, taking alignment and
  * margin into consideration. */
@@ -269,6 +327,75 @@ void scegra_draw_text(ScegraNode * self) {
 }
 
 
+
+
+/** Calculates the amount of lines that scegra_draw_partial_text can draw
+ * at most with this text. */
+static int scegra_partial_text_lines(ALLEGRO_FONT * font, float w,
+const char * text)
+{
+  return 0; /* XXX todo */
+}
+
+
+/* This function is the helper callback that implements the actual drawing
+ * for scegra_draw_partial_text.
+ */
+static bool scegra_draw_custom_partial_text(int line_num, const char *line,
+  int size, void *extra) {
+  float x, y;
+  ScegraNode * self = extra;
+  struct ScegraLongText_ * st = &self->data.longtext;
+  ALLEGRO_USTR_INFO info;
+  int real_size, flags;
+  double width;
+  ALLEGRO_FONT * font;
+  BeVec pos;
+  
+  font      = scegra_get_font(self);
+  flags     = self->style.text_flags | ALLEGRO_ALIGN_INTEGER;
+  pos = scegra_calculate_text_position(self);
+ 
+
+  
+  /* Don't draw lines before start but keep on drawing (for later lines) */
+  if (line_num < st->line_start) return true;
+  /* Don't draw lines after stop, drawing is done */
+  if (line_num >= st->line_stop) return false;
+  real_size = size;
+  /* Reveal letter by letter on last line */
+  if (line_num == (st->line_stop - 1)) { 
+    real_size = (st->line_pos < size) ? st->line_pos : size;
+  }
+  x  = pos.x;
+  y  = pos.y + (st->line_height * (line_num - st->line_start));
+  al_draw_ustr(font, self->style.background_color,
+      x + 1, y + 1, flags, al_ref_buffer(&info, line, real_size));
+  al_draw_ustr(font, self->style.color,
+      x, y, flags, al_ref_buffer(&info, line, real_size));
+                
+  return true;
+}
+
+
+/* Allows to draw a multi line text partially, from line_start up to
+ * line_stop 
+ * Scraws scrolling text from a prefilled struct. */ 
+void scegra_draw_partial_text(ScegraNode * self) {
+  float width = self->size.x - self->style.margin * 2;
+  struct ScegraLongText_ * st = &self->data.longtext;
+  char * text      = self->data.longtext.text ?
+              self->data.longtext.text : "NULL";
+  /* It's a bit of a hack that this ends up here... */ 
+  if (st->line_height < 1.0) {
+    st->line_height = al_get_font_line_height(scegra_get_font(self));
+  }
+  
+  al_do_multiline_text(scegra_get_font(self), width,
+      (const char *) text, scegra_draw_custom_partial_text, self);
+}
+
+
 void scegra_draw_longtext(ScegraNode * self) {
   Font * font;
   int flags;
@@ -277,15 +404,21 @@ void scegra_draw_longtext(ScegraNode * self) {
   BeVec pos = scegra_calculate_text_position(self);
   font      = scegra_get_font(self);
   flags     = self->style.text_flags | ALLEGRO_ALIGN_INTEGER;
-  text      = self->data.longtext.text ? self->data.longtext.text : "NULL";
+  text      = self->data.longtext.text ?
+              self->data.longtext.text : "NULL";
   width     = self->size.x - self->style.margin * 2;
+
+  scegra_draw_partial_text(self);
+
   
   /* Draw the text twice, once offset in bg color to produce a shadow, 
    and once normally with foreground color. */
+ /*  
   al_draw_multiline_text(font, self->style.background_color,
     pos.x + 1, pos.y + 1, width, 0, flags, text);
   al_draw_multiline_text(font, self->style.color,
     pos.x, pos.y, width, 0, flags, text);
+  **/
 }
 
 void scegra_draw_image(ScegraNode * self) {
@@ -354,14 +487,31 @@ scegranode_init_text(ScegraNode * self, int id, BeVec pos, BeVec siz, const char
 }
 
 
+
+int scegranode_set_longtext_text(ScegraNode * self, const char * text) {
+  free(self->data.longtext.text);
+  self->data.longtext.text        = cstr_dup((char *)text);
+  if (!self->data.longtext.text) return -1;
+  self->data.longtext.line_start  = 0;
+  self->data.longtext.line_stop   = 1;
+  self->data.longtext.line_pos    = 0;
+  self->data.longtext.delay_total = 0.0;
+  return 0;
+}
+
 ScegraNode * 
 scegranode_init_longtext
 (ScegraNode * self, int id, BeVec pos, BeVec siz, char * text, ScegraStyle style) {
   ScegraData data;
   if (!self) return NULL;
-  data.longtext.text  =  cstr_dup(text);
+  memset(&data.longtext, 0, sizeof(data.longtext));
+  data.longtext.scroll_by = 4;
+  data.longtext.line_stop = 4;
+
   scegranode_initall(self, SCEGRA_NODE_LONGTEXT,
-    id, pos, siz, data, style, scegra_draw_longtext, scegra_update_generic);
+    id, pos, siz, data, style, scegra_draw_longtext, scegra_update_longtext);
+  scegranode_set_longtext_text(self, text);
+  
   self->done = scegranode_longtext_done;
   return self;
 }
@@ -750,9 +900,8 @@ int scegra_text_(int index, const char * text) {
   if (node->kind == SCEGRA_NODE_TEXT) {
     strncpy(node->data.text.text, text, SCEGRA_TEXT_MAX);
   } else if (node->kind == SCEGRA_NODE_LONGTEXT) {
-    free(node->data.longtext.text);
-    node->data.longtext.text = cstr_dup((char *)text);
-    if (!node->data.longtext.text) return -4;
+    scegranode_longtext_done(node);
+    scegranode_set_longtext_text(node, text);
   } else {
     return -3;
   }

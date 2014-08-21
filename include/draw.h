@@ -35,6 +35,20 @@ void draw_multi_line_text(ALLEGRO_FONT * font, ALLEGRO_COLOR color,
                           char * text);
 
 
+typedef struct DrawScrollingText_ {
+  char * text;
+  float x, y, w, h;
+  int line_start, line_now, line_stop, line_pos, paused, line_scroll;
+  float line_height;
+  int flags;
+  ALLEGRO_FONT * font;
+  ALLEGRO_COLOR color;
+} DrawScrollingText;
+
+
+void draw_scrolling_text(DrawScrollingText * scrolling_text);
+
+
 #endif /* CFH_DRAW_PROTO */
 
 

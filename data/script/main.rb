@@ -291,11 +291,12 @@ def do_main_menu
       sm.fit_children
   end
 
+  $main_page.hide
   $settings_ui.hide
   $sub_menu.hide
   puts "---- Hide done! ---- #{$sub_menu} #{$sub_menu.hidden?}"
 
-  Zori.go(:main_menu)
+  Zori.go(:settings)
   puts "play_music #{res} #{$main_music}"
 end
 
