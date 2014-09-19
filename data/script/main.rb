@@ -7,6 +7,8 @@ PLAY_MUSIC = false
 # Show main background
 MAIN_BACKGROUND = true
 
+# Helpers
+script "forwardable.rb"
 
 # Load keycodes
 script "keycode.rb"
@@ -174,7 +176,19 @@ end
 #   puts "play_music #{res} #{$main_music.id}"
 # end
 
-INTRO_TEXT = "Milennia have passed since mankind first traveled to the moon. "+
+POEM_TEXT = "After mankind's summer, winter suddenly came"    +
+            "Most reached for the stars, but some remained"   +
+            "The earth scarred by the Ancients unhostpitable" +
+            "The hopes low, and so much wisdom forgotten"     +
+            "Yet when it seemed the last hour struck"         +
+            "Our hope returned, a savior arose"               +
+            "Lord Kei, who by Creator's grace"                +
+            "Restored the Trees that guard us all from harm"  +
+            "Thus ushered in a new millennial spring"         +
+            "Lord Kei, watch over us and protect us"          +
+            "Until the Travellers return with bounty of the stars"
+
+INTRO_TEXT = "Millennia have passed since mankind first traveled to the moon. "+
              "Civilizations rose as never before, yet to fall again. " +
              "When all hope seemed lost, the 21 trees sprouted from the earth. " +
              "They brought mysterious powers that protected and strengthened mankind. "+
@@ -268,6 +282,10 @@ def do_main_menu
 
   $settings_ui = Zori.make_page(:settings) do |se|
       $lote2          = se.make_longtext(100, 10, 160, 400, INTRO_TEXT)
+      $lote2.delay    = -1
+      $lote2.page_lines = 99999
+      $lote2.line_stop = 99999
+      
       $settings_menu  = se.make_menu(480, 380, 120, 440, nil)
       sm              = $settings_menu
       $settings_ok_button = sm.make_button(500, 300, 100, 30, "Font 1") do
@@ -398,7 +416,7 @@ def on_key_down(time, key)
   return nil
 end
 
-# Handle key up
+# Handle key up. Better refactor this to a game class or module
 def on_key_up(time, key)
   actor         = Thing.actor
   return nil unless actor

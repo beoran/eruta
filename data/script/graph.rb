@@ -48,9 +48,9 @@ class Graph < Eruta::Graph
     end
 
         
-    def text=(t)
-      Eruta::Graph.text_(@id, t)
-    end
+    #~ def text=(t)
+      #~ Eruta::Graph.text_(@id, t)
+    #~ end
 
   
     def size=(size)
@@ -96,7 +96,36 @@ class Graph < Eruta::Graph
       x, y = *p
       Eruta::Graph.position_(@id, x, y)
     end
-    
+
+    def line_stop=(stop) 
+      Eruta::Graph.line_stop_(@id, store_id)
+    end
+
+    # Forwards methods to Eruta::Graph(@id, * args)
+    def self.forward_graph(name)
+      clean_name = name.to_s.gsub("=", "_").gsub('?', '_p').gsub('!', '_bang') 
+      graph_name = "#{clean_name}".to_sym
+      define_method(name)  do |*args|   
+        Eruta::Graph.send(graph_name, @id, *args)
+      end
+    end
+
+    forward_graph :text=
+    forward_graph :line_start=
+    forward_graph :line_stop=
+    forward_graph :delay=    
+    forward_graph :line_start
+    forward_graph :line_stop
+    forward_graph :delay
+    forward_graph :page_lines=
+    forward_graph :page_lines
+    forward_graph :paused=
+    forward_graph :paused
+    forward_graph :page=
+    forward_graph :page
+    forward_graph :next_page
+    forward_graph :previous_page
+  
     def close() 
       Graph.unregister(self)
       @id = nil

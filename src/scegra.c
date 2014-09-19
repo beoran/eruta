@@ -95,8 +95,9 @@ struct ScegraText_ {
 struct ScegraLongText_ {
   float x1, x2, y, diff;
   char * text;
-  int line_start, line_stop, line_pos;
-  int scroll_by, line_max, line_height;
+  int line_start, line_stop, line_pos; /* Current text "window". */
+  int line_max, line_height; /* text constants. */
+  int page_lines; /* Text "window" size for one "page" of text in amount of lines. */
   int paused;
   double delay_total;
 };
@@ -133,7 +134,7 @@ struct ScegraNode_ {
   int                   step;
   int                   kind;
   int                   flags;
-  float                 delay;
+  double                delay;
   BeVec                 pos;
   BeVec                 size;
   BeVec                 speed;
@@ -194,7 +195,7 @@ scegranode_initall(ScegraNode * node, int kind, int id, BeVec pos, BeVec siz,
   node->flags   = 0;
   node->done    = NULL;
   node->kind    = kind;
-  node->delay   = 0.1;
+  node->delay   = 0.05;
   return node;
 }
 
@@ -207,6 +208,45 @@ static Font * scegra_get_font(ScegraNode * self) {
   return font;
 }
 
+
+/** Gets the current text page for a longtext. */
+int scegranode_page(ScegraNode * node) {
+  struct ScegraLongText_ * lt; 
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  lt = &node->data.longtext;
+  return lt->line_start / lt->page_lines;
+}
+
+
+/** Advances long text to the given page. Automatically unpauses as well. */
+int scegranode_page_(ScegraNode * node, int page) {
+  struct ScegraLongText_ * lt;
+  int line;
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  if (page < 0) return -4;  
+  lt              = &node->data.longtext;
+  line            = page * lt->page_lines;
+  /* Check for page overflow. */
+  if (line >= lt->line_max) {
+    return -5;    
+  }  
+  lt->paused     = false;
+  lt->line_start = line;
+
+  /* Negative delay is instant display. */
+  if (node->delay < 0) {  
+    lt->line_stop  = lt->line_start + lt->page_lines;
+    lt->line_pos   = 99999;
+  } else {
+    lt->line_stop  = lt->line_start + 1;
+    lt->line_pos   = 0;
+  }  
+  return page;  
+}
 
 void
 scegranode_longtext_done(ScegraNode * self) {
@@ -230,15 +270,23 @@ static bool scegra_update_custom_partial_text(int line_num, const char *line,
 
   /* Don't draw lines before start but keep on drawing (for later lines) */
   if (line_num < st->line_start) return true;
-  /* Don't draw lines after stop, but keep calculating to get correct amount of lines  */
+  /* Don't draw lines after stop, but keep calculating to get correct amount of lines */
   if (line_num >= st->line_stop) return true;
   /* Reveal letter by letter on last line */
   if (line_num == (st->line_stop - 1)) {
-    st->line_pos++;
-    /* reached eol */
+    /* Advance the position automatically if not paused. */
+    if (!st->paused) {
+      st->line_pos++;
+    }
+    /* Reached eol, advance to next line. */
     if (st->line_pos >= size) {
-      st->line_stop++;
-      st->line_pos = 0;
+      /* Is if the text window is full, pause, otherwise show the next line. */
+      if ((st->line_stop - st->line_start) >= st->page_lines) {
+        st->paused = true;
+      } else { 
+        st->line_stop++;
+        st->line_pos = 0;
+      }
     } 
   }
   return true;
@@ -363,12 +411,26 @@ static bool scegra_draw_custom_partial_text(int line_num, const char *line,
   /* Don't draw lines after stop, drawing is done */
   if (line_num >= st->line_stop) return false;
   real_size = size;
+  /* calculate position */
+  x  = pos.x;
+  y  = pos.y + (st->line_height * (line_num - st->line_start));
+
   /* Reveal letter by letter on last line */
   if (line_num == (st->line_stop - 1)) { 
     real_size = (st->line_pos < size) ? st->line_pos : size;
+
+    /* Draw continuation marker if paused. */
+    if (st->paused) {
+      float x1, y1, x2, y2, x3, y3;
+      y2 = y  + 8;
+      x2 = x + self->size.x - self->style.margin;
+      x1 = x2 - 8;
+      y1 = y2;
+      x3 = x2 - 4;
+      y3 = y2 + 8;
+      al_draw_filled_triangle(x1, y1, x2, y2, x3, y3, self->style.color);      
+    }
   }
-  x  = pos.x;
-  y  = pos.y + (st->line_height * (line_num - st->line_start));
   al_draw_ustr(font, self->style.background_color,
       x + 1, y + 1, flags, al_ref_buffer(&info, line, real_size));
   al_draw_ustr(font, self->style.color,
@@ -393,6 +455,8 @@ void scegra_draw_partial_text(ScegraNode * self) {
   
   al_do_multiline_text(scegra_get_font(self), width,
       (const char *) text, scegra_draw_custom_partial_text, self);
+
+  
 }
 
 
@@ -496,6 +560,7 @@ int scegranode_set_longtext_text(ScegraNode * self, const char * text) {
   self->data.longtext.line_stop   = 1;
   self->data.longtext.line_pos    = 0;
   self->data.longtext.delay_total = 0.0;
+  scegranode_page_(self, 0);
   return 0;
 }
 
@@ -505,14 +570,18 @@ scegranode_init_longtext
   ScegraData data;
   if (!self) return NULL;
   memset(&data.longtext, 0, sizeof(data.longtext));
-  data.longtext.scroll_by = 4;
-  data.longtext.line_stop = 4;
+  data.longtext.page_lines = 4;
+  data.longtext.line_start = 0;
+  data.longtext.line_stop  = 1;
+  data.longtext.paused     = 0;
 
   scegranode_initall(self, SCEGRA_NODE_LONGTEXT,
     id, pos, siz, data, style, scegra_draw_longtext, scegra_update_longtext);
   scegranode_set_longtext_text(self, text);
   
   self->done = scegranode_longtext_done;
+  scegranode_page_(self, 0);
+  
   return self;
 }
 
@@ -910,6 +979,8 @@ int scegra_text_(int index, const char * text) {
 
 
 
+
+
 /* Somewhat unrelated, show or hide the system mouse cursor. 
  * Returns the state after calling, true means show, false means not shown.
  */
@@ -977,6 +1048,134 @@ int scegra_image_bitmap_size(int index, int * w, int * h) {
   if(!store_get_bitmap_height(image_id, h)) (*h) = -1;
   return node->z;  
 }
+
+
+/** Sets the last line to display for a long text */
+int scegra_line_stop_(int index, int stop) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  node->data.longtext.line_stop = stop;
+  return node->z;
+}
+
+/** Sets the first line to display for a long text */
+int scegra_line_start_(int index, int start) {
+ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  node->data.longtext.line_start = start;
+  return node->z;
+}
+
+/** Sets display delay between individual characters  for a long text */
+int scegra_delay_(int index, double delay) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  node->delay = delay;
+  return node->z;
+}
+
+
+
+/** Gets the last line to display for a long text  or negative on error*/
+int scegra_line_stop(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  return node->data.longtext.line_stop;
+}
+
+/** Gets the first line to display for a long text */
+int scegra_line_start(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  return node->data.longtext.line_start;
+}
+
+/** Gets display delay between individual characters  for a long text */
+double scegra_delay(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  return node->delay;
+}
+
+
+/** Sets amount of shown lines for a long text */
+int scegra_page_lines_(int index, int lines) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  node->data.longtext.page_lines = lines;
+  return node->z;
+}
+
+/** Gets amount of lines for a "page" of long text */
+int scegra_page_lines(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  return node->data.longtext.page_lines;
+}
+
+/** Sets paused state of long text */
+int scegra_paused_(int index, int paused) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  node->data.longtext.paused = paused;
+  return node->z;
+}
+
+/** Gets paused state of long text */
+int scegra_paused(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  return node->data.longtext.paused;
+}
+
+/** Gets the current text page for a longtext. */
+int scegra_page(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  return scegranode_page(node);
+}
+
+
+/** Advances long text to the given page. Automatically unpauses as well. */
+int scegra_page_(int index, int page) {
+  ScegraNode * node = scegra_get_node(index);
+  return scegranode_page_(node, page);
+}
+
+/** Advances long text to the next page. Automatically unpauses as well. */
+int scegra_next_page(int index) {
+  int page = scegra_page(index);
+  if (page < 0) return page;
+  return scegra_page_(index, page + 1); 
+}
+
+/** Advances long text to the previous page. Automatically unpauses as well. */
+int scegra_previous_page(int index) {
+  int page = scegra_page(index);
+  if (page < 0) return page;
+  return scegra_page_(index, page - 1); 
+}
+
+
 
 
 /*

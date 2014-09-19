@@ -5,6 +5,7 @@ module Zori
   class LongText
     include Widget
     include Draggable
+    extend Forwardable
     
     BUTTON_BACKGROUND = [0x33, 0x33, 0xff, 0xaa]
     HOVER_BACKGROUND  = [0x55, 0x55, 0xff, 0xaa]
@@ -33,6 +34,7 @@ module Zori
       @tg.background_color = [0,0,0]
       @tg.color            = [255,255, 64]
       @tg.margin           = @margin
+      @tg.page             = 0
     end
 
     def on_mouse_axes(t, x, y, z, w, dx, dy, dz, dw)
@@ -54,12 +56,21 @@ module Zori
     def on_mouse_button_down(t, x, y, z, w, b)
       super
       return false unless self.inside?(x, y)
+      self.delay = self.delay / 10.0
+      p self.line_start, self.line_stop, b
       if @action
         @action.call(self)
       end
     end
     
     def on_mouse_button_up(t, x, y, z, w, b)
+      self.delay = self.delay * 10.0
+      if @tg.paused && (b == 1)
+        @tg.next_page
+      end
+      if (b==2)
+        @tg.page = 0
+      end
       return super
     end
         
@@ -70,7 +81,14 @@ module Zori
     def text=(t)
       @tg.text = t
     end
-    
-    
+
+    def_delegator :@tg, :line_start=
+    def_delegator :@tg, :line_stop=
+    def_delegator :@tg, :delay=
+    def_delegator :@tg, :line_start
+    def_delegator :@tg, :line_stop
+    def_delegator :@tg, :delay
+    def_delegator :@tg, :page_lines=
+    def_delegator :@tg, :page_lines    
   end
 end

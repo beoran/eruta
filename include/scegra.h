@@ -118,6 +118,25 @@ int scegra_image_flags_(int index, int flags);
 int scegra_text_flags_(int index, int flags);
 int scegra_text_(int index, const char * text);
 
+
+int scegra_line_stop_(int index, int stop);
+int scegra_line_start_(int index, int start);
+int scegra_delay_(int index, double delay);
+int scegra_line_stop(int index);
+int scegra_line_start(int index);
+double scegra_delay(int index);
+
+int scegra_page_lines_(int index, int lines);
+int scegra_page_lines(int index);
+int scegra_paused_(int index, int paused);
+int scegra_paused(int index);
+int scegra_page(int index);
+int scegra_page_(int index, int page);
+int scegra_next_page(int index);
+int scegra_previous_page(int index);
+
+
+
 int scegra_show_system_mouse_cursor(int show);
 
 
