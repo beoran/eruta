@@ -1,6 +1,359 @@
 #!/usr/bin/env ruby
 
+# Ruby has it!
+require 'matrix'
 
+
+
+
+
+  ColorStruct = Struct.new(:r, :g, :b, :h, :s, :l)
+  
+  class Color < ColorStruct
+    
+    def <=>(o)
+      if self.h != o.h 
+        return self.h <=> o.h
+      end
+      if self.l != o.l
+        return self.l <=> o.l
+      end
+      return self.s <=> o.s
+    end
+    
+    CLOSE_H = 3
+    CLOSE_S = 1
+    CLOSE_L = 5
+    
+    def self.hls_delta(hin, lin, sin, h, l = nil, s = nil)
+      delta_h = (hin - h).abs
+      delta_l = ( l ? ( (lin - l).abs ) : 0)
+      delta_s = ( s ? ( (sin - s).abs ) : 0)
+      delta   = (CLOSE_H*delta_h)**2 + (CLOSE_L*delta_l)**2 + (CLOSE_S*delta_s)**2
+    end
+
+    def hls_delta(h, l = nil, s = nil)
+      return self.class.hls_delta(self.h, self.l, self.s, h, l, s)
+    end
+
+    
+    def rhex
+      (self.r).to_i.to_s(16).rjust(2, '0')
+    end
+  
+    def ghex
+      (self.g).to_i.to_s(16).rjust(2, '0')
+    end
+    
+    def bhex
+      (self.b).to_i.to_s(16).rjust(2, '0')
+    end
+
+    def hex
+      return "#{self.rhex}#{self.ghex}#{self.bhex}"
+    end
+    
+    def palify(value, grain = 4)
+      ((value * grain).round / grain).to_s.rjust(3, ' ')
+    end
+    
+    def rpal(grain=4)
+      palify(self.r, grain)
+    end
+    
+    def gpal(grain=4)
+      palify(self.g, grain)
+    end
+    
+    def bpal(grain=4)
+      palify(self.b, grain)
+    end
+
+    def to_pal(x=4)
+      return "#{self.rpal(x)} #{self.gpal(x)} #{self.bpal(x)}"
+    end
+
+    def html_text()
+      ht = h.to_i.to_s.rjust(3, '0')
+      st = s.to_i.to_s.rjust(3, '0')
+      lt = l.to_i.to_s.rjust(3, '0')  
+      return "#{self.hex} #{ht} #{st} #{lt}"
+    end
+    
+    
+    def l_name
+      if l <= 5
+        return "Midnight"
+      elsif l <= 10
+        return "Evening"
+      elsif l <= 15
+        return "Shadow"
+      elsif l <= 25
+        return "Dusk"
+      elsif l <= 35
+        return "Dark"
+      elsif l <= 45
+        return "Deep"
+      elsif l <= 55
+        return "Medium"
+      elsif l <= 65
+        return "Bright"
+      elsif l <= 75
+        return "Shiny"
+      elsif l <= 85
+        return "Pale"
+      else
+        return "Misty"
+      end
+    end
+    
+    def h_name_dark
+      if h < 8
+        return "Red"
+      elsif h < 23
+        return "Brown"
+      elsif h < 45
+        return "Maroon"
+      elsif h < 75
+        return "Ochre"
+      elsif h < 105
+        return "Olive"
+      elsif h < 135
+        return "Green"
+      elsif h < 165
+        return "Swamp"
+      elsif h < 195
+        return "Teal"
+      elsif h < 225
+        return "Sea"
+      elsif h < 255
+        return "Navy"
+      elsif h < 285
+        return "Lavender"
+      elsif h < 315
+        return "Lilac"
+      else
+        return "Purple"
+      end
+    end
+    
+    def h_name_light
+      if h < 15
+        return "Pink"
+      elsif h < 45
+        return "Skin"
+      elsif h < 75
+        return "Yellow"
+      elsif h < 105
+        return "Grass"
+      elsif h < 135
+        return "Lime"
+      elsif h < 165
+        return "Lagoon"
+      elsif h < 195
+        return "Cyan"
+      elsif h < 225
+        return "Sky"
+      elsif h < 255
+        return "Blue"
+      elsif h < 285
+        return "Violet"
+      elsif h < 315
+        return "Magenta"
+      else
+        return "Fuchsia"
+      end
+    end
+    
+    
+    def h_name
+      if l <= 45
+        return h_name_dark
+      else 
+        return h_name_light
+      end
+    end
+    
+    def s_name
+      if s <= 65
+        return "Dull"
+      else
+        return "Sharp"
+      end
+    end
+
+  end
+
+
+  $coar = []
+  $hues = []
+  $pes  = []
+  $ses  = []
+  
+  $coar.sort!.uniq!
+  $hues.sort!.uniq!
+  $pes.sort!.uniq!
+  $ses.sort!.uniq!
+  
+  LEVELS = {
+    10 => "Night",
+    20 => "Shadow",
+    30 => "Dark",
+    40 => "Deep",
+    50 => "Medium",
+    60 => "Bright",
+    70 => "Light",
+    80 => "Pale",
+    90 => "Misty",
+  }
+  
+  RAMPS = [
+    {:name => "Fire"   , :hue =>   0, :ramp =>  3 },
+    {:name => "Orange" , :hue =>  30, :ramp =>  3 },
+    {:name => "Skin"   , :hue =>  40, :ramp => -3 },
+    {:name => "Yellow" , :hue =>  60, :ramp =>  0 },
+    {:name => "Earth"  , :hue =>  90, :ramp => -3 },
+    {:name => "Grass"  , :hue => 120, :ramp => -3 },
+    {:name => "Cyan"   , :hue => 150, :ramp => -3 },
+    {:name => "Sky"    , :hue => 180, :ramp => -3 },
+    {:name => "Sea"    , :hue => 210, :ramp => -3 },
+    {:name => "Blue"   , :hue => 240, :ramp => -3 },
+    {:name => "Lila"   , :hue => 270, :ramp => 3  },
+    {:name => "Magenta", :hue => 300, :ramp => 3  },
+    {:name => "Purple" , :hue => 330, :ramp => 3  },
+  ]
+  
+  $pal = []
+
+  
+# My own color space idea: 
+# Hue is expressed as an angle in degrees.
+# The X axis is blue (positive)/yellow (negative), the y axis
+# "impure" green (positive) / "impure" magenta(negative) 
+# Radius is color intensity.
+# The brightness of a color = r * 2 + g * 3 + b
+#
+# middle brightness is (in rgb units) 576
+# X axis blue hence is 6666ff
+# X axis yellow is 999900
+# y axis green is 00db6d
+# t axis magenta is ff2593
+
+def bdm_colinfo_to_rgb(bright, r1, g1, b1, const1, r2, g2, b2, const2)
+  coeff = Matrix[[2.0, 3.0, 1.0], [r1, g1, b1], [r2, g2, b2]]
+  const = Matrix.columns([[bright, const1, const2]])
+  res   = coeff.inverse * const
+  return * (res.to_a.flatten)
+end
+
+
+PR = 2.0
+PG = 3.0
+PB = 1.0
+
+def hs_aid(base, offset, small, med, large)
+  s = 1.0 - small / large
+  h = base.to_f / 6.0  + (offset.to_f / 6.0) * (med-small) / (large-small)
+  return h, s
+end
+
+def rgb_to_hsl(r, g, b)
+  h = s = l = 0.0
+
+  #  Calculate the brightness) .
+  l = (r*PR+g*PG+b*PB) / (PR+PG+PB)
+
+  #  Calculate the Hue and Saturation.  (This part works
+  #  the same way as in the HSV/B and HSL systems???.)
+  if r==g && r==b
+    return 0.0, 0.0, l
+  end
+
+  if r >= g && r >= b #  R is largest
+    if  b >= g
+      h, s = hs_aid(6, -1, g, b, r)
+    else
+      h, s = hs_aid(0,  1, b, g, r)
+    end
+  elsif g >= r && g >= b  # G is largest
+    if r >= b
+      h, s = hs_aid(2, -1, b, r, g)
+    else 
+      h, s = hs_aid(2, +1, r, b, g)
+    end
+  else                     #  B is largest
+    if g >= r
+      h, s = hs_aid(4, -1, r, g, b)
+    else 
+      h, s = hs_aid(4, +1, g, r, b)
+    end
+  end
+  
+  return h, s, l
+end
+
+
+
+=begin
+  blue:
+  2 * r  + 3 * g  + b = 768
+                    g = r
+                    b = 256
+  => 2 * g + 3 * g + 256 = 768
+  => 5 * g               = 640
+  => 
+  OR
+  /  2  3  1  -768 \
+  | -1  1  0   0   |
+  \  0  0  1  -256 /
+  
+     1  4  1   
+--------------------------------
+  yellow:
+  2 * r  + 3 * g  + b = 768
+                    g = r
+                    b = 0
+
+  => 2 * g + 3 * g = 768
+  => 5 * g         = 768
+  =>
+  
+  green: 
+  2 * r  + 3 * g  + b = 768
+                    g = 2 * b
+                    r = 0
+  
+  => 3 * 2 * b + b = 768
+  => 7 * b = 768
+
+
+
+--------------------------------
+  g = 2 * b && 2.0 * g + b = 576
+  2.0 * 2.0 * b + b
+  
+  b = 160
+  
+
+=end
+
+# ICCTRANS_COMMAND="icctrans -o '*sRGB' -i '*Lab' 2> /dev/null"
+ICCTRANS_COMMAND="icctrans -b -m 2 -p '*sRGB' -o '*sRGB' -i '*Lab'" # 2> /dev/null"
+
+
+def cielab_to_rgb(l, a, b)
+  result = nil
+  File.popen(ICCTRANS_COMMAND, 'w+') do | pipe |
+    pipe << "#{l}\n#{a}\n#{b}\nq\n"
+    result = pipe.read
+  end
+  
+  rgb = result.strip.gsub(/[^0-9 \.]+/, '').split(" ").map do |c|
+    c.to_f.round
+  end
+
+  return * rgb
+end
 
 
 def degree_to_radian(degree)
@@ -29,14 +382,14 @@ def cielab_to_cielch(l, a, b)
   c = Math.sqrt( a**2 + b**2)
   h = var_h
   return l, c, h
-end  
+end
 
-def hue_to_rgb(v1, v2, vh ) 
-   vh += 1.0 if vh < 0.0 
-   vh -= 1.0 if vh > 1.0 
-   return v1 + (v2 - v1) * 6.0 * vh if (6.0 * vh) < 1.0 
-   return v2                        if (2.0 * vh) < 1.0 
-   return v1 + (v2 - v1) * ((2.0 / 3.0) - vh ) * 6 if  (3.0 * vh) < 2.0 
+def hue_to_rgb(v1, v2, vh)
+   vh += 1.0 if vh < 0.0
+   vh -= 1.0 if vh > 1.0
+   return v1 + (v2 - v1) * 6.0 * vh if (6.0 * vh) < 1.0
+   return v2                        if (2.0 * vh) < 1.0
+   return v1 + (v2 - v1) * ((2.0 / 3.0) - vh ) * 6 if  (3.0 * vh) < 2.0
    return v1
 end
 
@@ -48,12 +401,12 @@ def hsl_to_rgb(h, s, l)
    g = (l * 255.0).round.to_i
    b = (l * 255.0).round.to_i
    return r, g, b
- else  
+ else
    var_2 = 0.0
-   if l < 0.5 
+   if l < 0.5
     var_2 = l * ( 1.0 + s )
    else
-    var_2 = ( l + s ) - ( s * l)
+    var_2 = ( l + s ) - (s * l)
    end 
    
    var_1 = 2.0 * l - var_2
@@ -64,13 +417,57 @@ def hsl_to_rgb(h, s, l)
   end
 end 
   
-colors = []
+colors = {}
+grays  = {}
 # handle = File.popen("icctrans -o '*sRGB' -i '*Lab'", 'w+')
-H_LIST = (0...360).step(15).to_a
-S_LIST = [ 50, 100]
+# H_LIST = (0...360).step(15).to_a
+
+H_LIST = [  0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330 ]
+S_LIST = [ 95, 50 ]
+L_LIST = [  5, 10, 15, 25, 35, 45, 55, 65, 75, 85, 95]
+
+S_NAMES = { 95 => "Sharp", 45 => "Dull" }
+
+L_NAMES = {
+    5  => "",
+    10 => "Shadow",
+    15 => "Dark",
+    25 => "Deep",
+    35 => "Medium",
+    45 => "Bright",
+    55 => "Light",
+    65 => "Pale",
+    75 => "Misty",
+    85 => "Very Pale",
+    95 => "Extra Pale",
+ }
+
+H_NAMES = {
+  0   => "Red",
+  15  => "Orange",
+  30  => "Skin",
+  60  => "Yellow",
+  90  => "Earth",
+  120 => "Green",
+  150 => "Cyan",
+  180 => "Sky",
+  210 => "Sea",
+  240 => "Blue",
+  270 => "Fuchsia",
+  300 => "Magenta",
+  330 => "Purple",
+}
 
 
-L_LIST = [  5, 20, 35, 50, 65, 80, 95 ]
+
+# 
+# 4, 16, 32, 48, 64
+# L_LIST = [  5, 15, 20, 27, 35, 50, 65, 80, 95 ]
+# L_LIST for "even" progression of grays (0x10, 0x20, etc)
+# L_LIST = [  5,  10, 16, 21, 26, 31, 37, 42, 47, 52, 58, 63, 68, 73, 78,  ]
+# L_LIST = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 90, 95]
+
+
 
 # L_LIST = [  5, 17, 30, 43, 56, 69, 82, 95 ]
 # L_LIST = [  5, 16, 27, 38, 50, 61, 72, 83, 95 ]
@@ -94,17 +491,90 @@ B_LIST   = [-128, -84, -42,   0,  42,  84, 128]
 #       end
 #     end
 #   end
+#   for li in L_LIST do 
+#     h, a, b = cielch_to_cielab(li, 0, 0)
+#     r, g, b = cielab_to_rgb(h, a, b)
+#     grays[li] = Color.new(r, g, b, 0, 0, li)
+#   end
+# 
+#   for si in S_LIST do
+#     colors[si] = {}
+#     for hi in H_LIST do
+#       colors[si][hi] = []
+#       for li in L_LIST do
+#         l, a, b = cielch_to_cielab(li, si, hi)
+#         r, g, b = cielab_to_rgb(l, a, b)
+#         colors[si][hi] << Color.new(r, g, b, hi, si, li)
+#       end
+#       colors[si][hi].sort
+#     end
+#   end
 
-  for h in H_LIST do
-    for si in S_LIST do
-      for li in L_LIST do
-        r, g, b = hsl_to_rgb(h, si, li)
-        colors << [h, si, li, r, g, b]
+
+def closest_color_to(list, h, l = nil, s = nil)
+  best  = Color.hls_delta(360, 100, 100, 0, 0, 0);
+  res   = nil
+  match = list.select { |col| (col.h - h).abs < 30 }
+  match.each do |col|
+    delta = col.hls_delta(h, l, s)
+    if delta < best
+      best = delta
+      res  = col
+    end
+  end
+  return res
+end
+
+
+$lookup = []
+$llist  = []
+
+(0..256).step(8) do  | r |
+  (0..256).step(8) do  | g |
+    (0..256).step(8) do  | b |
+      rf = r / 256.0
+      gf = g / 256.0
+      bf = b / 256.0
+      hf, sf, lf = rgb_to_hsl(rf, gf, bf)
+      r  = 255 if r > 255
+      g  = 255 if g > 255
+      b  = 255 if b > 255
+      h = (hf * 360).round
+      s = (sf * 100).round
+      l = (lf * 100).round
+      $lookup << Color.new(r, g, b, h, s, l)
+    end
+  end
+end
+
+colors = {}
+
+# warn "#{$llist}"
+S_LIST.each do | s |
+  colors[s] ||= {}
+  H_LIST.each do | h |
+    L_LIST.each do | l |
+      col = closest_color_to($lookup, h, l, s)
+      if col
+        colors[s][l] ||= []
+        colors[s][l] << Color.new(col.r, col.g, col.b, col.h, col.s, col.l)
+        colors[s][l].sort!
+      else 
+          warn "No candidate for #{h} #{l} #{s} 50"
       end
     end
   end
+end
 
-colors.sort!
+L_LIST.each do | l |
+  col = closest_color_to($lookup, 0, l, 0)
+  if col
+    grays[l] = Color.new(col.r, col.g, col.b, col.h, col.s, col.l)
+  else 
+      warn "No candidate for #{h} #{l} 0"
+  end
+end
+
 
 # colors.each do |color| 
 #   h, c, l, a, b = * color 
@@ -130,45 +600,48 @@ colors.sort!
 
 puts "<!doctype html>
 <html><head></head>
-<body style='font-family: monospace; background-color:#888; font-size:10px;'>"
+<body style='font-family: monospace; background-color:#888; font-size:9px; width:12000px;'>"
 
 duplicates = {}
 count = 0
 oldhh = nil
-colors.each do |l| 
-  hh, ss, ll, r, g, b = *l
-  hh = hh.to_i.to_s.rjust(3, '0')
-  if oldhh != hh 
-    puts "<br/>"
-    oldhh = hh
-  end  
-  ss = ss.to_i.to_s.rjust(3, '0')
-  lo = ll
-  ll = ll.to_i.to_s.rjust(3, '0')  
-  rh = r.to_i.to_s(16).rjust(2, '0')[0] * 2
-  gh = g.to_i.to_s(16).rjust(2, '0')[0] * 2
-  bh = b.to_i.to_s(16).rjust(2, '0')[0] * 2
-  ar = 255 - r.to_i
-  ag = 255 - g.to_i
-  ab = 255 - b.to_i
-  rah = ar.to_s(16).rjust(2, '0')
-  gah = ag.to_s(16).rjust(2, '0')
-  bah = ab.to_s(16).rjust(2, '0')  
-  he  = "##{rh}#{gh}#{bh}"
-  ahe = (lo < 50) ? "#fff" : "#000"
-  
-  res = "#{rh}#{gh}#{bh}"
-  unless duplicates[res]
-    duplicates[res] = true  
-  puts "<span style='background-color: #{he}; color: #{ahe}'>&nbsp;&nbsp;#{he} #{hh} #{ll} #{ss} &nbsp;</span>\n"
-  else 
-    puts "<span style='background-color: #{he}; color: #{he}'>&nbsp;&nbsp;#{he} #{hh} #{ll} #{ss} &nbsp;</span>\n"
-  end
-  count +=1
-  # if count % (L_LIST.size  + S_LIST.size) == 0
-  
-end
+oldss = nil
+first = true
+colors.each_pair do |s, color_list|
+  color_list.each_pair do | l, color_sublist |
+    if grays[l]
+      ahe = grays[l].hex
+    else
+      if l < 50
+        ahe = "ffffff"
+      else
+        ahe = "000000"
+      end
+    end
+    if l < 50
+      fg = "ffffff"
+    else
+      fg = "000000"
+    end
 
+    
+    puts "<div style='width: 28em; float: left; background-color: \##{ahe}; color: \##{fg};'>&nbsp;#{ahe} &nbsp;</div>\n"
+      
+    color_sublist.each do |color|
+      he  = color.hex
+      tx  = color.html_text
+      ld  = (color.l - l)
+      hn  = (color.h * 15) / 15
+      if ld >= 0 
+        ld = "&nbsp;#{ld}"
+      end
+      name = "#{color.s_name}&nbsp;#{color.l_name}&nbsp;#{color.h_name}"
+      puts "<div style='width: 28em; float: left; background-color: \##{he}; color: \##{ahe};'>&nbsp;#{tx} &nbsp;#{ld}&nbsp;#{name}</div>\n"
+    end
+    puts "<br style='clear: both;'>"
+  end
+  puts "<hr>"
+end
 
 puts  "</body></html>"
 
