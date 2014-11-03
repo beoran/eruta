@@ -1,0 +1,279 @@
+GIMP Palette
+Name: eruta_smooth
+Columns: 11
+#
+ 16  16  16	Evening Gray
+ 24  24  24	Evening Gray
+ 40  40  40	Dusk Gray
+ 64  64  64	Dusk Gray
+ 88  88  88	Dark Gray
+112 112 112	Deep Gray
+144 144 144	Bright Gray
+168 168 168	Shiny Gray
+192 192 192	Shiny Gray
+216 216 216	Pale Gray
+240 240 240	Misty Gray
+ 48   8   0	Sharp Evening Brown
+ 80   8   0	Sharp Shadow Red
+112   8   0	Sharp Dusk Red
+160  16   8	Sharp Dusk Red
+224  24  16	Sharp Dark Red
+255  48  40	Sharp Deep Red
+255  80  72	Sharp Medium Pink
+255 112 104	Dull Bright Pink
+255 152 144	Dull Shiny Pink
+255 184 176	Dull Pale Pink
+255 208 200	Dull Misty Pink
+ 16  16  16	Dull Evening Gray
+ 64  24  16	Sharp Shadow Brown
+ 72  32  24	Sharp Dusk Brown
+112  48  40	Dull Dark Red
+144  64  56	Dull Dark Red
+176  88  80	Dull Deep Red
+216 104  96	Dull Medium Pink
+255 120 112	Dull Bright Pink
+255 160 152	Dull Shiny Pink
+255 192 184	Dull Pale Pink
+240 240 240	Dull Misty Gray
+ 16   8   0	Sharp Midnight Maroon
+ 48  24   0	Sharp Shadow Maroon
+ 64  32   0	Sharp Shadow Maroon
+104  56   8	Sharp Dusk Maroon
+152  80   8	Sharp Deep Maroon
+184 104  16	Sharp Deep Maroon
+232 120  16	Sharp Medium Skin
+255 152  32	Sharp Bright Skin
+255 176  64	Sharp Shiny Skin
+255 200 128	Dull Pale Skin
+255 224 184	Dull Misty Skin
+ 24  16   8	Sharp Evening Maroon
+ 32  24  16	Dull Evening Maroon
+ 56  40  24	Dull Dusk Maroon
+ 80  64  48	Dull Dark Maroon
+120  88  56	Dull Deep Maroon
+152 112  72	Dull Medium Skin
+184 136  88	Dull Bright Skin
+216 160 104	Dull Shiny Skin
+248 184 120	Dull Pale Skin
+255 208 160	Dull Pale Skin
+255 232 200	Dull Misty Skin
+ 16  16   0	Sharp Midnight Ochre
+ 32  32   0	Sharp Evening Ochre
+ 48  48   0	Sharp Dusk Ochre
+ 80  80   0	Sharp Dark Ochre
+104 104   8	Sharp Dark Ochre
+136 136   8	Sharp Deep Ochre
+168 168   8	Sharp Medium Yellow
+200 200   0	Sharp Bright Yellow
+224 224  16	Sharp Shiny Yellow
+255 255  24	Sharp Pale Yellow
+255 255  72	Sharp Misty Yellow
+ 16  16   8	Dull Evening Ochre
+ 32  32  16	Dull Shadow Ochre
+ 40  40  24	Dull Shadow Ochre
+ 72  72  32	Dull Dark Ochre
+ 96  96  48	Dull Dark Ochre
+128 128  64	Dull Medium Yellow
+152 152  80	Dull Medium Yellow
+184 184  88	Dull Shiny Yellow
+208 208 112	Dull Shiny Yellow
+240 240 112	Dull Pale Yellow
+255 255 152	Dull Misty Yellow
+  8  16   0	Sharp Midnight Olive
+ 16  32   0	Sharp Evening Olive
+ 32  56   8	Sharp Dusk Olive
+ 48  96   0	Sharp Dusk Olive
+ 72 136   8	Sharp Deep Olive
+ 88 168   8	Sharp Deep Olive
+104 208   8	Sharp Medium Grass
+128 240  16	Sharp Bright Grass
+160 255  48	Sharp Shiny Grass
+184 255 104	Dull Pale Grass
+208 255 136	Dull Misty Grass
+ 16  24   8	Sharp Evening Olive
+ 24  32  16	Dull Evening Olive
+ 32  40  24	Dull Shadow Olive
+ 56  72  40	Dull Dusk Olive
+ 80 104  56	Dull Dark Olive
+104 136  72	Dull Deep Olive
+128 168  88	Dull Medium Grass
+152 200 104	Dull Shiny Grass
+176 232 120	Dull Pale Grass
+200 255 144	Dull Pale Grass
+224 255 192	Dull Misty Grass
+  0  24   0	Sharp Midnight Green
+  0  48   0	Sharp Evening Green
+  0  72   0	Sharp Shadow Green
+  8 120   8	Sharp Dusk Green
+  8 168   8	Sharp Dark Green
+  8 224   8	Sharp Deep Green
+ 24 255  24	Sharp Medium Lime
+ 64 255  56	Sharp Bright Lime
+120 255 112	Dull Shiny Lime
+152 255 144	Dull Pale Lime
+200 255 200	Dull Misty Lime
+  8  16   8	Dull Midnight Green
+ 16  32  16	Dull Evening Green
+ 24  48  24	Dull Shadow Green
+ 40  88  40	Dull Dusk Green
+ 56 120  56	Dull Dark Green
+ 80 152  80	Dull Deep Green
+ 96 184  96	Dull Medium Lime
+112 224 112	Dull Shiny Lime
+128 255 128	Dull Shiny Lime
+168 255 168	Dull Pale Lime
+216 255 216	Dull Misty Lime
+  0  16   8	Sharp Midnight Swamp
+  0  48  24	Sharp Shadow Swamp
+  0  64  32	Sharp Shadow Swamp
+  8 104  56	Sharp Dusk Swamp
+  8 152  80	Sharp Deep Swamp
+  8 192  96	Sharp Deep Swamp
+ 16 232 120	Sharp Medium Lagoon
+ 32 255 152	Sharp Bright Lagoon
+ 80 255 176	Sharp Shiny Lagoon
+136 255 200	Dull Pale Lagoon
+176 255 216	Dull Misty Lagoon
+  8  24  16	Sharp Evening Swamp
+ 16  32  24	Dull Evening Swamp
+ 24  56  40	Dull Dusk Swamp
+ 40  88  64	Dull Dark Swamp
+ 56 120  88	Dull Deep Swamp
+ 72 152 112	Dull Medium Lagoon
+ 88 184 136	Dull Bright Lagoon
+104 216 160	Dull Shiny Lagoon
+120 248 184	Dull Pale Lagoon
+160 255 208	Dull Pale Lagoon
+208 255 232	Dull Misty Lagoon
+  0  16  16	Sharp Midnight Teal
+  0  40  40	Sharp Evening Teal
+  0  56  56	Sharp Shadow Teal
+  0  96  96	Sharp Dusk Teal
+  0 136 136	Sharp Dark Teal
+  8 168 168	Sharp Deep Teal
+  8 208 208	Sharp Medium Cyan
+ 16 240 240	Sharp Bright Cyan
+ 48 255 255	Sharp Shiny Cyan
+104 255 255	Dull Pale Cyan
+160 255 255	Dull Misty Cyan
+  8  16  16	Dull Midnight Teal
+ 16  32  32	Dull Evening Teal
+ 24  48  48	Dull Dusk Teal
+ 40  80  80	Dull Dark Teal
+ 56 112 112	Dull Deep Teal
+ 72 136 136	Dull Deep Teal
+ 88 168 168	Dull Medium Cyan
+ 96 200 200	Dull Bright Cyan
+112 232 232	Dull Shiny Cyan
+136 255 255	Dull Pale Cyan
+200 255 255	Dull Misty Cyan
+  0  16  32	Sharp Midnight Sea
+  0  32  64	Sharp Evening Sea
+  8  48  88	Sharp Dusk Sea
+  8  72 136	Sharp Dusk Sea
+ 16 104 192	Sharp Dark Sea
+ 16 136 255	Sharp Deep Sea
+ 48 160 255	Sharp Medium Sky
+ 88 176 255	Sharp Bright Sky
+120 200 255	Dull Shiny Sky
+160 216 255	Dull Pale Sky
+208 232 255	Dull Misty Sky
+  8  16  24	Sharp Evening Sea
+ 16  24  32	Dull Evening Sea
+ 24  40  56	Dull Shadow Sea
+ 48  72  96	Dull Dark Sea
+ 64  96 128	Dull Dark Sea
+ 80 120 160	Dull Deep Sea
+104 152 200	Dull Bright Sky
+120 176 232	Dull Bright Sky
+144 200 255	Dull Shiny Sky
+176 216 255	Dull Pale Sky
+224 240 255	Dull Misty Sky
+  0   0  72	Sharp Midnight Navy
+  8   8 112	Sharp Evening Navy
+  8   8 184	Sharp Shadow Navy
+ 24  24 255	Sharp Dusk Navy
+ 48  56 255	Sharp Dark Navy
+ 80  80 255	Sharp Deep Navy
+104 112 255	Dull Medium Blue
+136 144 255	Dull Bright Blue
+168 176 255	Dull Shiny Blue
+200 200 255	Dull Pale Blue
+224 224 255	Dull Misty Blue
+  8   8  16	Dull Midnight Navy
+ 24  24  48	Dull Shadow Navy
+ 32  32  64	Dull Shadow Navy
+ 56  56 104	Dull Dusk Navy
+ 80  80 160	Dull Deep Navy
+ 96  96 208	Dull Deep Navy
+120 120 240	Dull Medium Blue
+144 144 255	Dull Bright Blue
+176 176 255	Dull Shiny Blue
+208 208 255	Dull Pale Blue
+232 232 255	Dull Misty Blue
+ 16   0  32	Sharp Midnight Lavender
+ 40   0  80	Sharp Evening Lavender
+ 56   0 112	Sharp Shadow Lavender
+ 88   8 168	Sharp Dusk Lavender
+128  16 240	Sharp Dark Lavender
+152  40 255	Sharp Deep Lavender
+168  72 255	Sharp Medium Violet
+184 112 255	Dull Bright Violet
+208 144 255	Dull Shiny Violet
+224 184 255	Dull Pale Violet
+240 224 255	Dull Misty Violet
+ 24  16  32	Dull Evening Lavender
+ 24  16  32	Dull Evening Lavender
+ 40  24  56	Dull Shadow Lavender
+ 72  48  96	Dull Dusk Lavender
+104  72 136	Dull Deep Lavender
+128  88 168	Dull Deep Lavender
+160 104 216	Dull Medium Violet
+184 128 240	Dull Bright Violet
+208 160 255	Dull Shiny Violet
+224 192 255	Dull Pale Violet
+240 224 255	Dull Misty Violet
+ 24   0  24	Sharp Midnight Lilac
+ 48   0  48	Sharp Evening Lilac
+ 72   0  72	Sharp Shadow Lilac
+120   8 120	Sharp Dusk Lilac
+168   8 168	Sharp Dark Lilac
+224   8 224	Sharp Deep Lilac
+255  24 255	Sharp Medium Magenta
+255  72 255	Sharp Bright Magenta
+255 112 255	Dull Shiny Magenta
+255 152 255	Dull Pale Magenta
+255 200 255	Dull Misty Magenta
+ 16   8  16	Dull Midnight Lilac
+ 32  16  32	Dull Evening Lilac
+ 48  24  48	Dull Shadow Lilac
+ 88  40  88	Dull Dusk Lilac
+120  56 120	Dull Dark Lilac
+152  80 152	Dull Deep Lilac
+184  96 184	Dull Medium Magenta
+224 112 224	Dull Shiny Magenta
+255 128 255	Dull Shiny Magenta
+255 168 255	Dull Pale Magenta
+255 216 255	Dull Misty Magenta
+ 32   0  16	Sharp Midnight Purple
+ 64   0  32	Sharp Evening Purple
+ 88   8  48	Sharp Dusk Purple
+136   8  72	Sharp Dusk Purple
+192  16 104	Sharp Dark Purple
+255  16 136	Sharp Deep Purple
+255  56 160	Sharp Medium Fuchsia
+255  88 176	Dull Bright Fuchsia
+255 128 192	Dull Shiny Fuchsia
+255 176 216	Dull Pale Fuchsia
+255 208 232	Dull Misty Fuchsia
+ 24   8  16	Sharp Evening Purple
+ 32  16  24	Dull Evening Purple
+ 56  24  40	Dull Shadow Purple
+ 96  48  72	Dull Dark Purple
+128  64  96	Dull Dark Purple
+160  80 120	Dull Deep Purple
+200 104 152	Dull Bright Fuchsia
+232 120 176	Dull Bright Fuchsia
+255 144 200	Dull Shiny Fuchsia
+255 176 216	Dull Pale Fuchsia
+255 224 240	Dull Misty Fuchsia
