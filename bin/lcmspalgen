@@ -12,13 +12,16 @@ require 'matrix'
   class Color < ColorStruct
     
     def <=>(o)
-      if self.h != o.h 
-        return self.h <=> o.h
-      end
       if self.l != o.l
         return self.l <=> o.l
       end
-      return self.s <=> o.s
+      if self.h != o.h 
+        return self.h <=> o.h
+      end
+      if self.s != o.s
+        return self.s <=> o.s
+      end
+      return 0
     end
     
     CLOSE_H = 3
@@ -167,6 +170,10 @@ require 'matrix'
     
     
     def h_name
+      if s < 5
+        return "Gray"
+      end
+
       if l <= 45
         return h_name_dark
       else 
@@ -548,17 +555,23 @@ $llist  = []
 end
 
 colors = {}
+colors2 = {}
 
 # warn "#{$llist}"
 S_LIST.each do | s |
   colors[s] ||= {}
   H_LIST.each do | h |
+    colors2[h] ||= {}
     L_LIST.each do | l |
       col = closest_color_to($lookup, h, l, s)
       if col
+        found = Color.new(col.r, col.g, col.b, col.h, col.s, col.l)
         colors[s][l] ||= []
-        colors[s][l] << Color.new(col.r, col.g, col.b, col.h, col.s, col.l)
+        colors[s][l] << found
         colors[s][l].sort!
+        colors2[h][s] ||= []
+        colors2[h][s] << found
+        colors2[h][s].sort!
       else 
           warn "No candidate for #{h} #{l} #{s} 50"
       end
@@ -597,6 +610,11 @@ end
 # Name: eruta_lab_limited
 # Columns: 7
 # #"
+
+HTML_OUTPUT = false
+
+if HTML_OUTPUT
+  
 
 puts "<!doctype html>
 <html><head></head>
@@ -645,7 +663,26 @@ end
 
 puts  "</body></html>"
 
+else
+  puts "GIMP Palette
+Name: eruta_smooth
+Columns: 11
+#"
 
+grays.each do | l, color |
+  name = "#{color.l_name} #{color.h_name}"
+  palc = color.to_pal
+  puts "#{palc}\t#{name}"
+end
 
+colors2.each do | h, color_list |
+  color_list.each do | s, sub_colors |
+    sub_colors.each do | color |
+      name = "#{color.s_name} #{color.l_name} #{color.h_name}"
+      palc = color.to_pal
+      puts "#{palc}\t#{name}"
+    end
+  end
+end
 
-
+end
