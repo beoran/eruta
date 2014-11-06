@@ -1,49 +1,49 @@
 GIMP Palette
 Name: eruta_lab2
-Columns: 16
+Columns: 9
 #
-0 50 177 None
-0 41 26 None
-0 40 0 None
-0 40 177 None
-27 27 27 None
-34 27 0 None
-69 0 178 None
-126 0 34 None
-127 0 9 None
-0 102 234 None
-0 95 68 None
-0 94 0 None
-0 80 234 None
-71 71 71 None
-84 70 0 None
-137 0 236 None
-190 0 76 None
-194 0 1 None
-0 157 255 None
-0 151 116 None
-0 150 0 None
-0 127 255 None
-119 119 119 None
-139 117 0 None
-201 0 255 None
-255 0 124 None
-255 0 0 None
-0 216 255 None
-0 210 168 None
-0 208 0 None
-0 179 255 None
-171 171 171 None
-198 169 0 None
-255 61 255 None
-255 15 177 None
-255 0 0 None
-0 255 255 None
-0 255 223 None
-0 255 0 None
-85 232 255 None
-226 226 226 None
-255 224 0 None
-255 131 255 None
-255 117 232 None
-255 111 11 None
+  0  50 177	None
+  0  41  26	None
+  0  40   0	None
+  0  40 177	None
+ 27  27  27	None
+ 34  27   0	None
+ 69   0 178	None
+126   0  34	None
+127   0   9	None
+  0 102 234	None
+  0  95  68	None
+  0  94   0	None
+  0  80 234	None
+ 71  71  71	None
+ 84  70   0	None
+137   0 236	None
+190   0  76	None
+194   0   1	None
+  0 157 255	None
+  0 151 116	None
+  0 150   0	None
+  0 127 255	None
+119 119 119	None
+139 117   0	None
+201   0 255	None
+255   0 124	None
+255   0   0	None
+  0 216 255	None
+  0 210 168	None
+  0 208   0	None
+  0 179 255	None
+171 171 171	None
+198 169   0	None
+255  61 255	None
+255  15 177	None
+255   0   0	None
+  0 255 255	None
+  0 255 223	None
+  0 255   0	None
+ 85 232 255	None
+226 226 226	None
+255 224   0	None
+255 131 255	None
+255 117 232	None
+255 111  11	None

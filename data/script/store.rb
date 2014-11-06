@@ -132,7 +132,7 @@ class Store
   
   # Drops this object from storage
   def drop!
-    res = Eruta::Store.drop(@id, r, g, b)
+    res = Eruta::Store.drop(@id)
     self.class.unregister(self)
     return res
   end

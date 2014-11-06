@@ -17,15 +17,9 @@ struct Thing_ {
   BumpHull  * hull;
   int         z; /* Layer the thing is in. */
   void *      data; /* Logical data of the thing. */
-  /* Chipmunk makes it rather hard to get to the size of a 
-  shape, and also since static shapes all have the same body, the position 
-  of static shapes is lost. And getting the box is
-  not reliable enough. So keep the size and position 
-  for static shapes here even if it's slightly redundant.
-  */
   BeVec       size; /* size of outline of shape */
-  BeVec       spos; /* Position, merely for static shapes, for dynamic
-  bodies, use cpBodyGetPos*/
+  BeVec       spos;
+  
   /* Sprite information. Also is the reference for the direction the thing is facing. 
    */
   SpriteState         spritestate;

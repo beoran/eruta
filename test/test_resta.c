@@ -2,8 +2,6 @@
 * This is a test for resta in $package$
 */
 #include "si_test.h"
-#include "resta.h"
-
 
 TEST_FUNC(resta) {
   TEST_DONE();

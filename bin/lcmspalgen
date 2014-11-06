@@ -182,7 +182,7 @@ require 'matrix'
     end
     
     def s_name
-      if s <= 65
+      if s <= 75
         return "Dull"
       else
         return "Sharp"
@@ -430,10 +430,10 @@ grays  = {}
 # H_LIST = (0...360).step(15).to_a
 
 H_LIST = [  0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330 ]
-S_LIST = [ 95, 50 ]
+S_LIST = [ 95, 70 ]
 L_LIST = [  5, 10, 15, 25, 35, 45, 55, 65, 75, 85, 95]
 
-S_NAMES = { 95 => "Sharp", 45 => "Dull" }
+S_NAMES = { 95 => "Sharp", 65 => "Dull" }
 
 L_NAMES = {
     5  => "",

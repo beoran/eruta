@@ -11,7 +11,7 @@ Programmed in C with mruby scripting:
   Rationale: I love Ruby, but no matter how easy normal Ruby is to use, 
   I ended up writing a lot of C anyway to support it. For gaming, speed is
   essential since a slow game is hard to enjoy, especially for an action game.
-  So I decided to rather than use ruby extended with C, to use C 
+  So I decided to rather than use ruby extended with C, to use C
   extended with a scripting language.
   At first the choice of scripting languages was on Lua, but the mruby idea 
   and open source development on github came through, and I switched to mruby 
@@ -20,7 +20,7 @@ Programmed in C with mruby scripting:
   actually that helpful. And too bad that Objective C is not well supported on 
   Windows and messy on Linux.
 
-Using Allegro 5.x. 
+Using Allegro 5.x.
   Rationale: SDL may be the de facto standard for open source games, but it's
   very poor in functionality. So I ended up having to write a lot of
   functionality myself. And SDL 2.0 is not as mature as allegro 5 is. I thought
@@ -33,6 +33,11 @@ Virtual screen resolution exactly 640x480. Color depth minimum 16bpp or better.
   Also implement scaling to other resolutions trough OpenGL or 2xSai, etc 
   to achieve resolution dependence later.
   Rationale: Old-style feeling and limit art requrements.
+
+Hand drawn art with colors limited to a 12/15 bits palette. 
+  I like bright colors that have a simple rgb expression and generated
+  a palette that fits the limitations for drawing the hand drawn art.
+  Rationale: Old-style feeling.
 
 A role playing game with much onus on the story.
   Rationale: I want Eruta to be to RPG's what Katawa Shoujo is to Visual Novels.
@@ -53,7 +58,7 @@ Full Action RPG or Chrono Trigger style menu-driven tactical or more FF12 style 
   They can talk and get small side-dialogs. They can search and help solve puzzles.
   Only the player who controls the main character will be able to make plot
   determining decisions, and control of secondary characters will be disabled in 
-  camp. 
+  camp.
   Even if I decide that the battles should be menu based, the players will be able 
   to use various forceful actions outside of combat as well.
   Ponderings about the 3 different options: action, tactical and hybrid. Strategic
@@ -71,8 +76,7 @@ Full Action RPG or Chrono Trigger style menu-driven tactical or more FF12 style 
   Tactical RPG: (Classic menu driven)
   + If done correctly, and with some enhancements, can be deeper than action RPG.
   + For some players, and for me too the menu-based approach is more relaxed.
-    The game becomes more like a tactical puzzle. This may also interest ladies 
-    more.
+    The game becomes more like a tactical puzzle.
   - If done 100% classic style, the battles can devolve into boring bouts 
     of doing nothing but selecting "fight/fight/fight..." (or X X X, FFXIII :p) 
     over and over. More creativity and challenge even in normal battles is needed.

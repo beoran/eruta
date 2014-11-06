@@ -76,6 +76,8 @@ struct Tile_ {
 void tileset_done(Tileset * set) {
   if(!set) return;
   if (set->tiles) {
+    al_destroy_bitmap(set->sheet);
+    set->sheet = NULL;
     dynar_free(set->tiles);
     set->tiles = NULL;
     set->w      = -1;

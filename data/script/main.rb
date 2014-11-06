@@ -152,7 +152,17 @@ end
 
 def start_load_tilemap
   $tilemap_id = 20001
-  $tilemap_1  = Store.load_tilemap('map/map_0001.tmx', $tilemap_id)
+  $tilemap_fn = 'map/map_0001.tmx'
+  $tilemap_1  = Store.load_tilemap($tilemap_fn, $tilemap_id)
+  active_map_ $tilemap_1.id
+end
+
+
+def reload_tilemap
+  $tilemap_id = 20001
+  active_map_(-1) # disable map
+  $tilemap_1.drop! if $tilemap_1
+  $tilemap_1  = Store.load_tilemap($tilemap_fn, $tilemap_id)
   active_map_ $tilemap_1.id
 end
 
@@ -388,10 +398,13 @@ def on_key_down(time, key)
     actor_switch($thing_100)
   when KEY_B
     actor_switch($thing_101)
+  when KEY_E
+    reload_tilemap()
+    
   when KEY_H
     Eruta::Graph.visible_(52, 0)
   when KEY_M
-    active_map_($tilemap_id)
+      active_map_($tilemap_id)
   when KEY_N
     active_map_(-1)
   when KEY_S

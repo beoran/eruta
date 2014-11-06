@@ -22,7 +22,7 @@
 /** Gets the ID of the thing. Returns negative on error or for a
 thing that doesn't belong to an area yet.*/
 int thing_id(Thing * thing) {
-  if(!thing) return -3;
+  if (!thing) return -3;
   return thing->id;
 }
 
@@ -30,7 +30,7 @@ int thing_id(Thing * thing) {
 for a thing that doesn't belong to an area yet (as inicated by newid) 
 */
 int thing_id_(Thing * thing, int newid) {
-  if(!thing) return -3;
+  if (!thing) return -3;
   return thing->id = newid;
 }
 

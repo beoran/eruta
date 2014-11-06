@@ -2,7 +2,7 @@
 * This is a test for dichan in $package$
 */
 #include "si_test.h"
-#include "dichan.h"
+
 
 
 TEST_FUNC(dichan) {

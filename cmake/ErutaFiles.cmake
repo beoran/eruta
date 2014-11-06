@@ -38,6 +38,7 @@ set(ERUTA_SRC_FILES
   src/mobile.c
   src/mode.c
   src/obj.c
+  src/pique.c
   src/pointergrid.c
   src/react.c
   src/rebl.c

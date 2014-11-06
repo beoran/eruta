@@ -20,7 +20,7 @@ struct TilemapLoadExtra_ {
 };
 
 
-Image * tileset_image_load (const char * filename );
+Image * tileset_image_load (const char * filename);
 
 Tile * tile_loadxml (xmlNode * xtil , Tileset * set );
 

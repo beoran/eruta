@@ -542,7 +542,7 @@ BeVec bumpaabb_collision_pushback(BumpAABB self, BumpAABB other, BeVec motion, d
    * objects are already moving away from each other. The advantage of 
    * this is that objects that are  moving away and that would be pushed 
    * back by collision resolution might  jump back too far. It also seems 
-   * to have some sabilizing side effects.
+   * to have some stabilizing side effects.
    */ 
   vn = bevec_dot(step, dp);
   if (vn < 0.0) {  return res; }
@@ -685,7 +685,7 @@ void * bumpworld_tilemap_(BumpWorld * self, void * map) {
 
 /* Calculates the motion and speed of the body 
  disregarding any collisions. v_next and p_next will be set, but p and v not.
- Call bumpbody_update_commit after collision calculation top finalize the motion. */
+ Call bumpbody_update_commit after collision calculation to finalize the motion. */
 void bumpbody_integrate(BumpBody * self, double dt) {
   if (!self) return;
   /*
