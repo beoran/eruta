@@ -66,9 +66,9 @@ def start_load_sprites
   puts "Loading some things and sprites"
   $thing_100  = Thing.make(1, 300, 400, 1, 32, 32, 100)
   $sprite_100 = Sprite.make(100)
-  $sprite_100.load_ulpcss(1, "body/female/light.png")
+  $sprite_100.load_ulpcss(SPRITELAYER_BODY , "body/female/light.png")
   $sprite_100.load_ulpcss(SPRITELAYER_TORSO, "torso/dress_female/underdress.png")
-  $sprite_100.load_ulpcss(SPRITELAYER_HAIR, "hair/female/bangslong.png")
+  $sprite_100.load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangslong.png")
   $sprite_100.tint_hair(0, 255, 0)
   $sprite_100.tint_torso(255, 64, 64)
   $thing_100.sprite    = $sprite_100
@@ -77,9 +77,9 @@ def start_load_sprites
 
   $thing_101  = Thing.make(0, 400, 400, 1, 32, 32, 101)
   $sprite_101 = Sprite.make(101)
-  $sprite_101.load_ulpcss(1, "body/female/dark.png")
-  $sprite_101.load_ulpcss(SPRITELAYER_TORSO,  "torso/dress_w_sash_female.png")
-  $sprite_101.load_ulpcss(SPRITELAYER_HAIR, "hair/female/bangsshort.png")
+  $sprite_101.load_ulpcss(SPRITELAYER_BODY , "body/female/dark.png")
+  $sprite_101.load_ulpcss(SPRITELAYER_TORSO, "torso/dress_w_sash_female.png")
+  $sprite_101.load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangsshort.png")
   $sprite_101.tint_hair(255, 255, 0)
   $sprite_101.tint_torso(128,  128, 255)
   $thing_101.sprite     = $sprite_101
@@ -324,7 +324,7 @@ def do_main_menu
   $sub_menu.hide
   puts "---- Hide done! ---- #{$sub_menu} #{$sub_menu.hidden?}"
 
-  Zori.go(:settings)
+  Zori.go(:main_menu)
   puts "play_music #{res} #{$main_music}"
 end
 

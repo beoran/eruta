@@ -69,9 +69,7 @@ bool tilemap_init_blend(Tilemap * self);
 
 void tilemap_draw_layer(Tilemap * map, Camera * camera, int layer);
 
-/* Tile map active reloading  */
-
-void tilemap_reload_tilesheets(Tilemap * self);
+void tilemap_draw_layer_shadows(Tilemap * map, Camera * camera, int layer);
 
 /* This is here in stead of in area.h to avoid cyclical dependencies. */
 ERES area_tilemap_(Area * self, Tilemap * map);

@@ -19,7 +19,9 @@ Image * tileset_image_load(const char * filename) {
 
 Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   char * sflags = NULL;
-  int ianim     = 0, iwait = 0, iblend = 0, imask = 0;
+  int ianim     = 0, iwait  = 0, iblend = 0, ibmask = 0;
+  int ilight    = 0, ilmask = 0;
+  int ishadow   = 0, ismask = 0;
   xmlNode * firstprop;
   int id        = xmlGetPropInt(xtil, "id");
   Tile  * tile  = tileset_get(set, id);
@@ -31,10 +33,15 @@ Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   /* Here, sflags sometimes is null, I guess when there is a type without a type. */
   sflags        = xmlPropertyValue(firstprop, "type");
   tile_property_(tile, sflags);
-  xmlPropertyValueInt(firstprop, "anim", &ianim);
-  xmlPropertyValueInt(firstprop, "wait", &iwait);
-  xmlPropertyValueInt(firstprop, "blend", &iblend);
-  xmlPropertyValueInt(firstprop, "blendmask", &imask);
+  xmlPropertyValueInt(firstprop, "anim"       , &ianim);
+  xmlPropertyValueInt(firstprop, "wait"       , &iwait);
+  xmlPropertyValueInt(firstprop, "blend"      , &iblend);
+  xmlPropertyValueInt(firstprop, "blendmask"  , &ibmask);
+  xmlPropertyValueInt(firstprop, "light"      , &ilight);
+  xmlPropertyValueInt(firstprop, "lightmask"  , &ilmask);
+  xmlPropertyValueInt(firstprop, "shadow"     , &ishadow);
+  xmlPropertyValueInt(firstprop, "shadowmask" , &ismask);
+
 
   if(ianim) { 
     tile_anim_(tile, ianim);
@@ -43,7 +50,13 @@ Tile * tile_loadxml(xmlNode * xtil, Tileset * set) {
   }
 
   tile_blend_(tile, iblend);
-  tile_mask_(tile, imask);
+  tile_blend_mask_(tile, ibmask);
+  tile_light_(tile, ilight);
+  tile_light_mask_(tile, ilmask);
+  tile_shadow_(tile, ishadow);
+  tile_shadow_mask_(tile, ismask);
+
+  
   //printf("Tile type: %s, anim: %d, wait: %d, blend %d, flags:%d\n", sflags, ianim, iwait, iblend, tile_flags(tile));
   return tile;
 }

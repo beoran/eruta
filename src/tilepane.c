@@ -89,7 +89,7 @@ static float tile_blend_angles[TILE_BLEND_DIRECTION_MAX] = {
  cases where 3 or more tyle types must blend, without priorities, 
  the number of possible blends would become even larger. 
  
- Let's condsider the possibilities takng symmetry in account. If only 2 tiles 
+ Let's consider the possibilities takng symmetry in account. If only 2 tiles 
  that will blend are adjacent, there are 8 psossibilities. Howevere there ar 4 
  symmetric rotations of the 2 cases of the 2 tiles being either side-to-side 
  or corner to corner. In case of side-to side, the blend should go rougmly like 
@@ -143,7 +143,7 @@ Image * tilepane_prepare_blend
   int     side = tile_blend_sides[direction];
   float  angle = tile_blend_angles[direction];
   int    flags = tile_blend_flags[direction];
-  int   maskid = tile_mask(tile);
+  int   maskid = tile_blend_mask(tile);
   if (!blend)                       return NULL;
   if (maskid > TILE_BLEND_TYPE_MAX) return NULL;
   if (maskid < 0)                   return NULL;
@@ -393,8 +393,6 @@ void tilepane_draw_blends(Tilepane * pane, Camera * camera) {
   void * row      = NULL;
   Tile * tile     = NULL;
   Image* blend    = NULL;
-  Color color     = al_map_rgb(200,200,200);
-  Color color2    = al_map_rgb(0,50,0);
     
   if (txstart >= realwide) return;
   if (tystart >= realhigh) return;
@@ -405,26 +403,22 @@ void tilepane_draw_blends(Tilepane * pane, Camera * camera) {
   txstop          = (txstop > gridwide) ? gridwide : txstop;
   tystop          = (tystop > gridhigh) ? gridhigh : tystop;  
   drawy           = -y + TIMES_TILEHIGH(tystart-1);
-  for (ty_index = tystart; ty_index < tystop ; ty_index++) {
+  for (ty_index   = tystart; ty_index < tystop ; ty_index++) {
     drawy        += tilehigh;
     drawx         = -x + TIMES_TILEWIDE(txstart-1);
     row           = pointergrid_rowraw(pane->tiles, ty_index);
     if (!row) continue;
-    for(tx_index = txstart; tx_index < txstop ; tx_index++) { 
+    for(tx_index  = txstart; tx_index < txstop ; tx_index++) { 
       drawx      += tilewide;
-      blend = pointergrid_getraw(pane->blends, tx_index, ty_index);
+      blend       = pointergrid_getraw(pane->blends, tx_index, ty_index);
       if (blend) {
         al_draw_bitmap(blend, drawx, drawy, 0);
       }
       
     }
   }
-  // Let go of hold 
-  
-  // Now, after the hold are released , draw the blends. 
-  // tilepane_draw_blends(pane, camera);
-  
 }
+
 
 
 /** Draws the tile pane, with x and y as the top left corner,
@@ -486,10 +480,122 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
   // Let go of hold 
   al_hold_bitmap_drawing(FALSE);  
   
+}
+
+
+
+/** Draws the shadows that tile pane pane casts onto the pane pane_below 
+ * with the camera delimiting the view.
+ * On a classic tile map the bottom is to the south, so this function draws
+ * "classic" shadows cast as if the sun were in the south-west,
+ * with the shadows pointing north-east.
+*/
+void tilepane_draw_shadows_of(Tilepane * pane, Tilepane * pane_below, Camera * camera) {
+  // Copy everything to the stack since that should be faster than always
+  // referring to pointers.
+  int gridwide    = pane->gridwide;
+  int gridhigh    = pane->gridhigh;
+  int tilewide    = TILE_W;
+  int tilehigh    = TILE_H;
+  int x           = (int) camera_at_x(camera);
+  int y           = (int) camera_at_y(camera);  
+  int txstart     = -1 + x / tilewide;
+  int tystart     = -1 + y / tilehigh;
+  int xtilestop   = (camera_w(camera) / tilewide) + 2;
+  int ytilestop   = (camera_h(camera) / tilehigh) + 2;
+  int txstop      = xtilestop + txstart;
+  int tystop      = ytilestop + tystart;
+  int drawx       = 0;
+  int drawy       = 0;
+  int ty_index    = 0;
+  int tx_index    = 0;
+  int realwide    = pane->realwide;
+  int realhigh    = pane->realhigh;
+  int shadowtype  = 0; 
+  void * row      = NULL;
+  Tile * tile     = NULL;
+  Tile * aid_tile = NULL;
+  Tile * edge_tile= NULL;
+  Tile * low_tile = NULL;
+  float polygon[8];
+  Color shadowcol = al_map_rgba(0, 0, 16, 64);
+    
+  if (txstart >= realwide) return;
+  if (tystart >= realhigh) return;
+  txstart         = (txstart < 0) ? 0 : txstart;
+  tystart         = (tystart < 0) ? 0 : tystart;
+  txstop          = (txstop > gridwide) ? gridwide : txstop;
+  tystop          = (tystop > gridhigh) ? gridhigh : tystop;  
+  drawy           = -y + TIMES_TILEHIGH(tystart-1);
+  for (ty_index = tystart; ty_index < tystop ; ty_index++) {
+    drawy        += tilehigh;
+    drawx         = -x + TIMES_TILEWIDE(txstart-1);
+    row           =  pointergrid_rowraw(pane->tiles, ty_index);
+    if (!row) continue;
+    for (tx_index = txstart; tx_index < txstop ; tx_index++) {
+      drawx      += tilewide;
+      tile        = pointergrid_getraw(pane->tiles, tx_index, ty_index);
+      aid_tile    = tilepane_get(pane, tx_index - 1, ty_index + 1);
+      /* Cast no shadow if not set to do so */
+      if ((!tile) || (!tile_shadow(tile))) {
+        continue;
+      }
+      
+      edge_tile   = tilepane_get(pane, tx_index + 1, ty_index - 1);
+      aid_tile    = tilepane_get(pane, tx_index + 1, ty_index);
+      if (edge_tile && (tile_isflag(edge_tile, TILE_WALL))) {
+        /* different shadow shape in this case (trapezium, no paralellogram) */
+        shadowtype = 1;
+      } else {
+        shadowtype = 0;
+      }
+      
+      /* Only cast a shadow to the east if no solid tile next to self.
+       * Shadow is a parallelogram to simplify overlaps.
+       */
+      if (!aid_tile || !(tile_isflag(aid_tile, TILE_WALL))) {
+        low_tile    = tilepane_get(pane_below, tx_index + 1, ty_index);
+        if (low_tile && (tile_shadow_mask(low_tile) != 1)) {
+
+          polygon[0] = drawx + 32; polygon[1] = drawy;
+          polygon[2] = drawx + 32; polygon[3] = drawy + 32;
+          polygon[4] = drawx + 48; polygon[5] = drawy + 16;
+          polygon[6] = drawx + 48; polygon[7] = drawy - 16;
+          if (shadowtype == 1) {
+            polygon[7] = drawy;
+          }
+          al_draw_filled_polygon(polygon, 4, shadowcol);
+        }
+      }
+
+      aid_tile    = tilepane_get(pane, tx_index, ty_index - 1);
+      /* Only cast a shadow to the north if no solid tile above to self.
+       * Shadow is a parallelogram to simplify overlaps.
+       */
+      if (!aid_tile || !(tile_isflag(aid_tile, TILE_WALL))) {
+        low_tile    = tilepane_get(pane_below, tx_index + 1, ty_index);
+        if (low_tile && (tile_shadow_mask(low_tile) != 1)) {
+          polygon[0] = drawx     ; polygon[1] = drawy;
+          polygon[2] = drawx + 32; polygon[3] = drawy;        
+          polygon[4] = drawx + 48; polygon[5] = drawy - 16;
+          polygon[6] = drawx + 16; polygon[7] = drawy - 16;
+          if (shadowtype == 1) {
+            polygon[4] = drawx + 32;
+          }
+          al_draw_filled_polygon(polygon, 4, shadowcol);
+        }
+      }
+      
+    }
+  }
+  
   // Now, after the hold are released , draw the blends. 
   // tilepane_draw_blends(pane, camera);
   
 }
+
+
+
 
 
 
@@ -611,6 +717,7 @@ tilepane_init_blend_tile(Tilepane * self, int index, int x, int y, Tile * tile) 
   if (blend) {
     al_destroy_bitmap(blend);
     blend = NULL;
+    tilepane_set_blend_raw(self, x, y, NULL);
   }  
   target    = al_get_target_bitmap();
   tileprio = tile_blend(tile);
@@ -632,7 +739,7 @@ tilepane_init_blend_tile(Tilepane * self, int index, int x, int y, Tile * tile) 
      * This is done on demand, because this function is called once for every 
      * tile in the tile map.
      */
-    if(!blend) {
+    if (!blend) {
       blend = eruta_create_bitmap(TILE_W, TILE_H, ALLEGRO_CONVERT_BITMAP);
       if (!blend) return FALSE;
       /* Set resulting bitmap as blend tile. */
@@ -696,15 +803,16 @@ bool tilepane_init_blend(Tilepane * self, int index) {
   double stop, start;
   int x, y, w, h;
   if (!self)             return FALSE;
-  if (!self->blends)     return FALSE; 
-  if (index != 0)        return FALSE;
+  if (!self->blends)     return FALSE;
+  /* Only blend some levels... */ 
+  if (index > 4)         return FALSE;
   w = tilepane_gridwide(self);
   h = tilepane_gridhigh(self);
   start = al_get_time();
   /* Load the masks. */
   tilepane_init_masks();
   stop = al_get_time();
-  printf("Loading masks took %f seconds\n", stop - start);
+  printf("Loading masks op pane %p took %f seconds\n", self, stop - start);
 
   start = al_get_time();  
   /* And do the blends. */
@@ -717,7 +825,7 @@ bool tilepane_init_blend(Tilepane * self, int index) {
     }
   }
   stop = al_get_time();
-  printf("Preparing blends took %f seconds\n", stop - start);
+  printf("Preparing blends of pane %p took %f seconds\n", self, stop - start);
 
   return TRUE;
 }

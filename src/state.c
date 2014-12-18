@@ -366,8 +366,8 @@ int state_camera_track_(State * state, int thing_index) {
 int state_cameratrackthing(State * state, int thing_index) {
   Thing * thing = state_thing(state, thing_index);
   if (thing) {
-  	camera_track_(state_camera(state), thing);
-	return 0;
+    camera_track_(state_camera(state), thing);
+  return 0;
   }
   return -1;
 }
@@ -673,7 +673,10 @@ void state_draw(State * self) {
         tilemap_draw_layer(self->active_map, self->camera, layer);
       }
       if (self->area && self->show_area) {
-        area_draw_layer(self->area, self->camera, layer);
+        area_draw_layer(self->area, self->camera, layer);        
+      }
+      if (self->active_map) {
+        tilemap_draw_layer_shadows(self->active_map, self->camera, layer);
       }
     }
     

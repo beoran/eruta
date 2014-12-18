@@ -60,4 +60,6 @@ bool tilepane_init_blend(Tilepane * self, int index);
 
 void tilepane_draw_blends(Tilepane * pane, Camera * camera);
 
+void tilepane_draw_shadows_of(Tilepane * pane, Tilepane * pane_below, Camera * camera);
+
 #endif

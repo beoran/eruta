@@ -6,7 +6,6 @@
 #include "dynar.h"
 
 
-
 /* Hide tiles for debuggging, or not. */
 #ifdef ERUTA_NOGFX_MODE
 #define TILEMAP_NO_TILES
@@ -118,7 +117,7 @@ Tilepane * tilemap_panenew(Tilemap * self, int index, int w, int h) {
 }
 
 
-/** Returns the tile in the tile map in the given layer at the given coords. */
+/** Returns the tile in the tile map in the given layer at the given tile coords. */
 Tile * tilemap_get(Tilemap * self, int l, int x, int y) {
   Tilepane * pane = tilemap_pane(self, l);
   if(!pane) return NULL;
@@ -187,26 +186,30 @@ int tilemap_getindex(Tilemap * self, int l, int x, int y) {
   return (int) tilepane_getindex(pane, x, y);
 }
 
+
+
+
+
 /** Draws a tile map. */
 void tilemap_draw(Tilemap * map, Camera * camera) {
   int index;
   Tilepane * pane;
+  Tilepane * floor = NULL;
  
-#ifndef TILEMAP_NO_TILES
   for(index  = 0; index < TILEMAP_PANES; index++) {
     pane     = tilemap_pane(map, index);
-    if(pane) {
+    if (pane) {
       tilepane_draw(pane, camera);
-      if(index == 0) {
+      if (index == 0) {
         tilepane_draw_blends(pane, camera);
+        floor = pane;
+      } else if (index > 0) {
+        tilepane_draw_shadows_of(pane, floor, camera);
       }
     } else {
       // fprintf(stderr, "pane missing: %d", index);
     }
   }
-#else 
-  al_clear_to_color(al_map_rgb(0,0,0));
-#endif
 }
 
 /** Draws a layer in the tile map with the given index, 
@@ -214,14 +217,29 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
 void tilemap_draw_layer(Tilemap * map, Camera * camera, int layer) {
   Tilepane * pane;
   pane     = tilemap_pane(map, layer);
-  if(pane) {
+  if (pane) {
     tilepane_draw(pane, camera);
-    if(layer == 0) {
-        tilepane_draw_blends(pane, camera);
+    tilepane_draw_blends(pane, camera);
+ 
+    if (layer > 0) {
+      Tilepane * floor = tilemap_pane(map, layer-1);
+      tilepane_draw_shadows_of(pane, floor, camera);
     }
   }
 }
 
+/** Draws the shadows a given layer in a tile map casts if it exists
+ *  and isn't equal to 0.
+ * Otherwise does nothing. */
+void tilemap_draw_layer_shadows(Tilemap * map, Camera * camera, int layer) {
+  Tilepane * pane;
+  Tilepane * floor;
+  if (layer < 1) return ;
+  pane     = tilemap_pane(map, layer);
+  if (!pane) return;
+  floor = tilemap_pane(map, layer-1);
+  tilepane_draw_shadows_of(pane, floor, camera);
+}
 
 /** Updates the tile map. Currently this animates the tiles. */
 void tilemap_update(Tilemap * map, double dt) {

@@ -62,7 +62,17 @@ struct Tile_ {
   /* Automatic blending activation and priority. */
   int           blend;
   /* Mask number to use for automatic blending, if any. */
-  int           mask;
+  int           blend_mask;
+  /* Automatic lighting activation flag. */
+  int           light;
+  /* Automatic lighting mask nuymber. */
+  int           light_mask;
+  /* Automatic shadow activation flag. */
+  int           shadow;
+  /* Automatic shadow mask number. */
+  int           shadow_mask;
+  
+  
 };
 
 /* NOTE: Tiles could be implemented using sub bitmaps as they seem to be
@@ -166,16 +176,20 @@ Tile * tile_recalculate(Tile * tile) {
 Tile * tile_init(Tile * tile, Tileset * set, int index) {
   if(!tile) return NULL;
   if(!set) return NULL;
-  tile->flags   = 0;
-  tile->kind    = 0;
-  tile->index   = index;
-  tile->set     = set;
-  tile->anim    = 0;
-  tile->time    = 0.0;
-  tile->wait    = 0.250;
-  tile->active  = index;
-  tile->blend   = 0;
-  tile->mask    = 0;
+  tile->flags       = 0;
+  tile->kind        = 0;
+  tile->index       = index;
+  tile->set         = set;
+  tile->anim        = 0;
+  tile->time        = 0.0;
+  tile->wait        = 0.250;
+  tile->active      = index;
+  tile->blend       = 0;
+  tile->blend_mask  = 0;
+  tile->light       = 0;
+  tile->light_mask  = 0;
+  tile->shadow      = 0;
+  tile->shadow_mask = 0;
   tile_recalculate(tile);
   return tile;
 }
@@ -367,7 +381,7 @@ void tile_draw_masked_to
   
   if (!tile) return;
   
-  /* Create a 32x32 tile bitmap that will be used thanks to 
+  /* Create a 32x32 tile bitmap that will be reused thanks to 
    it being static. And leaked at program shutdown, but I don't care :p. */
   if (!tile_mask_buffer) { 
     bmpflags         = al_get_new_bitmap_flags();
@@ -381,8 +395,8 @@ void tile_draw_masked_to
   
   /* Copy the tile into the buffer.  */
   al_set_target_bitmap(tile_mask_buffer);
-  set   =  tile->set;
-  sheet = set->sheet;
+  set     = tile->set;
+  sheet   = set->sheet;
   dx      = 0.0;
   dy      = 0.0; 
   sx      = (float) tile->now.x;
@@ -448,16 +462,70 @@ int tile_blend_(Tile * tile, int priority) {
 /** Information about tile's blending mask
  * Returns 0 for the default mask if not set.
  */
-int tile_mask(Tile * tile) {
+int tile_blend_mask(Tile * tile) {
   if (!tile) return 0;
-  return tile->mask;
+  return tile->blend_mask;
 }
 
 /** Set the tile's blending mask */
-int tile_mask_(Tile * tile, int mask) {
+int tile_blend_mask_(Tile * tile, int mask) {
   if (!tile) return 0;
   if (mask < 0) mask = 0;
   if (mask > 2) mask = 0;
-  return tile->mask = mask;
+  return tile->blend_mask = mask;
+}
+
+/** Get the tile's light flag. Zero means no lighting. */
+int tile_light(Tile * tile) {
+  if (!tile) return 0;
+  return tile->light;
+}
+
+/** Set the tile's light flag */
+int tile_light_(Tile * tile, int value) {
+  if (!tile) return 0;
+  return tile->light = value;
+}
+
+/** Information about tile's lighting mask
+ * Returns 0 for the default mask if not set.
+ */
+int tile_light_mask(Tile * tile) {
+  if (!tile) return 0;
+  return tile->light_mask;
+}
+
+/** Set the tile's light mask */
+int tile_light_mask_(Tile * tile, int mask) {
+  if (!tile) return 0;
+  if (mask < 0) mask = 0;
+  return tile->light_mask = mask;
+}
+
+/** Get the tile's shadow flag. Zero means no autoshadow. */
+int tile_shadow(Tile * tile) {
+  if (!tile) return 0;
+  return tile->shadow;
+}
+
+/** Set the tile's light flag */
+int tile_shadow_(Tile * tile, int value) {
+  if (!tile) return 0;
+  return tile->shadow = value;
+}
+
+/** Information about tile's shadow mask
+ * Returns 0 for the default mask if not set.
+ */
+int tile_shadow_mask(Tile * tile) {
+  if (!tile) return 0;
+  return tile->shadow_mask;
+}
+
+/** Set the tile's shadow mask */
+int tile_shadow_mask_(Tile * tile, int mask) {
+  if (!tile) return 0;
+  if (mask < 0) mask = 0;
+  return tile->shadow_mask = mask;
 }
 

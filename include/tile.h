@@ -86,16 +86,24 @@ int tile_index (Tile * tile );
 
 int tile_kind (Tile * tile );
 
-int tile_blend_(Tile * tile , int priority);
-
-int tile_blend(Tile * tile );
-
 void tile_draw_masked_to
 (Image * result, Tile * tile, Image * mask, float angle, int mask_flags);
 
-int tile_mask(Tile * tile);
+int tile_blend_(Tile * tile , int priority);
+int tile_blend(Tile * tile );
+int tile_blend_mask(Tile * tile);
+int tile_blend_mask_(Tile * tile, int mask);
 
-int tile_mask_(Tile * tile, int mask);
+int tile_light_(Tile * tile , int value);
+int tile_light(Tile * tile );
+int tile_light_mask(Tile * tile);
+int tile_light_mask_(Tile * tile, int mask);
+
+int tile_shadow_(Tile * tile , int value);
+int tile_shadow(Tile * tile );
+int tile_shadow_mask(Tile * tile);
+int tile_shadow_mask_(Tile * tile, int mask);
+
 
 #endif
 
