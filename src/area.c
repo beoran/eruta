@@ -299,8 +299,64 @@ void area_update(Area * self, double dt) {
 }
 
 
+/** Returns the thing related to the hull's body, if any. */
+Thing * bumphull_thing(BumpHull * hull) {
+  BumpBody * body = bumphull_body(hull);
+  if(!body) return NULL;
+  return bumpbody_data(body);
+}
+
+/* Helper for callback wrapper. */
+struct area_find_hulls_helper {
+  int (* callback)(Thing * thing, void * extra);
+  void * extra;
+};
+
+/* Callback wrapper. */
+static int area_find_hulls_callback(BumpHull * hull, void * extra) {
+  struct area_find_hulls_helper * helper = extra;
+  Thing * thing = bumphull_thing(hull);
+  if (thing) {
+    return helper->callback(thing, helper->extra);
+  }
+  return 0;
+}
 
 
+/** Finds all things in a given rectangle and calls the callback for each of them.
+ * Returns 0. If the callback returns nonzero returns this in stead immediately. */
+int area_find_things(Area * self, int x, int y, int w, int h, void * extra,
+  int callback(Thing * thing, void * extra)) {
+  struct area_find_hulls_helper helper;
+  BumpAABB bounds = bumpaabb_make_int(x, y, w, h);
+  helper.callback = callback;
+  helper.extra    = extra;
+  return bumpworld_find_hulls(self->world, bounds, &helper, area_find_hulls_callback);
+}
+
+/* Avoid allocation in the function below. */
+static BumpHull * area_hulls[AREA_THINGS]; 
+
+/** Finds all things in a given rectangle and returns
+ * up to max_things of them in the array things.
+ * Returns the amount of things found or negative on error. */
+int area_find_and_fetch_things(Area * self, int x, int w, int y, int h,
+  Thing ** things, int max_things) {
+  int index, result;
+  BumpAABB bounds = bumpaabb_make_int(x, y, w, h);
+  int amount  = bumpworld_find_and_fetch_hulls(self->world, bounds, area_hulls, AREA_THINGS);
+  int stop    = amount;
+  if (stop < max_things) stop = max_things;
+  result = 0;
+  for (index = 0; index < stop; index ++) {
+    Thing * thing = bumphull_thing(area_hulls[index]);
+    if (thing) {
+      things[result] = thing;
+      result++;
+    }
+  }
+  return result;
+}
 
 
 

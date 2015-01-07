@@ -59,7 +59,13 @@ set(ERUTA_SRC_FILES
   src/tilepane.c
   src/tarray.c
   src/tmatrix.c
-  src/toruby.c  
+  src/toruby.c
+  src/tr_audio.c
+  src/tr_path.c
+  src/tr_store.c
+  src/tr_graph.c
+  src/tr_sprite.c
+  src/tr_thing.c
   src/ui.c
   src/utf8.c
   src/widget.c

@@ -38,6 +38,7 @@ struct BumpAABB_ {  BeVec p; BeVec hs;  };
 
 
 BumpAABB bumpaabb(double cx, double cy, double w, double h);
+BumpAABB bumpaabb_make_int(int x, int y, int w, int h);
 
 BumpBody * bumpbody_alloc();
 BumpBody * bumpbody_init(BumpBody * self, BeVec p, double mass);
@@ -83,7 +84,7 @@ BumpHull *      bumphull_kind_(BumpHull * hull, int kind);
 int             bumphull_layers(BumpHull * hull);
 BumpAABB bumphull_aabb(BumpHull * hull);
 BumpAABB * bumphull_aabbptr(BumpHull * hull);
-
+BumpBody * bumphull_body(BumpHull * hull);
 
 BumpWorld * bumpworld_alloc();
 BumpWorld * bumpworld_init(BumpWorld * self);
@@ -107,7 +108,11 @@ BumpWorld * bumpworld_draw_debug(BumpWorld * self);
 
 int bumphull_support(BumpHull * hull);
 
+int bumpworld_find_hulls(BumpWorld * self, BumpAABB search, void * extra,
+  int callback(BumpHull * hull, void * extra));
 
+int bumpworld_find_and_fetch_hulls(BumpWorld * self, BumpAABB search,
+  BumpHull ** hulls, int max_hulls);
 
 
 

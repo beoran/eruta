@@ -27,7 +27,7 @@ int area_maxthings (Area * area );
 
 Thing * area_thing (Area * area , int index );
 
-Thing * area_thing_ (Area * area , int index , Thing * set );
+Thing * area_thing_(Area * area , int index , Thing * set );
 
 int area_thingid (Area * self );
 
@@ -87,6 +87,11 @@ void area_draw_layer (Area * self, Camera * camera, int layer);
 /* There are some tile map related functionalities that are declared in tilemap.h 
  * in stead to avoid cyclical dependencies. 
  */
+
+/* Finding of things. */
+int area_find_things(Area * self, int x, int y, int w, int h,
+  void * extra,
+  int (callback)(Thing * thing, void * extra));
 
 
 #ifdef COMMENT_

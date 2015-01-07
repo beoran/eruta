@@ -423,6 +423,8 @@ def on_key_down(time, key)
     vx -= 100.0
   when KEY_RIGHT
     vx += 100.0
+  when KEY_SPACE
+    puts "Searching..."
   else
   end
   actor.v = [vx, vy]

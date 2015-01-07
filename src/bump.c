@@ -210,21 +210,29 @@ struct BumpWorld_ {
 };
 
 
-
-
-/* Makies a new bounding box. B and H are the FULL width and height of the box. */
+/** Makes a new bounding box. W and H are the FULL width and height of the box. */
 BumpAABB bumpaabb(double cx, double cy, double w, double h) {
   BumpAABB result = { bevec(cx, cy), bevec(w / 2.0, h / 2.0) }; 
   return result;
 }
 
+/** Makes a new bounding box with integer bounds.
+ * W and H are the FULL width and height of the box.
+ * And x and y are the coordinates of the top left corner. */
+BumpAABB bumpaabb_make_int(int x, int y, int w, int h) {
+  double hw       = ((double) w) / 2.0;
+  double hh       = ((double) h) / 2.0;
+  double cx       = ((double) x) - hw;
+  double cy       = ((double) y) - hh;
+  return bumpaabb(cx, cy,  ((double) w), ((double) h)); 
+}
 
-/* Allocates a body. */
+/** Allocates a physical body. */
 BumpBody * bumpbody_alloc() { 
   return STRUCT_ALLOC(BumpBody);  
 }
 
-/* Initializes a body. */
+/** Initializes a physical body. */
 BumpBody * bumpbody_init(BumpBody * self, BeVec p, double mass) {
   if(!self) return NULL;
   self->a         = bevec0();
@@ -449,6 +457,15 @@ BumpAABB bumphull_aabb_next(BumpHull * hull) {
     bounds.p        = hull->delta;
   }
   return bounds;
+}
+
+
+/**
+ * Returns a pointer the physical body of the hull if set, or NULL.
+ */
+BumpBody * bumphull_body(BumpHull * hull) {
+  if (!hull) return NULL;
+  return hull->body;
 }
 
 /* Returns overlap of the bounds boxes of self and other in x direction. 
@@ -1097,9 +1114,47 @@ BumpWorld * bumpworld_draw_debug(BumpWorld * self) {
   return NULL;
 }
 
+/** Finds all hulls in a given rectangle and stores
+ * up to max_hulls of them in the array hulls.
+ * Returns the amount of hulls found or negative on error. */
+int bumpworld_find_and_fetch_hulls(BumpWorld * self, BumpAABB search,
+  BumpHull ** hulls, int max_hulls) { 
+  int amount = 0;
+  int index;
+  int stop   = self->hull_count;
+  if (stop > max_hulls) stop = max_hulls;
+  if (!hulls) return -1;
+    
+  for (index = 0; index < stop; index ++) {
+    BumpHull * hull = dynar_getptr(self->hulls, index);
+    if (!hull) continue;
+    if (bumpaabb_overlap_p(hull->bounds, search)) {
+      hulls[amount]  = hull;
+      amount ++;
+    }
+  }
+  return amount;
+}
 
 
-
+/** Finds all hulls in a given rectangle and calls the callback for each of them.
+ * Returns 0. If the callback returns nonzero returns this in stead immediately
+ * and stop calling the callback. */
+int bumpworld_find_hulls(BumpWorld * self, BumpAABB search, void * extra,
+  int callback(BumpHull * hull, void * extra)) {
+  int amount = 0;
+  int index;
+    
+  for (index = 0; index < self->hull_count; index ++) {
+    BumpHull * hull = dynar_getptr(self->hulls, index);
+    if (!hull) continue;
+    if (bumpaabb_overlap_p(hull->bounds, search)) {
+      int res = callback(hull, extra);
+      if (res) return res;
+    }
+  }
+  return 0;
+}
 
 
 

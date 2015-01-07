@@ -170,15 +170,15 @@ int state_active_map_id_(State * state, int index) {
 
 
 
-/* Returns the state's area. */
+/** Returns the state's area. */
 Area * state_area(State * state) {
-  if(!state) return NULL;
+  if (!state) return NULL;
   return state->area;
 }
 
-/* Return's the state's sprite list */
+/** Return's the state's sprite list */
 SpriteList * state_sprites(State * state) {
-  if(!state) return NULL;
+  if (!state) return NULL;
   return state->sprites;
 }
 

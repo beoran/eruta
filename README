@@ -225,7 +225,7 @@ src/glh.c         : OpenGL helper functions. Currently not in use.
 src/hatab.c       : Hash table. Needs work, so not in use yet.
 src/ifa.c         : Generic interfaces for C. Currently not used.
 src/inli.c        : Intrusive linked ist, currently not used.
-src/json.c    : JSON support.
+src/json.c        : JSON support.
 src/main.c        : Main function and many helpers and tests.
 src/mem.c         : Memory handling helpers.
 src/miniz.c       : Minimalistic zip library for later use.
@@ -253,6 +253,12 @@ src/tinfl.c       : Tiny inflater, uncompression, currently unused.
 src/tlilis.c      : Templated linked list, currently unused.
 src/tmatrix.c     : Templated matrix currently unused.
 src/toruby.c      : Functions that are exposed to the mruby scripting.
+src/tr_audio.c    : MRuby script bindings for audio functionality.
+src/tr_path.c     : MRuby script bindings for path functionality.
+src/tr_store.c    : MRuby script bindings for data storage functionality.
+src/tr_graph.c    : MRuby script bindings for 2D scene graph functionality.
+src/tr_sprite.c   : MRuby script bindings for sprite functionality.
+src/tr_thing.c    : MRuby script bindings for physical thing functionality.
 src/ui.c          : User interface functionality.
 src/widget.c      : UI widgets, currently only script console.
 src/xml.c         : Libxml helper functions.
