@@ -20,6 +20,7 @@
 #include "tr_macro.h"
 #include "tr_audio.h"
 #include "tr_graph.h"
+#include "tr_store.h"
 
 /* Documentation of mrb_get_args: 
  
@@ -186,98 +187,6 @@ static mrb_value tr_eventvalues(mrb_state * mrb   , ALLEGRO_EVENT * event,
 }
 
 
-static mrb_value tr_getornewsprite(mrb_state * mrb, mrb_value self) {
-  Sprite * sprite = NULL;
-  State * state   = state_get();
-  mrb_int index   = -1;
-  mrb_get_args(mrb, "i", &index); 
-  if (index < 0) {
-    return mrb_nil_value();
-  }
-  sprite = state_getornewsprite(state, index);
-  if(!sprite) {
-    return mrb_nil_value();
-  }
-  return mrb_fixnum_value(index);  
-} 
-
-static mrb_value tr_newsprite(mrb_state * mrb, mrb_value self) {
-  Sprite * sprite = NULL;
-  State * state   = state_get();
-  mrb_int  index  = -1;
-  mrb_get_args(mrb, "i", &index); 
-  if (index < 1) {
-    return mrb_nil_value();
-  }
-  sprite = state_newsprite(state, index);
-  if(!sprite) {
-    return mrb_nil_value();
-  }
-  return mrb_fixnum_value(index);
-} 
-
-static mrb_value tr_sprite(mrb_state * mrb, mrb_value self) {
-  Sprite * sprite = NULL;
-  State * state   = state_get();
-  mrb_int index   = -1;
-  mrb_get_args(mrb, "i", &index); 
-  if (index < 0) {
-    return mrb_nil_value();
-  }
-  sprite = state_sprite(state, index);
-  if(!sprite) {
-    return mrb_nil_value();
-  }
-  return mrb_fixnum_value(index);
-} 
-
-
-static mrb_value tr_sprite_loadulpcss(mrb_state * mrb, mrb_value self) {
-  Sprite * sprite  = NULL;
-  State * state    = state_get();
-  int result;
-  mrb_int   rindex = -1;
-  mrb_int   rlayer = -1;
-  mrb_value rvpath = mrb_nil_value();
-  mrb_get_args(mrb, "iiS", &rindex, &rlayer, &rvpath); 
-  if ((rindex<0) || (rlayer<0)) {
-    return mrb_nil_value();
-  }
-  result = 
-  state_sprite_loadulpcss(state, rindex, rlayer, mrb_str_to_cstr(mrb, rvpath));
-  return mrb_fixnum_value(result);
-}
-
-static mrb_value tr_sprite_tint(mrb_state * mrb, mrb_value self) {
-  State * state    = state_get();
-  int result       = 0;
-  mrb_int   rindex = -1;
-  mrb_int   rlayer = -1;
-  mrb_int   rr     = 255;
-  mrb_int   rg     = 255;
-  mrb_int   rb     = 255;
-  mrb_int   ra     = 255;
-  mrb_get_args(mrb, "iiiiii", &rindex, &rlayer, &rr, &rg, &rb, &ra); 
-  if ((rindex<0) || (rlayer<0)) {
-    return mrb_nil_value();
-  }
-  result = 
-  state_sprite_tintlayer(state, rindex, rlayer, rr, rg, rb, ra);
-  return mrb_fixnum_value(result);
-}
-
-static mrb_value tr_newthing(mrb_state * mrb, mrb_value self) {
-  int thing  = -1;
-  State * state    = state_get();
-  int result;
-  mrb_int   index, kind, x, y, z, w, h;
-  mrb_get_args(mrb, "iiiiiii", &index, &kind, &x, &y, &z, &w, &h);  
-  if ((index<0) || (kind < 0)) {
-    return mrb_nil_value();
-  } 
-  thing = state_newthingindex(state, index, kind, x, y, z, w, h);
-  return mrb_fixnum_value(thing);
-}
 
 static mrb_value tr_camera_track(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
@@ -308,133 +217,7 @@ static mrb_value tr_loadtilemap_vpath(mrb_state * mrb, mrb_value self) {
 }
 */
 
-static mrb_value tr_thing_sprite_(mrb_state * mrb, mrb_value self) {
-  State * state    = state_get();
-  int result;
-  mrb_int thing, sprite;
-  mrb_get_args(mrb, "ii", &thing, &sprite);  
-  result = state_thing_sprite_(state, thing, sprite);
-  return mrb_fixnum_value(result);
-}
 
-static mrb_value tr_thing_pose_(mrb_state * mrb, mrb_value self) {
-  State * state    = state_get();
-  int result;
-  mrb_int thing, pose;
-  mrb_get_args(mrb, "ii", &thing, &pose);  
-  result = state_thing_pose_(state, thing, pose);
-  return mrb_fixnum_value(result);
-}
-
-static mrb_value tr_thing_direction_(mrb_state * mrb, mrb_value self) {
-  State * state    = state_get();
-  int result;
-  mrb_int thing, direction;
-  mrb_get_args(mrb, "ii", &thing, &direction);  
-  result = state_thing_direction_(state, thing, direction);
-  return mrb_fixnum_value(result);
-}
-
-static mrb_value tr_thing_v_(mrb_state * mrb, mrb_value self) {
-  State * state    = state_get();
-  Thing * thing    = NULL;
-  int result;
-  mrb_int thingid; mrb_float x, y;
-  mrb_get_args(mrb, "iff", &thingid, &x, &y); 
-  thing = state_thing(state, thingid);
-  if (!thing) {
-    return mrb_nil_value();
-  }
-  thing_v_(thing, bevec(x , y)); 
-  return mrb_fixnum_value(thingid);
-}
-
-struct tr_thing_find_helper {
-  mrb_state * mrb;
-  mrb_value * results;
-};
-
-static int tr_thing_find_callback(Thing * thing, void * extra) {
-  struct tr_thing_find_helper * helper = extra;
-  mrb_value id = mrb_fixnum_value(thing_id(thing));
-  mrb_ary_push(helper->mrb,  (*helper->results), id);
-  return 0;
-}
-
-static mrb_value tr_thing_find_in_rectangle
-  (mrb_state * mrb, mrb_value self) {
-  mrb_value results;
-  int x, y, w, h;
-  struct tr_thing_find_helper helper;
-  State * state    = state_get();
-  Area * area      = state_area(state);
-  
-  mrb_get_args(mrb, "iiii", &x, &y, &w, &h);  
-  results          = mrb_ary_new(mrb);
-  helper.mrb       = mrb;
-  helper.results   = &results;
-
-  area_find_things(area, x, y, w, h, &helper, tr_thing_find_callback);
-  return results;
-}
-
-
-/* Converts a bevec to an array of 2 floats */
-mrb_value bevec2mrb(mrb_state * mrb, BeVec vec) { 
-    mrb_value vals[2];
-    mrb_value marr;
-    vals[0] = mrb_fixnum_value(vec.x);
-    vals[1] = mrb_fixnum_value(vec.y);
-    marr = mrb_ary_new_from_values(mrb, 2, vals);
-    return marr;
-}
-
-static mrb_value tr_thing_v(mrb_state * mrb, mrb_value self) {
-  State * state    = state_get();
-  Thing * thing    = NULL;
-  BeVec result;
-  mrb_int thingid; mrb_float x, y;
-  mrb_get_args(mrb, "i", &thingid); 
-  thing = state_thing(state, thingid);
-  if (!thing) {
-    return mrb_nil_value();
-  }
-  result = thing_v(thing); 
-  return bevec2mrb(mrb, result);
-}
-
-/* Define getters for various dimensions of thing's bounds box. */
-TR_PAIR_DO(TR_THING_IGETTER, thing_w)
-TR_PAIR_DO(TR_THING_IGETTER, thing_h)
-TR_PAIR_DO(TR_THING_IGETTER, thing_x)
-TR_PAIR_DO(TR_THING_IGETTER, thing_y)
-TR_PAIR_DO(TR_THING_IGETTER, thing_cx)
-TR_PAIR_DO(TR_THING_IGETTER, thing_cy)
-TR_PAIR_DO(TR_THING_IGETTER, thing_z)
-
-
-/* Allows to set a color of a loaded image as the mask color. Somewhat slow. */
-static mrb_value tr_image_mask_to_alpha(mrb_state * mrb, mrb_value self) {
-  State * state    = state_get();
-  Thing * thing    = NULL;
-  BeVec result;
-  int store_index, r, g, b;
-  mrb_int thingid; mrb_float x, y;
-  mrb_get_args(mrb, "iiii", &store_index, &r, &g, &b); 
-  return mrb_fixnum_value(state_image_mask_to_alpha(state, store_index, r, g, b));
-}
-
-/* Allows to set the colors of a loaded image with the image itselmf acting as a mask. 
- * Somewhat slow. */
-static mrb_value tr_image_average_to_alpha(mrb_state * mrb, mrb_value self) {
-  State * state    = state_get();
-  Thing * thing    = NULL;
-  BeVec result;
-  int store_index, r, g, b;
-  mrb_int thingid; mrb_float x, y;
-  mrb_get_args(mrb, "iiii", &store_index, &r, &g, &b); 
-  return mrb_fixnum_value(state_image_average_to_alpha(state, store_index, r, g, b));
-}
 
 
 
@@ -465,222 +248,6 @@ tr_actorindex_
 tr_actorindex
 */
 
-static mrb_value tr_store_kind(mrb_state * mrb, mrb_value self) {
-  mrb_int index = -1;
-  mrb_get_args(mrb, "i", &index);  
-  return mrb_fixnum_value(store_kind(index));
-}
-
-static mrb_value tr_store_load_bitmap(mrb_state * mrb, mrb_value self) {
-  char * vpath = NULL; 
-  mrb_int index    = -1;
-  mrb_get_args(mrb, "iz", &index, &vpath);  
-  return rh_bool_value(store_load_bitmap(index, (const char *) vpath));
-}
-
-static mrb_value tr_store_load_bitmap_flags(mrb_state * mrb, mrb_value self) {
-  char * vpath = NULL; 
-  mrb_int index    = -1;
-  mrb_int flags    =  0;
-  mrb_get_args(mrb, "izi", &index, &vpath, &flags);  
-  return rh_bool_value(store_load_bitmap_flags(index, (const char *)vpath, flags));
-}
-
-static mrb_value tr_store_load_sample(mrb_state * mrb, mrb_value self) {
-  char * vpath = NULL; 
-  mrb_int index    = -1;
-  mrb_get_args(mrb, "iz", &index, &vpath);  
-  return rh_bool_value(store_load_sample(index, (const char *) vpath));
-}
-
-static mrb_value tr_store_load_audio_stream(mrb_state * mrb, mrb_value self) {
-  char * vpath          = NULL; 
-  mrb_int  index          =   -1;
-  size_t buffer_count   =    0;
-  int    samples        =    0;
-  int    bc             =    0;
-  mrb_get_args(mrb, "izii", &index, &vpath, &bc, &samples );
-  buffer_count          = (size_t) bc;
-  return rh_bool_value(
-    store_load_audio_stream(index, (const char *)vpath, buffer_count, samples)
-  );
-}
-
-static mrb_value tr_store_load_bitmap_font(mrb_state * mrb, mrb_value self) {
-  char * vpath = NULL; 
-  mrb_int index    = -1;
-  mrb_get_args(mrb, "iz", &index, &vpath);  
-  return rh_bool_value(store_load_bitmap_font(index, (const char *) vpath));
-}
-
-static mrb_value tr_store_load_bitmap_font_flags(mrb_state * mrb, mrb_value self) {
-  char * vpath = NULL; 
-  mrb_int index    = -1;
-  mrb_int flags    =  0;
-  mrb_get_args(mrb, "izi", &index, &vpath, &flags);  
-  return rh_bool_value(
-    store_load_bitmap_font_flags(index, (const char *)vpath, flags)
-  );
-}
-
-
-static mrb_value tr_store_load_ttf_font(mrb_state * mrb, mrb_value self) {
-  char * vpath     = NULL; 
-  mrb_int index    = -1;
-  mrb_int h        = 10;  
-  mrb_int flags    =  0;
-  mrb_get_args(mrb, "izii", &index, &vpath, &h, &flags);
-  return rh_bool_value(
-    store_load_ttf_font(index, (const char *)vpath, h, flags)
-  );
-}
-
-
-static mrb_value tr_store_load_ttf_font_stretch(mrb_state * mrb, mrb_value self) {
-  char * vpath     = NULL; 
-  mrb_int index    = -1;
-  mrb_int w        = 10;
-  mrb_int h        = 10;  
-  mrb_int flags    =  0;
-  mrb_get_args(mrb, "iziii", &index, &vpath, &w, &h, &flags);  
-  return rh_bool_value(
-    store_load_ttf_font_stretch(index, (const char *)vpath, w, h, flags)
-  );
-}
-
-static mrb_value tr_store_load_tilemap(mrb_state * mrb, mrb_value self) {
-  char * vpath     = NULL; 
-  mrb_int index    = -1;
-  mrb_int h        = 10;  
-  mrb_int flags    =  0;
-  mrb_get_args(mrb, "iz", &index, &vpath);  
-  return rh_bool_value(store_load_tilemap(index, (const char *)vpath));
-}
-
-
-static mrb_value tr_store_drop(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  mrb_get_args(mrb, "i", &index);  
-  return rh_bool_value(store_drop(index));
-}
-
-static mrb_value tr_store_index_ok(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  mrb_get_args(mrb, "i", &index);  
-  return rh_bool_value(store_index_ok(index));
-}
-
-static mrb_value tr_store_max(mrb_state * mrb, mrb_value self) {
-  return rh_bool_value(store_max());
-}
-
-static mrb_value tr_store_get_bitmap_format(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  int     value    = -1;
-  mrb_get_args(mrb, "i", &index);  
-  if(store_get_bitmap_format(index, &value)) return mrb_fixnum_value(value);
-  return mrb_nil_value();
-}
-
-static mrb_value tr_store_get_bitmap_flags(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  int     value    = -1;
-  mrb_get_args(mrb, "i", &index);  
-  if(store_get_bitmap_flags(index, &value)) return mrb_fixnum_value(value);
-  return mrb_nil_value();
-}
-
-static mrb_value tr_store_get_bitmap_height(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  int     value    = -1;
-  mrb_get_args(mrb, "i", &index);  
-  if(store_get_bitmap_height(index, &value)) return mrb_fixnum_value(value);
-  return mrb_nil_value();
-}
-
-static mrb_value tr_store_get_bitmap_width(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  int     value    = -1;
-  mrb_get_args(mrb, "i", &index);  
-  if(store_get_bitmap_width(index, &value)) return mrb_fixnum_value(value);
-  return mrb_nil_value();
-}
-
-static mrb_value tr_store_get_text_width(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  int     value    = -1;
-  char  * text     = NULL;     
-  mrb_get_args(mrb, "iz", &index, &text);  
-  if(store_get_text_width(index, text, &value)) return mrb_fixnum_value(value);
-  return mrb_nil_value();
-}
-
-static mrb_value tr_store_get_text_dimensions(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  Rebox   value    ;
-  char  * text     = NULL;     
-  mrb_get_args(mrb, "iz", &index, &text);  
-  if(store_get_text_dimensions(index, text, &value)) {
-    mrb_value vals[4];
-    mrb_value marr;
-    vals[0] = mrb_fixnum_value(value.at.x);
-    vals[1] = mrb_fixnum_value(value.at.y);
-    vals[2] = mrb_fixnum_value(value.size.x);
-    vals[3] = mrb_fixnum_value(value.size.y);
-    marr = mrb_ary_new_from_values(mrb, 4, vals);
-    return marr;
-  } 
-  return mrb_nil_value();
-}
-
-static mrb_value tr_store_get_font_line_height(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  int     value    = -1;
-  mrb_get_args(mrb, "i", &index);  
-  if(store_get_font_line_height(index, &value)) return mrb_fixnum_value(value);
-  return mrb_nil_value();
-}
-
-static mrb_value tr_store_get_font_ascent(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  int     value    = -1;
-  mrb_get_args(mrb, "i", &index);  
-  if(store_get_font_ascent(index, &value)) return mrb_fixnum_value(value);
-  return mrb_nil_value();
-}
-
-
-static mrb_value tr_store_get_font_descent(mrb_state * mrb, mrb_value self) {
-  mrb_int index    = -1;
-  int     value    = -1;
-  mrb_get_args(mrb, "i", &index);  
-  if(store_get_font_descent(index, &value)) return mrb_fixnum_value(value);
-  return mrb_nil_value();
-}
-
-static mrb_value tr_store_grab_font(mrb_state * mrb, mrb_value self) {
-  mrb_int index         = -1;
-  mrb_int bmp_index     = -1;
-  mrb_int count         =  0;
-  mrb_value * rarray    = NULL;
-  int       * ranges    = NULL; 
-  int     value         = -1;
-  Resor * res           = NULL;
-  int     i             ;
-  
-  mrb_get_args(mrb, "iiA", &index, &bmp_index, &count, &rarray);
-  if (count < 2) return mrb_nil_value();
-  
-  ranges = calloc(sizeof(int), count); 
-  for (i = 0 ; i < count; i ++) {
-    /** XXX: use correct API. */
-    ranges[i] = (rarray[i].value.i);
-  }
-  res    = store_grab_font(index, bmp_index, count, ranges);
-  free(ranges);
-  
-  return rh_bool_value(res);
-} 
 
 
 TORUBY_0_FGETTER(tr_get_time, al_get_time)
@@ -709,16 +276,6 @@ int tr_init(mrb_state * mrb) {
   eru = mrb_define_module(mrb, "Eruta");
   pth = mrb_define_class_under(mrb, eru, "Path"  , mrb->object_class);
   MRB_SET_INSTANCE_TT(pth, MRB_TT_DATA);
-  /* Storage. */
-  sto = mrb_define_class_under(mrb, eru, "Store" , mrb->object_class);
-  /* Scene graph. */
-  gra = mrb_define_class_under(mrb, eru, "Graph" , mrb->object_class);
-  /* Entities. */
-  thi = mrb_define_class_under(mrb, eru, "Thing" , mrb->object_class);
-  /* Sprites */
-  spr = mrb_define_class_under(mrb, eru, "Sprite", mrb->object_class);
-  /* Audio */
-  aud = mrb_define_class_under(mrb, eru, "Audio" , mrb->object_class);
   
   
   /* Define some constants. */
@@ -738,18 +295,13 @@ int tr_init(mrb_state * mrb) {
   TR_METHOD_ARGC(mrb, krn, "test",  tr_test, 1);
   TR_METHOD_ARGC(mrb, krn, "log" , tr_log , 1);
   TR_METHOD_ARGC(mrb, krn, "script" , tr_script , 1);
-  TR_METHOD_ARGC(mrb, krn, "sprite_getornew", tr_getornewsprite, 1);
-  TR_METHOD_ARGC(mrb, krn, "sprite_new", tr_newsprite, 1);
-  TR_METHOD_ARGC(mrb, krn, "sprite_get", tr_sprite, 1);
-  TR_METHOD_ARGC(mrb, krn, "sprite_loadulpcss", tr_sprite_loadulpcss, 3);
-  TR_METHOD_ARGC(mrb, krn, "sprite_tint_rgba", tr_sprite_tint, 6);
-  TR_METHOD_ARGC(mrb, krn, "thing_new"    , tr_newthing, 7);
   TR_METHOD_ARGC(mrb, krn, "camera_track" , tr_camera_track, 1);
   TR_METHOD_ARGC(mrb, krn, "camera_lockin", tr_lockin_maplayer, 1);
-  /* TR_METHOD_ARGC(mrb, krn, "tilemap_load" , tr_loadtilemap_vpath, 1); */
+  /*
   TR_METHOD_ARGC(mrb, krn, "thing_sprite_", tr_thing_sprite_, 2);
   TR_METHOD_ARGC(mrb, krn, "thing_pose_"  , tr_thing_pose_, 2);
   TR_METHOD_ARGC(mrb, krn, "thing_direction_", tr_thing_direction_, 2);
+  */ 
   TR_METHOD_NOARG(mrb, krn, "active_map", tr_active_map);
   TR_METHOD_ARGC(mrb, krn, "active_map_", tr_active_map_, 1);
   
@@ -766,74 +318,10 @@ int tr_init(mrb_state * mrb) {
   
   TR_CLASS_METHOD_NOARG(mrb, eru, "time", tr_get_time);
   
-  /* 
-  TR_METHOD_ARGC(mrb, krn, "actor_index_", tr_actorindex_, 1);
-  TR_METHOD_NOARG(mrb, krn, "actor_index", tr_actorindex);
-  */
-  
-  TR_CLASS_METHOD_ARGC(mrb, thi, "thing_new", tr_newthing, 7);
-  TR_CLASS_METHOD_ARGC(mrb, thi, "v"        , tr_thing_v , 1);
-  TR_CLASS_METHOD_ARGC(mrb, thi, "v_"       , tr_thing_v_, 3);
-  TR_CLASS_METHOD_ARGC(mrb, thi, "find_in_rectangle", tr_thing_find_in_rectangle, 4);
 
-  TR_CLASS_METHOD_NOARG(mrb, thi, "x" , tr_thing_x);
-  TR_CLASS_METHOD_NOARG(mrb, thi, "y" , tr_thing_y);
-  TR_CLASS_METHOD_NOARG(mrb, thi, "z" , tr_thing_z);
-  TR_CLASS_METHOD_NOARG(mrb, thi, "cx", tr_thing_cx);
-  TR_CLASS_METHOD_NOARG(mrb, thi, "cy", tr_thing_cy);
-  TR_CLASS_METHOD_NOARG(mrb, thi, "h" , tr_thing_h);
-  TR_CLASS_METHOD_NOARG(mrb, thi, "w" , tr_thing_w);
-
-  TR_CLASS_METHOD_ARGC(mrb, spr, "get_or_new"    , tr_getornewsprite, 1);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "sprite_new"    , tr_newsprite, 1);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "get"           , tr_sprite, 1);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "load_ulpcss"   , tr_sprite_loadulpcss, 3);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "tint_rgba"     , tr_sprite_tint, 6);
-
-
-  TR_METHOD_ARGC(mrb, krn, "store_kind", tr_store_kind, 1);
-  TR_METHOD_ARGC(mrb, krn, "load_bitmap", tr_store_load_bitmap, 2);
-  TR_METHOD_ARGC(mrb, krn, "load_bitmap", tr_store_load_bitmap, 2);  
-  TR_METHOD_ARGC(mrb, krn, "load_bitmap_flags", 
-                       tr_store_load_bitmap_flags, 3);
-  TR_METHOD_ARGC(mrb, krn, "load_audio_stream", tr_store_load_audio_stream, 4);
-  TR_METHOD_ARGC(mrb, krn, "load_sample", tr_store_load_sample, 2);
-  TR_METHOD_ARGC(mrb, krn, "load_ttf_font", tr_store_load_ttf_font, 4);
-  TR_METHOD_ARGC(mrb, krn, "load_ttf_stretch", tr_store_load_ttf_font_stretch, 5);
-  TR_METHOD_ARGC(mrb, krn, "load_bitmap_font", tr_store_load_bitmap_font, 2);
-  TR_METHOD_ARGC(mrb, krn, "load_bitmap_font_flags", tr_store_load_bitmap, 3);
-  TR_METHOD_ARGC(mrb, krn, "load_tilemap", tr_store_load_tilemap, 3);
- 
-  
-  TR_CLASS_METHOD_ARGC(mrb, sto, "kind", tr_store_kind, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap", tr_store_load_bitmap, 2);  
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_flags", 
-                       tr_store_load_bitmap_flags, 3);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_audio_stream", tr_store_load_audio_stream, 4);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_sample", tr_store_load_sample, 2);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_ttf_font", tr_store_load_ttf_font, 4);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_ttf_stretch", tr_store_load_ttf_font_stretch, 5);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_font", tr_store_load_bitmap_font, 2);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_bitmap_font_flags", tr_store_load_bitmap, 3);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "load_tilemap", tr_store_load_tilemap, 2);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "mask_to_alpha", tr_image_mask_to_alpha, 4);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "average_to_alpha", tr_image_average_to_alpha, 4);
-  
-  
-  
-  
-  TR_CLASS_METHOD_ARGC(mrb, sto, "drop"           , tr_store_drop, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_flags"   , tr_store_get_bitmap_flags, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_width"   , tr_store_get_bitmap_width, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_height"  , tr_store_get_bitmap_height, 1);
-  
-  TR_CLASS_METHOD_ARGC(mrb, sto, "font_ascent"    , tr_store_get_font_ascent, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "font_descent"   , tr_store_get_font_descent, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "font_line_height", tr_store_get_font_line_height, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "text_dimensions", tr_store_get_text_dimensions, 2);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "text_width"     , tr_store_get_text_width, 2);
   
   /* Set up submodules. */
+  tr_store_init(mrb, eru);
   tr_graph_init(mrb, eru);
   tr_audio_init(mrb, eru);
 
