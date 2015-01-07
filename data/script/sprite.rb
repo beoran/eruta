@@ -82,12 +82,12 @@ class Sprite < Eruta::Sprite
   
   def self.ulpcss_load(sprite_id, layer, name) 
     full_name = "image/ulpcss/#{name}"
-    sprite_loadulpcss sprite_id, layer, full_name
+    Eruta::Sprite.load_ulpcss sprite_id, layer, full_name
   end
 
   # Applies a tint to the given layer of the sprite.
   def tint(layer, r, g, b, a = 255)
-    sprite_tint_rgba @id, layer, r, g, b, a
+    Eruta::Sprite.tint_rgba @id, layer, r, g, b, a
   end  
   
   # Applies a tint to the torso layer of the sprite.

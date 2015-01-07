@@ -153,6 +153,11 @@ int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_ARGC(mrb, thi, "v_"       , tr_thing_v_, 3);
   TR_CLASS_METHOD_ARGC(mrb, thi, "find_in_rectangle", tr_thing_find_in_rectangle, 4);
 
+
+  TR_CLASS_METHOD_ARGC(mrb, thi, "sprite_", tr_thing_sprite_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "pose_"  , tr_thing_pose_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "direction_", tr_thing_direction_, 2);
+
   TR_CLASS_METHOD_NOARG(mrb, thi, "x" , tr_thing_x);
   TR_CLASS_METHOD_NOARG(mrb, thi, "y" , tr_thing_y);
   TR_CLASS_METHOD_NOARG(mrb, thi, "z" , tr_thing_z);

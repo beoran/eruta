@@ -49,7 +49,7 @@ class Thing < Eruta::Thing
                    
   # Sets the sprite id for this thing
   def sprite_id=(spid)
-    thing_sprite_(@id, spid)
+    Eruta::Thing.sprite_(@id, spid)
     @sprite_id = spid
   end
   
@@ -63,11 +63,11 @@ class Thing < Eruta::Thing
                    
   # Sets the pose for this thing
   def pose=(pose_id)
-    thing_pose_(@id, pose_id)
+    Eruta::Thing.pose_(@id, pose_id)
   end
   
   def direction=(dir_id)
-    thing_direction_(@id, dir_id)
+    Eruta::Thing.direction_(@id, dir_id)
   end
   
   def self.actor=(new_actor)

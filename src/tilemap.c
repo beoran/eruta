@@ -195,7 +195,10 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
   int index;
   Tilepane * pane;
   Tilepane * floor = NULL;
- 
+
+  /* XXX the blends and the shadows don't mix well, perhaps draw shadows
+   * first???
+   */
   for(index  = 0; index < TILEMAP_PANES; index++) {
     pane     = tilemap_pane(map, index);
     if (pane) {

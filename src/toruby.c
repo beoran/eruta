@@ -298,9 +298,6 @@ int tr_init(mrb_state * mrb) {
   TR_METHOD_ARGC(mrb, krn, "camera_track" , tr_camera_track, 1);
   TR_METHOD_ARGC(mrb, krn, "camera_lockin", tr_lockin_maplayer, 1);
   /*
-  TR_METHOD_ARGC(mrb, krn, "thing_sprite_", tr_thing_sprite_, 2);
-  TR_METHOD_ARGC(mrb, krn, "thing_pose_"  , tr_thing_pose_, 2);
-  TR_METHOD_ARGC(mrb, krn, "thing_direction_", tr_thing_direction_, 2);
   */ 
   TR_METHOD_NOARG(mrb, krn, "active_map", tr_active_map);
   TR_METHOD_ARGC(mrb, krn, "active_map_", tr_active_map_, 1);
@@ -321,6 +318,8 @@ int tr_init(mrb_state * mrb) {
 
   
   /* Set up submodules. */
+  tr_sprite_init(mrb, eru);
+  tr_thing_init(mrb, eru);
   tr_store_init(mrb, eru);
   tr_graph_init(mrb, eru);
   tr_audio_init(mrb, eru);
