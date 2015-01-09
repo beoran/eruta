@@ -132,6 +132,7 @@ TR_PAIR_DO(TR_THING_IGETTER, thing_y)
 TR_PAIR_DO(TR_THING_IGETTER, thing_cx)
 TR_PAIR_DO(TR_THING_IGETTER, thing_cy)
 TR_PAIR_DO(TR_THING_IGETTER, thing_z)
+TR_PAIR_DO(TR_THING_IGETTER, thing_direction)
 
 
 
@@ -147,6 +148,7 @@ int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   krn = mrb_module_get(mrb, "Kernel");
 
   TR_METHOD_ARGC(mrb, krn, "thing_new"    , tr_newthing, 7);
+
 
   TR_CLASS_METHOD_ARGC(mrb, thi, "thing_new", tr_newthing, 7);
   TR_CLASS_METHOD_ARGC(mrb, thi, "v"        , tr_thing_v , 1);
@@ -165,7 +167,8 @@ int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_NOARG(mrb, thi, "cy", tr_thing_cy);
   TR_CLASS_METHOD_NOARG(mrb, thi, "h" , tr_thing_h);
   TR_CLASS_METHOD_NOARG(mrb, thi, "w" , tr_thing_w);
-
+  TR_CLASS_METHOD_NOARG(mrb, thi, "direction", tr_thing_direction);
+  
   return 0;
 }
   

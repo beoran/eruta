@@ -56,7 +56,7 @@ struct SpriteState_ {
 enum SpriteFlags_ {
   /* Zero flag means sprite , frame, etc not in use. */
   SPRITE_EMPTY          = 0,
-  /* Sprite elemnt is in use if this is set, not if not. */ 
+  /* Sprite element is in use if this is set, not if not. */ 
   SPRITE_ACTIVE         = 1,
   /* Sprite element does not need to be updated. */
   SPRITE_FREEZE         = 2,

@@ -364,29 +364,50 @@ def ok!
   log "OK, it works!"
 end
 
-$count = 0
+$time_start = Eruta.time
 
 def on_update(dt)
-  $count += 1
-  # log "dt: #{dt}"
-  # puts "Update nr #{$count}!"
-  if ($count % 71) == 0
-    if $thing_101
-      $thing_101.direction = (1 << (8 + $count % 4))
-    end
-  end
-  # could use Eruta.time as well
+  time_now = Eruta.time
+  if (time_now - $time_start) > 10.0
+    # puts "Tick Tock goes the clock."
+    # do something here if needed ... 
+    $time_start = time_now
+  end  
   return nil
 end
 
 def actor_switch(new_actor)
   # Ensure the old actor stops walking.
-  new_actor.v = [ 0, 0 ]
+  new_actor.v = [ 0.0, 0.0 ]
   Thing.actor = new_actor
   new_actor.track
   return new_actor
 end
 
+
+# Searches and interacts with things in front of the actor.
+def actor_search
+  return if !Thing.actor
+  found = Thing.actor.find_in_front(48, 48)
+  puts "Searching in front of actor:"
+  p found
+end
+
+# Show a reminder of the key bindings on stdout
+def show_keybindings
+  puts "Keybindings:"
+  puts "A: Switch to actor A."
+  puts "B: Switch to actor B."
+  puts "E: REload currently active tile map."
+  puts "F: Toggle the visibility of the FPS counter"
+  puts "G: Toggle the visibility of the 2D scene Graph"
+  puts "H: Hide 2D scene graph GUI"
+  puts "N: Disable tile map."
+  puts "R: Toggle the visibility of the area/physics bounds boxes."
+  puts "S: Show 2D scene graph GUI"
+  puts "Arrow keys: Move active actor."
+  puts "Space: search in front of active actor."
+end
 
 # Handle key down
 def on_key_down(time, key)
@@ -400,7 +421,6 @@ def on_key_down(time, key)
     actor_switch($thing_101)
   when KEY_E
     reload_tilemap()
-    
   when KEY_H
     Eruta::Graph.visible_(52, 0)
   when KEY_M
@@ -425,9 +445,12 @@ def on_key_down(time, key)
     vx += 100.0
   when KEY_SPACE
     puts "Searching..."
+    actor_search
+  when KEY_COMMA
+    show_keybindings
   else
   end
-  actor.v = [vx, vy]
+  actor.v = [ vx, vy ]
   return nil
 end
 

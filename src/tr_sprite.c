@@ -114,6 +114,15 @@ int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   TR_METHOD_ARGC(mrb, krn, "sprite_loadulpcss", tr_sprite_loadulpcss, 3);
   TR_METHOD_ARGC(mrb, krn, "sprite_tint_rgba", tr_sprite_tint, 6);
   */
+
+  /* Direction constants of a sprite. */
+ 
+  TR_CONST_INT(mrb, spr, "NO_DIRECTION", SPRITE_NO_DIRECTION); 
+  TR_CONST_INT(mrb, spr, "SOUTH", SPRITE_SOUTH); 
+  TR_CONST_INT(mrb, spr, "EAST", SPRITE_EAST); 
+  TR_CONST_INT(mrb, spr, "NORTH", SPRITE_NORTH); 
+  TR_CONST_INT(mrb, spr, "WEST", SPRITE_WEST); 
+ 
   
   TR_CLASS_METHOD_ARGC(mrb, spr, "get_or_new"    , tr_getornewsprite, 1);
   TR_CLASS_METHOD_ARGC(mrb, spr, "sprite_new"    , tr_newsprite, 1);

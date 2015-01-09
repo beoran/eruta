@@ -118,6 +118,15 @@ double bumpaabb_down(BumpAABB * self) {
   return self->p.y + self->hs.y;
 }
 
+/* Full width of the box */
+double bumpaabb_width(BumpAABB * self) {
+  return 2.0 * self->hs.x;
+}
+
+/* Full height of the box */
+double bumpaabb_height(BumpAABB * self) {
+  return 2.0 * self->hs.y;
+}
 
 BumpHash * bumphash_empty(BumpHash * self) {
   int index;
@@ -227,6 +236,17 @@ BumpAABB bumpaabb_make_int(int x, int y, int w, int h) {
   return bumpaabb(cx, cy,  ((double) w), ((double) h)); 
 }
 
+/* Prints a textual description of the bounds box to the file out.
+ * For debugging purposes */
+void bumpaabb_print(BumpAABB * box, FILE * out) {
+  double x = bumpaabb_left(box);
+  double y = bumpaabb_top(box);
+  double w = bumpaabb_width(box);
+  double h = bumpaabb_height(box);
+  fprintf(out, "[(%lf %lf) (%lf %lf)]", x, y, w, h);
+}
+
+
 /** Allocates a physical body. */
 BumpBody * bumpbody_alloc() { 
   return STRUCT_ALLOC(BumpBody);  
@@ -269,6 +289,8 @@ BumpBody * bumpbody_free(BumpBody * self) {
   bumpbody_done(self);
   return mem_free(self);
 }
+
+
 
 
 BeVec bumpbody_p(BumpBody  * self) {   
@@ -1128,6 +1150,7 @@ int bumpworld_find_and_fetch_hulls(BumpWorld * self, BumpAABB search,
   for (index = 0; index < stop; index ++) {
     BumpHull * hull = dynar_getptr(self->hulls, index);
     if (!hull) continue;
+    
     if (bumpaabb_overlap_p(hull->bounds, search)) {
       hulls[amount]  = hull;
       amount ++;
@@ -1136,6 +1159,7 @@ int bumpworld_find_and_fetch_hulls(BumpWorld * self, BumpAABB search,
   return amount;
 }
 
+#define BUMPHULL_FIND_HULLS_DEBUG
 
 /** Finds all hulls in a given rectangle and calls the callback for each of them.
  * Returns 0. If the callback returns nonzero returns this in stead immediately
@@ -1148,10 +1172,26 @@ int bumpworld_find_hulls(BumpWorld * self, BumpAABB search, void * extra,
   for (index = 0; index < self->hull_count; index ++) {
     BumpHull * hull = dynar_getptr(self->hulls, index);
     if (!hull) continue;
+
+    #ifdef BUMPHULL_FIND_HULLS_DEBUG
+    fprintf(stdout, "Find hull: checking hull ");
+    bumpaabb_print(&hull->bounds, stdout);
+    fprintf(stdout, " <-> ");
+    bumpaabb_print(&search, stdout);
+    #endif
+    
     if (bumpaabb_overlap_p(hull->bounds, search)) {
       int res = callback(hull, extra);
+      #ifdef BUMPHULL_FIND_HULLS_DEBUG
+      fprintf(stdout, " OK! %d\n", res);
+      #endif
       if (res) return res;
+    } else {
+      #ifdef BUMPHULL_FIND_HULLS_DEBUG
+      fprintf(stdout, " NOK\n");
+      #endif
     }
+    
   }
   return 0;
 }

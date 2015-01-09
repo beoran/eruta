@@ -13,6 +13,7 @@
 #include "store.h"
 #include "scegra.h"
 #include "sound.h"
+#include "camera.h"
 #include <mruby/hash.h>
 #include <mruby/class.h>
 #include <mruby/data.h>
@@ -21,6 +22,9 @@
 #include "tr_audio.h"
 #include "tr_graph.h"
 #include "tr_store.h"
+#include "tr_sprite.h"
+#include "tr_thing.h"
+
 
 /* Documentation of mrb_get_args: 
  
@@ -206,6 +210,39 @@ static mrb_value tr_lockin_maplayer(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(result);
 }
 
+static mrb_value tr_camera_x(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  Camera * camera  = state_camera(state);
+  int result;
+  result           = camera_at_x(camera);
+  return mrb_fixnum_value(result);
+}
+
+static mrb_value tr_camera_y(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  Camera * camera  = state_camera(state);
+  int result;
+  result           = camera_at_y(camera);
+  return mrb_fixnum_value(result);
+}
+
+static mrb_value tr_camera_w(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  Camera * camera  = state_camera(state);
+  int result;
+  result           = camera_w(camera);
+  return mrb_fixnum_value(result);
+}
+
+static mrb_value tr_camera_h(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  Camera * camera  = state_camera(state);
+  int result;
+  result           = camera_w(camera);
+  return mrb_fixnum_value(result);
+}
+
+
 /* Obsolete, tile maps will be loaded through store. 
 static mrb_value tr_loadtilemap_vpath(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
@@ -297,6 +334,11 @@ int tr_init(mrb_state * mrb) {
   TR_METHOD_ARGC(mrb, krn, "script" , tr_script , 1);
   TR_METHOD_ARGC(mrb, krn, "camera_track" , tr_camera_track, 1);
   TR_METHOD_ARGC(mrb, krn, "camera_lockin", tr_lockin_maplayer, 1);
+  TR_METHOD_NOARG(mrb, krn, "camera_x"    , tr_camera_x);
+  TR_METHOD_NOARG(mrb, krn, "camera_y"    , tr_camera_y);
+  TR_METHOD_NOARG(mrb, krn, "camera_w"    , tr_camera_w);
+  TR_METHOD_NOARG(mrb, krn, "camera_h"    , tr_camera_h);
+
   /*
   */ 
   TR_METHOD_NOARG(mrb, krn, "active_map", tr_active_map);
