@@ -291,9 +291,11 @@ TORUBY_0_FGETTER(tr_get_time, al_get_time)
 TR_WRAP_NOARG_BOOL(tr_show_fps, global_state_show_fps)
 TR_WRAP_NOARG_BOOL(tr_show_graph, global_state_show_graph)
 TR_WRAP_NOARG_BOOL(tr_show_area, global_state_show_area)
+TR_WRAP_NOARG_BOOL(tr_show_physics, global_state_show_physics)
 TR_WRAP_B_BOOL(tr_show_fps_, global_state_show_fps_)
 TR_WRAP_B_BOOL(tr_show_graph_, global_state_show_graph_)
 TR_WRAP_B_BOOL(tr_show_area_, global_state_show_area_)
+TR_WRAP_B_BOOL(tr_show_physics_, global_state_show_physics_)
 TR_WRAP_B_BOOL(tr_show_mouse_cursor_, scegra_show_system_mouse_cursor)
 
 
@@ -349,9 +351,11 @@ int tr_init(mrb_state * mrb) {
   TR_CLASS_METHOD_NOARG(mrb, eru, "show_fps", tr_show_fps);
   TR_CLASS_METHOD_NOARG(mrb, eru, "show_area", tr_show_area);
   TR_CLASS_METHOD_NOARG(mrb, eru, "show_graph", tr_show_graph);
+  TR_CLASS_METHOD_NOARG(mrb, eru, "show_physics", tr_show_physics);
   TR_CLASS_METHOD_ARGC(mrb, eru, "show_fps="  , tr_show_fps_, 1);
   TR_CLASS_METHOD_ARGC(mrb, eru, "show_area=" , tr_show_area_, 1);
   TR_CLASS_METHOD_ARGC(mrb, eru, "show_graph=", tr_show_graph_, 1);
+  TR_CLASS_METHOD_NOARG(mrb, eru, "show_physics=", tr_show_physics_);
   TR_CLASS_METHOD_ARGC(mrb, eru, "show_mouse_cursor=", tr_show_mouse_cursor_, 1);
   
   

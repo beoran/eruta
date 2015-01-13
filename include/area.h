@@ -23,31 +23,37 @@ typedef struct Area_ Area;
 #include "thing.h"
 
 
-int area_maxthings (Area * area );
+int area_maxthings (Area * area);
 
-Thing * area_thing (Area * area , int index );
+Thing * area_thing (Area * area , int index);
 
-Thing * area_thing_(Area * area , int index , Thing * set );
+Thing * area_thing_(Area * area , int index , Thing * set);
 
-int area_thingid (Area * self );
+int area_thingid (Area * self);
 
 Thing * area_addthing (Area * area , int index, Thing * thing);
 
-int area_deletething (Area * area , int index );
+int area_deletething (Area * area , int index);
 
-Area * area_cleanupthings (Area * self );
+Area * area_cleanupthings (Area * self);
 
-Area * area_emptythings (Area * self );
+Area * area_emptythings (Area * self);
 
-Area * area_done (Area * self );
+Area * area_done (Area * self);
 
-Area * area_free (Area * self );
+Area * area_free (Area * self);
 
 Area * area_alloc(void);
 
-Area * area_init (Area * self );
+Area * area_init (Area * self);
 
 Area * area_new(void);
+
+void area_draw_physics_(Area * self, int draw);
+
+int area_draw_physics(Area * self);
+
+
 
 Thing * 
 area_newstatic(Area * self, int index, int kind , int x , int y , int z , int w , int h);

@@ -40,6 +40,7 @@ struct Area_ {
   Thing       * things[AREA_THINGS];
   Thing       * things_todraw[AREA_THINGS];
   BumpTilemap * bumpmap;
+  int           draw_physics;
 };
 
 
@@ -164,6 +165,7 @@ Area * area_done(Area * self) {
   area_cleanupthings(self);
   bumpworld_free(self->world);
   self->world = NULL;
+  self->draw_physics = FALSE;
   return self;
 }
 
@@ -188,12 +190,25 @@ Area * area_init(Area * self) {
   if (!self->world) goto out_of_memory;
   area_emptythings(self);
   self->bumpmap = NULL;
+  self->draw_physics = FALSE;
   // area_setup_default_collision_handlers(self, self);
   return self;
 
   out_of_memory:
   area_done(self);
   return NULL;
+}
+
+/** Sets the area so it will draw its physics
+ *  bounds boxes when it is drawn or not.
+ */
+void area_draw_physics_(Area * self, int draw) {
+  self->draw_physics = draw;
+}
+
+/** Checks if the area draws its physics or not. */
+int area_draw_physics(Area * self) {
+  return self->draw_physics;
 }
 
 /** Makes a new area. */
@@ -274,9 +289,9 @@ void area_draw_layer (Area * self, Camera * camera, int layer) {
     }
     thing_draw(thing, camera);
   }
-#ifdef ERUTA_DEBUG_DRAW
-  bumpworld_draw_debug(self->world);
-#endif
+  if (self->draw_physics) { 
+    bumpworld_draw_debug(self->world);
+  }
 }
 
 

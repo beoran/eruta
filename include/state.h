@@ -94,6 +94,8 @@ int global_state_show_graph();
 int global_state_show_graph_(int show);
 int global_state_show_area();
 int global_state_show_area_(int show);
+int global_state_show_physics();
+int global_state_show_physics_(int show);
 
 
 

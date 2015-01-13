@@ -847,6 +847,20 @@ int global_state_show_area_(int show) {
   return state->show_area = show;
 }
 
+/* Get display state of physics */
+int global_state_show_physics() {
+  State * state = state_get();
+  if (!state) return FALSE;
+  return area_draw_physics(state->area);
+}
+
+/* Set display state of physics */
+int global_state_show_physics_(int show) {
+  State * state = state_get();
+  if (!state) return FALSE;
+  area_draw_physics_(state->area, show);
+  return show;
+}
 
 
 /* Core functionality of Eruta, implemented on the state. */

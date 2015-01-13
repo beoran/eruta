@@ -14,6 +14,10 @@ class Thing < Eruta::Thing
     @registry ||= {}
     @registry[thing.id] = thing
   end
+
+  def self.lookup(thing_id)
+    return @registry[thing_id]
+  end
   
   def initialize(id) 
     @id = id
@@ -33,8 +37,10 @@ class Thing < Eruta::Thing
     return self.new(Eruta::Thing.thing_new(id, kind, x, y, z, w, h))
   end
 
-  def self.find_in_rectangle(x, y, w, h)
-    return Eruta::Thing.find_in_rectangle(x, y, w, h)
+  def self.find_in_rectangle(x, y, w, h, self_id)
+    ids =  Eruta::Thing.find_in_rectangle(x, y, w, h)
+    ids.delete(self_id)
+    result = ids.map { |id| self.lookup(id) }
   end
 
   # Forwards methods to Eruta::Thing(@id, * args)
@@ -73,41 +79,42 @@ class Thing < Eruta::Thing
   # of the direction the thing is facing.
   def rectangle_in_front(w = 32, h = 32)
     dire = self.direction
-    x    = self.x
-    y    = self.y
+    cx   = self.cx
+    cy   = self.cy
     if is_facing?(Eruta::Sprite::NORTH)
-      y -= h
+      cy -= ( h / 2.0 + self.h / 2.0)
     elsif is_facing?(Eruta::Sprite::EAST)
-      x += self.w
+      cx += ( w / 2.0 + self.w / 2.0)
     elsif is_facing?(Eruta::Sprite::SOUTH)
-      y += self.h
+      cy += ( h / 2.0 + self.h / 2.0)
     elsif is_facing?(Eruta::Sprite::WEST)
-      x -= w
+      cx -= ( w / 2.0 + self.w / 2.0)
     end
+    x = cx - (w / 2.0)
+    y = cy - (h / 2.0)
     return x, y, w, h
   end
 
-  def find_in_front(w = 32, h = 32)
+  def find_in_front(w = 32, h = 32, debug = false)
     x, y, w, h = self.rectangle_in_front(w, h)
-    if @search_box
-      @search_box.position = [x - camera_x, y - camera_y]
-      @my_box.position = [self.x - camera_x, self.y - camera_y]
-    else
-      @search_box = Graph.make_box(x - camera_x, y - camera_y, w, h, 0, 0)
-      @search_box.visible          = true
-      @search_box.border_color     = [255, 255, 0]
-      @search_box.border_thickness = 1
-      @my_box = Graph.make_box(self.x - camera_x, self.y - camera_y, self.w, self.h, 0, 0)
-      @my_box.visible              = true
-      @my_box.border_color         = [0, 255, 255]
-      @my_box.border_thickness     = 1
-
-      
+    if debug
+      if @search_box
+        @search_box.position = [x - camera_x, y - camera_y]
+        @my_box.position = [self.x - camera_x, self.y - camera_y]
+      else
+        @search_box = Graph.make_box(x - camera_x, y - camera_y, w, h, 0, 0)
+        @search_box.visible          = true
+        @search_box.border_color     = [255, 255, 0]
+        @search_box.border_thickness = 1
+        @my_box = Graph.make_box(self.x - camera_x, self.y - camera_y, self.w, self.h, 0, 0)
+        @my_box.visible              = true
+        @my_box.border_color         = [0, 255, 255]
+        @my_box.border_thickness     = 1
+      end
+      puts "Rectangle in front:"
+      p x, y , w, h, @search_box, camera_x, camera_y
     end
-    puts "Rectangle in front:"
-    p x, y , w, h, @search_box, camera_x, camera_y
-   
-    return Thing.find_in_rectangle(x, y, w, h)
+    return Thing.find_in_rectangle(x, y, w, h, @id)
   end
   
   # Forces the camera to track this thing. 

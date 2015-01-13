@@ -41,6 +41,7 @@ struct BumpHull_ {
   int id;
   BumpBody  * body;
   BeVec       delta;
+  /* Use bumphull_aabb_real, NOT bounds in most cases. */
   BumpAABB    bounds;
   int         layers;
   int         kind;
@@ -231,8 +232,8 @@ BumpAABB bumpaabb(double cx, double cy, double w, double h) {
 BumpAABB bumpaabb_make_int(int x, int y, int w, int h) {
   double hw       = ((double) w) / 2.0;
   double hh       = ((double) h) / 2.0;
-  double cx       = ((double) x) - hw;
-  double cy       = ((double) y) - hh;
+  double cx       = ((double) x) + hw;
+  double cy       = ((double) y) + hh;
   return bumpaabb(cx, cy,  ((double) w), ((double) h)); 
 }
 
@@ -1018,20 +1019,20 @@ static void bumphull_draw_debug(BumpWorld * world, BumpHull * self, Camera * cam
   bounds      = bumphull_aabb_real(self);
   w           = bounds.hs.x * 2; 
   h           = bounds.hs.y * 2;
-  color       = color_rgba(64, 255, 64, 128);
+  color       = color_rgba(0, 0, 64, 255);
   { 
     x         = bounds.p.x;
     y         = bounds.p.y;
-    t         = 8;
+    t         = 2;
   }
   /* Do not draw out of camera range. */
   if(!camera_cansee(camera, x, y, w, h)) {
     return;
   }
+  
   drawx = x - cx;
   drawy = y - cy;
-  // draw_box(drawx, drawy, w, h, color, t);
-  bumpaabb_draw(&bounds, color, 1, camera); 
+  bumpaabb_draw(&bounds, color, t, camera); 
   
   
   next_p        =  /*bevec_add( */ self->body->p_next /* , self->delta) */ ;
@@ -1087,7 +1088,7 @@ static void bumpbody_draw_debug(BumpBody * self, Camera * camera) {
   int drawx, x;
   int drawy, y;
   int w, h    ;
-  int t       = 2;
+  int t    = 2;
   Color color;
   // don't draw null things.
   if(!self) return;
@@ -1119,16 +1120,18 @@ BumpWorld * bumpworld_draw_debug(BumpWorld * self) {
   int index;
   State  * state  = state_get();
   Camera * camera = state_camera(state);
+
   for (index = 0 ; index < self->hull_count; index ++) { 
     BumpHull * hull = dynar_getptr(self->hulls, index);
     bumphull_draw_debug(self, hull, camera);
-  }  
+  }
+  
   for (index = 0 ; index < self->body_count; index ++) { 
     BumpBody * body = dynar_getptr(self->bodies, index);
     bumpbody_draw_debug(body, camera);
   }  
   
-    /* Commit motions if showing debug drawing. */ 
+  /* Commit motions if showing debug drawing. */ 
 #ifdef BUMPWORLD_COMMIT_AFTER_DEBUG
   bumpworld_commit(self);
 #endif  
@@ -1149,9 +1152,10 @@ int bumpworld_find_and_fetch_hulls(BumpWorld * self, BumpAABB search,
     
   for (index = 0; index < stop; index ++) {
     BumpHull * hull = dynar_getptr(self->hulls, index);
+    BumpAABB hullaabb;
     if (!hull) continue;
-    
-    if (bumpaabb_overlap_p(hull->bounds, search)) {
+    hullaabb = bumphull_aabb_real(hull);
+    if (bumpaabb_overlap_p(hullaabb, search)) {
       hulls[amount]  = hull;
       amount ++;
     }
@@ -1168,28 +1172,21 @@ int bumpworld_find_hulls(BumpWorld * self, BumpAABB search, void * extra,
   int callback(BumpHull * hull, void * extra)) {
   int amount = 0;
   int index;
+
+  #ifdef BUMPHULL_FIND_HULLS_DEBUG
+    fprintf(stdout, "Find hull: %d hulls known.\n", self->hull_count);
+  #endif
     
   for (index = 0; index < self->hull_count; index ++) {
     BumpHull * hull = dynar_getptr(self->hulls, index);
+    BumpAABB hullaabb;
     if (!hull) continue;
+    hullaabb = bumphull_aabb_real(hull);
 
-    #ifdef BUMPHULL_FIND_HULLS_DEBUG
-    fprintf(stdout, "Find hull: checking hull ");
-    bumpaabb_print(&hull->bounds, stdout);
-    fprintf(stdout, " <-> ");
-    bumpaabb_print(&search, stdout);
-    #endif
-    
-    if (bumpaabb_overlap_p(hull->bounds, search)) {
+    if (bumpaabb_overlap_p(hullaabb, search)) {
       int res = callback(hull, extra);
-      #ifdef BUMPHULL_FIND_HULLS_DEBUG
-      fprintf(stdout, " OK! %d\n", res);
-      #endif
       if (res) return res;
     } else {
-      #ifdef BUMPHULL_FIND_HULLS_DEBUG
-      fprintf(stdout, " NOK\n");
-      #endif
     }
     
   }

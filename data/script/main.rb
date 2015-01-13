@@ -388,7 +388,7 @@ end
 # Searches and interacts with things in front of the actor.
 def actor_search
   return if !Thing.actor
-  found = Thing.actor.find_in_front(48, 48)
+  found = Thing.actor.find_in_front(60, 60)
   puts "Searching in front of actor:"
   p found
 end
@@ -403,7 +403,8 @@ def show_keybindings
   puts "G: Toggle the visibility of the 2D scene Graph"
   puts "H: Hide 2D scene graph GUI"
   puts "N: Disable tile map."
-  puts "R: Toggle the visibility of the area/physics bounds boxes."
+  puts "P: Toggle the visibility of the area/physics bounds boxes."
+  puts "R: Toggle the visibility of the area spRites."
   puts "S: Show 2D scene graph GUI"
   puts "Arrow keys: Move active actor."
   puts "Space: search in front of active actor."
@@ -435,6 +436,8 @@ def on_key_down(time, key)
     Eruta.show_area= ! Eruta.show_area
   when KEY_G
     Eruta.show_graph= ! Eruta.show_graph
+  when KEY_P
+    Eruta.show_physics= ! Eruta.show_physics
   when KEY_UP
     vy -= 100.0
   when KEY_DOWN
