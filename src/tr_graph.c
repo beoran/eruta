@@ -97,8 +97,10 @@ TR_PAIR_DO(SCEGRA_ICALLER, scegra_page_lines)
 TR_PAIR_DO(SCEGRA_BSETTER, scegra_paused_)
 
 TR_PAIR_DO(SCEGRA_BCALLER, scegra_paused)
+TR_PAIR_DO(SCEGRA_BCALLER, scegra_at_end)
 TR_PAIR_DO(SCEGRA_ISETTER, scegra_page_)
 TR_PAIR_DO(SCEGRA_ICALLER, scegra_page)
+TR_PAIR_DO(SCEGRA_ICALLER, scegra_last_page)
 TR_PAIR_DO(TR_WRAP_I_INT, scegra_next_page)
 TR_PAIR_DO(TR_WRAP_I_INT, scegra_previous_page)
 
@@ -112,7 +114,7 @@ int tr_graph_init(mrb_state * mrb, struct RClass * eru) {
   /* graph class/module and class/module methods. */
   gra = mrb_define_class_under(mrb, eru, "Graph" , mrb->object_class);
 
-    TR_CLASS_METHOD_ARGC(mrb, gra, "nodes_max"       , tr_scegra_nodes_max, 0);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "nodes_max"       , tr_scegra_nodes_max, 0);
   TR_CLASS_METHOD_ARGC(mrb, gra, "z"               , tr_scegra_z, 1);
   TR_CLASS_METHOD_ARGC(mrb, gra, "disable"         , tr_scegra_disable_node, 1);
   TR_CLASS_METHOD_ARGC(mrb, gra, "id"              , tr_scegra_get_id, 1);
@@ -158,9 +160,11 @@ int tr_graph_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_ARGC(mrb, gra, "paused"     , tr_scegra_paused, 1);
   TR_CLASS_METHOD_ARGC(mrb, gra, "page_"      , tr_scegra_page_, 2);
   TR_CLASS_METHOD_ARGC(mrb, gra, "page"       , tr_scegra_page, 1);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "last_page"  , tr_scegra_page, 1);
   TR_CLASS_METHOD_ARGC(mrb, gra, "next_page"  , tr_scegra_next_page, 1);
-  TR_CLASS_METHOD_ARGC(mrb, gra, "previous_page"  , tr_scegra_previous_page, 1);  
-
+  TR_CLASS_METHOD_ARGC(mrb, gra, "previous_page", tr_scegra_previous_page, 1);
+  TR_CLASS_METHOD_ARGC(mrb, gra, "at_end_p"   ,   tr_scegra_at_end, 1);
+  
   return 0;
 }
   

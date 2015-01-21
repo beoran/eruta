@@ -154,6 +154,7 @@ struct Scegra_ {
 
 
 #define SCEGRA_NODES_MAX 10000
+#define SCEGRA_LONGTEXT_LINE_POS_MAX 99999
 
 /* Static storage for nodes. */
 static ScegraNode   scegra_nodes[SCEGRA_NODES_MAX];
@@ -220,6 +221,16 @@ int scegranode_page(ScegraNode * node) {
 }
 
 
+/** Gets the last page number for a longtext or negative on error. */
+int scegranode_last_page(ScegraNode * node) {
+  struct ScegraLongText_ * lt; 
+  if (!node) return -2;
+  if (node->id < 0) return -1;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return -3;
+  lt              = &node->data.longtext;
+  return lt->line_max / lt->page_lines;
+}
+
 /** Advances long text to the given page. Automatically unpauses as well. */
 int scegranode_page_(ScegraNode * node, int page) {
   struct ScegraLongText_ * lt;
@@ -240,7 +251,7 @@ int scegranode_page_(ScegraNode * node, int page) {
   /* Negative delay is instant display. */
   if (node->delay < 0) {  
     lt->line_stop  = lt->line_start + lt->page_lines;
-    lt->line_pos   = 99999;
+    lt->line_pos   = SCEGRA_LONGTEXT_LINE_POS_MAX;
   } else {
     lt->line_stop  = lt->line_start + 1;
     lt->line_pos   = 0;
@@ -293,7 +304,7 @@ static bool scegra_update_custom_partial_text(int line_num, const char *line,
 }
 
 
-/* Updates the longtext, enables scrolling and per cheracter display. */
+/* Updates the longtext, enables scrolling and per character display. */
 void scegra_update_longtext(ScegraNode * self, double dt) {
   scegra_update_generic(self, dt);
   float width = self->size.x - self->style.margin * 2;
@@ -310,10 +321,26 @@ void scegra_update_longtext(ScegraNode * self, double dt) {
   al_do_multiline_text(scegra_get_font(self), width,
       (const char *) text, scegra_update_custom_partial_text, self);
   st->line_max++;
+  
+  /* pause if the last line is reached, and prevent overflow. */
   if (st->line_stop > st->line_max) {
-    st->line_pos = 99999;
+    st->paused    = true;
+    st->line_pos  = SCEGRA_LONGTEXT_LINE_POS_MAX;
     st->line_stop = st->line_max;
   }
+
+}
+
+/* Returns TRUE if the longtext node is at the end of the text to display,
+ * false if not (more text to display) */
+int scegranode_longtext_at_end(ScegraNode * node) {
+  struct ScegraLongText_ * lt; 
+  if (!node) return FALSE;
+  if (node->id < 0) return FALSE;
+  if (node->kind != SCEGRA_NODE_LONGTEXT) return FALSE;
+  lt              = &node->data.longtext;
+  return  ((lt->line_stop >= lt->line_max) &&
+           (lt->line_pos >= SCEGRA_LONGTEXT_LINE_POS_MAX));
 }
 
 
@@ -1154,6 +1181,18 @@ int scegra_page(int index) {
   return scegranode_page(node);
 }
 
+/** Gets the number of the last text page for a longtext. */
+int scegra_last_page(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  return scegranode_last_page(node);
+}
+
+
+/** Returns nonzero if the long text is at the end of it's display. */
+int scegra_at_end(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  return scegranode_longtext_at_end(node);
+}
 
 /** Advances long text to the given page. Automatically unpauses as well. */
 int scegra_page_(int index, int page) {

@@ -67,6 +67,12 @@ class Sprite < Eruta::Sprite
     @registry ||= {}
     @registry[thing.id] = thing
   end
+
+  # Look up a Sprite in the Sprite registry
+  def self.[](id)
+    @registry[id]
+  end
+
   
   def initialize(id) 
     @id = id

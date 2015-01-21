@@ -89,6 +89,17 @@ module Zori
     def_delegator :@tg, :line_stop
     def_delegator :@tg, :delay
     def_delegator :@tg, :page_lines=
-    def_delegator :@tg, :page_lines    
+    def_delegator :@tg, :page_lines
+    def_delegator :@tg, :paused=
+    def_delegator :@tg, :paused
+    def_delegator :@tg, :page=
+    def_delegator :@tg, :page
+    def_delegator :@tg, :last_page
+    def_delegator :@tg, :next_page
+    def_delegator :@tg, :previous_page
+    def_delegator :@tg, :"at_end?"
+ 
+
+        
   end
 end

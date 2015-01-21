@@ -103,13 +103,24 @@ class Graph < Eruta::Graph
 
     # Forwards methods to Eruta::Graph(@id, * args)
     def self.forward_graph(name)
-      clean_name = name.to_s.gsub("=", "_").gsub('?', '_p').gsub('!', '_bang') 
+      clean_name = name.to_s
+      prefix     = clean_name[0, clean_name.size - 1]
+      if clean_name[-1] == "!"
+        clean_name = prefix + '_bang' 
+      elsif clean_name[-1] == "?"
+        clean_name = prefix + '_p' 
+      elsif clean_name[-1] == "="
+        clean_name = prefix +  '_'
+      end
+      p "graph", name, clean_name
       graph_name = "#{clean_name}".to_sym
       define_method(name)  do |*args|   
         Eruta::Graph.send(graph_name, @id, *args)
       end
     end
 
+    
+    
     forward_graph :text=
     forward_graph :line_start=
     forward_graph :line_stop=
@@ -123,8 +134,11 @@ class Graph < Eruta::Graph
     forward_graph :paused
     forward_graph :page=
     forward_graph :page
+    forward_graph :last_page
     forward_graph :next_page
     forward_graph :previous_page
+    forward_graph :at_end?
+
   
     def close() 
       Graph.unregister(self)

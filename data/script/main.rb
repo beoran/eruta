@@ -10,6 +10,9 @@ MAIN_BACKGROUND = true
 # Helpers
 script "forwardable.rb"
 
+# Game state
+script "state.rb"
+
 # Load keycodes
 script "keycode.rb"
 # Load OO wrappers
@@ -64,27 +67,27 @@ end
 
 def start_load_sprites
   puts "Loading some things and sprites"
-  $thing_100  = Thing.make(1, 300, 400, 1, 32, 32, 100)
-  $sprite_100 = Sprite.make(100)
-  $sprite_100.load_ulpcss(SPRITELAYER_BODY , "body/female/light.png")
-  $sprite_100.load_ulpcss(SPRITELAYER_TORSO, "torso/dress_female/underdress.png")
-  $sprite_100.load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangslong.png")
-  $sprite_100.tint_hair(0, 255, 0)
-  $sprite_100.tint_torso(255, 64, 64)
-  $thing_100.sprite    = $sprite_100
-  $thing_100.direction = SPRITE_SOUTH
-  $thing_100.pose      = SPRITE_STAND
+  Thing.make(1, 300, 400, 1, 32, 32, 100)
+  Sprite.make(100)
+  Sprite[100].load_ulpcss(SPRITELAYER_BODY , "body/female/light.png")
+  Sprite[100].load_ulpcss(SPRITELAYER_TORSO, "torso/dress_female/underdress.png")
+  Sprite[100].load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangslong.png")
+  Sprite[100].tint_hair(0, 255, 0)
+  Sprite[100].tint_torso(255, 64, 64)
+  Thing[100].sprite    = Sprite[100]
+  Thing[100].direction = SPRITE_SOUTH
+  Thing[100].pose      = SPRITE_STAND
 
-  $thing_101  = Thing.make(0, 400, 400, 1, 32, 32, 101)
-  $sprite_101 = Sprite.make(101)
-  $sprite_101.load_ulpcss(SPRITELAYER_BODY , "body/female/dark.png")
-  $sprite_101.load_ulpcss(SPRITELAYER_TORSO, "torso/dress_w_sash_female.png")
-  $sprite_101.load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangsshort.png")
-  $sprite_101.tint_hair(255, 255, 0)
-  $sprite_101.tint_torso(128,  128, 255)
-  $thing_101.sprite     = $sprite_101
-  $thing_101.pose       = SPRITE_STAND
-  $thing_101.direction  = SPRITE_SOUTH
+  Thing.make(0, 400, 400, 1, 32, 32, 101)
+  Sprite.make(101)
+  Sprite[101].load_ulpcss(SPRITELAYER_BODY , "body/female/dark.png")
+  Sprite[101].load_ulpcss(SPRITELAYER_TORSO, "torso/dress_w_sash_female.png")
+  Sprite[101].load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangsshort.png")
+  Sprite[101].tint_hair(255, 255, 0)
+  Sprite[101].tint_torso(128,  128, 255)
+  Thing[101].sprite     = Sprite[101]
+  Thing[101].pose       = SPRITE_STAND
+  Thing[101].direction  = SPRITE_SOUTH
 
   puts "Things and sprites loaded."
 
@@ -112,7 +115,7 @@ def start_setup_ui
 
   return nil
   
-  font   = Eruta::Store.load_ttf_font(FONT_ID, '/font/Tuffy.ttf', 18, 0)
+  font   = Eruta::Store.load_ttf_font('/font/Tuffy.ttf', :font_tuffy, 18, 0)
   $box_1 = Graph.make_box(570, 10, 60, 240, 4, 4, -1)
   $box_1.background_color = [ 16, 16, 64, 190 ]
   $box_1.border_color     = [ 255, 255, 255 ]
@@ -172,7 +175,7 @@ def do_start_test_map
     start_load_sprites
     start_load_stuff
     start_setup_ui
-    actor_switch($thing_100)
+    actor_switch(Thing[100])
 end
 
 
@@ -234,14 +237,17 @@ def do_main_menu
   # res = nil
   # $main_menu = MainMenu.new
   # $main_menu.active = true
-  $default_ui = Zori.make_page(:default) do |m|
+  Zori.make_page(:default) do |m|
+    State.talk_box            = m.make_longtext(10, 310, 620, 160, "Testing 1 2 3")
+    State.talk_box.graph.each { |g| g.font = Eruta::Zori.font.id }
+    State.talk_box.delay      = 0.1
+    State.talk_box.page_lines = 5
+    State.talk_box.page       = 0
+    State.talk_box.hide
   end
+
   
-  
-  
-  
-  
-  $main_page      = Zori.make_page(:main_menu) do |m|
+  Zori.make_page(:main_menu) do |m|
     if MAIN_BACKGROUND 
       $main_back    = Store.load_bitmap('/image/background/eruta_mainmenu.png')
     end
@@ -249,25 +255,8 @@ def do_main_menu
     $main_menu    = m.make_menu(250, 190, 120, 440, nil)
     ma            = $main_menu
 
-    
-
     $main_button_1= ma.make_button(260, 200, 100, 30, "Continue")
-
     $sub_menu = make_sub_menu($main_button_1, 50, 190, 120, 440, 30)
-#~ 
-    #~ $main_button_1.make_menu(50, 190, 120, 440, nil)
-    #~ $sub_menu.make_button(60, 200, 100, 30, "Sub choice 1") do
-      #~ puts "choice 1"
-    #~ end
-    #~ $sub_menu.make_button(60, 240, 100, 30, "Sub choice 2") do
-      #~ puts "choice 2"
-    #~ end
-    #~ $sub_menu.make_button(60, 280, 100, 30, "Sub choice 3") do
-      #~ puts "choice 3"
-    #~ end
-    #~ $sub_menu.fit_children
-    #~ $sub_menu.hide
-
 
     
     $main_button_2= ma.make_button(260, 240, 100, 30, "New") do
@@ -290,11 +279,12 @@ def do_main_menu
     $main_menu.fit_children
   end
 
-  $settings_ui = Zori.make_page(:settings) do |se|
-      $lote2          = se.make_longtext(100, 10, 160, 400, INTRO_TEXT)
-      $lote2.delay    = -1
-      $lote2.page_lines = 99999
-      $lote2.line_stop = 99999
+  Zori.make_page(:settings) do |se|
+      $lote2          = se.make_longtext(100, 10, 160, 100, INTRO_TEXT)
+      $lote2.delay    = 1
+      $lote2.page     = 0
+      $lote2.page_lines = 3
+      # $lote2.line_stop = 999990
       
       $settings_menu  = se.make_menu(480, 380, 120, 440, nil)
       sm              = $settings_menu
@@ -319,26 +309,26 @@ def do_main_menu
       sm.fit_children
   end
 
-  $main_page.hide
-  $settings_ui.hide
+  Zori[:main_page].hide
+  Zori[:settings].hide
   $sub_menu.hide
-  puts "---- Hide done! ---- #{$sub_menu} #{$sub_menu.hidden?}"
 
   Zori.go(:main_menu)
-  puts "play_music #{res} #{$main_music}"
 end
 
 
 def on_start(*args)
   puts "on_start #{args}"
+  State.time_start = Eruta.time
+
 
   if START_TEST_MAP
     start_load_tilemap
     start_load_sprites
     start_load_stuff
     start_setup_ui
-    actor_switch($thing_100)
-  else
+    actor_switch(Thing[100])
+      else
     Zori.open
     do_main_menu()
   end
@@ -364,15 +354,14 @@ def ok!
   log "OK, it works!"
 end
 
-$time_start = Eruta.time
 
 def on_update(dt)
   time_now = Eruta.time
-  if (time_now - $time_start) > 10.0
+  if (time_now - State.time_start) > 10.0
     # puts "Tick Tock goes the clock."
     # do something here if needed ... 
-    $time_start = time_now
-  end  
+    State.time_start = time_now
+  end
   return nil
 end
 
@@ -384,13 +373,43 @@ def actor_switch(new_actor)
   return new_actor
 end
 
+def actor_continue_talk
+  if State.talk_box.at_end?
+    State.talk_box.hide
+    State.talk_with    = nil
+    p "Talk ended."
+  elsif State.talk_box.paused
+    res = (State.talk_box.next_page)
+    p "Continue_talk", res
+  else
+    State.talk_box.delay = 0.05
+    p "Talking speed up"
+    # speed up talk here?
+  end
+end
+
+def actor_start_search
+  p "starting search"
+  found = Thing.actor.find_in_front(60, 60)
+  unless found.empty?
+    first                     = found.first
+    State.talk_box.delay      = 0.05
+    State.talk_box.show
+    State.talk_box.text       = "Let's make this text a bit longer\n
+Hi there, I'm #{first.id}!"
+    State.talk_with           = first
+  end
+end
 
 # Searches and interacts with things in front of the actor.
-def actor_search
+# Or if already talking/reading, continue with it.
+def actor_search_or_talk
   return if !Thing.actor
-  found = Thing.actor.find_in_front(60, 60)
-  puts "Searching in front of actor:"
-  p found
+  if State.talk_with
+    actor_continue_talk
+  else
+    actor_start_search
+  end
 end
 
 # Show a reminder of the key bindings on stdout
@@ -407,51 +426,66 @@ def show_keybindings
   puts "R: Toggle the visibility of the area spRites."
   puts "S: Show 2D scene graph GUI"
   puts "Arrow keys: Move active actor."
-  puts "Space: search in front of active actor."
+  puts "Space: search in front of active actor or continue talking."
 end
 
 # Handle key down
 def on_key_down(time, key)
+
+  # Filter away duplicated keystrokes. XXX: find out WHY these occur.
+  if State.last_key_time
+    delta = time - State.last_key_time
+    if (delta < 0.00001) && State.last_key == key
+      State.last_key_time = time
+      State.last_key      = key
+      p "Duplicated keystroke: #{time} #{key}"
+      return
+    end
+  end
+  State.last_key_time = time
+  State.last_key      = key
+ 
+  p "on_key_down #{time} #{key}"
   actor         = Thing.actor
   return nil unless actor
   vx, vy        = * actor.v
   case key
-  when KEY_A
-    actor_switch($thing_100)
-  when KEY_B
-    actor_switch($thing_101)
-  when KEY_E
-    reload_tilemap()
-  when KEY_H
-    Eruta::Graph.visible_(52, 0)
-  when KEY_M
+    when KEY_A
+      actor_switch(Thing[100])
+    when KEY_B
+      actor_switch(Thing[101])
+    when KEY_E
+      reload_tilemap()
+    when KEY_H
+      Eruta::Graph.visible_(52, 0)
+    when KEY_M
       active_map_($tilemap_id)
-  when KEY_N
-    active_map_(-1)
-  when KEY_S
-    Eruta::Graph.visible_(52, 1)
-  when KEY_F
-    Eruta.show_fps = ! Eruta.show_fps
-  when KEY_R
-    Eruta.show_area= ! Eruta.show_area
-  when KEY_G
-    Eruta.show_graph= ! Eruta.show_graph
-  when KEY_P
-    Eruta.show_physics= ! Eruta.show_physics
-  when KEY_UP
-    vy -= 100.0
-  when KEY_DOWN
-    vy += 100.0
-  when KEY_LEFT
-    vx -= 100.0
-  when KEY_RIGHT
-    vx += 100.0
-  when KEY_SPACE
-    puts "Searching..."
-    actor_search
-  when KEY_COMMA
-    show_keybindings
-  else
+    when KEY_N
+      active_map_(-1)
+    when KEY_S
+      Eruta::Graph.visible_(52, 1)
+    when KEY_F
+      Eruta.show_fps=     !Eruta.show_fps
+    when KEY_R
+      Eruta.show_area=    !Eruta.show_area
+    when KEY_G
+      Eruta.show_graph=   !Eruta.show_graph
+    when KEY_P
+      Eruta.show_physics= !Eruta.show_physics
+    when KEY_UP
+      vy -= 100.0
+    when KEY_DOWN
+      vy += 100.0
+    when KEY_LEFT
+      vx -= 100.0
+    when KEY_RIGHT
+      vx += 100.0
+    when KEY_SPACE
+      puts "Searching..."
+      actor_search_or_talk
+    when KEY_COMMA
+      show_keybindings
+    else
   end
   actor.v = [ vx, vy ]
   return nil
@@ -471,6 +505,8 @@ def on_key_up(time, key)
     vx = 0.0
   when KEY_RIGHT
     vx = 0.0
+  when KEY_SPACE
+    State.talk_box.delay = 0.1 if State.talk_with
   else
   end
   actor.v = [vx, vy]

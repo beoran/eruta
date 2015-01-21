@@ -15,6 +15,11 @@ class Thing < Eruta::Thing
     @registry[thing.id] = thing
   end
 
+  # Look up a thing in the thing registry
+  def self.[](id)
+    @registry[id]
+  end
+
   def self.lookup(thing_id)
     return @registry[thing_id]
   end

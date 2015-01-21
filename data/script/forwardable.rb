@@ -1,7 +1,7 @@
 # My own version of the forwardable mixin in with the def_delegator
-# However it must be used with etend, not include
+# However it must be used with extend, not include
 module Forwardable
-  # Forwards methods to Eruta::Graph(@id, * args)
+  # Forwards methods to the given named instance
   def def_delegator(obj_name, name, alias_name = nil)
     alias_name ||= name
     define_method(alias_name)  do |*args|

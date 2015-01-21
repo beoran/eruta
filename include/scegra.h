@@ -134,8 +134,8 @@ int scegra_page(int index);
 int scegra_page_(int index, int page);
 int scegra_next_page(int index);
 int scegra_previous_page(int index);
-
-
+int scegra_last_page(int index);
+int scegra_at_end(int index);
 
 int scegra_show_system_mouse_cursor(int show);
 

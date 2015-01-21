@@ -221,9 +221,13 @@ module Zori
   def self.go(name)
     self.root.go(name)
   end
-  
 
-  # send an event to the UI subsystem. this may NOT be named on_poll
+  # Looks up a registered page by page name
+  def [](page_name)
+    return self.root[page_name]
+  end
+
+  # Send an event to the UI subsystem. This may NOT be named on_poll
   # or we get infinite recursion due to inheritance from Object.
   def self.on_event(*args)
     return self.root.on_event(*args)

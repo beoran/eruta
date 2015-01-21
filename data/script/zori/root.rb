@@ -24,7 +24,7 @@ module Zori
     # Loads the common data for the Root widget.
     def load_common_data
       # @font           = Store.load_ttf_font('/font/Tuffy.ttf', 16) 
-      @font           = Store.load_ttf_font('/font/unifont.ttf', 16) 
+      @font           = Store.load_ttf_font('/font/unifont.ttf', :font_unifont, 16) 
       
       
       @mouse_image    = Store.load_bitmap('/image/gin/fountain-pen_32.png')
@@ -68,6 +68,11 @@ module Zori
     def unregister(page)
       @pages ||= {}
       @pages[page.name] = nil
+    end
+
+    # Looks up a registered page
+    def [](page_name)
+      return @pages[page_name]
     end
     
     # Returns the page for the given name. 
