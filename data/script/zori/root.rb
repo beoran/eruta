@@ -24,16 +24,17 @@ module Zori
     # Loads the common data for the Root widget.
     def load_common_data
       # @font           = Store.load_ttf_font('/font/Tuffy.ttf', 16) 
-      @font           = Store.load_ttf_font('/font/unifont.ttf', :font_unifont, 16) 
+      @font           = Store.load_ttf_font(:font_gui, '/font/unifont.ttf', 16) 
       
       
-      @mouse_image    = Store.load_bitmap('/image/gin/fountain-pen_32.png')
+      @mouse_image    = Store.load_bitmap(:bitmap_mouse_cursor,
+                                          '/image/gin/fountain-pen_32.png')
       @mouse_image.average_to_alpha(255,255,255)
       @mouse_graph    = Graph.make_image(200, 200, @mouse_image.id)
       @mouse_graph.z  = 9999
       @mouse_graph.image_flags = Eruta::FLIP_HORIZONTAL | Eruta::FLIP_VERTICAL
       
-      @cursor_image   = Store.load_bitmap('/image/gin/curled-leaf_32.png')
+      @cursor_image   = Store.load_bitmap(:bitmap_cursor, '/image/gin/curled-leaf_32.png')
       @cursor_image.average_to_alpha(255,255,255)    
       @cursor_graph   = Graph.make_image(100,100, @cursor_image.id)
       @cursor_graph.z = 10000
@@ -52,8 +53,8 @@ module Zori
 
     # Creates a select mark graph for any widget
     def create_select_mark
-      select_mark         = Graph.make_image(100, 100, @cursor_image.id)
-      select_mark.z       = 9998
+      select_mark             = Graph.make_image(100, 100, @cursor_image.id)
+      select_mark.z           = 9998
       select_mark.image_flags = Eruta::FLIP_HORIZONTAL
       return select_mark
     end
@@ -61,24 +62,25 @@ module Zori
     # Unregisters a page
     def register(page)
       @pages ||= {}
-      @pages[page.name] = page
+      @pages[page.name.to_sym] = page
     end
     
     # Registers a page
     def unregister(page)
       @pages ||= {}
-      @pages[page.name] = nil
+      @pages[page.name.to_sym] = nil
     end
 
-    # Looks up a registered page
-    def [](page_name)
-      return @pages[page_name]
-    end
-    
     # Returns the page for the given name. 
     def for_name(name) 
       @pages ||= {}
+      p @pages.keys
       return @pages[name.to_sym]
+    end
+
+    # Looks up a registered page
+    def [](name)
+      return for_name(name)
     end
     
     # Returns the currently active page or nil for none.

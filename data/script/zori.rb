@@ -223,7 +223,7 @@ module Zori
   end
 
   # Looks up a registered page by page name
-  def [](page_name)
+  def self.[](page_name)
     return self.root[page_name]
   end
 

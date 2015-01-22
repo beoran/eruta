@@ -52,7 +52,7 @@ Resor * store_load_tilemap(int index, const char * vpath);
 /* Returns a pointer to an "other" type of data from storage. Kind must match. */
 void * store_get_other(int index, unsigned kind);
 
-
+int store_get_unused_id(int minimum);
 
 
 

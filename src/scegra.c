@@ -638,7 +638,31 @@ scegranode_init_image(ScegraNode * self, int id, BeVec pos, BeVec siz, int image
 }
 
 
+/* Returns nonzero if the scegranode is in use, false if not */
+static int scegranode_in_use_p(ScegraNode * node) {
+  return node->id != -1;
+}
 
+/* Returns nonzero if the scene graph node id is in use. Also returns
+ * false if the ID is out of range. */
+int scegra_id_in_use_p(int index) {
+  ScegraNode * node = scegra_get_node(index);
+  if (!node) return FALSE;
+  return scegranode_in_use_p(node);
+}
+
+/* Returns the first free ID that is larger than the minimum. Returns
+ * negative if no more ID's are free. */
+int scegra_get_free_id(int minimum) {
+  int index;
+  if (minimum < 0) return -1;
+  for (index = minimum; index < SCEGRA_NODES_MAX; index++) {
+    if (!scegra_id_in_use_p(index)) {
+      return index;
+    }
+  }
+  return -1; 
+}
 
 /* Returns maximum amount of nodes. */
 int scegra_nodes_max() {

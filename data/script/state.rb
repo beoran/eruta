@@ -2,25 +2,40 @@
 # Just so no global variables are needed...
 module State
   class << self
-    # Thing the actor is currently talking with.
-    attr_accessor :talk_with
+    def prepare_registry
+      @registry ||= {}
+    end
 
-    # Dialog box
-    attr_accessor :talk_box 
+    def get(name)
+      prepare_registry
+      return @registry[name.to_sym]
+    end
 
-    # GUI state
-    attr_accessor :gui
+    def put(name, value)
+      prepare_registry
+      return @registry[name.to_sym] = value
+    end
 
-    # Keyboard double keystroke prevention filter
-    attr_accessor :last_key_time
-    
-    # Keyboard double keystroke prevention filter
-    attr_accessor :last_key
 
-    # Startup time of the engine
-    attr_accessor :time_start
+    def [](name)
+      prepare_registry
+      return get(name)
+    end
 
-    
+    def []=(name, value)
+      prepare_registry
+      return put(name, value)
+    end
+
+    def method_missing(name, *args)
+      names = name.to_s
+      if names[-1] == '='
+        self.put(names[0, names.size - 1], *args)
+      else
+        self.get(names)
+      end
+    end
+
   end
 end
 

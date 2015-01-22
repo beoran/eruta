@@ -256,7 +256,7 @@ static mrb_value tr_image_average_to_alpha(mrb_state * mrb, mrb_value self) {
 }
 
 
-
+TR_WRAP_I_INT(tr_store_get_unused_id, store_get_unused_id);
 
 
 /** Initialize mruby bindings to data storage functionality.
@@ -304,16 +304,17 @@ int tr_store_init(mrb_state * mrb, struct RClass * eru) {
   
   
   
-  TR_CLASS_METHOD_ARGC(mrb, sto, "drop"           , tr_store_drop, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_flags"   , tr_store_get_bitmap_flags, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_width"   , tr_store_get_bitmap_width, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_height"  , tr_store_get_bitmap_height, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "drop"             , tr_store_drop, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_flags"     , tr_store_get_bitmap_flags, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_width"     , tr_store_get_bitmap_width, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "bitmap_height"    , tr_store_get_bitmap_height, 1);
   
-  TR_CLASS_METHOD_ARGC(mrb, sto, "font_ascent"    , tr_store_get_font_ascent, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "font_descent"   , tr_store_get_font_descent, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "font_line_height", tr_store_get_font_line_height, 1);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "text_dimensions", tr_store_get_text_dimensions, 2);
-  TR_CLASS_METHOD_ARGC(mrb, sto, "text_width"     , tr_store_get_text_width, 2);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "font_ascent"      , tr_store_get_font_ascent, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "font_descent"     , tr_store_get_font_descent, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "font_line_height" , tr_store_get_font_line_height, 1);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "text_dimensions"  , tr_store_get_text_dimensions, 2);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "text_width"       , tr_store_get_text_width, 2);
+  TR_CLASS_METHOD_ARGC(mrb, sto, "get_unused_id"    , tr_store_get_unused_id, 1);
 
 
   return 0;

@@ -2,120 +2,98 @@
 
 # How to organise the game state, loaded data, etc in a neat way?
 # Use a central repository or per type/class repositories???
-#
+# -> use per type registries for ease of use.
+# In a central repository it's neccessary to do something like
+# Repo[:font_tuffy]
+# withe with per-type repos I can say
+# Font[:tuffy] with is more compact and clear.
+# Store items will have to be maintained both in
+# Store by ID and in the relevant subclass  
+
+script 'registry.rb'
 
 class Store
   attr_reader :id
   attr_reader :name
-  
-  def self.registry
-    @registry ||= {}
-  end
-  
-  def self.register(thing)
-    @registry         ||= {}
-    @registry_by_name ||= {}
-    @registry[thing.id] = thing
-    @registry_by_name[thing.name.to_sym] = thing
-  end
-  
-  def self.unregister(thing)
-    @registry         ||= {}
-    @registry_by_name ||= {}
-    @registry[thing.id] = nil
-    @registry_by_name[thing.name.to_sym] = nil
-  end
 
-  # Looks up an item in storage by name.
-  def self.[](name)
-    return @registry_by_name[name.to_sym]
-  end
-
+  extend Registry
+  
   # Initialize a storage item.
   def initialize(id, name) 
     @id   = id
     @name = name
-    self.class.register(self)
-  end
-
-  # Looks up an ID that hasn't been used before.
-  def self.get_unused_id
-    29000.times do | i | 
-      j = i + 1000
-      return j unless self.registry[j]
-    end
-    return nil
+    self.class.register(self, self.id, self.name)
   end
 
   # Load helper
-  def self.load_something(vpath, name = nil, id = nil, &block)
-    id    ||= self.get_unused_id
-    name  ||= vpath
-    return nil if !id
+  def self.load_something(name, vpath, klass = nil, &block)
+    id    = Eruta::Store.get_unused_id(1000)
+    return nil if id < 0
     res = block.call(id)
     return nil unless res
-    return self.new(id, name)
+    klass ||= self
+    return klass.new(id, name)
   end
   
   # loads a bitmap
-  def self.load_bitmap(vpath, name = nil, id = nil)
-    load_something(vpath, name, id) do | nid |
+  def self.load_bitmap(name, vpath)
+    load_something(name, vpath) do | nid |
       Eruta::Store.load_bitmap(nid, vpath)
     end
   end
   
   # Loads bitmap with flags
-  def self.load_bitmap_flags(vpath, name, flags, id = nil)
-    load_something(vpath, name, id) do | nid |
+  def self.load_bitmap_flags(name, vpath, flags)
+    load_something(name, vpath) do | nid |
       Eruta::Store.load_bitmap_flags(nid, vpath, flags)
     end 
   end
 
   # Loads an audio stream
-  def self.load_audio_stream(vpath, name = nil, buffer_count=8, samples=8000, id = nil)
-    load_something(vpath, name, id) do | nid |
+  def self.load_audio_stream(name, vpath, buffer_count=8, samples=8000)
+    load_something(name, vpath) do | nid |
       Eruta::Store.load_audio_stream(nid, vpath, buffer_count, samples)
     end 
   end
   
   # Loads an audio sample 
-  def self.load_sample(vpath, name = nil, id = nil)
-    load_something(vpath, name, id) do | nid |
+  def self.load_sample(name, vpath)
+    load_something(name, vpath) do | nid |
       Eruta::Store.load_sample(nid, vpath)
     end 
   end
    
   # Loads a truetype or opentype font
-  def self.load_ttf_font(vpath, name, height, flags = 0, id = nil)
-    load_something(vpath, name, id) do | nid |
+  def self.load_ttf_font(name, vpath, height, flags = 0)
+    load_something(name, vpath) do | nid |
       Eruta::Store.load_ttf_font(nid, vpath, height, flags=0)
     end 
   end
    
   # Loads a truetype or opentype font and stretches it
-  def self.load_ttf_stretch(vpath, name, height, width, flags, id = nil)
-    load_something(vpath, name, id) do | nid |
+  def self.load_ttf_stretch(name, vpath, height, width, flags)
+    load_something(name, vpath) do | nid |
       Eruta::Store.load_ttf_stretch(nid, vpath, height, width, flags)
     end 
   end
 
   # Loads a bitmap font 
-  def self.load_bitmap_font(vpath, name = nil, id = nil)
+  def self.load_bitmap_font(name, vpath)
     load_something(vpath, name, id) do | nid |
       Eruta::Store.load_bitmap_font(nid, flags)
     end 
   end
   
-  # Loads a bitmap font with flags  
-  def self.load_bitmap_font(vpath, name, flags, id = nil)
-    load_something(vpath, name, id) do | nid |
+  # Loads a bitmap font with flags 
+  def self.load_bitmap_font(name, vpath, flags)
+    load_something(name, vpath) do | nid |
       Eruta::Store.load_bitmap_font_flags(nid, vpath, flags)
     end 
   end
   
   # Loads a tile map
-  def self.load_tilemap(vpath, name = nil, id = nil)
-    load_something(vpath, name, id) do | nid |
+  def self.load_tilemap(name, vpath)
+    load_something(name, vpath) do | nid |
       Eruta::Store.load_tilemap(nid, vpath)
     end 
   end
@@ -195,7 +173,17 @@ class Store
   def text_width(text)
     return Eruta::Store.text_width(@id, text)
   end
-  
+
+  # extend this module to makea class forward it's load, drop! and lookup calls 
+  module Forward
+    def forwarded_name(name)
+      return self.to_s.downcase + '_' + name.to_s
+    end
+    
+    def [](name)
+      return Store[forwarded_name(name)]
+    end    
+  end
   
 end
 

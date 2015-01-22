@@ -100,6 +100,9 @@ void scegra_update(double dt);
 
 void scegra_init();
 int scegra_nodes_max();
+int scegra_id_in_use_p(int index);
+int scegra_get_free_id(int minimum);
+
 ScegraStyle *scegrastyle_initempty(ScegraStyle *self);
 void scegra_draw_image(ScegraNode *self);
 void scegra_draw_text(ScegraNode *self);

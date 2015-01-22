@@ -29,7 +29,7 @@ Thing * area_thing (Area * area , int index);
 
 Thing * area_thing_(Area * area , int index , Thing * set);
 
-int area_thingid (Area * self);
+int area_get_unused_thing_id(Area * self, int minimum);
 
 Thing * area_addthing (Area * area , int index, Thing * thing);
 

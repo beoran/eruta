@@ -98,6 +98,9 @@ static mrb_value tr_sprite_tint(mrb_state * mrb, mrb_value self) {
 }
 
 
+TR_WRAP_I_INT(tr_sprite_get_unused_id, state_get_unused_sprite_id);
+
+
 
 /** Initialize mruby bindings to sprite functionality.
  * Eru is the parent module, which is normally named "Eruta" on the
@@ -129,6 +132,7 @@ int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_ARGC(mrb, spr, "get"           , tr_sprite, 1);
   TR_CLASS_METHOD_ARGC(mrb, spr, "load_ulpcss"   , tr_sprite_loadulpcss, 3);
   TR_CLASS_METHOD_ARGC(mrb, spr, "tint_rgba"     , tr_sprite_tint, 6);
+  TR_CLASS_METHOD_ARGC(mrb, spr, "get_unused_id" , tr_sprite_get_unused_id, 1);
 
 
 

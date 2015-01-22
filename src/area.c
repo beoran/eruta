@@ -51,33 +51,31 @@ int area_maxthings(Area * area) {
 
 /** Gets the thing for the given thing ID. */
 Thing * area_thing(Area * area, int index) {
-  if(index < 0) return NULL;
-  if(index > AREA_THINGS) return NULL;
-  if(!area) return NULL;
+  if (index < 0) return NULL;
+  if (index > AREA_THINGS) return NULL;
+  if (!area) return NULL;
   return area->things[index];
 }
 
 /** Sets the thing for the given thing ID. */
 Thing * area_thing_(Area * area, int index, Thing * set) {
-  if(index < 0) return NULL;
-  if(index > AREA_THINGS) return NULL;
-  if(!area) return NULL;
+  if (index < 0) return NULL;
+  if (index > AREA_THINGS) return NULL;
+  if (!area) return NULL;
   return area->things[index] = set;
 }
 
 
-/** Returns an ID for a thing to use. Internally walks over the
-known things and finds an empty cell. Returns negative on error. */
-int area_thingid(Area * self) {
+/** Returns the first unused Thing ID greater than minimum Internally walks over
+ * the known things and finds an empty cell. Returns negative on error. */
+int area_get_unused_thing_id(Area * self, int minimum) {
   int index, stop;
-  if(!self) return -1;
+  if (!self) return -1;
+  if (minimum < 0) return -2;
   stop = area_maxthings(self);
-  for (index= 0; index < stop; index++) {
+  for (index = minimum; index < stop; index++) {
     Thing * thing = area_thing(self, index);
     if(!thing) {
-      if(index >= self->lastid) {
-        self->lastid = index;
-      }
       return index;
     }
   }

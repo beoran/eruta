@@ -186,6 +186,8 @@ Sprite     * spritelist_newsprite(SpriteList * self, int index);
 Sprite     * spritelist_getornew(SpriteList * self, int index);
 Sprite     * spritelist_loadlayer_ulpcss_vpath(
               SpriteList * self, int index,  int layerindex, char * vpath);
+int spritelist_get_unused_sprite_id(SpriteList * self, int minimum);
+
 
 /* Applies a tint to a whole layer of a sprite. */
 Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color);

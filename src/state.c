@@ -938,4 +938,13 @@ int state_image_average_to_alpha(State * state, int store_index, int r, int g, i
   return store_index;
 }
 
+/* Returns the first unused thing ID that is greater than minimum. */
+int state_get_unused_thing_id(int minimum) {
+  return area_get_unused_thing_id(state_area(state_get()), minimum);
+}
+
+/* Returns the first unused sprite ID that is greater than minimum. */
+int state_get_unused_sprite_id(int minimum) {
+  return spritelist_get_unused_sprite_id(state_sprites(state_get()), minimum);
+}
 

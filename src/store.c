@@ -245,6 +245,21 @@ bool store_get_font_descent(int index, int * value) {
 bool store_get_font_line_height(int index, int * value) {
   return resor_get_font_line_height(store_get(index), value);  
 }
+  
+
+/* Returns the first unused store ID larger than minimum. */
+int store_get_unused_id(int minimum) {
+  int index, stop;
+  if (minimum < 0) return -2;
+  stop = store_max();
+  for (index = minimum; index < stop; index++) {
+    Resor * resource =  store_get(index);
+    if (!resource) {
+      return index;
+    }
+  }
+  return -3;
+}
 
 
 

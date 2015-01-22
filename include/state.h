@@ -97,7 +97,8 @@ int global_state_show_area_(int show);
 int global_state_show_physics();
 int global_state_show_physics_(int show);
 
-
+int state_get_unused_thing_id(int minimum);
+int state_get_unused_sprite_id(int minimum);
 
 
 

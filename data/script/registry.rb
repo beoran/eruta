@@ -20,10 +20,11 @@ module Registry
   # The obj should respond to :name and :id
   def register(obj, id = nil, name = nil)
     prepare_registry
-    id, name                        = get_registry_id_and_name(obj, id, name)
+    id, name                       = get_registry_id_and_name(obj, id, name)
     @registry_by_id[id]            = obj
     @registry_by_name[name.to_sym] = obj
   end
+
 
   # Unregisters the object
   def unregister(obj, id = nil, name = nil)
@@ -46,12 +47,13 @@ module Registry
 
   # Looks up an ID that hasn't been used yet in the per-ID registry
   # pass in the valdd range for the ID
-  def registry_get_unused_id(range = (1000..30000))
-    low  = r.begin
-    stop = r.end - r.begin
+  def get_unused_registry_id(range = (1000..30000))
+    prepare_registry
+    low  = range.begin
+    stop = range.end - range.begin
     stop.times do | i | 
       j = i + low
-      return j unless self.registry[j]
+      return j unless @registry_by_id[j]
     end
     return nil
   end

@@ -3,7 +3,7 @@
 # Set this to true to start a test map in stead of the normal main menu on startup.
 START_TEST_MAP = false
 # Play music at startup
-PLAY_MUSIC = false
+PLAY_MUSIC     = false
 # Show main background
 MAIN_BACKGROUND = true
 
@@ -93,80 +93,28 @@ def start_load_sprites
 
 end
 
-ZIGZAG_LEAF = 10001
 
 def start_load_stuff
-  res = load_bitmap(ZIGZAG_LEAF, "image/ui/icon/gin/zigzag-leaf_64.png")
-  puts "start_load_stuff: #{res}"
-  res = store_kind(ZIGZAG_LEAF)
-  puts "type: #{res}"
-  res = store_kind(ZIGZAG_LEAF + 1)
-  puts "type: #{res}"
-  h   = Eruta::Store.bitmap_height(ZIGZAG_LEAF)
-  w   = Eruta::Store.bitmap_width(ZIGZAG_LEAF)
-  puts "h: #{h} w: #{w}"
-
-end
-
-FONT_ID = 987
-
-def start_setup_ui
-  begin
-
-  return nil
-  
-  font   = Eruta::Store.load_ttf_font('/font/Tuffy.ttf', :font_tuffy, 18, 0)
-  $box_1 = Graph.make_box(570, 10, 60, 240, 4, 4, -1)
-  $box_1.background_color = [ 16, 16, 64, 190 ]
-  $box_1.border_color     = [ 255, 255, 255 ]
-  $box_1.border_thickness = 1
-
-  #" box  = Eruta::Graph.make_box(51, 570, 10, 60, 240, 4, 4, -1)
-  # Eruta::Graph.background_color_(box, 20, 128, 20, 190)
-  # Eruta::Graph.border_color_(box, 255, 255, 255, 255)
-  # Eruta::Graph.border_thickness_(box, 1)
-
-
-  $zigzag = Store.load_bitmap("image/gin/zigzag-leaf_64.png")
-  res2 = nil
-  puts "start_load_stuff: #{font}, #{res2}, #{$zigzag},"
-
-  # res2 = Eruta::Store.mask_to_alpha(ZIGZAG_LEAF, 0, 0, 0)
-  res2 = $zigzag.average_to_alpha(0, 0, 255)
-
-  puts "start_load_stuff: #{font}, #{res2}, #{$zigzag},"
-  img = Eruta::Graph.make_image(52, 123, 245, $zigzag.id, -1)
-
-
-  # Eruta::Graph.color_(img, 0, 0, 20, 255)
-  Eruta::Graph.size_(img, 16, 16)
-  # Eruta::Graph.angle_(img, 1.23)
-  puts "img: #{img}"
-  
-  box = Eruta::Graph.make_text(53, 0, 70, "i"*256, -1)
-  Eruta::Graph.font_(53, FONT_ID)
-  Eruta::Graph.background_color_(53, 0, 0, 0, 255)
-  Eruta::Graph.border_color_(53, 0, 0, 0, 0)
-
-  rescue Exception
-    puts "#{$!}"
-  end
 end
 
 def start_load_tilemap
-  $tilemap_id = 20001
-  $tilemap_fn = 'map/map_0001.tmx'
-  $tilemap_1  = Store.load_tilemap($tilemap_fn, $tilemap_id)
-  active_map_ $tilemap_1.id
+  tilemap_fn = 'map/map_0001.tmx'
+  tilemap  = Store.load_tilemap(:map_0001, tilemap_fn)
+  State.tilemap_name = :map_0001
+  active_map_ tilemap.id
+  
 end
 
 
 def reload_tilemap
-  $tilemap_id = 20001
   active_map_(-1) # disable map
-  $tilemap_1.drop! if $tilemap_1
-  $tilemap_1  = Store.load_tilemap($tilemap_fn, $tilemap_id)
-  active_map_ $tilemap_1.id
+  if State.tilemap_name
+    old_map = Store[State.tilemap_name]
+    old_map.drop! if old_map
+  end
+  tilemap_fn = 'map/map_0001.tmx'
+  tilemap  = Store.load_tilemap(:map_0001, tilemap_fn)
+  active_map_ tilemap.id
 end
 
 
@@ -174,7 +122,7 @@ def do_start_test_map
     start_load_tilemap
     start_load_sprites
     start_load_stuff
-    start_setup_ui
+  # start_setup_ui
     actor_switch(Thing[100])
 end
 
@@ -227,11 +175,11 @@ def make_sub_menu(parent, x, y, w, h, bh)
 end
 
 def do_main_menu
-  $main_music   = Store.load_audio_stream('/music/nethis-the_writer.ogg')
+  $main_music   = Store.load_audio_stream(:music_main, '/music/nethis-the_writer.ogg')
   $lote         = nil
   $lobe         = nil
   if PLAY_MUSIC
-    Eruta::Audio.music_id = $main_music.id
+    Eruta::Audio.music_id = Store[:music_main].id
     res = Eruta::Audio.play_music
   end
   # res = nil
@@ -249,69 +197,70 @@ def do_main_menu
   
   Zori.make_page(:main_menu) do |m|
     if MAIN_BACKGROUND 
-      $main_back    = Store.load_bitmap('/image/background/eruta_mainmenu.png')
+      main_back    = Store.load_bitmap(:bitmap_background,
+                    '/image/background/eruta_mainmenu.png')
     end
-    m.graph_image(0, 0, $main_back.id)
-    $main_menu    = m.make_menu(250, 190, 120, 440, nil)
-    ma            = $main_menu
 
-    $main_button_1= ma.make_button(260, 200, 100, 30, "Continue")
-    $sub_menu = make_sub_menu($main_button_1, 50, 190, 120, 440, 30)
+    m.graph_image(0, 0, main_back.id)
+    main_menu     = m.make_menu(250, 190, 120, 440, nil)
+    ma            = main_menu
 
+    main_button_1 = ma.make_button(260, 200, 100, 30, "Continue")
+    sub_menu = make_sub_menu(main_button_1, 50, 190, 120, 440, 30)
+    sub_menu.hide
     
-    $main_button_2= ma.make_button(260, 240, 100, 30, "New") do
+    main_button_2 = ma.make_button(260, 240, 100, 30, "New") do
       do_start_test_map
       Zori.go(:default)
     end
-    $main_button_3= ma.make_button(260, 280, 100, 30, "Settings") do
-#       $lote = Graph.make_longtext(30, 10, 200, 400, INTRO_TEXT)
-#       $lote.font             = Eruta::Zori.font.id
-#       $lote.background_color = [0,0,0]
+    
+    main_button_3 = ma.make_button(260, 280, 100, 30, "Settings") do
       Zori.go(:settings)
     end
-    $main_button_4= ma.make_button(260, 320, 100, 30, "Instructions")
-    $main_button_5= ma.make_button(260, 360, 100, 30, "µ£éè")
-    $main_button_5 << $sub_menu
     
-    $main_button_5= ma.make_button(260, 400, 100, 30, "Quit") do
+    main_button_4 = ma.make_button(260, 320, 100, 30, "Instructions")
+    main_button_5 = ma.make_button(260, 360, 100, 30, "µ£éè")
+    main_button_5 << sub_menu
+    
+    main_button_5= ma.make_button(260, 400, 100, 30, "Quit") do
       Eruta.quit
     end
-    $main_menu.fit_children
+    
+    main_menu.fit_children
   end
 
   Zori.make_page(:settings) do |se|
-      $lote2          = se.make_longtext(100, 10, 160, 100, INTRO_TEXT)
-      $lote2.delay    = 1
-      $lote2.page     = 0
-      $lote2.page_lines = 3
+      lote2          = se.make_longtext(100, 10, 160, 100, INTRO_TEXT)
+      lote2.delay    = 1
+      lote2.page     = 0
+      lote2.page_lines = 3
       # $lote2.line_stop = 999990
       
-      $settings_menu  = se.make_menu(480, 380, 120, 440, nil)
-      sm              = $settings_menu
-      $settings_ok_button = sm.make_button(500, 300, 100, 30, "Font 1") do
-         if $lote2
-            $lote2.graph.each { |g| g.font = 0 }
+      settings_menu  = se.make_menu(480, 380, 120, 440, nil)
+      sm             = settings_menu
+      settings_ok_button = sm.make_button(500, 300, 100, 30, "Font 1") do
+         if lote2
+            lote2.graph.each { |g| g.font = 0 }
          end
       end
-      $settings_ok_button = sm.make_button(500, 350, 100, 30, "Font 2") do
-         if $lote2
-            $lote2.graph.each { |g| g.font = Eruta::Zori.font.id }
+      settings_ok_button = sm.make_button(500, 350, 100, 30, "Font 2") do
+         if lote2
+            lote2.graph.each { |g| g.font = Eruta::Zori.font.id }
          end
-         $lote2.text = INTRO_TEXT2
+         lote2.text = INTRO_TEXT2
       end
-      $settings_ok_button = sm.make_button(500, 400, 100, 30, "OK") do
+      settings_ok_button = sm.make_button(500, 400, 100, 30, "OK") do
          Zori.go(:main_menu)
-         if $lote
-            $lote.close
-            $lote = nil
+         if lote
+            lote.close
+            lote = nil
          end
       end
       sm.fit_children
   end
 
-  Zori[:main_page].hide
+  Zori[:main_menu].hide
   Zori[:settings].hide
-  $sub_menu.hide
 
   Zori.go(:main_menu)
 end
@@ -356,6 +305,7 @@ end
 
 
 def on_update(dt)
+=begin
   time_now = Eruta.time
   if (time_now - State.time_start) > 10.0
     # puts "Tick Tock goes the clock."
@@ -363,6 +313,7 @@ def on_update(dt)
     State.time_start = time_now
   end
   return nil
+=end
 end
 
 def actor_switch(new_actor)

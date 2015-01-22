@@ -902,10 +902,10 @@ Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite) {
   return self->sprite;
 }
 
-  /* No cleanup since the Sprite * is owned by the sprite list. 
+/* No cleanup since the Sprite * is owned by the sprite list. 
   This function exists for future extensio only and should be called to 
   prepare for any owned pointers if those turn out to be needed.
-  */
+*/
 SpriteState * spritestate_done(SpriteState * self) { 
   return self;
 } 
@@ -1165,6 +1165,20 @@ Sprite * spritelist_loadlayer_ulpcss_vpath(
 }
 
 
+/* Returns the first unused sprite ID larger than minimum. */
+int spritelist_get_unused_sprite_id(SpriteList * self, int minimum) {
+  int index, stop;
+  if (!self) return -1;
+  if (minimum < 0) return -2;
+  stop = dynar_size(self->sprites);
+  for (index = minimum; index < stop; index++) {
+    Sprite * sprite = spritelist_sprite(self, index);
+    if (!sprite) {
+      return index;
+    }
+  }
+  return -3;
+}
 
 
 
