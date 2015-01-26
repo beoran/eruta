@@ -22,5 +22,16 @@ class Music < Store
     return Eruta::Audio.play_music
   end
 
+  # Stops playing the music immediately 
+  def self.stop!
+    Eruta::Audio.stop_music
+  end
+  
+  # Stops playing the music immediately 
+  def stop!
+    Music.stop!
+  end
+
+
 
 end

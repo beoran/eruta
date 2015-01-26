@@ -4,16 +4,16 @@ class Sample < Store
   extend Store::Forward
 
   # Loads the sound sample.
-  def self.load(name, vpath, buffer_count=8, samples=8000)
+  def self.load(name, vpath)
     load_something(forward_name(name), vpath, self) do | nid |
       Eruta::Store.load_sample(nid, vpath)
     end 
   end
   
-  # Plays this music as the current music starting from the beginning
-  # without transition.
+  # Plays this sample immediately 
   def play!
     Eruta::Audio.play_sample @id
   end
+
 
 end
