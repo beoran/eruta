@@ -2,10 +2,16 @@
 # by name and by id registtry storage and lookup
 module Registry
 
+
   # Sets up the registry
   def prepare_registry
     @registry_by_id              ||= {}
     @registry_by_name            ||= {}
+  end
+
+  def registry_by_name
+    prepare_registry
+    return @registry_by_name 
   end
 
   # Gets the id and name for the object for use with the registry
@@ -38,6 +44,7 @@ module Registry
   # If thing responds to :to_sym it's looked up as a name,
   # otherwise it's looked up by numerical
   def [](name_or_id)
+    prepare_registry
     if name_or_id.respond_to? :to_sym
       return @registry_by_name[name_or_id.to_sym]
     else

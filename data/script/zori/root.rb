@@ -23,18 +23,16 @@ module Zori
     
     # Loads the common data for the Root widget.
     def load_common_data
-      # @font           = Store.load_ttf_font('/font/Tuffy.ttf', 16) 
-      @font           = Store.load_ttf_font(:font_gui, '/font/unifont.ttf', 16) 
+      @font           = Font.load(:font_gui, '/font/unifont.ttf', 16) 
       
-      
-      @mouse_image    = Store.load_bitmap(:bitmap_mouse_cursor,
-                                          '/image/gin/fountain-pen_32.png')
+      @mouse_image    = Bitmap.load(:mouse_cursor,
+                                    '/image/gin/fountain-pen_32.png')
       @mouse_image.average_to_alpha(255,255,255)
       @mouse_graph    = Graph.make_image(200, 200, @mouse_image.id)
       @mouse_graph.z  = 9999
       @mouse_graph.image_flags = Eruta::FLIP_HORIZONTAL | Eruta::FLIP_VERTICAL
       
-      @cursor_image   = Store.load_bitmap(:bitmap_cursor, '/image/gin/curled-leaf_32.png')
+      @cursor_image   = Bitmap.load(:cursor, '/image/gin/curled-leaf_32.png')
       @cursor_image.average_to_alpha(255,255,255)    
       @cursor_graph   = Graph.make_image(100,100, @cursor_image.id)
       @cursor_graph.z = 10000

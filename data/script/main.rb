@@ -8,30 +8,29 @@ PLAY_MUSIC     = false
 MAIN_BACKGROUND = true
 
 # Helpers
-script "forwardable.rb"
+script 'forwardable.rb'
 
 # Game state
-script "state.rb"
+script 'state.rb'
 
 # Load keycodes
-script "keycode.rb"
+script 'keycode.rb'
 # Load OO wrappers
-script "thing.rb"
-script "sprite.rb"
-script "graph.rb"
-script "store.rb"
+script 'thing.rb'
+script 'sprite.rb'
+script 'graph.rb'
+script 'store.rb'
+script 'bitmap.rb'
+script 'font.rb'
 
-# Load UI subsystem.
+# Load UI subsystem
 script 'zori.rb'
 
 
 # Main menu
-script "mainmenu.rb"
+script 'mainmenu.rb'
 
-
-
-
-script "helpers.rb"
+script 'helpers.rb'
 
 puts "Hi from ruby!"
 
@@ -175,12 +174,11 @@ def make_sub_menu(parent, x, y, w, h, bh)
 end
 
 def do_main_menu
-  $main_music   = Store.load_audio_stream(:music_main, '/music/nethis-the_writer.ogg')
+  main_music    = Music.load(:main, '/music/nethis-the_writer.ogg')
   $lote         = nil
   $lobe         = nil
   if PLAY_MUSIC
-    Eruta::Audio.music_id = Store[:music_main].id
-    res = Eruta::Audio.play_music
+    res = main_music.play!
   end
   # res = nil
   # $main_menu = MainMenu.new
@@ -197,11 +195,18 @@ def do_main_menu
   
   Zori.make_page(:main_menu) do |m|
     if MAIN_BACKGROUND 
-      main_back    = Store.load_bitmap(:bitmap_background,
+      main_back    = Bitmap.load(:main_back,
                     '/image/background/eruta_mainmenu.png')
+      p main_back, main_back.width, main_back.height, main_back.name, main_back.id
+                    
+      main_back    = Bitmap.load(:main_back,
+                    '/image/background/eruta_mainmenu.png')
+      p main_back, main_back.width, main_back.height, main_back.name, main_back.id
+      p Bitmap[:main_back]
+      p Store[:bitmap_main_back]
+      m.graph_image(0, 0, main_back.id)
     end
 
-    m.graph_image(0, 0, main_back.id)
     main_menu     = m.make_menu(250, 190, 120, 440, nil)
     ma            = main_menu
 
