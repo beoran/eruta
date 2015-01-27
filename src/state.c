@@ -671,7 +671,10 @@ void state_draw(State * self) {
     for (layer = 0; layer < TILEMAP_PANES; layer++) {
       if (self->active_map) {
         /* Shadows should be drawn *before* the blends, otherwise both won't
-         * look good when combined with each other. */
+         * look good when combined with each other. The problem with that is,
+         * though that shadows are then not cast on the sprites.
+         * Perhaps sprites will need separate shadows???
+         */
         tilemap_draw_layer_tiles(self->active_map, self->camera, layer);
         tilemap_draw_layer_shadows(self->active_map, self->camera, layer);
         tilemap_draw_layer_blends(self->active_map, self->camera, layer);

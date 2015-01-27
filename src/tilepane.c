@@ -501,8 +501,8 @@ void tilepane_draw_shadows_of(Tilepane * pane, Tilepane * pane_below, Camera * c
   int y           = (int) camera_at_y(camera);  
   int txstart     = -1 + x / tilewide;
   int tystart     = -1 + y / tilehigh;
-  int xtilestop   = (camera_w(camera) / tilewide) + 2;
-  int ytilestop   = (camera_h(camera) / tilehigh) + 2;
+  int xtilestop   = (camera_w(camera) / tilewide) + 3;
+  int ytilestop   = (camera_h(camera) / tilehigh) + 3;
   int txstop      = xtilestop + txstart;
   int tystop      = ytilestop + tystart;
   int drawx       = 0;
