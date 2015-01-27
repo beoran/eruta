@@ -75,9 +75,13 @@ void tilemap_draw_layer_shadows(Tilemap * map, Camera * camera, int layer);
 ERES area_tilemap_(Area * self, Tilemap * map);
 
 
+void tilemap_draw_layer_tiles(Tilemap * map, Camera * camera, int layer);
+void tilemap_draw_layer_blends(Tilemap * map, Camera * camera, int layer);
+
+
+
 
 #ifdef COMMENT_
-Tilemap * tilemap_load (lua_State * lua , int index );
 
 Tilepane * tilepane_savefile (Tilepane *pane , int paneid , FILE *fout );
 

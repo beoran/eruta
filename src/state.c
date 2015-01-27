@@ -668,15 +668,16 @@ void state_draw(State * self) {
     }    
     
     /* Draw the layers of the map and area interleaved. */
-    for (layer = 0; layer < TILEMAP_PANES; layer ++) {
+    for (layer = 0; layer < TILEMAP_PANES; layer++) {
       if (self->active_map) {
-        tilemap_draw_layer(self->active_map, self->camera, layer);
+        /* Shadows should be drawn *before* the blends, otherwise both won't
+         * look good when combined with each other. */
+        tilemap_draw_layer_tiles(self->active_map, self->camera, layer);
+        tilemap_draw_layer_shadows(self->active_map, self->camera, layer);
+        tilemap_draw_layer_blends(self->active_map, self->camera, layer);
       }
       if (self->area && self->show_area) {
         area_draw_layer(self->area, self->camera, layer);        
-      }
-      if (self->active_map) {
-        tilemap_draw_layer_shadows(self->active_map, self->camera, layer);
       }
     }
     
@@ -688,13 +689,13 @@ void state_draw(State * self) {
     // alpsshower_draw(&shower, state_camera(state));
     
     
-    /* Draw fps.  */
+    /* Draw fps if needed.  */
     if (self->show_fps) { 
       al_draw_textf(state_font(self), COLOR_WHITE,
                         10, 10, 0, "FPS: %.0f", state_fps(self));
     } 
     
-    /* draw the console (will autohide if not active). */
+    /* Draw the console (will autohide if not active). */
     bbwidget_draw((BBWidget *)state_console(self));
     state_scale_display(self);
 }

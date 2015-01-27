@@ -215,21 +215,29 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
   }
 }
 
+
+
 /** Draws a layer in the tile map with the given index, 
- if it exists. Otherwise does nothing. */
-void tilemap_draw_layer(Tilemap * map, Camera * camera, int layer) {
+ without blends nor shadows. */
+void tilemap_draw_layer_tiles(Tilemap * map, Camera * camera, int layer) {
   Tilepane * pane;
   pane     = tilemap_pane(map, layer);
   if (pane) {
     tilepane_draw(pane, camera);
-    tilepane_draw_blends(pane, camera);
- 
-    if (layer > 0) {
-      Tilepane * floor = tilemap_pane(map, layer-1);
-      tilepane_draw_shadows_of(pane, floor, camera);
-    }
   }
 }
+
+
+/** Draws the blends in a layer in the tile map with the given index, 
+ if it exists. Otherwise does nothing. */
+void tilemap_draw_layer_blends(Tilemap * map, Camera * camera, int layer) {
+  Tilepane * pane;
+  pane     = tilemap_pane(map, layer);
+  if (pane) {
+    tilepane_draw_blends(pane, camera);
+  }
+}
+
 
 /** Draws the shadows a given layer in a tile map casts if it exists
  *  and isn't equal to 0.
@@ -243,6 +251,16 @@ void tilemap_draw_layer_shadows(Tilemap * map, Camera * camera, int layer) {
   floor = tilemap_pane(map, layer-1);
   tilepane_draw_shadows_of(pane, floor, camera);
 }
+
+/** Draws a layer in the tile map with the given index, 
+ if it exists. Otherwise does nothing. */
+void tilemap_draw_layer(Tilemap * map, Camera * camera, int layer) {
+  /* Shadows must be drawn before blends otherwise both won't look good. */
+  tilemap_draw_layer_tiles(   map, camera, layer);
+  tilemap_draw_layer_shadows( map, camera, layer);
+  tilemap_draw_layer_blends(  map, camera, layer);
+}
+
 
 /** Updates the tile map. Currently this animates the tiles. */
 void tilemap_update(Tilemap * map, double dt) {
