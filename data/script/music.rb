@@ -3,7 +3,8 @@
 class Music < Store
   extend Store::Forward
 
-  # Loads music/audio stream
+  # Loads music/audio stream.
+  # Supports .ogg,  .it, .mod, .s3m and .xm files.
   def self.load(name, vpath, buffer_count=8, samples=8000)
     load_something(forward_name(name), vpath, self) do | nid |
       Eruta::Store.load_audio_stream(nid, vpath, buffer_count, samples)

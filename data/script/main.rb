@@ -22,6 +22,9 @@ script 'graph.rb'
 script 'store.rb'
 script 'bitmap.rb'
 script 'font.rb'
+script 'music.rb'
+script 'sound.rb'
+script 'tilemap.rb'
 
 # Load UI subsystem
 script 'zori.rb'
@@ -98,22 +101,14 @@ end
 
 def start_load_tilemap
   tilemap_fn = 'map/map_0001.tmx'
-  tilemap  = Store.load_tilemap(:map_0001, tilemap_fn)
+  tilemap  = Tilemap.load(:map_0001, tilemap_fn)
   State.tilemap_name = :map_0001
-  active_map_ tilemap.id
-  
+  tilemap.activate!()
 end
 
 
 def reload_tilemap
-  active_map_(-1) # disable map
-  if State.tilemap_name
-    old_map = Store[State.tilemap_name]
-    old_map.drop! if old_map
-  end
-  tilemap_fn = 'map/map_0001.tmx'
-  tilemap  = Store.load_tilemap(:map_0001, tilemap_fn)
-  active_map_ tilemap.id
+  Tilemap.reload
 end
 
 

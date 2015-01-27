@@ -15,13 +15,15 @@ script 'registry.rb'
 class Store
   attr_reader :id
   attr_reader :name
-
+  attr_reader :vpath
+  
   extend Registry
   
   # Initialize a storage item.
-  def initialize(id, name) 
-    @id   = id
-    @name = name
+  def initialize(id, name, vpath = nil) 
+    @id     = id
+    @name   = name
+    @vpath  = vpath
   end
 
   # Load helper
@@ -73,7 +75,6 @@ class Store
     Store.unregister(self)
     return res
   end
-  
 
   # extend this module to makea class forward it's load, drop! and lookup calls 
   module Forward

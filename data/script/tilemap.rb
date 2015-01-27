@@ -1,54 +1,47 @@
 # Models a low level tile map and helps manage loaded tile maps.
-class Tilemap
+class Tilemap < Store
 
-  # registers the tile map
-  def self.register(map)
-    @registry         ||= {}
-    @registry_by_name ||= {}
-    @registry[map.id]   = map
-    @registry_by_name[map.name.to_sym] = map
+  extend Store::Forward
+
+  # Loads the tile map sample. Supports .tmx files.
+  def self.load(name, vpath)
+    load_something(forward_name(name), vpath, self) do | nid |
+      Eruta::Store.load_tilemap(nid, vpath)
+    end 
   end
 
-  # unregisters a tile map
-  def self.unregister(thing)
-    @registry         ||= {}
-    @registry_by_name ||= {}
-    @registry[thing.id] = nil
-    @registry_by_name[thing.name.to_sym] = nil
+  # Sets a tile map as the active tile map.
+  # Does not drop the  previous tile map.
+  def self.activate!(tilemap)
+    active_map_ tilemap.id
+    @active = tilemap
   end
 
-  # Looks up an item in storage by name.
-  def self.[](name)
-    return @registry_by_name[name.to_sym]
+  # returns the current active tilemap
+  def self.active
+    return @active || nil
   end
 
-  # Initialize a storage item.
-  def initialize(id, name) 
-    @id   = id
-    @name = name
-    self.class.register(self)
+  # Equivalent to Tilemap.actvate(self)
+  def activate!
+    Tilemap.activate!(self)
   end
 
-  
-  
-  def self.load(filename, name = nil)
-    @filename     = filename
-    name        ||= filename
-    Store.tilemap = Store.load_tilemap(@filename, name)
-    active_map_ Store.tilemap.id
+  # Reloads the current active tile map. Doesn othing if there is no active map
+  # Returns the reloaded map. The map ID might have changed.
+  def self.reload
+    return nil unless self.active 
+    path = self.active.vpath
+    name = self.active.name
+    # Disable map
+    active_map_(-1)
+    # Drop the current map
+    self.active_map.drop!
+    # Load the map again and set it as active
+    map = self.load(name, vpath)
+    self.activate!(map) if map
+    return map
   end
-
-
-def reload_tilemap
-  tilemap_id = Store.tilemap.id
-  active_map_(-1) # disable map
-  Store.tilemap.drop if Store.tilemap.id
-  $tilemap_1  = Store.load_tilemap($tilemap_fn, :map_0001, $tilemap_id)
-  active_map_ $tilemap_1.id
-end
-
-  
-
 
 end
  
