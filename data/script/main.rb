@@ -388,16 +388,6 @@ end
 # Handle key down
 def main_key_down(time, key)
 
-  # Filter away duplicated keystrokes. XXX: find out WHY these occur.
-  if State.last_key_time
-    delta = time - State.last_key_time
-    if (delta < 0.00001) && State.last_key == key
-      State.last_key_time = time
-      State.last_key      = key
-      p "Duplicated keystroke: #{time} #{key}"
-      return
-    end
-  end
   State.last_key_time = time
   State.last_key      = key
  
