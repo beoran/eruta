@@ -74,11 +74,15 @@ def start_load_sprites
   Sprite[100].load_ulpcss(SPRITELAYER_BODY , "body/female/light.png")
   Sprite[100].load_ulpcss(SPRITELAYER_TORSO, "torso/dress_female/underdress.png")
   Sprite[100].load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangslong.png")
+  Sprite[100].load_ulpcss(SPRITELAYER_WEAPONS, "weapons/steelwand_female.png")
+
   Sprite[100].tint_hair(0, 255, 0)
   Sprite[100].tint_torso(255, 64, 64)
   Thing[100].sprite    = Sprite[100]
   Thing[100].direction = SPRITE_SOUTH
   Thing[100].pose      = SPRITE_STAND
+
+  
 
   Thing.make(0, 400, 400, 1, 32, 32, 101)
   Sprite.make(101)
@@ -363,6 +367,15 @@ def actor_search_or_talk
   end
 end
 
+# Searches and interacts with things in front of the actor.
+# Or if already talking/reading, continue with it.
+def actor_attack
+  return if !Thing.actor
+  Thing.actor.pose = SPRITE_SLASH
+  
+end
+
+
 # Show a reminder of the key bindings on stdout
 def show_keybindings
   puts "Keybindings:"
@@ -377,6 +390,7 @@ def show_keybindings
   puts "R: Toggle the visibility of the area spRites."
   puts "S: Show 2D scene graph GUI"
   puts "Arrow keys: Move active actor."
+  puts "Shift keys: use weapon."
   puts "Space: search in front of active actor or continue talking."
 end
 
@@ -422,7 +436,7 @@ def on_key_down(time, key)
     when KEY_G
       Eruta.show_graph=   !Eruta.show_graph
     when KEY_P
-      Eruta.show_physics= !Eruta.show_physics
+      Eruta.show_physnics= !Eruta.show_physics
     when KEY_UP
       vy -= 100.0
     when KEY_DOWN
@@ -434,6 +448,9 @@ def on_key_down(time, key)
     when KEY_SPACE
       puts "Searching..."
       actor_search_or_talk
+    when KEY_LSHIFT, KEY_RSHIFT
+      puts "attacking"
+      actor_attack
     when KEY_COMMA
       show_keybindings
     else

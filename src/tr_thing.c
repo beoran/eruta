@@ -133,6 +133,7 @@ TR_PAIR_DO(TR_THING_IGETTER, thing_cx)
 TR_PAIR_DO(TR_THING_IGETTER, thing_cy)
 TR_PAIR_DO(TR_THING_IGETTER, thing_z)
 TR_PAIR_DO(TR_THING_IGETTER, thing_direction)
+TR_PAIR_DO(TR_THING_IGETTER, thing_pose)
 
 TR_WRAP_I_INT(tr_thing_get_unused_id, state_get_unused_thing_id);
 
@@ -170,6 +171,7 @@ int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_NOARG(mrb, thi, "h" , tr_thing_h);
   TR_CLASS_METHOD_NOARG(mrb, thi, "w" , tr_thing_w);
   TR_CLASS_METHOD_NOARG(mrb, thi, "direction", tr_thing_direction);
+  TR_CLASS_METHOD_NOARG(mrb, thi, "pose"     , tr_thing_pose);
   TR_CLASS_METHOD_ARGC(mrb, thi, "get_unused_id" , tr_thing_get_unused_id, 1);
   
   return 0;

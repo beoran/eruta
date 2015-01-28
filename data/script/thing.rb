@@ -74,7 +74,8 @@ class Thing < Eruta::Thing
   forward_thing :h
   forward_thing :z
   forward_thing :direction
- 
+  forward_thing :pose
+  
   def is_facing?(direction)
     dir_now = self.direction
     return ((dir_now & direction) == direction)
