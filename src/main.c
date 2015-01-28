@@ -152,7 +152,6 @@ int real_main(void) {
     
   /* Main game loop, controlled by the State object. */  
   while(state_busy(state)) { 
-      mrb_value mval;
       Point spritenow = bevec(100, 120); 
       react_poll(&react, state);
       alpsshower_update(&shower, state_frametime(state));
