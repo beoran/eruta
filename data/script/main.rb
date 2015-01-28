@@ -1,4 +1,10 @@
-# Main eruta script
+# Main eruta script.
+# This will be executed on start up, and certain well-known functions will be
+# called on input events, on timer ticks, or on screen updates.
+# Note that, due to muby's syntax, everythg that is defined in this
+# file at file scope, will actually be defined at the scope of Object.
+# then, though inheritance, every other object will inherit it.
+# Tis may or may not be what you want!!! 
 
 # Set this to true to start a test map in stead of the normal main menu on startup.
 START_TEST_MAP = false
@@ -36,21 +42,6 @@ script 'mainmenu.rb'
 script 'helpers.rb'
 
 puts "Hi from ruby!"
-
-def Alex(text)
-  puts "Alex: #{text}"
-end
-
-def Berun(text)
-  puts "Berun: #{text}"
-end
-
-# [[
-# Put your director's instructions and comments here.
-
-# Alex "I will have you know that it's possible to talk like this!"
-# Berun %{Sure, but like this is also "possible"...}
-# Alex 'I this is also "fine".'
 
 
 def ulpcss_load(sprite, layer, name)
@@ -395,7 +386,7 @@ def show_keybindings
 end
 
 # Handle key down
-def on_key_down(time, key)
+def main_key_down(time, key)
 
   # Filter away duplicated keystrokes. XXX: find out WHY these occur.
   if State.last_key_time
@@ -460,7 +451,7 @@ def on_key_down(time, key)
 end
 
 # Handle key up. Better refactor this to a game class or module
-def on_key_up(time, key)
+def main_key_up(time, key)
   actor         = Thing.actor
   return nil unless actor
   vx, vy        = * actor.v
@@ -491,7 +482,7 @@ def on_poll(*args)
     return nil
   else
     type = args.shift
-    meth = "on_#{type}".to_sym
+    meth = "main_#{type}".to_sym
     if self.respond_to?(meth)
       self.send(meth, *args)
     else

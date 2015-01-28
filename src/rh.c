@@ -1,4 +1,4 @@
-	
+  
 #include "eruta.h"
 #include "image.h"
 #include "rh.h"
@@ -769,7 +769,7 @@ int rh_poll_event(mrb_state * mrb, ALLEGRO_EVENT * event) {
   }  
   rh_runtopfunction_console(state_console(state), state_ruby(state), 
                                  "on_poll", nargs, event_args);
-  return true;
+  return TRUE;
 }
 
 /* Polls the event queue and while events are available, send them to the ruby 
