@@ -359,7 +359,7 @@ module Main
   end
 
   # Handle key down
-  def main_key_down(time, key)
+  def on_key_down(time, key)
 
     State.last_key_time = time
     State.last_key      = key
@@ -413,8 +413,8 @@ module Main
     return nil
   end
 
-  # Handle key up. Better refactor this to a game class or module
-  def main_key_up(time, key)
+  # Handle key up. XXX: maybe refactor this to a game class or module???
+  def on_key_up(time, key)
     actor         = Thing.actor
     return nil unless actor
     vx, vy        = * actor.v
@@ -435,6 +435,7 @@ module Main
     return nil
   end
 
+  # Make all methods and constants are available as Main.XXX
   extend self
 end # module Main
 
@@ -492,7 +493,7 @@ def on_poll(*args)
     return nil
   else
     type = args.shift
-    meth = "main_#{type}".to_sym
+    meth = "on_#{type}".to_sym
     if Main.respond_to?(meth)
       Main.send(meth, *args)
     else
