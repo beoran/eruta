@@ -5,7 +5,7 @@
 #include "rh.h"
 
 
-/* Collision handler. Calls an mr*/
+/* Collision handler. Calls an mruby callback. */
 int collide_things(Thing * t1, Thing * t2, int kind, void * data) { 
   mrb_value res;
   BBConsole * console;

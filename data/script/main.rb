@@ -467,7 +467,15 @@ end
 
 # Called on a physics collision.
 def on_bump(t1, t2, kind = nil)
-  puts "BUMP! #{t1} #{t2} #{kind}"
+  if kind == 1 # Begin of collision
+    # puts "Begin collision!"
+  elsif kind == 2 # Collision active
+    puts "Colliding!"
+  elsif kind == 3 # Collision done
+    puts "Collision done!"
+  else
+    puts "Collision type shouldn't happen!"
+  end
   return true
 end
 

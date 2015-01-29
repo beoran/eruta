@@ -2,6 +2,7 @@
 
 #include "eruta.h"
 #include "camera.h"
+#include "collide.h"
 #include "bump.h"
 
 #include "mem.h"
@@ -306,12 +307,12 @@ BeVec bumpbody_a(BumpBody  * self) {
   return self->a;
 }
 
-/* Gets data of body. */
+/* Gets data of body. In essence, this should be the Thing that owns the body. */
 void * bumpbody_data(BumpBody  * self) {   
   return self->data;
 }
 
-/* Sets data of body. */
+/* Sets data of body. In essence, this should be the Thing that owns the body. */
 void bumpbody_data_(BumpBody  * self, void * data) {   
   self->data = data;
 }
@@ -489,6 +490,13 @@ BumpAABB bumphull_aabb_next(BumpHull * hull) {
 BumpBody * bumphull_body(BumpHull * hull) {
   if (!hull) return NULL;
   return hull->body;
+}
+
+/** Returns a pointer to the data of the body of the hull.
+ * This should be the Thing that owns that body. Returns NULL
+ * if no body or body data is set. */
+void * bumphull_body_data(BumpHull * hull) {
+  return bumpbody_data(bumphull_body(hull));
 }
 
 /* Returns overlap of the bounds boxes of self and other in x direction. 
@@ -768,7 +776,7 @@ bumpworld_collide_hull_tile
   } 
   
   if((hull) && (hull->body)) {
-    thing = hull->body->data;
+    thing = bumphull_body_data(hull);
   }
   
  
@@ -841,6 +849,9 @@ bumpworld_collide_hulls
   
   BumpAABB bounds1;
   BumpAABB bounds2;
+  Thing * thing1 = NULL;
+  Thing * thing2 = NULL;
+  
   int x, y, z, tx, ty;
   if ((!hull1) || (!hull1->body)) return;
   if ((!hull2) || (!hull2->body)) return;
@@ -850,7 +861,16 @@ bumpworld_collide_hulls
   bounds2       = bumphull_aabb_next(hull2);
   if(!bumpaabb_overlap_p(bounds1, bounds2)) {
     return;
-  } 
+  }
+
+  thing1          = bumphull_body_data(hull1);
+  thing2          = bumphull_body_data(hull2);
+  
+
+  /* Allow the script to break off a beginning collision. */
+  if (!collide_things(thing1, thing2, COLLIDE_BEGIN, NULL)) {
+    return;
+  }
   
   vrel            = bevec_sub(hull1->body->v, hull2->body->v);
   push            = 
@@ -870,6 +890,16 @@ bumpworld_collide_hulls
   /* motionless things get their  */
   hull1->body->v    = bevec_add(hull1->body->v, bevec_mul(push1, dt));
   hull2->body->v    = bevec_add(hull2->body->v, bevec_mul(push2, dt));
+  if (round == 1) {
+      /* Signal the script that the collision is ongoing or ending. */
+      int colltype  = COLLIDE_COLLIDING;
+      bounds1       = bumphull_aabb_next(hull1);
+      bounds2       = bumphull_aabb_next(hull2);
+      if(!bumpaabb_overlap_p(bounds1, bounds2)) {
+        colltype    = COLLIDE_END;
+      }
+    collide_things(thing1, thing2, colltype, NULL);
+  }
   
 }
 

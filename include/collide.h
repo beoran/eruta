@@ -5,9 +5,8 @@
 
 enum CollisionKinds_ {
   COLLIDE_BEGIN     = 1,
-  COLLIDE_PRESOLVE  = 2,
-  COLLIDE_POSTSOLVE = 3,
-  COLLIDE_SEPARATE  = 4
+  COLLIDE_COLLIDING = 2,
+  COLLIDE_END       = 3
 };
 
 int collide_things(Thing * t1, Thing * t2, int kind, void * data);

@@ -982,7 +982,7 @@ void spritestate_update(SpriteState * self, double dt) {
   if(!self->frame_now) { 
     fprintf(stderr, "NULL current sprite frame!: %d\n", self->action_index);
     // try to restore back to first frame if out of whack somehow.
-     spritestate_now_(self, self->action_index, 0);
+    spritestate_now_(self, self->action_index, 0);
     return;
   }
   self->time += (self->speedup * dt);
