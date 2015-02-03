@@ -22,7 +22,9 @@ int dynar_size(Dynar * self) {
   return self->size;
 }
 
-/** Gets the amount of elements in the vector. Returns 0 if self is NULL. */
+/** Gets the amount of elements in the vector. Returns 0 if self is NULL.
+ * Alias for dynar_size(self).
+ **/
 int dynar_amount(Dynar * self) {
   if(!self) return 0;
   return self->size;
@@ -44,7 +46,7 @@ Dynar * dynar_done(Dynar * self) {
 }
 
 /** Calls a destructor on the contents of the array if it is not null. 
- The contents are considered to be pointers. */
+ The contents are considered to be pointers. Does not call dynar_free()!!! */
 Dynar * dynar_destroy(Dynar * self, MemDestructor * destroy) {
   int index;
   int size = dynar_size(self);

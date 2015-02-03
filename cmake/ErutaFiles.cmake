@@ -37,6 +37,7 @@ set(ERUTA_SRC_FILES
   src/mem.c
   src/mobile.c
   src/mode.c
+  src/monolog.c
   src/obj.c
   src/pique.c
   src/pointergrid.c

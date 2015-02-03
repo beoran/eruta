@@ -256,6 +256,10 @@ int bbconsole_addstr (BBConsole * self , const char * str );
 
 int bbconsole_puts(BBConsole * self , const char * str );
 
+int bbconsole_vprintf(BBConsole * self, const char * format, va_list args);
+
+int bbconsole_printf(BBConsole * self, const char * format, ...);
+
 int bbconsole_draw(BBWidget * widget, void * data);
 
 void bbconsole_active_ (BBConsole * self , int active );

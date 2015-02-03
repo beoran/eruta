@@ -17,6 +17,7 @@
 #include "thing.h"
 #include "sprite.h"
 #include "scegra.h"
+#include "monolog.h"
 #include <store.h>
 
 /* The data struct contains all global state and other data of the application.
@@ -95,7 +96,30 @@ struct State_ {
 };
 
 
+
+
+
+
+/** State variable.   */
 static State * global_state_ = NULL;
+
+/** Various loggers. One for stdout if not on windows,
+ * one to a file and one to the BBConsole */
+int state_console_logf(char * file, int line, char * level,
+                       void * data, char * format, va_list args) {
+  BBConsole * console = data;
+  if (console) {
+   return bbconsole_vprintf(console, format, args);
+  }
+  return -1;
+}
+
+
+
+DEFINE_STDERR_LOGGER(state_stderr_logger);
+DEFINE_FILE_LOGGER(state_file_logger);
+DEFINE_LOGGER(state_console_logger, state_console_logf, NULL);
+ 
 
 /** Gets the global state data, or NULL if not set. */
 State * state_get() {
@@ -212,6 +236,9 @@ void state_free(State * self) {
   camera_free(self->camera);
 
   al_uninstall_system();
+  
+  /* End logging. */
+  monolog_done();  
   STRUCT_FREE(self);
 }
 
@@ -466,6 +493,21 @@ this returns NULL. */
 State * state_init(State * self, BOOL fullscreen) {
   if(!self) return NULL;
   int flags        = 0;
+  // initialize logging first
+  if (!monolog_init()) {
+    return state_errmsg_(self, "Could not init logging.");
+  }
+
+  // Initialize loggers
+  monolog_add_logger(NULL, &state_stderr_logger);
+  monolog_add_logger(fopen("eruta.log", "a"), &state_file_logger);
+  // initialize log levels
+  monolog_enable_level("error");
+  monolog_enable_level("warning");
+  monolog_enable_level("note");
+  LOG_NOTE("Starting logging", "");
+  
+  
   self->busy       = TRUE;
   self->fullscreen = fullscreen;
   self->audio      = FALSE;
@@ -594,6 +636,10 @@ State * state_init(State * self, BOOL fullscreen) {
   // set up ruby callback for console commands 
   bbconsole_command_(self->console, 
                    (BBConsoleCommand *)rh_dostring_console, self->ruby);
+
+  // set up logging to console
+  monolog_add_logger(self->console, &state_console_logger);
+
   
   /* Initialize Area. */
   self->area = area_new();

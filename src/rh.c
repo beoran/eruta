@@ -7,11 +7,14 @@
 #include "str.h"
 #include "mem.h"
 #include "state.h"
+#include "monolog.h"
 
 #include <string.h>
 
 #include <stdarg.h>
 #include <mruby.h>
+#include <mruby/error.h>
+
 
 /*
 * RH contains helper functions for the mruby ruby interpreter.
@@ -119,50 +122,6 @@ int rh_args(Ruby * ruby, mrb_value * values,  int size,  char * format, ...) {
 /* Error reporter function type  */
 typedef int (RhReporter)(int status, const char * msg, void * extra);
 
-/* Error reporter function type  */
-typedef int (ScriptReporter)(Script * script, int status, const char * msg);
-
-
-/* Enhanced wrapper around mruby. */
-struct Script_ { 
-  mrb_state       * mrb;
-  ScriptReporter  * reporter;
-  void            * report_to;
-  int               report_result;
-};
-
-Script * script_alloc() {
-  return STRUCT_ALLOC(Script);
-}
-
-Script * script_done(Script * self) {
-  if(!self) return NULL;
-  mrb_close(self->mrb);
-  self->mrb           = NULL;
-  self->report_to     = NULL;
-  self->reporter      = NULL;
-  self->report_result = FALSE;
-  return self;
-}
-
-Script * script_free(Script * self) {
-  script_done(self);
-  mem_free(self);
-  return NULL;
-}
-
-Script * script_init(Script * self, ScriptReporter * report, void * report_to) {
-  if (!self) return NULL;
-  self->mrb       = mrb_open();
-  self->reporter  = report;
-  self->report_to = report_to;
-  return self;
-}
-
-Script * script_new(ScriptReporter * report, void * report_to) { 
-  return script_init(script_alloc(), report, report_to);
-}
-
 
 /** Calulates the execption string. Result only tempoarily available..
 XXX: check if this doesn't leak memory... you must free the results manually.
@@ -170,9 +129,24 @@ XXX: check if this doesn't leak memory... you must free the results manually.
 char * rh_exceptionstring(Ruby * self) {
   char      * result;
   mrb_value   value;
-  if(!self->exc) return NULL; 
-  // 
+  mrb_value   backtrace;
+  mrb_value   backtrace_str;
+  
+  if (!self->exc) return NULL; 
+  //
+  /* XXX: Too bad, the backtrace doesn't seem to be filled in for some reason...
+   * Shouldfigure out how to fix this.
+   */
+  mrb_print_backtrace(self);
+  backtrace = // mrb_get_backtrace(self);
+  mrb_funcall(self, mrb_obj_value(self->exc), "backtrace", 0);
+
+  backtrace_str  = mrb_funcall(self, backtrace, "join", 1, mrb_str_new_lit(self, "\n"));
+  fprintf(stderr, "backtrace: %s\n", mrb_string_value_cstr(self, &backtrace_str));
   value  = mrb_funcall(self, mrb_obj_value(self->exc), "inspect", 0);
+  
+  
+  
   // reset exception since we have it's string value.
   // Does this leak memory or not???
   self->exc = NULL;
@@ -203,47 +177,8 @@ mrb_value rh_inspect(mrb_state *mrb, mrb_value obj) {
 
 char * rh_inspect_cstr(mrb_state *mrb, mrb_value value) {
   mrb_value res = rh_inspect(mrb, value);
-  return mrb_string_value_cstr(mrb, &res);
-}
-
-int script_report_exception(Script * self, mrb_value v) {
-  int res = 0;
-  char * str;
-  /* Report exceptions */
-  str = rh_exceptionstring(self->mrb);
-  if(str) {
-    if ((self->reporter) && (self->report_to)) { 
-      res = self->reporter(self, -1, str);
-    } else {
-      fprintf(stderr, "mruby error: %s\n", str);
-      res = -1;
-    }
-    free(str);
-    return res;
-  }
-  return res;
-}
-
-int script_report_result(Script * self, mrb_value v) {
-  char * str;
-  int res = 0;
-  /* Report result value if it's not nil. */
-  if (self->reporter && (!mrb_nil_p(v))) {
-    str = rh_inspect_cstr(self->mrb, v);
-    res = self->reporter(self, 0, str);
-    return res;
-  }
-  return res;
-}
-
-int script_report(Script * self, mrb_value v) {
-  int    res = 0;
-  char * str;
-  res = script_report_exception(self, v);
-  if (!self->report_result) return res;
-  /* Report result if needed. */
-  res = script_report_result(self, v);
-  return res;
+  /* XXX: check that it's not modified anywere or export the const? */
+  return (char *) mrb_string_value_cstr(mrb, &res);
 }
 
 
@@ -266,7 +201,10 @@ int rh_make_report(Ruby * self, mrb_value v, RhReporter * reporter, void * extra
     return res;
   }
   
-  /* Report result value if it's not nil. */
+  /* Report result value if it's not nil.
+   * XXX: this may cause too much logging for certain call back functions
+   * that must be called many times...
+   */
   if (reporter && (!mrb_nil_p(v))) {
     str = rh_inspect_cstr(self, v);
     res = reporter(0, str, extra);
@@ -307,7 +245,7 @@ int rh_runfilenamereport(Ruby * self, const char * filename,
                          RhReporter * reporter, void * extra) {
   FILE * file = fopen(filename, "rt");
   int res;
-  if(!file) { 
+  if (!file) { 
     int res;
     USTR * estr = ustr_newf("No such ruby file: %s\n", filename);
     if (reporter) { 
@@ -430,19 +368,19 @@ mrb_value rh_dotopfunctionreport(Ruby * self,
 
 /* Error report to a file */
 int rh_errorreporter_file(int status, const char * msg, void * extra) {
-  return fprintf((FILE *) extra, "Error %d: %s\n", status, msg);
+  return fprintf((FILE *) extra, "Error report to file %d: %s\n", status, msg);
 }
 
 /* Error report to console, AND to stderr if available. */
 int rh_errorreporter_console(int status, const char * msg, void * extra) {
   char buf[80]; 
   if (status != 0) { 
-    snprintf(buf, 80, "Error %d:", status);
+    snprintf(buf, 80, "Error report console 1 %d:", status);
     bbconsole_puts((BBConsole *)extra, buf);
-    fprintf(stderr, "Error %d:\n", status);
+    fprintf(stderr, "Error report console 2 %d:\n", status);
   } 
   bbconsole_puts((BBConsole *)extra, msg);
-  fprintf(stderr, "%s\n", msg);
+  fprintf(stderr, "Error report console 3 %s\n", msg);
   return 0;
 }
 
@@ -597,6 +535,7 @@ mrb_value rh_simple_funcall(char * name, void * ruby) {
   // if(ai> 99) exit(0);
   mrb_value v = mrb_funcall_argv(mrb, mrb_top_self(mrb), mrb_intern_cstr(mrb, name), 
                     0, args);
+  
   if (mrb->exc) {
     if (!mrb_undef_p(v)) {        
       mrb_p(mrb, mrb_obj_value(mrb->exc));

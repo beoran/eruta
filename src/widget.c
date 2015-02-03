@@ -14,7 +14,7 @@
 /*
 *
 * Control of Eruta should be possible comfortably though joystick,
-* keybroad, and a single mouse only, so people with physical limitations
+* keyboard, and a single mouse only, so people with physical limitations
 * can also play the game.
 *
 * The following widgets will be needed:
@@ -642,6 +642,23 @@ int bbconsole_puts(BBConsole * self, const char * str) {
   ustr_free(ustr);
   return lines;
 } 
+
+#define BBCONSOLE_VPRINTF_MAX 1024
+
+/** Prints a formatted string on the console, truncaded to 1024 characters.  */
+int bbconsole_vprintf(BBConsole * self, const char * format, va_list args) {
+  char buffer[BBCONSOLE_VPRINTF_MAX] = { '\0' };
+  vsnprintf(buffer, BBCONSOLE_VPRINTF_MAX, format, args);
+  return bbconsole_puts(self, buffer);
+}
+
+/** Prints a formatted string on the console, truncaded to 1024 characters.  */
+int bbconsole_printf(BBConsole * self, const char * format, ...) {
+  va_list args;
+  va_start(args, format);
+  bbconsole_vprintf(self, format, args);
+  va_end(args);
+}
 
 
 /** Draws a console. */

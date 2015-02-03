@@ -467,15 +467,17 @@ end
 
 # Called on a physics collision.
 def on_bump(t1, t2, kind = nil)
-  if kind == 1 # Begin of collision
-    # puts "Begin collision!"
-  elsif kind == 2 # Collision active
-    puts "Colliding!"
-  elsif kind == 3 # Collision done
-    puts "Collision done!"
-  else
-    puts "Collision type shouldn't happen!"
-  end
+  #if kind == 1 # Begin of collision
+    ## puts "Begin collision!"
+  #elsif kind == 2 # Collision active
+    #puts "Colliding!"
+  #elsif kind == 3 # Collision done
+    #puts "Collision done!"
+  #else
+    #puts "Collision type shouldn't happen!"
+  #end
+  # XXX: The return causes the return value to be logged on the C side
+  # this causes too much logging. Should implement a better logging system.
   return true
 end
 
