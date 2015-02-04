@@ -141,16 +141,11 @@ static mrb_value tr_script(mrb_state * mrb, mrb_value self) {
   int res; 
   char * command;
   State * state         = state_get();
-  BBConsole * console   = state_console(state);
   mrb_value text        = mrb_nil_value();
   mrb_get_args(mrb, "S", &text);
   command               = mrb_str_to_cstr(mrb, text);
   
-  if(console) {
-    res = rh_runfilename_console(console, command, mrb);
-  } else {
-    res = rh_runfilename_stderr(command, mrb);    
-  }
+  res = rh_run_script(mrb, command);
   return mrb_fixnum_value(res);
 }
 

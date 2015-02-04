@@ -502,9 +502,9 @@ State * state_init(State * self, BOOL fullscreen) {
   monolog_add_logger(NULL, &state_stderr_logger);
   monolog_add_logger(fopen("eruta.log", "a"), &state_file_logger);
   // initialize log levels
-  monolog_enable_level("error");
-  monolog_enable_level("warning");
-  monolog_enable_level("note");
+  LOG_ENABLE_ERROR();
+  LOG_ENABLE_WARNING();
+  LOG_ENABLE_NOTE();
   LOG_NOTE("Starting logging", "");
   
   
@@ -634,8 +634,7 @@ State * state_init(State * self, BOOL fullscreen) {
   }
   bbconsole_puts(self->console, "BBConsole started ok!");
   // set up ruby callback for console commands 
-  bbconsole_command_(self->console, 
-                   (BBConsoleCommand *)rh_dostring_console, self->ruby);
+  bbconsole_command_(self->console, rh_run_console_command, self->ruby);
 
   // set up logging to console
   monolog_add_logger(self->console, &state_console_logger);
@@ -772,8 +771,7 @@ void state_update(State * self) {
   camera_update(self->camera);
   // call ruby update callback 
   mval = mrb_float_value(state_ruby(self), state_frametime(self));
-  rh_runtopfunction_console(state_console(self), state_ruby(self), 
-                                 "on_update", 1, &mval);
+  rh_run_toplevel_args(state_ruby(self), "on_update", 1, &mval);
   // Update the scene graph
   scegra_update(state_frametime(self));
   

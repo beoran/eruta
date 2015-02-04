@@ -7,7 +7,7 @@
 #include <mruby/proc.h>
 #include <mruby/string.h>
 
-// shortcut typedef
+// shortcut typedef. Also to alllow possible future enhancement.
 typedef mrb_state Ruby;
 
 typedef struct Script_ Script;
@@ -23,70 +23,55 @@ void toruby_Path_free(mrb_state * state , void * ptr );
 
 extern struct mrb_data_type toruby_Path;
 
- mrb_value tr_Path (Ruby * ruby ,mrb_value self,  struct RClass * klass); 
+mrb_value tr_Path (Ruby * ruby, mrb_value self,  struct RClass * klass); 
 
 Ruby * rh_new(void);
 
-Ruby * rh_free (Ruby * self );
+Ruby * rh_free(Ruby * self );
 
-mrb_value rh_inspect (mrb_state *mrb , mrb_value obj );
+mrb_value rh_inspect(mrb_state *mrb , mrb_value obj );
 
-char * rh_inspect_cstr (mrb_state *mrb , mrb_value value );
+char * rh_inspect_cstr(mrb_state *mrb , mrb_value value);
 
-int rh_runfile (Ruby * self , const char * filename , FILE * file );
+int rh_run_file (Ruby * self , const char * filename, FILE * file );
 
-int rh_runfilename (Ruby * self , const char * filename );
+int rh_run_filename (Ruby * self , const char * filename );
 
-char * rh_exceptionstring (Ruby * self );
+/* rh_run_script only works fo files in a (sub) folder of the Eruta script
+ * directory, where rh_run_filename is generic. */
+int rh_run_script(Ruby * self, const char * filename);
 
-int rh_dofile(Ruby * self , const char * filename );
+char * rh_exception_string (Ruby * self );
 
-int rh_errorreporter_file (int status , const char * msg , void * extra );
+mrb_value rh_simple_funcall(Ruby * ruby, char * name);
 
-int rh_errorreporter_console (int status , const char * msg , void * extra );
+mrb_value rh_run_function_args(Ruby * ruby, mrb_value rubyself, 
+                          char * name, int argc, mrb_value * argv);
 
-int rh_dostring_console (BBConsole * console , char * command , void * extra );
+mrb_value rh_run_toplevel_args(Ruby * ruby, char * name, int argc, mrb_value * argv);
 
-int rh_dostring_stderr(char * command, void * extra);
+mrb_value rh_run_function_va(Ruby * ruby, mrb_value rubyself, 
+                          char * name, char * format, va_list args);
+
+mrb_value rh_run_toplevel_va(Ruby * ruby, char * name, char * format, va_list args);
 
 
-int rh_runfilename_stderr(char * name, void * extra);
+mrb_value rh_run_function(Ruby * ruby, mrb_value rubyself, char * name, char * format, ...);
 
-mrb_value rh_simple_funcall(char * name, void * ruby);
-
-int rh_runfilename_console(BBConsole * console, char * name, void * extra);
-
-mrb_value rh_runfunction_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, 
-                           char * name, int argc, mrb_value * argv);
-
-mrb_value rh_runtopfunction_console(BBConsole * console, Ruby * ruby, 
-                              char * name, int argc, mrb_value * argv);
-
-mrb_value rh_runfunctionargs_console(BBConsole * console, Ruby * ruby, mrb_value rubyself, char * name, char * format, ...);
-
-mrb_value rh_runtopfunctionargs_console(BBConsole * console, Ruby * ruby, 
-                                  char * name, char * format, ...);
+mrb_value rh_run_toplevel(Ruby * ruby, char * name, char * format, ...);
 int rh_tobool(mrb_value v);                              
                               
-mrb_value 
-rh_runfunctionargs(Ruby * ruby, mrb_value rubyself, 
-                   char * name, char * format, ...);
-
-mrb_value 
-rh_runtopfunctionargs(Ruby * ruby, char * name, char * format, ...);
-
 #define rh_bool_value(B) ( (B) ? mrb_true_value() : mrb_false_value())
 
-/* Send the even to the ruby  main "on_poll"   */
 int rh_poll_event(mrb_state * mrb, ALLEGRO_EVENT * event);
 
 int rh_poll_events(mrb_state * mrb, ALLEGRO_EVENT_QUEUE * queue);
-
 
 int rh_load_main();
 int rh_on_start();
 int rh_on_reload(); 
 
+int rh_run_console_command(BBConsole * console, const char * command, void * extra);
 
 #endif
 
