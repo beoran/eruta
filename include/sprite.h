@@ -110,6 +110,12 @@ enum SpriteLayerKind_   {
 };
 
 
+/* Load type of sprites. */
+enum SpriteLoadType_ {
+  SPRITE_LOAD_ULPCSS_NORMAL             = 0,
+  SPRITE_LOAD_ULPCSS_OVERSIZED_SLASH    = 1,
+  SPRITE_LOAD_ULPCSS_OVERSIZED_STAB     = 2,
+};
 
 
 /* Amount of potential actions that a sprite has by default at creation. */

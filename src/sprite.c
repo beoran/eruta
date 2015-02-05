@@ -693,14 +693,49 @@ static int ulpcss_row_direction[] = {
   -1
 };
 
-
+/* Layout info of the ULPCSS sprites. */
 static SpriteLayout ulpcss_layout = {
   ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction,
   64, 64, 0
 }; 
 
-static SpriteLayout ulpcss_oversized_layout = {
-  ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction,
+
+/* Layout info of the oversized ULPCSS sprites, for weapons only. */
+static int ulpcss_oversized_sprites_per_row[] = {
+  6, 6, 6, 6,  
+  -1 
+};
+
+/* Type info of the oversized ULPCSS sprites, for slashinhg weapons. */
+static int ulpcss_oversized_slash_row_type[] = {
+  SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH,
+  -1 
+};
+
+/* Type info of the ULPCSS sprites, for stabbing weapons. */
+static int ulpcss_oversized_stab_row_type[] = {
+  SPRITE_STAB, SPRITE_STAB, SPRITE_STAB, SPRITE_STAB,
+  -1 
+};
+
+
+/* Direction info of the oversized ULPCSS sprites. */
+static int ulpcss_oversized_row_direction[] = {
+  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
+  -1
+};
+
+/* Layout of an oversized slashing weapon ULPCSS sprite. */
+static SpriteLayout ulpcss_oversized_slash_layout = {
+  ulpcss_oversized_sprites_per_row, ulpcss_oversized_slash_row_type,
+  ulpcss_oversized_row_direction,
+  64 * 3, 64 * 3, 0
+}; 
+
+/* Layout of an oversized stabbing weapon ULPCSS sprite. */
+static SpriteLayout ulpcss_oversized_stab_layout = {
+  ulpcss_oversized_sprites_per_row, ulpcss_oversized_stab_row_type,
+  ulpcss_row_direction,
   64 * 3, 64 * 3, 0
 }; 
 
@@ -830,24 +865,52 @@ Sprite * spritelayout_loadlayer
   return sprite;
 }
 
+/** Returns a layout for a load type. Returns NULL on error or unknown type. */
+SpriteLayout * sprite_layout_for(int load_type) {
+  switch (load_type) {
+    case SPRITE_LOAD_ULPCSS_NORMAL:
+      return &ulpcss_layout;
+    case SPRITE_LOAD_ULPCSS_OVERSIZED_SLASH:
+      return &ulpcss_oversized_slash_layout;
+    case SPRITE_LOAD_ULPCSS_OVERSIZED_STAB:
+      return &ulpcss_oversized_stab_layout;
+    default:
+      return NULL;
+  }
+}
 
-/** Loads sprite layer with the ulpcss layout. */
-Sprite * sprite_loadlayer_ulpcss
-(Sprite * self, int layerindex, Image * source, int oversized) {
-  SpriteLayout * layout;
-  layout = (oversized ? &ulpcss_oversized_layout : &ulpcss_layout); 
-  return spritelayout_loadlayer(layout, self, layerindex, source);
-} 
-
-/** Loads sprite layer from file with the ulpcss layout. 
+/** Loads a sprite layer from file with the given layout data. 
 The file name is in FIFI vpath format (subdir of data) */
-Sprite * sprite_loadlayer_ulpcss_vpath
-(Sprite * self, int layerindex, char * vpath, int oversized) {
+Sprite * sprite_loadlayer_vpath
+(Sprite * self, SpriteLayout * layout, int layerindex, char * vpath) {
   Sprite * res; 
   Image * image;
   image = fifi_loadbitmap_vpath(vpath);
   if(!image) return NULL;
-  res = sprite_loadlayer_ulpcss(self, layerindex, image, oversized);
+  res = spritelayout_loadlayer(layout, self, layerindex, image);
+  al_destroy_bitmap(image);
+  return res;
+}
+
+
+/** Loads sprite layer with the ulpcss layout. */
+Sprite * sprite_loadlayer_ulpcss
+(Sprite * self, int layerindex, Image * source, int load_type) {
+  SpriteLayout * layout;
+  layout = sprite_layout_for(load_type);
+  if (!layout) return NULL; 
+  return spritelayout_loadlayer(layout, self, layerindex, source);
+} 
+
+/** Loads an ULPCSS sprite layer from file with the given load type. 
+The file name is in FIFI vpath format (subdir of data) */
+Sprite * sprite_loadlayer_ulpcss_vpath
+(Sprite * self, int layerindex, char * vpath, int load_type) {
+  Sprite * res; 
+  Image * image;
+  image = fifi_loadbitmap_vpath(vpath);
+  if(!image) return NULL;
+  res = sprite_loadlayer_ulpcss(self, layerindex, image, load_type);
   al_destroy_bitmap(image);
   return res;
 }

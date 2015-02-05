@@ -190,6 +190,8 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 #define TR_CONST_INT(MRB, CLASS, NAME, VALUE) \
       mrb_define_const((MRB), (CLASS), (NAME), mrb_fixnum_value(VALUE))
 
+#define TR_CONST_INT_EASY(MRB, CLASS, PREFIX, NAME) \
+        TR_CONST_INT(MRB, CLASS, #NAME, PREFIX##NAME)
 
 
 #endif // TR_H_INCLUDED

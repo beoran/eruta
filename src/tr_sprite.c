@@ -107,8 +107,12 @@ TR_WRAP_I_INT(tr_sprite_get_unused_id, state_get_unused_sprite_id);
  * ruby side. */
 int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   struct RClass *spr;
-  /* Audio class/module and class/module methods. */
+  struct RClass *lay;
+ 
+  /* Sprite class/module and class/module methods. */
   spr = mrb_define_class_under(mrb, eru, "Sprite" , mrb->object_class);
+  /* Layer sub- class/module and class/module methods. */
+  lay = mrb_define_module_under(mrb, spr, "Layer");
 
   /*
   TR_METHOD_ARGC(mrb, krn, "sprite_getornew", tr_getornewsprite, 1);
@@ -124,8 +128,42 @@ int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   TR_CONST_INT(mrb, spr, "SOUTH", SPRITE_SOUTH); 
   TR_CONST_INT(mrb, spr, "EAST", SPRITE_EAST); 
   TR_CONST_INT(mrb, spr, "NORTH", SPRITE_NORTH); 
-  TR_CONST_INT(mrb, spr, "WEST", SPRITE_WEST); 
+  TR_CONST_INT(mrb, spr, "WEST", SPRITE_WEST);
+
+  /* Action constants of a sprite */
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, CAST);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, STAB);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, WALK);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, SLASH);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, SHOOT);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, DOWN);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, RUN);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, HURT);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, STAND);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, DEFEND);
+
+
+  /* Sprite layer suggested uses. */
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, BEHINDBODY);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, BODY);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, HEAD);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, EYES);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, HAIR);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, HANDS);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, FEET);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, LEGS);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, TORSO);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, ACCESSORIES);
+  TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, WEAPONS);
  
+  
+
+
+  /* Built in sprite layout constants. */
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, LOAD_ULPCSS_NORMAL);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, LOAD_ULPCSS_OVERSIZED_STAB);
+  TR_CONST_INT_EASY(mrb, spr, SPRITE_, LOAD_ULPCSS_OVERSIZED_SLASH);
+   
   
   TR_CLASS_METHOD_ARGC(mrb, spr, "get_or_new"    , tr_getornewsprite, 1);
   TR_CLASS_METHOD_ARGC(mrb, spr, "sprite_new"    , tr_newsprite, 1);

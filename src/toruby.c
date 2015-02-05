@@ -14,6 +14,7 @@
 #include "scegra.h"
 #include "sound.h"
 #include "camera.h"
+#include "monolog.h"
 #include <mruby/hash.h>
 #include <mruby/class.h>
 #include <mruby/data.h>
@@ -114,26 +115,39 @@ static mrb_value tr_state_done(mrb_state * mrb, mrb_value self) {
   }
 }
 
-/* Writes to console or to stdout if console is not available. */
+/** Writes a NOTE message to to log. */
 static mrb_value tr_log(mrb_state * mrb, mrb_value self) {
-  
   State   * state   = NULL;
   BBConsole * console = NULL;
   state             = state_get();
-  if (state) {
-    console = state_console(state);
-  } else {
-    puts("No state?!");
-  }
   mrb_value text    = mrb_nil_value();
   mrb_get_args(mrb, "S", &text);
-  if(console) {
-    bbconsole_puts(console, RSTRING_PTR(text));
-  } else {
-    puts(RSTRING_PTR(text));
-  }
+  LOG_NOTE("%s\n", RSTRING_PTR(text));
   return self;
 }
+
+/** Enables a certain log level */
+static mrb_value tr_log_enable(mrb_state * mrb, mrb_value self) {
+  State   * state   = NULL;
+  BBConsole * console = NULL;
+  state             = state_get();
+  mrb_value text    = mrb_nil_value();
+  mrb_get_args(mrb, "S", &text);
+  monolog_enable_level(RSTRING_PTR(text));
+  return self;
+}
+
+/** Disables a certain log level */
+static mrb_value tr_log_disable(mrb_state * mrb, mrb_value self) {
+  State   * state   = NULL;
+  BBConsole * console = NULL;
+  state             = state_get();
+  mrb_value text    = mrb_nil_value();
+  mrb_get_args(mrb, "S", &text);
+  monolog_disable_level(RSTRING_PTR(text));
+  return self;
+}
+
 
 /* Loads another script from the script directory. Reports to the 
  console or stderr if no console available. */
@@ -328,7 +342,9 @@ int tr_init(mrb_state * mrb) {
   if(!krn) return -1;
   TR_METHOD_ARGC(mrb, krn, "test",  tr_test, 1);
   TR_METHOD_ARGC(mrb, krn, "log" , tr_log , 1);
-  TR_METHOD_ARGC(mrb, krn, "script" , tr_script , 1);
+  TR_METHOD_ARGC(mrb, krn, "log_enable"  , tr_log_disable , 1);
+  TR_METHOD_ARGC(mrb, krn, "log_disable" , tr_log_enable  , 1);
+  TR_METHOD_ARGC(mrb, krn, "script"       , tr_script , 1);
   TR_METHOD_ARGC(mrb, krn, "camera_track" , tr_camera_track, 1);
   TR_METHOD_ARGC(mrb, krn, "camera_lockin", tr_lockin_maplayer, 1);
   TR_METHOD_NOARG(mrb, krn, "camera_x"    , tr_camera_x);

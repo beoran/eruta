@@ -859,7 +859,7 @@ bumpworld_collide_hulls
   serno++;
   bounds1       = bumphull_aabb_next(hull1);
   bounds2       = bumphull_aabb_next(hull2);
-  if(!bumpaabb_overlap_p(bounds1, bounds2)) {
+  if (!bumpaabb_overlap_p(bounds1, bounds2)) {
     return;
   }
 
@@ -868,7 +868,7 @@ bumpworld_collide_hulls
   
 
   /* Allow the script to break off a beginning collision. */
-  if (!collide_things(thing1, thing2, COLLIDE_BEGIN, NULL)) {
+  if ((round == 0) && (!collide_things(thing1, thing2, COLLIDE_BEGIN, NULL))) {
     return;
   }
   
