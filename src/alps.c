@@ -107,6 +107,7 @@ void alpsshower_draw(AlpsShower * rain, Camera * camera) {
   for (index = 0 ; index < rain->intensity ; index++) {
     alpsdrop_draw(rain->drops + index, rain->camera);
   }
+  (void) camera;
 }
 
 void alpsshower_update(AlpsShower * rain, double dt) {

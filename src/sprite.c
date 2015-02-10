@@ -1,3 +1,4 @@
+#include "monolog.h"
 #include "image.h"
 #include "sprite.h"
 #include "rebox.h"
@@ -8,19 +9,51 @@
 #include "flags.h"
 #include "fifi.h"
 
+/* Define this to see how the sprites are being loaded. */
+#define SPRITE_LOAD_DISPLAY
 #define SPRITEFRAME_OWNEDFLAG  1
 
 /* The tile height and width to be used when drawing a sprite. */
 #define SPRITE_TILE_WIDE 32
 #define SPRITE_TILE_HIGH 32
 
-/* To use the sprites from LPC as placeholders, 
- and also for the real sprites, which will have a similar layout, 
- I 'll try a non-atlas layered fragment approach first. 
- In this approach every sprite has actions (animation series),
+/* Sprite atlases could be faster, but they waste a lot of memory since 
+ * sprites often have a lot of transparent space. Therefore, the Sprite system 
+ * uses a non-atlas layered cell design. 
+ * 
+ * In this design, there is a single sprite list that contains a 
+ * list of sprites. 
+ * 
+ * Sprites are a set of graphics that pertains to the same 
+ * characer or object. Sprites only store the static graphical data of that 
+ * object. Any dynamic information is stored in SpriteState which allows 
+ * reuse of the same sprite with different physics simulation Things.
+ * 
+ * TODO: Sprites have a single dynamic array of cells. Cells 
+ * own pointers to images. These cells represent an image may be used in 
+ * a layer in a frame of a sprite.
+ * 
+ * Sprites have one of more actions. An action is an animation that 
+ * consists of one or more frames, has a type (suchas SPRITE_WAL0K) and 
+ * may or may not have a direction associated to it. 
+ * 
+ * For example there may be 4 actions with type SPRITE_WALK each for 
+ * the 4 direction SPRITE_NORTH, SPRITE_EAST, SPRITE_SOUTH, SPRITE_WEST. However
+ * some actions have no direction (SPRITE_NO_DIRECTION) or are applicabple 
+ * for all directions (SPRITE_ALL_DIRECTIONS). 
+ * 
+ * A sprite frame  
+ *    
+ * When a sprite is drawn, is drawn performing it's current action. 
+ * Sprites 
+ * µevery sprite has actions (animation series),
  every series has frames, and every frame has layers of trimmed 
- layers. Each layer has an owned, trimmed bitmap with only the relevant 
+ bitmaps. Each layer has an owned, trimmed bitmap with onconsist of mostly empty spacely the relevant 
  sprite fragment and their offset to the sprite proper.
+ * 
+ * 
+ * 
+ * 
 */
 
 
@@ -45,13 +78,13 @@
 
 
 
-/* A SpriteLayer is a single layer of a single frame of animation of a sprite.
+/* A SpriteCell is a single layer of a single frame of animation of a sprite.
  size is NOT the current size of the image, but the original size of the layer's 
  frames. For example, a sprite can be loaded as having frame sizes of 64x64, however,
  due to cropping, the image in image may be smaller (and offset will be set to
  compensate this at drawing).
 */
-struct SpriteLayer_ {
+struct SpriteCell_ {
   Image * image;
   Point   offset;
   Point   size;
@@ -87,6 +120,7 @@ struct SpriteAction_ {
 struct Sprite_ {
   Dynar            * actions;
   int                actions_used;
+  int                index;
 };
 
 /* The list of all loaded sprites. Some may be drawn and some not. */
@@ -101,14 +135,14 @@ struct SpriteList_ {
 
 
 /* Allocates a sprite layer. */
-SpriteLayer * 
-spritelayer_alloc() {
-  return STRUCT_ALLOC(SpriteLayer);
+SpriteCell * 
+spritecell_alloc() {
+  return STRUCT_ALLOC(SpriteCell);
 }
 
 /* Initialize a sprite layer. */
-SpriteLayer *
-spritelayer_initall(SpriteLayer * self, int index, Image * image, Point size, Point offset) {
+SpriteCell *
+spritecell_initall(SpriteCell * self, int index, Image * image, Point size, Point offset) {
   if (!self) return NULL;
   self->image           = image;
   self->index           = index;
@@ -120,12 +154,12 @@ spritelayer_initall(SpriteLayer * self, int index, Image * image, Point size, Po
   return self;
 }
 
-SpriteLayer * spritelayer_new(int index, Image * image, Point size, Point offset) {
-  return spritelayer_initall(spritelayer_alloc(), index, image, size, offset);
+SpriteCell * spritecell_new(int index, Image * image, Point size, Point offset) {
+  return spritecell_initall(spritecell_alloc(), index, image, size, offset);
 } 
 
 /* Draw a sprite layer with point at as the relevant game object's core position. */
-void spritelayer_draw(SpriteLayer * self, Point * at) {
+void spritecell_draw(SpriteCell * self, Point * at) {
   Point real, delta, aid;
   /*    - size_w/2 + tile_w / 2   */
   if(!self) return;
@@ -139,8 +173,8 @@ void spritelayer_draw(SpriteLayer * self, Point * at) {
 }
 
 /* Cleans up a layer after use, also frees the layer's Image. */
-SpriteLayer * 
-spritelayer_done(SpriteLayer * self) {
+SpriteCell * 
+spritecell_done(SpriteCell * self) {
   if (!self) return NULL;
   if (self->image) al_destroy_bitmap(self->image);
   self->image           = NULL;
@@ -151,21 +185,21 @@ spritelayer_done(SpriteLayer * self) {
 }
 
 /* Cleans up and frees memory used by a sprite layer.*/
-SpriteLayer * spritelayer_free(SpriteLayer * self) {
-  spritelayer_done(self);
+SpriteCell * spritecell_free(SpriteCell * self) {
+  spritecell_done(self);
   return mem_free(self);
 }
 
 
-SpriteLayer *
-spritelayer_drawflags_(SpriteLayer * self, int drawflags) {
+SpriteCell *
+spritecell_drawflags_(SpriteCell * self, int drawflags) {
   if (!self) return NULL;
   self->drawflags = drawflags;
   return self;
 }
 
-SpriteLayer * 
-spritelayer_tint_(SpriteLayer * self, Color tint) {
+SpriteCell * 
+spritecell_tint_(SpriteCell * self, Color tint) {
   if (!self) return NULL;  
   self->tinted = true;
   self->tint   = tint;
@@ -200,7 +234,7 @@ SpriteFrame * spriteframe_alloc() {
 }
 
 /* Gts a layer for this frame or null if not availamle. */
-SpriteLayer * spriteframe_layer(SpriteFrame * self, int index) {
+SpriteCell * spriteframe_layer(SpriteFrame * self, int index) {
   if(!self) return NULL;
   return dynar_getptr(self->layers, index);  
 }
@@ -208,14 +242,14 @@ SpriteLayer * spriteframe_layer(SpriteFrame * self, int index) {
 
 SpriteFrame * spriteframe_done(SpriteFrame * self) {
   int index; 
-  SpriteLayer * layer;
+  SpriteCell * layer;
   if(!self) return NULL;
   self->flags           = 0;
   self->duration        = 0.0;
   self->layers_used     = -1;
   for (index = 0; index < dynar_size(self->layers); index++) {
     layer = spriteframe_layer(self, index);
-    spritelayer_free(layer);
+    spritecell_free(layer);
   }
   dynar_free(self->layers);
   self->layers          = NULL;
@@ -230,26 +264,26 @@ SpriteFrame * spriteframe_free(SpriteFrame * self) {
 
 
 /* Sets a Layer for this frame, frees the old layer if it was set. */
-SpriteLayer * spriteframe_layer_(SpriteFrame * self, int index, SpriteLayer * layer) 
+SpriteCell * spriteframe_layer_(SpriteFrame * self, int index, SpriteCell * layer) 
 {
-  SpriteLayer * oldlayer;
+  SpriteCell * oldlayer;
   if(!self) return NULL;
   oldlayer = spriteframe_layer(self, index);
-  spritelayer_free(oldlayer);
+  spritecell_free(oldlayer);
   if(dynar_putptr(self->layers, index, layer)) { 
     return layer;
   }
   return NULL;
 }
 
-SpriteLayer * spriteframe_newlayer(SpriteFrame * self, int index, 
+SpriteCell * spriteframe_newlayer(SpriteFrame * self, int index, 
                                    Image * image, Point size, Point offset) {
-  SpriteLayer * layer = spritelayer_new(index, image, size, offset);
-  SpriteLayer * aid;
+  SpriteCell * layer = spritecell_new(index, image, size, offset);
+  SpriteCell * aid;
   aid = spriteframe_layer_(self, index, layer);
   if (aid) return aid;
   /* Could not set layer, free it */
-  return spritelayer_free(layer);
+  return spritecell_free(layer);
 }
 
 
@@ -426,7 +460,7 @@ SpriteFrame * sprite_frame(Sprite *self, int action, int index) {
 
 /** Returns a layer of the sprite that's at the given the action, frame,
  * and layer indexes of NULL if not found. */
-SpriteLayer * sprite_layer(Sprite * self, int action ,int frame, int layer) {
+SpriteCell * sprite_layer(Sprite * self, int action ,int frame, int layer) {
   return spriteframe_layer(sprite_frame(self, action, frame), layer);
 } 
  
@@ -434,7 +468,8 @@ Sprite * sprite_initall(Sprite * self, int index, int nactions) {
   int aid;
   if (!self) return NULL;
   self->actions_used = 0;
-  self->actions      = dynar_newptr(nactions); 
+  self->actions      = dynar_newptr(nactions);
+  self->index        = index; 
   dynar_putnullall(self->actions);
   return self;
 }
@@ -505,14 +540,19 @@ SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
 }
 
 /* Adds a layer to a sprite. The action and frame must already exist. */
-SpriteLayer * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
+SpriteCell * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
                               int layerindex, Image * image, Point size, 
                               Point offset) {
   SpriteFrame * frame;
-  SpriteLayer * aid; 
+  SpriteCell * aid; 
   frame = sprite_frame(self, actionindex, frameindex);
   if(!frame) return NULL;
   aid = spriteframe_newlayer(frame, layerindex, image, size, offset);
+  if ((size.x == 0) || (size.x > 64.0)) { 
+  LOG_NOTE("New sprite layer %p %d %d %d %p, (%f, %f), (%f, %f)\n",
+    self, actionindex, frameindex, layerindex, image, size.x, size.y, offset.x, offset.y
+  );
+  }
   return aid;
 }
 
@@ -548,6 +588,7 @@ int sprite_maxlayers(Sprite * self, int actionindex, int frameindex) {
 void * spriteaction_cleanwalk(void * ptr, void * extra) {
   SpriteAction * action = (SpriteAction *) ptr;
   if (!action) { return action; } 
+  (void) extra;
   return spriteaction_free(action);
 }
 
@@ -562,8 +603,8 @@ void * spriteframe_destructor(void * ptr) {
 } 
 
 /* Sprite layer destructor. */
-void * spritelayer_destructor(void * ptr) {
-  return spritelayer_free((SpriteLayer *) ptr);
+void * spritecell_destructor(void * ptr) {
+  return spritecell_free((SpriteCell *) ptr);
 } 
 
 
@@ -573,7 +614,7 @@ SpriteFrame * spriteframe_maxlayers_(SpriteFrame * self, int newlayers) {
   int last, toclean, index;
   Dynar * aid;
   if(!self) return NULL;
-  aid = dynar_resize(self->layers, newlayers, spritelayer_destructor);  
+  aid = dynar_resize(self->layers, newlayers, spritecell_destructor);  
   if(!aid) return NULL;
   return self;
 }
@@ -605,13 +646,17 @@ Sprite * sprite_maxactions_(Sprite * self, int newactions) {
 /* Draws the sprite frame at the given location. */
 void spriteframe_draw(SpriteFrame * self, Point * at) {
   int index, stop;
-  SpriteLayer * layer;
+  SpriteCell * layer;
   if (!self) return;
   al_hold_bitmap_drawing(true);
   stop = spriteframe_maxlayers(self);
   for (index = 0; index < stop ; index++) {
     layer = spriteframe_layer(self, index);
-    spritelayer_draw(layer, at);
+    spritecell_draw(layer, at);
+    if (index == SPRITELAYER_WEAPONS) {
+      Color col = al_map_rgb(255,125,64);
+      al_draw_rectangle(at->x, at->y, at->x+10, at->y+10, col, 3); 
+    }
   }
   al_hold_bitmap_drawing(false);
 }
@@ -622,14 +667,15 @@ void spriteframe_draw(SpriteFrame * self, Point * at) {
 * locations will be used. Returns the layer on success of NULL if something 
 * went wrong.
 */
-SpriteLayer * sprite_loadlayerfrom(Sprite * self, int actionindex, 
+SpriteCell * sprite_loadlayerfrom(Sprite * self, int actionindex, 
                                   int frameindex, int layerindex, 
                                   Image * source, Point size, Point where) {
-  SpriteLayer * res;
+  SpriteCell * res;
   Point offset;
   Image * aid;
-  ALLEGRO_COLOR black, glass;
+  ALLEGRO_COLOR black, glass, white;
   black = al_map_rgba(0,0,0,255);
+  white = al_map_rgba(255,255,255,255);
   glass = al_map_rgba(0,0,0,0);
   // al_set_new_bitmap_flags
   aid = al_create_bitmap(size.x, size.y);
@@ -641,19 +687,27 @@ SpriteLayer * sprite_loadlayerfrom(Sprite * self, int actionindex,
   al_set_target_bitmap(aid);
   al_clear_to_color(glass);  
   al_draw_bitmap_region(source, where.x, where.y, size.x, size.y, 0, 0, 0);
+  #ifdef SPRITE_LOAD_DISPLAY
+  al_draw_rectangle(0, 0, size.x, size.y, white, 2);
+  #endif
+  
   al_set_target_backbuffer(al_get_current_display());
   #ifdef SPRITE_LOAD_DISPLAY
+  { int x, y;
   al_clear_to_color(black);
-  al_draw_bitmap(aid, 
-                 -32 + al_get_display_width(al_get_current_display()) / 2, 
-                 -32 + al_get_display_height(al_get_current_display()) / 2,
-                 0);
-  al_flip_display();
+  x = 0; // -32 + al_get_display_width(al_get_current_display())  / 2;
+  y = 0; // -32 + al_get_display_height(al_get_current_display()) / 2;
+  
+  al_draw_bitmap(aid, x, y, 0);
+  al_draw_rectangle(x, y, size.x, size.y, white, 1);
+  al_flip_display(); 
+  } 
   #endif
   // usleep(100000);
   
   res = sprite_newlayer(self, actionindex, frameindex, layerindex, aid, size, offset);
   if(!res) {
+    LOG_ERROR("Could not make new sprite layer: %d\n", layerindex);
     al_destroy_bitmap(aid);
     return NULL;
   }
@@ -753,22 +807,22 @@ SpriteFrame * sprite_framegetnew
 (Sprite * self, int actionindex, int frameindex, int flags, double duration) {
   SpriteFrame * frame = sprite_frame(self, actionindex, frameindex);
   if (frame) return frame;
-  return sprite_newframe(self, actionindex, frameindex, SPRITE_ACTIVE, 0.2);
+  (void) flags;
+  return sprite_newframe(self, actionindex, frameindex, SPRITE_ACTIVE, duration);
 }
 
 /* Loads a frame from an image, and creates it if it doesn't exist yet. */
-SpriteLayer * sprite_loadframelayerfrom
+SpriteCell * sprite_loadframelayerfrom
 (Sprite * self, int actionindex, int frameindex, int layerindex, 
  Image * source, Point size, Point where, int frameflags, double duration) {
   SpriteFrame * frame;  
   frame  = sprite_framegetnew(
-            self, actionindex, frameindex, SPRITE_ACTIVE, 0.2);
+            self, actionindex, frameindex, SPRITE_ACTIVE, duration);
   if (!frame) return NULL;
+  (void) frameflags;
   return sprite_loadlayerfrom(self, actionindex, frameindex, layerindex,
             source, size, where);
 }
-
-
 
 /* Amount of actions in a layout. */
 int spritelayout_actions(SpriteLayout * layout) {
@@ -783,7 +837,6 @@ int spritelayout_actions(SpriteLayout * layout) {
 /** Loads the stand-in-walk layers for sprites with layouts that have them. 
 * It's ugly but it's needed because of how the ULPCSS sprite sheets are 
 * organized...
-*/
 Sprite * sprite_loadlayerlayout_standinwalk(Sprite * self, 
                                             int layerindex, 
                                             Image * source, 
@@ -791,7 +844,7 @@ Sprite * sprite_loadlayerlayout_standinwalk(Sprite * self,
                                             SpriteLayout * layout) {
   return NULL;
 }
-
+*/
 
 /* Loads sprite layers for an action of a sprite from an image.  The layout info 
  * in the SpriteLayout struct determines how to load the sprite.
@@ -816,7 +869,7 @@ Sprite * spritelayout_loadactionlayer
     /* Load frames. */
     for (frameindex = 0; frameindex < inrow; frameindex++) {
       SpriteFrame * frame;
-      SpriteLayer * ok;
+      SpriteCell * ok;
       /* 
         Special case for stand-in-walk. 
       */      
@@ -828,13 +881,13 @@ Sprite * spritelayout_loadactionlayer
         action = sprite_actiongetnew(sprite, walkaction, SPRITE_STAND, actionflags);
         /* Load stand frame */
         ok = sprite_loadframelayerfrom(sprite, walkaction, frameindex, 
-              layerindex, source, size, where, SPRITE_ACTIVE, 2.0);
+              layerindex, source, size, where, SPRITE_ACTIVE, 0.2);
         stand_in_walk = 1;
         /* skip standing frames. */
       } else {
         ok = sprite_loadframelayerfrom(sprite, actionindex, 
                                        frameindex - stand_in_walk, 
-              layerindex, source, size, where, SPRITE_ACTIVE, 2.0);
+              layerindex, source, size, where, SPRITE_ACTIVE, 0.2);
         if (!ok) { 
         fprintf(stderr, 
                 "Error loading sprite layer! %d %d\n", 
@@ -854,7 +907,7 @@ Sprite * spritelayout_loadlayer
 (SpriteLayout * layout, Sprite * sprite, int layerindex, Image * source) {
   int stop;
   int actionindex, walkaction;
-  Point where, size;
+
   actionindex = 0;
   stop        = spritelayout_actions(layout);
   walkaction  = stop - 1;
@@ -921,7 +974,7 @@ Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color) {
   int actionindex, frameindex;
   SpriteAction * action;
   SpriteFrame * frame;
-  SpriteLayer * layer;
+  SpriteCell * layer;
   actionstop        =  dynar_size(self->actions);
   for (actionindex  = 0 ; actionindex < actionstop ; actionindex++ ) {
     action          = sprite_action(self, actionindex);
@@ -932,7 +985,7 @@ Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color) {
       if(!frame) continue;
       layer         = spriteframe_layer(frame, layerindex);
       if(!layer) continue;
-      spritelayer_tint_(layer, color);
+      spritecell_tint_(layer, color);
     }
   }
   return self; 
@@ -1134,6 +1187,7 @@ int spritestate_direction(SpriteState * self) {
 void * sprite_cleanup_walker(void * data, void * extra) {
   Sprite * sprite = (Sprite *) data;
   sprite_free(data);
+  (void) extra;
   return NULL;
 }
 
@@ -1244,6 +1298,45 @@ int spritelist_get_unused_sprite_id(SpriteList * self, int minimum) {
 }
 
 
+/* Loads a layer of a sprite from a vpath using one of the built in layout
+ * loaders, normally ULPCSS format. */
+int spritelist_load_sprite_layer_with_builtin_layout
+  (SpriteList * me, int sprite_index,
+  int layer_index, char * vpath, int layout) {
+
+  Sprite * sprite = spritelist_getornew(me, sprite_index);
+  if (!sprite) return -1;
+  if(sprite_loadlayer_ulpcss_vpath(sprite, layer_index, vpath, layout)) { 
+    return sprite_index;
+  } else {
+    return -2;
+  }
+}
 
 
+/* Loads a layer of a sprite from a vpath using a custom layout. */
+int spritelist_load_sprite_layer_with_layout
+  (SpriteList * me, int sprite_index,
+  int layer_index, char * vpath, SpriteLayout * layout) {
+
+  Sprite * sprite = spritelist_getornew(me, sprite_index);
+  if (!sprite) return -1;
+  if(sprite_loadlayer_vpath(sprite, layout, layer_index, vpath)) { 
+    return sprite_index;
+  } else {
+    return -2;
+  }
+}
+
+/* Tints a sprite layer of a sprite in the sprite list */
+int spritelist_tint_sprite_layer
+(SpriteList * me, int isprite, int ilayer, Color color) {
+  Sprite * sprite = spritelist_sprite(me, isprite);
+  if (!sprite) return -1;
+  if(sprite_tintlayer(sprite, ilayer, color)) { 
+    return isprite;
+  } else {
+    return -2;
+  }
+}
 

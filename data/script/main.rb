@@ -81,7 +81,10 @@ module Main
     Sprite[100].load_ulpcss(SPRITELAYER_BODY , "body/female/light.png")
     Sprite[100].load_ulpcss(SPRITELAYER_TORSO, "torso/dress_female/underdress.png")
     Sprite[100].load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangslong.png")
-    Sprite[100].load_ulpcss(SPRITELAYER_WEAPONS, "weapons/steelwand_female.png")
+    # Sprite[100].load_ulpcss(SPRITELAYER_WEAPONS, "weapons/steelwand_female.png")
+    Sprite[100].load_ulpcss_stab(SPRITELAYER_WEAPONS, "weapons/oversize/longsword_female.png")
+
+    
 
     Sprite[100].tint_hair(0, 255, 0)
     Sprite[100].tint_torso(255, 64, 64)
@@ -335,8 +338,14 @@ module Main
   # Or if already talking/reading, continue with it.
   def actor_attack
     return if !Thing.actor
-    Thing.actor.pose = SPRITE_SLASH
-    
+    pose = Thing.actor.pose
+    if    pose == SPRITE_SLASH
+      Thing.actor.pose = SPRITE_STAB
+    elsif pose == SPRITE_STAB
+      Thing.actor.pose = SPRITE_STAND
+    else
+      Thing.actor.pose = SPRITE_SLASH
+    end
   end
 
 

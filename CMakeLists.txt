@@ -33,7 +33,6 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 
 
 find_package(Mruby REQUIRED)
-find_package(Chipmunk REQUIRED)
 
 # Finds Allegro using pkgconfig, so it must be configured correctly 
 find_package(Allegro5 REQUIRED)
@@ -45,11 +44,11 @@ find_package(PNG REQUIRED)
 find_package(JPEG REQUIRED)
 
 # Set include and lib dirs. 
-include_directories(${ALLEGRO_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${JPEG_INCLUDE_DIR} ${LUA_INCLUDE_DIR} ${MRUBY_INCLUDE_DIR} ${CHIPMUNK_INCLUDE_DIR} ${LIBXML2_INCLUDE_DIR}) 
+include_directories(${ALLEGRO_INCLUDE_DIR} ${PNG_INCLUDE_DIR} ${JPEG_INCLUDE_DIR} ${LUA_INCLUDE_DIR} ${MRUBY_INCLUDE_DIR}  ${LIBXML2_INCLUDE_DIR}) 
 
 
 set(ERUTA_LIBS ${LIBS} ${OBJC_LIBRARIES} ${ALLEGRO_LIBRARIES} ${PNG_LIBRARY} ${JPEG_LIBRARY}
-${LUA_LIBRARIES} ${MRUBY_LIBRARIES} ${CHIPMUNK_LIBRARIES} ${LIBXML2_LIBRARIES})
+${LUA_LIBRARIES} ${MRUBY_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 include_directories("include")
 # add_subdirectory("src")

@@ -85,10 +85,18 @@ class Sprite < Eruta::Sprite
     end
     return nil
   end
+
+  BUILTIN_LAYOUTS = {
+    :ulpcss       => Eruta::Sprite::LOAD_ULPCSS_NORMAL,
+    :ulpcss_slash => Eruta::Sprite::LOAD_ULPCSS_OVERSIZED_SLASH,
+    :ulpcss_stab  => Eruta::Sprite::LOAD_ULPCSS_OVERSIZED_STAB,
+  }
   
-  def self.ulpcss_load(sprite_id, layer, name) 
+  def self.load_builtin(sprite_id, layer, name, layout = :ulpcss)
+    ilayout = BUILTIN_LAYOUTS[layout]
     full_name = "image/ulpcss/#{name}"
-    Eruta::Sprite.load_ulpcss sprite_id, layer, full_name
+    p "load_builtin", sprite_id, layer, full_name, ilayout 
+    Eruta::Sprite.load_builtin sprite_id, layer, full_name, ilayout
   end
 
   # Applies a tint to the given layer of the sprite.
@@ -98,17 +106,34 @@ class Sprite < Eruta::Sprite
   
   # Applies a tint to the torso layer of the sprite.
   def tint_torso(r, g, b, a = 255)
-    tint(SPRITELAYER_TORSO, r, g, b, a)
+    tint(Eruta::Sprite::Layer::TORSO, r, g, b, a)
   end 
   
   # Applies a tint to the hair layer of the sprite.
   def tint_hair(r, g, b, a = 255)
-    tint(SPRITELAYER_HAIR, r, g, b, a)
+    tint(Eruta::Sprite::Layer::HAIR, r, g, b, a)
   end 
   
-  # Loads an ULPCSS formatted sprite sheet as a layer.
+  # Loads a sprite sheet with built in layout as a layer.
+  def load_builtin(layer, vpath, layout = :ulpcss)
+    Sprite.load_builtin(@id, layer, vpath, layout)
+  end
+
+  # Loads a ULPCSS sprite sheet with built in layout as a layer.
   def load_ulpcss(layer, vpath)
-    Sprite.ulpcss_load(@id, layer, vpath)
+    Sprite.load_builtin(@id, layer, vpath, :ulpcss)
+  end
+
+  # Loads a ULPCSS sprite sheet for an oversized slashing weapon
+  # with built in layout as a layer.
+  def load_ulpcss_slash(layer, vpath)
+    Sprite.load_builtin(@id, layer, vpath, :ulpcss_slash)
+  end
+
+  # Loads a ULPCSS sprite sheet for an oversized stabbing weapon
+  # with built in layout as a layer.
+  def load_ulpcss_stab(layer, vpath)
+    Sprite.load_builtin(@id, layer, vpath, :ulpcss_stab)
   end
   
   # Makes a new sprite possibly with the given ID, or otherwise tries to find a 

@@ -63,19 +63,23 @@ static mrb_value tr_sprite(mrb_state * mrb, mrb_value self) {
 } 
 
 
-static mrb_value tr_sprite_loadulpcss(mrb_state * mrb, mrb_value self) {
+static mrb_value tr_sprite_load_builtin(mrb_state * mrb, mrb_value self) {
   Sprite * sprite  = NULL;
   State * state    = state_get();
+  char * vpath;
   int result;
   mrb_int   rindex = -1;
   mrb_int   rlayer = -1;
+  mrb_int   rlayout=  0;
+
   mrb_value rvpath = mrb_nil_value();
-  mrb_get_args(mrb, "iiS", &rindex, &rlayer, &rvpath); 
+  mrb_get_args(mrb, "iiS|i", &rindex, &rlayer, &rvpath, &rlayout); 
   if ((rindex<0) || (rlayer<0)) {
     return mrb_nil_value();
   }
-  result = 
-  state_sprite_loadulpcss(state, rindex, rlayer, mrb_str_to_cstr(mrb, rvpath));
+  vpath = mrb_str_to_cstr(mrb, rvpath);
+  result =
+  state_sprite_load_builtin(state, rindex, rlayer, vpath, rlayout);
   return mrb_fixnum_value(result);
 }
 
@@ -168,7 +172,7 @@ int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_ARGC(mrb, spr, "get_or_new"    , tr_getornewsprite, 1);
   TR_CLASS_METHOD_ARGC(mrb, spr, "sprite_new"    , tr_newsprite, 1);
   TR_CLASS_METHOD_ARGC(mrb, spr, "get"           , tr_sprite, 1);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "load_ulpcss"   , tr_sprite_loadulpcss, 3);
+  TR_CLASS_METHOD_OPTARG(mrb, spr, "load_builtin", tr_sprite_load_builtin, 3, 1);
   TR_CLASS_METHOD_ARGC(mrb, spr, "tint_rgba"     , tr_sprite_tint, 6);
   TR_CLASS_METHOD_ARGC(mrb, spr, "get_unused_id" , tr_sprite_get_unused_id, 1);
 

@@ -50,9 +50,10 @@ Camera * state_camera (State * state );
 
 Sprite * state_newsprite(State * state, int index);
 Sprite * state_sprite(State * state, int index);
-Sprite * state_getornewsprite(State * state, int index); 
-int state_sprite_loadulpcss
-(State * state, int sprite_index, int layer_index, char * vpath);
+Sprite * state_getornewsprite(State * state, int index);
+
+int state_sprite_load_builtin
+(State * state, int sprite_index, int layer_index, char * vpath, int layout);
 
 int state_sprite_tintlayer
 (State * state, int sprite_index, int layer_index, int, int g, int b, int a);

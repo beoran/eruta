@@ -303,15 +303,12 @@ Sprite * state_getornewsprite(State * state, int index) {
 
 /* Loads a layer of a sprite from a vpath. Sprite layer is in 
  ulpcss format. */
-int state_sprite_loadulpcss
-(State * state, int sprite_index, int layer_index, char * vpath) { 
-  Sprite * sprite = state_getornewsprite(state, sprite_index);
-  if(!sprite) return -1;
-  if(sprite_loadlayer_ulpcss_vpath(sprite, layer_index, vpath, 0)) { 
-    return sprite_index;
-  } else {
-    return -2;
-  }
+int state_sprite_load_builtin
+(State * state, int sprite_index, int layer_index, char * vpath, int layout) { 
+
+  return spritelist_load_sprite_layer_with_builtin_layout(
+    state_sprites(state), sprite_index, layer_index, vpath, layout
+  );
 }
 
 /*  Gets a thing from the state's area. */

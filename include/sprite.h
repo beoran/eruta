@@ -4,7 +4,7 @@
 #include "eruta.h"
 #include "image.h"
 
-typedef struct SpriteLayer_     SpriteLayer;
+typedef struct SpriteCell_      SpriteCell;
 typedef struct SpriteFrame_     SpriteFrame;
 typedef struct SpriteAction_    SpriteAction;   
 typedef struct Sprite_          Sprite;
@@ -147,6 +147,9 @@ void sprite_draw(Sprite * self, Point * at);
 Sprite * sprite_now_(Sprite * self, int actionnow, int framenow);
 void sprite_update(Sprite * self, double dt);
 
+Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color);
+
+
 
 SpriteFrame * spriteaction_newframe
 (SpriteAction * self, int index, int flags, double duration);
@@ -194,9 +197,15 @@ Sprite     * spritelist_loadlayer_ulpcss_vpath(
               SpriteList * self, int index,  int layerindex, char * vpath);
 int spritelist_get_unused_sprite_id(SpriteList * self, int minimum);
 
+int spritelist_load_sprite_layer_with_builtin_layout
+  (SpriteList * me, int isprite, int ilayer, char * vpath, int layout);
 
-/* Applies a tint to a whole layer of a sprite. */
-Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color);
+int spritelist_load_sprite_layer_with_layout
+  (SpriteList * me, int isprite, int ilayer, char * vpath, SpriteLayout * layout);
+
+int spritelist_tint_sprite_layer
+  (SpriteList * me, int isprite, int ilayer, Color color); 
+
 
 
 

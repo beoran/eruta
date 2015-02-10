@@ -178,6 +178,9 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 #define TR_METHOD_NOARG(MRB, CLASS, NAME, IMPL)\
         mrb_define_method((MRB), (CLASS), (NAME), (IMPL), ARGS_NONE())
 
+#define TR_METHOD_OPTARG(MRB, CLASS, NAME, IMPL, ARGC, OPTC) \
+mrb_define_method((MRB), (CLASS), (NAME), (IMPL), ARGS_REQ(ARGC) | ARGS_OPT(OPTC))
+
 #define TR_CLASS_METHOD(MRB, CLASS, NAME, IMPL, FLAGS)\
         mrb_define_class_method((MRB), (CLASS), (NAME), (IMPL), (FLAGS))
 
@@ -186,6 +189,11 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 
 #define TR_CLASS_METHOD_NOARG(MRB, CLASS, NAME, IMPL)\
         mrb_define_class_method((MRB), (CLASS), (NAME), (IMPL), ARGS_NONE())
+
+#define TR_CLASS_METHOD_OPTARG(MRB, CLASS, NAME, IMPL, ARGC, OPTC) \
+mrb_define_class_method((MRB), (CLASS), (NAME), (IMPL), ARGS_REQ(ARGC) | ARGS_OPT(OPTC))
+
+
 
 #define TR_CONST_INT(MRB, CLASS, NAME, VALUE) \
       mrb_define_const((MRB), (CLASS), (NAME), mrb_fixnum_value(VALUE))
