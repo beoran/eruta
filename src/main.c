@@ -169,6 +169,7 @@ int real_main(void) {
 int main(int argc, char* argv[]) {
   int res; // init xml parser
   // LIBXML_TEST_VERSION
+  (void) argc, (void) argv;
   res = real_main();
   // cleanup xml parser
   // xmlCleanupParser();

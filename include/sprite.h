@@ -8,7 +8,6 @@ typedef struct SpriteCell_      SpriteCell;
 typedef struct SpriteFrame_     SpriteFrame;
 typedef struct SpriteAction_    SpriteAction;   
 typedef struct Sprite_          Sprite;
-typedef struct SpriteList_      SpriteList;
 typedef struct SpriteLayout_    SpriteLayout;
 typedef struct SpriteState_     SpriteState;
 
@@ -127,9 +126,6 @@ enum SpriteLoadType_ {
 /* Amount of potential layers that a spriteframe has by default at creation. */
 #define SPRITEFRAME_NLAYERS_DEFAULT 16
 
-/* Amount of potential sprites that a SpriteList can contain at creation. */
-#define SPRITELIST_NSPRITES_DEFAULT 10000
-
 
 int sprite_maxactions(Sprite *self);
 SpriteAction * sprite_action(Sprite *self, int index);
@@ -148,6 +144,7 @@ Sprite * sprite_now_(Sprite * self, int actionnow, int framenow);
 void sprite_update(Sprite * self, double dt);
 
 Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color);
+void * sprite_cleanup_walker(void * data, void * extra);
 
 
 
@@ -161,51 +158,10 @@ Sprite * sprite_loadlayer_ulpcss_vpath
 (Sprite * self, int layerindex, char * vpath, int oversized);
 
 
-SpriteState * spritestate_alloc();
-Sprite      * spritestate_sprite_(SpriteState * self, Sprite * sprite);
-SpriteState * spritestate_free(SpriteState * self);
-Sprite      * spritestate_sprite(SpriteState * self);
-SpriteState * spritestate_init(SpriteState * self, Sprite * sprite);
-SpriteState * spritestate_done(SpriteState * self);
-double        spritestate_speedup(SpriteState * self);
-double        spritestate_speedup_(SpriteState * self, double speedup); 
-SpriteState * spritestate_new(Sprite *  sprite);
-void          spritestate_draw(SpriteState * self, Point * at);
-SpriteState * spritestate_now_(SpriteState * self, int actionnow, int framenow);
-void          spritestate_update(SpriteState * self, double dt);
-int           spriteaction_ispose(SpriteAction * self, int pose, int direction);
-int           spritestate_pose_(SpriteState * self, int pose);
-int           spritestate_pose(SpriteState * self);
-int           spritestate_direction(SpriteState * self);
-int           spritestate_direction_(SpriteState * self, int direction);
-int           spritestate_posedirection_
-              (SpriteState * self, int pose, int direction);
+double spriteframe_duration(SpriteFrame * me);
 
 
-/* Sprite list functions. */
-SpriteList * spritelist_alloc();
-SpriteList * spritelist_initall(SpriteList * self, int maxsprites);
-SpriteList * spritelist_init(SpriteList * self);
-SpriteList * spritelist_done(SpriteList * self);
-SpriteList * spritelist_new();
-SpriteList * spritelist_free(SpriteList * self);
-Sprite     * spritelist_sprite(SpriteList * self, int index);
-Sprite     * spritelist_sprite_(SpriteList * self, int index, Sprite * sprite);
-Sprite     * spritelist_newsprite(SpriteList * self, int index);
-Sprite     * spritelist_getornew(SpriteList * self, int index);
-Sprite     * spritelist_loadlayer_ulpcss_vpath(
-              SpriteList * self, int index,  int layerindex, char * vpath);
-int spritelist_get_unused_sprite_id(SpriteList * self, int minimum);
-
-int spritelist_load_sprite_layer_with_builtin_layout
-  (SpriteList * me, int isprite, int ilayer, char * vpath, int layout);
-
-int spritelist_load_sprite_layer_with_layout
-  (SpriteList * me, int isprite, int ilayer, char * vpath, SpriteLayout * layout);
-
-int spritelist_tint_sprite_layer
-  (SpriteList * me, int isprite, int ilayer, Color color); 
-
+int spriteaction_is_pose(SpriteAction * self, int pose, int direction);
 
 
 

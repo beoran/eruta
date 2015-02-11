@@ -11,6 +11,7 @@ typedef struct State_ State;
 #include "mode.h"
 #include "rh.h"
 #include "sprite.h"
+#include "spritelist.h"
 
 #define STATE_COLORS   16
 #define STATE_BLACK   0

@@ -50,6 +50,8 @@ set(ERUTA_SRC_FILES
   src/silut.c
   src/sound.c
   src/sprite.c
+  src/spritelist.c
+  src/spritestate.c
   src/state.c
   src/store.c
   src/str.c
