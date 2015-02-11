@@ -152,11 +152,11 @@ Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color);
 
 
 SpriteFrame * spriteaction_newframe
-(SpriteAction * self, int index, int flags, double duration);
+(SpriteAction * self, int index, double duration);
 SpriteAction * sprite_newaction
 (Sprite * self, int actionindex, int type, int flags);
 SpriteFrame * sprite_newframe
-(Sprite * self, int actionindex, int frameindex, int flags, double duration);
+(Sprite * self, int actionindex, int frameindex, double duration);
 Sprite * sprite_loadlayer_ulpcss_vpath
 (Sprite * self, int layerindex, char * vpath, int oversized);
 

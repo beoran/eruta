@@ -24,34 +24,90 @@
  * In this design, there is a single sprite list that contains a 
  * list of sprites. 
  * 
- * Sprites are a set of graphics that pertains to the same 
- * characer or object. Sprites only store the static graphical data of that 
- * object. Any dynamic information is stored in SpriteState which allows 
- * reuse of the same sprite with different physics simulation Things.
+ * In the eruta engine sprites are a set of graphics that pertains to the same 
+ * characer or object. 
  * 
- * TODO: Sprites have a single dynamic array of cells. Cells 
- * own pointers to images. These cells represent an image may be used in 
- * a layer in a frame of a sprite.
+ * Sprites only store the static graphical data and layout information of that 
+ * character or object. Any dynamic information is stored in SpriteState 
+ * which allows reuse of the same sprite with different physics simulation 
+ * Things.
  * 
- * Sprites have one of more actions. An action is an animation that 
- * consists of one or more frames, has a type (suchas SPRITE_WAL0K) and 
- * may or may not have a direction associated to it. 
+ * There are several orthogonal concerns with regards to sprites namely 
+ * action, direction, animation, layering and drawing effects. 
  * 
- * For example there may be 4 actions with type SPRITE_WALK each for 
+ * Any but the simplest of sprites is animated. This means that the look of the 
+ * sprite changes over time. Thi is achieved by displaying a different frame
+ * of the sprite after a set amount of time passes.
+ * 
+ * Any but the simplest of characters may need to display different types of
+ * animations. For example, the character may walk, attack, stand, etc. 
+ * And each of these animations can have the character
+ * face in different directions such as as east, west, north, south, etc.
+ * In the Eruta engine, the different animations of a Sprite are called 
+ * SpriteActions. A SpriteAction is characterized by it's direction and type, 
+ * or "pose". 
+ * 
+ * For example there may be 4 actions with type/pose SPRITE_WALK each for 
  * the 4 direction SPRITE_NORTH, SPRITE_EAST, SPRITE_SOUTH, SPRITE_WEST. However
- * some actions have no direction (SPRITE_NO_DIRECTION) or are applicabple 
+ * some actions have no direction (SPRITE_NO_DIRECTION) or are applicable 
  * for all directions (SPRITE_ALL_DIRECTIONS). 
  * 
- * A sprite frame  
- *    
- * When a sprite is drawn, is drawn performing it's current action. 
- * Sprites 
- * µevery sprite has actions (animation series),
- every series has frames, and every frame has layers of trimmed 
- bitmaps. Each layer has an owned, trimmed bitmap with onconsist of mostly empty spacely the relevant 
- sprite fragment and their offset to the sprite proper.
+ * Furthermore, to allow more flexibility and to limit art requirements, the 
+ * frames of the animations may consist of several layers of clipped bitmaps 
+ * drawn in order. Like this it becomes possible, for example, to keep the body
+ * and different hairstyles in different image files and then make several 
+ * character sprites by loading and superimposing those layers.   
+ * In the Eruta engine such clipped bitmaps are called SpriteCells.
  * 
+ * Finally, a sprite might be drawn with several effects in place such 
+ * as coloration or rotation, although these belong more correctly to 
+ * the state of the sprite.
  * 
+ * Another concern is the contrast between loading and drawing the sprite.
+ *
+ * Loading Sprites
+ * 
+ * Sprites must be loaded from one or more bitmaps.
+ * 
+ * The simplest yet least convenient way is to put every cell of the sprite
+ * into a different bitmap file and load every SpriteCell one at the time. 
+ * 
+ * Sprite sheets are more convenient. A sprite sheet contains one layer of 
+ * the sprite. The sheet is filled with evenly-spaced cells in various poses,
+ * directions and frames of animation. The layout of the SpriteCells may vary.
+ * That is why SpriteLayout data is used to organize this in a flexible yet
+ * fast way.
+ * 
+ * Since the order of loading the SpriteCells varies in the format of the input
+ * the Sprite's data structure must allow SpriteCells to be loaded randomly.
+ *   
+ * However, to draw sprites efficiency is important. The internal structure 
+ * needs to enable this.
+ * 
+ * Design question: What is then neccesary internally to draw a sprite? 
+ * 1) It makes sense to have frames. When the sprite isn't updated though 
+ * animation the same frame will be rendered many times before the update of
+ * the sprite requires the next frame to be shown. 
+ * 2) Frames must contain layered SpriteCells, preferrably in an array for fast
+ * lookup. However, it isn't neccesarily so that frames must OWN those cells.
+ * There might also be cells that are reused between the different animations
+ * or frames. Hence, it makes sense to keep a simple dynamic list of cells
+ * around that does own the cells. 
+ *   
+ * Crrently when a sprite is drawn, is drawn performing it's current action. 
+ * Sprites every sprite has actions (animation series),
+ * every series has frames, and every frame has layers of trimmed 
+ * bitmaps. Each layer has an owned, trimmed bitmap with on consist of mostly 
+ * empty space the relevant 
+ * sprite fragment and their offset to the sprite proper.
+ * 
+ * Currently the organisation is Sprite > Action[*] > Frame[*] > Cell[32]
+ * One problem with that is that it's a 3 pointer deep lookup. The second 
+ * problem is that in almost all cases a sprite will be loaded in layer per 
+ * layer order, but the display has to happen based on the order of the 
+ * current sprite action.  
+ * 
+ *
  * 
  * 
 */
@@ -96,20 +152,20 @@ struct SpriteCell_ {
 
 
 /* A SpriteFrame is a single frame of animation of a sprite.
- * It consists of a set of layers, a duration, flags, and the amount of used layers.  
+ * It consists of a set of cells, a duration, flags, and the amount 
+ * of used cells.  
  */
 struct SpriteFrame_ {
   int                index;
-  Dynar            * layers;
-  int                layers_used;
+  Dynar            * cells;
+  int                cells_used;
   double             duration;
-  int                flags;
 };
 
 struct SpriteAction_ {
   int                index;
   int                type;
-  int                flags;
+  int                directions;
   Dynar            * frames;
   int                frames_used;
   SpriteFrame      * frame_now;
@@ -129,18 +185,15 @@ struct SpriteList_ {
   int     sprites_used;
 };
 
+/* Sprite Cells. */
 
-
-
-
-
-/* Allocates a sprite layer. */
+/* Allocates a sprite cell. */
 SpriteCell * 
 spritecell_alloc() {
   return STRUCT_ALLOC(SpriteCell);
 }
 
-/* Initialize a sprite layer. */
+/* Initialize a sprite cell. */
 SpriteCell *
 spritecell_initall(SpriteCell * self, int index, Image * image, Point size, Point offset) {
   if (!self) return NULL;
@@ -158,7 +211,7 @@ SpriteCell * spritecell_new(int index, Image * image, Point size, Point offset) 
   return spritecell_initall(spritecell_alloc(), index, image, size, offset);
 } 
 
-/* Draw a sprite layer with point at as the relevant game object's core position. */
+/* Draw a sprite cell with point at as the relevant game object's core position. */
 void spritecell_draw(SpriteCell * self, Point * at) {
   Point real, delta, aid;
   /*    - size_w/2 + tile_w / 2   */
@@ -184,7 +237,7 @@ spritecell_done(SpriteCell * self) {
   return self;
 }
 
-/* Cleans up and frees memory used by a sprite layer.*/
+/* Cleans up and frees memory used by a sprite cell.*/
 SpriteCell * spritecell_free(SpriteCell * self) {
   spritecell_done(self);
   return mem_free(self);
@@ -207,25 +260,26 @@ spritecell_tint_(SpriteCell * self, Color tint) {
 } 
 
 
+/* Sprite Frames. */
+
+
 int spriteframe_maxlayers(SpriteFrame * self) {
-  return dynar_size(self->layers);
+  return dynar_size(self->cells);
 }
 
-int spriteframe_layers(SpriteFrame * self) {
-  return self->layers_used;
+int spriteframe_cells(SpriteFrame * self) {
+  return self->cells_used;
 }
 
 
 SpriteFrame * spriteframe_init(SpriteFrame * self, 
-                                int index, int flags,
-                                double duration, int nlayers) {
+                                int index, double duration, int ncells) {
   if (!self) return NULL;
   self->index           = index;
-  self->layers          = dynar_newptr(nlayers);
-  dynar_putnullall(self->layers);
-  self->layers_used     = 0;
+  self->cells           = dynar_newptr(ncells);
+  dynar_putnullall(self->cells);
+  self->cells_used      = 0;
   self->duration        = duration;
-  self->flags           = flags;
   return self;
 } 
 
@@ -233,10 +287,10 @@ SpriteFrame * spriteframe_alloc() {
   return STRUCT_ALLOC(SpriteFrame);
 }
 
-/* Gts a layer for this frame or null if not availamle. */
-SpriteCell * spriteframe_layer(SpriteFrame * self, int index) {
+/* Gets a cell for this frame or null if not availamle. */
+SpriteCell * spriteframe_cell(SpriteFrame * self, int index) {
   if(!self) return NULL;
-  return dynar_getptr(self->layers, index);  
+  return dynar_getptr(self->cells, index);  
 }
 
 
@@ -244,15 +298,14 @@ SpriteFrame * spriteframe_done(SpriteFrame * self) {
   int index; 
   SpriteCell * layer;
   if(!self) return NULL;
-  self->flags           = 0;
   self->duration        = 0.0;
-  self->layers_used     = -1;
-  for (index = 0; index < dynar_size(self->layers); index++) {
-    layer = spriteframe_layer(self, index);
+  self->cells_used     = -1;
+  for (index = 0; index < dynar_size(self->cells); index++) {
+    layer = spriteframe_cell(self, index);
     spritecell_free(layer);
   }
-  dynar_free(self->layers);
-  self->layers          = NULL;
+  dynar_free(self->cells);
+  self->cells          = NULL;
   self->index           = -1;
   return self;
 }
@@ -264,13 +317,13 @@ SpriteFrame * spriteframe_free(SpriteFrame * self) {
 
 
 /* Sets a Layer for this frame, frees the old layer if it was set. */
-SpriteCell * spriteframe_layer_(SpriteFrame * self, int index, SpriteCell * layer) 
+SpriteCell * spriteframe_cell_(SpriteFrame * self, int index, SpriteCell * layer) 
 {
   SpriteCell * oldlayer;
   if(!self) return NULL;
-  oldlayer = spriteframe_layer(self, index);
+  oldlayer = spriteframe_cell(self, index);
   spritecell_free(oldlayer);
-  if(dynar_putptr(self->layers, index, layer)) { 
+  if(dynar_putptr(self->cells, index, layer)) { 
     return layer;
   }
   return NULL;
@@ -280,7 +333,7 @@ SpriteCell * spriteframe_newlayer(SpriteFrame * self, int index,
                                    Image * image, Point size, Point offset) {
   SpriteCell * layer = spritecell_new(index, image, size, offset);
   SpriteCell * aid;
-  aid = spriteframe_layer_(self, index, layer);
+  aid = spriteframe_cell_(self, index, layer);
   if (aid) return aid;
   /* Could not set layer, free it */
   return spritecell_free(layer);
@@ -320,13 +373,15 @@ spriteaction_frame_(SpriteAction *self, int index, SpriteFrame * frame) {
 
 
 SpriteAction * 
-spriteaction_initall(SpriteAction * self, int index, int type, int flags, int nframes) {
+spriteaction_initall(SpriteAction * self, 
+  int index, int type, int directions, int nframes) {
+  
   int aid;
   self->index           = index;
   self->type            = type;
   self->frames          = dynar_new(nframes, sizeof(SpriteFrame *));
   self->frames_used     = 0;
-  self->flags           = flags;
+  self->directions      = directions;
   self->frame_now       = NULL;
   dynar_putnullall(self->frames);
   return self;
@@ -369,12 +424,12 @@ SpriteAction * spriteaction_new(int index, int type, int flags) {
   return spriteaction_init(spriteaction_alloc(), index, type, flags);
 }
 
-SpriteFrame * spriteframe_newall(int index, int flags, double duration, int nlayers) {
-  return spriteframe_init(spriteframe_alloc(), index, flags, duration, nlayers);  
+SpriteFrame * spriteframe_newall(int index, double duration, int ncells) {
+  return spriteframe_init(spriteframe_alloc(), index, duration, ncells);  
 }
 
-SpriteFrame * spriteframe_new(int index, int flags, double duration) {
-  return spriteframe_newall(index, flags, duration, SPRITEFRAME_NLAYERS_DEFAULT);  
+SpriteFrame * spriteframe_new(int index, double duration) {
+  return spriteframe_newall(index, duration, SPRITEFRAME_NLAYERS_DEFAULT);  
 }
 
 
@@ -407,16 +462,16 @@ int spriteaction_framesused(SpriteAction * self) {
   return index;
 }
 
-/* Gets the used layers of a frame. */
-int spriteframe_layersused(SpriteFrame * self) {
+/* Gets the used cells of a frame. */
+int spriteframe_cells_used(SpriteFrame * self) {
   if (!self) return 0;
-  return (self->layers_used);
+  return (self->cells_used);
 }
 
 /* Sets the used layers of a sprite. */
-int sprite_layersused_(SpriteFrame * self, int used) {
+int sprite_cells_used_(SpriteFrame * self, int used) {
   if (!self) return 0;
-  return (self->layers_used = used);
+  return (self->cells_used = used);
 }
 
 
@@ -461,7 +516,7 @@ SpriteFrame * sprite_frame(Sprite *self, int action, int index) {
 /** Returns a layer of the sprite that's at the given the action, frame,
  * and layer indexes of NULL if not found. */
 SpriteCell * sprite_layer(Sprite * self, int action ,int frame, int layer) {
-  return spriteframe_layer(sprite_frame(self, action, frame), layer);
+  return spriteframe_cell(sprite_frame(self, action, frame), layer);
 } 
  
 Sprite * sprite_initall(Sprite * self, int index, int nactions) {
@@ -508,9 +563,9 @@ Sprite * sprite_new(int index) {
 /* Adds a new frame to an action. Any old frame at the same index is freed. 
  Returns the new frame or NULL on error. */
 SpriteFrame * spriteaction_newframe(SpriteAction * self, int index, 
-                                    int flags, double duration) {
+                                    double duration) {
   SpriteFrame * frame, * aid;
-  frame = spriteframe_new(index, flags, duration);
+  frame = spriteframe_new(index, duration);
   if(!frame) return NULL;
   aid = spriteaction_frame_(self, index, frame);
   /* Free if could not set. */
@@ -532,11 +587,11 @@ SpriteAction * sprite_newaction(Sprite * self, int actionindex, int type, int fl
 
 /* Adds a frame to the sprite. The action must already exist. */
 SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
-                              int flags, double duration) {
+                              double duration) {
   SpriteAction * action;
   action = sprite_action(self, actionindex);
   if (!action) return NULL;
-  return spriteaction_newframe(action, frameindex, flags, duration);
+  return spriteaction_newframe(action, frameindex, duration);
 }
 
 /* Adds a layer to a sprite. The action and frame must already exist. */
@@ -549,7 +604,7 @@ SpriteCell * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
   if(!frame) return NULL;
   aid = spriteframe_newlayer(frame, layerindex, image, size, offset);
   if ((size.x == 0) || (size.x > 64.0)) { 
-  LOG_NOTE("New sprite layer %p %d %d %d %p, (%f, %f), (%f, %f)\n",
+  LOG_NOTE("New sprite cell %p %d %d %d %p, (%f, %f), (%f, %f)\n",
     self, actionindex, frameindex, layerindex, image, size.x, size.y, offset.x, offset.y
   );
   }
@@ -608,13 +663,13 @@ void * spritecell_destructor(void * ptr) {
 } 
 
 
-/* Change the amount of layers the sprite frame can have. Returns self 
+/* Change the amount of cells the sprite frame can have. Returns self 
  on success, null if failed. */
-SpriteFrame * spriteframe_maxlayers_(SpriteFrame * self, int newlayers) {
+SpriteFrame * spriteframe_maxcells_(SpriteFrame * self, int newcells) {
   int last, toclean, index;
   Dynar * aid;
   if(!self) return NULL;
-  aid = dynar_resize(self->layers, newlayers, spritecell_destructor);  
+  aid = dynar_resize(self->cells, newcells, spritecell_destructor);  
   if(!aid) return NULL;
   return self;
 }
@@ -651,7 +706,7 @@ void spriteframe_draw(SpriteFrame * self, Point * at) {
   al_hold_bitmap_drawing(true);
   stop = spriteframe_maxlayers(self);
   for (index = 0; index < stop ; index++) {
-    layer = spriteframe_layer(self, index);
+    layer = spriteframe_cell(self, index);
     spritecell_draw(layer, at);
     if (index == SPRITELAYER_WEAPONS) {
       Color col = al_map_rgb(255,125,64);
@@ -707,7 +762,7 @@ SpriteCell * sprite_loadlayerfrom(Sprite * self, int actionindex,
   
   res = sprite_newlayer(self, actionindex, frameindex, layerindex, aid, size, offset);
   if(!res) {
-    LOG_ERROR("Could not make new sprite layer: %d\n", layerindex);
+    LOG_ERROR("Could not make new sprite cell: %d\n", layerindex);
     al_destroy_bitmap(aid);
     return NULL;
   }
@@ -808,7 +863,7 @@ SpriteFrame * sprite_framegetnew
   SpriteFrame * frame = sprite_frame(self, actionindex, frameindex);
   if (frame) return frame;
   (void) flags;
-  return sprite_newframe(self, actionindex, frameindex, SPRITE_ACTIVE, duration);
+  return sprite_newframe(self, actionindex, frameindex, duration);
 }
 
 /* Loads a frame from an image, and creates it if it doesn't exist yet. */
@@ -846,7 +901,7 @@ Sprite * sprite_loadlayerlayout_standinwalk(Sprite * self,
 }
 */
 
-/* Loads sprite layers for an action of a sprite from an image.  The layout info 
+/* Loads sprite cells for an action of a sprite from an image.  The layout info 
  * in the SpriteLayout struct determines how to load the sprite.
  */ 
 Sprite * spritelayout_loadactionlayer
@@ -890,7 +945,7 @@ Sprite * spritelayout_loadactionlayer
               layerindex, source, size, where, SPRITE_ACTIVE, 0.2);
         if (!ok) { 
         fprintf(stderr, 
-                "Error loading sprite layer! %d %d\n", 
+                "Error loading sprite cell! %d %d\n", 
                 actionindex, frameindex);
         }
       }
@@ -900,7 +955,7 @@ Sprite * spritelayout_loadactionlayer
 }
 
 
-/* Loads a sprite layer for the whole sprite.  The layout info in the struct is 
+/* Loads a sprite cell for the whole sprite.  The layout info in the struct is 
  * used to correctly set  up the sprite parts. 
  */ 
 Sprite * spritelayout_loadlayer
@@ -932,7 +987,7 @@ SpriteLayout * sprite_layout_for(int load_type) {
   }
 }
 
-/** Loads a sprite layer from file with the given layout data. 
+/** Loads a sprite cell from file with the given layout data. 
 The file name is in FIFI vpath format (subdir of data) */
 Sprite * sprite_loadlayer_vpath
 (Sprite * self, SpriteLayout * layout, int layerindex, char * vpath) {
@@ -946,7 +1001,7 @@ Sprite * sprite_loadlayer_vpath
 }
 
 
-/** Loads sprite layer with the ulpcss layout. */
+/** Loads sprite cell with the ulpcss layout. */
 Sprite * sprite_loadlayer_ulpcss
 (Sprite * self, int layerindex, Image * source, int load_type) {
   SpriteLayout * layout;
@@ -955,7 +1010,7 @@ Sprite * sprite_loadlayer_ulpcss
   return spritelayout_loadlayer(layout, self, layerindex, source);
 } 
 
-/** Loads an ULPCSS sprite layer from file with the given load type. 
+/** Loads an ULPCSS sprite cell from file with the given load type. 
 The file name is in FIFI vpath format (subdir of data) */
 Sprite * sprite_loadlayer_ulpcss_vpath
 (Sprite * self, int layerindex, char * vpath, int load_type) {
@@ -983,7 +1038,7 @@ Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color) {
     for (frameindex = 0 ; frameindex < framestop ; frameindex++) {
       frame         = spriteaction_frame(action, frameindex);
       if(!frame) continue;
-      layer         = spriteframe_layer(frame, layerindex);
+      layer         = spriteframe_cell(frame, layerindex);
       if(!layer) continue;
       spritecell_tint_(layer, color);
     }
@@ -1114,15 +1169,15 @@ void spritestate_update(SpriteState * self, double dt) {
 }
 
 /* Returns nonzero if this action matches the pose and direction. */
-int spriteaction_ispose(SpriteAction * self, int pose, int direction) {
+int spriteaction_is_pose(SpriteAction * self, int pose, int direction) {
   if (!self)              return FALSE;
   if (self->type != pose) return FALSE;
   //return TRUE;
-  return self->flags & direction;
+  return self->directions & direction;
 }
 
 
-/* Sets the spritestate current pose and direction. Will reset the frame to 0. 
+/* Sets the spritestate's current pose and direction. Will reset the frame to 0. 
  * Returns negative if the pose could not be found in this sprite;
  * Otherwise returns the index of the used sprite action.
  * Returns -2 without effect if the pose and direction are identical to the ones
@@ -1145,7 +1200,7 @@ int spritestate_posedirection_(SpriteState * self, int pose, int direction) {
   max = sprite_maxactions(sprite);
   for (index = 0; index < max; index ++) {
     action = sprite_action(sprite, index);
-    if (spriteaction_ispose(action, pose, direction)) {
+    if (spriteaction_is_pose(action, pose, direction)) {
       spritestate_now_(self, index, 0);
       return index;
     }  
@@ -1263,7 +1318,7 @@ Sprite * spritelist_getornew(SpriteList * self, int index) {
   return spritelist_newsprite(self, index);
 } 
 
-/* Loads a sprite layer in ulpcss format into the sprite with 
+/* Loads a sprite cell in ulpcss format into the sprite with 
  the given index in the sprite list. If no sprite exists yet,
  it will be created. The sprite s returned on sucess of NULL on failure. 
 */
@@ -1328,7 +1383,7 @@ int spritelist_load_sprite_layer_with_layout
   }
 }
 
-/* Tints a sprite layer of a sprite in the sprite list */
+/* Tints a sprite cell of a sprite in the sprite list */
 int spritelist_tint_sprite_layer
 (SpriteList * me, int isprite, int ilayer, Color color) {
   Sprite * sprite = spritelist_sprite(me, isprite);
