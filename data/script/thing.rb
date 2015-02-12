@@ -158,6 +158,23 @@ class Thing < Eruta::Thing
   def self.actor
     @actor
   end
+  
+  
+  # Applies a tint to the given layer of the thing's sprite.
+  def tint(layer, r, g, b, a = 255)
+    Eruta::Thing.tint_rgba @id, layer, r, g, b, a
+  end  
+  
+  # Applies a tint to the torso layer of the thing's sprite.
+  def tint_torso(r, g, b, a = 255)
+    tint(Eruta::Sprite::Layer::TORSO, r, g, b, a)
+  end 
+  
+  # Applies a tint to the hair layer of the thing's sprite.
+  def tint_hair(r, g, b, a = 255)
+    tint(Eruta::Sprite::Layer::HAIR, r, g, b, a)
+  end 
+
 
 end
 

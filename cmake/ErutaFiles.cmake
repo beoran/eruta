@@ -52,6 +52,7 @@ set(ERUTA_SRC_FILES
   src/sprite.c
   src/spritelist.c
   src/spritestate.c
+  src/spritelayout.c
   src/state.c
   src/store.c
   src/str.c

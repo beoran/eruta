@@ -273,7 +273,6 @@ int camera_applylockedtracking(Camera *self) {
 int camera_applynormaltracking(Camera *self) {
   double tracklimitx, tracklimity; 
   Thing * thing = self->track;
-  if(thing_static_p(thing)) return -1;
   tracklimitx   = camera_w(self) * CAMERA_TRACK_RATIO;  
   tracklimity   = camera_h(self) * CAMERA_TRACK_RATIO;
   // TODO: correct with half width and half height

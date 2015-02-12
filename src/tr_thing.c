@@ -20,6 +20,7 @@ static mrb_value tr_newthing(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
   mrb_int   index, kind, x, y, z, w, h;
+  (void) self;
   mrb_get_args(mrb, "iiiiiii", &index, &kind, &x, &y, &z, &w, &h);  
   if ((index<0) || (kind < 0)) {
     return mrb_nil_value();
@@ -33,6 +34,7 @@ static mrb_value tr_thing_sprite_(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
   mrb_int thing, sprite;
+  (void) self;
   mrb_get_args(mrb, "ii", &thing, &sprite);  
   result = state_thing_sprite_(state, thing, sprite);
   return mrb_fixnum_value(result);
@@ -42,6 +44,7 @@ static mrb_value tr_thing_pose_(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
   mrb_int thing, pose;
+  (void) self;
   mrb_get_args(mrb, "ii", &thing, &pose);  
   result = state_thing_pose_(state, thing, pose);
   return mrb_fixnum_value(result);
@@ -51,6 +54,7 @@ static mrb_value tr_thing_direction_(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
   mrb_int thing, direction;
+  (void) self;
   mrb_get_args(mrb, "ii", &thing, &direction);  
   result = state_thing_direction_(state, thing, direction);
   return mrb_fixnum_value(result);
@@ -61,6 +65,7 @@ static mrb_value tr_thing_v_(mrb_state * mrb, mrb_value self) {
   Thing * thing    = NULL;
   int result;
   mrb_int thingid; mrb_float x, y;
+  (void) self;
   mrb_get_args(mrb, "iff", &thingid, &x, &y); 
   thing = state_thing(state, thingid);
   if (!thing) {
@@ -89,6 +94,7 @@ static mrb_value tr_thing_find_in_rectangle
   struct tr_thing_find_helper helper;
   State * state    = state_get();
   Area * area      = state_area(state);
+  (void) self;
   
   mrb_get_args(mrb, "iiii", &x, &y, &w, &h);  
   results          = mrb_ary_new(mrb);
@@ -115,6 +121,7 @@ static mrb_value tr_thing_v(mrb_state * mrb, mrb_value self) {
   Thing * thing    = NULL;
   BeVec result;
   mrb_int thingid; mrb_float x, y;
+  (void) self;
   mrb_get_args(mrb, "i", &thingid); 
   thing = state_thing(state, thingid);
   if (!thing) {
@@ -123,6 +130,29 @@ static mrb_value tr_thing_v(mrb_state * mrb, mrb_value self) {
   result = thing_v(thing); 
   return bevec2mrb(mrb, result);
 }
+
+
+static mrb_value tr_thing_tint(mrb_state * mrb, mrb_value self) {
+  State * state    = state_get();
+  int result       = 0;
+  mrb_int   rindex = -1;
+  mrb_int   rlayer = -1;
+  mrb_int   rr     = 255;
+  mrb_int   rg     = 255;
+  mrb_int   rb     = 255;
+  mrb_int   ra     = 255;
+  (void) self;
+  mrb_get_args(mrb, "iiiiii", &rindex, &rlayer, &rr, &rg, &rb, &ra); 
+  if ((rindex<0) || (rlayer<0)) {
+    return mrb_nil_value();
+  }
+  result = 
+  state_thing_tint_layer(state, rindex, rlayer, rr, rg, rb, ra);
+  return mrb_fixnum_value(result);
+}
+
+
+
 
 /* Define getters for various dimensions of thing's bounds box. */
 TR_PAIR_DO(TR_THING_IGETTER, thing_w)
@@ -173,6 +203,8 @@ int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_NOARG(mrb, thi, "direction", tr_thing_direction);
   TR_CLASS_METHOD_NOARG(mrb, thi, "pose"     , tr_thing_pose);
   TR_CLASS_METHOD_ARGC(mrb, thi, "get_unused_id" , tr_thing_get_unused_id, 1);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "tint_rgba"     , tr_thing_tint, 6);
+
   
   return 0;
 }

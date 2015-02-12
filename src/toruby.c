@@ -205,6 +205,7 @@ static mrb_value tr_camera_track(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
   mrb_int   thing_index;
+  (void) self;
   mrb_get_args(mrb, "i", &thing_index);  
   result = state_camera_track_(state, thing_index);
   return mrb_fixnum_value(result);
@@ -214,6 +215,7 @@ static mrb_value tr_lockin_maplayer(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
   mrb_int   layer;
+  (void) self;
   mrb_get_args(mrb, "i", &layer);  
   result = state_lockin_maplayer(state, layer);
   return mrb_fixnum_value(result);
@@ -223,6 +225,7 @@ static mrb_value tr_camera_x(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   Camera * camera  = state_camera(state);
   int result;
+  (void) self;
   result           = camera_at_x(camera);
   return mrb_fixnum_value(result);
 }
@@ -231,6 +234,7 @@ static mrb_value tr_camera_y(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   Camera * camera  = state_camera(state);
   int result;
+  (void) self;
   result           = camera_at_y(camera);
   return mrb_fixnum_value(result);
 }
@@ -239,6 +243,7 @@ static mrb_value tr_camera_w(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   Camera * camera  = state_camera(state);
   int result;
+  (void) self;
   result           = camera_w(camera);
   return mrb_fixnum_value(result);
 }
@@ -247,6 +252,7 @@ static mrb_value tr_camera_h(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   Camera * camera  = state_camera(state);
   int result;
+  (void) self;
   result           = camera_w(camera);
   return mrb_fixnum_value(result);
 }

@@ -45,7 +45,9 @@ static mrb_value tr_scegra_make_box(mrb_state * mrb, mrb_value self) {
   mrb_int id            = -1, sindex = -1;
   mrb_int x             =  0, y      =  0;
   mrb_int w             = 32, h      = 32;
-  mrb_int rx            =  4, ry     =  4;  
+  mrb_int rx            =  4, ry     =  4; 
+  (void) self;
+
   mrb_get_args(mrb, "iiiiiiii", &id, &x, &y, &w, &h, &rx, &ry, &sindex);
   return mrb_fixnum_value(scegra_make_box_style_from(id, bevec(x, y), bevec(w, h), bevec(rx, ry), sindex));
 }
@@ -55,6 +57,8 @@ static mrb_value tr_scegra_make_text(mrb_state * mrb, mrb_value self) {
   mrb_int id            = -1, size   =  0, sindex = -1;
   mrb_int x             =  0, y      =  0;
   mrb_int w             = 64, h      = 32;
+  (void) self;
+
   mrb_get_args(mrb, "iiiiisi", &id, &x, &y, &w, &h, &str, &size, &sindex);
   return mrb_fixnum_value(scegra_make_text_style_from(id, bevec(x, y), bevec(w, h), str, sindex));
 }
@@ -64,6 +68,8 @@ static mrb_value tr_scegra_make_longtext(mrb_state * mrb, mrb_value self) {
   mrb_int id            = -1, size   =  0, sindex = -1;
   mrb_int x             =  0, y      =  0;
   mrb_int w             = 64, h      = 32;
+  (void) self;
+
   mrb_get_args(mrb, "iiiiisi", &id, &x, &y, &w, &h, &str, &size, &sindex);
   return mrb_fixnum_value(scegra_make_longtext_style_from(id, bevec(x, y), bevec(w, h), str, sindex));
 }
@@ -74,6 +80,8 @@ static mrb_value tr_scegra_make_image(mrb_state * mrb, mrb_value self) {
   mrb_int id            = -1, image_id  =  -1, sindex = -1;
   mrb_int x             =  0, y      =  0;
   mrb_int w             =  0, h      = 0;  
+  (void) self;
+
   mrb_get_args(mrb, "iiiiiii", &id, &x, &y, &w, &h, &image_id, &sindex);
   return mrb_fixnum_value(scegra_make_image_style_from(id, bevec(x, y),  bevec(w, h), image_id, sindex));
 }

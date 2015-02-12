@@ -60,7 +60,74 @@ void * mem_move(void * dest, void * src, size_t size) {
   return memmove(dest , src, size);
 }
 
+/* Thoughts on hierarchical data structures.
+* Often, in C data is allocatedin a hierarchical way. 
+* It's useful to have functions that take this into consideration...
+*/ 
 
+typedef struct Memtree_ Memtree;
+
+struct Memtree_ {
+  void * memory;
+  size_t size;
+  Memtree * next, * parent, * child;
+};
+
+#ifdef COMMENT_
+/* Tree memory allocator. */
+void * mem_tree_alloc(void * vparent, size_t size) {
+  char * aid;
+  Memtree * me, * next;
+  Memtree * parent = vparent;
+  aid        = mem_calloc(1, size + sizeof(Memtree));
+  if (!aid) return NULL;
+  me         = (Memtree *) aid;
+  me->memory = aid + sizeof(Memtree); 
+  me->size   = size;
+  if (parent) {
+    me->parent = parent;
+    if (parent->child) {
+      next = parent->child;
+    } else {
+      next = NULL
+    }
+        
+    parent->child = me;
+    me->next      = next;
+  } else {
+    me->parent   = NULL;
+    me->next     = NULL;
+    me->child    = NULL;
+  }
+  return me->memory;
+}
+
+
+void mem_tree_free(void * vparent) {
+  char * aid;
+  Memtree * me, * next;
+  Memtree * parent = vparent;
+  aid        = vparent;
+  if (!aid) return;
+  me         = (Memtree *) (aid + sizeof(Memtree));
+  if (!me) return;
+  me->memory = NULL;
+  me->size   = 0; 
+  if (me->child) {
+    mem_tree_free(me->child);
+  } else if (me->next) {
+    for (next = me->next; next; next = next->next) {
+      
+      mem_tree_free(next);
+    } 
+  } else {
+    next = NULL
+  }
+  
+  mem_free(me);  
+}
+
+#endif
 
 /* 
 * Thoughts on memory allocation in C. 

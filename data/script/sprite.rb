@@ -98,21 +98,6 @@ class Sprite < Eruta::Sprite
     p "load_builtin", sprite_id, layer, full_name, ilayout 
     Eruta::Sprite.load_builtin sprite_id, layer, full_name, ilayout
   end
-
-  # Applies a tint to the given layer of the sprite.
-  def tint(layer, r, g, b, a = 255)
-    Eruta::Sprite.tint_rgba @id, layer, r, g, b, a
-  end  
-  
-  # Applies a tint to the torso layer of the sprite.
-  def tint_torso(r, g, b, a = 255)
-    tint(Eruta::Sprite::Layer::TORSO, r, g, b, a)
-  end 
-  
-  # Applies a tint to the hair layer of the sprite.
-  def tint_hair(r, g, b, a = 255)
-    tint(Eruta::Sprite::Layer::HAIR, r, g, b, a)
-  end 
   
   # Loads a sprite sheet with built in layout as a layer.
   def load_builtin(layer, vpath, layout = :ulpcss)

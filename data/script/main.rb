@@ -86,9 +86,9 @@ module Main
 
     
 
-    Sprite[100].tint_hair(0, 255, 0)
-    Sprite[100].tint_torso(255, 64, 64)
     Thing[100].sprite    = Sprite[100]
+    Thing[100].tint_hair(0, 255, 0)
+    Thing[100].tint_torso(255, 64, 64)
     Thing[100].direction = SPRITE_SOUTH
     Thing[100].pose      = SPRITE_STAND
 
@@ -99,9 +99,9 @@ module Main
     Sprite[101].load_ulpcss(SPRITELAYER_BODY , "body/female/dark.png")
     Sprite[101].load_ulpcss(SPRITELAYER_TORSO, "torso/dress_w_sash_female.png")
     Sprite[101].load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangsshort.png")
-    Sprite[101].tint_hair(255, 255, 0)
-    Sprite[101].tint_torso(128,  128, 255)
     Thing[101].sprite     = Sprite[101]
+    Thing[101].tint_hair(255, 255, 0)
+    Thing[101].tint_torso(128,  128, 255)
     Thing[101].pose       = SPRITE_STAND
     Thing[101].direction  = SPRITE_SOUTH
 

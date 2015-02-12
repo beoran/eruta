@@ -46,6 +46,7 @@ struct Area_ {
 
 /** Gets the amount of possible things for this area */
 int area_maxthings(Area * area) {
+  (void) area;
   return AREA_THINGS;
 }
 
@@ -219,15 +220,6 @@ Area * area_new() {
 BumpWorld * area_world(Area * self) {
   if (!self) return NULL;
   return self->world;
-}
-
-
-/** Makes a new static thing and adds it to the area. Return it or NULL on error.
- Not needed anymore.
- */
-Thing * area_newstatic(Area * self, int index , int kind,
-                       int x, int y, int z, int w, int h) {
-  return NULL;
 }
 
 

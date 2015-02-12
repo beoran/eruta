@@ -242,8 +242,9 @@ src/scegra.c      : Scene graph idea, may be discared, currently unused.
 src/silut.c       : Simple string lookup table.
 src/sound.c       : Sound and music helper functions.
 src/sprite.c      : Sprite functions, in use but needs work.
+src/spritelayout.c: Sprite Layouts used for loading sprite sheets.
 src/spritelist.c  : List of sprite functions, split off from sprite.c
-src/spritelist.c  : Sprite state functions, split off from sprite.
+src/spritestate.c : Sprite state functions, split off from sprite.c
 src/state.c       : Manages all state data of the engine.
 src/str.c         : USTR and String helper functions.
 src/tarray.c      : XMacro template matrix. Currently unused.

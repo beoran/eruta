@@ -13,6 +13,7 @@ SpriteState * spritestate_alloc() {
 }
 
 Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite) {
+  int index;
   if(!self) return NULL;
   self->sprite          = sprite;
   self->action_index    = -1;
@@ -22,15 +23,22 @@ Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite) {
   self->time            = 0.0;
   self->pose_now        = SPRITE_STAND;
   self->direction_now   = SPRITE_ALL;
-  /* No cleanup, sprite is not owned by the sprite state. */
+  for (index = 0; index < SPRITESTATE_LAYER_MAX; index++) {
+    self->layer_tints[index]   = NULL;
+  }
+  
+  /* No cleanup of sprite as it is not owned by the sprite state. */
   return self->sprite;
 }
 
-/* No cleanup since the Sprite * is owned by the sprite list. 
-  This function exists for future extensio only and should be called to 
-  prepare for any owned pointers if those turn out to be needed.
+/* No cleanup of sprite since the Sprite * is owned by the sprite list. 
 */
 SpriteState * spritestate_done(SpriteState * self) { 
+  int index;
+   
+  for (index = 0; index < SPRITESTATE_LAYER_MAX; index++) {
+    mem_free(self->layer_tints[index]);
+  }
   return self;
 } 
 
@@ -68,11 +76,33 @@ SpriteState * spritestate_new(Sprite *  sprite) {
 }
 
 
+/* Draws the given layer of the sprite using the sprite state.   
+ */
+void spritestate_draw_frame(SpriteState * me, SpriteFrame * frame, Point * at) 
+{
+  int index, stop;
+  SpriteCell * cell;
+  Color * tint; 
+  if (!me) return;
+  al_hold_bitmap_drawing(true);
+  stop = spriteframe_maxlayers(frame);
+  for (index = 0; index < stop ; index++) {
+    cell     = spriteframe_cell(frame, index);
+    tint     = spritestate_get_layer_tint(me, index);
+    if (tint) { 
+      spritecell_draw_tinted(cell, at, (*tint));
+    } else {
+      spritecell_draw(cell, at);
+    }
+  }
+  al_hold_bitmap_drawing(false);
+}
+
 /* Draw the SpriteState at the given location. This takes
   the current action, frame, layers and offsets into consideration. */
 void spritestate_draw(SpriteState * self, Point * at) {
   if(!self) return;
-  spriteframe_draw(self->frame_now, at);
+  spritestate_draw_frame(self, self->frame_now, at);
 }
 
 /* Sets the spritestate's current action and current frame. Returns 
@@ -81,7 +111,7 @@ SpriteState *
 spritestate_now_(SpriteState * self, int actionnow, int framenow) {
   SpriteAction * action;
   SpriteFrame  * frame;
-  Sprite * sprite;
+  Sprite       * sprite;
   if (!self) return NULL;
   sprite = self->sprite;
   if (!sprite) return NULL;
@@ -182,6 +212,40 @@ int spritestate_direction(SpriteState * self) {
   return self->direction_now;
 }
 
+
+int spritestate_tint_layer(SpriteState * self, int layer, Color color) {
+  if (!self) return -1;
+  if (layer < 0) return -2;
+  if (layer > SPRITESTATE_LAYER_MAX) return -3;
+  self->layer_tints[layer] = STRUCT_ALLOC(Color);
+  if (!self->layer_tints[layer]) return -4;
+  (*self->layer_tints[layer]) = color;
+  return layer;    
+}
+
+int spritestate_remove_tint_layer(SpriteState * self, int layer) {
+  if (!self) return -1;
+  if (layer < 0) return -2;
+  if (layer > SPRITESTATE_LAYER_MAX) return -3;
+  mem_free(self->layer_tints[layer]);
+  self->layer_tints[layer] = NULL;
+  return layer;    
+}
+
+
+int spritestate_is_layer_tinted(SpriteState * self, int layer) {
+  if (!self) return FALSE;
+  if (layer < 0) return FALSE;
+  if (layer > SPRITESTATE_LAYER_MAX) return FALSE;
+  return (self->layer_tints[layer] != NULL);
+}
+
+Color * spritestate_get_layer_tint(SpriteState * self, int layer) {
+  if (!self) return NULL;
+  if (layer < 0) return NULL;
+  if (layer > SPRITESTATE_LAYER_MAX) return NULL;
+  return (self->layer_tints[layer]);
+}
 
 
 

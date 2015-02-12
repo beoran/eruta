@@ -8,6 +8,7 @@
 #include "bad.h"
 #include "flags.h"
 #include "fifi.h"
+#include "spritelayout.h"
 
 /* Define this to see how the sprites are being loaded. */
 #define SPRITE_LOAD_DISPLAY
@@ -146,8 +147,6 @@ struct SpriteCell_ {
   Point   size;
   int     index;
   int     drawflags;
-  int     tinted;
-  Color   tint;
 };
 
 
@@ -197,8 +196,6 @@ spritecell_initall(SpriteCell * self, int index, Image * image, Point size, Poin
   self->offset          = offset;
   self->size            = size;
   self->drawflags       = 0;
-  self->tinted          = 0;
-  self->tint            = al_map_rgb(255, 255, 255);
   return self;
 }
 
@@ -206,18 +203,30 @@ SpriteCell * spritecell_new(int index, Image * image, Point size, Point offset) 
   return spritecell_initall(spritecell_alloc(), index, image, size, offset);
 } 
 
-/* Draw a sprite cell with point at as the relevant game object's core position. */
-void spritecell_draw(SpriteCell * self, Point * at) {
+Image * spritecell_image(SpriteCell * self) {
+  return self->image;
+}
+
+/* Draw a sprite cell with point at as the relevant game object's core position. 
+ * the cell will be tinted with the given tint. */
+void spritecell_draw_tinted(SpriteCell * self, Point * at, Color tint) {
   Point real, delta, aid;
   /*    - size_w/2 + tile_w / 2   */
   if(!self) return;
+  /* XXX: this delta stinks... */
   delta = bevec(-self->size.x / 2 + SPRITE_TILE_WIDE / 2, 
               -self->size.y + SPRITE_TILE_HIGH);
   aid  = bevec_add((*at), self->offset);
   real = bevec_add(aid, delta);  
   /* Adjust for tile size and frame size. */
-  al_draw_tinted_bitmap(self->image, self->tint, real.x, real.y, self->drawflags);
-  
+  al_draw_tinted_bitmap(self->image, tint, real.x, real.y, self->drawflags);  
+}
+
+
+/* Draw a sprite cell with point at as the relevant game object's core position. */
+void spritecell_draw(SpriteCell * self, Point * at) {
+  Color notint = al_map_rgb(255,255,255);
+  spritecell_draw_tinted(self, at, notint);
 }
 
 /* Cleans up a layer after use, also frees the layer's Image. */
@@ -245,14 +254,6 @@ spritecell_drawflags_(SpriteCell * self, int drawflags) {
   self->drawflags = drawflags;
   return self;
 }
-
-SpriteCell * 
-spritecell_tint_(SpriteCell * self, Color tint) {
-  if (!self) return NULL;  
-  self->tinted = true;
-  self->tint   = tint;
-  return self;
-} 
 
 
 /* Sprite Frames. */
@@ -600,7 +601,10 @@ SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
                               double duration) {
   SpriteAction * action;
   action = sprite_action(self, actionindex);
-  if (!action) return NULL;
+  if (!action) { 
+    LOG_WARNING("Could not create new frame %d for action %d\n", frameindex, actionindex);
+    return NULL;
+  } 
   return spriteaction_newframe(action, frameindex, duration);
 }
 
@@ -609,7 +613,7 @@ SpriteCell * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
                               int layerindex, Image * image, Point size, 
                               Point offset) {
   SpriteFrame * frame;
-  SpriteCell * aid; 
+  SpriteCell  * aid; 
   frame = sprite_frame(self, actionindex, frameindex);
   if(!frame) return NULL;
   aid = spriteframe_newlayer(frame, layerindex, image, size, offset);
@@ -708,23 +712,7 @@ Sprite * sprite_maxactions_(Sprite * self, int newactions) {
   return self;
 }
 
-/* Draws the sprite frame at the given location. */
-void spriteframe_draw(SpriteFrame * self, Point * at) {
-  int index, stop;
-  SpriteCell * layer;
-  if (!self) return;
-  al_hold_bitmap_drawing(true);
-  stop = spriteframe_maxlayers(self);
-  for (index = 0; index < stop ; index++) {
-    layer = spriteframe_cell(self, index);
-    spritecell_draw(layer, at);
-    if (index == SPRITELAYER_WEAPONS) {
-      Color col = al_map_rgb(255,125,64);
-      al_draw_rectangle(at->x, at->y, at->x+10, at->y+10, col, 3); 
-    }
-  }
-  al_hold_bitmap_drawing(false);
-}
+
 
 
 /** Loads a layer of the sprite from the given image. 
@@ -779,85 +767,6 @@ SpriteCell * sprite_loadlayerfrom(Sprite * self, int actionindex,
   return res;
 }
 
-/* Layout info of the ULPCSS sprites. */
-static int ulpcss_sprites_per_row[] = {
-  7, 7, 7, 7,  
-  8, 8, 8, 8,  
-  9, 9, 9, 9,  
-  6, 6, 6, 6,  
-  13, 13, 13, 13,  
-  6, 
-  -1 
-};
-
-/* Type info of the ULPCSS sprites. */
-static int ulpcss_row_type[] = {
-  SPRITE_CAST , SPRITE_CAST , SPRITE_CAST , SPRITE_CAST ,
-  SPRITE_STAB , SPRITE_STAB , SPRITE_STAB , SPRITE_STAB ,
-  SPRITE_WALK , SPRITE_WALK , SPRITE_WALK , SPRITE_WALK ,
-  SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH,
-  SPRITE_SHOOT, SPRITE_SHOOT, SPRITE_SHOOT, SPRITE_SHOOT,
-  SPRITE_DOWN ,
-  -1 
-};
-
-/* Direction info of the ULPCSS sprites. */
-static int ulpcss_row_direction[] = {
-  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
-  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
-  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
-  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
-  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
-  SPRITE_ALL  ,
-  -1
-};
-
-/* Layout info of the ULPCSS sprites. */
-static SpriteLayout ulpcss_layout = {
-  ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction,
-  64, 64, 0
-}; 
-
-
-/* Layout info of the oversized ULPCSS sprites, for weapons only. */
-static int ulpcss_oversized_sprites_per_row[] = {
-  6, 6, 6, 6,  
-  -1 
-};
-
-/* Type info of the oversized ULPCSS sprites, for slashinhg weapons. */
-static int ulpcss_oversized_slash_row_type[] = {
-  SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH,
-  -1 
-};
-
-/* Type info of the ULPCSS sprites, for stabbing weapons. */
-static int ulpcss_oversized_stab_row_type[] = {
-  SPRITE_STAB, SPRITE_STAB, SPRITE_STAB, SPRITE_STAB,
-  -1 
-};
-
-
-/* Direction info of the oversized ULPCSS sprites. */
-static int ulpcss_oversized_row_direction[] = {
-  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
-  -1
-};
-
-/* Layout of an oversized slashing weapon ULPCSS sprite. */
-static SpriteLayout ulpcss_oversized_slash_layout = {
-  ulpcss_oversized_sprites_per_row, ulpcss_oversized_slash_row_type,
-  ulpcss_oversized_row_direction,
-  64 * 3, 64 * 3, 0
-}; 
-
-/* Layout of an oversized stabbing weapon ULPCSS sprite. */
-static SpriteLayout ulpcss_oversized_stab_layout = {
-  ulpcss_oversized_sprites_per_row, ulpcss_oversized_stab_row_type,
-  ulpcss_row_direction,
-  64 * 3, 64 * 3, 0
-}; 
-
 
 /* Gets the action for the sprite, or creates it if it doesn't exist yet. */
 SpriteAction * sprite_actiongetnew
@@ -889,114 +798,6 @@ SpriteCell * sprite_loadframelayerfrom
             source, size, where);
 }
 
-/* Amount of actions in a layout. */
-int spritelayout_actions(SpriteLayout * layout) {
-  int index;
-  if(!layout) return 0;
-  if(!layout->per_row) return 0;
-  for(index = 0; layout->per_row[index] >= 0; index ++) {}
-  return index;
-}
-
-
-/** Loads the stand-in-walk layers for sprites with layouts that have them. 
-* It's ugly but it's needed because of how the ULPCSS sprite sheets are 
-* organized...
-Sprite * sprite_loadlayerlayout_standinwalk(Sprite * self, 
-                                            int layerindex, 
-                                            Image * source, 
-                                            int oversized, 
-                                            SpriteLayout * layout) {
-  return NULL;
-}
-*/
-
-/* Loads sprite cells for an action of a sprite from an image.  The layout info 
- * in the SpriteLayout struct determines how to load the sprite.
- */ 
-Sprite * spritelayout_loadactionlayer
-(SpriteLayout * layout, Sprite * sprite, 
- Image * source, int actionindex, int layerindex) {
-    int frameindex;
-    Point where           = bevec(0, layout->size_y * actionindex);
-    Point size            = bevec(layout->size_x, layout->size_y);
-    int inrow             = layout->per_row[actionindex];
-    int actionflags       = layout->row_dir[actionindex];
-    int actiontype        = layout->row_type[actionindex];
-    int stand_in_walk     = ((actiontype == SPRITE_WALK) && (layout->standinwalk >= 0));
-    SpriteAction * action = 
-    sprite_actiongetnew(sprite, actionindex, actiontype, actionflags);
-    
-    if (!action) { 
-      fprintf(stderr, "Error allocating sprite action %d!\n", actionindex);
-      return NULL;
-    }
-    /* Load frames. */
-    for (frameindex = 0; frameindex < inrow; frameindex++) {
-      SpriteFrame * frame;
-      SpriteCell * ok;
-      /* 
-        Special case for stand-in-walk. 
-      */      
-      if (stand_in_walk  && (frameindex == layout->standinwalk)) {
-        /* Make an action for the stand-in-walk frame. */
-        int walkaction = spritelayout_actions(layout) + actionindex % 4; 
-        /* XXX: It's a bit of a hack, assumes that there will be 4 consecutive walk 
-         * actions. */
-        action = sprite_actiongetnew(sprite, walkaction, SPRITE_STAND, actionflags);
-        /* Load stand frame */
-        ok = sprite_loadframelayerfrom(sprite, walkaction, frameindex, 
-              layerindex, source, size, where, SPRITE_ACTIVE, 0.2);
-        stand_in_walk = 1;
-        /* skip standing frames. */
-      } else {
-        ok = sprite_loadframelayerfrom(sprite, actionindex, 
-                                       frameindex - stand_in_walk, 
-              layerindex, source, size, where, SPRITE_ACTIVE, 0.2);
-        if (!ok) { 
-        fprintf(stderr, 
-                "Error loading sprite cell! %d %d\n", 
-                actionindex, frameindex);
-        }
-      }
-      where.x    += layout->size_x;
-    }
-  return sprite;
-}
-
-
-/* Loads a sprite cell for the whole sprite.  The layout info in the struct is 
- * used to correctly set  up the sprite parts. 
- */ 
-Sprite * spritelayout_loadlayer
-(SpriteLayout * layout, Sprite * sprite, int layerindex, Image * source) {
-  int stop;
-  int actionindex, walkaction;
-
-  actionindex = 0;
-  stop        = spritelayout_actions(layout);
-  walkaction  = stop - 1;
-
-  for (actionindex = 0 ; actionindex < stop ; actionindex++ ) {
-    spritelayout_loadactionlayer(layout, sprite, source, actionindex, layerindex);
-  }
-  return sprite;
-}
-
-/** Returns a layout for a load type. Returns NULL on error or unknown type. */
-SpriteLayout * sprite_layout_for(int load_type) {
-  switch (load_type) {
-    case SPRITE_LOAD_ULPCSS_NORMAL:
-      return &ulpcss_layout;
-    case SPRITE_LOAD_ULPCSS_OVERSIZED_SLASH:
-      return &ulpcss_oversized_slash_layout;
-    case SPRITE_LOAD_ULPCSS_OVERSIZED_STAB:
-      return &ulpcss_oversized_stab_layout;
-    default:
-      return NULL;
-  }
-}
-
 /** Loads a sprite cell from file with the given layout data. 
 The file name is in FIFI vpath format (subdir of data) */
 Sprite * sprite_loadlayer_vpath
@@ -1015,7 +816,7 @@ Sprite * sprite_loadlayer_vpath
 Sprite * sprite_loadlayer_ulpcss
 (Sprite * self, int layerindex, Image * source, int load_type) {
   SpriteLayout * layout;
-  layout = sprite_layout_for(load_type);
+  layout = spritelayout_for(load_type);
   if (!layout) return NULL; 
   return spritelayout_loadlayer(layout, self, layerindex, source);
 } 
@@ -1033,30 +834,6 @@ Sprite * sprite_loadlayer_ulpcss_vpath
   return res;
 }
 
-/* Applies a tint to a whole layer of a sprite */
-Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color) {
-  int actionstop, framestop;
-  int actionindex, frameindex;
-  SpriteAction * action;
-  SpriteFrame * frame;
-  SpriteCell * layer;
-  actionstop        =  dynar_size(self->actions);
-  for (actionindex  = 0 ; actionindex < actionstop ; actionindex++ ) {
-    action          = sprite_action(self, actionindex);
-    if(!action) continue;
-    framestop       = dynar_size(action->frames);
-    for (frameindex = 0 ; frameindex < framestop ; frameindex++) {
-      frame         = spriteaction_frame(action, frameindex);
-      if(!frame) continue;
-      layer         = spriteframe_cell(frame, layerindex);
-      if(!layer) continue;
-      spritecell_tint_(layer, color);
-    }
-  }
-  return self; 
-}
-
-
 /** Sprite cleanup walker */
 void * sprite_cleanup_walker(void * data, void * extra) {
   Sprite * sprite = (Sprite *) data;
@@ -1064,15 +841,6 @@ void * sprite_cleanup_walker(void * data, void * extra) {
   (void) extra;
   return NULL;
 }
-
-
-/* Sprite list is a storage location for all sprites. 
- * 
- */
-
-
-
-
 
 
 

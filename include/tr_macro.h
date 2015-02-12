@@ -18,80 +18,92 @@ mrb_obj_value(Data_Wrap_Struct(RUBY,                        \
 #define TR_PAIR_DO(MACRO, NAME)     TR_PAIR_DO_AID(MACRO, NAME)
 
 #define TORUBY_0_ICALLER(NAME, TOCALL)                                         \
-  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
-  return mrb_fixnum_value(TOCALL());                                        \
-  }
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
+  (void) self; (void) mrb;                                                     \
+  return mrb_fixnum_value(TOCALL());                                           \
+}
 
 #define TORUBY_0_FGETTER(NAME, TOCALL)                                         \
-  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
-  return mrb_float_value(mrb, TOCALL());                                    \
-  }
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
+  (void) self;                                                                 \
+  return mrb_float_value(mrb, TOCALL());                                       \
+}
 
 #define SCEGRA_ICALLER(NAME, TOCALL)                                           \
-  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
-  int index;                                                                \
-  mrb_get_args(mrb, "i", &index);                                           \
-  return mrb_fixnum_value(TOCALL(index));                                   \
-  }
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
+  int index;                                                                   \
+  (void) self;                                                                 \
+  mrb_get_args(mrb, "i", &index);                                              \
+  return mrb_fixnum_value(TOCALL(index));                                      \
+}
 
 #define SCEGRA_BCALLER(NAME, TOCALL)                                           \
-  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
-  int index;                                                                \
-  mrb_get_args(mrb, "i", &index);                                           \
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
+  int index;                                                                   \
+  (void) self;                                                                 \
+  mrb_get_args(mrb, "i", &index);                                              \
   return rh_bool_value(TOCALL(index));                                         \
-  }
+}
 
 
 #define SCEGRA_FCALLER(NAME, TOCALL)                                           \
   static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
   mrb_int index;                                                               \
+  (void) self;                                                                 \
   mrb_get_args(mrb, "i", &index);                                              \
   return mrb_float_value(mrb, TOCALL(index));                                  \
   }
 
 #define SCEGRA_ISETTER(NAME, TOCALL)                                           \
-  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
-  int index, value;                                                         \
-  mrb_get_args(mrb, "ii", &index, &value);                                  \
-  return mrb_fixnum_value(TOCALL(index, value));                            \
-  }
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
+  int index, value;                                                            \
+  (void) self;                                                                 \
+  mrb_get_args(mrb, "ii", &index, &value);                                     \
+  return mrb_fixnum_value(TOCALL(index, value));                               \
+}
 
 #define SCEGRA_BSETTER(NAME, TOCALL)                                           \
   static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
   int index; mrb_value value;                                                  \
+  (void) self;                                                                 \
   mrb_get_args(mrb, "io", &index, &value);                                     \
   return mrb_fixnum_value(TOCALL(index, rh_tobool(value)));                    \
-  }
+}
   
 #define SCEGRA_PSETTER(NAME, TOCALL)                                           \
-  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                   \
-  int index, x, y;                                                           \
-  mrb_get_args(mrb, "iii", &index, &x, &y);                                  \
-  return mrb_fixnum_value(TOCALL(index, x, y));                              \
-  }
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
+  int index, x, y;                                                             \
+  (void) self;                                                                 \
+  mrb_get_args(mrb, "iii", &index, &x, &y);                                    \
+  return mrb_fixnum_value(TOCALL(index, x, y));                                \
+}
 
 #define SCEGRA_CSETTER(NAME, TOCALL)                                           \
-  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                   \
-  int index, r, g, b, a;                                                     \
-  mrb_get_args(mrb, "iiiii", &index, &r, &g, &b, &a);                        \
-  return mrb_fixnum_value(TOCALL(index, r, g, b, a));                        \
-  }
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
+  int index, r, g, b, a;                                                       \
+  (void) self;                                                                 \
+  mrb_get_args(mrb, "iiiii", &index, &r, &g, &b, &a);                          \
+  return mrb_fixnum_value(TOCALL(index, r, g, b, a));                          \
+}
 
 #define SCEGRA_FSETTER(NAME, TOCALL)                                           \
-  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                  \
-  int index; mrb_float value;                                               \
-  mrb_get_args(mrb, "if", &index, &value);                                  \
-  return mrb_fixnum_value(TOCALL(index, value));                            \
-  }
+  static mrb_value NAME(mrb_state * mrb, mrb_value self) {                     \
+  int index; mrb_float value;                                                  \
+  (void) self;                                                                 \
+  mrb_get_args(mrb, "if", &index, &value);                                     \
+  return mrb_fixnum_value(TOCALL(index, value));                               \
+}
 
 #define TR_WRAP_NOARG_BOOL(NAME, TOCALL)                                       \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  (void) self;                                                                 \
   return rh_bool_value(TOCALL());                                              \
 }
 
 #define TR_WRAP_I_BOOL(NAME, TOCALL)                                           \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1;                                                                  \
+  (void) self;                                                                 \
   mrb_get_args(mrb, "i", &i1);                                                 \
   return rh_bool_value(TOCALL(i1));                                            \
 }
@@ -99,6 +111,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 #define TR_WRAP_B_BOOL(NAME, TOCALL)                                           \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_value b1;                                                                \
+  (void) self;                                                                 \
   mrb_get_args(mrb, "o", &b1);                                                 \
   return rh_bool_value(TOCALL(rh_tobool(b1)));                                 \
 }
@@ -107,6 +120,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1 = -1;                                                             \
   char * str = NULL;                                                           \
+  (void) self;                                                                 \
   mrb_get_args(mrb, "iz", &i1, &str);                                          \
   return mrb_fixnum_value(TOCALL(i1, str));                                    \
 }
@@ -116,6 +130,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1;                                                                  \
   mrb_get_args(mrb, "i", &i1);                                                 \
+  (void) self;                                                                 \
   return mrb_fixnum_value(TOCALL(i1));                                         \
 }
 
@@ -123,6 +138,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1, i2;                                                              \
   mrb_get_args(mrb, "ii", &i1, &i2);                                           \
+  (void) self;                                                                 \
   return mrb_fixnum_value(TOCALL(i1, i2));                                     \
 }
 
@@ -130,6 +146,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1, i2, i3;                                                          \
   mrb_get_args(mrb, "iii", &i1, &i2, &i3)                                      \
+  (void) self;                                                                 \
   return mrb_fixnum_value(TOCALL(i1, i2, i3));                                 \
 }
 
@@ -138,6 +155,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1, i2, i3, i4;                                                      \
   mrb_get_args(mrb, "iiii", &i1, &i2, &i3, &i4);                               \
+  (void) self;                                                                 \
   return mrb_fixnum_value(TOCALL(i1, i2, i3, i4));                             \
 }
 
@@ -145,6 +163,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   mrb_int i1, i2, i3, i4;                                                      \
   mrb_value b5;                                                                \
+  (void) self;                                                                 \
   mrb_get_args(mrb, "iiiib", &i1, &i2, &i3, &i4, &b5);                         \
   return mrb_fixnum_value(TOCALL(i1, i2, i3, i4, rh_tobool(b5)));              \
 }
@@ -152,6 +171,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 
 #define TR_WRAP_NOARG_INT(NAME, TOCALL)                                        \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  (void) self;                                                                 \
   return mrb_fixnum_value(TOCALL());                                           \
 }
 
@@ -159,6 +179,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   State * state    = state_get();                                              \
   Thing * thing    = NULL;                                                     \
+  (void) self;                                                                 \
   int result;                                                                  \
   mrb_int thingid;                                                             \
   mrb_get_args(mrb, "i", &thingid);                                            \

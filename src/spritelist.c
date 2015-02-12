@@ -148,17 +148,6 @@ int spritelist_load_sprite_layer_with_layout
   }
 }
 
-/* Tints a sprite cell of a sprite in the sprite list */
-int spritelist_tint_sprite_layer
-(SpriteList * me, int isprite, int ilayer, Color color) {
-  Sprite * sprite = spritelist_sprite(me, isprite);
-  if (!sprite) return -1;
-  if(sprite_tintlayer(sprite, ilayer, color)) { 
-    return isprite;
-  } else {
-    return -2;
-  }
-}
 
 
 

@@ -20,7 +20,7 @@ include(CheckCXXSourceCompiles)
 
 if(CMAKE_COMPILER_IS_GNUCC)
 set(COMPILER_GCC 1)
-set(CMAKE_C_FLAGS "-W -Wall -wunused -Wno-unused -Wno-unknown-pragmas -g -std=c99 -ffast-math -fstrict-aliasing -Wstrict-aliasing=2")
+set(CMAKE_C_FLAGS "-W -Wall -wunused -Wno-unused -Wno-unknown-pragmas -g -std=c99 -ffast-math -fsanitize=address -fstrict-aliasing -Wstrict-aliasing=2")
 # set(CMAKE_LD_FLAGS "-pg")
 # always use gnu99, debugging, all warnings except unused and unknown pragmas.
 # when compiling with gnu compiler.  

@@ -132,12 +132,6 @@ int thing_direction_(Thing * thing, int direction) {
 }
 
 
-/** Returns true if the thing is static, Alwyas false since with Bump, all shapes
- are dynamic (the tile map is static) */
-int thing_static_p(Thing * self) { 
-  return FALSE;
-}
-
 /** Generic initialization of a thing Initializes a Thing. 
 Sets the given values and some flags. Links the Shape given
 to the Thing if shape is not NULL. 
@@ -384,13 +378,8 @@ void thing_draw(Thing * self, Camera * camera) {
     h         = bumphull_aabb(self->hull).hs.y * 2;
   } 
   
-  if (thing_static_p(self)) {
-    color     = color_rgbaf(1.0, 1.0, 0.0, 0.001);
-    t         = 2;
-  } else {
-    color     = color_rgba(0xee, 0x44, 0x00, 0x88);
-    t         = 8;
-  }
+  color     = color_rgba(0xee, 0x44, 0x00, 0x88);
+  t         = 8;
   /* Do not draw out of camera range. */
   if(!camera_cansee(camera, x, y, w, h)) {
     return;
@@ -515,5 +504,10 @@ int thing_compare_for_drawing(const void * p1, const void * p2) {
 }
 
 
+/** Tints a layer in the sprite's state of this thing. */
+int thing_tint_layer(Thing * me, int layer_index, Color color) {
+  if (!me) return -1;
+  return spritestate_tint_layer(&me->spritestate, layer_index, color);
+} 
 
 

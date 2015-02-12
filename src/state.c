@@ -952,13 +952,13 @@ Tilemap * state_preloadmap_index(State * state, int index) {
   return NULL;
 }
 
-/* Tints a whole layer of a given sprite. */
-int state_sprite_tintlayer
-(State * state, int sprite_index, int layer_index, int r, int g, int b, int a) {
-  Sprite * sprite = state_sprite(state, sprite_index);
+/* Tints a layer of the sprite that belongs to a thing.*/
+int state_thing_tint_layer
+(State * state, int thing_index, int layer_index, int r, int g, int b, int a) {
+  Thing       * thing  = state_thing(state, thing_index);
   Color color   = al_map_rgba(r, g, b, a);
-  if (!sprite) { return -1; }
-  sprite_tintlayer(sprite, layer_index, color);
+  if (!thing) { return -1; }
+  thing_tint_layer(thing, layer_index, color);  
   return 0;
 }
 
