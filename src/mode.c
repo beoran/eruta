@@ -10,6 +10,7 @@
 * A Mode is a mode of the program in which the display and controls may 
 * be different. Examples of this may be a menu mode, play mode,
 * edit mode, intro mode, etc.
+* XXX: this is currently superceded by the mruby side of the Eruta engine.
 * 
 */
 struct Mode_ {
@@ -84,10 +85,12 @@ Mode * elsemode_stop(Mode * self) {
 }
 
 Mode * elsemode_paint(Mode * self, ALLEGRO_DISPLAY * display) {
+  (void) self; (void) display;
   return NULL;
 }
 
 Mode * elsemode_event(Mode * self, ALLEGRO_EVENT * event) {
+  (void) self; (void) event;
   return NULL;
 }
 

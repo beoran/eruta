@@ -170,6 +170,7 @@ int bumphash_index(BumpHash * self, int x, int y) {
   int index = x / BUMPHASH_W;
   index    += (y / BUMPHASH_H) * BUMPHASH_GRID_W;
   /* convert 2d index to 1d index. */
+  (void) self;
   return index;
 }
 
@@ -658,7 +659,7 @@ BumpWorld * bumpworld_init(BumpWorld * self) {
 }
 
 /* Allocates and initializes a world. */
-BumpWorld * bumpworld_new(BumpWorld * self) {
+BumpWorld * bumpworld_new(void) {
   return bumpworld_init(bumpworld_alloc());
 }
 
@@ -856,6 +857,8 @@ bumpworld_collide_hulls
   if ((!hull1) || (!hull1->body)) return;
   if ((!hull2) || (!hull2->body)) return;
   
+  (void) self;
+  
   serno++;
   bounds1       = bumphull_aabb_next(hull1);
   bounds2       = bumphull_aabb_next(hull2);
@@ -1028,7 +1031,7 @@ static void bumpaabb_draw(BumpAABB * bounds, Color color, int thickness, Camera 
 
 
 static void bumpworld_draw_tilemap_debug(BumpTilemap * self, Camera * camera) {
-  
+ (void) self; (void) camera; 
 }
 
 static void bumphull_draw_debug(BumpWorld * world, BumpHull * self, Camera * camera) {

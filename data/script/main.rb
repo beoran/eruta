@@ -342,6 +342,8 @@ module Main
     if    pose == SPRITE_SLASH
       Thing.actor.pose = SPRITE_STAB
     elsif pose == SPRITE_STAB
+      Thing.actor.pose = SPRITE_CAST
+    elsif pose == SPRITE_CAST
       Thing.actor.pose = SPRITE_STAND
     else
       Thing.actor.pose = SPRITE_SLASH

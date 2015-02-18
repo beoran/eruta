@@ -63,6 +63,8 @@ Tilemap * tilemap_done(Tilemap * self) {
 /** Initializes a tile map */
 Tilemap* tilemap_init(Tilemap * self, Tileset * set, int w, int h, Area * unused__) {
   int index;
+  
+  (void) unused__;
   if(!self) return NULL;
   self->gridw     = w;
   self->gridh     = h;
@@ -86,6 +88,7 @@ Tilemap * tilemap_free(Tilemap * map) {
 /** Allocates a new tile map and initializes it. */
 Tilemap * tilemap_new(Tileset * set, int w, int h, Area * unused__ ) {
   Tilemap * map = STRUCT_ALLOC(Tilemap);
+  (void) unused__;
   if(!tilemap_init(map, set, w, h, NULL)) {
     return tilemap_free(map);
   }
@@ -134,15 +137,6 @@ int tile_thingkind(Tile * tile) {
   if (tile_isflag(tile, TILE_STAIR)) return THING_STAIR;
   if (tile_isflag(tile, TILE_WATER)) return THING_WATER;
   return THING_UNUSED;  
-}
-
-/** Makes sure that the tile gets properly physically represented in the 
-Area of the tilemap. Returns the Thing generated or NULL when no physical
-representation is needed. With the Bump branch, this isn't needed anymore, 
-so always returns NULL.
-*/
-Thing * tilemap_tiletothing(Tilemap * self, int l, int x, int y, Tile * tile) {
-  return NULL;
 }
 
 
@@ -335,13 +329,14 @@ int tilemap_gridhigh(Tilemap * self) {
     int aid = tilepane_gridhigh(tilemap_pane(self, index));
     if (aid > high) {
       high = aid;
-    } 
+    }  
   }
   return high;
 } 
 
 /** Returns the almount of tile panes in this map. */
 int tilemap_panes(Tilemap * self) {
+  (void) self;
   return TILEMAP_PANES;
 }
 

@@ -594,6 +594,8 @@ int rh_run_console_command(BBConsole * console, const char * command, void * ext
   LOG_ENABLE_CONSOLE();
   res = rh_dostring(state_ruby(state_get()), command);
   LOG_DISABLE_CONSOLE();
+  (void) console;
+  (void) extra;
   return res;
 }
 

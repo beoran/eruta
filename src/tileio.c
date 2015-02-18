@@ -137,6 +137,8 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, xmlNode * xlayer, int count) {
   xmlNode * xdata;
   int layer;
   int xindex, yindex;
+  
+  (void) count;
   w    = xmlGetPropInt(xlayer, "width");
   h    = xmlGetPropInt(xlayer, "height");
   if ((w<0) || (w>1000)) {
@@ -230,6 +232,7 @@ Tilemap * tilemap_loadxml(xmlDoc * xml, TilemapLoadExtra * extra) {
   xmlNode *xset   = NULL;
   xmlNode *xlayer = NULL;
   int wide, high;
+  (void) extra;
 
   root = xmlDocGetRootElement(xml);
   /* Get the root element node, which should be map. */

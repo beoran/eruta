@@ -330,7 +330,7 @@ SpriteCell * spriteframe_cell_(SpriteFrame * self, int index, SpriteCell * layer
   return NULL;
 }
 
-SpriteCell * spriteframe_newlayer(SpriteFrame * self, int index, 
+SpriteCell * spriteframe_new_cell(SpriteFrame * self, int index, 
                                    Image * image, Point size, Point offset) {
   SpriteCell * layer = spritecell_new(index, image, size, offset);
   SpriteCell * aid;
@@ -389,8 +389,9 @@ spriteaction_initall(SpriteAction * self,
 }
 
 SpriteAction * 
-spriteaction_init(SpriteAction * self, int index, int type, int flags) {
-  return spriteaction_initall(self, index, type, flags, SPRITEACTION_NFRAMES_DEFAULT);
+spriteaction_init(SpriteAction * self, int index, int type, int directions) {
+  return spriteaction_initall(self, index, type, directions,
+   SPRITEACTION_NFRAMES_DEFAULT);
 }
 
 SpriteAction * 
@@ -425,12 +426,22 @@ SpriteAction * spriteaction_new(int index, int type, int flags) {
   return spriteaction_init(spriteaction_alloc(), index, type, flags);
 }
 
-/* Returns nonzero if this action matches the pose and direction. */
-int spriteaction_is_pose(SpriteAction * self, int pose, int direction) {
+/* Returns nonzero if this action matches the pose and direction. 
+ * This compares the flag direction as a using the & operator.
+ */
+int spriteaction_matches_pose(SpriteAction * self, int pose, int direction) {
   if (!self)              return FALSE;
   if (self->type != pose) return FALSE;
   //return TRUE;
   return self->directions & direction;
+}
+
+/* Returns nonzero if this action has exactl the given the pose and direction. */
+int spriteaction_has_pose(SpriteAction * self, int pose, int direction) {
+  if (!self)              return FALSE;
+  if (self->type != pose) return FALSE;
+  //return TRUE;
+  return (self->directions == direction);
 }
 
 
@@ -473,6 +484,17 @@ int spriteaction_framesused(SpriteAction * self) {
   return index;
 }
 
+
+/* Appends a frame to the action and return it or null on error. 
+ * The SpriteFrame is owned by the SpriteAction and may NOT be freed.
+ */
+SpriteFrame * spriteaction_append_frame(SpriteAction * me, double duration) {
+  int index = spriteaction_framesused(me);
+  return spriteaction_newframe(me, index, duration);
+}
+
+
+
 /* Gets the used cells of a frame. */
 int spriteframe_cells_used(SpriteFrame * self) {
   if (!self) return 0;
@@ -511,6 +533,27 @@ SpriteAction * sprite_action_(Sprite *self, int index, SpriteAction * action) {
   return NULL;
 }
 
+/* Looks in the sprite for the first sprite action that has the given pose 
+ * and direction. Returns NULL if the pose or direction could not be found
+ * in this sprite.
+ */
+ SpriteAction * sprite_action_for(Sprite * me, int pose, int direction) {
+  int max, index;
+  SpriteAction * action;
+  if (!me)  return NULL;
+  /* dumb linear search... */
+  max = sprite_maxactions(me);
+  for (index = 0; index < max; index ++) {
+    action = sprite_action(me, index);
+    if (spriteaction_has_pose(action, pose, direction)) {
+      return action;
+    }  
+  }
+  return NULL;
+}
+
+
+/* Returns the amount of frames an action has. */
 int sprite_frames(Sprite *self, int action) {
   if(!self) return 0;
   return spriteaction_frames(sprite_action(self, action));
@@ -584,17 +627,45 @@ SpriteFrame * spriteaction_newframe(SpriteAction * self, int index,
   return spriteframe_free(frame);
 }
 
+
+/* Gets the first available unused action index for the sprite or negative if 
+ * none is available or on error. */
+int sprite_unused_action_index(Sprite * me) {
+  int index, max;
+  if (!me) return -1;
+  max = sprite_maxactions(me);
+  for(index = 0 ; index < max; index ++) {
+    SpriteAction * action = sprite_action(me, index);
+    if (!action) return index;
+  }
+  return -2; 
+}
+
 /* Adds a new action to the sprite. Any old action at the 
  same index is freed. Returns the new action or NULL on error. */
-SpriteAction * sprite_newaction(Sprite * self, int actionindex, int type, int flags) {
-  SpriteAction * action, *aid;
-  action = spriteaction_new(actionindex, type, flags);
+SpriteAction * 
+sprite_set_new_action(Sprite * self, int actionindex, int type, int direction) {
+  SpriteAction * action, * aid;
+  action = spriteaction_new(actionindex, type, direction);
   if(!action) return NULL;
   aid = sprite_action_(self, actionindex, action);
   if (aid) return aid;
   /* Free if action could not be set. */
   return spriteaction_free(action);
 }
+
+/* Adds a new action to the sprite. The index of the action is chosen 
+ * automaticaly as the first available action that isn't yet in use. Returns the * new action or NULL on error. */
+SpriteAction * 
+sprite_add_new_action(Sprite * self, int type, int direction) {
+  int actionindex = - 1;
+  SpriteAction * action, *aid;
+  actionindex = sprite_unused_action_index(self);
+  if (actionindex < 0) return NULL;
+  return sprite_set_new_action(self, actionindex, type, direction);
+}
+
+
 
 /* Adds a frame to the sprite. The action must already exist. */
 SpriteFrame * sprite_newframe(Sprite * self, int actionindex, int frameindex,
@@ -616,12 +687,12 @@ SpriteCell * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
   SpriteCell  * aid; 
   frame = sprite_frame(self, actionindex, frameindex);
   if(!frame) return NULL;
-  aid = spriteframe_newlayer(frame, layerindex, image, size, offset);
-  if ((size.x == 0) || (size.x > 64.0)) { 
+  aid = spriteframe_new_cell(frame, layerindex, image, size, offset);
+  /* if ((size.x == 0) || (size.x > 64.0)) { */
   LOG_NOTE("New sprite cell %p %d %d %d %p, (%f, %f), (%f, %f)\n",
     self, actionindex, frameindex, layerindex, image, size.x, size.y, offset.x, offset.y
   );
-  }
+  /* } */
   return aid;
 }
 
@@ -715,66 +786,25 @@ Sprite * sprite_maxactions_(Sprite * self, int newactions) {
 
 
 
-/** Loads a layer of the sprite from the given image. 
-* The layer's image will be duplicated. The indicated tile sizes and 
-* locations will be used. Returns the layer on success of NULL if something 
-* went wrong.
-*/
-SpriteCell * sprite_loadlayerfrom(Sprite * self, int actionindex, 
-                                  int frameindex, int layerindex, 
-                                  Image * source, Point size, Point where) {
-  SpriteCell * res;
-  Point offset;
-  Image * aid;
-  ALLEGRO_COLOR black, glass, white;
-  black = al_map_rgba(0,0,0,255);
-  white = al_map_rgba(255,255,255,255);
-  glass = al_map_rgba(0,0,0,0);
-  // al_set_new_bitmap_flags
-  aid = al_create_bitmap(size.x, size.y);
-  if(!aid) { 
-    fprintf(stderr, "Cannot allocate bitmap for: %d %d %d\n", actionindex, frameindex, layerindex);
-    return NULL;
-  }  
-  offset = bevec(0,0); 
-  al_set_target_bitmap(aid);
-  al_clear_to_color(glass);  
-  al_draw_bitmap_region(source, where.x, where.y, size.x, size.y, 0, 0, 0);
-  #ifdef SPRITE_LOAD_DISPLAY
-  al_draw_rectangle(0, 0, size.x, size.y, white, 2);
-  #endif
-  
-  al_set_target_backbuffer(al_get_current_display());
-  #ifdef SPRITE_LOAD_DISPLAY
-  { int x, y;
-  al_clear_to_color(black);
-  x = 0; // -32 + al_get_display_width(al_get_current_display())  / 2;
-  y = 0; // -32 + al_get_display_height(al_get_current_display()) / 2;
-  
-  al_draw_bitmap(aid, x, y, 0);
-  al_draw_rectangle(x, y, size.x, size.y, white, 1);
-  al_flip_display(); 
-  } 
-  #endif
-  // usleep(100000);
-  
-  res = sprite_newlayer(self, actionindex, frameindex, layerindex, aid, size, offset);
-  if(!res) {
-    LOG_ERROR("Could not make new sprite cell: %d\n", layerindex);
-    al_destroy_bitmap(aid);
-    return NULL;
-  }
-  return res;
-}
-
 
 /* Gets the action for the sprite, or creates it if it doesn't exist yet. */
-SpriteAction * sprite_actiongetnew
+SpriteAction * sprite_get_or_put_new_action
 (Sprite * self, int actionindex, int actiontype, int actionflags) {
   SpriteAction * action = sprite_action(self, actionindex);
   if (action) return action;
-  return sprite_newaction(self, actionindex, actiontype, actionflags);
+  return sprite_set_new_action(self, actionindex, actiontype, actionflags);
+}  
+/* Gets the action for the sprite, or creates it if it doesn't exist yet.
+ * The action index will be looked up based on action pose and direction.
+ * If the action isn't found, a new one will be created with the first 
+ * available (unused) index.
+ */
+SpriteAction * sprite_need_action(Sprite * self, int pose, int direction) {
+  SpriteAction * action = sprite_action_for(self, pose, direction);
+  if (action) return action;
+  return sprite_add_new_action(self, pose, direction);
 }
+
 
 /* Gets the frame for the sprite, or creates it if it doesn't exist yet. */
 SpriteFrame * sprite_framegetnew
@@ -785,18 +815,96 @@ SpriteFrame * sprite_framegetnew
   return sprite_newframe(self, actionindex, frameindex, duration);
 }
 
-/* Loads a frame from an image, and creates it if it doesn't exist yet. */
-SpriteCell * sprite_loadframelayerfrom
-(Sprite * self, int actionindex, int frameindex, int layerindex, 
- Image * source, Point size, Point where, int frameflags, double duration) {
-  SpriteFrame * frame;  
-  frame  = sprite_framegetnew(
-            self, actionindex, frameindex, SPRITE_ACTIVE, duration);
-  if (!frame) return NULL;
-  (void) frameflags;
-  return sprite_loadlayerfrom(self, actionindex, frameindex, layerindex,
-            source, size, where);
+
+/* Looks for an existing frame to store a cell in at the given layer. 
+ * If frames for the action already exists, hey are searched for the first frame 
+ * that has an empty latyer at layeri. Returns the frame or NULL 
+ * if no appropriate frame was found (no frame available or layer already 
+ * filled for all) 
+ */
+ SpriteFrame * spriteaction_get_frame_for_layer(SpriteAction * me, int layeri) {
+  SpriteFrame * result; 
+  int index;
+  
+  for (index = 0; index < spriteaction_framesused(me) ; index ++) {
+    result = spriteaction_frame(me, index);
+    if (!spriteframe_cell(result, layeri))
+      return result;
+  }
+  return NULL;
 }
+
+/** Looks for an existing frame for the cell as per 
+ * spriteaction_get_frame_for_layer, but creates a new frame with the given 
+ * duration if the former returns NULL and returns that. May still return 
+ * NULL in case of memory problems.
+ */
+ SpriteFrame * spriteaction_need_frame_for_layer
+ (SpriteAction * me, int layeri, double duration) {
+  SpriteFrame * result;
+   
+  result = spriteaction_get_frame_for_layer(me, layeri);
+  if (!result) {
+    result = spriteaction_append_frame(me, duration);
+  }
+  return result;
+}
+ 
+ 
+/** Appends the image to this sprite as a cell for the given layer.
+ * Looks for an existing frame to insert the cell or creates a new 
+ * one if needed. Returns the created cell or NULL on trouble. */
+SpriteCell * sprite_append_cell
+  (Sprite * me, int pose, int direction, int layeri, Image * region, 
+   Point size, Point where, double duration) {
+  SpriteAction * action;
+  SpriteFrame * frame;
+  SpriteCell * cell;
+  
+  action = sprite_need_action(me, pose, direction);
+  if (!action) return NULL;
+  frame  = spriteaction_need_frame_for_layer(action, layeri, duration);
+  if (!frame) return NULL;
+  cell = spriteframe_new_cell(frame, layeri, region, size, where);
+  return cell;
+}
+
+/** Loads a cell of the sprite from the given image. 
+* The indicated sprite sizes and locations will be used. 
+* If they don't exist yet an appropriate action and frame will be created
+* and placed in the correct layer. Part of the image will be duplicated.
+*
+* Returns the cell on success of NULL if something went wrong.
+*/
+SpriteCell * sprite_load_cell_from
+  (Sprite * self, int pose, int direction, int layeri, 
+   Image * source, Point size, Point where, double duration) {
+  SpriteCell * res;
+  Point offset;
+  Image * region;
+  region = image_copy_region(source, where.x, where.y, size.x, size.y, 0);
+  
+  if(!region) { 
+    LOG_ERROR("Cannot copy region loading cell for: %d %d %d\n", 
+      direction, pose, layeri);
+    return NULL;
+  }  
+  
+  offset = bevec(0,0); 
+  
+  res = sprite_append_cell(
+          self, pose, direction, layeri, region, size, offset, duration
+        );
+
+  if(!res) {
+    LOG_ERROR("Could not make new sprite cell: %d\n", layeri);
+    al_destroy_bitmap(region);
+    return NULL;
+  }
+  
+  return res;
+}
+
 
 /** Loads a sprite cell from file with the given layout data. 
 The file name is in FIFI vpath format (subdir of data) */
@@ -806,19 +914,19 @@ Sprite * sprite_loadlayer_vpath
   Image * image;
   image = fifi_loadbitmap_vpath(vpath);
   if(!image) return NULL;
-  res = spritelayout_loadlayer(layout, self, layerindex, image);
+  res = spritelayout_load_layer(layout, self, image, layerindex);
   al_destroy_bitmap(image);
   return res;
 }
 
 
-/** Loads sprite cell with the ulpcss layout. */
+/** Loads sprite cell with the a built-in layout. */
 Sprite * sprite_loadlayer_ulpcss
 (Sprite * self, int layerindex, Image * source, int load_type) {
   SpriteLayout * layout;
   layout = spritelayout_for(load_type);
   if (!layout) return NULL; 
-  return spritelayout_loadlayer(layout, self, layerindex, source);
+  return spritelayout_load_layer(layout, self, source, layerindex);
 } 
 
 /** Loads an ULPCSS sprite cell from file with the given load type. 

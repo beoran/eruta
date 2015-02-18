@@ -60,12 +60,9 @@
 */
 
 
+void tr_Font_free(mrb_state * mrb, void * ptr) {
+  (void) mrb;
 
-
-
-
-
-void tr_Font_free(mrb_state * state, void * ptr) {
   printf("Freeing font %p\n", ptr);
   font_free((Font*)ptr);
 }
@@ -78,7 +75,8 @@ mrb_value toruby_Font(mrb_state* mrb, mrb_value sel, mrb_value rname) {
 }
 */
 
-void tr_Path_free(mrb_state * state, void * ptr) {
+void tr_Path_free(mrb_state * mrb, void * ptr) {
+  (void) mrb;
   printf("Freeing path %p\n", ptr);
   al_destroy_path((Path*)ptr);
 }
@@ -88,7 +86,9 @@ struct mrb_data_type toruby_Path = { "Path", tr_Path_free };
 /* gets a data path based on a vpath. */
 mrb_value tr_Path(Ruby * ruby, mrb_value self, struct RClass * klass) {
   ALLEGRO_PATH * path = NULL;
-  const char * vpath = NULL; int vlen = 0; 
+  const char * vpath = NULL; int vlen = 0;
+  (void) self;
+   
   mrb_get_args(ruby, "s", &vpath, &vlen);
   printf("Making path for : %s, %d", vpath, vlen);
   path = fifi_data_vpath(vpath);
@@ -98,6 +98,8 @@ mrb_value tr_Path(Ruby * ruby, mrb_value self, struct RClass * klass) {
 
 /* Test method. */
 static mrb_value tr_test(mrb_state * mrb, mrb_value self) {
+  (void) self; (void) mrb;
+  
   printf("Hello from a mruby test!\n");
   return self;
 }
@@ -106,6 +108,9 @@ static mrb_value tr_test(mrb_state * mrb, mrb_value self) {
 /* Stops the engine by calling state_done */
 static mrb_value tr_state_done(mrb_state * mrb, mrb_value self) {
   State   * state   = NULL;
+  
+  (void) self; (void) mrb;
+  
   state             = state_get();
   if (state) {
     state_done(state);
@@ -119,6 +124,9 @@ static mrb_value tr_state_done(mrb_state * mrb, mrb_value self) {
 static mrb_value tr_log(mrb_state * mrb, mrb_value self) {
   State   * state   = NULL;
   BBConsole * console = NULL;
+  
+  (void) self; (void) mrb;
+  
   state             = state_get();
   mrb_value text    = mrb_nil_value();
   mrb_get_args(mrb, "S", &text);
@@ -130,6 +138,9 @@ static mrb_value tr_log(mrb_state * mrb, mrb_value self) {
 static mrb_value tr_log_enable(mrb_state * mrb, mrb_value self) {
   State   * state   = NULL;
   BBConsole * console = NULL;
+  
+  (void) self; (void) mrb;
+  
   state             = state_get();
   mrb_value text    = mrb_nil_value();
   mrb_get_args(mrb, "S", &text);
@@ -141,7 +152,10 @@ static mrb_value tr_log_enable(mrb_state * mrb, mrb_value self) {
 static mrb_value tr_log_disable(mrb_state * mrb, mrb_value self) {
   State   * state   = NULL;
   BBConsole * console = NULL;
-  state             = state_get();
+  
+  (void) self; (void) mrb;
+
+  state             = state_get();  
   mrb_value text    = mrb_nil_value();
   mrb_get_args(mrb, "S", &text);
   monolog_disable_level(RSTRING_PTR(text));
@@ -155,6 +169,10 @@ static mrb_value tr_script(mrb_state * mrb, mrb_value self) {
   int res; 
   char * command;
   State * state         = state_get();
+  
+  (void) self;
+
+  
   mrb_value text        = mrb_nil_value();
   mrb_get_args(mrb, "S", &text);
   command               = mrb_str_to_cstr(mrb, text);
@@ -168,6 +186,9 @@ static mrb_value tr_active_map_(mrb_state * mrb, mrb_value self) {
   Tilemap * map = NULL;
   int id;
   State * state   = state_get();
+  
+  (void) self; (void) mrb;
+
   mrb_int index   = -1;
   mrb_get_args(mrb, "i", &index); 
   // Negative index means "disable the map" 
@@ -182,6 +203,7 @@ static mrb_value tr_active_map_(mrb_state * mrb, mrb_value self) {
 /* Gets the active map for the state   */
 static mrb_value tr_active_map(mrb_state * mrb, mrb_value self) {
   int id;
+  (void) self; (void) mrb;
   State * state   = state_get();
   id = state_active_map_id(state);
   return mrb_fixnum_value(id);  
@@ -189,7 +211,7 @@ static mrb_value tr_active_map(mrb_state * mrb, mrb_value self) {
 
 
 
-/* Wraps an Allegro event for use in ruby into an mruby hash. */
+/* Wraps an Allegro event for use in ruby into an mruby hash. 
 static mrb_value tr_eventvalues(mrb_state * mrb   , ALLEGRO_EVENT * event, 
                           mrb_value * values, int size) {
   int result;
@@ -198,14 +220,14 @@ static mrb_value tr_eventvalues(mrb_state * mrb   , ALLEGRO_EVENT * event,
   // mrb_hash_set(mrb, aid, mrb_intern(mrb, "type"), );
   return aid;
 }
-
+*/
 
 
 static mrb_value tr_camera_track(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
   mrb_int   thing_index;
-  (void) self;
+  (void) self; (void) mrb;
   mrb_get_args(mrb, "i", &thing_index);  
   result = state_camera_track_(state, thing_index);
   return mrb_fixnum_value(result);
@@ -215,7 +237,7 @@ static mrb_value tr_lockin_maplayer(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   int result;
   mrb_int   layer;
-  (void) self;
+  (void) self; (void) mrb;
   mrb_get_args(mrb, "i", &layer);  
   result = state_lockin_maplayer(state, layer);
   return mrb_fixnum_value(result);
@@ -225,7 +247,7 @@ static mrb_value tr_camera_x(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   Camera * camera  = state_camera(state);
   int result;
-  (void) self;
+  (void) self; (void) mrb;
   result           = camera_at_x(camera);
   return mrb_fixnum_value(result);
 }
@@ -234,7 +256,7 @@ static mrb_value tr_camera_y(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   Camera * camera  = state_camera(state);
   int result;
-  (void) self;
+  (void) self; (void) mrb;
   result           = camera_at_y(camera);
   return mrb_fixnum_value(result);
 }
@@ -243,7 +265,7 @@ static mrb_value tr_camera_w(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   Camera * camera  = state_camera(state);
   int result;
-  (void) self;
+  (void) self; (void) mrb;
   result           = camera_w(camera);
   return mrb_fixnum_value(result);
 }
@@ -252,7 +274,7 @@ static mrb_value tr_camera_h(mrb_state * mrb, mrb_value self) {
   State * state    = state_get();
   Camera * camera  = state_camera(state);
   int result;
-  (void) self;
+  (void) self; (void) mrb;
   result           = camera_w(camera);
   return mrb_fixnum_value(result);
 }

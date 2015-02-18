@@ -175,7 +175,7 @@ int spritestate_posedirection_(SpriteState * self, int pose, int direction) {
   max = sprite_maxactions(sprite);
   for (index = 0; index < max; index ++) {
     action = sprite_action(sprite, index);
-    if (spriteaction_is_pose(action, pose, direction)) {
+    if (spriteaction_matches_pose(action, pose, direction)) {
       spritestate_now_(self, index, 0);
       return index;
     }  

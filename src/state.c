@@ -109,6 +109,7 @@ int state_console_logf(char * file, int line, char * level,
                        void * data, char * format, va_list args) {
   BBConsole * console = data;
   if (console) {
+  bbconsole_printf(console, "%s %s %d:", level, file, line);
    return bbconsole_vprintf(console, format, args);
   }
   return -1;
@@ -452,6 +453,8 @@ Thing * state_actor(State * self) {
 
 int state_initjoystick(State * self) {
   int num, index, snum, sindex, bnum, bindex, anum, aindex;
+
+  (void) self;
   if(!al_install_joystick()) return FALSE;
   num = al_get_num_joysticks();
   printf("Found %d joysticks:\n", num);
@@ -940,17 +943,19 @@ int global_state_show_physics_(int show) {
 
 
 /* Preloads a tile map from the given vpath. Returns the loaded map, or 
- NULL if not loaded. */
+ NULL if not loaded. 
 Tilemap * state_preloadmap_vpath(State * state, const char * vpath) {
   
   return NULL;
 }
+*/ 
 
 /* Preloads a tile map with the given map number. Returns the loaded map, or 
- NULL if not loaded. */
+ NULL if not loaded. 
 Tilemap * state_preloadmap_index(State * state, int index) {
   return NULL;
 }
+*/
 
 /* Tints a layer of the sprite that belongs to a thing.*/
 int state_thing_tint_layer
@@ -967,6 +972,8 @@ int state_thing_tint_layer
 int state_image_mask_to_alpha(State * state, int store_index, int r, int g, int b) {
   Image * image = store_get_bitmap(store_index);
   Color color   = al_map_rgb(r, g, b);
+  (void) state;
+
   if (!image) return -1;  
   al_convert_mask_to_alpha(image, color);
   return store_index;
@@ -978,6 +985,7 @@ int state_image_mask_to_alpha(State * state, int store_index, int r, int g, int 
 int state_image_average_to_alpha(State * state, int store_index, int r, int g, int b) {
   Image * image = store_get_bitmap(store_index);
   Color color   = al_map_rgb(r, g, b);
+  (void) state;
   if (!image) return -1;  
   draw_convert_average_to_alpha(image, color);
   return store_index;

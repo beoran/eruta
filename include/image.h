@@ -28,6 +28,7 @@ typedef ALLEGRO_FONT Font;
         al_draw_bitmap_region(BMP, SX, SY, SW, SH, DX, DY, FLAGS)
 #define image_free(BMP)       al_destroy_bitmap(BMP)
 
+
 #define font_free(FONT)           al_destroy_font(FONT)
 #define font_lineheight(FONT)     al_get_font_line_height(FONT)
 #define font_ascent(FONT)         al_get_font_ascent(FONT)
@@ -61,7 +62,8 @@ typedef ALLEGRO_FONT Font;
 #define COLOR_BLACK  al_map_rgb(0  ,   0,   0)
 #define COLOR_BLUE   al_map_rgb(0  ,   0,  64)
 
-
+Image * image_copy_region
+  (Image * src, int x, int y, int wide, int high, int flags); 
 
 
 #endif

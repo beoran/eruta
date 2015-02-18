@@ -88,6 +88,8 @@ enum SpriteLoadType_ {
 /* Amount of potential layers that a spriteframe has by default at creation. */
 #define SPRITEFRAME_NLAYERS_DEFAULT 16
 
+int spriteframe_maxlayers(SpriteFrame * self);
+
 
 int sprite_maxactions(Sprite *self);
 SpriteAction * sprite_action(Sprite *self, int index);
@@ -101,23 +103,30 @@ Sprite * sprite_free(Sprite * self);
 Sprite * sprite_alloc();
 Sprite * sprite_new(int index);
 
+/** Sprite cleanup walker decaration, needed for spritelist.c  */
+void * sprite_cleanup_walker(void * data, void * extra);
+
 void sprite_draw(Sprite * self, Point * at);
 Sprite * sprite_now_(Sprite * self, int actionnow, int framenow);
 void sprite_update(Sprite * self, double dt);
 
-Sprite * sprite_tintlayer(Sprite * self, int layerindex, Color color);
-void * sprite_cleanup_walker(void * data, void * extra);
-
-
+Sprite * sprite_tint_layer(Sprite * self, int layerindex, Color color);
 
 SpriteFrame * spriteaction_newframe
-(SpriteAction * self, int index, double duration);
+  (SpriteAction * self, int index, double duration);
+
 SpriteAction * sprite_newaction
-(Sprite * self, int actionindex, int type, int flags);
+  (Sprite * self, int actionindex, int type, int flags);
+
+SpriteCell * sprite_load_cell_from
+  (Sprite * self, int pose, int direction, int layeri, 
+    Image * source, Point size, Point where, double duration);
+
 SpriteFrame * sprite_newframe
-(Sprite * self, int actionindex, int frameindex, double duration);
+  (Sprite * self, int actionindex, int frameindex, double duration);
+
 Sprite * sprite_loadlayer_ulpcss_vpath
-(Sprite * self, int layerindex, char * vpath, int oversized);
+  (Sprite * self, int layerindex, char * vpath, int oversized);
 
 
 double spriteframe_duration(SpriteFrame * me);

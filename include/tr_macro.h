@@ -96,7 +96,7 @@ mrb_obj_value(Data_Wrap_Struct(RUBY,                        \
 
 #define TR_WRAP_NOARG_BOOL(NAME, TOCALL)                                       \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
-  (void) self;                                                                 \
+  (void) self; (void) mrb;                                                     \
   return rh_bool_value(TOCALL());                                              \
 }
 
@@ -171,7 +171,7 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
 
 #define TR_WRAP_NOARG_INT(NAME, TOCALL)                                        \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
-  (void) self;                                                                 \
+  (void) self; (void) mrb;                                                     \
   return mrb_fixnum_value(TOCALL());                                           \
 }
 

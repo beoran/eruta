@@ -18,6 +18,7 @@ int collide_things(Thing * t1, Thing * t2, int kind, void * data) {
   ruby      = state_ruby(state);
   console   = state_console(state);
   res = rh_run_toplevel(ruby, "on_bump", "iii", ti1, ti2, kind);
+  (void) data;
   return rh_tobool(res);
 }
 

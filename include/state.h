@@ -66,6 +66,8 @@ SpriteList * state_sprites(State * state);
 Thing * state_thing(State * state, int index);
 Thing * state_newthing(State * state, int index, int kind,
                         int x, int y, int z, int w, int h);
+int state_thing_tint_layer
+(State * state, int thing_index, int layer_index, int r, int g, int b, int a);
 
 int state_camera_track_(State * state, int thing_index);
 int state_lockin_maplayer(State * state, int layer);

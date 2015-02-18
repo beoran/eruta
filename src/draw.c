@@ -206,11 +206,33 @@ void draw_multi_line_text(ALLEGRO_FONT * font, ALLEGRO_COLOR color,
   ustr = al_ref_cstr(&info, text + start);
   al_draw_ustr(font, color, x, y, flags, ustr);  
   dynar_free(result);
+  (void) h;
 }
 
 
-
-
-
+/** Makes a new image by copying a part from the source image.
+ * Allegro drawing flags can be passed to flip the copied image in one go.
+ * The result must be freed by calling al_destroy_bitmap.
+ */
+Image * image_copy_region
+  (Image * source, int x, int y, int wide, int high, int flags) { 
+  Image * result;
+  ALLEGRO_COLOR black, glass, white;
+  black = al_map_rgba(0,0,0,255);
+  white = al_map_rgba(255,255,255,255);
+  glass = al_map_rgba(0,0,0,0);
+  // al_set_new_bitmap_flags
+  result = al_create_bitmap(wide, high);
+  if(!result) {    
+    return NULL;
+  }  
+  al_set_target_bitmap(result);
+  al_clear_to_color(glass);  
+  al_draw_bitmap_region(source, x, y, wide, high, 0, 0, flags);
+  if (al_get_current_display()) { 
+    al_set_target_backbuffer(al_get_current_display());
+  }
+  return result;
+}
 
 

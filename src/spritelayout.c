@@ -13,8 +13,7 @@ static int ulpcss_sprites_per_row[] = {
   9, 9, 9, 9,  
   6, 6, 6, 6,  
   13, 13, 13, 13,  
-  6, 
-  -1 
+  6
 };
 
 /* Type info of the ULPCSS sprites. */
@@ -24,8 +23,7 @@ static int ulpcss_row_type[] = {
   SPRITE_WALK , SPRITE_WALK , SPRITE_WALK , SPRITE_WALK ,
   SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH,
   SPRITE_SHOOT, SPRITE_SHOOT, SPRITE_SHOOT, SPRITE_SHOOT,
-  SPRITE_DOWN ,
-  -1 
+  SPRITE_DOWN
 };
 
 /* Direction info of the ULPCSS sprites. */
@@ -35,65 +33,77 @@ static int ulpcss_row_direction[] = {
   SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
   SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
   SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
-  SPRITE_ALL  ,
-  -1
+  SPRITE_ALL
 };
 
-/* Layout info of the ULPCSS sprites. */
+/* Frame duration info of ULPCSS sprites. */
+static double ulpcss_row_duration[] = {
+  0.1, 0.1, 0.1, 0.1,
+  0.1, 0.1, 0.1, 0.1,
+  0.2, 0.2, 0.2, 0.2,
+  0.1, 0.1, 0.1, 0.1,  
+  0.1, 0.1, 0.1, 0.1,
+  0,1,
+};
+
+/* Layout info of the ULPCSS sprites. Has 21 rows of cells.*/
 static SpriteLayout ulpcss_layout = {
-  ulpcss_sprites_per_row, ulpcss_row_type, ulpcss_row_direction,
+  21,
+  ulpcss_sprites_per_row, ulpcss_row_type, 
+  ulpcss_row_direction  , ulpcss_row_duration,
   64, 64, 0
 }; 
 
 
 /* Layout info of the oversized ULPCSS sprites, for weapons only. */
 static int ulpcss_oversized_sprites_per_row[] = {
-  6, 6, 6, 6,  
-  -1 
+  6, 6, 6, 6
 };
 
 /* Type info of the oversized ULPCSS sprites, for slashinhg weapons. */
 static int ulpcss_oversized_slash_row_type[] = {
-  SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH,
-  -1 
+  SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH, SPRITE_SLASH
 };
 
 /* Type info of the ULPCSS sprites, for stabbing weapons. */
 static int ulpcss_oversized_stab_row_type[] = {
-  SPRITE_STAB, SPRITE_STAB, SPRITE_STAB, SPRITE_STAB,
-  -1 
+  SPRITE_STAB, SPRITE_STAB, SPRITE_STAB, SPRITE_STAB
 };
 
+/* Duration info of the ULPCSS sprites, for oversized weapons. */
+static double ulpcss_oversized_duration[] = {
+  0.1, 0.1, 0.1, 0.1
+};
 
 /* Direction info of the oversized ULPCSS sprites. */
 static int ulpcss_oversized_row_direction[] = {
-  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST,
-  -1
+  SPRITE_NORTH , SPRITE_WEST , SPRITE_SOUTH, SPRITE_EAST
 };
 
 /* Layout of an oversized slashing weapon ULPCSS sprite. */
 static SpriteLayout ulpcss_oversized_slash_layout = {
+  4,
   ulpcss_oversized_sprites_per_row, ulpcss_oversized_slash_row_type,
-  ulpcss_oversized_row_direction,
+  ulpcss_oversized_row_direction, ulpcss_oversized_duration,
   64 * 3, 64 * 3, 0
 }; 
 
 /* Layout of an oversized stabbing weapon ULPCSS sprite. */
 static SpriteLayout ulpcss_oversized_stab_layout = {
+  4,
   ulpcss_oversized_sprites_per_row, ulpcss_oversized_stab_row_type,
-  ulpcss_row_direction,
+  ulpcss_row_direction, ulpcss_oversized_duration,
   64 * 3, 64 * 3, 0
 }; 
 
 
 
-/* Amount of actions in a layout. */
-int spritelayout_actions(SpriteLayout * layout) {
+/* Amount of rows in a layout. */
+int spritelayout_rows(SpriteLayout * layout) {
   int index;
   if(!layout) return 0;
   if(!layout->per_row) return 0;
-  for(index = 0; layout->per_row[index] >= 0; index ++) {}
-  return index;
+  return layout->rows;
 }
 
 
@@ -109,74 +119,93 @@ Sprite * sprite_loadlayerlayout_standinwalk(Sprite * self,
 }
 */
 
-/* Loads sprite cells for an action of a sprite from an image.  The layout info 
- * in the SpriteLayout struct determines how to load the sprite.
- */ 
-Sprite * spritelayout_loadactionlayer
-(SpriteLayout * layout, Sprite * sprite, 
- Image * source, int actionindex, int layerindex) {
-    int frameindex;
-    Point where           = bevec(0, layout->size_y * actionindex);
-    Point size            = bevec(layout->size_x, layout->size_y);
-    int inrow             = layout->per_row[actionindex];
-    int actionflags       = layout->row_dir[actionindex];
-    int actiontype        = layout->row_type[actionindex];
-    int stand_in_walk     = ((actiontype == SPRITE_WALK) && (layout->standinwalk >= 0));
-    SpriteAction * action = 
-    sprite_actiongetnew(sprite, actionindex, actiontype, actionflags);
-    
-    if (!action) { 
-      fprintf(stderr, "Error allocating sprite action %d!\n", actionindex);
-      return NULL;
-    }
-    /* Load frames. */
-    for (frameindex = 0; frameindex < inrow; frameindex++) {
-      SpriteFrame * frame;
-      SpriteCell * ok;
-      /* 
-        Special case for stand-in-walk. 
-      */      
-      if (stand_in_walk  && (frameindex == layout->standinwalk)) {
-        /* Make an action for the stand-in-walk frame. */
-        int walkaction = spritelayout_actions(layout) + actionindex % 4; 
-        /* XXX: It's a bit of a hack, assumes that there will be 4 consecutive walk 
-         * actions. */
-        action = sprite_actiongetnew(sprite, walkaction, SPRITE_STAND, actionflags);
-        /* Load stand frame */
-        ok = sprite_loadframelayerfrom(sprite, walkaction, frameindex, 
-              layerindex, source, size, where, SPRITE_ACTIVE, 0.2);
-        stand_in_walk = 1;
-        /* skip standing frames. */
-      } else {
-        ok = sprite_loadframelayerfrom(sprite, actionindex, 
-                                       frameindex - stand_in_walk, 
-              layerindex, source, size, where, SPRITE_ACTIVE, 0.2);
-        if (!ok) { 
-        fprintf(stderr, 
-                "Error loading sprite cell! %d %d\n", 
-                actionindex, frameindex);
-        }
-      }
-      where.x    += layout->size_x;
-    }
-  return sprite;
+
+/* Loads a single row and column of a sprite layout from the given image
+ * into the given layer for a normal cell. */
+int spritelayout_load_rc_normal(
+  SpriteLayout * layout, Sprite * sprite, Image * source, 
+  int layeri, int rowi, int coli, int pose, int direction) {
+  
+  Point where           = bevec(layout->size_x * rowi, layout->size_y * coli);
+  Point size            = bevec(layout->size_x, layout->size_y);
+  double duration       = layout->row_duration[rowi];
+  SpriteCell * cell     = sprite_load_cell_from(
+    sprite, pose, direction, layeri, source, size, where, duration);
+  if (!cell) return -1;
+  return 1;
 }
 
 
-/* Loads a sprite cell for the whole sprite.  The layout info in the struct is 
- * used to correctly set  up the sprite parts. 
+/* Loads a single row and column of a sprite layout from the given image
+ * into the given layer for a stand in walk cell. */
+int spritelayout_load_rc_standinwalk(
+  SpriteLayout * layout, Sprite * sprite, Image * source, 
+  int layeri, int rowi, int coli, int pose, int direction) {
+  
+  Point where           = bevec(layout->size_x * rowi, layout->size_y * coli);
+  Point size            = bevec(layout->size_x, layout->size_y);
+  double duration       = layout->row_duration[rowi];
+  SpriteCell * cell     =  sprite_load_cell_from(
+    sprite, SPRITE_STAND, direction, layeri, source, size, where, duration);
+  (void) pose;
+  if (!cell) return -1;
+  return 1;
+}
+
+
+
+/* Loads a single row and column of a sprite layout from the given image
+ * into the given layer. */
+int spritelayout_load_rc(
+  SpriteLayout * layout, Sprite * sprite, Image * source, 
+  int layeri, int rowi, int coli) {
+  int pose              = layout->row_type[rowi];
+  int direction         = layout->row_dir[rowi];
+  
+  /* special case for stand-in-walk cells. */
+  if (   (layout->standinwalk >= 0) 
+      && (coli == layout->standinwalk)
+      && (pose == SPRITE_WALK)
+     ) {
+      return spritelayout_load_rc_standinwalk(
+        layout, sprite, source, layeri, rowi, coli, pose, direction);       
+  }
+  /* Normal case */
+  return spritelayout_load_rc_normal(
+        layout, sprite, source, layeri, rowi, coli, pose, direction);
+}
+
+
+
+/* Loads a row of sprite cells into an action for the sprite, 
+ * according to the layout. */
+int spritelayout_load_row(
+  SpriteLayout * layout, Sprite * sprite, Image * source, int layeri, int rowi){
+  
+  int col_max; 
+  int coli;
+  
+  if (rowi > spritelayout_rows(layout)) return -1;
+  
+  col_max = layout->per_row[rowi];
+  
+  for (coli = 0 ; coli < col_max; coli++) {
+    spritelayout_load_rc(layout, sprite, source, layeri, rowi, coli);
+  }
+  return col_max;
+}
+
+/* Loads sprite cells for a whole layer in the sprite. The layout info in the 
+ * struct is used to correctly set up the sprite parts. 
  */ 
-Sprite * spritelayout_loadlayer
-(SpriteLayout * layout, Sprite * sprite, int layerindex, Image * source) {
+Sprite * spritelayout_load_layer
+(SpriteLayout * layout, Sprite * sprite, Image * source, int layeri) {
   int stop;
-  int actionindex, walkaction;
+  int rowi;
 
-  actionindex = 0;
-  stop        = spritelayout_actions(layout);
-  walkaction  = stop - 1;
-
-  for (actionindex = 0 ; actionindex < stop ; actionindex++ ) {
-    spritelayout_loadactionlayer(layout, sprite, source, actionindex, layerindex);
+  stop        = spritelayout_rows(layout);
+  for (rowi = 0 ; rowi < stop ; rowi++) {
+    spritelayout_load_row(layout, sprite, source, layeri, rowi);
   }
   return sprite;
 }

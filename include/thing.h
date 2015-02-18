@@ -98,6 +98,7 @@ int thing_poseifold_(Thing * self, int oldpose, int newpose);
 void thing_update(Thing * self, double dt);
 
 int thing_compare_for_drawing(const void * p1, const void * p2);
+int thing_tint_layer(Thing * me, int layer_index, Color color);
 
 /* This is declared here to avoid a cyclical dependency. */
 Thing * camera_track_ (Camera * self , Thing * track );

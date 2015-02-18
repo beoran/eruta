@@ -300,6 +300,7 @@ static bool scegra_update_custom_partial_text(int line_num, const char *line,
       }
     } 
   }
+  (void) line;
   return true;
 }
 
@@ -409,6 +410,7 @@ void scegra_draw_text(ScegraNode * self) {
 static int scegra_partial_text_lines(ALLEGRO_FONT * font, float w,
 const char * text)
 {
+  (void) font; (void) w; (void) text;
   return 0; /* XXX todo */
 }
 
