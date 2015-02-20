@@ -55,19 +55,30 @@ enum SpriteActionType_ {
   SPRITE_DEFEND         = 9,
 };
 
-/* Sprite layer suggested uses. */
+/* Sprite layer suggested uses. For Eruta the game, 
+ * knives, blades, staves, claws, guns and cannons are used, 
+ * but not bows and polearms */
 enum SpriteLayerKind_   { 
-  SPRITELAYER_BEHINDBODY = 0,
-  SPRITELAYER_BODY       = 1,
-  SPRITELAYER_HEAD       = 2,
-  SPRITELAYER_EYES       = 3,
-  SPRITELAYER_HAIR       = 4,
-  SPRITELAYER_HANDS      = 5,
-  SPRITELAYER_FEET       = 6,
-  SPRITELAYER_LEGS       = 7,
-  SPRITELAYER_TORSO      = 8,
-  SPRITELAYER_ACCESSORIES= 9,
-  SPRITELAYER_WEAPONS    = 10, 
+  SPRITELAYER_BEHINDBODY  = 1,
+  SPRITELAYER_BODY        = 3,
+  SPRITELAYER_HEAD        = 5,
+  SPRITELAYER_EYES        = 7,
+  SPRITELAYER_EARS        = 9,
+  SPRITELAYER_HAIR        = 10,
+  SPRITELAYER_HANDS       = 13,
+  SPRITELAYER_FEET        = 15,
+  SPRITELAYER_LEGS        = 17,
+  SPRITELAYER_TORSO       = 19,
+  SPRITELAYER_BELT        = 21,
+  SPRITELAYER_ACCESSORY   = 23,
+  SPRITELAYER_BLADE       = 25,
+  SPRITELAYER_KNIFE       = 27,
+  SPRITELAYER_CLAW        = 29,
+  SPRITELAYER_STAFF       = 31,
+  SPRITELAYER_GUN         = 33,
+  SPRITELAYER_CANNON      = 35,
+  SPRITELAYER_POLEARM     = 37,
+  SPRITELAYER_BOW         = 39,
 };
 
 
@@ -83,10 +94,10 @@ enum SpriteLoadType_ {
 #define SPRITE_NACTIONS_DEFAULT 32
 
 /* Amount of potential frame that a spriteaction has by default at creation. */
-#define SPRITEACTION_NFRAMES_DEFAULT 16
+#define SPRITEACTION_NFRAMES_DEFAULT 32
 
 /* Amount of potential layers that a spriteframe has by default at creation. */
-#define SPRITEFRAME_NLAYERS_DEFAULT 16
+#define SPRITEFRAME_NLAYERS_DEFAULT 64
 
 int spriteframe_maxlayers(SpriteFrame * self);
 
@@ -120,7 +131,7 @@ SpriteAction * sprite_newaction
 
 SpriteCell * sprite_load_cell_from
   (Sprite * self, int pose, int direction, int layeri, 
-    Image * source, Point size, Point where, double duration);
+    Image * source, Point size, Point where, Point offset, double duration);
 
 SpriteFrame * sprite_newframe
   (Sprite * self, int actionindex, int frameindex, double duration);

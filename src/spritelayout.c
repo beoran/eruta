@@ -51,7 +51,7 @@ static SpriteLayout ulpcss_layout = {
   21,
   ulpcss_sprites_per_row, ulpcss_row_type, 
   ulpcss_row_direction  , ulpcss_row_duration,
-  64, 64, 0
+  64, 64, 0, -16, -32
 }; 
 
 
@@ -85,7 +85,7 @@ static SpriteLayout ulpcss_oversized_slash_layout = {
   4,
   ulpcss_oversized_sprites_per_row, ulpcss_oversized_slash_row_type,
   ulpcss_oversized_row_direction, ulpcss_oversized_duration,
-  64 * 3, 64 * 3, 0
+  64 * 3, 64 * 3, 0, -80, -96 
 }; 
 
 /* Layout of an oversized stabbing weapon ULPCSS sprite. */
@@ -93,7 +93,7 @@ static SpriteLayout ulpcss_oversized_stab_layout = {
   4,
   ulpcss_oversized_sprites_per_row, ulpcss_oversized_stab_row_type,
   ulpcss_row_direction, ulpcss_oversized_duration,
-  64 * 3, 64 * 3, 0
+  64 * 3, 64 * 3, 0, -80, -96
 }; 
 
 
@@ -126,11 +126,13 @@ int spritelayout_load_rc_normal(
   SpriteLayout * layout, Sprite * sprite, Image * source, 
   int layeri, int rowi, int coli, int pose, int direction) {
   
-  Point where           = bevec(layout->size_x * rowi, layout->size_y * coli);
+  Point where           = bevec(layout->size_x * coli, layout->size_y * rowi);
   Point size            = bevec(layout->size_x, layout->size_y);
+  Point offset          = bevec(layout->offset_x, layout->offset_y);
+
   double duration       = layout->row_duration[rowi];
   SpriteCell * cell     = sprite_load_cell_from(
-    sprite, pose, direction, layeri, source, size, where, duration);
+    sprite, pose, direction, layeri, source, size, where, offset, duration);
   if (!cell) return -1;
   return 1;
 }
@@ -142,11 +144,13 @@ int spritelayout_load_rc_standinwalk(
   SpriteLayout * layout, Sprite * sprite, Image * source, 
   int layeri, int rowi, int coli, int pose, int direction) {
   
-  Point where           = bevec(layout->size_x * rowi, layout->size_y * coli);
-  Point size            = bevec(layout->size_x, layout->size_y);
+  Point where           = bevec(layout->size_x * coli, layout->size_y * rowi);
+  Point size            = bevec(layout->size_x  , layout->size_y);
+  Point offset          = bevec(layout->offset_x, layout->offset_y);
+  
   double duration       = layout->row_duration[rowi];
   SpriteCell * cell     =  sprite_load_cell_from(
-    sprite, SPRITE_STAND, direction, layeri, source, size, where, duration);
+    sprite, SPRITE_STAND, direction, layeri, source, size, where, offset, duration);
   (void) pose;
   if (!cell) return -1;
   return 1;

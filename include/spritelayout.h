@@ -21,13 +21,17 @@ struct SpriteLayout_ {
    The standing actions will be placed after all other actions of the sprite.
    */
   int standinwalk;
+  /* The offset from the top to the "feet" of the sprite. Must be the same for 
+   * all frames. */
+  int offset_x;
+  int offset_y;
   
 };
 
 #define DEFINE_SPRITELAYOUT(NAME, ROWS, PER_ROW, ROW_POSE, ROW_DIR,            \
-                            SIZE_X, SIZE_Y, STANDINWALK)                       \
-  struct SpriteLayout_ NAME = { ROWS  , PER_ROW, ROW_POSE, ROW_DIR,            \
-                                SIZE_X, SIZE_Y , STANDINWALK } 
+                            SIZE_X, SIZE_Y, STANDINWALK, OFFSET_X, OFFSET_Y)                       \
+struct SpriteLayout_ NAME = { ROWS  , PER_ROW, ROW_POSE, ROW_DIR,              \
+                              SIZE_X, SIZE_Y, STANDINWALK, OFFSET_X, OFFSET_Y } 
 
 int spritelayout_rows(SpriteLayout * layout);
 

@@ -207,17 +207,22 @@ Image * spritecell_image(SpriteCell * self) {
   return self->image;
 }
 
+/* Ideas on sprite/thing alingment:
+ * the position of the Thing (game object) is the /center/ of the /feet/
+ * or bottom of the thing. For most sprite sheets, the bottom of the cell
+ * corresponds to the feet. However with oversized sprites this is not the 
+ * case.
+ */
+
 /* Draw a sprite cell with point at as the relevant game object's core position. 
  * the cell will be tinted with the given tint. */
 void spritecell_draw_tinted(SpriteCell * self, Point * at, Color tint) {
   Point real, delta, aid;
-  /*    - size_w/2 + tile_w / 2   */
   if(!self) return;
-  /* XXX: this delta stinks... */
-  delta = bevec(-self->size.x / 2 + SPRITE_TILE_WIDE / 2, 
-              -self->size.y + SPRITE_TILE_HIGH);
-  aid  = bevec_add((*at), self->offset);
-  real = bevec_add(aid, delta);  
+  /* This delta is used for centering the object */
+  /* delta = bevec(-self->size.x / 2, -self->size.y); */
+  real   = bevec_add((*at), self->offset);
+  /* real  = bevec_add(aid, delta); */ 
   /* Adjust for tile size and frame size. */
   al_draw_tinted_bitmap(self->image, tint, real.x, real.y, self->drawflags);  
 }
@@ -283,7 +288,7 @@ SpriteFrame * spriteframe_alloc() {
   return STRUCT_ALLOC(SpriteFrame);
 }
 
-/* Gets a cell for this frame or null if not availamle. */
+/* Gets a cell for this frame or null if not available. */
 SpriteCell * spriteframe_cell(SpriteFrame * self, int index) {
   if(!self) return NULL;
   return dynar_getptr(self->cells, index);  
@@ -492,7 +497,6 @@ SpriteFrame * spriteaction_append_frame(SpriteAction * me, double duration) {
   int index = spriteaction_framesused(me);
   return spriteaction_newframe(me, index, duration);
 }
-
 
 
 /* Gets the used cells of a frame. */
@@ -866,6 +870,11 @@ SpriteCell * sprite_append_cell
   frame  = spriteaction_need_frame_for_layer(action, layeri, duration);
   if (!frame) return NULL;
   cell = spriteframe_new_cell(frame, layeri, region, size, where);
+   LOG_NOTE("Append sprite cell %p %d %d %d %d %d %p, (%f, %f), (%f, %f)\n",
+    me, pose, direction, action->index, frame->index, layeri, region, size.x, size.y, where.x, where.y
+  );
+ 
+  
   return cell;
 }
 
@@ -878,20 +887,17 @@ SpriteCell * sprite_append_cell
 */
 SpriteCell * sprite_load_cell_from
   (Sprite * self, int pose, int direction, int layeri, 
-   Image * source, Point size, Point where, double duration) {
+   Image * source, Point size, Point where, Point offset, double duration) {
   SpriteCell * res;
-  Point offset;
   Image * region;
   region = image_copy_region(source, where.x, where.y, size.x, size.y, 0);
   
   if(!region) { 
     LOG_ERROR("Cannot copy region loading cell for: %d %d %d\n", 
-      direction, pose, layeri);
+      pose, direction, layeri);
     return NULL;
   }  
-  
-  offset = bevec(0,0); 
-  
+    
   res = sprite_append_cell(
           self, pose, direction, layeri, region, size, offset, duration
         );

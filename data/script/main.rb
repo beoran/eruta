@@ -78,12 +78,14 @@ module Main
     puts "Loading some things and sprites"
     Thing.make(1, 300, 400, 1, 32, 32, 100)
     Sprite.make(100)
-    Sprite[100].load_ulpcss(SPRITELAYER_BODY , "body/female/light.png")
-    Sprite[100].load_ulpcss(SPRITELAYER_TORSO, "torso/dress_female/underdress.png")
-    Sprite[100].load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangslong.png")
-    # Sprite[100].load_ulpcss(SPRITELAYER_WEAPONS, "weapons/steelwand_female.png")
-    Sprite[100].load_ulpcss_stab(SPRITELAYER_WEAPONS, "weapons/oversize/longsword_female.png")
-
+    Sprite[100].load_ulpcss(Sprite::Layer::BODY , "body/female/light.png")
+    Sprite[100].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_female/underdress.png")
+    Sprite[100].load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangslong.png")
+    Sprite[100].load_ulpcss(Sprite::Layer::STAFF, "weapons/steelwand_female.png")
+    Sprite[100].load_ulpcss_slash(Sprite::Layer::BLADE, "weapons/oversize/longsword_female.png")
+    Sprite[100].load_ulpcss_stab(Sprite::Layer::POLEARM, "weapons/oversize/spear.png")
+    Sprite[100].load_ulpcss(Sprite::Layer::BOW, "weapons/greatbow.png")
+  
     
 
     Thing[100].sprite    = Sprite[100]
@@ -96,9 +98,9 @@ module Main
 
     Thing.make(0, 400, 400, 1, 32, 32, 101)
     Sprite.make(101)
-    Sprite[101].load_ulpcss(SPRITELAYER_BODY , "body/female/dark.png")
-    Sprite[101].load_ulpcss(SPRITELAYER_TORSO, "torso/dress_w_sash_female.png")
-    Sprite[101].load_ulpcss(SPRITELAYER_HAIR , "hair/female/bangsshort.png")
+    Sprite[101].load_ulpcss(Sprite::Layer::BODY , "body/female/dark.png")
+    Sprite[101].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_w_sash_female.png")
+    Sprite[101].load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangsshort.png")
     Thing[101].sprite     = Sprite[101]
     Thing[101].tint_hair(255, 255, 0)
     Thing[101].tint_torso(128,  128, 255)
@@ -342,7 +344,9 @@ module Main
     if    pose == SPRITE_SLASH
       Thing.actor.pose = SPRITE_STAB
     elsif pose == SPRITE_STAB
-      Thing.actor.pose = SPRITE_CAST
+      Thing.actor.pose = SPRITE_SHOOT
+    elsif pose == SPRITE_SHOOT
+      Thing.actor.pose = SPRITE_CAST    
     elsif pose == SPRITE_CAST
       Thing.actor.pose = SPRITE_STAND
     else
