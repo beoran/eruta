@@ -1,7 +1,32 @@
 #ifndef spritestate_H_INCLUDED
 #define spritestate_H_INCLUDED
 
-#define SPRITESTATE_LAYER_MAX 32
+#define SPRITESTATE_LAYER_MAX 64
+
+/* Dynamic information about a sprite layer. */
+
+enum SpriteStateLayerFlags_ {
+  SPRITESTATE_LAYER_HIDDEN = 1 << 8,
+  SPRITESTATE_LAYER_TINTED = 1 << 9,
+};
+
+
+typedef struct SpriteStateLayer_ SpriteStateLayer;
+
+/* State for a single sprite layer. */
+struct SpriteStateLayer_ {
+    Color tint;
+    int   flags;
+    int   one_shot;
+};
+
+/* State for a single sprite action. */
+
+struct SpriteStateAction_ {
+  int loop;
+  int next_action;
+};
+
 
 /* SpriteState contains dynamic information about a sprite. This was   
  * separated out of Sprite to allow one sprite to be reused and shown differently 
@@ -17,7 +42,7 @@ struct SpriteState_ {
   int                direction_now;
   double             time;
   double             speedup;
-  Color            * layer_tints[SPRITESTATE_LAYER_MAX];
+  SpriteStateLayer * layers[SPRITESTATE_LAYER_MAX];
 };
 
 
@@ -48,6 +73,17 @@ int spritestate_tint_layer(SpriteState * self, int layer, Color color);
 int spritestate_remove_tint_layer(SpriteState * self, int layer);
 int spritestate_is_layer_tinted(SpriteState * self, int layer);
 Color * spritestate_get_layer_tint(SpriteState * self, int layer);
+
+int spritestate_set_layer_hidden(SpriteState * self, int layer, int hidden);
+int spritestate_get_layer_hidden(SpriteState * self, int layer);
+int spritestate_set_layer_loop(SpriteState * self, int layer, int loopmode);
+int spritestate_get_layer_loop(SpriteState * self, int layer);
+
+
+int spritestate_remove_tint_layer(SpriteState * self, int layer);
+int spritestate_is_layer_tinted(SpriteState * self, int layer);
+Color * spritestate_get_layer_tint(SpriteState * self, int layer);
+
 
 
 #endif

@@ -39,9 +39,9 @@ static int ulpcss_row_direction[] = {
 /* Frame duration info of ULPCSS sprites. */
 static double ulpcss_row_duration[] = {
   0.1, 0.1, 0.1, 0.1,
-  0.1, 0.1, 0.1, 0.1,
+  0.07, 0.07, 0.07, 0.07,
   0.2, 0.2, 0.2, 0.2,
-  0.1, 0.1, 0.1, 0.1,  
+  0.07, 0.07, 0.07, 0.07,  
   0.1, 0.1, 0.1, 0.1,
   0,1,
 };
@@ -72,7 +72,7 @@ static int ulpcss_oversized_stab_row_type[] = {
 
 /* Duration info of the ULPCSS sprites, for oversized weapons. */
 static double ulpcss_oversized_duration[] = {
-  0.1, 0.1, 0.1, 0.1
+  0.07, 0.07, 0.07, 0.07
 };
 
 /* Direction info of the oversized ULPCSS sprites. */
