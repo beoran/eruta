@@ -2,10 +2,9 @@
 #define BUMP_H_INCLUDED
 
 #include "bevec.h"
+#include "bumpshape.h"
 
 
-struct BumpAABB;
-typedef struct BumpAABB_        BumpAABB;
 typedef struct BumpBody_        BumpBody;
 typedef struct BumpHull_        BumpHull;
 typedef struct BumpHoopHull_    BumpHoopHull;
@@ -30,15 +29,6 @@ enum BumpTile_  {
 };
 
 typedef enum   BumpTile_        BumpTile;
-
-/* Axes aligned bounds box. */
-struct BumpAABB_ {  BeVec p; BeVec hs;  };
-
-
-
-
-BumpAABB bumpaabb(double cx, double cy, double w, double h);
-BumpAABB bumpaabb_make_int(int x, int y, int w, int h);
 
 BumpBody * bumpbody_alloc();
 BumpBody * bumpbody_init(BumpBody * self, BeVec p, double mass);

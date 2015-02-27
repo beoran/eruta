@@ -151,7 +151,14 @@ static mrb_value tr_thing_tint(mrb_state * mrb, mrb_value self) {
   return mrb_fixnum_value(result);
 }
 
+TR_THING_II_INT(tr_thing_hide_layer, thing_hide_layer)
+TR_THING_I_INT(tr_thing_is_layer_hidden, thing_is_layer_hidden)
 
+TR_THING_II_INT(tr_thing_set_action_loop, thing_set_action_loop)
+TR_THING_I_INT(tr_thing_get_action_loop, thing_get_action_loop)
+TR_THING_I_BOOL(tr_thing_is_action_done, thing_is_action_done)
+TR_THING_III_INT(tr_thing_set_pose_direction_loop, thing_set_pose_direction_loop)
+TR_THING_II_INT(tr_thing_get_pose_direction_loop, thing_get_pose_direction_loop)
 
 
 /* Define getters for various dimensions of thing's bounds box. */
@@ -202,9 +209,16 @@ int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_NOARG(mrb, thi, "w" , tr_thing_w);
   TR_CLASS_METHOD_NOARG(mrb, thi, "direction", tr_thing_direction);
   TR_CLASS_METHOD_NOARG(mrb, thi, "pose"     , tr_thing_pose);
-  TR_CLASS_METHOD_ARGC(mrb, thi, "get_unused_id" , tr_thing_get_unused_id, 1);
-  TR_CLASS_METHOD_ARGC(mrb, thi, "tint_rgba"     , tr_thing_tint, 6);
-
+  TR_CLASS_METHOD_ARGC(mrb, thi, "get_unused_id"  , tr_thing_get_unused_id, 1);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "tint_rgba"      , tr_thing_tint, 6);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "hide_layer"     , tr_thing_hide_layer, 3);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "layer_hidden?"  , tr_thing_is_layer_hidden, 2);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "set_action_loop", tr_thing_set_action_loop, 3);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "get_action_loop", tr_thing_get_action_loop, 2);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "action_done?"   , tr_thing_is_action_done, 3);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "set_pose_direction_loop", tr_thing_set_pose_direction_loop, 4);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "get_pose_direction_loop", tr_thing_get_pose_direction_loop, 3);
+  
   
   return 0;
 }

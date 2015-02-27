@@ -4,12 +4,14 @@
 #include "camera.h"
 #include "collide.h"
 #include "bump.h"
+#include "bumpshape.h"
 
 #include "mem.h"
 #include "dynar.h"
 
 #include "state.h"
 #include "draw.h"
+
 
 enum BumpLock_ {
   BUMP_LOCK_NORTH = 1 << 0,
@@ -98,37 +100,6 @@ struct BumpHash_ {
 };
 
 
-/* AABB helper functions. */
-
-/* X coordinate of left side of box. */
-double bumpaabb_left(BumpAABB * self) {
-  return self->p.x - self->hs.x;
-}
-
-/* X coordinate of right side of box. */
-double bumpaabb_right(BumpAABB * self) {
-  return self->p.x + self->hs.x;
-}
-
-/* Y coordinate of top side of box. */
-double bumpaabb_top(BumpAABB * self) {
-  return self->p.y - self->hs.y;
-}
-
-/* X coordinate of bottom side of box. */
-double bumpaabb_down(BumpAABB * self) {
-  return self->p.y + self->hs.y;
-}
-
-/* Full width of the box */
-double bumpaabb_width(BumpAABB * self) {
-  return 2.0 * self->hs.x;
-}
-
-/* Full height of the box */
-double bumpaabb_height(BumpAABB * self) {
-  return 2.0 * self->hs.y;
-}
 
 BumpHash * bumphash_empty(BumpHash * self) {
   int index;
@@ -220,34 +191,6 @@ struct BumpWorld_ {
   Tilemap     * map;
   BumpHash      hash;
 };
-
-
-/** Makes a new bounding box. W and H are the FULL width and height of the box. */
-BumpAABB bumpaabb(double cx, double cy, double w, double h) {
-  BumpAABB result = { bevec(cx, cy), bevec(w / 2.0, h / 2.0) }; 
-  return result;
-}
-
-/** Makes a new bounding box with integer bounds.
- * W and H are the FULL width and height of the box.
- * And x and y are the coordinates of the top left corner. */
-BumpAABB bumpaabb_make_int(int x, int y, int w, int h) {
-  double hw       = ((double) w) / 2.0;
-  double hh       = ((double) h) / 2.0;
-  double cx       = ((double) x) + hw;
-  double cy       = ((double) y) + hh;
-  return bumpaabb(cx, cy,  ((double) w), ((double) h)); 
-}
-
-/* Prints a textual description of the bounds box to the file out.
- * For debugging purposes */
-void bumpaabb_print(BumpAABB * box, FILE * out) {
-  double x = bumpaabb_left(box);
-  double y = bumpaabb_top(box);
-  double w = bumpaabb_width(box);
-  double h = bumpaabb_height(box);
-  fprintf(out, "[(%lf %lf) (%lf %lf)]", x, y, w, h);
-}
 
 
 /** Allocates a physical body. */
@@ -500,53 +443,6 @@ void * bumphull_body_data(BumpHull * hull) {
   return bumpbody_data(bumphull_body(hull));
 }
 
-/* Returns overlap of the bounds boxes of self and other in x direction. 
- * May be zero or negative if no overlap.
- */ 
-double bumpaabb_overlap_x(BumpAABB self, BumpAABB other) {
-    if (self.p.x < other.p.x) { 
-      return (self.hs.x + other.hs.x)  + (self.p.x - other.p.x ); 
-    } else { 
-      return (other.hs.x + self.hs.x)  + (other.p.x - self.p.x);
-    } 
-}
-
-/* Returns overlap of the bounds boxes of self and other in y direction. 
- * May be zero or negative if no overlap.
- */ 
-double bumpaabb_overlap_y(BumpAABB self, BumpAABB other) {
-    if (self.p.y < other.p.y) { 
-      return (self.hs.y + other.hs.y) + (self.p.y - other.p.y ); 
-    } else { 
-      return (other.hs.y + self.hs.y) + (other.p.y - self.p.y);
-    } 
-}
-
-/* Returns overlap of the bounds boxes of self and other in x direction. 
- * May be zero or negative if no overlap.
- */ 
-double bumpaabb_overlap_x_raw(BumpAABB self, BumpAABB other) {
-    return  (self.hs.x + other.hs.x)  + (self.p.x - other.p.x ); 
-}
-
-/* Returns overlap of the bounds boxes of self and other in y direction. 
- * May be zero or negative if no overlap.
- */ 
-double bumpaabb_overlap_y_raw(BumpAABB self, BumpAABB other) {
-    return (self.hs.y + other.hs.y) + (self.p.y - other.p.y ); 
-}
-
-
-/* Returns the overlap vector between two bounds boxes. */
-BeVec bumpaabb_overlap_vector(BumpAABB self, BumpAABB other) {
- return bevec(bumpaabb_overlap_x(self, other), bumpaabb_overlap_y(self, other));
-}
-
-/* Returns whether or not there is overlap between two bounds boxes. */
-int bumpaabb_overlap_p(BumpAABB self, BumpAABB other) {
- if (bumpaabb_overlap_x(self, other) < 0) return FALSE; 
- return (bumpaabb_overlap_y(self, other) > 0);
-}
 
 
 /* Determines the lock flags to set for a given push back vector. */

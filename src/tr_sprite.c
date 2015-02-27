@@ -9,6 +9,7 @@
 #include "store.h"
 #include "scegra.h"
 #include "sound.h"
+#include "spritestate.h"
 #include <mruby/hash.h>
 #include <mruby/class.h>
 #include <mruby/data.h>
@@ -77,7 +78,7 @@ static mrb_value tr_sprite_load_builtin(mrb_state * mrb, mrb_value self) {
   int result;
   mrb_int   rindex = -1;
   mrb_int   rlayer = -1;
-  mrb_int   rlayout=  0;
+  mrb_int   rlayout=  SPRITE_LOAD_ULPCSS_NORMAL;
   (void) self;
 
   mrb_value rvpath = mrb_nil_value();
@@ -94,7 +95,7 @@ static mrb_value tr_sprite_load_builtin(mrb_state * mrb, mrb_value self) {
 
 TR_WRAP_I_INT(tr_sprite_get_unused_id, state_get_unused_sprite_id);
 
-
+TR_SPRITE_II_INT(tr_sprite_action_index_for, sprite_action_index_for);
 
 /** Initialize mruby bindings to sprite functionality.
  * Eru is the parent module, which is normally named "Eruta" on the
@@ -102,11 +103,13 @@ TR_WRAP_I_INT(tr_sprite_get_unused_id, state_get_unused_sprite_id);
 int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   struct RClass *spr;
   struct RClass *lay;
+  struct RClass *sta;
  
   /* Sprite class/module and class/module methods. */
   spr = mrb_define_class_under(mrb, eru, "Sprite" , mrb->object_class);
   /* Layer sub- class/module and class/module methods. */
   lay = mrb_define_module_under(mrb, spr, "Layer");
+  sta = mrb_define_module_under(mrb, spr, "State");
 
   /*
   TR_METHOD_ARGC(mrb, krn, "sprite_getornew", tr_getornewsprite, 1);
@@ -158,6 +161,17 @@ int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, CANNON);
   TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, POLEARM);
   TR_CONST_INT_EASY(mrb, lay, SPRITELAYER_, BOW);
+  
+  
+  /* Sprite state constants. */
+  TR_CONST_INT_EASY(mrb, sta, SPRITESTATE_, ACTION_LOOP);
+  TR_CONST_INT_EASY(mrb, sta, SPRITESTATE_, ACTION_ONESHOT);
+  TR_CONST_INT_EASY(mrb, sta, SPRITESTATE_, ACTION_STOP);
+  TR_CONST_INT_EASY(mrb, sta, SPRITESTATE_, ACTION_ONESTOP);
+  TR_CONST_INT_EASY(mrb, sta, SPRITESTATE_, ACTION_MAX);
+  TR_CONST_INT_EASY(mrb, sta, SPRITESTATE_, LAYER_MAX);
+  
+  
 
   /* Built in sprite layout constants. */
   TR_CONST_INT_EASY(mrb, spr, SPRITE_, LOAD_ULPCSS_NORMAL);
@@ -170,6 +184,7 @@ int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_ARGC(mrb, spr, "get"           , tr_sprite, 1);
   TR_CLASS_METHOD_OPTARG(mrb, spr, "load_builtin", tr_sprite_load_builtin, 3, 1);
   TR_CLASS_METHOD_ARGC(mrb, spr, "get_unused_id" , tr_sprite_get_unused_id, 1);
+  TR_CLASS_METHOD_ARGC(mrb, spr, "action_id_for" , tr_sprite_action_index_for, 3);
 
 
 

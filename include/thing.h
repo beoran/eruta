@@ -98,7 +98,16 @@ int thing_poseifold_(Thing * self, int oldpose, int newpose);
 void thing_update(Thing * self, double dt);
 
 int thing_compare_for_drawing(const void * p1, const void * p2);
+
 int thing_tint_layer(Thing * me, int layer_index, Color color);
+int thing_hide_layer(Thing * me, int layer, int hidden);
+int thing_is_layer_hidden(Thing * me, int layer);
+
+int thing_set_action_loop(Thing * me, int action, int loopmode);
+int thing_get_action_loop(Thing * me, int action);
+int thing_is_action_done(Thing * me, int action);
+int thing_set_pose_direction_loop(Thing * me, int pose, int direction, int loopmode);
+int thing_get_pose_direction_loop(Thing * me, int pose, int direction);
 
 /* This is declared here to avoid a cyclical dependency. */
 Thing * camera_track_ (Camera * self , Thing * track );

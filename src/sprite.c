@@ -275,6 +275,7 @@ int spriteframe_cells(SpriteFrame * self) {
 
 SpriteFrame * spriteframe_init(SpriteFrame * self, 
                                 int index, double duration, int ncells) {
+
   if (!self) return NULL;
   self->index           = index;
   self->cells           = dynar_newptr(ncells);
@@ -474,12 +475,6 @@ int sprite_actionsused_(Sprite * sprite, int used) {
 
 
 /* Gets the used frames of a sprite action. */
-int spriteaction_framesusedold(SpriteAction * self) {
-  if (!self) return 0;
-  return (self->frames_used);
-}
-
-/* Sets the used frames of a sprite action. */
 int spriteaction_framesused(SpriteAction * self) {
   int index ;
   if (!self) return 0;
@@ -537,11 +532,10 @@ SpriteAction * sprite_action_(Sprite *self, int index, SpriteAction * action) {
   return NULL;
 }
 
-/* Looks in the sprite for the first sprite action that has the given pose 
- * and direction. Returns NULL if the pose or direction could not be found
- * in this sprite.
- */
- SpriteAction * sprite_action_for(Sprite * me, int pose, int direction) {
+
+/* Helper for sprite_action_for and sprite_action_index_for */
+SpriteAction * sprite_action_and_index_for
+  (Sprite * me, int pose, int direction, int * at_index) {
   int max, index;
   SpriteAction * action;
   if (!me)  return NULL;
@@ -550,10 +544,35 @@ SpriteAction * sprite_action_(Sprite *self, int index, SpriteAction * action) {
   for (index = 0; index < max; index ++) {
     action = sprite_action(me, index);
     if (spriteaction_has_pose(action, pose, direction)) {
+      if (at_index) { 
+        *at_index = index;
+      }
       return action;
     }  
   }
   return NULL;
+}
+
+
+/* Looks in the sprite for the first sprite action that has the given pose 
+ * and direction. Returns NULL if the pose or direction could not be found
+ * in this sprite.
+ */
+SpriteAction * sprite_action_for(Sprite * me, int pose, int direction) {
+  return sprite_action_and_index_for(me, pose, direction, NULL);
+}
+
+/* Looks in the sprite for the first sprite action index that has the given 
+ * pose and direction. Returns negative if the pose or direction could not be 
+ * found in this sprite.
+ */
+int sprite_action_index_for(Sprite * me, int pose, int direction) {
+  int index;
+  if (sprite_action_and_index_for(me, pose, direction, &index)) {
+    return index;
+  } else {
+    return -1;
+  }
 }
 
 
@@ -710,7 +729,7 @@ int sprite_maxframes(Sprite * self, int actionindex) {
   return spriteaction_maxframes(action);  
 }
 
-/* Returns the amount of frames used frames of this sprite */
+/* Returns the amount of frames used for the given action of this sprite */
 int sprite_framesused(Sprite * self, int actionindex) {
   SpriteAction * action;
   action = sprite_action(self, actionindex);

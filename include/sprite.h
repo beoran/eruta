@@ -100,6 +100,7 @@ enum SpriteLoadType_ {
 #define SPRITEFRAME_NLAYERS_DEFAULT 64
 
 int spriteframe_maxlayers(SpriteFrame * self);
+SpriteCell * spriteframe_cell(SpriteFrame * self, int index);
 
 
 int sprite_maxactions(Sprite *self);
@@ -121,7 +122,10 @@ void sprite_draw(Sprite * self, Point * at);
 Sprite * sprite_now_(Sprite * self, int actionnow, int framenow);
 void sprite_update(Sprite * self, double dt);
 
-Sprite * sprite_tint_layer(Sprite * self, int layerindex, Color color);
+SpriteAction * sprite_action_for(Sprite * me, int pose, int direction);
+int sprite_action_index_for(Sprite * me, int pose, int direction);
+
+
 
 SpriteFrame * spriteaction_newframe
   (SpriteAction * self, int index, double duration);
@@ -136,14 +140,18 @@ SpriteCell * sprite_load_cell_from
 SpriteFrame * sprite_newframe
   (Sprite * self, int actionindex, int frameindex, double duration);
 
+Sprite * sprite_loadlayer_vpath
+(Sprite * self, SpriteLayout * layout, int layerindex, char * vpath);
+
 Sprite * sprite_loadlayer_ulpcss_vpath
   (Sprite * self, int layerindex, char * vpath, int oversized);
 
+int sprite_framesused(Sprite * self, int actionindex);
 
 double spriteframe_duration(SpriteFrame * me);
 
 int spriteaction_is_pose(SpriteAction * self, int pose, int direction);
-
+int spriteaction_matches_pose(SpriteAction * self, int pose, int direction);
 
 void spritecell_draw_tinted(SpriteCell * self, Point * at, Color tint);
 

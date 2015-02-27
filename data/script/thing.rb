@@ -132,6 +132,8 @@ class Thing < Eruta::Thing
   def sprite_id=(spid)
     Eruta::Thing.sprite_(@id, spid)
     @sprite_id = spid
+    # Set sprite's default one shot actions
+    one_shot_default()
   end
   
   # Sets the sprite for this thing 
@@ -174,6 +176,78 @@ class Thing < Eruta::Thing
   def tint_hair(r, g, b, a = 255)
     tint(Eruta::Sprite::Layer::HAIR, r, g, b, a)
   end 
+  
+  # Hides the thing's given sprite layer
+  def hide_layer(layer)
+    Eruta::Thing.hide_layer @id, layer, 1
+  end  
+ 
+  # Unhides the thing's given sprite layer
+  def show_layer(layer)
+    Eruta::Thing.hide_layer @id, layer, 0
+  end
+  
+  # Returns true if the layer is hidden false if not
+  def layer_hidden?(layer)
+    Eruta::Thing.layer_hidden?(@id, layer)
+  end
+    
+  # Sets the loop mode of the Thing's action.
+  def set_action_loop(action, loop)
+    Eruta::Thing.set_action_loop(@id, action, loop)
+  end
+  
+  # Gets the loop mode of the Thing's action.
+  def get_action_loop(action)
+    Eruta::Thing.get_action_loop(@id, action)
+  end
+
+  # Sets the loop mode of the Thing's pose and direction sprite.
+  def set_pose_direction_loop(pose, direction, loop)
+    Eruta::Thing.set_pose_direction_loop(@id, pose, direction, loop)
+  end
+  
+  # Gets the loop mode of the Thing's pose and direction sprite.
+  def get_pose_direction_loop(pose, direction)
+    Eruta::Thing.get_pose_direction_loop(@id, pose, direction)
+  end
+  
+  # Gets the status of the Thing's action.
+  def action_done?(action)
+    Eruta::Thing.action_done?(@id, action)
+  end
+    
+  # Sets the action to loop mode.
+  def loop_action(action)
+    self.set_action_loop(action, Eruta::Sprite::State::ACTION_LOOP)
+  end
+  
+  # Sets the action to one shot mode.
+  def one_shot_action(action)
+    self.set_action_loop(action, Sprite::State::ACTION_ONESHOT)
+  end
+  
+  # Sets actions that should probably be one-shot to one shot.
+  def one_shot_default()
+    poses = [ Sprite::SLASH, Sprite::CAST,  
+              Sprite::STAB, Sprite::SHOOT, 
+              Sprite::HURT ] 
+    directions = [ Sprite::NORTH, Sprite::EAST, Sprite::SOUTH, Sprite::WEST ] 
+    
+    poses.each do | pose |
+      directions.each do | direction |
+        self.set_pose_direction_loop(pose, direction, Sprite::State::ACTION_ONESHOT)
+      end
+    end
+    
+    # the "Drop down" action is a one stop action in ULPCSS sprites.
+    self.set_pose_direction_loop(Sprite::DOWN, Sprite::NO_DIRECTION, Sprite::State::ACTION_ONESTOP)
+  end
+  
+  
+   
+  
+  
 
 
 end

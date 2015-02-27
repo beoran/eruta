@@ -175,20 +175,99 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   return mrb_fixnum_value(TOCALL());                                           \
 }
 
+#define TR_THING_GET(THING, STATE, THINGID)                                    \
+  THING = state_thing(STATE, THINGID);                                         \
+  if (!THING) {                                                                \
+    return mrb_nil_value();                                                    \
+  }                                                                            
+
+#define TR_THING_FUNC_INIT(THING, STATE)                                       \
+  State * STATE    = state_get();                                              \
+  Thing * THING    = NULL;                                                     \
+  (void) self;                                                                 
+
 #define TR_THING_IGETTER(NAME, TOCALL)                                         \
 static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
-  State * state    = state_get();                                              \
-  Thing * thing    = NULL;                                                     \
-  (void) self;                                                                 \
+  TR_THING_FUNC_INIT(thing, state)                                             \
   int result;                                                                  \
   mrb_int thingid;                                                             \
   mrb_get_args(mrb, "i", &thingid);                                            \
-  thing = state_thing(state, thingid);                                         \
-  if (!thing) {                                                                \
-    return mrb_nil_value();                                                    \
-  }                                                                            \
+  TR_THING_GET(thing, state, thingid);                                         \
   return mrb_fixnum_value(TOCALL(thing));                                      \
-}                                                                       
+} 
+
+
+#define TR_THING_II_INT(NAME, TOCALL)                                          \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  TR_THING_FUNC_INIT(thing, state)                                             \
+  mrb_int result;                                                              \
+  mrb_int thingid, i1, i2;                                                     \
+  mrb_get_args(mrb, "iii", &thingid, &i1, &i2);                                \
+  TR_THING_GET(thing, state, thingid);                                         \
+  result = TOCALL(thing, i1, i2);                                              \
+  return mrb_fixnum_value(result);                                             \
+}
+
+
+#define TR_THING_I_INT(NAME, TOCALL)                                           \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  TR_THING_FUNC_INIT(thing, state)                                             \
+  mrb_int result;                                                              \
+  mrb_int thingid, i1;                                                         \
+  mrb_get_args(mrb, "ii", &thingid, &i1);                                      \
+  TR_THING_GET(thing, state, thingid);                                         \
+  result = TOCALL(thing, i1);                                                  \
+  return mrb_fixnum_value(result);                                             \
+}
+
+#define TR_THING_I_BOOL(NAME, TOCALL)                                          \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  TR_THING_FUNC_INIT(thing, state)                                             \
+  mrb_int result;                                                              \
+  mrb_int thingid, i1;                                                         \
+  mrb_get_args(mrb, "ii", &thingid, &i1);                                      \
+  TR_THING_GET(thing, state, thingid);                                         \
+  result = TOCALL(thing, i1);                                                  \
+  return rh_bool_value(result);                                                \
+}
+
+
+#define TR_THING_III_INT(NAME, TOCALL)                                         \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  TR_THING_FUNC_INIT(thing, state)                                             \
+  mrb_int result;                                                              \
+  mrb_int thingid,i1, i2, i3;                                                  \
+  mrb_get_args(mrb, "iiii", &thingid, &i1, &i2, &i3);                          \
+  TR_THING_GET(thing, state, thingid);                                         \
+  result = TOCALL(thing, i1, i2, i3);                                          \
+  return mrb_fixnum_value(result);                                             \
+}
+
+
+#define TR_SPRITE_GET(SPRITE, STATE, SPRITEID)                                 \
+  SPRITE = state_sprite(STATE, SPRITEID);                                      \
+  if (!SPRITE) {                                                               \
+    return mrb_nil_value();                                                    \
+  }                                                                            
+
+#define TR_SPRITE_FUNC_INIT(SPRITE, STATE, SPRITEID)                           \
+  mrb_int SPRITEID = -1;                                                       \
+  State * STATE    = state_get();                                              \
+  Sprite * sprite  = NULL;                                                     \
+  (void) self;                                                                 
+
+
+#define TR_SPRITE_II_INT(NAME, TOCALL)                                         \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  TR_SPRITE_FUNC_INIT(sprite, state, index)                                    \
+  mrb_int result;                                                              \
+  mrb_int i1, i2;                                                              \
+  mrb_get_args(mrb, "iii", &index, &i1, &i2);                                  \
+  TR_SPRITE_GET(sprite, state, index);                                         \
+  result = TOCALL(sprite, i1, i2);                                             \
+  return mrb_fixnum_value(result);                                             \
+}
+
 
 #define TR_METHOD(MRB, CLASS, NAME, IMPL, FLAGS)                               \
         mrb_define_method((MRB), (CLASS), (NAME), (IMPL), (FLAGS))

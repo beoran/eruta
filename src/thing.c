@@ -511,3 +511,45 @@ int thing_tint_layer(Thing * me, int layer_index, Color color) {
 } 
 
 
+/** Hides or shows a layer in he sprite of this thing. */
+int thing_hide_layer(Thing * me, int layer, int hidden) {
+  if (!me) return -1;
+  return spritestate_set_layer_hidden(&me->spritestate, layer, hidden);
+}
+
+/** Returns true if the layer of the sprite is hidden false if not. */
+int thing_is_layer_hidden(Thing * me, int layer) { 
+  return spritestate_get_layer_hidden(&me->spritestate, layer);
+}
+
+/** Sets the loop mode of the given action of the thing. */
+int thing_set_action_loop(Thing * me, int action, int loopmode) { 
+  return spritestate_set_action_loop(&me->spritestate, action, loopmode);
+}
+
+/** Gets the loop mode of the given action of the thing. */
+int thing_get_action_loop(Thing * me, int action) { 
+  return spritestate_get_action_loop(&me->spritestate, action);
+}
+
+/** Checks if the given action is done in case of actions set to one-shot 
+ * loop mode only. 
+ */
+int thing_is_action_done(Thing * me, int action) { 
+  return spritestate_is_action_done(&me->spritestate, action);
+}
+
+
+/** Sets the loop mode for the given pose and direction of the thing. */
+int thing_set_pose_direction_loop
+  (Thing * me, int pose, int direction, int loopmode) {
+  return spritestate_set_pose_direction_loop(&me->spritestate, pose, direction, loopmode);
+}
+
+/** Gets the loop mode for the given pose and direction of the thing. */
+int thing_get_pose_direction_loop
+  (Thing * me, int pose, int direction) {
+  return spritestate_get_pose_direction_loop(&me->spritestate, pose, direction);
+}
+
+

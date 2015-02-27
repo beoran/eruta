@@ -85,14 +85,16 @@ module Main
     Sprite[100].load_ulpcss_slash(Sprite::Layer::BLADE, "weapons/oversize/longsword_female.png")
     Sprite[100].load_ulpcss_stab(Sprite::Layer::POLEARM, "weapons/oversize/spear.png")
     Sprite[100].load_ulpcss(Sprite::Layer::BOW, "weapons/greatbow.png")
-  
+    
     
 
     Thing[100].sprite    = Sprite[100]
     Thing[100].tint_hair(0, 255, 0)
     Thing[100].tint_torso(255, 64, 64)
-    Thing[100].direction = SPRITE_SOUTH
-    Thing[100].pose      = SPRITE_STAND
+    Thing[100].direction = Sprite::SOUTH
+    Thing[100].pose      = Sprite::STAND
+    Thing[100].hide_layer(Sprite::Layer::STAFF)
+
 
     
 
@@ -104,8 +106,8 @@ module Main
     Thing[101].sprite     = Sprite[101]
     Thing[101].tint_hair(255, 255, 0)
     Thing[101].tint_torso(128,  128, 255)
-    Thing[101].pose       = SPRITE_STAND
-    Thing[101].direction  = SPRITE_SOUTH
+    Thing[101].pose       = Sprite::STAND
+    Thing[101].direction  = Sprite::SOUTH
 
     puts "Things and sprites loaded."
 
@@ -341,16 +343,20 @@ module Main
   def actor_attack
     return if !Thing.actor
     pose = Thing.actor.pose
-    if    pose == SPRITE_SLASH
-      Thing.actor.pose = SPRITE_STAB
-    elsif pose == SPRITE_STAB
-      Thing.actor.pose = SPRITE_SHOOT
-    elsif pose == SPRITE_SHOOT
-      Thing.actor.pose = SPRITE_CAST    
-    elsif pose == SPRITE_CAST
-      Thing.actor.pose = SPRITE_STAND
+    if    pose == Sprite::SLASH
+      Thing.actor.pose = Sprite::STAB
+    elsif pose == Sprite::STAB
+      Thing.actor.pose = Sprite::SHOOT
+    elsif pose == Sprite::SHOOT
+      Thing.actor.pose = Sprite::CAST    
+    elsif pose == Sprite::CAST
+      Thing.actor.pose = Sprite::STAND
     else
-      Thing.actor.pose = SPRITE_SLASH
+      Thing.actor.hide_layer(Sprite::Layer::BLADE)
+      Thing.actor.show_layer(Sprite::Layer::STAFF)
+      Thing.actor.one_shot_action(Sprite::SLASH)
+      Thing.actor.one_shot_action(Sprite::SHOOT)
+      Thing.actor.pose = Sprite::SLASH
     end
   end
 
@@ -405,7 +411,7 @@ module Main
       when KEY_G
         Eruta.show_graph=   !Eruta.show_graph
       when KEY_P
-        Eruta.show_physnics= !Eruta.show_physics
+        Eruta.show_physics= !Eruta.show_physics
       when KEY_UP
         vy -= 100.0
       when KEY_DOWN
@@ -414,6 +420,8 @@ module Main
         vx -= 100.0
       when KEY_RIGHT
         vx += 100.0
+      when KEY_D
+        Thing.actor.pose = Sprite::DOWN
       when KEY_SPACE
         puts "Searching..."
         actor_search_or_talk

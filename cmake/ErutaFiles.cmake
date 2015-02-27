@@ -19,6 +19,7 @@ set(ERUTA_SRC_FILES
   src/bevec.c
   src/brex.c
   src/bump.c
+  src/bumpshape.c
   src/bxml.c
   src/camera.c
   src/collide.c
