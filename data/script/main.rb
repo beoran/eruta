@@ -118,7 +118,7 @@ module Main
   end
 
   def start_load_tilemap
-    tilemap_fn = 'map/map_0001.tmx'
+    tilemap_fn = 'map/map_0001_tiled11.tmx'
     tilemap  = Tilemap.load(:map_0001, tilemap_fn)
     State.tilemap_name = :map_0001
     tilemap.activate!()

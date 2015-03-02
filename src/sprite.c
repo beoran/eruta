@@ -438,15 +438,20 @@ SpriteAction * spriteaction_new(int index, int type, int flags) {
 int spriteaction_matches_pose(SpriteAction * self, int pose, int direction) {
   if (!self)              return FALSE;
   if (self->type != pose) return FALSE;
-  //return TRUE;
   return self->directions & direction;
 }
 
-/* Returns nonzero if this action has exactl the given the pose and direction. */
+static int break_me_counter;
+
+static void break_me() {
+  break_me_counter++;
+}
+
+/* Returns nonzero if this action has exactly the given the pose and direction. */
 int spriteaction_has_pose(SpriteAction * self, int pose, int direction) {
   if (!self)              return FALSE;
+  if (direction == SPRITE_DOWN) { break_me(); }
   if (self->type != pose) return FALSE;
-  //return TRUE;
   return (self->directions == direction);
 }
 
@@ -542,7 +547,7 @@ SpriteAction * sprite_action_and_index_for
   /* dumb linear search... */
   max = sprite_maxactions(me);
   for (index = 0; index < max; index ++) {
-    action = sprite_action(me, index);
+    action = sprite_action(me, index);    
     if (spriteaction_has_pose(action, pose, direction)) {
       if (at_index) { 
         *at_index = index;

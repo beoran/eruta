@@ -236,12 +236,15 @@ class Thing < Eruta::Thing
     
     poses.each do | pose |
       directions.each do | direction |
-        self.set_pose_direction_loop(pose, direction, Sprite::State::ACTION_ONESHOT)
+        p "Pose"
+        p self.set_pose_direction_loop(pose, direction, Sprite::State::ACTION_ONESHOT)
       end
     end
     
     # the "Drop down" action is a one stop action in ULPCSS sprites.
-    self.set_pose_direction_loop(Sprite::DOWN, Sprite::NO_DIRECTION, Sprite::State::ACTION_ONESTOP)
+    res = self.set_pose_direction_loop(Sprite::DOWN, Sprite::ALL_DIRECTIONS, Sprite::State::ACTION_ONESTOP)
+    p "Drop Down"
+    p res
   end
   
   

@@ -38,12 +38,12 @@ static int ulpcss_row_direction[] = {
 
 /* Frame duration info of ULPCSS sprites. */
 static double ulpcss_row_duration[] = {
-  0.1, 0.1, 0.1, 0.1,
+  0.1 , 0.1 , 0.1 , 0.1 ,
   0.07, 0.07, 0.07, 0.07,
-  0.2, 0.2, 0.2, 0.2,
+  0.2 , 0.2 , 0.2 , 0.2 ,
   0.07, 0.07, 0.07, 0.07,  
-  0.1, 0.1, 0.1, 0.1,
-  0,1,
+  0.1 , 0.1 , 0.1 , 0.1 ,
+  0.07,
 };
 
 /* Layout info of the ULPCSS sprites. Has 21 rows of cells.*/

@@ -126,6 +126,7 @@ int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   TR_CONST_INT(mrb, spr, "EAST", SPRITE_EAST); 
   TR_CONST_INT(mrb, spr, "NORTH", SPRITE_NORTH); 
   TR_CONST_INT(mrb, spr, "WEST", SPRITE_WEST);
+  TR_CONST_INT(mrb, spr, "ALL_DIRECTIONS", SPRITE_ALL);
 
   /* Action constants of a sprite */
   TR_CONST_INT_EASY(mrb, spr, SPRITE_, CAST);

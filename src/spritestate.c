@@ -169,7 +169,7 @@ void spritestate_next_frame(SpriteState * self) {
       self->actions[self->action_index].done = TRUE;
       /* If it's a stop action, leave it there, otherwise go back to standing pose. */
       if (spritestate_get_action_loop(self, self->action_index) & SPRITESTATE_ACTION_STOP) {
-        puts("Stop action eached!");
+        /* nothing to do. */
       } else {
         /* Go to back to first frame of standing pose with current direction. */
         action = sprite_action_index_for
