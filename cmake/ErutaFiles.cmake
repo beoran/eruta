@@ -28,6 +28,7 @@ set(ERUTA_SRC_FILES
   src/effect.c
   src/event.c
   src/every.c
+  src/ezxml.c
   src/flags.c
   src/fifi.c
   src/glh.c
