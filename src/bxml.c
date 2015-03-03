@@ -7,101 +7,120 @@
 #include "bxml.h"
 
 
-/* Simplistic, non-conforming XML parser that parses XML documents into 
- DOM-like structs.
-*/
-
-
-/*
-* Kind of the BXML node. Can be : ATTR, TEXT, TAG.
-* Comments, entities and parsing instructions are ignored for now.
-* These values have been chosen to be greater that parser state values.
-*/
-enum BXMLKind_
-{
-  BXML_TAG      = 101,
-  BXML_TEXT     = 102,
-  BXML_ATTR     = 103,
-  BXML_COMMENT  = 104,
-  BXML_DECLARE  = 105,
-  BXML_LASTKIND = 106,
-};
-
-
-/*
-* An BXML represents one <tag></tag> self and it's children and attributes,
-* or a text section, or the attributes of a tag.
-*/
-struct BXML_
-{
-  int        kind; /* kind of tag it is. */
-  BXML     * parent, * next, * before, * child;
-  BXML     * attr;
-  /* Different linked selfs: parent is the parent, next is the next sibling, 
-  before is the previous sibling, child is the first child,
-  attribute is the first attribute. */
-  USTR     * name; 
-  /* Name of the tag or attribute. */
-  USTR     * value; /* For text nodes, this contains the text. 
-  For attribute nodes this contains the value of the attribute.
-  */
-  /* Extra data, depending on the tag kind, etc. */
-  void     * data;
-};
-
-
-/* Initializes a BXML self. Does not set up any relationships!  */
-BXML * bxml_init(BXML * self, int kind) {
-  if(!self) return NULL;
-  self->parent = NULL;  
-  self->next   = NULL;
-  self->before = NULL;
-  self->child  = NULL;
-  self->attr   = NULL;
-  self->kind   = kind;
-  self->name   = ustr_new("");
-  self->value  = ustr_new("");
-  self->data   = NULL;
-  return self;
+/* Strdup isn't ANSI C, just posix... :p so we need our own local version.*/
+static char * bxml_strdup(const char *str) {
+    char * res = malloc(strlen(str) + 1);
+    if(res) { strcpy(res, str); }
+    return res;
 }
 
+
+/* Initializes a bxml attributes, sets no relationships! */
+BxmlAttribute * bxmlattribute_init(BxmlAttribute * me, char * name, char * value) {
+  if (!me) return NULL;
+  me->name  = bxml_strdup(name);
+  me->value = bxml_strdup(value);
+  me->next  = NULL;
+  return me;
+}
+
+/* Cleans up an attribute. Does nothing with linked attributes! */
+void bxmlattribute_done(BxmlAttribute * me) {
+  if (!me) return;
+  free(me->value);
+  free(me->name);
+  me->value = NULL;
+  me->name  = NULL;
+  me->next  = NULL;
+}
+
+/* Frees a bxmlattribute without doing anything to apotential next one. */
+void bxmlattribute_free_one(BxmlAttribute * me) {
+  bxmlattribute_done(me);
+  free(me);
+}
+
+/* Frees a linked list of bxml attributes */
+void bxmlattribute_free_list(BxmlAttribute * me) {
+  BxmlAttribute * now, * aid;
+  now = me; 
+  while (now) {
+    aid = now->next;
+    bxmlattribute_free_one(now);
+    now = aid;
+  }
+}
+
+/* Allocates a new bxmlattibute */
+BxmlAttribute * bxmlattribute_alloc(void) {
+  return calloc(sizeof(BxmlAttribute), 1);
+}
+
+BxmlAttribute * bxmlattribute_new(char * name, char * value) {
+  return bxmlattribute_init(bxmlattribute_alloc(), name, value);
+}
+
+/* Appends or insterts an existing attribute to the list at me.
+ * returns you on sucess or NULL on failure.  */
+BxmlAttribute * bxmlattribute_insert(BxmlAttribute * me, BxmlAttribute * you) {
+  BxmlAttribute * aid;
+  if (!me) return NULL;
+  if (!you) return NULL;
+  aid       = me->next;
+  me->next  = you;
+  you->next = aid;
+  return you;
+}
+
+/* Inserts a new attribute to the list after me. */
+BxmlAttribute * 
+bxmlattribute_insert_new(BxmlAttribute * me, char * name, char * value) {
+  return bxmlattribute_insert(me, bxmlattribute_new(name, value));
+}
+
+/* Initializes a Bxml me. Does not set up any relationships!  */
+Bxml * bxml_init(Bxml * me, char * name, int kind) {
+  if(!me) return NULL;
+  me->parent      = NULL;  
+  me->sibling     = NULL;
+  me->child       = NULL;
+  me->attributes  = NULL;
+  me->kind        = kind;
+  me->name        = bxml_strdup(name);
+  me->text        = NULL;
+  return me;
+}
  
-
-/* Allocates a new bxml node */
-BXML * bxml_alloc() {
-  return calloc(sizeof(BXML), 1);
+/* Allocates a new Bxml node */
+Bxml * bxml_alloc() {
+  return calloc(sizeof(Bxml), 1);
 }
 
-/* Allocates and initialzes a new bxml node. */
-BXML * bxml_new(int kind) {
-  return bxml_init(bxml_alloc(), kind);
+/* Allocates and initialzes a new Bxml node. */
+Bxml * bxml_new(char * name, int kind) {
+  return bxml_init(bxml_alloc(), name, kind);
 }
 
-/* Cleans up a bxml  node, freeing the children recursively. */
-BXML * bxml_done(BXML * self) {
-  BXML * aid  = self->child;
-  BXML * next = NULL;
+/* Cleans up a Bxml  node, freeing the children recursively. */
+Bxml * bxml_done(Bxml * me) {
+  Bxml * aid  = me->child;
+  Bxml * next = NULL;
   while(aid) { 
-    next = aid->next; // get next, since aid will be destroyed.
+    next = aid->sibling; // get next, since aid will be destroyed.
     bxml_free(aid);   // free first child
     aid  = next;      // move to next child. 
   }
-  aid = self->attr;
-  while(aid) { 
-    next = aid->next; // get next, since aid will be destroyed.
-    bxml_free(aid);  // free first attribute
-    aid  = next;     // move to next attribute.
-  }
-  ustr_free(self->name);
-  ustr_free(self->value);
-  return self;
+  bxmlattribute_free_list(me->attributes);
+  free(me->name);
+  free(me->text);
+  return me;
 }
 
 /* Frees this node and cleans up its children recursively. returns NULL. */
-BXML * bxml_free(BXML * self) {
-  if(!self) return NULL;
-  bxml_done(self);
-  free(self);
+Bxml * bxml_free(Bxml * me) {
+  if(!me) return NULL;
+  bxml_done(me);
+  free(me);
   return NULL;
 }
 
@@ -109,61 +128,91 @@ BXML * bxml_free(BXML * self) {
 
 /* Sets node siling to be the sibling node of this node, possibly inserting 
 * between an existing sibling.
-* returns other if OK, NULL on error.
+* returns you if OK, NULL on error.
 **/
-BXML * bxml_addsibling(BXML * self, BXML * other) {
-  BXML * oldnext;
-  if(!self)  return NULL;
-  if(!other) return NULL;
-  oldnext = self->next;
+Bxml * bxml_add_sibling(Bxml * me, Bxml * you) {
+  Bxml * old_sibling;
+  if(!me)  return NULL;
+  if(!you) return NULL;
+  old_sibling = me->sibling;
   /* Ensure proper insertion. */
-  if(oldnext) {
-    oldnext->before  = other; 
-  }
-  other->next      = oldnext;
-  other->before    = self;
-  self->next       = other;
-  return other;
+  you->sibling   = old_sibling;
+  me->sibling    = you;
+  return you;
 }
 
-/* Adds attr as an attribute to the BXML tag self.  
-* attributes are added in REVERSE order, that is, self->attr will 
-* point to the last attrbute added. Returns attr if ok, NULL on error.
+/* Gets the last sibing of me, or NULL if no sibling. */
+Bxml * bxml_get_last_sibling(Bxml * me) {
+  Bxml * index;
+  if (!me) return NULL;
+  for (index = me; index->sibling ; index = me->sibling);
+  return index;
+}
+
+/* Adds a sibling to me, at the end of the sibling list. */
+Bxml * bxml_append_sibling(Bxml * me, Bxml * you) {
+  Bxml * index;
+  if (!me) return NULL;
+  if (!you) return NULL;
+  return bxml_add_sibling(bxml_get_last_sibling(me), you);
+}
+
+/* Adds attr as an attribute to the Bxml tag me. 
+ * Returns you if ok, NULL on error.
 */
-BXML * bxml_addattribute(BXML * self, BXML * attr) {
-  BXML * oldnext;
-  if(!self)  return NULL;
-  if(!attr)  return NULL;
-  oldnext = self->attr;
-  /* Ensure proper insertion. */
-  if(oldnext) {
-    oldnext->before  = attr; 
+BxmlAttribute * bxml_add_attribute(Bxml * me, BxmlAttribute * you) {
+  Bxml * oldnext;
+  if (!me)   return NULL;
+  if (!you)  return NULL;
+  
+  if (!me->last_attr) {
+    me->attributes = you;
+    me->last_attr  = you;
+  } else {
+    bxmlattribute_insert(me->last_attr, you);
   }
-  attr->next       = oldnext;
-  attr->before     = NULL;
-  self->attr       = attr;
-  attr->parent     = self;
-  return self;
+  return you;
 }
 
-/* Adds child as a child node of the BXML tag self. 
+/** Makes a new attribute and adds it to me. */
+BxmlAttribute * bxml_new_attribute(Bxml * me, char * name, char * value) {
+  return bxml_add_attribute(me, bxmlattribute_new(name, value));
+} 
+
+/** Gets the attribute of me with the given name, or NULL if no such attribute. */
+BxmlAttribute * bxml_get_attribute_pointer(Bxml * me, char * name) {
+  BxmlAttribute * index;
+  for(index = me->attributes; index ; index = index->next) {
+    if (strcmp(name, index->name) == 0) {
+      return index;
+    }
+  }
+  return NULL;
+}
+
+/** Gets the value of the attribute of me with the given name, or NULL if no 
+ * such attribute. */
+char * bxml_get_attribute(Bxml * me, char * name) {
+  BxmlAttribute * result;
+  result = bxml_get_attribute_pointer(me, name);
+  return result ? result->value : NULL;
+}
+
+/* Adds child as a child node of the Bxml tag me. 
 * Ensures that any siblings are connected correctly as well.
 * Returns child if OK, NULL on error.
 */
-BXML * bxml_addchild(BXML * self, BXML * child) {
-  BXML * oldnext;
-  if(!self)  return NULL;
-  if(!child) return NULL;
-  oldnext = self->child ;
-  /* Ensure proper insertion. */
-  if(oldnext) {
-    oldnext->before  = child; 
+Bxml * bxml_add_child(Bxml * me, Bxml * child) {
+  if (!me)  return NULL;
+  if (!child) return NULL;
+  
+  if (!me->child) {
+    me->child = child;
+    return child;
+  } else {
+    return bxml_append_sibling(me->child, child);
   }
-  child->next      = oldnext;
-  child->before    = NULL;
-  self->child      = child;
-  child->parent    = self;
-  return self;
+  return me;
 }
 
 
@@ -173,145 +222,145 @@ static const char BXML_SPACE_STR[] = { 0x20,  0x09, 0x0D, 0x0A, 0x00 };
 
 /* State of the parser. Negative states indicate errors. 
 * State zero means the parser is done. States greater than to 
-* BXML_FOUND indicate that the parser has found the corresponding tag.
+* bxml_FOUND indicate that the parser has found the corresponding tag.
 */
-enum BXMLState_ {
-  BXML_STATE_MEMERROR   = -3,
-  BXML_STATE_STACKERROR = -2,
-  BXML_STATE_ERROR      = -1,
-  BXML_STATE_DONE       = 0,
-  BXML_STATE_START      = 1,
-  BXML_STATE_TAGSTART   = 2,
-  BXML_STATE_TAGNAME    = 3,
-  BXML_STATE_ATTRLIST   = 4,
-  BXML_STATE_ATTRSTART  = 5,
-  BXML_STATE_ATTRNAME   = 6,
-  BXML_STATE_VALSTART   = 7,
-  BXML_STATE_SQVALUE    = 8,
-  BXML_STATE_DQVALUE    = 9,
-  BXML_STATE_TAGEND     = 10,
-  BXML_STATE_TEXT       = 11,
-  BXML_STATE_VALENTITY  = 12,
-  BXML_STATE_TEXTENTITY = 13,
-  BXML_STATE_COMMENT    = 14,
-  BXML_STATE_DECLARE    = 15,
-  BXML_STATE_PROCESSING = 16,
-  BXML_STATE_CDATA      = 17
+enum BxmlState_ {
+  bxml_STATE_MEMERROR   = -3,
+  bxml_STATE_STACKERROR = -2,
+  bxml_STATE_ERROR      = -1,
+  bxml_STATE_DONE       = 0,
+  bxml_STATE_START      = 1,
+  bxml_STATE_TAGSTART   = 2,
+  bxml_STATE_TAGNAME    = 3,
+  bxml_STATE_ATTRLIST   = 4,
+  bxml_STATE_ATTRSTART  = 5,
+  bxml_STATE_ATTRNAME   = 6,
+  bxml_STATE_VALSTART   = 7,
+  bxml_STATE_SQVALUE    = 8,
+  bxml_STATE_DQVALUE    = 9,
+  bxml_STATE_TAGEND     = 10,
+  bxml_STATE_TEXT       = 11,
+  bxml_STATE_VALENTITY  = 12,
+  bxml_STATE_TEXTENTITY = 13,
+  bxml_STATE_COMMENT    = 14,
+  bxml_STATE_DECLARE    = 15,
+  bxml_STATE_PROCESSING = 16,
+  bxml_STATE_CDATA      = 17
 };
 
-typedef enum BXMLState_ BXMLState; 
-typedef struct BXMLParser_ BXMLParser;
+typedef enum BxmlState_ BxmlState; 
+typedef struct BxmlParser_ BxmlParser;
 
-#define BXMLPARSER_STACKSIZE 1024
+#define BxmlPARSER_STACKSIZE 1024
 
 /*
-* BXMLParse is the parser object. For simplicity, the parser works on a string 
+* BxmlParse is the parser object. For simplicity, the parser works on a string 
 * with the whole xml document in memory. Not very efficient, but easier to parse.
 * basis.
 */
-struct BXMLParser_ {
+struct BxmlParser_ {
   USTR     *  buffer;
   int         index;
   int         line;
   int         col;
   int         nowchar;
-  int         stack[BXMLPARSER_STACKSIZE];
+  int         stack[BxmlPARSER_STACKSIZE];
   int         sp;
-  BXML     *  tag;
-  BXML     *  root;
+  Bxml     *  tag;
+  Bxml     *  root;
 };
 
 /* Pushes a state on the parser's state stack. Returns state if 
 OK, negative on error. */
-BXMLState bxmlparser_push(BXMLParser * self, BXMLState state) {
-  self->sp++;
+BxmlState Bxmlparser_push(BxmlParser * me, BxmlState state) {
+  me->sp++;
   // stack overflow
-  if( self->sp >= BXMLPARSER_STACKSIZE) {
-    return BXML_STATE_STACKERROR;
+  if( me->sp >= BxmlPARSER_STACKSIZE) {
+    return bxml_STATE_STACKERROR;
   }
-  self->stack[self->sp] = state;
+  me->stack[me->sp] = state;
   return state;
 }
 
 /* Returns the state of the top of the stack. 
 Assumes the stack pointer is safe.
 */
-BXMLState bxmlparser_peek(BXMLParser * self) {
-  return self->stack[self->sp];
+BxmlState Bxmlparser_peek(BxmlParser * me) {
+  return me->stack[me->sp];
 }
 
 
 /* Pops a state from the parser's state stack. Returns negative if
-an error (e.g. underflow) occurs. Returns the new stack top otherwise. */
-BXMLState bxmlparser_pop(BXMLParser * self) {
-  self->sp--;
+an error (e.g. underflow) occurs. Returns the new stack top youwise. */
+BxmlState Bxmlparser_pop(BxmlParser * me) {
+  me->sp--;
   // Stack underflow.
-  if(self->sp < 0) {
-    return BXML_STATE_STACKERROR;
+  if(me->sp < 0) {
+    return bxml_STATE_STACKERROR;
   }
-  return self->stack[self->sp];
+  return me->stack[me->sp];
 }
 
 /* Sets the top of the state stack to a state and returns the NEW top */
-BXMLState bxmlparser_put(BXMLParser * self, BXMLState state) {
-  BXMLState old = self->stack[self->sp];
-  return self->stack[self->sp] = state;
+BxmlState Bxmlparser_put(BxmlParser * me, BxmlState state) {
+  BxmlState old = me->stack[me->sp];
+  return me->stack[me->sp] = state;
 }
 
 
 /* Stack and parsing helper macros. */
-#define PUSH(P, S) bxmlparser_push(P, S)
-#define POP(P) bxmlparser_pop(P)
-#define PEEK(P) bxmlparser_peek(P)
-#define PUT(P, S) bxmlparser_put(P, S)
+#define PUSH(P, S) Bxmlparser_push(P, S)
+#define POP(P) Bxmlparser_pop(P)
+#define PEEK(P) Bxmlparser_peek(P)
+#define PUT(P, S) Bxmlparser_put(P, S)
 
-/* Store SELF->tag in R, and return S */
-#define PRET(SELF, R, S) do { (*(R)) = (SELF)->tag ; return (S); } while(0)   
+/* Store me->tag in R, and return S */
+#define PRET(me, R, S) do { (*(R)) = (me)->tag ; return (S); } while(0)   
 
 
-/* Initializes an BXML parser. */
-BXMLParser * 
-bxmlparser_init(BXMLParser * self, USTR * data) {
-  if(!self) return NULL;
-  self->line      = 1;
-  self->col       = 1;
-  self->index     = 0;
-  self->nowchar   = 0;
-  self->sp        = -1;
+/* Initializes an Bxml parser. */
+BxmlParser * 
+Bxmlparser_init(BxmlParser * me, USTR * data) {
+  if(!me) return NULL;
+  me->line      = 1;
+  me->col       = 1;
+  me->index     = 0;
+  me->nowchar   = 0;
+  me->sp        = -1;
   // Push a done state on the stack. 
   // If the parser reaches this, parsing is done. 
-  PUSH(self, BXML_STATE_DONE);
+  PUSH(me, bxml_STATE_DONE);
   // Then push a start state.
-  PUSH(self, BXML_STATE_START);
-  self->tag       = NULL;
-  self->root      = NULL;
-  self->buffer    = data;
-  return self;
+  PUSH(me, bxml_STATE_START);
+  me->tag       = NULL;
+  me->root      = NULL;
+  me->buffer    = data;
+  return me;
 }
 
 #ifdef COMMENT_
 
 /* Parses when in the start state.  */
-BXMLState
-bxmlparser_parse_start(BXMLParser * self, int ch) {
+BxmlState
+Bxmlparser_parse_start(BxmlParser * me, int ch) {
   /* We should get a < first  */
   if (al_ustr_has_prefix_cstr()  == '<') { 
     /* Go on to parse the tag, preparing it for use. */
     
-    return PUSH(self, BXML_STATE_TAGSTART); 
+    return PUSH(me, bxml_STATE_TAGSTART); 
   } else if (isblank(ch)) { 
   /* Normally we should get a < character right away,
   but be lenient and skip spaces. So do nothing. */
-    return PEEK(self);
+    return PEEK(me);
   } 
-  /* Otherwise it's a parse error. */
-  return PUSH(self, BXML_STATE_ERROR);
+  /* youwise it's a parse error. */
+  return PUSH(me, bxml_STATE_ERROR);
 }
 
 /* Parses when in the tag start state. This is the beginning of the   
 tag name, to deal with comments, <![CDATA[ and <? declarations. */
-BXMLState
-bxmlparser_parse_tagstart(BXMLParser * self, int ch) {
+BxmlState
+Bxmlparser_parse_tagstart(BxmlParser * me, int ch) {
   /*    
   * If there's a ? at the beginning, it's a declaration. 
   * If there is a ! at the start it should a comment
@@ -321,34 +370,34 @@ bxmlparser_parse_tagstart(BXMLParser * self, int ch) {
   * Anything else is an error.
   */
   if (ch == '?')       {
-      return PUSH(self, BXML_STATE_DECLARE);
+      return PUSH(me, bxml_STATE_DECLARE);
   } else if(ch == '!') {
-      return PUSH(self, BXML_STATE_ENTITY);
+      return PUSH(me, bxml_STATE_ENTITY);
   } else if(ch == '/') {
-      return PUT(self, BXML_STATE_ENDTAG);
+      return PUT(me, bxml_STATE_ENDTAG);
   } else if(isalpha(ch)) {
       // here we really have a new tag. Create it. 
-      BXML * newtag = bxml_new(BXML_TAG, self->tag);
+      Bxml * newtag = bxml_new(bxml_TAG, me->tag);
       if(!newtag) { 
-        return PUSH(self, BXML_STATE_MEMERROR);
+        return PUSH(me, bxml_STATE_MEMERROR);
       }
       /* Initialize root tag if not set yet. */
-      if(!self->root) {
-        self->root = newtag; 
+      if(!me->root) {
+        me->root = newtag; 
       }
-      self->tag = newtag;
-      ustr_appendch(self->tag->name, ch);
-      return PUT(self, BXML_STATE_TAGNAME);
+      me->tag = newtag;
+      ustr_appendch(me->tag->name, ch);
+      return PUT(me, bxml_STATE_TAGNAME);
   } else {
       /* Anything else is a parse error at the start of the tag name.  */
-      return PUSH(self, BXML_STATE_ERROR);
+      return PUSH(me, bxml_STATE_ERROR);
   }
   /* If we get here it's inside of the tag */
 }
 
 /* Parses when in the tag name state. This is the rest of the the tag name. */
-BXMLState
-bxmlparser_parse_tagname(BXMLParser * self, int ch) {
+BxmlState
+Bxmlparser_parse_tagname(BxmlParser * me, int ch) {
 /*
   Possible cases:
   * If there is a > the tag is done, and we go on to text parsing mode
@@ -358,35 +407,35 @@ bxmlparser_parse_tagname(BXMLParser * self, int ch) {
   * If there is whitespace, attribute list begins. 
 */
   if(isalnum(ch)) {
-    ustr_appendch(self->tag->name, ch);
+    ustr_appendch(me->tag->name, ch);
     return PEEK(state);
   } else if (isspace(ch)) {
-    return SWAP(self, BXML_STATE_ATTRLIST);
+    return SWAP(me, bxml_STATE_ATTRLIST);
   } else if (ch == '/') {
-    return SWAP(SELF, BXML_STATE_TAGEND);
+    return SWAP(me, bxml_STATE_TAGEND);
   } else if (ch == '>') {
     /* a > after the tag name (without having seen a /, 
       means that a text node wil follow as the child of the current node. 
       Prepare that text node.
     */
-    BXML * newtag = bxml_new(BXML_TEXT, self->tag);
+    Bxml * newtag = bxml_new(bxml_TEXT, me->tag);
     if(!newtag) { 
-      return PUSH(self, BXML_STATE_MEMERROR);
+      return PUSH(me, bxml_STATE_MEMERROR);
     }
-    self->tag = newtag;
-    return SWAP(SELF, BXML_STATE_TEXT);
+    me->tag = newtag;
+    return SWAP(me, bxml_STATE_TEXT);
   } else {
     /* Anything else is a parse error  */
-    return PUSH(self, BXML_STATE_ERROR);
+    return PUSH(me, bxml_STATE_ERROR);
   }
 
 }
 
 
 /* Parses an attribute list */
-BXMLState
-bxmlparser_parse_attrlist(BXMLParser * self, int ch) {
-  return PUSH(self, BXML_STATE_ERROR);
+BxmlState
+Bxmlparser_parse_attrlist(BxmlParser * me, int ch) {
+  return PUSH(me, bxml_STATE_ERROR);
   /*
   * Possible cases: 
   * * if there is a / the tag should be ending
@@ -397,56 +446,56 @@ bxmlparser_parse_attrlist(BXMLParser * self, int ch) {
   if(isalpha(ch)) {
     /* we have a new attribute. Create it and set it as the attribute.
      of the current tag.  */
-    BXML * attr = bxml_new(BXML_ATTR, self->tag);
-    if(!bxml_addattribute(self->tag, attr)) {
-      return return PUSH(self, BXML_STATE_MEMERROR);
+    Bxml * attr = bxml_new(bxml_ATTR, me->tag);
+    if(!bxml_addattribute(me->tag, attr)) {
+      return return PUSH(me, bxml_STATE_MEMERROR);
     }
-    ustr_appendch(self->attr->name, ch);
-    return PUSH(state, BXML_STATE_ATTRNAME);
+    ustr_appendch(me->attr->name, ch);
+    return PUSH(state, bxml_STATE_ATTRNAME);
   } else if (isspace(ch)) {
     /* skip spaces. */
-    return PEEK(self);
+    return PEEK(me);
   } else if (ch == '/') {
-    return SWAP(self, BXML_STATE_TAGEND);
+    return SWAP(me, bxml_STATE_TAGEND);
   } else if (ch == '>') {
     /* a > after the tag name (without having seen a /, 
       means that a text node wil follow as the child of the current node. 
       Prepare that text node.
     */
-    BXML * newtag = bxml_new(BXML_TEXT, self->tag);
+    Bxml * newtag = bxml_new(bxml_TEXT, me->tag);
     if(!newtag) { 
-      return PUSH(self, BXML_STATE_MEMERROR);
+      return PUSH(me, bxml_STATE_MEMERROR);
     }
-    self->tag = newtag;
-    return SWAP(SELF, BXML_STATE_TEXT);
+    me->tag = newtag;
+    return SWAP(me, bxml_STATE_TEXT);
   } else {
     /* Anything else is a parse error  */
-    return PUSH(self, BXML_STATE_ERROR);
+    return PUSH(me, bxml_STATE_ERROR);
   }
 }
 
-BXMLState
-bxmlparser_parse_attrname(BXMLParser * self, int ch) {
+BxmlState
+Bxmlparser_parse_attrname(BxmlParser * me, int ch) {
   /* an attibute name continues until we find a isspace or an = character
   *  anything else isn't allowed.
   */
   if(isalnum(ch)) {
-    ustr_appendch(self->attr->name, ch);
+    ustr_appendch(me->attr->name, ch);
     return PEEK(state);
   } else if(isspace(ch)) { 
     /* attribute name is done, but we still need the = */
-    return SWAP(state, BXML_STATE_NAMEEND);
+    return SWAP(state, bxml_STATE_NAMEEND);
   } else if(ch == '=')
     /* value will start from here */
-    return SWAP(state, BXML_STATE_VALSTART);
+    return SWAP(state, bxml_STATE_VALSTART);
   } else {
-    return PUSH(self, BXML_STATE_ERROR);
+    return PUSH(me, bxml_STATE_ERROR);
   }
 }
 
 
-BXMLState
-bxmlparser_parse_nameend(BXMLParser * self, int ch) {
+BxmlState
+Bxmlparser_parse_nameend(BxmlParser * me, int ch) {
   /* attribute has ended, but we still need to skip spaces and look for the =
   */
   if(isspace(ch)) { 
@@ -454,14 +503,14 @@ bxmlparser_parse_nameend(BXMLParser * self, int ch) {
     return PEEK(state);
   } else if(ch == '=')
     /* value will start from here */
-    return SWAP(state, BXML_STATE_VALSTART);
+    return SWAP(state, bxml_STATE_VALSTART);
   } else {
-    return PUSH(self, BXML_STATE_ERROR);
+    return PUSH(me, bxml_STATE_ERROR);
   }
 }
 
-BXMLState
-bxmlparser_parse_valstart(BXMLParser * self) {
+BxmlState
+Bxmlparser_parse_valstart(BxmlParser * me) {
   /* we have had the = , now skip spaces until we get the " or '
   */
   if(isspace(ch)) { 
@@ -469,31 +518,31 @@ bxmlparser_parse_valstart(BXMLParser * self) {
     return PEEK(state);
   } else if((ch == '"') {
     /* Double quoted value will start from here. Store the quote too,  */
-    ustr_appendch(self->attr->value, ch);
-    return SWAP(state, BXML_STATE_DQVALUE);
+    ustr_appendch(me->attr->value, ch);
+    return SWAP(state, bxml_STATE_DQVALUE);
   } else if((ch == '\'') {
     /* Single quoted value will start from here. Store the quote too,  */
-    ustr_appendch(self->attr->value, ch);
-    return SWAP(state, BXML_STATE_DQVALUE);
+    ustr_appendch(me->attr->value, ch);
+    return SWAP(state, bxml_STATE_DQVALUE);
   } else {
-    return PUSH(self, BXML_STATE_ERROR);
+    return PUSH(me, bxml_STATE_ERROR);
   }
 }
 
 /* parses a single or double quoted value as per quote. */
-BXMLState
-bxmlparser_parse_value(BXMLParser * self, int ch, int quote) {
+BxmlState
+Bxmlparser_parse_value(BxmlParser * me, int ch, int quote) {
   /* copy data until we get the quote, but beware entities */
   if(ch == '&') { 
     /* Entity! */
     ustr_empty(state->buffer);
-    return PUSH(state, BXML_STATE_ENTITY);
+    return PUSH(state, bxml_STATE_ENTITY);
   } else if (ch == quote) {
     /* attribute is all done. POP! */    
     return POP(state);
   } else {
     /* Just store the value. */
-    ustr_appendch(self->attr->value, ch);
+    ustr_appendch(me->attr->value, ch);
   }
 }
 
@@ -511,8 +560,8 @@ static Silut bxml_entity_lut[] = {
 
 /* Parses an entity. Uses target to append a character to in case the
  entity was found.  */
-BXMLState
-bxmlparser_parse_entity(BXMLParser * self, int ch, USTR * target) {
+BxmlState
+Bxmlparser_parse_entity(BxmlParser * me, int ch, USTR * target) {
   /* copy data until we get the ending ;  */
   if(ch == ';') { 
     /* Entity is done */
@@ -522,10 +571,10 @@ bxmlparser_parse_entity(BXMLParser * self, int ch, USTR * target) {
     } else  { 
       int base = 10;
       int res  = 0;
-      char * aid = ustr_c(self->buffer);
+      char * aid = ustr_c(me->buffer);
       if(aid[0] != '#') { 
         /* must be a # entity if not known as a named one */
-        return PUSH(state, BXML_STATE_ERROR);
+        return PUSH(state, bxml_STATE_ERROR);
       }
       aid++;
       if(aid[0] == 'x') { aid++; base = 16; }
@@ -538,113 +587,113 @@ bxmlparser_parse_entity(BXMLParser * self, int ch, USTR * target) {
     return POP(state);
   } else {
     /* Just store the value in the sschratch buffer . */
-    ustr_appendch(self->buffer, ch);
+    ustr_appendch(me->buffer, ch);
   }
 }
 
 
 
-BXMLState
-bxmlparser_parse_text(BXMLParser * self, int ch, BXML ** result) {
-  // when parsing text we can either encounter another tag, an entity, or
+BxmlState
+Bxmlparser_parse_text(BxmlParser * me, int ch, Bxml ** result) {
+  // when parsing text we can either encounter anyou tag, an entity, or
   // anything else ,which goes into the text tag's value
   if(ch == '<') { 
     // New tag starting, sibling of this text node.
-    BXML * newtag = bxml_new(BXML_TAG, self->tag);
-    if(!bxml_addsibling(self->tag, newtag)) {
-      return PUSH(self, BXML_STATE_MEMERROR);
+    Bxml * newtag = bxml_new(bxml_TAG, me->tag);
+    if(!bxml_addsibling(me->tag, newtag)) {
+      return PUSH(me, bxml_STATE_MEMERROR);
     }
-    self->tag = newtag;
-    return (self, BXML_STATE_TAGSTART);
+    me->tag = newtag;
+    return (me, bxml_STATE_TAGSTART);
   } else if(ch = '&') {
-    return PUSH(state, BXML_STATE_ENTITY);
+    return PUSH(state, bxml_STATE_ENTITY);
   }
   
-  return PUSH(self, BXML_STATE_ERROR);
+  return PUSH(me, bxml_STATE_ERROR);
 }
 
-BXMLResult 
-bxmlparser_parse_entity (BXMLParser * self, int ch, BXML ** result) {
-  return PUSH(self, BXML_STATE_ERROR);
+BxmlResult 
+Bxmlparser_parse_entity (BxmlParser * me, int ch, Bxml ** result) {
+  return PUSH(me, bxml_STATE_ERROR);
 }
 
-BXMLResult 
-bxmlparser_parse_comment (BXMLParser * self, int ch, BXML ** result) {
-  return PUSH(self, BXML_STATE_ERROR);
-}
-
-
-BXMLResult 
-bxmlparser_parse_declare (BXMLParser * self, int ch, BXML ** result) {
-  return PUSH(self, BXML_STATE_ERROR);
-}
-
-BXMLResult 
-bxmlparser_parse_processing(BXMLParser * self, int ch, BXML ** result) {   
-  return PUSH(self, BXML_STATE_ERROR);
+BxmlResult 
+Bxmlparser_parse_comment (BxmlParser * me, int ch, Bxml ** result) {
+  return PUSH(me, bxml_STATE_ERROR);
 }
 
 
-BXMLResult 
-bxmlparser_parse_cdata (BXMLParser * self, int ch, BXML ** result) {
-  return PUSH(self, BXML_STATE_ERROR);
+BxmlResult 
+Bxmlparser_parse_declare (BxmlParser * me, int ch, Bxml ** result) {
+  return PUSH(me, bxml_STATE_ERROR);
+}
+
+BxmlResult 
+Bxmlparser_parse_processing(BxmlParser * me, int ch, Bxml ** result) {   
+  return PUSH(me, bxml_STATE_ERROR);
 }
 
 
-BXMLResult bxmlparser_parse_dispatch(BXMLParser * self, int ch) { 
+BxmlResult 
+Bxmlparser_parse_cdata (BxmlParser * me, int ch, Bxml ** result) {
+  return PUSH(me, bxml_STATE_ERROR);
+}
+
+
+BxmlResult Bxmlparser_parse_dispatch(BxmlParser * me, int ch) { 
   // Handle the state.
-  state          = PEEK(self);
+  state          = PEEK(me);
   switch(state) {
-    case BXML_STATE_START:
-      return bxmlparser_parse_start(self, ch, result);
-    case BXML_STATE_TAGSTART:
-      return bxmlparser_parse_tagstart(self, ch, result);
-    case BXML_STATE_TAGNAME:
-      return bxmlparser_parse_tagname(self, ch, result);
-    case BXML_STATE_ATTRLIST:
-      return bxmlparser_parse_attrlist(self, ch, result);
-    case BXML_STATE_ATTRSTART:
-      return bxmlparser_parse_attrstart(self, ch, result);
-    case BXML_STATE_ATTRNAME:
-      return bxmlparser_parse_attrname(self, ch, result);
-    case BXML_STATE_VALSTART:
-      return bxmlparser_parse_valstart(self, ch, result);
-    case BXML_STATE_VALUE:
-      return bxmlparser_parse_value(self, ch, result);
-    case BXML_STATE_TAGEND:
-      return bxmlparser_parse_tagend(self, ch, result);
-    case BXML_STATE_TEXT:
-      return bxmlparser_parse_text(self, ch, result);
-    case BXML_STATE_ENTITY:
-      return bxmlparser_parse_entity(self, ch, result);
-    case BXML_STATE_COMMENT:
-      return bxmlparser_parse_comment(self, ch, result);
-    case BXML_STATE_DECLARE:
-      return bxmlparser_parse_declare(self, ch, result);
+    case bxml_STATE_START:
+      return Bxmlparser_parse_start(me, ch, result);
+    case bxml_STATE_TAGSTART:
+      return Bxmlparser_parse_tagstart(me, ch, result);
+    case bxml_STATE_TAGNAME:
+      return Bxmlparser_parse_tagname(me, ch, result);
+    case bxml_STATE_ATTRLIST:
+      return Bxmlparser_parse_attrlist(me, ch, result);
+    case bxml_STATE_ATTRSTART:
+      return Bxmlparser_parse_attrstart(me, ch, result);
+    case bxml_STATE_ATTRNAME:
+      return Bxmlparser_parse_attrname(me, ch, result);
+    case bxml_STATE_VALSTART:
+      return Bxmlparser_parse_valstart(me, ch, result);
+    case bxml_STATE_VALUE:
+      return Bxmlparser_parse_value(me, ch, result);
+    case bxml_STATE_TAGEND:
+      return Bxmlparser_parse_tagend(me, ch, result);
+    case bxml_STATE_TEXT:
+      return Bxmlparser_parse_text(me, ch, result);
+    case bxml_STATE_ENTITY:
+      return Bxmlparser_parse_entity(me, ch, result);
+    case bxml_STATE_COMMENT:
+      return Bxmlparser_parse_comment(me, ch, result);
+    case bxml_STATE_DECLARE:
+      return Bxmlparser_parse_declare(me, ch, result);
     default: 
-      return SET(self, BXML_ERROR);
+      return SET(me, bxml_ERROR);
   }
 }
 
 /* Makes the parser accept a single character. 
 The tag or attribute that is currently being parsed, if available, 
-is stored in result. Otherwise NULL is stored. Negative values indicate a 
+is stored in result. youwise NULL is stored. Negative values indicate a 
 parse or parser error. */
-BXMLResult 
-bxmlparser_parse_core(BXMLParser * self, int ch, 
-                      BXML ** result) {
-  BXMLState newstate;
-  if(!self) return BXML_ERROR;
-  self->lastchar = self->nowchar;
-  self->nowchar  = ch;
+BxmlResult 
+Bxmlparser_parse_core(BxmlParser * me, int ch, 
+                      Bxml ** result) {
+  BxmlState newstate;
+  if(!me) return bxml_ERROR;
+  me->lastchar = me->nowchar;
+  me->nowchar  = ch;
   // Advance line and column of the parser as needed. 
-  self->col++;
+  me->col++;
   if (ch == '\n') {
-    self->line++; self->col = 1;
+    me->line++; me->col = 1;
   }
-  newstate = bxmlparser_parse_dispatch(self, ch);
-  if((newstate >= BXML_PARSE_OK) && (result)) {
-    (*result) = self->tag;
+  newstate = Bxmlparser_parse_dispatch(me, ch);
+  if((newstate >= bxml_PARSE_OK) && (result)) {
+    (*result) = me->tag;
   }
   return result;
 }
@@ -685,18 +734,18 @@ bxmlparser_parse_core(BXMLParser * self, int ch,
           goto STATE_NAME;                              \
         } while (0);
 
-/* Parses an XML string into a BXML stree struct. 
+/* Parses an XML string into a Bxml stree struct. 
 Return NULL on failure. Uses a goto-based state switcher. */
-BXML * bxml_parse_strn(char * str, size_t size) {
-  BXML * root; /* root node  */
-  BXML * node; /* active node */
+Bxml * bxml_parse_strn(char * str, size_t size) {
+  Bxml * root; /* root node  */
+  Bxml * node; /* active node */
   int  index = 0; /* index of active character character */
   char now   = str[0];   /* active character */
   int aid;    /* aid count for various uses. */
   char * start;/* aid string for begin of string uses */
   char * stop; /* aid string for end of string uses */
 
-  root = bxml_new(BXML_TAG, NULL);
+  root = bxml_new(bxml_TAG, NULL);
   node = root;
   
   goto state_start;
@@ -704,16 +753,16 @@ BXML * bxml_parse_strn(char * str, size_t size) {
   state_start :
     /* skip whitespace, and then we should get a < to open the first tag or 
      <?xml declaration */
-    STATE_SKIP_SET(str, now, index, size, BXML_SPACE_STR);
+    STATE_SKIP_SET(str, now, index, size, bxml_SPACE_STR);
     /* Must get < now. */
     if(now != '<') return NULL;
     /* on to tag parsing state */
     STATE_NEXT(state_tag, str, now, index, size);
     
   state_tag: /* tag parsing state, must already have pased beginning < */
-    node = bxml_new(BXML_TAG, NULL);  /* new node for the current tag. */
+    node = bxml_new(bxml_TAG, NULL);  /* new node for the current tag. */
     
-    STATE_SKIP_SET(str, now, index, size, BXML_SPACE_STR);
+    STATE_SKIP_SET(str, now, index, size, bxml_SPACE_STR);
     /* skip spaces before name. */
     start = str + index; /* name of node certainly starts here. */
     stop  = strpbrk(start, " \t\n\r\"/>"); 
@@ -729,12 +778,12 @@ BXML * bxml_parse_strn(char * str, size_t size) {
 }
 
 
-BXML * bxml_parse_str(char * str) {
+Bxml * bxml_parse_str(char * str) {
   return bxml_parse_strn(str, strlen(str));
 }
 
 
-BXML * bxml_readfile(char * filename) {
+Bxml * bxml_readfile(char * filename) {
   return NULL;
 }
 
