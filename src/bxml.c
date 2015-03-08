@@ -5,7 +5,9 @@
 
 
 #include "bxml.h"
+#include "ses.h"
 
+#define BXML_WS " \t\n\r"
 
 /* Strdup isn't ANSI C, just posix... :p so we need our own local version.*/
 static char * bxml_strdup(const char *str) {
@@ -19,10 +21,26 @@ static char * bxml_strdup(const char *str) {
 BxmlAttribute * bxmlattribute_init(BxmlAttribute * me, char * name, char * value) {
   if (!me) return NULL;
   me->name  = bxml_strdup(name);
+  if (!me->name) return NULL;
   me->value = bxml_strdup(value);
+  if (!me->value) {
+    free(me->name);
+    me->name = NULL;
+    return NULL;
+  }
   me->next  = NULL;
   return me;
 }
+
+/* Sets the value of an attribute  */
+BxmlAttribute * bxmlattribute_set_value(BxmlAttribute * me, char * value) {
+  if (!me) return NULL;
+  free(me->value);
+  me->value = bxml_strdup(value);
+  if (!me->value) return NULL;
+  return me;
+}
+
 
 /* Cleans up an attribute. Does nothing with linked attributes! */
 void bxmlattribute_done(BxmlAttribute * me) {
@@ -78,17 +96,42 @@ bxmlattribute_insert_new(BxmlAttribute * me, char * name, char * value) {
   return bxmlattribute_insert(me, bxmlattribute_new(name, value));
 }
 
-/* Initializes a Bxml me. Does not set up any relationships!  */
-Bxml * bxml_init(Bxml * me, char * name, int kind) {
+/* Initializes a Bxml me. Does not set up any relationships nor 
+ * call strdup!  */
+Bxml * bxml_init_all(Bxml * me, int kind, char * name, char * text) {
   if(!me) return NULL;
   me->parent      = NULL;  
   me->sibling     = NULL;
   me->child       = NULL;
   me->attributes  = NULL;
   me->kind        = kind;
-  me->name        = bxml_strdup(name);
-  me->text        = NULL;
+  me->name        = name;
+  me->text        = text;
   return me;
+}
+
+/* Initializes a bxml me based on it's kind. */
+Bxml * bxml_init_va(Bxml * me, int kind, va_list args) {
+  char * name = NULL;
+  char * text = NULL;
+  switch(kind) {
+    case BXML_ROOT:
+      return bxml_init_all(me, kind, NULL, NULL);
+    case BXML_TAG: 
+      name = bxml_strdup(va_arg(args, char *));
+      if (!name) return NULL;
+      return bxml_init_all(me, kind, name, NULL);
+    case BXML_TEXT:
+      text = bxml_strdup(va_arg(args, char *));
+      if (!text) return NULL;
+      return bxml_init_all(me, kind, NULL, text);
+    case BXML_COMMENT:
+      text = bxml_strdup(va_arg(args, char *));
+      if (!text) return NULL;
+      return bxml_init_all(me, kind, NULL, text);      
+    default:
+      return NULL;
+  }
 }
  
 /* Allocates a new Bxml node */
@@ -97,8 +140,19 @@ Bxml * bxml_alloc() {
 }
 
 /* Allocates and initialzes a new Bxml node. */
-Bxml * bxml_new(char * name, int kind) {
-  return bxml_init(bxml_alloc(), name, kind);
+Bxml * bxml_new_va(int kind, va_list args) {
+  return bxml_init_va(bxml_alloc(), kind, args);
+}
+
+
+/* Allocates and initialzes a new Bxml node. */
+Bxml * bxml_new(int kind, ...) {
+  Bxml * result;
+  va_list args;
+  va_start(args, kind);
+  result = bxml_new_va(kind, args);
+  va_end(args);
+  return result;
 }
 
 /* Cleans up a Bxml  node, freeing the children recursively. */
@@ -143,10 +197,10 @@ Bxml * bxml_add_sibling(Bxml * me, Bxml * you) {
 
 /* Gets the last sibing of me, or NULL if no sibling. */
 Bxml * bxml_get_last_sibling(Bxml * me) {
-  Bxml * index;
+  Bxml * aid;
   if (!me) return NULL;
-  for (index = me; index->sibling ; index = me->sibling);
-  return index;
+  for (aid = me; aid->sibling ; aid = aid->sibling);
+  return aid;
 }
 
 /* Adds a sibling to me, at the end of the sibling list. */
@@ -156,6 +210,25 @@ Bxml * bxml_append_sibling(Bxml * me, Bxml * you) {
   if (!you) return NULL;
   return bxml_add_sibling(bxml_get_last_sibling(me), you);
 }
+
+/* Returns the pos-th sibling of me */
+Bxml * bxml_get_sibling_at(Bxml * me, int pos) {
+  int    index = 0;
+  Bxml * aid;
+  if (!me) return NULL;  
+  for (aid = me; aid; aid = aid->sibling) {
+    if (index == pos) return aid;
+    index++;
+  }
+  return NULL;
+}
+
+/* Returns the pos-th child of me */
+Bxml * bxml_get_child_at(Bxml * me, int pos) {
+  if (!me) return NULL;
+  return bxml_get_sibling_at(me->child, pos);
+}
+
 
 /* Adds attr as an attribute to the Bxml tag me. 
  * Returns you if ok, NULL on error.
@@ -198,6 +271,17 @@ char * bxml_get_attribute(Bxml * me, char * name) {
   return result ? result->value : NULL;
 }
 
+/** Sets the attribute value of the given name. If the attribte already existed,
+ * it will be overwritten, otherwise it will be made new. */
+BxmlAttribute * bxml_set_attribute(Bxml * me, char * name, char * value) {
+  BxmlAttribute * attribute;
+  attribute = bxml_get_attribute_pointer(me, name);
+  if (attribute) {
+    return bxmlattribute_set_value(attribute, value);
+  }
+  return bxml_new_attribute(me, name, value);
+} 
+
 /* Adds child as a child node of the Bxml tag me. 
 * Ensures that any siblings are connected correctly as well.
 * Returns child if OK, NULL on error.
@@ -212,8 +296,32 @@ Bxml * bxml_add_child(Bxml * me, Bxml * child) {
   } else {
     return bxml_append_sibling(me->child, child);
   }
-  return me;
 }
+
+Bxml * bxml_new_child_va(Bxml * me, int kind, va_list args) {
+  Bxml * child;
+  child = bxml_new_va(kind, args);
+  if (!bxml_add_child(me, child)) {
+    bxml_free(child);
+    return NULL;
+  }
+  return child;
+}
+
+
+/* Adds a new child initialized depending on kind. 
+ * Text nodes should pass the text of the node, 
+ * tags should pass the name of the tag. 
+ */
+Bxml * bxml_new_child(Bxml * me, int kind, ...) {
+  Bxml * result;
+  va_list args;
+  va_start(args, kind);
+  result = bxml_new_child_va(me, kind, args);
+  va_end(args);
+  return result;
+}
+
 
 
 /* According to the XML standard, these are spaces */
@@ -251,24 +359,153 @@ enum BxmlState_ {
 typedef enum BxmlState_ BxmlState; 
 typedef struct BxmlParser_ BxmlParser;
 
-#define BxmlPARSER_STACKSIZE 1024
+#define BXML_PARSER_STACKSIZE 1024
 
 /*
 * BxmlParse is the parser object. For simplicity, the parser works on a string 
 * with the whole xml document in memory. Not very efficient, but easier to parse.
-* basis.
 */
 struct BxmlParser_ {
-  USTR     *  buffer;
-  int         index;
+  Swis        buffer;
+  char      * index;
   int         line;
   int         col;
-  int         nowchar;
-  int         stack[BxmlPARSER_STACKSIZE];
+  int         now;
+  int         stack[BXML_PARSER_STACKSIZE];
   int         sp;
-  Bxml     *  tag;
-  Bxml     *  root;
+  Bxml      * tag;
+  Bxml      * root;
 };
+
+/** Initializes a parser. */
+BxmlParser * bxmlparser_init(BxmlParser * me) {
+  if (!me) return NULL;
+  if (!swis_new_empty(&me->buffer)) return NULL;
+  me->index = me->buffer.text;
+  me->line  = 0;
+  me->col   = 0;
+  me->now   = 0;
+  me->sp    = 0;
+  me->tag   = NULL;
+  me->root  = NULL;  
+  return me;
+}
+
+/** Cleans up a parser after use. */
+BxmlParser * bxmlparser_done(BxmlParser * me) {
+  if (!me) return NULL;
+  swis_free(&me->buffer);
+  me->index = NULL;
+  me->line  = 0;
+  me->col   = 0;
+  me->now   = 0;
+  me->sp    = 0;
+  me->tag   = NULL;
+  me->root  = NULL;  
+  return me;
+}
+
+/** Reads in a file into the parser's buffer. */
+BxmlParser * bxmlparser_read_file(BxmlParser * me, FILE * file) {
+  if (!swis_read_file(&me->buffer, file)) return NULL;
+  return me;
+}
+
+/* Gets curent byte. */
+int bxmlparser_now(BxmlParser * me) {
+  return *(me->index);
+}
+
+/* Advances the parser by one byte (and returns the  
+ * the advance byte). */
+int bxmlparser_next(BxmlParser * me) {
+  int now  = bxmlparser_now(me);
+  if (now != '\0') { 
+    me->index++;
+    if (now == '\n') {
+      me->line++;
+      me->col = 1;
+    } else {
+      me->col++;
+    }
+  }
+  return bxmlparser_now(me);
+}
+
+/* Skips all characters in the set. */
+int bxmlparser_skip_in(BxmlParser * me, char * set) {
+  int now;
+  int skipped = 0;
+  for (now = bxmlparser_now(me); now != '\0' ; now = bxmlparser_next(me)) {
+    if (!strchr(set, now)) return skipped;
+    skipped++;
+  }
+  return skipped;
+}
+
+int bxmlparser_skip_not_in(BxmlParser * me, char * set) {
+  int now;
+  int skipped = 0;
+  for (now = bxmlparser_now(me); now != '\0' ; now = bxmlparser_next(me)) {
+    if (strchr(set, now)) return skipped;
+    skipped++;
+  }
+  return skipped;  
+}
+
+/* Skips xml whitespace */
+int bxml_skip_ws(BxmlParser * me) {
+  return bxml_skip_in(bxml, BXML_WS);
+}
+
+/* Checks if the current location starts with the given prefix */
+int bxml_have_prefix(BxmlParser * me, char * prefix) {
+  return (strncmp(me->index, prefix, strlen(prefix)) == 0);
+}
+
+BxmlParser * bxmlparser_parse_tag(BxmlParser * me) {
+  int now;
+  bxml_skip_ws(me);
+  now = bxml_now(me);
+  
+  
+}
+
+
+/* Initiates the parse. */
+BxmlParser * bxmlparser_parse(BxmlParser * me) {
+  
+  return bxml_parse_tag(me);
+}
+
+Bxml * bxml_parse_file(FILE * file) {
+  Bxml * result = NULL;
+  BxmlParser parser;
+  if (!file) { 
+    return NULL;
+  }
+  
+  bxmlparser_init(&parser);
+  if (bxmlparser_read_file(&parser, file)) {
+    bxmlparser_parse(&parser);
+    result = parser.root;
+  }
+  bxmlparser_done(&parser);
+  return result;
+}
+
+Bxml * bxml_parse_filename(char * filename) {
+  Bxml * result;
+  FILE * file;
+  file = fopen(filename, "r");
+  result = bxml_parse_file(file);
+  fclose(file);
+  return result;
+}
+
+
+#ifdef COMMENT_
+
 
 /* Pushes a state on the parser's state stack. Returns state if 
 OK, negative on error. */
@@ -318,14 +555,14 @@ BxmlState Bxmlparser_put(BxmlParser * me, BxmlState state) {
 #define PRET(me, R, S) do { (*(R)) = (me)->tag ; return (S); } while(0)   
 
 
-/* Initializes an Bxml parser. */
+/* Initializes an Bxml parser.
 BxmlParser * 
 Bxmlparser_init(BxmlParser * me, USTR * data) {
   if(!me) return NULL;
   me->line      = 1;
   me->col       = 1;
   me->index     = 0;
-  me->nowchar   = 0;
+  me->now       = 0;
   me->sp        = -1;
   // Push a done state on the stack. 
   // If the parser reaches this, parsing is done. 
@@ -337,8 +574,8 @@ Bxmlparser_init(BxmlParser * me, USTR * data) {
   me->buffer    = data;
   return me;
 }
+*/
 
-#ifdef COMMENT_
 
 /* Parses when in the start state.  */
 BxmlState

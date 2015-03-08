@@ -49,6 +49,7 @@ set(ERUTA_SRC_FILES
   src/resor.c
   src/rh.c    
   src/scegra.c
+  src/ses.c
   src/silut.c
   src/sound.c
   src/sprite.c
