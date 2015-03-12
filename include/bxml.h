@@ -72,18 +72,28 @@ char  * bxml_error(Bxml * xml);
 Bxml  * bxml_free(Bxml * xml);
 Bxml  * bxml_new(int kind, ...);
 Bxml  * bxml_new_va(int kind, va_list args);
+Bxml  * bxml_new_size_va(int kind, int size, va_list args);
+Bxml  * bxml_new_size(int kind, int size, ...);
+
 Bxml  * bxml_add_child(Bxml * xml, Bxml * child);
 Bxml  * bxml_new_child_va(Bxml * xml, int kind, va_list args);
 Bxml  * bxml_new_child(Bxml * xml, int kind, ...);
 
+Bxml * bxml_merge_text(Bxml * text1, Bxml * text2);
+Bxml * bxml_merge_adjacent_text(Bxml * text1, Bxml * text2);
 
 Bxml * bxml_get_last_sibling(Bxml * me);
+Bxml * bxml_get_last_child(Bxml * me);
+
 Bxml * bxml_append_sibling(Bxml * me, Bxml * you);
 Bxml * bxml_get_sibling_at(Bxml * me, int pos);
 Bxml * bxml_get_child_at(Bxml * me, int pos);
 BxmlAttribute *
 bxml_set_attribute(Bxml * xml, char *name, char *value);
 
+Bxml * bxml_append_buf(Bxml * me, char * buf, int bufsize);
+
+BxmlAttribute * bxml_new_attribute_size(Bxml * me, char * name, int namesize, char * value, int valuesize);
 BxmlAttribute * bxml_new_attribute(Bxml * me, char * name, char * value);
 BxmlAttribute * bxml_get_attribute_pointer(Bxml * me, char * name);
 char * bxml_get_attribute(Bxml * me, char * name);

@@ -103,6 +103,10 @@ char * ses_init_buf(char ** me, size_t * size, size_t * space, char * buf, size_
   return ses_append_buf(me, size, space, buf, bufsize);
 } 
 
+char * ses_init_cstr(char ** me, size_t * size, size_t * space, char * buf) {
+  return ses_init_buf(me, size, space, buf, strlen(buf));
+} 
+
 char * ses_new_buf(char **me, size_t * size, size_t * space, char * buf, size_t bufsize) {
   if (!ses_alloc(me, size, space, bufsize)) return NULL;
   return ses_init_buf(me, size, space, buf, bufsize);
@@ -210,6 +214,12 @@ Swis * swis_init_buf(Swis * me, char * buf, size_t bufsize) {
   if(!ses_init_buf(SWIS_EXPAND(me), buf, bufsize)) return NULL;
   return me;
 }
+
+Swis * swis_init_cstr(Swis * me, char * buf) {
+  if(!ses_init_cstr(SWIS_EXPAND(me), buf)) return NULL;
+  return me;
+}
+
 
 Swis * swis_new_buf(Swis * me, char * buf, size_t bufsize) {
   if(!ses_new_buf(SWIS_EXPAND(me), buf, bufsize)) return NULL;
