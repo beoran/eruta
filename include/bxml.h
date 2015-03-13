@@ -104,6 +104,22 @@ Bxml  * bxml_parse_file(FILE * file);
 Bxml  * bxml_parse_filename(char * filename);
 
 
+void bxml_print_element_names(Bxml * node);
+void bxml_print_all_attributes(Bxml * node);
+
+Bxml * bxml_find_next_kind(Bxml * node, const char * name, int kind);
+Bxml * bxml_find_next(Bxml * node, const char * name);
+Bxml * bxml_find_child_kind(Bxml * node, const char * name, int kind);
+Bxml * bxml_find_child(Bxml * node, const char * name);
+Bxml * bxml_find_child_deep_va(Bxml * node, va_list args);
+Bxml * bxml_find_child_deep(Bxml * node, ...);
+long * bxml_get_attribute_long(Bxml * node, char * name, long * result);
+double * bxml_get_attribute_double(Bxml * node, char * name, double * result);
+Bxml * bxml_get_text_tag_under(Bxml * node);
+char * bxml_get_text_under(Bxml * node);
+
+
+
 
 #endif
 
