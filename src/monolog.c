@@ -259,6 +259,7 @@ int monolog_log(char * file, int line, char * level, char * format, ...) {
 int monolog_stdout_logger
   (char * file, int line, char * level, void * data, char * format, va_list args)
 {
+  (void) data;
   printf("%s: %s: %d: ", level, file, line);
   return vprintf(format, args);
 }
@@ -267,6 +268,7 @@ int monolog_stdout_logger
 int monolog_stderr_logger
   (char * file, int line, char * level, void * data, char * format, va_list args)
 {
+  (void) data;
   fprintf(stderr, "%s: %s: %d: ", level, file, line);
   return vfprintf(stderr, format, args);
 }

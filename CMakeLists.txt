@@ -36,9 +36,6 @@ find_package(Mruby REQUIRED)
 
 # Finds Allegro using pkgconfig, so it must be configured correctly 
 find_package(Allegro5 REQUIRED)
-find_package(LibXml2 REQUIRED)
-
-
 
 find_package(PNG REQUIRED)
 find_package(JPEG REQUIRED)

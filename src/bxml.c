@@ -439,6 +439,7 @@ BxmlAttribute * bxml_set_attribute(Bxml * me, char * name, char * value) {
 Bxml * bxml_add_child(Bxml * me, Bxml * child) {
   if (!me)  return NULL;
   if (!child) return NULL;
+  child->parent = me;
   
   if (!me->child) {
     me->child = child;
@@ -527,16 +528,32 @@ void bxml_print_all_attributes(Bxml * node) {
 }
 
 
+int bxml_kind_is(Bxml * me, int kind) {
+  if (!me) return 0;
+  if (kind < 1) return !0;
+  return (me->kind == kind);
+}
+
+int bxml_name_is(Bxml * me, char * name) {
+  if (!name) return !0;
+  if (!me) return 0;
+  if (!me->name) return 0;
+  return (strcmp(me->name, name) == 0);
+}
+
+int bxml_match_name_and_kind(Bxml * me, char * name, int kind) {
+  return (bxml_kind_is(me, kind) && bxml_name_is(me, name));
+}
+
+
 /** Finds a sibling node. If name is not null
 or type is strictly positive, return matching nodes.
 Also searches node itself, so pass node->next if you don't want that.*/
 Bxml * bxml_find_next_kind(Bxml * node, const char * name, int kind) {
   Bxml * now;
-  for(now = node; now; now = now->sibling) {
-    if ((kind < 1) || (now->kind == kind)) {
-      if ((!name) || (!strcmp((char *)now->name, name))) {
-        return now;
-      }
+  for (now = node; now; now = now->sibling) {
+    if (bxml_match_name_and_kind(now, (char *)name, kind)) {
+      return now;
     }
   }
   return NULL;
@@ -556,7 +573,7 @@ Bxml *  bxml_find_child_kind(Bxml * node, const char * name, int kind) {
 
 /** Nonrecursively finds a BXML child node with the given name, including self. */
 Bxml *  bxml_find_child(Bxml * node, const char * name) {
-  return bxml_find_child_kind(node->child, name, 0);
+  return bxml_find_child_kind(node, name, BXML_TAG);
 }
 
 
@@ -624,4 +641,38 @@ char * bxml_get_text_under(Bxml * node) {
   return text_tag->text;
 }
 
+/** Recursively outputs a debug rep of xml to file. */
+int bxml_show_to(Bxml * xml, FILE * out, int depth) {
+  int index;
+  for (index = 0; index < depth; index++) {
+    fprintf(out, "  ");
+  }
+  if (xml->kind == BXML_TAG) { 
+    fprintf(out, ">%s", xml->name);
+  } else if (xml->kind == BXML_TEXT) { 
+    fprintf(out, ">#text: %s", xml->text);
+  } else {
+    fprintf(out, ">%s: %s", xml->name, xml->text);
+  }
+   
+  if (xml->attributes) {
+    BxmlAttribute * nattr = xml->attributes;
+    fprintf(out, "(");
+
+    while (nattr) {
+      fprintf(out, " %s->%s", nattr->name, nattr->value);
+      nattr = nattr->next;
+    }
+    fprintf(out, " )");
+  }
+  fprintf(out, "\n");
+  
+  if (xml->child) {
+    bxml_show_to(xml->child, out, depth + 1);
+  }
+  if (xml->sibling) {
+    bxml_show_to(xml->sibling, out, depth);
+  }
+  return depth;
+}
 

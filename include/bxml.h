@@ -118,6 +118,8 @@ double * bxml_get_attribute_double(Bxml * node, char * name, double * result);
 Bxml * bxml_get_text_tag_under(Bxml * node);
 char * bxml_get_text_under(Bxml * node);
 
+int bxml_show_to(Bxml * xml, FILE * out, int depth);
+
 
 
 

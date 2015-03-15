@@ -21,24 +21,9 @@ struct TilemapLoadExtra_ {
 
 
 Image * tileset_image_load (const char * filename);
-
-Tile * tile_loadxml (xmlNode * xtil , Tileset * set );
-
-Tileset * tileset_loadxml (xmlNode * node );
-
-char * csv_next (char * csv , int * value );
-
-Tilepane * tilemap_loadpanexml (Tilemap * map , xmlNode * xlayer , int count );
-
-Tilemap * tilemap_loadpanesxml (Tilemap * map , xmlNode * xlayer );
-
-Tilemap * tilemap_loadxml (xmlDoc * xml, TilemapLoadExtra * extra );
-
 Tilemap * tilemap_loadtmx (const char * filename, TilemapLoadExtra * extra);
-
 Tilemap * tilemap_load (const char * filename, TilemapLoadExtra * extra);
-
-void * tilemap_fifi_load (void * extra, const char * filename );
+void * tilemap_fifi_load (void * extra, const char * filename);
 
 
 

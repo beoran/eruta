@@ -45,14 +45,14 @@ void monolog_file_free(void * data);
 
 /* Logging helper macros */
 
-#define LOG_LEVEL(LEVEL, FORMAT, ...) \
-  monolog_log(__FILE__, __LINE__, LEVEL, FORMAT,  __VA_ARGS__)
+#define LOG_LEVEL(LEVEL, ...) \
+  monolog_log(__FILE__, __LINE__, LEVEL, __VA_ARGS__)
 
-#define LOG(FORMAT, ...)          LOG_LEVEL(__FILE__,   FORMAT, __VA_ARGS__)
-#define LOG_ERROR(FORMAT, ...)    LOG_LEVEL("ERROR",    FORMAT, __VA_ARGS__)
-#define LOG_WARNING(FORMAT, ...)  LOG_LEVEL("WARNING",  FORMAT, __VA_ARGS__)
-#define LOG_NOTE(FORMAT, ...)     LOG_LEVEL("NOTE",     FORMAT, __VA_ARGS__)
-#define LOG_DEBUG(FORMAT, ...)    LOG_LEVEL("DEBUG",    FORMAT, __VA_ARGS__)
+#define LOG(...)          LOG_LEVEL(__FILE__,   __VA_ARGS__)
+#define LOG_ERROR(...)    LOG_LEVEL("ERROR",    __VA_ARGS__)
+#define LOG_WARNING(...)  LOG_LEVEL("WARNING",  __VA_ARGS__)
+#define LOG_NOTE(...)     LOG_LEVEL("NOTE",     __VA_ARGS__)
+#define LOG_DEBUG(...)    LOG_LEVEL("DEBUG",    __VA_ARGS__)
 
 #define LOG_ENABLE(FORMAT)            \
     monolog_enable_level(#FORMAT)
