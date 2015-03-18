@@ -63,7 +63,7 @@
 void tr_Font_free(mrb_state * mrb, void * ptr) {
   (void) mrb;
 
-  printf("Freeing font %p\n", ptr);
+  LOG("Freeing font %p\n", ptr);
   font_free((Font*)ptr);
 }
 
@@ -77,7 +77,7 @@ mrb_value toruby_Font(mrb_state* mrb, mrb_value sel, mrb_value rname) {
 
 void tr_Path_free(mrb_state * mrb, void * ptr) {
   (void) mrb;
-  printf("Freeing path %p\n", ptr);
+  LOG("Freeing path %p\n", ptr);
   al_destroy_path((Path*)ptr);
 }
 
@@ -90,7 +90,7 @@ mrb_value tr_Path(Ruby * ruby, mrb_value self, struct RClass * klass) {
   (void) self;
    
   mrb_get_args(ruby, "s", &vpath, &vlen);
-  printf("Making path for : %s, %d", vpath, vlen);
+  LOG("Making path for : %s, %d", vpath, vlen);
   path = fifi_data_vpath(vpath);
   if(!path) return mrb_nil_value();
   return mrb_obj_value(Data_Wrap_Struct(ruby, klass, &toruby_Path, path));
@@ -100,7 +100,7 @@ mrb_value tr_Path(Ruby * ruby, mrb_value self, struct RClass * klass) {
 static mrb_value tr_test(mrb_state * mrb, mrb_value self) {
   (void) self; (void) mrb;
   
-  printf("Hello from a mruby test!\n");
+  LOG("Hello from a mruby test!\n");
   return self;
 }
 

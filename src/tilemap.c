@@ -4,7 +4,7 @@
 #include "image.h"
 #include "tilemap.h"
 #include "dynar.h"
-
+#include "monolog.h"
 
 /* Hide tiles for debuggging, or not. */
 #ifdef ERUTA_NOGFX_MODE
@@ -219,7 +219,7 @@ void tilemap_draw(Tilemap * map, Camera * camera) {
         tilepane_draw_shadows_of(pane, floor, camera);
       }
     } else {
-      // fprintf(stderr, "pane missing: %d", index);
+      LOG_WARNING("Pane missing: %d", index);
     }
   }
 }

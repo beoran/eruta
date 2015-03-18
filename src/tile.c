@@ -482,7 +482,6 @@ void tile_draw(Tile * tile, int x, int y, int drawflags) {
   float sy      = (float) tile->now.y;
   float sw      = (float) TILE_W;
   float sh      = (float) TILE_H;
-  // printf("%f %f\n", sx, sy);
   al_draw_bitmap_region(sheet, sx, sy, sw, sh, dx, dy, drawflags);
   // debugging solid tiles
 #ifdef TILE_SHOW_SOLID  
@@ -540,7 +539,6 @@ void tile_draw_masked_to
   sy      = (float) tile->now.y;
   sw      = (float) TILE_W;
   sh      = (float) TILE_H;
-  // printf("%f %f\n", sx, sy);
   /* Set blender to copy mode. */
   // al_clear_to_color(al_map_rgba_f(0,0,0,0));
 

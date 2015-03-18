@@ -4,6 +4,7 @@
 #include "sprite.h"
 #include "spritestate.h"
 #include "bad.h"
+#include "monolog.h"
 
 
 /* Sprite state layer functions. */
@@ -196,7 +197,7 @@ void spritestate_update(SpriteState * self, double dt) {
   sprite = self->sprite;
   if (!sprite) return;
   if(!self->frame_now) { 
-    fprintf(stderr, "NULL current sprite frame!: %d\n", self->action_index);
+    LOG_WARNING("NULL current sprite frame!: %d\n", self->action_index);
     // try to restore back to first frame if out of whack somehow.
     spritestate_now_(self, self->action_index, 0);
     return;

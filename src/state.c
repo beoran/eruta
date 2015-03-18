@@ -457,31 +457,31 @@ int state_initjoystick(State * self) {
   (void) self;
   if(!al_install_joystick()) return FALSE;
   num = al_get_num_joysticks();
-  printf("Found %d joysticks:\n", num);
+  LOG_NOTE("Found %d joysticks:\n", num);
   for(index = 0; index < num; index ++) {
     ALLEGRO_JOYSTICK * joy = al_get_joystick(index);
     if(!al_get_joystick_active(joy)) continue;
-    printf("Joystick nr %d, name: %s,", index, al_get_joystick_name(joy));
+    LOG_NOTE("Joystick nr %d, name: %s,", index, al_get_joystick_name(joy));
     snum = al_get_joystick_num_sticks(joy);
-    printf("\n%d sticks: ", snum);
+    LOG_NOTE("\n%d sticks: ", snum);
     for(sindex = 0; sindex < snum; sindex++) {
-      printf("%s, ", al_get_joystick_stick_name(joy, sindex));
+      LOG_NOTE("%s, ", al_get_joystick_stick_name(joy, sindex));
       anum = al_get_joystick_num_axes(joy, sindex); 
-      printf("%d axes: ", anum);
+      LOG_NOTE("%d axes: ", anum);
       for (aindex = 0; aindex < anum; aindex++) {
-        printf("%s, ", 
+        LOG_NOTE("%s, ", 
                al_get_joystick_axis_name(joy, sindex, aindex));
       }
     }
   
     bnum = al_get_joystick_num_buttons(joy);
-    printf("\n%d buttons: ", bnum);
+    LOG_NOTE("\n%d buttons: ", bnum);
     for(bindex = 0; bindex < bnum; bindex++) {
-      printf("%s, ", al_get_joystick_button_name(joy, bindex));
+      LOG_NOTE("%s, ", al_get_joystick_button_name(joy, bindex));
     }
-    printf(".\n");
+    LOG_NOTE(".\n");
   }
-  printf("\n");
+  LOG_NOTE("\n");
   return num;
 }
 

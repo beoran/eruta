@@ -95,7 +95,6 @@ Tile * tile_loadxml(Bxml * xtil, Tileset * set) {
     return NULL;
   }
   
-  // printf("Tile id: %d %p\n", id, tile);
   // Get and apply the properties of the tile...
   /* Here, sflags sometimes is null, I guess when there is a type without a type. */
   sflags        = tileio_get_tile_property(xtil, "type");
@@ -126,9 +125,7 @@ Tile * tile_loadxml(Bxml * xtil, Tileset * set) {
   tile_light_mask_(tile, ilmask);
   tile_shadow_(tile, ishadow);
   tile_shadow_mask_(tile, ismask);
-
   
-  //printf("Tile type: %s, anim: %d, wait: %d, blend %d, flags:%d\n", sflags, ianim, iwait, iblend, tile_flags(tile));
   return tile;
 }
 
@@ -153,7 +150,7 @@ Tileset * tileset_loadxml(Bxml * node) {
   
   iname = bxml_get_attribute(xima, "source");
   image = tileset_image_load(iname);
-  // printf("Loaded tile set: %s, %p\n", iname, image);
+  LOG("Loaded tile set: %s, %p\n", iname, image);
   // xmlFree(iname); 
   if(!image) { 
     LOG_ERROR("Could not load tile set source: %s", iname); 
@@ -214,16 +211,18 @@ char * csv_next(char * csv, unsigned long * value) {
 }
 
 
-/** Calculates the (allegro) draw flags for a tile. 
+/** Calculates the Allegro draw flags for a tile. 
  * Diagonal flipping is unsupported
  * */
  
  int tileio_allegro_flags_for(unsigned long tileindex) {
   int result = 0;
-  if (tileindex & TMX_FLIPPED_HORIZONTALLY) 
-    result &= ALLEGRO_FLIP_HORIZONTAL;
-  if (tileindex & TMX_FLIPPED_VERTICALLY) 
-    result &= ALLEGRO_FLIP_VERTICAL;
+  if (tileindex & TMX_FLIPPED_HORIZONTALLY) {
+    result |= ALLEGRO_FLIP_HORIZONTAL;
+  }
+  if (tileindex & TMX_FLIPPED_VERTICALLY) {
+    result |= ALLEGRO_FLIP_VERTICAL;
+  }
    
   if (tileindex & TMX_FLIPPED_DIAGONALLY) {
     LOG_WARNING("Diagonally flipped tiles are not supported by Eruta.");
@@ -295,7 +294,7 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, Bxml * xlayer, int count) {
   senc = bxml_get_attribute(xdata, "encoding");
   laid = silut_lsearchcstr(tileio_encodings, senc);
   if(!laid) {
-    fprintf(stderr, "Unknown encoding: %s.\n"
+    LOG_ERROR("Unknown encoding: %s.\n"
                     "Must be csv.", name);
     // xmlFree(senc);
     return NULL;                    
@@ -305,7 +304,6 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, Bxml * xlayer, int count) {
   // Only accept csv for now...
   csv        = bxml_get_text_under(xdata);
   // csv = (char *) BxmlGetContent(xdata);
-  // printf("data: %s\n", );  
   for(yindex = 0; yindex < h; yindex ++) {
     for(xindex = 0; xindex < w; xindex ++) {
       unsigned long tileindex = 0;

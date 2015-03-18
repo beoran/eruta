@@ -5,7 +5,7 @@
 #include "tilepane.h"
 
 #include "pointergrid.h"
-
+#include "monolog.h"
 
 /* Tile blending direction constants. */
 #define TILE_BLEND_NORTHWEST            0 
@@ -865,7 +865,7 @@ bool tilepane_init_blend(Tilepane * self, int index) {
   /* Load the masks. */
   tilepane_init_masks();
   stop = al_get_time();
-  printf("Loading masks op pane %p took %f seconds\n", self, stop - start);
+  LOG_NOTE("Loading masks op pane %p took %f seconds\n", self, stop - start);
 
   start = al_get_time();  
   /* And do the blends. */
@@ -878,7 +878,7 @@ bool tilepane_init_blend(Tilepane * self, int index) {
     }
   }
   stop = al_get_time();
-  printf("Preparing blends of pane %p took %f seconds\n", self, stop - start);
+  LOG_NOTE("Preparing blends of pane %p took %f seconds\n", self, stop - start);
 
   return TRUE;
 }
