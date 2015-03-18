@@ -12,6 +12,13 @@
 #define TILEMAP_MAX_WIDTH   1024
 #define TILEMAP_MAX_HEIGHT  1024
 
+/* Tile flipping. */
+#define TMX_FLIPPED_HORIZONTALLY 0x80000000
+#define TMX_FLIPPED_VERTICALLY   0x40000000
+#define TMX_FLIPPED_DIAGONALLY   0x20000000
+#define TMX_FLIPPED_FILTER      (~0xE0000000)
+
+
 
 Image * tileset_image_load(const char * filename) {
   return (Image*) fifi_loadsimple(
@@ -37,6 +44,36 @@ int * tileio_get_tile_property_int(Bxml * xtil, char * propname, int * ivalue) {
   (*ivalue) = atoi(value);
   return ivalue;
 } 
+
+Tile * tile_load_anim_from_xml(Tile * tile, Bxml * xtil, Tileset * set) {
+  long index;
+  double duration;
+  Bxml * xframe = NULL;
+  Bxml * xanim = bxml_find_child(xtil, "animation");
+  
+  /* No animations, no problem. */
+  if (!xanim) return tile;
+  
+  for (xframe = bxml_find_child(xanim, "frame"); xframe;
+       xframe = bxml_find_next(xframe->sibling, "frame")) {
+    if (!bxml_get_attribute_long(xframe, "tileid", &index)) { 
+      LOG_WARNING("Cannot parse tileid of animation frame. Frame ignored.");
+      return tile; 
+    }
+    
+    if (!bxml_get_attribute_double(xframe, "duration", &duration)) { 
+      LOG_WARNING("Cannot parse duration of animation frame. Frame ignored.");
+      return tile; 
+    }
+    
+    /* Tiled uses ms for durations, eruta s. */
+    duration /=  1000.0;
+    (void) set;
+    // confusingly, here we don't have to substract the tile set's firstgid
+    tile_add_animation_frame(tile, index, duration);        
+  } 
+  return tile;
+}
 
 Tile * tile_loadxml(Bxml * xtil, Tileset * set) {
   char * sflags = NULL;
@@ -72,12 +109,16 @@ Tile * tile_loadxml(Bxml * xtil, Tileset * set) {
   tileio_get_tile_property_int(xtil, "shadow"     , &ishadow);
   tileio_get_tile_property_int(xtil, "shadowmask" , &ismask);
 
-  /** TODO: support tiled-style animations as well. */
+  /* Support classic style animations... */ 
   if(ianim) { 
     tile_anim_(tile, ianim);
     if(iwait > 0) tile_wait_(tile, iwait);
     else tile_wait_(tile, 200);
   }
+
+  /* Support tiled-style animations as well. A renderng time these 
+   * will take precedence over classic animations if available. */
+  tile_load_anim_from_xml(tile, xtil, set);
 
   tile_blend_(tile, iblend);
   tile_blend_mask_(tile, ibmask);
@@ -94,13 +135,22 @@ Tile * tile_loadxml(Bxml * xtil, Tileset * set) {
 Tileset * tileset_loadxml(Bxml * node) {
   Bxml * xima = NULL;
   Bxml * xtil = NULL;
+  long firstgid = 1;
   Image   * image;
   Tileset * set;
   char * iname;
+  
+  if (!bxml_get_attribute_long(node, "firstgid", &firstgid)) {
+    LOG_ERROR("Could not parse firstgid attribute for tileset"); 
+    return NULL;  
+  }
+  
   xima  = bxml_find_child(node, "image"); /* Image data is in image tag. */  
   if(!xima) {    
+    LOG_ERROR("Could not parse image tag for tileset"); 
     return NULL;
   }
+  
   iname = bxml_get_attribute(xima, "source");
   image = tileset_image_load(iname);
   // printf("Loaded tile set: %s, %p\n", iname, image);
@@ -110,7 +160,7 @@ Tileset * tileset_loadxml(Bxml * node) {
     return NULL; 
   }
   
-  set = tileset_new(image);
+  set = tileset_new(image, firstgid);
   if(!set)   { 
     LOG_ERROR("Could not allocate tile set %s.", iname);
     return NULL; 
@@ -150,10 +200,10 @@ Silut tileio_encodings[] = {
 
 
 /* Gets the next value from csv. Returns NULL when done. */
-char * csv_next(char * csv, int * value) {
+char * csv_next(char * csv, unsigned long * value) {
   char * aid = NULL;
   if(!value) return NULL;
-  if(sscanf(csv, " %d , ", value)) {
+  if(sscanf(csv, " %lu , ", value)) {
     // a number could be scanned
     aid = strchr(csv, ',');
     return aid + 1;
@@ -164,7 +214,23 @@ char * csv_next(char * csv, int * value) {
 }
 
 
-
+/** Calculates the (allegro) draw flags for a tile. 
+ * Diagonal flipping is unsupported
+ * */
+ 
+ int tileio_allegro_flags_for(unsigned long tileindex) {
+  int result = 0;
+  if (tileindex & TMX_FLIPPED_HORIZONTALLY) 
+    result &= ALLEGRO_FLIP_HORIZONTAL;
+  if (tileindex & TMX_FLIPPED_VERTICALLY) 
+    result &= ALLEGRO_FLIP_VERTICAL;
+   
+  if (tileindex & TMX_FLIPPED_DIAGONALLY) {
+    LOG_WARNING("Diagonally flipped tiles are not supported by Eruta.");
+  }
+    
+  return result;
+}
 
 /** Loads a single tile pane of the tile map from xml (tmx). */
 Tilepane * tilemap_loadpanexml(Tilemap * map, Bxml * xlayer, int count) {
@@ -174,9 +240,16 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, Bxml * xlayer, int count) {
   Tilepane * pane;
   Bxml * xdata;
   int layer;
-  int xindex, yindex;
+  int xindex, yindex, firstgid;
   
   (void) count;
+  
+  firstgid = tilemap_firstgid(map);
+  
+  if (firstgid < 0) {
+    LOG_ERROR("Tile set should be set before loading tile panes.");
+    return NULL;
+  }
   
   if (!bxml_get_attribute_long(xlayer, "width", &w)) {
     LOG_ERROR("Could not parse width of layer.");
@@ -235,16 +308,25 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, Bxml * xlayer, int count) {
   // printf("data: %s\n", );  
   for(yindex = 0; yindex < h; yindex ++) {
     for(xindex = 0; xindex < w; xindex ++) {
-      int tileindex = 0;
+      unsigned long tileindex = 0;
       int realindex;
+      int drawflags;
       csv = csv_next(csv, &tileindex);
       if(!csv) {
         LOG_ERROR("Unexpected end of csv data");
         goto csv_done;
       }
-      // we read a tile index, set it
-      // TMX's tile indexes are 1 bigger than Eruta's, so just substract one.
-      realindex = tileindex - 1;
+      /* We read a tile index, set it.
+      * TMX's tile indexes depend on the tile set's fristgid, 
+      * so just substract that.
+      */
+      drawflags  = tileio_allegro_flags_for(tileindex);
+      if (drawflags) {
+        LOG_NOTE("Tile with flags found: %d", tileindex, drawflags);
+        tilemap_set_flags(map, layer, xindex, yindex, drawflags);
+      }
+      tileindex &= TMX_FLIPPED_FILTER;
+      realindex  = (int)(tileindex - firstgid);
       tilemap_setindex(map, layer, xindex, yindex, realindex); 
     }
   }
