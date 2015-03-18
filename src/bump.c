@@ -11,6 +11,7 @@
 
 #include "state.h"
 #include "draw.h"
+#include "monolog.h"
 
 
 enum BumpLock_ {
@@ -1092,8 +1093,6 @@ int bumpworld_find_and_fetch_hulls(BumpWorld * self, BumpAABB search,
   return amount;
 }
 
-#define BUMPHULL_FIND_HULLS_DEBUG
-
 /** Finds all hulls in a given rectangle and calls the callback for each of them.
  * Returns 0. If the callback returns nonzero returns this in stead immediately
  * and stop calling the callback. */
@@ -1102,9 +1101,8 @@ int bumpworld_find_hulls(BumpWorld * self, BumpAABB search, void * extra,
   int amount = 0;
   int index;
 
-  #ifdef BUMPHULL_FIND_HULLS_DEBUG
-    fprintf(stdout, "Find hull: %d hulls known.\n", self->hull_count);
-  #endif
+  LOG("Find hull: %d hulls known.\n", self->hull_count);
+  
     
   for (index = 0; index < self->hull_count; index ++) {
     BumpHull * hull = dynar_getptr(self->hulls, index);

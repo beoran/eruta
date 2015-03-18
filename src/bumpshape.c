@@ -3,6 +3,7 @@
 
 #include "bumpshape.h"
 #include "bad.h"
+#include "monolog.h"
 
 /* AABB helper functions. */
 

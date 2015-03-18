@@ -181,6 +181,21 @@ int tilemap_getindex(Tilemap * self, int l, int x, int y) {
 }
 
 
+/** Sets the drawing flags of the tile at (x, y) in layer l. */
+int tilemap_set_flags(Tilemap * self, int l, int x, int y, int flags) {
+  Tilepane * pane = tilemap_pane(self, l);
+  if (!pane) return -1;
+  return tilepane_set_flags(pane, x, y, flags);
+}
+
+/** Gets the drawing flags of the tile at (x, y) in layer l. */
+int tilemap_get_flags(Tilemap * self, int l, int x, int y) {
+  Tilepane * pane = tilemap_pane(self, l);
+  if (!pane) return -1;
+  return tilepane_get_flags(pane, x, y);
+}
+
+
 
 
 
@@ -354,6 +369,23 @@ bool tilemap_init_blend(Tilemap * self) {
   return res;
 }
 
+/* Returns the tileset used for this tile map.  */
+Tileset * tilemap_tileset(Tilemap * me) {
+  if (!me) return NULL;
+  return me->set;
+}
+
+/** Returns the firstgid for the tileset of this map, 
+ * or negative on error */
+/* Returns the tileset used for this tile map.  */
+int tilemap_firstgid(Tilemap * me) {
+  Tileset * set = tilemap_tileset(me);
+  if (!set) return -1;
+  return tileset_firstgid(set);
+} 
+
+
+
 #ifdef SEPARATE_TILEMAP_LOADER
 
 /* Amount of tilemaps that can be loaded at oce. */
@@ -411,6 +443,8 @@ int tilemaps_done(void) {
     tilemaps_put(index, NULL);
   }  
 }
+
+
 
 #endif
 

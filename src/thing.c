@@ -10,7 +10,7 @@
 #include "flags.h"
 #include "draw.h"
 #include "mem.h"
-
+#include "monolog.h"
 #include "thing_struct.h"
 
 
@@ -470,7 +470,7 @@ void thing_update(Thing * self, double dt) {
       /* This won't work on attacking, etc. */
     }
   } else {
-    puts("Thing direction locked!");
+    LOG("Thing direction locked!");
   }
   
   spritestate_update(&self->spritestate, dt);

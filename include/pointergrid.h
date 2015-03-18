@@ -3,12 +3,14 @@
 
 #include "mem.h"
 
-/* A PointerGrid is a non-intrusive two dimensional array that can store pointers. The pointed-to data is not "owned" by the PointerGrid struct,
-when setting or deleting the caller must do the needed cleanup. */
+/* A PointerGrid is a non-intrusive two dimensional array that can store 
+ * pointers, or alternatively any integer up to intptr_t of size. The pointed-to 
+ * data is not "owned" by the PointerGrid struct, when setting or deleting the 
+ * caller must do the needed cleanup. */
 
 /** Interface of the TMATRIX. */
 struct PointerGrid_ {
-  void  ***data;
+  intptr_t ** data;
   int         w;
   int         h;
 };
@@ -99,6 +101,18 @@ int pointergrid_nullall(PointerGrid * self, MemDestructor * destroy);
 
 void * pointergrid_store(PointerGrid * self, int x, int y, void * el);
 void * pointergrid_fetch(PointerGrid * self, int x, int y);
+
+
+
+
+intptr_t pointergrid_get_raw_int(PointerGrid * self, int x, int y);
+intptr_t * pointergrid_row_raw_int(PointerGrid * self, int y);
+int pointergrid_get_int(PointerGrid * self, int x, int y, int * result);
+void pointergrid_put_raw_int(PointerGrid * self, int x, int y, int el);
+int pointergrid_put_int(PointerGrid * self, int x, int y, int el);
+int pointergrid_store_int(PointerGrid * self, int x, int y, int el);
+int pointergrid_fetch_int(PointerGrid * self, int x, int y);
+int pointergrid_zero_all(PointerGrid * self);
 
 
 #endif

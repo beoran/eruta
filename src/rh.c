@@ -145,7 +145,7 @@ char * rh_exceptionstring(Ruby * self) {
   mrb_funcall(self, mrb_obj_value(self->exc), "backtrace", 0);
 
   backtrace_str  = mrb_funcall(self, backtrace, "join", 1, mrb_str_new_lit(self, "\n"));
-  fprintf(stderr, "backtrace: %s\n", mrb_string_value_cstr(self, &backtrace_str));
+  LOG_ERROR("backtrace: %s\n", mrb_string_value_cstr(self, &backtrace_str));
   value  = mrb_funcall(self, mrb_obj_value(self->exc), "inspect", 0);
   
   
@@ -378,7 +378,7 @@ mrb_value rh_simple_funcall(Ruby * ruby, char * name) {
   Ruby * mrb = (Ruby *) ruby;  
   mrb_value args[16];
   ai = mrb_gc_arena_save(mrb);
-  fprintf(stderr, "GC Area: %d\n", ai);
+  LOG("GC Area: %d\n", ai);
   // if(ai> 99) exit(0);
   mrb_value v = mrb_funcall_argv(mrb, mrb_top_self(mrb), mrb_intern_cstr(mrb, name), 
                     0, args);

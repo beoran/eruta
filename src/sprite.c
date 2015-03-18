@@ -717,7 +717,7 @@ SpriteCell * sprite_newlayer(Sprite * self, int actionindex, int frameindex,
   if(!frame) return NULL;
   aid = spriteframe_new_cell(frame, layerindex, image, size, offset);
   /* if ((size.x == 0) || (size.x > 64.0)) { */
-  LOG_NOTE("New sprite cell %p %d %d %d %p, (%f, %f), (%f, %f)\n",
+  LOG("New sprite cell %p %d %d %d %p, (%f, %f), (%f, %f)\n",
     self, actionindex, frameindex, layerindex, image, size.x, size.y, offset.x, offset.y
   );
   /* } */
@@ -894,7 +894,7 @@ SpriteCell * sprite_append_cell
   frame  = spriteaction_need_frame_for_layer(action, layeri, duration);
   if (!frame) return NULL;
   cell = spriteframe_new_cell(frame, layeri, region, size, where);
-   LOG_NOTE("Append sprite cell %p %d %d %d %d %d %p, (%f, %f), (%f, %f)\n",
+   LOG("Append sprite cell %p %d %d %d %d %d %p, (%f, %f), (%f, %f)\n",
     me, pose, direction, action->index, frame->index, layeri, region, size.x, size.y, where.x, where.y
   );
  

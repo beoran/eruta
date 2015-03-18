@@ -5,7 +5,7 @@
 #include "mem.h"
 
 
-/* Calls exit(EXIT_FAILURE) if ptr is NULL. Is messqhe is not null, prints this on stderr.  */
+/* Calls exit(EXIT_FAILURE) if ptr is NULL. Is message is not null, prints this on stderr.  */
 void * exit_if_null(void * ptr, char * message) {
   if(!ptr) {
     if(message) {

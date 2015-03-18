@@ -163,11 +163,12 @@ Image * tilepane_prepare_blend
 struct Tilepane_ {
   Tileset     * set;
   PointerGrid * tiles;
-  int           gridwide; // width of the tile map in grid points (tiles)
-  int           gridhigh; // height of the tile map in grid points (tiles)
-  int           realwide; // width of whole tile map in pixels
-  int           realhigh; // height of whole tile map in pixels
+  int           gridwide; // Width of the tile map in grid points (tiles)
+  int           gridhigh; // Height of the tile map in grid points (tiles)
+  int           realwide; // Width of whole tile map in pixels
+  int           realhigh; // Height of whole tile map in pixels
   PointerGrid * blends;   // Blend bitmaps for the layer, generated at loading of the pane.
+  PointerGrid * flags; // Drawing flags for the tiles, to allow flipped tiles. Does not cooperatewell with autoblending.
 };
 
 
@@ -191,6 +192,8 @@ Tilepane * tilepane_done(Tilepane * pane) {
   
   pointergrid_nullall(pane->blends, tilepane_blends_destructor);
   pointergrid_free(pane->blends); 
+  pointergrid_zero_all(pane->flags);
+  pointergrid_free(pane->flags);
   
   // Size is now zero.
   pane->gridhigh = 0;
@@ -234,9 +237,19 @@ Tilepane * tilepane_init(Tilepane * pane, Tileset * set,
     perror("Could not allocate blends matrix ");
     return NULL;
   }
+  
+  pane->flags     = pointergrid_new(gridwide, gridhigh);
+  if(!pane->flags) {
+    perror("Could not allocate flagss matrix ");
+    return NULL;
+  }
+  
+  
   // null the tiles and blends
   pointergrid_nullall(pane->tiles, NULL);
   pointergrid_nullall(pane->blends, NULL);
+  // Zero the flags
+  pointergrid_zero_all(pane->flags);
 
   return pane;
 }
@@ -320,6 +333,42 @@ int tilepane_getindex(Tilepane * pane, int gridx, int gridy) {
   Tile * tile = tilepane_get(pane, gridx, gridy);
   return tile_index(tile);
 }
+
+
+/** Sets the drawing flags at the given location. Returns the flags thus set, 
+* or -1 on error.
+*/
+int tilepane_set_flags(Tilepane * pane,
+                       int gridx, int gridy, int flags) {
+  if (tilepane_outsidegrid(pane, gridx, gridy)) return -1;
+  pointergrid_put_int(pane->flags, gridx, gridy, flags);
+  return flags;
+}  
+
+/** Gets the flags for the given tile coords.
+*/
+int tilepane_get_flags(Tilepane * pane, int gridx, int gridy) {
+  if (pointergrid_outofrange(pane->tiles, gridx, gridy)) return -1;
+  return pointergrid_get_raw_int(pane->tiles, gridx, gridy);
+}  
+
+
+/** Sets the drawing flags at the given location. Does no error checking 
+ * whatsoever, use only in speed critical parts where the inputs are 
+ * guaranteed to be correct.
+*/
+void tilepane_set_raw_flags(Tilepane * pane, int gridx, int gridy, int flags) {  
+  pointergrid_put_raw_int(pane->flags, gridx, gridy, flags);
+}  
+
+/** Gets the flags for the given tile coords.
+ * Does no error checking 
+ * whatsoever, use only in speed critical parts where the inputs are 
+ * guaranteed to be correct.
+*/
+int tilepane_get_raw_flags(Tilepane * pane, int gridx, int gridy) {
+  return pointergrid_get_raw_int(pane->flags, gridx, gridy);
+}  
 
 
 /** Sets the tile in the given rectangle  to the given Tile pointer,
@@ -445,6 +494,7 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
   int tx_index    = 0;
   int realwide    = pane->realwide;
   int realhigh    = pane->realhigh;
+  int drawflags   = 0;
   void * row      = NULL;
   Tile * tile     = NULL;
   Image* blend    = NULL;
@@ -473,7 +523,8 @@ void tilepane_draw(Tilepane * pane, Camera * camera) {
       // Null tile will not be drawn by tile_draw
       /* tile_draw(tile, drawx, drawy); */
       if(tile) {
-        tile_draw(tile, drawx, drawy);
+        drawflags = tilepane_get_raw_flags(pane, tx_index, ty_index);
+        tile_draw(tile, drawx, drawy, drawflags);
       }
     }
   }
@@ -603,9 +654,10 @@ void tilepane_draw_shadows_of(Tilepane * pane, Tilepane * pane_below, Camera * c
 
 
 
-/** Updates the tile pane. Curently animates the pane. */
+/** Updates the tile pane. Curently does nothing, but this may change. */
 void tilepane_update(Tilepane * pane, double dt) {
-  
+  (void) pane;
+  (void) dt;
   
 }
 
@@ -682,7 +734,7 @@ static struct TileblendOffset tile_blend_offsets[] = {
 Wrapper around Allegro bitmap creation.
 */
 ALLEGRO_BITMAP * 
-eruta_create_bitmap(int x, int h, int flags) {
+eruta_create_bitmap(int w, int h, int flags) {
   ALLEGRO_BITMAP * result;
   int oldbflags, oldformat;  
   oldbflags = al_get_new_bitmap_flags();
@@ -690,7 +742,7 @@ eruta_create_bitmap(int x, int h, int flags) {
   al_set_new_bitmap_flags(flags);
     // al_set_new_bitmap_format(al_get_display_format(al_get_current_display()));
   /* Somehow, al_create_bitmap is very slow here... */
-  result = al_create_bitmap(TILE_W, TILE_H);
+  result = al_create_bitmap(w, h);
   al_set_new_bitmap_flags(oldbflags);
   al_set_new_bitmap_format(oldformat);
   return result;
@@ -711,6 +763,7 @@ tilepane_init_blend_tile(Tilepane * self, int index, int x, int y, Tile * tile) 
   int oldbflags, oldformat;
   int tileprio, aidprio;
   static int created = 0;
+  (void) index;
 
   blend     = tilepane_get_blend(self, x, y);
   /* Destroy old blend if any */

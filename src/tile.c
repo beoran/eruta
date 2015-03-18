@@ -3,6 +3,7 @@
 #include "dynar.h"
 #include "silut.h"
 #include "tile.h"
+#include "monolog.h"
 
 #ifndef TILE_MAXFRAME
 #define TILE_MAXFRAME 32
@@ -23,10 +24,21 @@ struct Tileset_ {
   size_t     last;
   int        w;
   int        h;
+  /* Offset of tile set in TMX map file. Used to calculate correct tile offsets. */
+  int        firstgid;
 };
 
+typedef struct TileFrame_ TileFrame;
 
-
+/**
+ * A Tiled-style animation fames of a tile.
+ */
+struct TileFrame_ {
+  /* Tile set index for this frame of animation. */
+  int index;
+  /* Time this animation frame is shown. */
+  double duration;
+};
 
 /** 
 * A single tile from a tile map.
@@ -49,7 +61,7 @@ struct Tile_ {
   the tile in the same tile set set with index index + anim.
   May be negative to "roll back" an animation to it's begin. */  
   int           active;
-  /* For unanimated tiles, now is set to the index of the tile itself.
+  /* For unanimated tiles, active is set to the index of the tile itself.
    For animated tiles, it is set to the index of tile that currently should
    be displayed in stead of this tile due to animation.
   */
@@ -71,8 +83,10 @@ struct Tile_ {
   int           shadow;
   /* Automatic shadow mask number. */
   int           shadow_mask;
-  
-  
+  /* Tiled-style animation frames. */
+  Dynar       * frames;
+  /* Active frame for TMX-style animations. */
+  int           active_frame;
 };
 
 /* NOTE: Tiles could be implemented using sub bitmaps as they seem to be
@@ -82,13 +96,31 @@ struct Tile_ {
 */
 
 
+/* Cleans up a tile. */
+void tile_done(Tile * tile) {
+  if (!tile) return;
+  if (tile->frames) {
+    dynar_free(tile->frames);
+  }
+  tile->frames = NULL;
+}
+
+/* for dynar_destroy */
+void * tile_destroy(void * tile) {
+  tile_done(tile);
+  return NULL;
+}
+
+
 /** Cleans up a tileset, and empties it.  */
 void tileset_done(Tileset * set) {
+  Tile * tile;
+  
   if(!set) return;
   if (set->tiles) {
     al_destroy_bitmap(set->sheet);
     set->sheet = NULL;
-    dynar_free(set->tiles);
+    dynar_destroy_structs_and_free(set->tiles, tile_destroy);
     set->tiles = NULL;
     set->w      = -1;
     set->h      = -1;
@@ -107,11 +139,17 @@ int tileset_size(Tileset * set) {
   return dynar_size(set->tiles);
 }
 
-/** Initializes a given tileset with a given bitmap tile sheet */
-Tileset * tileset_init(Tileset * set, Image * sheet) {
+/* Returns the firstgid of the tile set, useful for TMX maps. */
+int tileset_firstgid(Tileset * set) {
+  return set->firstgid;
+}
+
+/** Initializes a given tileset with a given bitmap tile sheet and firstgid */
+Tileset * tileset_init(Tileset * set, Image * sheet, int firstgid) {
   int size = 0, index = 0;
   if(!set)      return NULL;
   set->sheet    = sheet;
+  set->firstgid = firstgid;
   if(!set->sheet)    {
     set->w      = -1;
     set->h      = -1;    
@@ -141,11 +179,11 @@ Tileset * tileset_init(Tileset * set, Image * sheet) {
 }
 
 /** Creates a new tileset with the given tile sheet image. */
-Tileset * tileset_new(Image * sheet) {
+Tileset * tileset_new(Image * sheet, int firstgid) {
   Tileset * set, * result;
   set                         = STRUCT_ALLOC(Tileset);
   if(!set) return NULL;
-  result                      = tileset_init(set, sheet);
+  result                      = tileset_init(set, sheet, firstgid);
   if(!result) {
      tileset_free(set);
      return NULL;
@@ -163,11 +201,16 @@ Tileset * tileset_new(Image * sheet) {
   
 /** Recalculates the tile's position (now) in it's tile set. */
 Tile * tile_recalculate(Tile * tile) {
-  int x, y;
-  if(!tile) return NULL;
-  if(!tile->set) return NULL;
-  x = TILE_SHEET_X(tile, tile->set);
-  y = TILE_SHEET_Y(tile, tile->set);
+  double x, y;
+  // LOG_NOTE("Tile Recalculate: %p \n", tile);
+  if (!tile) return NULL;
+  // LOG_NOTE("Tile Recalculate: %p %d\n", tile->set, tile->active);
+  if (!tile->set) return NULL;  
+  // LOG_NOTE("Tile Recalculate set: %d %d\n", tile->set->w, tile->set->h);
+
+  x = (double)TILE_SHEET_X(tile, tile->set);
+  y = (double)TILE_SHEET_Y(tile, tile->set);
+  // LOG_NOTE("Tile Recalculate: %lf, %lf -> %lf, %lf\n", tile->now.x, tile->now.y, x, y);
   tile->now = bevec(x, y); 
   return tile;
 }
@@ -190,6 +233,8 @@ Tile * tile_init(Tile * tile, Tileset * set, int index) {
   tile->light_mask  = 0;
   tile->shadow      = 0;
   tile->shadow_mask = 0;
+  tile->frames      = NULL;
+  tile->active_frame= 0;
   tile_recalculate(tile);
   return tile;
 }
@@ -286,16 +331,56 @@ Tile * tile_property_(Tile * tile, char * property) {
   return tile_setflag(tile, aid->integer);
 }
 
+/** Initializes a tile's frame of animation. */
+TileFrame * tileframe_init(TileFrame * me, int index, double duration) {
+  if (!me) return NULL;
+  me->index    = index;
+  me->duration = duration;
+  return me;
+}
+
+/** Gets the nth frame of Tiled style animations for this tile 
+ * or NULL if no such animation frame. */
+TileFrame * tile_frame(Tile * tile, int index) {
+  if (!tile) return NULL;
+  if (!tile->frames) return NULL;
+  return dynar_getdata(tile->frames, index);
+} 
+
+/** Gets the amount of Tiled style animations for this tile, or 0 if none. */
+int tile_frame_count(Tile * tile) {
+  if (!tile) return 0;
+  if (!tile->frames) return 0;
+  return dynar_size(tile->frames);
+}
+
+/** Adds a Tiled-style animation frame to the tile. */
+Tile * tile_add_animation_frame(Tile * tile, int index, double duration) {
+  if (tile->frames) {
+    int size;
+    size = dynar_size(tile->frames);
+    if (!dynar_size_(tile->frames, size + 1)) return NULL;
+    tileframe_init(dynar_getdata(tile->frames, size), index, duration);
+  } else {
+    tile->frames = dynar_new(1, sizeof(struct TileFrame_));
+    if (!tile->frames) return NULL;
+    tileframe_init(dynar_getdata(tile->frames, 0), index, duration);
+  }
+  return tile;
+} 
+
+
 /** Rewinds a tile's animations. */
 void tile_rewindanime(Tile * tile) {
   if (!tile) return;
-  tile->active  = tile->index;
+  tile->active        = tile->index;
+  tile->active_frame  = 0;
   // Finally recalculate tile position.
   tile_recalculate(tile);
 }
 
-/** Updates a tile to animate it. Ignores dt for now. */
-void tile_update(Tile * tile, double dt) {
+/** Updates a tile to animate it using classic style animation.*/
+void tile_update_classic(Tile * tile, double dt) {
   int active = 0;
   Tile * aidtile = NULL;
   Tile * nowtile = tileset_get(tile->set, tile->active);
@@ -303,7 +388,7 @@ void tile_update(Tile * tile, double dt) {
   // in stead of ourself, but it also may be ourself.
   if(!nowtile) return;
   tile->time    += dt; // advance animation time of tile. 
-  // Don'tanimate if not enough time has passed
+  // Don't animate if not enough time has passed
   if(tile->time < tile->wait) return;
   // if we get here, reset animation time.
   tile->time     = 0.0;
@@ -318,12 +403,64 @@ void tile_update(Tile * tile, double dt) {
   tile_recalculate(tile);
 }
 
+/**  Updates a tile to anmate it using TMX style animation. */
+void tile_update_tmx(Tile * tile, double dt) {
+  int active = 0;
+  TileFrame * frame = NULL;
+  Tile * aidtile = NULL;
+  
+  frame = tile_frame(tile, tile->active_frame);
+  if (!frame) { /* Animation overshoit itself somehow??? */
+    tile->active_frame = 0;
+    frame = tile_frame(tile, tile->active_frame);
+    if (!frame) return;
+  }
+  
+  tile->time    += dt; // advance animation time of tile. 
+  // Don't animate if not enough time has passed
+  if(tile->time < frame->duration) return;
+  // advance the animation frame, loop it around if needed. 
+  tile->active_frame++;
+  if (tile->active_frame >= tile_frame_count(tile)) {
+    tile->active_frame = 0;
+  }
+  // Get new tile frame
+  frame = tile_frame(tile, tile->active_frame);
+  // If we get here, reset animation time.
+  tile->time     = 0.0;
+  if (!frame) return;
+  
+  // Get the active tile t use from the animation frame
+  active  = frame->index;
+  aidtile = tileset_get(tile->set, active);
+  // Check if there is such a tile.
+  if(!aidtile) return;
+  // If there is no such tile, don't change the active tile of this tile.
+  tile->active = active; 
+  // Finally recalculate tile position.
+  tile_recalculate(tile);
+  // tile->now = aidtile->now;
+  // LOG_NOTE("TMX Anim: %d (%d: set(%d, %d)): (x,y)=(%lf, %lf)\n", tile->index, tile->active, tile->set->w, tile->set->h, tile->now.x, tile->now.y);
+}
+
+/* Animates the tile. If it has a TMX style animation, that takes 
+ * precedence, otherwise, use the classic style animation. */
+void tile_update(Tile * tile, double dt) {
+  if (tile->frames) {
+    tile_update_tmx(tile, dt);
+  } else {
+    tile_update_classic(tile, dt);
+  }
+} 
+
+
 /** Updates all tiles in a tile set so they all get animated. */
 void tileset_update(Tileset * set, double dt) {
-  int index;
+  int index, size;
   if (!set) return;
   if (!set->tiles) return;
-  for (index = 0; index < tileset_size(set) ; index++) {
+  size = tileset_size(set);
+  for (index = 0; index <  size; index++) {
     Tile * tile = tileset_get(set, index); 
     tile_update(tile, dt);
   }  
@@ -332,7 +469,7 @@ void tileset_update(Tileset * set, double dt) {
 
 /** Draw a tile to the current active drawing target at the
 given coordinates. Does nothing if tile is NULL.  */
-void tile_draw(Tile * tile, int x, int y) {  
+void tile_draw(Tile * tile, int x, int y, int drawflags) {  
   Tileset * set;
   Image * sheet;
   Color dcolor = al_map_rgb(0xee, 0xee, 0x00);
@@ -346,7 +483,7 @@ void tile_draw(Tile * tile, int x, int y) {
   float sw      = (float) TILE_W;
   float sh      = (float) TILE_H;
   // printf("%f %f\n", sx, sy);
-  al_draw_bitmap_region(sheet, sx, sy, sw, sh, dx, dy, 0);
+  al_draw_bitmap_region(sheet, sx, sy, sw, sh, dx, dy, drawflags);
   // debugging solid tiles
 #ifdef TILE_SHOW_SOLID  
   if (tile_isflag(tile, TILE_WALL)) {

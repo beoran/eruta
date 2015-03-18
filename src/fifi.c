@@ -3,9 +3,10 @@
 
 #include "eruta.h"
 #include "fifi.h"
+#include "monolog.h"
 
 /* Fifi contain functionality that helps finding back the file resouces,
-such as images, music, etc that Eruta needs. 
+such as images, music, etc that Eruta needs.
 
 An important concept here is the "virtual path", that is the path under the 
 location of the data directory. So, for example, if the data of the 
@@ -110,9 +111,9 @@ ALLEGRO_PATH * fifi_make_data_path(void) {
 ALLEGRO_PATH * fifi_init(void) {
   fifi_data_path_ = fifi_find_data_path();
   if (fifi_data_path_) { 
-    printf("Data path: %s\n", PATH_CSTR(fifi_data_path_));
+    LOG("Data path: %s\n", PATH_CSTR(fifi_data_path_));
   } else {  
-    puts("NULL data path!") ;
+    LOG_WARNING("NULL data path!\n");
   }
   return fifi_data_path_ ;
 }
@@ -232,7 +233,7 @@ ALLEGRO_PATH * fifi_data_pathva(const char * filename, va_list args) {
   if(!path) return NULL;
   path_append_va(path, args);
   al_set_path_filename(path, filename);
-  // printf("Loading: %s for %s\n", PATH_CSTR(path), filename);
+  LOG("Loading: %s for %s\n", PATH_CSTR(path), filename);
   if(PATH_EXISTS(path)) { return path;  }
   // if we get here, we must destroy the path any way.
   al_destroy_path(path);
@@ -260,7 +261,7 @@ ALLEGRO_PATH * fifi_data_pathargs(const char * filename, ...) {
 */
 void fifi_data_vpath_print(const char * vpath) {
   ALLEGRO_PATH * path = fifi_data_vpath(vpath);
-  printf("Fifi data vpath: %s\n", PATH_CSTR(path));
+  LOG("Fifi data vpath: %s\n", PATH_CSTR(path));
   al_destroy_path(path);
 }
 
@@ -276,14 +277,14 @@ void * fifi_load_vpath(FifiLoader * load, void * extra, const char * vpath) {
   path          = fifi_data_vpath(vpath);
   if(!path) return NULL;
   if(!al_get_path_filename(path)) {
-    printf("Filename not set for path: %s.\n", PATH_CSTR(path));
+    LOG_WARNING("Filename not set for path: %s.\n", PATH_CSTR(path));
     goto cleanup;  
   }
-  // printf("Loading: %s for %s\n", PATH_CSTR(path), vpath);
+  LOG("Loading: %s for %s\n", PATH_CSTR(path), vpath);
   if(PATH_EXISTS(path)) {
     data = load(extra, PATH_CSTR(path)); // load the data
   } else {
-   printf("File %s does not exist!?", PATH_CSTR(path));
+    LOG_WARNING("File %s does not exist!?", PATH_CSTR(path));
   }  
   cleanup:
   // if we get here, we must destroy the path any way.
@@ -305,14 +306,14 @@ void * fifi_loadsimple_vpath(FifiSimpleLoader * load, const char * vpath) {
   path          = fifi_data_vpath(vpath);
   if(!path) return NULL;
   if(!al_get_path_filename(path)) {
-    printf("Filename not set for path: %s.\n", PATH_CSTR(path));
+    LOG_WARNING("Filename not set for path: %s.\n", PATH_CSTR(path));
     goto cleanup;  
   }
-  // printf("Loading: %s for %s\n", PATH_CSTR(path), vpath);
+  LOG("Loading: %s for %s\n", PATH_CSTR(path), vpath);
   if(PATH_EXISTS(path)) {
     data = load(PATH_CSTR(path)); // load the data
   } else {
-   printf("File %s does not exist!?", PATH_CSTR(path));
+    LOG_WARNING("File %s does not exist!?", PATH_CSTR(path));
   }  
   cleanup:
   // if we get here, we must destroy the path any way.
@@ -335,11 +336,11 @@ void * fifi_loadsimple_va(FifiSimpleLoader * load, const char * filename,
   if(!path) return NULL;
   path_append_va(path, args);
   al_set_path_filename(path, filename);
-  // printf("Loading: %s for %s\n", PATH_CSTR(path), filename);
+  LOG("Loading: %s for %s\n", PATH_CSTR(path), filename);
   if(PATH_EXISTS(path)) {
     data = load(PATH_CSTR(path)); // load the data
   } else {
-    printf("File %s does not exist!?", PATH_CSTR(path));
+    LOG_WARNING("File %s does not exist!?", PATH_CSTR(path));
   }
   // if we get here, we must destroy the path any way.
   al_destroy_path(path);

@@ -43,10 +43,12 @@ void tileset_done (Tileset * set );
 void tileset_free (Tileset * set );
 
 int tileset_size (Tileset * set );
+int tileset_firstgid(Tileset * set);
 
-Tileset * tileset_init (Tileset * set , Image * sheet );
+/** Initializes a given tileset with a given bitmap tile sheet and firstgid */
+Tileset * tileset_init(Tileset * set, Image * sheet, int firstgid); 
 
-Tileset * tileset_new (Image * sheet );
+Tileset * tileset_new(Image * sheet, int firstgid );
 
 Tile * tile_recalculate (Tile * tile );
 
@@ -80,7 +82,7 @@ void tile_update (Tile * tile , double dt );
 
 void tileset_update (Tileset * set , double dt );
 
-void tile_draw (Tile * tile , int x , int y );
+void tile_draw (Tile * tile , int x , int y, int drawflags);
 
 int tile_index (Tile * tile );
 
@@ -103,6 +105,9 @@ int tile_shadow_(Tile * tile , int value);
 int tile_shadow(Tile * tile );
 int tile_shadow_mask(Tile * tile);
 int tile_shadow_mask_(Tile * tile, int mask);
+
+Tile * tile_add_animation_frame(Tile * tile, int index, double duration);
+
 
 
 #endif

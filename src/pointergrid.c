@@ -88,17 +88,17 @@ PointerGrid * pointergrid_init(PointerGrid * self, int w, int h) {
   self->data = NULL;
   if ((self->h <= 0) || (self->w <= 0)) { return NULL; }
   // Allocate y dimension
-  self->data = (void * **) mem_alloc(sizeof(void * *) * self->h);
+  self->data = (intptr_t **) mem_alloc(sizeof(intptr_t *) * self->h);
   if(!self->data) return NULL;
   // Now allocate the x dimensions. 
   for (index = 0; index < self->h; index ++) {
-    self->data[index] = (void * *) mem_alloc(sizeof(void *) * self->w);
+    self->data[index] = (intptr_t *) mem_alloc(sizeof(intptr_t) * self->w);
     if(!self->data[index]) return pointergrid_free(self); 
   }
   return self;  
 }
 
-/** Allocates a new matrix and initializes it. */
+/** Allocates a new grid and initializes it. */
 PointerGrid * pointergrid_new(int w, int h) {
   PointerGrid * self = pointergrid_alloc();
   return pointergrid_init(self, w, h);
@@ -117,28 +117,28 @@ int pointergrid_outofrange(PointerGrid * self, int x, int y) {
   return FALSE;
 }
 
-/** Gets an element from the matrix. Does no checking whatsoever. 
+/** Gets an element from the grid. Does no checking whatsoever. 
 * Use only where the inputs are guaranteed to be valid, where speed is 
 * of the essence.
 */
 void * pointergrid_getraw(PointerGrid * self, int x, int y) {
-  return self->data[y][x];
+  return (void *)self->data[y][x];
 }
 
 
-/** Gets a row of elements from the matrix. Does no checking whatsoever. 
+/** Gets a row of elements from the grid. Does no checking whatsoever. 
 * Use only where the inputs are guaranteed to be valid, where speed is 
 * of the essence.
 */
 void * * pointergrid_rowraw(PointerGrid * self, int y) {
-  return self->data[y];
+  return (void **) self->data[y];
 }
 
 
-/** Gets an element from the matrix self. 
+/** Gets an element from the grid self. 
 * If all goes well, this function returns 0, and sets the value to
 * (*result). 
-* If w and h are out of range, or the matrix isn't correctly initialized, 
+* If w and h are out of range, or the grid isn't correctly initialized, 
 * does nothing and returns -1 in stead.
 */
 int pointergrid_get(PointerGrid * self, int x, int y, void * * result) {
@@ -148,18 +148,18 @@ int pointergrid_get(PointerGrid * self, int x, int y, void * * result) {
   return 0;  
 }
 
-/** Puts an element in the matrix self. Does no checking whatsoever. 
+/** Puts an element in the grid self. Does no checking whatsoever. 
 * Use only where the inputs are guaranteed to be valid, where speed is 
 * of the essence.
 */
 void pointergrid_putraw(PointerGrid * self, int x, int y, void * el) {
-  self->data[y][x] = el;
+  self->data[y][x] = (intptr_t)el;
 }
 
 
-/** Puts and element info the matrix self. 
+/** Puts and element into the grid self. 
 * If all goes well, this function returns 0.
-* If w and h are out of range, or the matrix isn't correctly initialized, 
+* If w and h are out of range, or the grid isn't correctly initialized, 
 * does nothing and returns -1 in stead.
 */
 int pointergrid_put(PointerGrid * self, int x, int y, void * el) {
@@ -169,9 +169,9 @@ int pointergrid_put(PointerGrid * self, int x, int y, void * el) {
 }
 
 
-/** Sets and element info the matrix self. 
+/** Sets and element into the grid self. 
 * If all goes well, this function returns el.
-* If w and h are out of range, or the matrix isn't correctly initialized, 
+* If w and h are out of range, or the grid isn't correctly initialized, 
 * does nothing and returns NULL in stead.
 */
 void * pointergrid_store(PointerGrid * self, int x, int y, void * el) {
@@ -180,9 +180,9 @@ void * pointergrid_store(PointerGrid * self, int x, int y, void * el) {
   return el;
 }
 
-/** Fetched an element from the matrix self. 
+/** Fetched an element from the grid self. 
 * If all goes well, this returns the result.
-* If w and h are out of range, or the matrix isn't correctly initialized, 
+* If w and h are out of range, or the grid isn't correctly initialized, 
 * returns NULL. 
 */
 void * pointergrid_fetch(PointerGrid * self, int x, int y) {
@@ -190,8 +190,8 @@ void * pointergrid_fetch(PointerGrid * self, int x, int y) {
   return pointergrid_getraw(self,x,y);
 }
 
-/** Copies the data from one matrix to the other. 
-* If the matrixes are of unequal size, copies the smallest of both 
+/** Copies the data from one grid to the other. 
+* If the grides are of unequal size, copies the smallest of both 
 * heights and widths.
 * Returns 0 on succes, -1 on error. 
 */
@@ -215,3 +215,94 @@ int pointergrid_copy(PointerGrid * self, PointerGrid * other) {
   return 0;
 }
 
+
+
+/** Gets an element from the grid. Does no checking whatsoever. 
+* Use only where the inputs are guaranteed to be valid, where speed is 
+* of the essence.
+*/
+intptr_t pointergrid_get_raw_int(PointerGrid * self, int x, int y) {
+  return self->data[y][x];
+}
+
+
+/** Gets a row of elements from the grid. Does no checking whatsoever. 
+* Use only where the inputs are guaranteed to be valid, where speed is 
+* of the essence.
+*/
+intptr_t * pointergrid_row_raw_int(PointerGrid * self, int y) {
+  return self->data[y];
+}
+
+
+/** Gets an integer value from the grid self. 
+* If all goes well, this function returns 0, and sets the value to
+* (*result). 
+* If w and h are out of range, or the grid isn't correctly initialized, 
+* does nothing and returns -1 in stead.
+*/
+int pointergrid_get_int(PointerGrid * self, int x, int y, int * result) {  
+  if(pointergrid_outofrange(self,x,y)) { return -1; }  
+  (*result) = (int) pointergrid_get_raw_int(self, x, y);
+  return 0;
+}
+
+/** Puts an integer in the grid self. Does no checking whatsoever. 
+* Use only where the inputs are guaranteed to be valid, where speed is 
+* of the essence.
+*/
+void pointergrid_put_raw_int(PointerGrid * self, int x, int y, int el) {
+  self->data[y][x] = (intptr_t)el;
+}
+
+
+/** Puts an integer into the grid self. 
+* If all goes well, this function returns 0.
+* If w and h are out of range, or the grid isn't correctly initialized, 
+* does nothing and returns -1 in stead.
+*/
+int pointergrid_put_int(PointerGrid * self, int x, int y, int el) {
+  if(pointergrid_outofrange(self,x,y)) { return -1; }  
+  pointergrid_put_raw_int(self,x,y,el);
+  return 0;
+}
+
+
+/** Sets and element into the grid self. 
+* If all goes well, this function returns el.
+* If w and h are out of range, or the grid isn't correctly initialized, 
+* does nothing and returns 0 in stead.
+*/
+int pointergrid_store_int(PointerGrid * self, int x, int y, int el) {
+  if(pointergrid_outofrange(self, x, y)) { return 0; }  
+  pointergrid_put_raw_int(self, x, y, el);
+  return el;
+}
+
+/** Fetched an element from the grid self. 
+* If all goes well, this returns the result.
+* If w and h are out of range, or the grid isn't correctly initialized, 
+* returns 0. 
+*/
+int pointergrid_fetch_int(PointerGrid * self, int x, int y) {
+  if (pointergrid_outofrange(self,x,y)) { return 0; }  
+  return (int) pointergrid_get_raw_int(self,x,y);
+}
+
+
+/** Sets all the pointer grid to a 0 integer. Do NOT do this
+ * if the pointergrid is intent to store pointer, only if it stores integers.
+*/
+int pointergrid_zero_all(PointerGrid * self) {
+  int w, h, x, y;
+  if (!self)        return -1;
+  if (!self->data)  return -1;
+  w = pointergrid_w(self);
+  h = pointergrid_h(self);  
+  for(y = 0; y < h ; y++) {
+    for(x = 0; x < w ; x++) {
+      pointergrid_put_raw_int(self, x, y, 0);
+    }
+  }
+  return 0;
+}

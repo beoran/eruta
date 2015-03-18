@@ -3,6 +3,7 @@
 #include "camera_struct.h"
 #include "mem.h"
 #include "flags.h"
+#include "monolog.h"
 
 /* 
 
@@ -522,10 +523,10 @@ Point camera_speed_(Camera * self, Point speed) {
   return self->speed;
 }
 
-/** Prints camera description for debug */
+/** Prints camera description for debug to the log. */
 Camera * camera_debugprint(Camera * self) {
   if(!self) { puts("Camera is NULL!"); return NULL; }
-  printf("Camera at (%f, %f), size (%f, %f), speed(%f, %f)\n",
+  LOG("Camera at (%f, %f), size (%f, %f), speed(%f, %f)\n",
         camera_at_x(self), camera_at_y(self), camera_w(self),  camera_h(self),
         camera_speed(self).x,  camera_speed(self).y);
   return self;

@@ -59,6 +59,21 @@ Dynar * dynar_destroy(Dynar * self, MemDestructor * destroy) {
   return self;
 }
 
+/** Calls a destructor on the contents of the array if it is not null. 
+ The contents are considered to be structs. Does not call dynar_free()!!! */
+Dynar * dynar_destroy_structs(Dynar * self, MemDestructor * destroy) {
+  int index;
+  int size = dynar_size(self);
+  if(!self)     return self;
+  if(!destroy)  return NULL;
+  for(index = 0; index < size ; index++) {
+    void * ptr = dynar_getdata(self, index);    
+    destroy(ptr);
+  }
+  return self;
+}
+
+
 /** Frees an array. Returns NULL. */
 Dynar * dynar_free(Dynar * self) {
   dynar_done(self);
@@ -68,6 +83,12 @@ Dynar * dynar_free(Dynar * self) {
 /** Calls a destructor on the elements of the array and then frees the array */
 Dynar * dynar_free_destroy(Dynar * self, MemDestructor * destroy) {
   dynar_destroy(self, destroy);
+  return dynar_free(self);
+}
+
+/** Calls a destructor on the elements of the array and then frees the array */
+Dynar * dynar_destroy_structs_and_free(Dynar * self, MemDestructor * destroy) {
+  dynar_destroy_structs(self, destroy);
   return dynar_free(self);
 }
 

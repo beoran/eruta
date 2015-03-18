@@ -35,6 +35,7 @@ set(ERUTA_SRC_FILES
   src/hatab.c
   src/ifa.c
   src/inli.c
+  src/intgrid.c
   src/laytext.c
   src/mem.c
   src/mobile.c

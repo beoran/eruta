@@ -79,6 +79,13 @@ void tilemap_draw_layer_tiles(Tilemap * map, Camera * camera, int layer);
 void tilemap_draw_layer_blends(Tilemap * map, Camera * camera, int layer);
 
 
+Tileset * tilemap_tileset(Tilemap * me);
+int tilemap_firstgid(Tilemap * me);
+
+int tilemap_set_flags(Tilemap * self, int l, int x, int y, int flags);
+int tilemap_get_flags(Tilemap * self, int l, int x, int y);
+
+
 
 
 #ifdef COMMENT_

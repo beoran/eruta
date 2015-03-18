@@ -1338,15 +1338,6 @@ typedef char * charp;
 
 DEFINE_TUPLE(int, charp);
 
-void scegra_foo() {
-  TUPLE(int, charp) tuple;
-  TUPLE_HEAD(tuple) = 1;
-  TUPLE_TAIL(tuple) = "Hello";
-  printf("%d %s\n", TUPLE_HEAD(tuple), TUPLE_TAIL(tuple));
-}
-
-
-
 
 
 

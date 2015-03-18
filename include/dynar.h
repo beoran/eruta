@@ -80,6 +80,10 @@ Dynar * dynar_put_long(Dynar * self, int index, long value);
 Dynar * dynar_get_long(Dynar * self, int index, long * value);
 Dynar * dynar_append_long(Dynar * self, long value);
 
+Dynar * dynar_destroy_structs(Dynar * self, MemDestructor * destroy);
+Dynar * dynar_destroy_structs_and_free(Dynar * self, MemDestructor * destroy);
+
+
 Lilis * lilis_freetail (Lilis * self );
 Lilis * lilis_done (Lilis * self );
 Lilis * lilis_free (Lilis * self );

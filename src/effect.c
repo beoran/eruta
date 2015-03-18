@@ -1,6 +1,7 @@
 /** Particle and effect engine for all sorts of glitzy effects. :) 
 **/
 #include "eruta.h"
+#include "monolog.h"
 
 
 /**
@@ -111,8 +112,8 @@ GyDrop * gydrop_init(GyDrop * drop, GyFlow * flow) {
   drop->ay        = 0;
   drop->text      = NULL;
   drop->image     = NULL;
-  drop->update	  = NULL;
-  drop->draw	  = NULL;
+  drop->update    = NULL;
+  drop->draw    = NULL;
   return drop;
 }
 
@@ -124,7 +125,7 @@ GyDrop * gydrop_update(GyDrop * drop, int time) {
   drop->lifetime -= time;
   
   if (!drop->update)        {
-    // fprintf(stderr, "cannot update drop!\n");
+    LOG_WARNING("cannot update drop!\n");
     return NULL;
   }  
   // skip drops that are not active or not set up correctly. 
@@ -190,9 +191,9 @@ struct GyWell_ {
 /* GyFlow models a particle engine. */
 struct GyFlow_ {
   GyCamera   * camera;
-  size_t 	       size;
+  size_t         size;
   GyDrop     * particles;
-  size_t	       active;
+  size_t         active;
   int screenw, screenh;
 };
 
@@ -271,8 +272,8 @@ GyDrop * gydrop_updateaccell(GyDrop * drop, int time) {
 GyDrop * gydrop_initsnow(GyDrop * drop, GyWell * well) { 
   drop->x         = gyrandom(0, drop->flow->screenw);
   drop->y         = gyrandom(0, drop->flow->screenh);
-  drop->ax	      = 0;
-  drop->ay	      = GY_DROP_MULTIPLY(100);
+  drop->ax        = 0;
+  drop->ay        = GY_DROP_MULTIPLY(100);
   drop->vx        = 0;
   drop->vy        = gyrandom(GY_DROP_MULTIPLY(1), GY_DROP_MULTIPLY(3));
   drop->lifetime  = gyrandom(10, 100);
@@ -418,7 +419,7 @@ GyWell * gywell_init(GyWell * well, int kind,
       well->update = gydrop_updatesnow;
       return well;
     default:  
-      fprintf(stderr, "Unknown effect type.");
+      LOG_WARNING("Unknown effect type %d:", well->kind);
       return well;
   }
   return well;
@@ -434,9 +435,9 @@ GyDrop * gydrop_initwell(GyDrop * drop, GyFlow * flow, GyWell *well)
   drop->color     = well->color;
   drop->image     = well->image;
   drop->text      = well->text;
-  drop->kind	    = well->kind;
-  drop->update	  = well->update;
-  drop->draw	    = well->draw;
+  drop->kind      = well->kind;
+  drop->update    = well->update;
+  drop->draw      = well->draw;
   
   if(well->init) {
     well->init(drop, well);
@@ -476,7 +477,7 @@ GyFlow * gyflow_activate(GyFlow * flow,
     GyDrop  * drop;
     drop = gyflow_idle(flow);
     if(!drop) {
-      // fprintf(stderr, "No idle drops: %d!\n", amount ); 
+      LOG_WARNING("No idle drops: %d!\n", amount ); 
       return NULL;
     }  
     gydrop_initwell(drop, flow, &well);

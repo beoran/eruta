@@ -62,4 +62,12 @@ void tilepane_draw_blends(Tilepane * pane, Camera * camera);
 
 void tilepane_draw_shadows_of(Tilepane * pane, Tilepane * pane_below, Camera * camera);
 
+
+int tilepane_set_flags(Tilepane * pane, int gridx, int gridy, int flags);
+int tilepane_get_flags(Tilepane * pane, int gridx, int gridy);
+void tilepane_set_raw_flags(Tilepane * pane, int gridx, int gridy, int flags);
+int tilepane_get_raw_flags(Tilepane * pane, int gridx, int gridy);
+
+
+
 #endif
