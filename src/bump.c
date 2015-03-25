@@ -13,6 +13,33 @@
 #include "draw.h"
 #include "monolog.h"
 
+/**
+ * Some design ideas:
+ * 
+ * ATTACKS: attacks are modelled as hulls that are attached 
+ * to the world and body of the attacking thing and set to a 
+ * kind of BUMP_KIND_SENSOR | BUMP_KIND_ATTACK. 
+ * 
+ * Such hulls do collide but do not cause a physical response, 
+ * only the script is notified of the attack hitting home. 
+ * Maybe some flags need to be set or would be helpful to be set as well?
+ * 
+ * Same idea could be used to improve the current search, with a kind of
+ * BUMP_KIND_SENSOR | BUMP_KIND_SEARCH. 
+ * 
+ * To avoid too many memory allocations, it might be a good idea to 
+ * let each Thing allocate a few hulls for attack and search, and then reuse 
+ * them.  That would require an additional BUMP_FLAG_DISABLED flag.
+ * 
+ * Problem with this idea: what about mobile atacs and projectiles, like arrows, 
+ * gun shots or rays? Perhaps attacks should be better modeled as linked Things 
+ * in stead? But even in that case such a thing would still need a sensor hull.
+ * 
+ * So, first implement sensor and disabled hulls.
+ * 
+ */
+
+
 
 enum BumpLock_ {
   BUMP_LOCK_NORTH = 1 << 0,
@@ -42,14 +69,17 @@ struct BumpBody_ {
 
 
 struct BumpHull_ {
-  int id;
+  int         id;
   BumpBody  * body;
   BeVec       delta;
   /* Use bumphull_aabb_real, NOT bounds in most cases. */
   BumpAABB    bounds;
   int         layers;
+  /* Type of hull */
   int         kind;
   int         support;
+  /* Flags of the hull. */
+  int         flags;
 };
 
 typedef struct BumpHash_        BumpHash;
@@ -187,8 +217,8 @@ int bumphashelement_ok(BumpHashElement * self, int x, int y) {
 struct BumpWorld_ {
   Dynar       * bodies;
   Dynar       * hulls;  
-  int           body_count;
-  int           hull_count;
+  int           body_max;
+  int           hull_max;
   Tilemap     * map;
   BumpHash      hash;
 };
@@ -322,6 +352,7 @@ BumpHull * bumphull_initall(
   self->kind    = kind;
   self->id      = -1;
   self->support = FALSE;
+  self->flags   = BUMP_FLAG_NORMAL;
   return self;
   
 }
@@ -537,6 +568,44 @@ BumpHull * bumphull_free(BumpHull * self) {
 }
 
 
+/** Returns the flags of the hull, or -1 if the hull is NULL.*/
+int bumphull_flags(BumpHull * hull) {
+  if (!hull) return -1;
+  return hull->flags;
+}
+
+/** Sets the flags of the hull. Returns the flags set or -1 if the hull is NULL
+ */
+int bumphull_flags_(BumpHull * hull, int flags) {
+  if (!hull) return -1;
+  return hull->flags = flags;
+}
+
+/** Gets an individual flag of the hull. Returns 0 if the hull is NULL.
+ * Otherwse returns ninzero if the flag is set, and zero if it isn't. */
+int bumphull_get_flag(BumpHull * hull, int flag) {
+  if (!hull) return 0;
+  return hull->flags & flag;
+}
+
+/** Sets an individual flag of the hull. Return 0 if the hull is NULL.
+ * Otherwse returns nonzero if the flag is set, and zero if it isn't. */
+int bumphull_set_flag(BumpHull * hull, int flag) {
+  if (!hull) return 0;
+  hull->flags &= flag;  
+  return bumphull_get_flag(hull, flag);
+}
+
+/** Unsets an individual flag of the hull. Return 0 if the hull is NULL.
+ * Otherwse returns nonzero if the flag is set, and zero if it isn't. */
+int bumphull_unset_flag(BumpHull * hull, int flag) {
+  if (!hull) return 0;
+  hull->flags &= (~flag);  
+  return bumphull_get_flag(hull, flag);
+}
+
+
+
 BumpWorld * bumpworld_alloc() {
   return STRUCT_ALLOC(BumpWorld);
 }
@@ -546,8 +615,8 @@ BumpWorld * bumpworld_alloc() {
 /* Initializes a world. */
 BumpWorld * bumpworld_init(BumpWorld * self) {
   if (!self) return NULL;
-  self->body_count      = 0;
-  self->hull_count      = 0;
+  self->body_max      = 0;
+  self->hull_max      = 0;
   self->bodies          = dynar_newptr(BUMP_WORLD_MAXBODIES);
   self->hulls           = dynar_newptr(BUMP_WORLD_MAXHULLS);
   self->map             = NULL;
@@ -573,36 +642,81 @@ BumpWorld * bumpworld_free(BumpWorld * self) {
   return mem_free(self);
 }
 
-BumpBody * bumpworld_addbody(BumpWorld * self, BumpBody * body) {
+/** Fetches a body with a given index from the world. */
+BumpBody * bumpworld_body(BumpWorld * self, int index) {
+  return dynar_getptr(self->bodies, index);
+}
+
+/** Fetches a hull with a given index from the world. */
+BumpHull * bumpworld_hull(BumpWorld * self, int index) {
+  return dynar_getptr(self->hulls, index);
+}
+
+/** Returns the maximum body count for use in loops. */
+int bumpworld_body_count(BumpWorld * self) {
+  return dynar_size(self->bodies);
+}
+
+/** Returns the maximum hull count for use in loops. */
+int bumpworld_hull_count(BumpWorld * self) {
+  return dynar_size(self->hulls);
+}
+
+/** Adds a body to this world. */
+BumpBody * bumpworld_add_body(BumpWorld * self, BumpBody * body) {
+  int index;
   if(!self) return NULL;
   if(!body) return NULL;
-  if(!dynar_putptr(self->bodies, self->body_count, body)) return NULL;
-  body->id = self->body_count;
-  self->body_count++;
-  return body;
+  for (index = 0; index < bumpworld_body_count(self) ; index ++) {
+    if (!dynar_getptr(self->bodies, index)) {
+      if(!dynar_putptr(self->bodies, index, body)) return NULL;
+      body->id = index;      
+      if (index >= self->body_max) self->body_max = index + 1;
+      return body;
+    }
+  }
+  return NULL;
 }
 
-BumpHull * bumpworld_addhull(BumpWorld * self, BumpHull * hull) {
+/** Adds a hull to this world. */
+BumpHull * bumpworld_add_hull(BumpWorld * self, BumpHull * hull) {
+  int index;
   if(!self) return NULL;
   if(!hull) return NULL;
-  if(!dynar_putptr(self->hulls, self->hull_count, hull)) return NULL;
-  hull->id = self->hull_count;
-  self->hull_count++;
-  return hull;
+  // for (index = 0; index < self
+  for (index = 0; index < bumpworld_hull_count(self) ; index ++) {
+    if (!dynar_getptr(self->hulls, index)) {
+      if(!dynar_putptr(self->hulls, index, hull)) return NULL;
+      hull->id  = index;      
+      if (index >= self->hull_max) self->hull_max = index + 1;
+      return hull;
+    }
+  }
+  return NULL;
 }
 
-/* Removes the hull but does not free it. */
-BumpHull * bumpworld_removehull(BumpWorld * self, BumpHull * hull) {
+/** Removes the hull but does not free it. */
+BumpHull * bumpworld_remove_hull(BumpWorld * self, BumpHull * hull) {
   if(!self) return NULL;
   if(!hull) return NULL;  
   if (hull->id < 0) return NULL;
   dynar_putptr(self->hulls, hull->id, NULL);
   hull->id = -1;  
+  self->hull_max--;
   return hull;
 }
 
-/* Removes the body but does not free it. */
-BumpBody * bumpworld_removebody(BumpWorld * self, BumpBody * body) {
+/** Removes the hull and frees it. Returns NULL. */
+BumpWorld * bumpworld_delete_hull(BumpWorld * self, BumpHull * hull) {
+  if(!bumpworld_remove_hull(self, hull)) { 
+    bumphull_free(hull);
+  }
+  return self;
+}
+
+
+/** Removes the body but does not free it. */
+BumpBody * bumpworld_remove_body_only(BumpWorld * self, BumpBody * body) {
   if(!self) return NULL;
   if(!body) return NULL;  
   if (body->id < 0) return NULL;
@@ -610,6 +724,54 @@ BumpBody * bumpworld_removebody(BumpWorld * self, BumpBody * body) {
   body->id = -1;  
   return body;
 }
+
+/** Removes the body and frees it. Does not remove it's hulls. */
+BumpWorld * bumpworld_delete_body_only(BumpWorld * self, BumpBody * body) {
+  if(!bumpworld_remove_body_only(self, body)) { 
+    bumpbody_free(body);
+  }
+  return self;
+}
+
+/** Removes the body with the given index and and frees it. Does not
+ * remove it's hulls. */
+BumpWorld * bumpworld_delete_body_only_index(BumpWorld * self, int index) {
+  BumpBody * body = bumpworld_body(self, index);  
+  return bumpworld_delete_body(self, body);
+}
+
+/** Removes the hull with the given index and and frees it. */
+BumpWorld * bumpworld_delete_hull_index(BumpWorld * self, int index) {
+  BumpHull * hull = bumpworld_hull(self, index);  
+  return bumpworld_delete_hull(self, hull);
+}
+
+/** Deletes all hulls for the given body. */
+BumpWorld * bumpworld_delete_hulls_for(BumpWorld * self, BumpBody * body) {
+  int hindex;
+  if (!body) return NULL;
+
+  for (hindex = 0; hindex < bumpworld_hull_count(self); hindex++) {
+      BumpHull * hull = bumpworld_hull(self, hindex);
+      if (hull && (hull->body == body)) {
+        bumpworld_delete_hull(self, hull);
+      }
+  }
+  return self;
+}
+
+/* Deletes the body and all hulls reated to it. */
+BumpWorld * bumpworld_delete_body(BumpWorld * world, BumpBody * body) {
+  if (!bumpworld_delete_hulls_for(world, body)) return NULL;
+  return bumpworld_delete_body_only(world, body);
+}
+
+/* Deletes the body and all hulls related to it by it's index. */
+BumpWorld * bumpworld_delete_body_index(BumpWorld * world, int index) {
+  BumpBody * body = bumpworld_body(world, index);
+  return bumpworld_delete_body(world, body);
+}
+
 
 /* Gets the tile map that this world must use to check collisions. 
  * Bumpworld doesn't own the map, and won't clean it up on bumpworld_free.
@@ -644,6 +806,8 @@ void bumpbody_integrate(BumpBody * self, double dt) {
 
 /* Uses the values in p_next and v_next current position and value.  */
 void bumpbody_commit(BumpBody * self) {
+  if (!self) return;
+  
   self->v      = self->v_next;
   self->p      = self->p_next;
 }
@@ -759,13 +923,21 @@ bumpworld_collide_hulls
   serno++;
   bounds1       = bumphull_aabb_next(hull1);
   bounds2       = bumphull_aabb_next(hull2);
+
+  /* No overlap, no collision. */
   if (!bumpaabb_overlap_p(bounds1, bounds2)) {
     return;
   }
-
-  thing1          = bumphull_body_data(hull1);
-  thing2          = bumphull_body_data(hull2);
   
+  /* Sensors don't detect each other. */
+  if (hull1->flags & BUMP_FLAG_SENSOR) {
+    if (hull2->flags & BUMP_FLAG_SENSOR) {
+      return;
+    }
+  }
+  
+  thing1          = bumphull_body_data(hull1);
+  thing2          = bumphull_body_data(hull2);  
 
   /* Allow the script to break off a beginning collision. */
   if ((round == 0) && (!collide_things(thing1, thing2, COLLIDE_BEGIN, NULL))) {
@@ -775,6 +947,7 @@ bumpworld_collide_hulls
   vrel            = bevec_sub(hull1->body->v, hull2->body->v);
   push            = 
   bumpaabb_collision_pushback(bounds1, bounds2, vrel, dt);  
+  /* This 0.5 should be related to the body's mass or something. */
   push1           = bevec_mul(push,  0.5);
   push2           = bevec_mul(push, -0.5);
   
@@ -785,11 +958,20 @@ bumpworld_collide_hulls
     push1 = bevec_lock(push1, hull1->body->locks);
     push2 = bevec_lock(push2, hull2->body->locks);
   }
-  hull1->body->p_next    = bevec_add(hull1->body->p_next, push1);
-  hull2->body->p_next    = bevec_add(hull2->body->p_next, push2);
-  /* motionless things get their  */
-  hull1->body->v    = bevec_add(hull1->body->v, bevec_mul(push1, dt));
-  hull2->body->v    = bevec_add(hull2->body->v, bevec_mul(push2, dt));
+  
+  
+  /* Sensors cause no displacement. */
+  if ((!(hull1->flags & BUMP_FLAG_SENSOR)) && 
+      (!(hull2->flags & BUMP_FLAG_SENSOR))
+    ) 
+  {
+  
+    hull1->body->p_next    = bevec_add(hull1->body->p_next, push1);
+    hull2->body->p_next    = bevec_add(hull2->body->p_next, push2);
+    hull1->body->v    = bevec_add(hull1->body->v, bevec_mul(push1, dt));
+    hull2->body->v    = bevec_add(hull2->body->v, bevec_mul(push2, dt));
+  }
+  
   if (round == 1) {
       /* Signal the script that the collision is ongoing or ending. */
       int colltype  = COLLIDE_COLLIDING;
@@ -824,7 +1006,7 @@ void bumphash_addhull(BumpHash * hash, BumpHull * hull) {
 BumpWorld * bumpworld_commit(BumpWorld * self) {
   int index;
   /* Commit motions. */
-  for (index = 0; index < self->body_count; index ++) {
+  for (index = 0; index < self->body_max; index ++) {
     BumpBody * body = dynar_getptr(self->bodies, index);
     bumpbody_commit(body);
   }  
@@ -837,7 +1019,7 @@ BumpWorld * bumpworld_commit(BumpWorld * self) {
 BumpWorld * bumpworld_hulls_fall_down(BumpWorld * self, double dt) {
   int index, jndex; 
   /* simple integration for now. */
-  for (index = 0; index < self->body_count; index ++) {
+  for (index = 0; index < self->body_max; index ++) {
     BumpBody * body = dynar_getptr(self->bodies, index);
     bumpbody_integrate(body, dt);
   }
@@ -848,34 +1030,40 @@ BumpWorld * bumpworld_hulls_fall_down(BumpWorld * self, double dt) {
 BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
   int index, jndex; 
   /* simple integration for now. */
-  for (index = 0; index < self->body_count; index ++) {
+  for (index = 0; index < self->body_max; index ++) {
     BumpBody * body = dynar_getptr(self->bodies, index);
     bumpbody_integrate(body, dt);
   }
   /* XXX: Update the spatial hash. 
   bumphash_empty(&self->hash);
    
-  for (index = 0; index < self->hull_count; index ++) {
+  for (index = 0; index < self->hull_max; index ++) {
     BumpHull * hull = dynar_getptr(self->hulls, index);
     bumphash_addhull(&self->hash, hull);    
   }
   */
   
   /* First round of hull to hull collisions. */
-  for (index = 0; index < self->hull_count; index ++) {
-    BumpHull * hull1 = dynar_getptr(self->hulls, index);
+  for (index = 0; index < self->hull_max; index ++) {
+    BumpHull * hull1 = bumpworld_hull(self, index);
+    if (!hull1) continue;
+    if (hull1->flags & BUMP_FLAG_DISABLED) continue;
     /* Todo: broad phase checking. */
-    for (jndex = index + 1 ; jndex < self->hull_count; jndex++ )  { 
-      BumpHull * hull2 = dynar_getptr(self->hulls, jndex);
+    for (jndex = index + 1 ; jndex < self->hull_max; jndex++ )  { 
+      BumpHull * hull2 = bumpworld_hull(self, index);
+      if (!hull2) continue;
+      if (hull2->flags & BUMP_FLAG_DISABLED) continue;
       bumpworld_collide_hulls(self, 0, hull1, hull2, dt);
     }
   }
-
   
   /* Hull to tile map collisions, if needed. */
   if (self->map) { 
-    for (index = 0; index < self->hull_count; index ++) {
+    for (index = 0; index < self->hull_max; index ++) {
       BumpHull * hull = dynar_getptr(self->hulls, index);
+      if (!hull) continue;
+      if (hull->flags & BUMP_FLAG_DISABLED) continue;
+
       bumpworld_collide_hull_tilemap(self, hull, dt);
     }
   }
@@ -883,11 +1071,17 @@ BumpWorld * bumpworld_update(BumpWorld * self, double dt) {
   /* Resolve the hull to hull collisions, taking the lock set by the grid 
    * into consideration.
    */
-  for (index = 0; index < self->hull_count; index ++) {
+  for (index = 0; index < self->hull_max; index ++) {
     BumpHull * hull1 = dynar_getptr(self->hulls, index);
+    if (!hull1) continue;
+    if (hull1->flags & BUMP_FLAG_DISABLED) continue;
+
     /* Todo: broad phase checking. */
-    for (jndex = index + 1 ; jndex < self->hull_count; jndex++ )  { 
+    for (jndex = index + 1 ; jndex < self->hull_max; jndex++ )  { 
       BumpHull * hull2 = dynar_getptr(self->hulls, jndex);
+      if (!hull2) continue;
+      if (hull2->flags & BUMP_FLAG_DISABLED) continue;
+
       bumpworld_collide_hulls(self, 1, hull1, hull2, dt);
     }
   }
@@ -1051,12 +1245,12 @@ BumpWorld * bumpworld_draw_debug(BumpWorld * self) {
   State  * state  = state_get();
   Camera * camera = state_camera(state);
 
-  for (index = 0 ; index < self->hull_count; index ++) { 
+  for (index = 0 ; index < self->hull_max; index ++) { 
     BumpHull * hull = dynar_getptr(self->hulls, index);
     bumphull_draw_debug(self, hull, camera);
   }
   
-  for (index = 0 ; index < self->body_count; index ++) { 
+  for (index = 0 ; index < self->body_max; index ++) { 
     BumpBody * body = dynar_getptr(self->bodies, index);
     bumpbody_draw_debug(body, camera);
   }  
@@ -1076,7 +1270,7 @@ int bumpworld_find_and_fetch_hulls(BumpWorld * self, BumpAABB search,
   BumpHull ** hulls, int max_hulls) { 
   int amount = 0;
   int index;
-  int stop   = self->hull_count;
+  int stop   = self->hull_max;
   if (stop > max_hulls) stop = max_hulls;
   if (!hulls) return -1;
     
@@ -1097,14 +1291,14 @@ int bumpworld_find_and_fetch_hulls(BumpWorld * self, BumpAABB search,
  * Returns 0. If the callback returns nonzero returns this in stead immediately
  * and stop calling the callback. */
 int bumpworld_find_hulls(BumpWorld * self, BumpAABB search, void * extra,
-  int callback(BumpHull * hull, void * extra)) {
+  int (*callback)(BumpHull * hull, void * extra)) {
   int amount = 0;
   int index;
 
-  LOG("Find hull: %d hulls known.\n", self->hull_count);
+  LOG("Find hull: %d hulls known.\n", self->hull_max);
   
     
-  for (index = 0; index < self->hull_count; index ++) {
+  for (index = 0; index < self->hull_max; index ++) {
     BumpHull * hull = dynar_getptr(self->hulls, index);
     BumpAABB hullaabb;
     if (!hull) continue;
@@ -1120,5 +1314,56 @@ int bumpworld_find_hulls(BumpWorld * self, BumpAABB search, void * extra,
   return 0;
 }
 
+/** Finds all hulls that are conected to body and stores
+ * up to max_hulls of them in the array hulls.
+ * Returns the amount of hulls found or negative on error. */
+int bumpworld_fetch_body_hulls(BumpWorld * self, BumpBody * body,
+  BumpHull ** hulls, int max_hulls) { 
+  int amount = 0;
+  int index;
+  int stop   = self->hull_max;
+  if (stop > max_hulls) stop = max_hulls;
+  if (!hulls) return -1;
+    
+  for (index = 0; index < stop; index ++) {
+    BumpHull * hull = dynar_getptr(self->hulls, index);
+    if (!hull) continue;
+    if (hull->body == body) {
+      hulls[amount] = hull;
+      amount ++;
+    }
+  }
+  return amount;
+}
 
+/** Finds all hulls for the given body and calls the callback for each of them.
+ * Returns 0. If the callback returns nonzero, returns this in stead immediately
+ * and stop calling the callback. */
+int bumpworld_find_body_hulls(BumpWorld * self, BumpBody * body, void * extra,
+  int (*callback)(BumpHull * hull, void * extra)) {
+  int amount = 0;
+  int index;
+
+  LOG("Find hull: %d hulls known.\n", self->hull_max);
+  
+    
+  for (index = 0; index < self->hull_max; index ++) {
+    BumpHull * hull = dynar_getptr(self->hulls, index);
+    if (!hull) continue;
+
+    if (hull->body == body) {
+      int res = callback(hull, extra);
+      if (res) return res;
+    }
+  }
+  return 0;
+}
+
+
+/** Adds a new hull attached to the given body into the physical world. */
+BumpHull * 
+bumpworld_new_hull(BumpWorld * self, BumpBody * body, BeVec delta, BumpAABB bounds, int layers, int kind) {
+  BumpHull * hull = bumphull_newall(body, delta, bounds, layers, kind);
+  return bumpworld_add_hull(self, hull);
+}
 

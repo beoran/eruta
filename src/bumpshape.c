@@ -182,14 +182,14 @@ int bumpcircle_bumpaabb_overlap_p(BumpCircle c, BumpAABB b) {
   return (((dx*dx) + (dy*dy)) > (c.radius * c.radius));
 }
 
-int bumpcircleshape_bumpboxshape_overlap_p(BumpCircleShape c, BumpBoxShape b) {
-  return bumpcircle_bumpaabb_overlap_p(c.shape, b.shape); 
+int bumpcircleshape_bumpboxshape_overlap_p(BumpShape c, BumpShape b) {
+  return bumpcircle_bumpaabb_overlap_p(c.circle.shape, b.box.shape); 
 }
 
 
 /* Returns overlap of the bounds boxes of self and other in x direction. 
  * May be zero or negative if no overlap.
- */ 
+ */
 double bumpaabb_overlap_x(BumpAABB self, BumpAABB other) {
     if (self.p.x < other.p.x) { 
       return (self.hs.x + other.hs.x)  + (self.p.x - other.p.x ); 
@@ -235,12 +235,87 @@ int bumpaabb_overlap_p(BumpAABB self, BumpAABB other) {
  return (bumpaabb_overlap_y(self, other) > 0);
 }
 
+/* Helper struct to determine which function to use when colliding two 
+ * shapes.
+ */
+struct BumpShapeCollider_ {
+  int swap;
+  int (*collide)(BumpShape * me, BumpShape * you);  
+};
 
 
+int bumpboxshape_bumpboxshape_overlap_p(BumpShape * me, BumpShape * you) {
+  return bumpaabb_overlap_p(me->box.shape, you->box.shape);
+}
+
+int bumpboxshape_bumpcircleshape_overlap_p(BumpShape * me, BumpShape * you) {
+  return bumpcircle_bumpaabb_overlap_p(you->circle.shape, me->box.shape);
+} 
+
+int bumpboxshape_bumpsegmentshape_overlap_p(BumpShape * me, BumpShape * you) {
+  (void) me; (void) you; return 0;
+} 
+
+int bumpcircleshape_bumpcircleshape_overlap_p(BumpShape * me, BumpShape * you) {
+  (void) me; (void) you; return 0;
+} 
+
+int bumpcircleshape_bumpsegmentshape_overlap_p(BumpShape * me, BumpShape * you) {
+  (void) me; (void) you; return 0;
+} 
+
+int bumpsegmentshape_bumpsegmentshape_overlap_p (BumpShape * me, BumpShape * you) {
+  (void) me; (void) you; return 0;
+} 
+
+typedef struct BumpShapeCollider_ BumpShapeCollider;
+
+ 
+/* Dispatch table. */ 
+static BumpShapeCollider bumpshape_colliders[BUMPSHAPE_MAX][BUMPSHAPE_MAX] = {
+  /* BUMPSHAPE_BOX VS */
+  { 
+    /* BUMPSHAPE_BOX */      { 0, bumpboxshape_bumpboxshape_overlap_p         }, 
+    /* BUMPSHAPE_CIRCLE */   { 0, bumpboxshape_bumpcircleshape_overlap_p      }, 
+    /* BUMPSHAPE_SEGMENT */  { 0, bumpboxshape_bumpsegmentshape_overlap_p     }, 
+  },
+  /* BUMPSHAPE_CIRCLE VS */
+  { 
+    /* BUMPSHAPE_BOX */      { 1, bumpboxshape_bumpcircleshape_overlap_p      }, 
+    /* BUMPSHAPE_CIRCLE */   { 0, bumpcircleshape_bumpcircleshape_overlap_p   }, 
+    /* BUMPSHAPE_SEGMENT */  { 0, bumpcircleshape_bumpsegmentshape_overlap_p  }, 
+  },
+  /* BUMPSHAPE_SEGMENT VS */
+  { 
+    /* BUMPSHAPE_BOX */      { 1, bumpboxshape_bumpsegmentshape_overlap_p    }, 
+    /* BUMPSHAPE_CIRCLE */   { 1, bumpcircleshape_bumpsegmentshape_overlap_p }, 
+    /* BUMPSHAPE_SEGMENT */  { 0, bumpsegmentshape_bumpsegmentshape_overlap_p}, 
+  }   
+};
 
 
+BumpShapeCollider * bumpshape_collider_for(BumpShape * me, BumpShape * you) {
+  if (!me) return NULL;
+  if (!you) return NULL;
+  if (me->header.type >= BUMPSHAPE_MAX)  return NULL; 
+  if (you->header.type >= BUMPSHAPE_MAX) return NULL; 
+  if (me->header.type < 0) return NULL;
+  if (you->header.type < 0) return NULL;
+  return bumpshape_colliders[me->header.type] + you->header.type;  
+}
+ 
 
-
-
+int bumpshape_overlap_p(BumpShape * me, BumpShape * you) {
+  BumpShapeCollider * collider = bumpshape_collider_for(me, you);
+  BumpShape * aid;
+  if (!collider) { 
+    LOG_ERROR("Cannot collide shapes: %p %p!", me, you);
+    return 0;
+  }
+  if (collider->swap) { 
+    return collider->collide(you, me);
+  }
+  return collider->collide(me, you);  
+}
 
 

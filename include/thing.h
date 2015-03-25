@@ -112,6 +112,13 @@ int thing_get_pose_direction_loop(Thing * me, int pose, int direction);
 /* This is declared here to avoid a cyclical dependency. */
 Thing * camera_track_ (Camera * self , Thing * track );
 
+BumpHull * thing_add_hull(Thing * me, int kind, int x, int y, int z, int w, int h);
+
+int thing_set_hull_flag(Thing * me, int flag);
+int thing_unset_hull_flag(Thing * me, int flag);
+int thing_hull_flags_(Thing * me, int flags);
+int thing_hull_flags(Thing * me);
+ 
 
 #endif
 

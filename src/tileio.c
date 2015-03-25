@@ -225,7 +225,8 @@ char * csv_next(char * csv, unsigned long * value) {
   }
    
   if (tileindex & TMX_FLIPPED_DIAGONALLY) {
-    LOG_WARNING("Diagonally flipped tiles are not supported by Eruta.");
+    LOG_WARNING("Diagonally flipped tiles are not supported by Eruta.\n");
+    // Implement this in Allegro ???
   }
     
   return result;
@@ -274,20 +275,20 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, Bxml * xlayer, int count) {
   laid = silut_lsearchcstr(tileio_layernames, name);
   if(!laid) {
     LOG_ERROR("Unknown layer name: %s.\n"
-              "Must be layer_0, layer_1, layer_2 or layer_3.", name);
+              "Must be layer_0, layer_1, layer_2 or layer_3.\n", name);
     return NULL;
   }
   
   layer = laid->integer;
   pane  = tilemap_panenew(map, layer, w, h);
   if(!pane) {
-    LOG_ERROR("Could not create pane.");
+    LOG_ERROR("Could not create pane.\n");
     return NULL;
   }
   
   xdata = bxml_find_child(xlayer, "data");
   if(!xdata) {
-    LOG_ERROR("Could not find pane data.");
+    LOG_ERROR("Could not find pane data.\n");
     return NULL;    
   }
   
@@ -295,7 +296,7 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, Bxml * xlayer, int count) {
   laid = silut_lsearchcstr(tileio_encodings, senc);
   if(!laid) {
     LOG_ERROR("Unknown encoding: %s.\n"
-                    "Must be csv.", name);
+                    "Must be csv.\n", name);
     // xmlFree(senc);
     return NULL;                    
   }
@@ -320,7 +321,7 @@ Tilepane * tilemap_loadpanexml(Tilemap * map, Bxml * xlayer, int count) {
       */
       drawflags  = tileio_allegro_flags_for(tileindex);
       if (drawflags) {
-        LOG_NOTE("Tile with flags found: %d", tileindex, drawflags);
+        LOG("Tile with flags found: %d\n", tileindex, drawflags);
         tilemap_set_flags(map, layer, xindex, yindex, drawflags);
       }
       tileindex &= TMX_FLIPPED_FILTER;

@@ -76,7 +76,7 @@ module Main
 
   def start_load_sprites
     puts "Loading some things and sprites"
-    Thing.make(1, 300, 400, 1, 32, 32, 100)
+    Thing.make(Thing::Kind::SENSOR, 300, 400, 1, 32, 32, 100)
     Sprite.make(100)
     Sprite[100].load_ulpcss(Sprite::Layer::BODY , "body/female/light.png")
     Sprite[100].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_female/underdress.png")
@@ -98,7 +98,7 @@ module Main
 
     
 
-    Thing.make(0, 400, 400, 1, 32, 32, 101)
+    Thing.make(Thing::Kind::NORMAL, 400, 400, 1, 32, 32, 101)
     Sprite.make(101)
     Sprite[101].load_ulpcss(Sprite::Layer::BODY , "body/female/dark.png")
     Sprite[101].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_w_sash_female.png")
@@ -491,7 +491,7 @@ end
 # Called on a physics collision.
 def on_bump(t1, t2, kind = nil)
   if kind == 1 # Begin of collision
-    puts "Begin collision!"
+    # puts "Begin collision!"
   elsif kind == 2 # Collision active
     puts "Colliding!"
   elsif kind == 3 # Collision done

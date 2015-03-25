@@ -627,6 +627,7 @@ double * bxml_get_attribute_double(Bxml * node, char * name, double * result) {
   return result;
 }
 
+
 /* Returns a reference to the first text node child of node */
 Bxml * bxml_get_text_tag_under(Bxml * node) {
   return bxml_find_child_kind(node, NULL, BXML_TEXT);

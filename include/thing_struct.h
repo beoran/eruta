@@ -15,7 +15,7 @@ struct Thing_ {
   int         flags; /* State flags.  */
   Area      * area; /* Area the thing is in, if any. */
   BumpBody  * physical; /* Physical body of the thing. Is NULL for statical body. */
-  BumpHull  * hull; /* Colision hull of the thing. */
+  BumpHull  * hull; /* Main colision hull of the thing. */
   int         z;    /* Layer the thing is in. */
   void *      data; /* Logical data of the thing. */
   BeVec       size; /* size of outline of shape */

@@ -14,6 +14,7 @@ typedef struct BumpAABB_        BumpAABB;
 typedef struct BumpCircle_      BumpCircle;
 typedef struct BumpSegment_     BumpSegment;
 
+typedef struct BumpShapeHeader_   BumpShapeHeader;
 typedef struct BumpBoxShape_      BumpBoxShape;
 typedef struct BumpCircleShape_   BumpCircleShape;
 typedef struct BumpSegmentShape_  BumpSegmentShape;
@@ -34,8 +35,14 @@ enum BumpShapeType_ {
   BUMPSHAPE_BOX      = 0,
   BUMPSHAPE_CIRCLE   = 1,
   BUMPSHAPE_SEGMENT  = 2,
+  BUMPSHAPE_MAX      = 3,
   BUMPSHAPE_ERROR    = 69,
 };
+
+struct BumpShapeHeader_ {
+  int         type;
+};
+
 
 /* Shapes */
 struct BumpErrorShape_ {
@@ -64,6 +71,7 @@ struct BumpSegmentShape_ {
 
 /* Shape type. Uses the overlapping structs in a union trick. */
 union BumpShape_ {
+  BumpShapeHeader   header;
   BumpBoxShape      box;
   BumpCircleShape   circle;
   BumpSegmentShape  segment;
@@ -82,6 +90,8 @@ BumpSegment bumpsegment_make_int(int x1, int y1, int x2, int y2);
 BumpShape bumpcircleshape(double cx, double cy, double radius);
 BumpShape bumpsegmentshape(double x1, double y1, double x2, double y2);
 BumpShape bumpboxshape(double cx, double cy, double w, double h);
+BumpShape bumperrorshape(int errorcode);
+
 
 BumpShape bumpshape_va(int type, va_list args);
 BumpShape bumpshape(int type, ...);

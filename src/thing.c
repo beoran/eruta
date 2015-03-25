@@ -552,4 +552,31 @@ int thing_get_pose_direction_loop
   return spritestate_get_pose_direction_loop(&me->spritestate, pose, direction);
 }
 
+/** Sets a flag on the main hull of the Thing. */
+int thing_set_hull_flag(Thing * me, int flag) {
+  if (!me) return 0;
+  return bumphull_set_flag(me->hull, flag);
+}
+
+/** Unsets a flag for the main hull of the thing. */
+int thing_unset_hull_flag(Thing * me, int flag) {
+  if (!me) return 0;
+  return bumphull_unset_flag(me->hull, flag);
+}
+
+/** Sets all flags for the main hull of the thing. */
+int thing_hull_flags_(Thing * me, int flags) {
+  if (!me) return 0;
+  return bumphull_flags_(me->hull, flags);
+}
+
+/** Gets all flags for the main hull of the thing. */
+int thing_hull_flags(Thing * me) {
+  if (!me) return 0;
+  return bumphull_flags(me->hull);
+}
+
+
+
+
 

@@ -2,19 +2,22 @@
 | TODO |
 +------+
 
-o GUI:
-  * All sorts of widgets to display dialogs, status screens, menus, etc.
-  * Keyboard input.
-  * Joystick input.
-
+(Todos marked with 1 are priority 1 for playability)
 
 o Physics:
+  1 Implement attacks for action based battle gaming.
   * Implement interaction between players characters/NPC's/foes, etc.
-  * Implement attacks for action based or hybrid style battle gaming.
   * Implement sensors for AI and line of sight.
   * Implement shallow and deep water.
 
+o Play
+  1 implement player and foe data such as HP, MP; LP, and stats.
 
+o GUI:
+  1 game HUD / current HP, MP and LP display 
+  * All sorts of widgets for status screens, menus, etc.
+  * Keyboard input.
+  * Joystick input.
 
 o Main:
   * Configurable controls
@@ -22,14 +25,15 @@ o Main:
   * Loading and saving data
 
 o Tile map:
-  * Transition from one map to another.
   * Background images.
   * Parallax.
+  * Object layers and scriptability.
+  * Transition from one map to another.
   * Scripting.
+  * Background loading?
 
 o Sprites:
-  * Shadows under the sprites.
-  * Speed up loading a bit?
+  * Speed up loading a bit / background loading?
 
 o AI:
   * Implement D* lite.
@@ -57,24 +61,30 @@ o AND MUCH MORE! ^_^;;;
 o GUI:
   * A 2D UI elements / drawing scene graph was implemented so the GUI can be
     partially implemented in mruby.
+  * Some not too beautiful widgets for menu and dialogs were implemented.
 
 o Tile map:
   * Static tilesets.
   * Load tilemapeditor.org TMX maps.
-  * Tile map tile animations.
+  * Tile map tile animations, also in TMX 0.10 style.
   * Tile properties.
   * Tile map layers.
-
-
+  * Tile flipping.
+  
 o Sprites:
   * Loading.
   * Coloring.
   * Positioning.
+  * Shadows under the sprites.
+  * Attack animations and other one-shots now work.
 
 o Physics:
-  * Implement stairs. Ned to use stair and invisible support tiles in tile map.
+  * Implemented stairs. Need to use stair and invisible support tiles in tile map.
   * Bump based physics.
   * Physical layers.
 
 o Asset loading:
   * resor and store subsystems, both already scripted.
+
+o Engine: 
+  * Built-in own XML parser so no libxml2 dependency is needed anymore.

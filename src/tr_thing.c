@@ -182,10 +182,16 @@ TR_WRAP_I_INT(tr_thing_get_unused_id, state_get_unused_thing_id);
 int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   struct RClass *thi;
   struct RClass *krn;
+  struct RClass *kin;
+  struct RClass *fla;
+  
   
   /* Thing class/module and class/module methods. */
   thi = mrb_define_class_under(mrb, eru, "Thing" , mrb->object_class);
   krn = mrb_module_get(mrb, "Kernel");
+  kin = mrb_define_module_under(mrb, thi, "Kind");
+  fla = mrb_define_module_under(mrb, thi, "Flag");
+
 
   TR_METHOD_ARGC(mrb, krn, "thing_new"    , tr_newthing, 7);
 
@@ -220,10 +226,22 @@ int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_ARGC(mrb, thi, "get_pose_direction_loop", tr_thing_get_pose_direction_loop, 3);
   
   
+  /* Collision types of a thing */
+  TR_CONST_INT_EASY(mrb, fla, BUMP_FLAG_, NORMAL);
+  TR_CONST_INT_EASY(mrb, fla, BUMP_FLAG_, SENSOR);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, DISABLED);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, USER1);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, USER2);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, USER3);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, USER4);
+
+  TR_CONST_INT_EASY(mrb, kin, BUMP_KIND_, PLAYER);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_KIND_, NPC);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_KIND_, FOE);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_KIND_, ATTACK);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_KIND_, ART);
+  TR_CONST_INT_EASY(mrb, kin, BUMP_KIND_, SEARCH);
+ 
   return 0;
 }
-  
-
-
-
 

@@ -99,6 +99,9 @@ int area_find_things(Area * self, int x, int y, int w, int h,
   void * extra,
   int (callback)(Thing * thing, void * extra));
 
+BumpHull * area_add_hull(Area * self, int index, int kind,
+                      int x, int y, int z, int w, int h);
+
 
 #ifdef COMMENT_
 int thing_track (Tracker * tracker , void * data );

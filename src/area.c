@@ -95,8 +95,8 @@ Thing * area_addthing(Area * area, int index, Thing * thing) {
   /* Set last used id to index if needed */
   if (area->lastid < index)  { area->lastid = index; }
   /* Don't forget to add physical body and hull to the space if needed. */
-  bumpworld_addbody(area->world, thing->physical);
-  bumpworld_addhull(area->world, thing->hull);
+  bumpworld_add_body(area->world, thing->physical);
+  bumpworld_add_hull(area->world, thing->hull);
   return thing;
 }
 
@@ -117,8 +117,9 @@ Thing * area_removething(Area * area, Thing * thing) {
   if (!thing)                           return NULL;
   if (thing->id<0)                      return NULL;
   if (thing->kind == THING_UNUSED)      return NULL;
-  bumpworld_removehull(area->world, thing->hull);
-  bumpworld_removebody(area->world, thing->physical);
+  bumpworld_remove_hull(area->world, thing->hull);
+  bumpworld_remove_body_only(area->world, thing->physical);
+  bumpworld_delete_hulls_for(area->world, thing->physical);
   area_thing_(area, thing->id, NULL);
   return thing;
 }
@@ -363,6 +364,63 @@ int area_find_and_fetch_things(Area * self, int x, int w, int y, int h,
   return result;
 }
 
+
+
+/** Gets the thing at index index and adds a new hull to it */
+BumpHull * area_add_hull(Area * self, int index, int kind,
+                      int x, int y, int z, int w, int h) {
+  BumpHull * hull;
+  Thing    * thing;
+  BumpAABB   aabb = bumpaabb_make_int(x, y, w, h);
+  thing = area_thing(self, index);
+  return bumpworld_new_hull(self->world, thing->physical, bevec(x,y), aabb, z, kind);
+}
+
+/* Removes a hull from the area and also from the body it was attached 
+ * to. */
+Area * area_delete_hull(Area * self, int index) {
+  if (bumpworld_delete_hull_index(self->world, index)) return self;
+  return NULL;
+}
+
+/* Removes a body from the area and also all hulls attached to it from the area. */
+Area * area_delete_body(Area * self, int index) {
+  if(bumpworld_delete_body_index(self->world, index)) return self;
+  return NULL;
+}
+
+
+/** Sets a flag on the main hull of the Thing indicated by index. */
+int area_set_thing_hull_flag(Area * me, int index,  int flag) {
+  Thing * thing;
+  if (!me) return 0;
+  thing = area_thing(me, index);
+  return thing_set_hull_flag(thing, flag);
+}
+
+/** Unsets a flag for the main hull of the thing. */
+int area_unset_thing_hull_flag(Area * me, int index,  int flag) {
+  Thing * thing;
+  if (!me) return 0;
+  thing = area_thing(me, index);
+  return thing_unset_hull_flag(thing, flag);
+}
+
+/** Sets all flags for the main hull of the thing. */
+int area_thing_hull_flags_(Area * me, int index,  int flags) {
+  Thing * thing;
+  if (!me) return 0;
+  thing = area_thing(me, index);
+  return thing_hull_flags_(thing, flags);
+}
+
+/** Gets all flags for the main hull of the thing. */
+int area_thing_hull_flags(Area * me, int index) {
+  Thing * thing;
+  if (!me) return 0;
+  thing = area_thing(me, index);
+  return thing_hull_flags(thing);
+}
 
 
 

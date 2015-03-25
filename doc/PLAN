@@ -87,7 +87,10 @@ Full Action RPG or Chrono Trigger style menu-driven tactical or more FF12 style 
   - Isn't as relaxing to play as pure menu driven.
  -+ Game engine is somewhat more complex than tactical and probably even more 
     than action based alone.
-  
+=> Conclusion: I want this game to be more "SOM"-like with a "PS4"-like 
+atmosphere, so Action RPG it is. Let's see how deep that rabbit hole goes. :)
+My next RPG project will be a more "PERS4" inspired 3D menu driven RPG.
+
   
   
 == Needed Functionality ==
@@ -159,8 +162,8 @@ they use different tile sets, and also to make it easy to swap tile sets if
 needed.
 
 The map engine loads tiled .tmx map files. The properties of a tile, such as 
-solidity or animation are loaded from the Tiled file. The anim= parameter 
-sets the tile to animate to.
+solidity or animation are loaded from the Tiled file. Tiled has animated tiles 
+since tiled 0.10 so support those as well.
 
 
 Particle and effect engine
@@ -174,7 +177,7 @@ animations for certain effects.
 
 Camera module
 -------------
-The camera module should models a camera, that is, a view of a
+The camera module should model a camera, that is, a view of a
 rectangular area that can move in the “world” of the game and translate these
 world coordinates to screen coordinates. 
 
@@ -183,7 +186,8 @@ Physics
 -------
 Finally got rid of Chipmunk. I was able to implement a useful system 
 that's simpler than chipmunk but that works well and doesn't require bazillions
-of static shapes for the tile map walls.
+of static shapes for the tile map walls. Also need to implement battle related 
+area sensitivity.
 
 +---------+
 | Modules |
