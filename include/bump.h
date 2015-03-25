@@ -159,7 +159,10 @@ int bumpworld_fetch_body_hulls(BumpWorld * self, BumpBody * body,
 int bumpworld_find_body_hulls(BumpWorld * self, BumpBody * body, void * extra,
   int (*callback)(BumpHull * hull, void * extra));
 
-
+int bumpworld_set_hull_flag(BumpWorld * me, int index,  int flag);
+int bumpworld_unset_hull_flag(BumpWorld * me, int index,  int flag);
+int bumpworld_hull_flags_(BumpWorld * me, int index,  int flags);
+int bumpworld_hull_flags(BumpWorld * me, int index);
 
 #endif
 

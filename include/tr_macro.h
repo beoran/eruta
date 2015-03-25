@@ -268,6 +268,41 @@ static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
   return mrb_fixnum_value(result);                                             \
 }
 
+#define TR_AREA_GET(THING, STATE, THINGID)                                     \
+  THING = state_thing(STATE, THINGID);                                         \
+  if (!THING) {                                                                \
+    return mrb_nil_value();                                                    \
+  }                                                                            
+
+#define TR_AREA_FUNC_INIT(THING, STATE)                                        \
+  State * STATE    = state_get();                                              \
+  Thing * THING    = NULL;                                                     \
+  (void) self;                                                                 
+
+
+#define TR_AREA_I_BOOL(NAME, TOCALL)                                           \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  TR_THING_FUNC_INIT(thing, state)                                             \
+  mrb_int result;                                                              \
+  mrb_int thingid, i1;                                                         \
+  mrb_get_args(mrb, "ii", &thingid, &i1);                                      \
+  TR_THING_GET(thing, state, thingid);                                         \
+  result = TOCALL(thing, i1);                                                  \
+  return rh_bool_value(result);                                                \
+}
+
+
+#define TR_AREA_III_INT(NAME, TOCALL)                                          \
+static mrb_value NAME(mrb_state * mrb, mrb_value self) {                       \
+  TR_AREA_FUNC_INIT(area, state)                                               \
+  mrb_int result;                                                              \
+  mrb_int thingid, i1, i2, i3;                                                 \
+  mrb_get_args(mrb, "iiii", &thingid, &i1, &i2, &i3);                          \
+  result = TOCALL(area, thingid, i1, i2, i3);                                  \
+  return mrb_fixnum_value(result);                                             \
+}
+
+
 
 #define TR_METHOD(MRB, CLASS, NAME, IMPL, FLAGS)                               \
         mrb_define_method((MRB), (CLASS), (NAME), (IMPL), (FLAGS))

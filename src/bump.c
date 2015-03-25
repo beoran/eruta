@@ -1367,3 +1367,32 @@ bumpworld_new_hull(BumpWorld * self, BumpBody * body, BeVec delta, BumpAABB boun
   return bumpworld_add_hull(self, hull);
 }
 
+
+
+/** Sets a flag on the hull indicated by index. */
+int bumpworld_set_hull_flag(BumpWorld * me, int index,  int flag) {
+  if (!me) return 0;
+  return bumphull_set_flag(bumpworld_hull(me, index), flag);
+}
+
+/** Unsets a flag for the hull indicated by index. */
+int bumpworld_unset_hull_flag(BumpWorld * me, int index,  int flag) {
+  if (!me) return 0;
+  return bumphull_unset_flag(bumpworld_hull(me, index), flag);
+}
+
+/** Sets all flags for the hull indicated by index. */
+int bumpworld_hull_flags_(BumpWorld * me, int index,  int flags) {
+  if (!me) return 0;
+  return bumphull_flags_(bumpworld_hull(me, index), flags);
+}
+
+/** Gets all flags for the hull indicated by index. */
+int bumpworld_hull_flags(BumpWorld * me, int index) {
+  if (!me) return 0;
+  return bumphull_flags(bumpworld_hull(me, index));
+}
+
+
+
+

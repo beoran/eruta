@@ -424,6 +424,31 @@ int area_thing_hull_flags(Area * me, int index) {
 
 
 
+/** Sets a flag on the hull indicated by index. */
+int area_set_hull_flag(Area * me, int index,  int flag) {
+  if (!me) return 0;
+  return bumpworld_set_hull_flag(me->world, index, flag);
+}
+
+/** Unsets a flag for the hull indicated by index. */
+int area_unset_hull_flag(Area * me, int index,  int flag) {
+  if (!me) return 0;
+  return bumpworld_unset_hull_flag(me->world, index, flag);
+}
+
+/** Sets all flags for the hull indicated by index. */
+int area_hull_flags_(Area * me, int index,  int flags) {
+  if (!me) return 0;
+  return bumpworld_hull_flags_(me->world, index, flags);
+}
+
+/** Gets all flags for the hull indicated by index. */
+int area_hull_flags(Area * me, int index) {
+  if (!me) return 0;
+  return bumpworld_hull_flags(me->world, index);
+}
+
+
 #define THING_TRACK_DELTA 32.0 * 4
 
 #ifdef COMMENT_

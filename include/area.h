@@ -102,6 +102,18 @@ int area_find_things(Area * self, int x, int y, int w, int h,
 BumpHull * area_add_hull(Area * self, int index, int kind,
                       int x, int y, int z, int w, int h);
 
+Area * area_delete_hull(Area * self, int index);
+Area * area_delete_body(Area * self, int index);
+
+int area_set_thing_hull_flag(Area * me    , int index,  int flag);
+int area_unset_thing_hull_flag(Area * me  , int index,  int flag);
+int area_thing_hull_flags_(Area * me      , int index,  int flags);
+int area_thing_hull_flags(Area * me       , int index);
+
+int area_set_hull_flag(Area * me          , int index,  int flag);
+int area_unset_hull_flag(Area * me        , int index,  int flag);
+int area_hull_flags_(Area * me            , int index,  int flags);
+int area_hull_flags(Area * me             , int index);
 
 #ifdef COMMENT_
 int thing_track (Tracker * tracker , void * data );
