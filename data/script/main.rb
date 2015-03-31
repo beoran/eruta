@@ -29,12 +29,17 @@ MAIN_BACKGROUND = true
 # Helpers
 script 'forwardable.rb'
 
+# Registry module 
+script 'registry.rb'
+
 # Game state
 script 'state.rb'
+
 
 # Load keycodes
 script 'keycode.rb'
 # Load OO wrappers
+script 'timer.rb'
 script 'thing.rb'
 script 'sprite.rb'
 script 'graph.rb'
@@ -76,38 +81,37 @@ module Main
 
   def start_load_sprites
     puts "Loading some things and sprites"
-    Thing.make(Thing::Kind::SENSOR, 300, 400, 1, 32, 32, 100)
-    Sprite.make(100)
-    Sprite[100].load_ulpcss(Sprite::Layer::BODY , "body/female/light.png")
-    Sprite[100].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_female/underdress.png")
-    Sprite[100].load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangslong.png")
-    Sprite[100].load_ulpcss(Sprite::Layer::STAFF, "weapons/steelwand_female.png")
-    Sprite[100].load_ulpcss_slash(Sprite::Layer::BLADE, "weapons/oversize/longsword_female.png")
-    Sprite[100].load_ulpcss_stab(Sprite::Layer::POLEARM, "weapons/oversize/spear.png")
-    Sprite[100].load_ulpcss(Sprite::Layer::BOW, "weapons/greatbow.png")
+    Thing.make(:player_1, Thing::Kind::PLAYER, 300, 400, 1, 32, 32)
+    Sprite.make(:s100)
+    Sprite[:s100].load_ulpcss(Sprite::Layer::BODY , "body/female/light.png")
+    Sprite[:s100].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_female/underdress.png")
+    Sprite[:s100].load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangslong.png")
+    Sprite[:s100].load_ulpcss(Sprite::Layer::STAFF, "weapons/steelwand_female.png")
+    Sprite[:s100].load_ulpcss_slash(Sprite::Layer::BLADE, "weapons/oversize/longsword_female.png")
+    Sprite[:s100].load_ulpcss_stab(Sprite::Layer::POLEARM, "weapons/oversize/spear.png")
+    Sprite[:s100].load_ulpcss(Sprite::Layer::BOW, "weapons/greatbow.png")
     
     
-
-    Thing[100].sprite    = Sprite[100]
-    Thing[100].tint_hair(0, 255, 0)
-    Thing[100].tint_torso(255, 64, 64)
-    Thing[100].direction = Sprite::SOUTH
-    Thing[100].pose      = Sprite::STAND
-    Thing[100].hide_layer(Sprite::Layer::STAFF)
-
-
+    Thing[:player_1].sprite    = Sprite[:s100]
+    Thing[:player_1].tint_hair(0, 255, 0)
+    Thing[:player_1].tint_torso(255, 64, 64)
+    Thing[:player_1].direction = Sprite::SOUTH
+    Thing[:player_1].pose      = Sprite::STAND
+    Thing[:player_1].hide_layer(Sprite::Layer::STAFF)
+    # hf = Thing[100].hull_flags= Thing::Flag::DISABLED
+    # p "set hull flag", hf, Thing[100].hull_flags
     
 
-    Thing.make(Thing::Kind::NORMAL, 400, 400, 1, 32, 32, 101)
-    Sprite.make(101)
-    Sprite[101].load_ulpcss(Sprite::Layer::BODY , "body/female/dark.png")
-    Sprite[101].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_w_sash_female.png")
-    Sprite[101].load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangsshort.png")
-    Thing[101].sprite     = Sprite[101]
-    Thing[101].tint_hair(255, 255, 0)
-    Thing[101].tint_torso(128,  128, 255)
-    Thing[101].pose       = Sprite::STAND
-    Thing[101].direction  = Sprite::SOUTH
+    Thing.make(:player_2, Thing::Kind::NPC, 400, 400, 1, 32, 32)
+    Sprite.make(:s101)
+    Sprite[:s101].load_ulpcss(Sprite::Layer::BODY , "body/female/dark.png")
+    Sprite[:s101].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_w_sash_female.png")
+    Sprite[:s101].load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangsshort.png")
+    Thing[:player_2].sprite     = Sprite[:s101]
+    Thing[:player_2].tint_hair(255, 255, 0)
+    Thing[:player_2].tint_torso(128,  128, 255)
+    Thing[:player_2].pose       = Sprite::STAND
+    Thing[:player_2].direction  = Sprite::SOUTH
 
     puts "Things and sprites loaded."
 
@@ -135,7 +139,7 @@ module Main
       start_load_sprites
       start_load_stuff
     # start_setup_ui
-      actor_switch(Thing[100])
+      actor_switch(Thing[:player_1])
   end
 
 
@@ -343,21 +347,8 @@ module Main
   def actor_attack
     return if !Thing.actor
     pose = Thing.actor.pose
-    if    pose == Sprite::SLASH
-      Thing.actor.pose = Sprite::STAB
-    elsif pose == Sprite::STAB
-      Thing.actor.pose = Sprite::SHOOT
-    elsif pose == Sprite::SHOOT
-      Thing.actor.pose = Sprite::CAST    
-    elsif pose == Sprite::CAST
-      Thing.actor.pose = Sprite::STAND
-    else
-      Thing.actor.hide_layer(Sprite::Layer::BLADE)
-      Thing.actor.show_layer(Sprite::Layer::STAFF)
-      Thing.actor.one_shot_action(Sprite::SLASH)
-      Thing.actor.one_shot_action(Sprite::SHOOT)
-      Thing.actor.pose = Sprite::SLASH
-    end
+    Thing.actor.one_shot_action(Sprite::SLASH)
+    Thing.actor.pose = Sprite::SLASH
   end
 
 
@@ -391,9 +382,9 @@ module Main
     vx, vy        = * actor.v
     case key
       when KEY_A
-        actor_switch(Thing[100])
+        actor_switch(Thing[:player_1])
       when KEY_B
-        actor_switch(Thing[101])
+        actor_switch(Thing[:player_2])
       when KEY_E
         reload_tilemap()
       when KEY_H
@@ -489,11 +480,11 @@ end
 
 
 # Called on a physics collision.
-def on_bump(t1, t2, kind = nil)
+def on_bump(t1, t2, h1, h2, kind = nil)
   if kind == 1 # Begin of collision
     # puts "Begin collision!"
   elsif kind == 2 # Collision active
-    puts "Colliding!"
+    puts "Colliding! #{t1}<->#{t2} (#{h1}<->#{h2})"
   elsif kind == 3 # Collision done
     puts "Collision done!"
   else

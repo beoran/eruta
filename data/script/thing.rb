@@ -2,45 +2,39 @@
 
 # some more OO wrappers for the low level thing functionality
 class Thing < Eruta::Thing
-  attr_reader :id
-  attr_reader :sprite_id
-  attr_reader :sprite
+  extend Registry 
   
-  def self.registry
-    @registry ||= {}
-  end
-  
-  def self.register(thing)
-    @registry ||= {}
-    @registry[thing.id] = thing
-  end
+  attr_reader   :id
+  attr_reader   :sprite_id
+  attr_reader   :sprite
+  attr_accessor :parent
+  attr_reader   :name
 
-  # Look up a thing in the thing registry
-  def self.[](id)
-    @registry[id]
-  end
 
-  def self.lookup(thing_id)
-    return @registry[thing_id]
-  end
-  
-  def initialize(id) 
+  def initialize(id, name) 
     @id = id
+    @name = name || "thing_#{id}"
+    # child things, keyed by id
+    @children = {}
+    # parent thing 
+    @parent   = nil
+    # @sprite   = Sprite.new(id)
     self.class.register(self)
   end
   
-  def self.get_unused_id
-    29000.times do | i | 
-      return i unless self.registry[i]
-    end
-    return nil
+  def self.make(name, kind, x, y, z, w, h)
+    id = Eruta::Thing.thing_new(kind, x, y, z, w, h)
+    p "Making thing #{name} #{id}"
+    return nil if id < 0
+    return self.new(id, name)
   end
   
-  def self.make(kind, x, y, z, w, h, id = nil)
-    id ||= self.get_unused_id
-    return nil if !id
-    return self.new(Eruta::Thing.thing_new(id, kind, x, y, z, w, h))
+  # adds child as a child of self
+  def add_child(child) 
+    child.parent = self
+    @children[child.id] = child
   end
+  
 
   def self.find_in_rectangle(x, y, w, h, self_id)
     ids =  Eruta::Thing.find_in_rectangle(x, y, w, h)
@@ -138,6 +132,10 @@ class Thing < Eruta::Thing
   
   # Sets the sprite for this thing 
   def sprite=(sprite)
+    # if (self.sprite_id < -1) 
+    # XXX Free the sprite here.
+    # end
+      
     self.sprite_id = (sprite.id)
     @sprite        = sprite
     puts "set sprite #{sprite.id}"
@@ -247,11 +245,25 @@ class Thing < Eruta::Thing
     p res
   end
   
+  # Sets a flag of the main hull (physical presence) of the thing
+  forward_thing :set_hull_flag
   
-   
-  
-  
+  # Unsets a flag of the main hull (physical presence) of the thing
+  forward_thing :unset_hull_flag
 
+  # Sets all flags of the main hull (physical presence) of the thing
+  forward_thing :hull_flags=
+  
+  # Gets all flags of the main hull (physical presence) of the thing
+  forward_thing :hull_flags
+  
+  
+  
+  
+  
+  
+  
+  
 
 end
 

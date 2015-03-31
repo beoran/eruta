@@ -67,14 +67,13 @@ Thing * area_thing_(Area * area, int index, Thing * set) {
 }
 
 
-/** Returns the first unused Thing ID greater than minimum Internally walks over
+/** Returns the first unused Thing ID.  Internally walks over
  * the known things and finds an empty cell. Returns negative on error. */
-int area_get_unused_thing_id(Area * self, int minimum) {
+int area_get_unused_thing_id(Area * self) {
   int index, stop;
   if (!self) return -1;
-  if (minimum < 0) return -2;
   stop = area_maxthings(self);
-  for (index = minimum; index < stop; index++) {
+  for (index = 0; index < stop; index++) {
     Thing * thing = area_thing(self, index);
     if(!thing) {
       return index;
@@ -86,7 +85,7 @@ int area_get_unused_thing_id(Area * self, int minimum) {
 /** Puts a thing inside the area. Returns NULL on error.
 returns the thing set if ok. Sets the thing's id to it's
 position in the internal array for things the area has. */
-Thing * area_addthing(Area * area, int index, Thing * thing) {
+Thing * area_add_thing(Area * area, int index, Thing * thing) {
   if (!thing)  return NULL;
   if (index < 0 ) return NULL;
   if (index > AREA_THINGS) return NULL;
@@ -113,7 +112,7 @@ area_addmap(Area * area, Tilemap * map) {
 
 /* Removes the thing from the area, but does not deallocate it.
  * Returns thing if sucessful. */
-Thing * area_removething(Area * area, Thing * thing) {
+Thing * area_remove_thing(Area * area, Thing * thing) {
   if (!thing)                           return NULL;
   if (thing->id<0)                      return NULL;
   if (thing->kind == THING_UNUSED)      return NULL;
@@ -126,9 +125,9 @@ Thing * area_removething(Area * area, Thing * thing) {
 
 
 /* Removes a thing from the area, selected by ID and deallocates it. */
-int area_deletething(Area * area, int index) {
+int area_delete_thing(Area * area, int index) {
   Thing * thing = area_thing(area, index);
-  Thing * del   = area_removething(area, thing);
+  Thing * del   = area_remove_thing(area, thing);
   if(thing && del) {
      thing_free(thing);
   }
@@ -142,7 +141,7 @@ Area * area_cleanupthings(Area * self) {
   if(!self) return NULL;
   stop = area_maxthings(self);
   for (index= 0; index < stop; index++) {
-    area_deletething(self, index);
+    area_delete_thing(self, index);
   }
   return self;
 }
@@ -224,15 +223,26 @@ BumpWorld * area_world(Area * self) {
 }
 
 
-/** Makes a new dynamic thing and adds it to the area. Return it or NULL on error. */
-Thing * area_newdynamic(Area * self, int index, int kind,
+/** Makes a new thing and adds it to the area. Return it or NULL on error. */
+Thing * area_new_thing(Area * self, int kind,
                         int x, int y, int z, int w, int h) {
   Thing * thing;
-  thing = thing_newdynamic(self, kind, x, y, z, w, h);
-  if (!area_addthing(self, index, thing)) {
+  int index; 
+  
+  index  = area_get_unused_thing_id(self);
+  thing  = thing_new_dynamic(self, index, kind, x, y, z, w, h);
+  
+  if (!area_add_thing(self, index, thing)) {
     return thing_free(thing);
   }
   return thing;
+}
+
+/** Makes a new thing and returns it's ID. */
+int area_new_thing_id(Area * self, int kind, int x, int y, int z, int w, int h) {
+  Thing * thing;
+  thing = area_new_thing(self, kind, x, y, z, w, h);
+  return thing_id(thing);
 }
 
 
@@ -305,12 +315,6 @@ void area_update(Area * self, double dt) {
 }
 
 
-/** Returns the thing related to the hull's body, if any. */
-Thing * bumphull_thing(BumpHull * hull) {
-  BumpBody * body = bumphull_body(hull);
-  if(!body) return NULL;
-  return bumpbody_data(body);
-}
 
 /* Helper for callback wrapper. */
 struct area_find_hulls_helper {
@@ -446,6 +450,14 @@ int area_hull_flags_(Area * me, int index,  int flags) {
 int area_hull_flags(Area * me, int index) {
   if (!me) return 0;
   return bumpworld_hull_flags(me->world, index);
+}
+
+
+/** Returns the thing related to the hull's body, if any. 
+ * This is in area.c for dependency reasons.
+ */
+Thing * bumphull_thing(BumpHull * hull) {
+  return bumphull_body_data(hull);
 }
 
 

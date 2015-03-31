@@ -580,6 +580,12 @@ int sprite_action_index_for(Sprite * me, int pose, int direction) {
   }
 }
 
+/** Returns the ID of the sprite, or negative on error. */
+int sprite_id(Sprite * sprite) {
+  if (sprite == NULL) return -1;
+  return sprite->index;
+}
+
 
 /* Returns the amount of frames an action has. */
 int sprite_frames(Sprite *self, int action) {

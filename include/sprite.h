@@ -158,6 +158,7 @@ void spritecell_draw_tinted(SpriteCell * self, Point * at, Color tint);
 void spritecell_draw(SpriteCell * self, Point * at);
  
 
+int sprite_id(Sprite * sprite);
 
 
 #endif

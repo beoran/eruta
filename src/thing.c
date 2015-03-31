@@ -137,11 +137,11 @@ Sets the given values and some flags. Links the Shape given
 to the Thing if shape is not NULL. 
 Does NOT call area_addthing on the given area. 
 Returns null if that failed, but does no cleanup.  */
-Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
+Thing * thing_init_generic(Thing * self, Area * area, int id, int kind, int z,
                           BumpBody * body, BumpHull * shape) {
   if(!self) return NULL;
   self->kind    = kind;
-  self->id      = -1;
+  self->id      = id;
   self->area    = area;
   self->physical= body;
   self->hull    = shape;
@@ -166,11 +166,11 @@ thing_initstatic isn't needed since bump understands tile maps.
 /** Initializes a rectangular, dynamic, non-rotating Thing, with mass 1 
 and makes a new body  and rectangular shape for it. Returns NULL on error. 
 Uses the area's static body. */
-Thing * thing_initdynamic(Thing * self, Area * area, 
-                       int kind, int x, int y, int z, int w, int h) { 
+Thing * thing_init_dynamic(Thing * self, Area * area, 
+                       int id, int kind, int x, int y, int z, int w, int h) { 
     BumpBody  * body    = NULL; 
     BumpHull  * shape   = NULL; 
-    BeVec     pos     , delta;
+    BeVec     pos       , delta;
     BumpAABB    bounds;
     if(!self) return NULL;
     if(!area) return NULL;
@@ -183,7 +183,7 @@ Thing * thing_initdynamic(Thing * self, Area * area,
     delta               = bevec0();
     shape               = bumphull_newall(body, delta, bounds,  1 << z, kind);
     if(!shape) goto out_of_memory;    
-    return thing_initgeneric(self, area, kind, z, body, shape);
+    return thing_init_generic(self, area, id, kind, z, body, shape);
     
     out_of_memory:
     bumpbody_free(body);
@@ -198,11 +198,11 @@ Thing * thing_initdynamic(Thing * self, Area * area,
 
 
 /** Allocates and initializes a new dynamic Thing. */
-Thing * thing_newdynamic(Area * area, 
-                       int kind, 
+Thing * thing_new_dynamic(Area * area, 
+                       int id, int kind, 
                        int x, int y, int z, int w, int h) {
   Thing * self = thing_alloc();
-  if(!thing_initdynamic(self, area, kind, x, y, z, w, h)) {
+  if(!thing_init_dynamic(self, area, id, kind, x, y, z, w, h)) {
     return thing_free(self); 
   }
   return self;

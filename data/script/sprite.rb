@@ -2,35 +2,17 @@
 
 # Some more OO wrappers for the low level sprite functionality
 class Sprite < Eruta::Sprite
+  extend Registry
+    
   attr_reader :id
+  attr_reader :name
   
-  def self.registry
-    @registry ||= {}
-  end
-  
-  def self.register(thing)
-    @registry ||= {}
-    @registry[thing.id] = thing
-  end
-
-  # Look up a Sprite in the Sprite registry
-  def self.[](id)
-    @registry[id]
-  end
-
-  
-  def initialize(id) 
-    @id = id
+  def initialize(id, name)
+    @id     = id
+    @name   = name
     self.class.register(self)
   end
     
-  def self.get_unused_id
-    29000.times do | i | 
-      return i unless self.registry[i]
-    end
-    return nil
-  end
-
   BUILTIN_LAYOUTS = {
     :ulpcss       => Eruta::Sprite::LOAD_ULPCSS_NORMAL,
     :ulpcss_slash => Eruta::Sprite::LOAD_ULPCSS_OVERSIZED_SLASH,
@@ -66,12 +48,13 @@ class Sprite < Eruta::Sprite
     Sprite.load_builtin(@id, layer, vpath, :ulpcss_stab)
   end
   
-  # Makes a new sprite possibly with the given ID, or otherwise tries to find a 
+  # Makes a new sprite posibly with the given ID, or otherwise tries to find a 
   # free id.
-  def self.make(id=nil)
-    id ||= self.get_unused_id
-    return nil if !id
-    return self.new(Eruta::Sprite.sprite_new(id))
+  def self.make(name)
+    id = Eruta::Sprite.sprite_new()
+    p "Make sprite id #{id}"
+    return nil if id < 0 
+    return self.new(id, name)
   end
   
   # Returns the action ID for the given poe and direction for this sprite.

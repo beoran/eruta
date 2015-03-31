@@ -1,0 +1,103 @@
+
+CFLAGS = -I /usr/local/include -I ./include -Wall -Wno-unused 
+
+ifeq (@(RELEASE),y)
+  CFLAGS += -Os
+else
+  CFLAGS += -g
+endif
+
+
+# Source files of Eruta
+SRC_FILES =  src/alps.c
+SRC_FILES += src/area.c
+SRC_FILES += src/bad.c
+SRC_FILES += src/bevec.c
+SRC_FILES += src/brex.c
+SRC_FILES += src/bump.c
+SRC_FILES += src/bumpshape.c
+SRC_FILES += src/bxml.c
+SRC_FILES += src/bxmlparser.c
+SRC_FILES += src/camera.c
+SRC_FILES += src/collide.c
+SRC_FILES += src/draw.c
+SRC_FILES += src/dynar.c
+SRC_FILES += src/effect.c
+SRC_FILES += src/event.c
+SRC_FILES += src/every.c
+SRC_FILES += src/flags.c
+SRC_FILES += src/fifi.c
+SRC_FILES += src/glh.c
+SRC_FILES += src/hatab.c
+SRC_FILES += src/ifa.c
+SRC_FILES += src/inli.c
+SRC_FILES += src/intgrid.c
+SRC_FILES += src/laytext.c
+SRC_FILES += src/mem.c
+SRC_FILES += src/mobile.c
+SRC_FILES += src/mode.c
+SRC_FILES += src/monolog.c
+SRC_FILES += src/obj.c
+SRC_FILES += src/pique.c
+SRC_FILES += src/pointergrid.c
+SRC_FILES += src/react.c
+SRC_FILES += src/rebl.c
+SRC_FILES += src/rebox.c
+SRC_FILES += src/resor.c
+SRC_FILES += src/rh.c
+SRC_FILES += src/scegra.c
+SRC_FILES += src/ses.c
+SRC_FILES += src/silut.c
+SRC_FILES += src/sound.c
+SRC_FILES += src/sprite.c
+SRC_FILES += src/spritelist.c
+SRC_FILES += src/spritestate.c
+SRC_FILES += src/spritelayout.c
+SRC_FILES += src/state.c
+SRC_FILES += src/store.c
+SRC_FILES += src/str.c
+SRC_FILES += src/thing.c
+SRC_FILES += src/tile.c
+SRC_FILES += src/tileio.c
+SRC_FILES += src/tilemap.c
+SRC_FILES += src/tilepane.c
+SRC_FILES += src/tarray.c
+SRC_FILES += src/tmatrix.c
+SRC_FILES += src/toruby.c
+SRC_FILES += src/tr_audio.c
+SRC_FILES += src/tr_path.c
+SRC_FILES += src/tr_store.c
+SRC_FILES += src/tr_graph.c
+SRC_FILES += src/tr_sprite.c
+SRC_FILES += src/tr_thing.c
+SRC_FILES += src/ui.c
+SRC_FILES += src/utf8.c
+SRC_FILES += src/widget.c
+SRC_FILES += src/xresor.c
+SRC_FILES += src/zori.c
+
+MAIN_FILE  = src/main.c
+
+ALLEGRO_LIBS  = -lallegro_acodec -lallegro_audio
+ALLEGRO_LIBS += -lallegro_image  -lallegro_color -lallegro_dialog 
+ALLEGRO_LIBS += -lallegro_ttf -lallegro_font  
+ALLEGRO_LIBS += -lallegro_primitives -lallegro_video 
+ALLEGRO_LIBS += -lallegro_physfs -lallegro_memfile 
+ALLEGRO_LIBS += -lallegro_main -lallegro
+
+MRUBY_LIBS=-lmruby_core -lmruby
+
+LDFLAGS = -L /usr/local/lib $(ALLEGRO_LIBS) $(MRUBY_LIBS) -lm
+
+!cc = |> ^ CC %f ^ gcc  $(CFLAGS) -c %f -o %o |>
+!ld = |> gcc %f $(LDFLAGS) -o %o |> 
+
+: foreach $(SRC_FILES) |> !cc |>  build/%B.o {objects}
+: $(MAIN_FILE) |> !cc |>  build/%B.o {main}
+: {objects} {main} |> !ld |> bin/eruta
+
+# ^ LINK %f ^
+
+
+
+

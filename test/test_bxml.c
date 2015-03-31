@@ -35,7 +35,7 @@ TEST_FUNC(bxml) {
   TEST_PTREQ(c1, t1);
   TEST_PTREQ(c2, t2);
   
-  
+
   bxml_free(xml);
   TEST_DONE();
 }

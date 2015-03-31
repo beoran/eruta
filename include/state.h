@@ -49,9 +49,9 @@ double state_fps (State * state );
 double state_frametime (State * state );
 Camera * state_camera (State * state );
 
-Sprite * state_newsprite(State * state, int index);
 Sprite * state_sprite(State * state, int index);
-Sprite * state_getornewsprite(State * state, int index);
+Sprite * state_new_sprite(State * state);
+int state_new_sprite_id(State * state);
 
 int state_sprite_load_builtin
 (State * state, int sprite_index, int layer_index, char * vpath, int layout);
@@ -64,8 +64,13 @@ SpriteList * state_sprites(State * state);
 
 
 Thing * state_thing(State * state, int index);
-Thing * state_newthing(State * state, int index, int kind,
+
+Thing * state_newthing(State * state, int kind, 
                         int x, int y, int z, int w, int h);
+                        
+int state_newthingindex(State * state, int kind, 
+                        int x, int y, int z, int w, int h);
+
 int state_thing_tint_layer
 (State * state, int thing_index, int layer_index, int r, int g, int b, int a);
 
@@ -77,8 +82,6 @@ void state_draw(State * self);
 void state_flip_display(State * self);
 void state_update(State * self);
 
-int state_newthingindex(State * state, int index, int kind, 
-                        int x, int y, int z, int w, int h);
 int state_thing_sprite_(State * state, int thing_index, int sprite_index); 
 int state_thing_pose_(State * state, int thing_index, int pose);
 int state_thing_direction_(State * state, int thing_index, int direction);
@@ -101,8 +104,8 @@ int global_state_show_area_(int show);
 int global_state_show_physics();
 int global_state_show_physics_(int show);
 
-int state_get_unused_thing_id(int minimum);
-int state_get_unused_sprite_id(int minimum);
+int state_get_unused_thing_id();
+int state_get_unused_sprite_id();
 
 
 

@@ -29,7 +29,7 @@ Thing * area_thing (Area * area , int index);
 
 Thing * area_thing_(Area * area , int index , Thing * set);
 
-int area_get_unused_thing_id(Area * self, int minimum);
+int area_get_unused_thing_id(Area * self);
 
 Thing * area_addthing (Area * area , int index, Thing * thing);
 
@@ -65,27 +65,9 @@ void area_draw (Area * self , Camera * camera );
 
 void area_update (Area * self , double dt );
 
-/* There are thing related but go here to avoid cyclical dependency problems. */
-
-Thing * thing_initgeneric(Thing * self, Area * area, int kind, int z,
-                          BumpBody * body, BumpHull * shape);
-
-Thing * thing_initstatic(Thing * self, Area * area, 
-                       int kind, 
+Thing * thing_new_dynamic(Area * area, 
+                       int id, int kind, 
                        int x, int y, int z, int w, int h);
-
-Thing * thing_initdynamic(Thing * self, Area * area, 
-                       int kind, int x, int y, int z, int w, int h);
-
-
-Thing * thing_newstatic(Area * area, 
-                       int kind, 
-                       int x, int y, int z, int w, int h) ;
-                       
-Thing * thing_newdynamic(Area * area, 
-                       int kind, 
-                       int x, int y, int z, int w, int h);
-
 
 void area_draw_layer (Area * self, Camera * camera, int layer);
 
@@ -114,6 +96,13 @@ int area_set_hull_flag(Area * me          , int index,  int flag);
 int area_unset_hull_flag(Area * me        , int index,  int flag);
 int area_hull_flags_(Area * me            , int index,  int flags);
 int area_hull_flags(Area * me             , int index);
+
+Thing * area_new_thing(Area * self, int kind,
+                        int x, int y, int z, int w, int h);                        
+int area_new_thing_id(Area * self, int kind, int x, int y, int z, int w, int h);
+
+
+Thing * bumphull_thing(BumpHull * hull);
 
 #ifdef COMMENT_
 int thing_track (Tracker * tracker , void * data );

@@ -284,22 +284,22 @@ BBConsole * state_console(State * state) {
 }
 
 /* Creates a new sprite in the sprite list. */
-Sprite * state_newsprite(State * state, int index) {
+Sprite * state_new_sprite(State * state) {
   SpriteList * list = state_sprites(state);
-  return spritelist_newsprite(list, index);
+  return spritelist_new_sprite(list);
 }
+
+/* Creates a new sprite in the sprite list and returns it's id. */
+int state_new_sprite_id(State * state) {
+  SpriteList * list = state_sprites(state);
+  return spritelist_new_sprite_id(list);
+}
+
 
 /* Returns a sprite from the state's sprite list. */
 Sprite * state_sprite(State * state, int index) {
   SpriteList * list = state_sprites(state);
   return spritelist_sprite(list, index);
-}
-
-/* Returns a sprite from the state's sprite list or makes it new if 
- * it didn't exist. */
-Sprite * state_getornewsprite(State * state, int index) {
-  SpriteList * list = state_sprites(state);
-  return spritelist_getornew(list, index);
 }
 
 /* Loads a layer of a sprite from a vpath. Sprite layer is in 
@@ -319,20 +319,19 @@ Thing * state_thing(State * state, int index) {
 }
 
 /* Makes a new dynamic thing in the state's active area. */
-Thing * state_newthing(State * state, int index, int kind, 
+Thing * state_newthing(State * state, int kind, 
                         int x, int y, int z, int w, int h) {
   Area * area = state_area(state);
-  return area_newdynamic(area, index, kind, x, y, z, w, h);
+  return area_new_thing(area, kind, x, y, z, w, h);
 }
 
 /* Makes a new dynamic thing and returns it's index, or 
  negative if it could not be created. */
-int state_newthingindex(State * state, int index, int kind, 
+int state_newthingindex(State * state, int kind, 
                         int x, int y, int z, int w, int h) {
-                          
-  Thing * thing = state_newthing(state, index, kind, x, y, z, w, h);
-  if (!thing) return -1;
-  return thing_id(thing);
+ 
+  Area * area = state_area(state);
+  return area_new_thing_id(area, kind, x, y, z, w, h);
 }
 
 
@@ -992,12 +991,12 @@ int state_image_average_to_alpha(State * state, int store_index, int r, int g, i
 }
 
 /* Returns the first unused thing ID that is greater than minimum. */
-int state_get_unused_thing_id(int minimum) {
-  return area_get_unused_thing_id(state_area(state_get()), minimum);
+int state_get_unused_thing_id() {
+  return area_get_unused_thing_id(state_area(state_get()));
 }
 
 /* Returns the first unused sprite ID that is greater than minimum. */
-int state_get_unused_sprite_id(int minimum) {
-  return spritelist_get_unused_sprite_id(state_sprites(state_get()), minimum);
+int state_get_unused_sprite_id() {
+  return spritelist_get_unused_sprite_id(state_sprites(state_get()));
 }
 

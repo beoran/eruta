@@ -55,6 +55,21 @@ Sprite * spritelist_sprite(SpriteList * self, int index)  {
   return dynar_getptr(self->sprites, index);
 }
 
+
+/** Deletes a sprite with thje given id from the sprite list and frees it. 
+ * Returns negative on failure (sprite didn't exist), or 0
+ * on success.  */
+int spritelist_delete_sprite(SpriteList * self, int index) {
+  Sprite * sprite;
+  if (!self) return -1;  
+  sprite = spritelist_sprite(self, index);
+  if (!sprite) return -2;
+  sprite_free(sprite);
+  dynar_putptr(self->sprites, index, NULL); 
+  return 0;
+}
+
+
 /* Puts a sprite into a sprite list. If there was a sprite there already it will 
  * be freed */
 Sprite * spritelist_sprite_(SpriteList * self, int index, Sprite * sprite) {
@@ -66,22 +81,35 @@ Sprite * spritelist_sprite_(SpriteList * self, int index, Sprite * sprite) {
   return sprite;
 }
 
-/* Makes a new sprite and puts in the sprite list at the given index. */
-Sprite * spritelist_newsprite(SpriteList * self, int index) {
+/** Makes a new sprite and returns it */
+Sprite * spritelist_new_sprite(SpriteList * self) {
   Sprite * sprite;
+  int index;
   if (!self) return NULL;
-  sprite = sprite_new(index);
+  index = spritelist_get_unused_sprite_id(self);  
+  if (index < 0) return NULL;  
+  sprite = sprite_new(index);  
   if(!sprite) return NULL;
   return spritelist_sprite_(self, index, sprite);
 }
 
+/** Makes a new sprite and returns it's ID or negative on error
+ * (ie, cannot make more sprites).
+*/
+int spritelist_new_sprite_id(SpriteList * self) {
+  Sprite * sprite = spritelist_new_sprite(self);
+  return sprite_id(sprite);
+}
+
+
 /* Makes a new sprite if it doesn't exist yet or otherwise returns the old one 
- at the given index. */
+ at the given index. 
 Sprite * spritelist_getornew(SpriteList * self, int index) {
   Sprite * sprite = spritelist_sprite(self, index);
   if (sprite) return sprite;
   return spritelist_newsprite(self, index);
 } 
+*/
 
 /* Loads a sprite cell in ulpcss format into the sprite with 
  the given index in the sprite list. If no sprite exists yet,
@@ -94,7 +122,7 @@ Sprite * spritelist_loadlayer_ulpcss_vpath(
   int oversize = FALSE;
   if (!self) return NULL;
   if (strstr(vpath, "oversize")) { oversize = TRUE; } 
-  sprite = spritelist_getornew(self, index);
+  sprite = spritelist_sprite(self, index);
   if (!sprite) return NULL;
   if (!sprite_loadlayer_ulpcss_vpath(sprite, layerindex, vpath, oversize)) 
     return NULL;
@@ -103,12 +131,11 @@ Sprite * spritelist_loadlayer_ulpcss_vpath(
 
 
 /* Returns the first unused sprite ID larger than minimum. */
-int spritelist_get_unused_sprite_id(SpriteList * self, int minimum) {
+int spritelist_get_unused_sprite_id(SpriteList * self) {
   int index, stop;
-  if (!self) return -1;
-  if (minimum < 0) return -2;
+  if (!self) return -1;  
   stop = dynar_size(self->sprites);
-  for (index = minimum; index < stop; index++) {
+  for (index = 0; index < stop; index++) {
     Sprite * sprite = spritelist_sprite(self, index);
     if (!sprite) {
       return index;
@@ -124,7 +151,7 @@ int spritelist_load_sprite_layer_with_builtin_layout
   (SpriteList * me, int sprite_index,
   int layer_index, char * vpath, int layout) {
 
-  Sprite * sprite = spritelist_getornew(me, sprite_index);
+  Sprite * sprite = spritelist_sprite(me, sprite_index);
   if (!sprite) return -1;
   if(sprite_loadlayer_ulpcss_vpath(sprite, layer_index, vpath, layout)) { 
     return sprite_index;
@@ -139,7 +166,7 @@ int spritelist_load_sprite_layer_with_layout
   (SpriteList * me, int sprite_index,
   int layer_index, char * vpath, SpriteLayout * layout) {
 
-  Sprite * sprite = spritelist_getornew(me, sprite_index);
+  Sprite * sprite = spritelist_sprite(me, sprite_index);
   if (!sprite) return -1;
   if(sprite_loadlayer_vpath(sprite, layout, layer_index, vpath)) { 
     return sprite_index;

@@ -279,7 +279,8 @@ void tilemap_update(Tilemap * map, double dt) {
 /** Adds a dynamic thing of the given type to the tile map's area */
 Thing * tilemap_addthing(Tilemap * self, int index, int kind, int x, int y, int z, 
                          int w, int h) {
-  return area_newdynamic(self->area, index, kind, x, y, z, w, h);
+  /** XXX this will be hard to find back from the scripting side, fix this! */                         
+  return area_new_thing(self->area, kind, x, y, z, w, h);
 }
 
 

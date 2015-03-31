@@ -18,39 +18,11 @@
 #include "tr_sprite.h"
 
 
-static mrb_value tr_getornewsprite(mrb_state * mrb, mrb_value self) {
+static mrb_value tr_new_sprite(mrb_state * mrb, mrb_value self) {
   Sprite * sprite = NULL;
   State * state   = state_get();
-  mrb_int index   = -1;
-  mrb_get_args(mrb, "i", &index);
-  (void) self;
-
-   
-  if (index < 0) {
-    return mrb_nil_value();
-  }
-  sprite = state_getornewsprite(state, index);
-  if(!sprite) {
-    return mrb_nil_value();
-  }
-  return mrb_fixnum_value(index);  
-} 
-
-static mrb_value tr_newsprite(mrb_state * mrb, mrb_value self) {
-  Sprite * sprite = NULL;
-  State * state   = state_get();
-  mrb_int  index  = -1;
-  mrb_get_args(mrb, "i", &index);
-  (void) self;
-
-  if (index < 1) {
-    return mrb_nil_value();
-  }
-  sprite = state_newsprite(state, index);
-  if(!sprite) {
-    return mrb_nil_value();
-  }
-  return mrb_fixnum_value(index);
+  (void) self;  
+  return mrb_fixnum_value(state_new_sprite_id(state));
 } 
 
 static mrb_value tr_sprite(mrb_state * mrb, mrb_value self) {
@@ -180,12 +152,11 @@ int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   TR_CONST_INT_EASY(mrb, spr, SPRITE_, LOAD_ULPCSS_OVERSIZED_SLASH);
    
   
-  TR_CLASS_METHOD_ARGC(mrb, spr, "get_or_new"    , tr_getornewsprite, 1);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "sprite_new"    , tr_newsprite, 1);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "get"           , tr_sprite, 1);
-  TR_CLASS_METHOD_OPTARG(mrb, spr, "load_builtin", tr_sprite_load_builtin, 3, 1);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "get_unused_id" , tr_sprite_get_unused_id, 1);
-  TR_CLASS_METHOD_ARGC(mrb, spr, "action_id_for" , tr_sprite_action_index_for, 3);
+  TR_CLASS_METHOD_ARGC(mrb  , spr, "sprite_new"    , tr_new_sprite, 1);
+  TR_CLASS_METHOD_ARGC(mrb  , spr, "get"           , tr_sprite, 1);
+  TR_CLASS_METHOD_OPTARG(mrb, spr, "load_builtin"  , tr_sprite_load_builtin, 3, 1);
+  TR_CLASS_METHOD_ARGC(mrb  , spr, "get_unused_id" , tr_sprite_get_unused_id, 1);
+  TR_CLASS_METHOD_ARGC(mrb  , spr, "action_id_for" , tr_sprite_action_index_for, 3);
 
 
 

@@ -654,10 +654,12 @@ int bbconsole_vprintf(BBConsole * self, const char * format, va_list args) {
 
 /** Prints a formatted string on the console, truncaded to 1024 characters.  */
 int bbconsole_printf(BBConsole * self, const char * format, ...) {
+  int result;
   va_list args;
   va_start(args, format);
-  bbconsole_vprintf(self, format, args);
+  result = bbconsole_vprintf(self, format, args);
   va_end(args);
+  return result;
 }
 
 

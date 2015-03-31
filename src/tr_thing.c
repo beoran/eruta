@@ -21,11 +21,11 @@ static mrb_value tr_newthing(mrb_state * mrb, mrb_value self) {
   int result;
   mrb_int   index, kind, x, y, z, w, h;
   (void) self;
-  mrb_get_args(mrb, "iiiiiii", &index, &kind, &x, &y, &z, &w, &h);  
+  mrb_get_args(mrb, "iiiiii", &kind, &x, &y, &z, &w, &h);  
   if ((index<0) || (kind < 0)) {
     return mrb_nil_value();
   } 
-  thing = state_newthingindex(state, index, kind, x, y, z, w, h);
+  thing = state_newthingindex(state, kind, x, y, z, w, h);
   return mrb_fixnum_value(thing);
 }
 
@@ -175,6 +175,17 @@ TR_PAIR_DO(TR_THING_IGETTER, thing_pose)
 TR_WRAP_I_INT(tr_thing_get_unused_id, state_get_unused_thing_id);
 
 
+TR_AREA_I_INT(tr_area_hull_flags, area_hull_flags);
+TR_AREA_II_INT(tr_area_hull_flags_, area_hull_flags_);
+TR_AREA_II_INT(tr_area_set_hull_flag, area_set_hull_flag);
+TR_AREA_II_INT(tr_area_unset_hull_flag,  area_unset_hull_flag);
+
+TR_AREA_I_INT(tr_area_thing_hull_flags, area_thing_hull_flags);
+TR_AREA_II_INT(tr_area_thing_hull_flags_, area_thing_hull_flags_);
+TR_AREA_II_INT(tr_area_set_thing_hull_flag, area_set_thing_hull_flag);
+TR_AREA_II_INT(tr_area_unset_thing_hull_flag,  area_unset_thing_hull_flag);
+
+
 
 /** Initialize mruby bindings to the physics engine and physical thing
  * functionality. Eru is the parent module, which is normally named "Eruta" on the
@@ -224,16 +235,20 @@ int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_ARGC(mrb, thi, "action_done?"   , tr_thing_is_action_done, 3);
   TR_CLASS_METHOD_ARGC(mrb, thi, "set_pose_direction_loop", tr_thing_set_pose_direction_loop, 4);
   TR_CLASS_METHOD_ARGC(mrb, thi, "get_pose_direction_loop", tr_thing_get_pose_direction_loop, 3);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "set_hull_flag"  , tr_area_set_thing_hull_flag, 2);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "unset_hull_flag", tr_area_unset_thing_hull_flag, 2);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "hull_flags"     , tr_area_thing_hull_flags, 2);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "hull_flags_"    , tr_area_thing_hull_flags_, 2);
   
   
   /* Collision types of a thing */
   TR_CONST_INT_EASY(mrb, fla, BUMP_FLAG_, NORMAL);
   TR_CONST_INT_EASY(mrb, fla, BUMP_FLAG_, SENSOR);
-  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, DISABLED);
-  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, USER1);
-  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, USER2);
-  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, USER3);
-  TR_CONST_INT_EASY(mrb, kin, BUMP_FLAG_, USER4);
+  TR_CONST_INT_EASY(mrb, fla, BUMP_FLAG_, DISABLED);
+  TR_CONST_INT_EASY(mrb, fla, BUMP_FLAG_, USER1);
+  TR_CONST_INT_EASY(mrb, fla, BUMP_FLAG_, USER2);
+  TR_CONST_INT_EASY(mrb, fla, BUMP_FLAG_, USER3);
+  TR_CONST_INT_EASY(mrb, fla, BUMP_FLAG_, USER4);
 
   TR_CONST_INT_EASY(mrb, kin, BUMP_KIND_, PLAYER);
   TR_CONST_INT_EASY(mrb, kin, BUMP_KIND_, NPC);

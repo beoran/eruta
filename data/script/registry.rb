@@ -1,5 +1,5 @@
 # The registry module can be extended into a class to enable
-# by name and by id registtry storage and lookup
+# by name and by id registry storage and lookup
 module Registry
 
 
@@ -18,7 +18,8 @@ module Registry
   def get_registry_id_and_name(obj, id = nil, name = nil)
     id      = obj.id          if obj.respond_to? :id
     name    = obj.name        if obj.respond_to? :name
-    name  ||= id.to_s.to_sym
+    name    = (name ? name.to_s.to_sym : id.to_s.to_sym)
+    
     return id, name
   end
   
@@ -29,6 +30,7 @@ module Registry
     id, name                       = get_registry_id_and_name(obj, id, name)
     @registry_by_id[id]            = obj
     @registry_by_name[name.to_sym] = obj
+    p "Registered #{obj} with #{id} #{name}"
   end
 
 
@@ -48,21 +50,8 @@ module Registry
     if name_or_id.respond_to? :to_sym
       return @registry_by_name[name_or_id.to_sym]
     else
-      return @registry_by_id[name_or_id.to_sym]
+      return @registry_by_id[name_or_id]
     end
-  end
-
-  # Looks up an ID that hasn't been used yet in the per-ID registry
-  # pass in the valdd range for the ID
-  def get_unused_registry_id(range = (1000..30000))
-    prepare_registry
-    low  = range.begin
-    stop = range.end - range.begin
-    stop.times do | i | 
-      j = i + low
-      return j unless @registry_by_id[j]
-    end
-    return nil
   end
 
 end

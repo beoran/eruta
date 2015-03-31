@@ -99,6 +99,8 @@ BumpHull *      bumphull_layers_(BumpHull * hull, int layers);
 int             bumphull_layers(BumpHull * hull);
 BumpHull *      bumphull_kind_(BumpHull * hull, int kind);
 int             bumphull_layers(BumpHull * hull);
+void     *      bumphull_body_data(BumpHull * hull);
+
 
 int bumphull_flags(BumpHull * hull);
 int bumphull_flags_(BumpHull * hull, int flags);
@@ -109,6 +111,7 @@ int bumphull_unset_flag(BumpHull * hull, int flag);
 BumpAABB bumphull_aabb(BumpHull * hull);
 BumpAABB * bumphull_aabbptr(BumpHull * hull);
 BumpBody * bumphull_body(BumpHull * hull);
+int bumphull_id(BumpHull * hull);
 
 BumpWorld * bumpworld_alloc();
 BumpWorld * bumpworld_init(BumpWorld * self);
@@ -135,7 +138,6 @@ BumpWorld * bumpworld_delete_hull_index(BumpWorld * self, int index);
 BumpWorld * bumpworld_delete_hulls_for(BumpWorld * self, BumpBody * body);
 BumpWorld * bumpworld_delete_body(BumpWorld * world, BumpBody * body);
 BumpWorld * bumpworld_delete_body_index(BumpWorld * world, int index);
-
 
 
 void * bumpworld_tilemap_(BumpWorld * self, void * map);

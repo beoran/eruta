@@ -11,6 +11,8 @@ enum CollisionKinds_ {
 
 int collide_things(Thing * t1, Thing * t2, int kind, void * data);
 
+int collide_hulls(BumpHull * h1, BumpHull * h2, int kind, void * data);
+
 
 
 #endif

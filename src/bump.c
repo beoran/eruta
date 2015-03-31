@@ -423,6 +423,13 @@ int bumphull_kind(BumpHull * hull) {
   return hull->kind;
 } 
 
+/** Gets the ID or index of a bumphull. Returns negative on error.*/
+int bumphull_id(BumpHull * hull) {
+  if (!hull) return -1;
+  return hull->id;
+} 
+
+
 /** Gets the bounds box of the bump hull. */
 BumpAABB bumphull_aabb(BumpHull * hull) {
   return hull->bounds;
@@ -910,10 +917,7 @@ bumpworld_collide_hulls
   BeVec    push, push1, push2, vrel;
   
   BumpAABB bounds1;
-  BumpAABB bounds2;
-  Thing * thing1 = NULL;
-  Thing * thing2 = NULL;
-  
+  BumpAABB bounds2;  
   int x, y, z, tx, ty;
   if ((!hull1) || (!hull1->body)) return;
   if ((!hull2) || (!hull2->body)) return;
@@ -936,11 +940,8 @@ bumpworld_collide_hulls
     }
   }
   
-  thing1          = bumphull_body_data(hull1);
-  thing2          = bumphull_body_data(hull2);  
-
   /* Allow the script to break off a beginning collision. */
-  if ((round == 0) && (!collide_things(thing1, thing2, COLLIDE_BEGIN, NULL))) {
+  if ((round == 0) && (!collide_hulls(hull1, hull2, COLLIDE_BEGIN, NULL))) {
     return;
   }
   
@@ -980,7 +981,7 @@ bumpworld_collide_hulls
       if(!bumpaabb_overlap_p(bounds1, bounds2)) {
         colltype    = COLLIDE_END;
       }
-    collide_things(thing1, thing2, colltype, NULL);
+    collide_hulls(hull1, hull2, colltype, NULL);
   }
   
 }
