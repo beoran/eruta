@@ -12,13 +12,13 @@ class Thing < Eruta::Thing
 
 
   def initialize(id, name) 
-    @id = id
-    @name = name || "thing_#{id}"
+    @id           = id
+    @name         = name || "thing_#{id}"
     # child things, keyed by id
-    @children = {}
+    @children     = {}
     # parent thing 
-    @parent   = nil
-    # @sprite   = Sprite.new(id)
+    @parent       = nil
+    self.sprite   = Sprite.make(("sprite_" + @name.to_s).to_sym)
     self.class.register(self)
   end
   
@@ -95,25 +95,8 @@ class Thing < Eruta::Thing
     return x, y, w, h
   end
 
-  def find_in_front(w = 32, h = 32, debug = false)
+  def find_in_front(w = 32, h = 32)
     x, y, w, h = self.rectangle_in_front(w, h)
-    if debug
-      if @search_box
-        @search_box.position = [x - camera_x, y - camera_y]
-        @my_box.position = [self.x - camera_x, self.y - camera_y]
-      else
-        @search_box = Graph.make_box(x - camera_x, y - camera_y, w, h, 0, 0)
-        @search_box.visible          = true
-        @search_box.border_color     = [255, 255, 0]
-        @search_box.border_thickness = 1
-        @my_box = Graph.make_box(self.x - camera_x, self.y - camera_y, self.w, self.h, 0, 0)
-        @my_box.visible              = true
-        @my_box.border_color         = [0, 255, 255]
-        @my_box.border_thickness     = 1
-      end
-      puts "Rectangle in front:"
-      p x, y , w, h, @search_box, camera_x, camera_y
-    end
     return Thing.find_in_rectangle(x, y, w, h, @id)
   end
   
@@ -122,23 +105,18 @@ class Thing < Eruta::Thing
     camera_track(@id)
   end
                    
-  # Sets the sprite id for this thing
-  def sprite_id=(spid)
-    Eruta::Thing.sprite_(@id, spid)
-    @sprite_id = spid
-    # Set sprite's default one shot actions
-    one_shot_default()
-  end
-  
   # Sets the sprite for this thing 
   def sprite=(sprite)
-    # if (self.sprite_id < -1) 
-    # XXX Free the sprite here.
-    # end
-      
-    self.sprite_id = (sprite.id)
-    @sprite        = sprite
-    puts "set sprite #{sprite.id}"
+    if (@sprite)
+      @sprite = @sprite.delete
+    end
+
+    @sprite        = sprite      
+    Eruta::Thing.sprite_(@id, @sprite.id)
+    @sprite_id = @sprite.id
+    # Set sprite's default one shot actions
+    one_shot_default()
+    puts "set sprite #{@sprite.id}"
   end
   
                    
@@ -257,7 +235,33 @@ class Thing < Eruta::Thing
   # Gets all flags of the main hull (physical presence) of the thing
   forward_thing :hull_flags
   
-  
+  # Loads a sprite sheet with built in layout as a layer
+  # of the sprite of this thing.
+  def load_builtin(layer, vpath, layout = :ulpcss)
+    return nil unless @sprite
+    @sprite.load_builtin(layer, vpath, layout = :ulpcss)
+  end
+
+  # Loads a ULPCSS sprite sheet with built in layout as a layer 
+  # of the sprite of this thing.
+  def load_ulpcss(layer, vpath)
+    return nil unless @sprite
+    @sprite.load_ulpcss(layer, vpath)
+  end
+
+  # Loads a ULPCSS sprite sheet for an oversized slashing weapon
+  # with built in layout as a layer of the sprite of this thing..
+  def load_ulpcss_slash(layer, vpath)
+    return nil unless @sprite
+    @sprite.load_ulpcss_slash(layer, vpath)
+  end
+
+  # Loads a ULPCSS sprite sheet for an oversized stabbing weapon
+  # with built in layout as a layer of the sprite of this thing..
+  def load_ulpcss_stab(layer, vpath)
+    return nil unless @sprite
+    @sprite.load_ulpcss_stab(layer, vpath)
+  end
   
   
   

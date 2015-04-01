@@ -30,7 +30,6 @@ module Registry
     id, name                       = get_registry_id_and_name(obj, id, name)
     @registry_by_id[id]            = obj
     @registry_by_name[name.to_sym] = obj
-    p "Registered #{obj} with #{id} #{name}"
   end
 
 

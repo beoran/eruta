@@ -65,9 +65,13 @@ static mrb_value tr_sprite_load_builtin(mrb_state * mrb, mrb_value self) {
 }
 
 
-TR_WRAP_I_INT(tr_sprite_get_unused_id, state_get_unused_sprite_id);
+TR_WRAP_NOARG_INT(tr_sprite_get_unused_id, state_get_unused_sprite_id);
 
 TR_SPRITE_II_INT(tr_sprite_action_index_for, sprite_action_index_for);
+
+TR_WRAP_I_INT(tr_delete_sprite, state_delete_sprite);
+
+
 
 /** Initialize mruby bindings to sprite functionality.
  * Eru is the parent module, which is normally named "Eruta" on the
@@ -157,7 +161,7 @@ int tr_sprite_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_OPTARG(mrb, spr, "load_builtin"  , tr_sprite_load_builtin, 3, 1);
   TR_CLASS_METHOD_ARGC(mrb  , spr, "get_unused_id" , tr_sprite_get_unused_id, 1);
   TR_CLASS_METHOD_ARGC(mrb  , spr, "action_id_for" , tr_sprite_action_index_for, 3);
-
+  TR_CLASS_METHOD_ARGC(mrb  , spr, "delete"        , tr_delete_sprite, 1);
 
 
   return 0;

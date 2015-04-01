@@ -112,7 +112,7 @@ class Graph < Eruta::Graph
       elsif clean_name[-1] == "="
         clean_name = prefix +  '_'
       end
-      p "graph", name, clean_name
+      # p "graph", name, clean_name
       graph_name = "#{clean_name}".to_sym
       define_method(name)  do |*args|   
         Eruta::Graph.send(graph_name, @id, *args)

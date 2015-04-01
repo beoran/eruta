@@ -37,14 +37,9 @@ class Store
     klass ||= self
     loaded = klass.new(id, name)
     Store.register(loaded, id, name)
-    p Store.registry_by_name.keys
     return loaded
   end
-
-
   
-
-   
   
   # Loads a tile map
   def self.load_tilemap(name, vpath)
@@ -83,7 +78,6 @@ class Store
     end
     
     def [](name)
-      p "forward", Store.registry_by_name.keys
       return Store[forward_name(name)]
     end
 

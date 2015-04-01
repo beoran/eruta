@@ -56,7 +56,7 @@ Sprite * spritelist_sprite(SpriteList * self, int index)  {
 }
 
 
-/** Deletes a sprite with thje given id from the sprite list and frees it. 
+/** Deletes a sprite with the given id from the sprite list and frees it. 
  * Returns negative on failure (sprite didn't exist), or 0
  * on success.  */
 int spritelist_delete_sprite(SpriteList * self, int index) {

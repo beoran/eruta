@@ -110,6 +110,8 @@ void spritestate_draw_frame(SpriteState * me, SpriteFrame * frame, Point * at)
   SpriteCell * cell;
   Color * tint; 
   if (!me) return;
+  if (!frame) return;  
+  
   al_hold_bitmap_drawing(true);
   stop = spriteframe_maxlayers(frame);
   for (index = 0; index < stop ; index++) {

@@ -80,24 +80,26 @@ module Main
   end
 
   def start_load_sprites
+    Timer.make(:tick_tock, 1.0) do | timer |
+      puts "In timer #{timer.name}, total run time: #{timer.total}."      
+    end
+  
     puts "Loading some things and sprites"
-    Thing.make(:player_1, Thing::Kind::PLAYER, 300, 400, 1, 32, 32)
-    Sprite.make(:s100)
-    Sprite[:s100].load_ulpcss(Sprite::Layer::BODY , "body/female/light.png")
-    Sprite[:s100].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_female/underdress.png")
-    Sprite[:s100].load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangslong.png")
-    Sprite[:s100].load_ulpcss(Sprite::Layer::STAFF, "weapons/steelwand_female.png")
-    Sprite[:s100].load_ulpcss_slash(Sprite::Layer::BLADE, "weapons/oversize/longsword_female.png")
-    Sprite[:s100].load_ulpcss_stab(Sprite::Layer::POLEARM, "weapons/oversize/spear.png")
-    Sprite[:s100].load_ulpcss(Sprite::Layer::BOW, "weapons/greatbow.png")
+    player_1 = Thing.make(:player_1, Thing::Kind::PLAYER, 300, 400, 1, 32, 32)
+    player_1.load_ulpcss(Sprite::Layer::BODY , "body/female/light.png")
+    player_1.load_ulpcss(Sprite::Layer::TORSO, "torso/dress_female/underdress.png")
+    player_1.load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangslong.png")
+    player_1.load_ulpcss(Sprite::Layer::STAFF, "weapons/steelwand_female.png")
+    player_1.load_ulpcss_slash(Sprite::Layer::BLADE, "weapons/oversize/longsword_female.png")
+    player_1.load_ulpcss_stab(Sprite::Layer::POLEARM, "weapons/oversize/spear.png")
+    player_1.load_ulpcss(Sprite::Layer::BOW, "weapons/greatbow.png")
+    player_1.one_shot_default    
+    player_1.tint_hair(0, 255, 0)
+    player_1.tint_torso(255, 64, 64)
+    player_1.direction = Sprite::SOUTH
+    player_1.pose      = Sprite::STAND
+    player_1.hide_layer(Sprite::Layer::STAFF)
     
-    
-    Thing[:player_1].sprite    = Sprite[:s100]
-    Thing[:player_1].tint_hair(0, 255, 0)
-    Thing[:player_1].tint_torso(255, 64, 64)
-    Thing[:player_1].direction = Sprite::SOUTH
-    Thing[:player_1].pose      = Sprite::STAND
-    Thing[:player_1].hide_layer(Sprite::Layer::STAFF)
     # hf = Thing[100].hull_flags= Thing::Flag::DISABLED
     # p "set hull flag", hf, Thing[100].hull_flags
     
@@ -105,7 +107,8 @@ module Main
     Thing.make(:player_2, Thing::Kind::NPC, 400, 400, 1, 32, 32)
     Sprite.make(:s101)
     Sprite[:s101].load_ulpcss(Sprite::Layer::BODY , "body/female/dark.png")
-    Sprite[:s101].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_w_sash_female.png")
+    Sprite[:s101].lo"graph"
+ad_ulpcss(Sprite::Layer::TORSO, "torso/dress_w_sash_female.png")
     Sprite[:s101].load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangsshort.png")
     Thing[:player_2].sprite     = Sprite[:s101]
     Thing[:player_2].tint_hair(255, 255, 0)
@@ -194,7 +197,8 @@ module Main
     main_music    = Music.load(:main, '/music/nethis-the_writer.ogg')
     $lote         = nil
     $lobe         = nil
-    if PLAY_MUSIC
+    if PLAY_M"graph"
+USIC
       res = main_music.play!
     end
     # res = nil
@@ -345,7 +349,9 @@ module Main
   # Searches and interacts with things in front of the actor.
   # Or if already talking/reading, continue with it.
   def actor_attack
+  
     return if !Thing.actor
+    Thing.actor.v = [ 0, 0 ]
     pose = Thing.actor.pose
     Thing.actor.one_shot_action(Sprite::SLASH)
     Thing.actor.pose = Sprite::SLASH
@@ -405,12 +411,16 @@ module Main
         Eruta.show_physics= !Eruta.show_physics
       when KEY_UP
         vy -= 100.0
+        actor.v = [ vx, vy ]
       when KEY_DOWN
         vy += 100.0
+        actor.v = [ vx, vy ]
       when KEY_LEFT
         vx -= 100.0
+        actor.v = [ vx, vy ]
       when KEY_RIGHT
         vx += 100.0
+        actor.v = [ vx, vy ]
       when KEY_D
         Thing.actor.pose = Sprite::DOWN
       when KEY_SPACE
@@ -419,11 +429,11 @@ module Main
       when KEY_LSHIFT, KEY_RSHIFT
         puts "attacking"
         actor_attack
+        actor.v = [ 0, 0 ]
       when KEY_COMMA
         show_keybindings
       else
-    end
-    actor.v = [ vx, vy ]
+    end    
     return nil
   end
 
@@ -438,7 +448,8 @@ module Main
     when KEY_DOWN
       vy = 0.0
     when KEY_LEFT
-      vx = 0.0
+      vx = 0.0"graph"
+
     when KEY_RIGHT
       vx = 0.0
     when KEY_SPACE
@@ -495,15 +506,8 @@ end
 
 # Called on an update tick, just before drawing to the screen.
 def on_update(dt)
-=begin
-  time_now = Eruta.time
-  if (time_now - State.time_start) > 10.0
-    # puts "Tick Tock goes the clock."
-    # do something here if needed ... 
-    State.time_start = time_now
-  end
-  return nil
-=end
+  # Update the timers
+  Timer.update
 end
 
 # Called when an input event occurs.

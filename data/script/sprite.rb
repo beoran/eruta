@@ -57,9 +57,16 @@ class Sprite < Eruta::Sprite
     return self.new(id, name)
   end
   
-  # Returns the action ID for the given poe and direction for this sprite.
+  # Returns the action ID for the given pose and direction for this sprite.
   def action_index_for(pose, direction)
     return Erute::Sprite.action_index_for(@id, pose, direction)
+  end
+  
+  # Deletes the underlying sprite. Don't use it anumore afterward!
+  def delete
+    Eruta::Sprite.delete(@id)
+    @id = nil
+    return nil
   end
   
 end

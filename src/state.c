@@ -1000,3 +1000,8 @@ int state_get_unused_sprite_id() {
   return spritelist_get_unused_sprite_id(state_sprites(state_get()));
 }
 
+/** Del8etes a sprite from the sprite list of the state. */
+int state_delete_sprite(int index) {
+  return spritelist_delete_sprite(state_sprites(state_get()), index);
+}
+

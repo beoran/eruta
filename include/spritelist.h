@@ -34,6 +34,8 @@ int spritelist_load_sprite_layer_with_layout
 int spritelist_tint_sprite_layer
   (SpriteList * me, int isprite, int ilayer, Color color); 
 
+int spritelist_delete_sprite(SpriteList * self, int index);
+
 #endif
 
 

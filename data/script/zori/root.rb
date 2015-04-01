@@ -72,7 +72,6 @@ module Zori
     # Returns the page for the given name. 
     def for_name(name) 
       @pages ||= {}
-      p @pages.keys
       return @pages[name.to_sym]
     end
 

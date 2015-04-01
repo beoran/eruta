@@ -19,10 +19,10 @@ static mrb_value tr_newthing(mrb_state * mrb, mrb_value self) {
   int thing  = -1;
   State * state    = state_get();
   int result;
-  mrb_int   index, kind, x, y, z, w, h;
+  mrb_int kind, x, y, z, w, h;
   (void) self;
   mrb_get_args(mrb, "iiiiii", &kind, &x, &y, &z, &w, &h);  
-  if ((index<0) || (kind < 0)) {
+  if (kind < 0) {
     return mrb_nil_value();
   } 
   thing = state_newthingindex(state, kind, x, y, z, w, h);
