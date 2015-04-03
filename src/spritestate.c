@@ -5,7 +5,7 @@
 #include "spritestate.h"
 #include "bad.h"
 #include "monolog.h"
-
+#include "callrb.h"
 
 /* Sprite state layer functions. */
 SpriteStateLayer * spritestatelayer_init_empty(SpriteStateLayer * me) {
@@ -163,30 +163,43 @@ spritestate_now_(SpriteState * self, int actionnow, int framenow) {
 void spritestate_next_frame(SpriteState * self) {
   int next = self->frame_index + 1;
   int action;
+  int action_loop;
   
   /* Loop if needed. */
   if (next >= sprite_framesused(self->sprite, self->action_index)) {
+    action_loop = spritestate_get_action_loop(self, self->action_index);
     /* It's a one-shot action. Do NOT cycle. */
-    if (spritestate_get_action_loop(self, self->action_index) & SPRITESTATE_ACTION_ONESHOT) { 
-      /* Set action to done. */
-      self->actions[self->action_index].done = TRUE;
+    if (action_loop & SPRITESTATE_ACTION_ONESHOT) { 
       /* If it's a stop action, leave it there, otherwise go back to standing pose. */
-      if (spritestate_get_action_loop(self, self->action_index) & SPRITESTATE_ACTION_STOP) {
-        /* nothing to do. */
+      if (action_loop & SPRITESTATE_ACTION_STOP) {
+        /* First time at end of a one shot stop action...  */
+        if (!self->actions[self->action_index].done) {
+          /* Notify scripting of end of this loop. */
+          callrb_sprite_event(self, action_loop, NULL); 
+          /* Set action to done toprevent double emitting the event above. */
+          self->actions[self->action_index].done = TRUE;
+        }
       } else {
         /* Go to back to first frame of standing pose with current direction. */
         action = sprite_action_index_for
           (self->sprite, SPRITE_WALK, self->direction_now);
         spritestate_pose_(self, SPRITE_WALK);
         spritestate_now_(self, action, 0);
+        callrb_sprite_event(self, action_loop, NULL); 
+        /* Action to done. */
+        self->actions[self->action_index].done = TRUE;
       }
     } else {
       /* Loop back to first frame.*/
       spritestate_now_(self, self->action_index, 0);
+      /* Set action to not done. */
+      self->actions[self->action_index].done = FALSE;
     }
   } else {
     /* Advance to next frame. */
     spritestate_now_(self, self->action_index, next);
+    /* Set action to not done. */
+    self->actions[self->action_index].done = FALSE;
   }
 }
 

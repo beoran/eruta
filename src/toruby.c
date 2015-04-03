@@ -122,17 +122,42 @@ static mrb_value tr_state_done(mrb_state * mrb, mrb_value self) {
 
 /** Writes a NOTE message to to log. */
 static mrb_value tr_log(mrb_state * mrb, mrb_value self) {
-  State   * state   = NULL;
-  BBConsole * console = NULL;
-  
+  State   * state   = NULL;  
   (void) self; (void) mrb;
   
-  state             = state_get();
   mrb_value text    = mrb_nil_value();
   mrb_get_args(mrb, "S", &text);
+  
   LOG_NOTE("%s\n", RSTRING_PTR(text));
   return self;
 }
+
+/** Writes a messageto a certain log level log. */
+static mrb_value tr_log_to(mrb_state * mrb, mrb_value self) {
+  State   * state   = NULL;  
+  (void) self; (void) mrb;
+  
+  mrb_value level   = mrb_nil_value();
+  mrb_value text    = mrb_nil_value();
+
+  mrb_get_args(mrb, "SS", &level, &text);
+  
+  LOG_LEVEL(RSTRING_PTR(level), "%s\n", RSTRING_PTR(text));
+  return self;
+}
+
+
+/** Cause a warning to be logged */
+static mrb_value tr_warn(mrb_state * mrb, mrb_value self) {
+  State   * state   = NULL;  
+  (void) self; (void) mrb;
+  
+  mrb_value text    = mrb_nil_value();
+  mrb_get_args(mrb, "S", &text);
+  LOG_WARNING("%s\n", RSTRING_PTR(text));
+  return self;
+}
+
 
 /** Enables a certain log level */
 static mrb_value tr_log_enable(mrb_state * mrb, mrb_value self) {
@@ -368,10 +393,14 @@ int tr_init(mrb_state * mrb) {
   
   krn = mrb_module_get(mrb, "Kernel");
   if(!krn) return -1;
-  TR_METHOD_ARGC(mrb, krn, "test",  tr_test, 1);
-  TR_METHOD_ARGC(mrb, krn, "log" , tr_log , 1);
-  TR_METHOD_ARGC(mrb, krn, "log_enable"  , tr_log_disable , 1);
-  TR_METHOD_ARGC(mrb, krn, "log_disable" , tr_log_enable  , 1);
+  TR_METHOD_ARGC(mrb, krn, "test"         , tr_test   , 1);
+  TR_METHOD_ARGC(mrb, krn, "warn"         , tr_warn   , 1);
+  TR_METHOD_ARGC(mrb, krn, "warning"      , tr_warn   , 1);
+  TR_METHOD_ARGC(mrb, krn, "log"          , tr_log    , 1);
+  TR_METHOD_ARGC(mrb, krn, "log_to"       , tr_log_to , 2);
+
+  TR_METHOD_ARGC(mrb, krn, "log_enable"   , tr_log_disable , 1);
+  TR_METHOD_ARGC(mrb, krn, "log_disable"  , tr_log_enable  , 1);
   TR_METHOD_ARGC(mrb, krn, "script"       , tr_script , 1);
   TR_METHOD_ARGC(mrb, krn, "camera_track" , tr_camera_track, 1);
   TR_METHOD_ARGC(mrb, krn, "camera_lockin", tr_lockin_maplayer, 1);

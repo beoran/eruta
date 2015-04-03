@@ -75,7 +75,7 @@ module Timer
     end
     
     done_timers.each do | timer |
-      @timers.delete(timer)
+      @timers.delete(timer.name)
     end
   end
 end  

@@ -23,7 +23,7 @@ set(ERUTA_SRC_FILES
   src/bxml.c
   src/bxmlparser.c
   src/camera.c
-  src/collide.c
+  src/callrb.c
   src/draw.c
   src/dynar.c
   src/effect.c

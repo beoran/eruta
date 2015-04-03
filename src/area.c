@@ -8,7 +8,7 @@
 #include "flags.h"
 #include "draw.h"
 #include "sprite.h"
-#include "collide.h"
+#include "callrb.h"
 
 #include "thing_struct.h"
 

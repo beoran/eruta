@@ -52,6 +52,11 @@ module Registry
       return @registry_by_id[name_or_id]
     end
   end
+  
+  # Other way to say self[]
+  def lookup(name_or_id)
+    return self[name_or_id]
+  end
 
 end
 

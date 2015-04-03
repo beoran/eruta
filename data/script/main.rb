@@ -81,7 +81,8 @@ module Main
 
   def start_load_sprites
     Timer.make(:tick_tock, 1.0) do | timer |
-      puts "In timer #{timer.name}, total run time: #{timer.total}."      
+      puts "In timer #{timer.name}, total run time: #{timer.total}."   
+      timer.total > 10.0   
     end
   
     puts "Loading some things and sprites"
@@ -107,8 +108,7 @@ module Main
     Thing.make(:player_2, Thing::Kind::NPC, 400, 400, 1, 32, 32)
     Sprite.make(:s101)
     Sprite[:s101].load_ulpcss(Sprite::Layer::BODY , "body/female/dark.png")
-    Sprite[:s101].lo"graph"
-ad_ulpcss(Sprite::Layer::TORSO, "torso/dress_w_sash_female.png")
+    Sprite[:s101].load_ulpcss(Sprite::Layer::TORSO, "torso/dress_w_sash_female.png")
     Sprite[:s101].load_ulpcss(Sprite::Layer::HAIR , "hair/female/bangsshort.png")
     Thing[:player_2].sprite     = Sprite[:s101]
     Thing[:player_2].tint_hair(255, 255, 0)
@@ -197,8 +197,7 @@ ad_ulpcss(Sprite::Layer::TORSO, "torso/dress_w_sash_female.png")
     main_music    = Music.load(:main, '/music/nethis-the_writer.ogg')
     $lote         = nil
     $lobe         = nil
-    if PLAY_M"graph"
-USIC
+    if PLAY_MUSIC
       res = main_music.play!
     end
     # res = nil
@@ -445,18 +444,20 @@ USIC
     case key
     when KEY_UP
       vy = 0.0
+      actor.v = [vx, vy]
     when KEY_DOWN
       vy = 0.0
+      actor.v = [vx, vy]
     when KEY_LEFT
-      vx = 0.0"graph"
-
+      vx = 0.0
+      actor.v = [vx, vy]
     when KEY_RIGHT
       vx = 0.0
+      actor.v = [vx, vy]
     when KEY_SPACE
       State.talk_box.delay = 0.1 if State.talk_with
     else
     end
-    actor.v = [vx, vy]
     return nil
   end
 
@@ -504,6 +505,11 @@ def on_bump(t1, t2, h1, h2, kind = nil)
   return true
 end
 
+# Called on certain sprite events (end of one shot animation)
+def on_sprite(spriteid, thingid, pose, direction, kind = nil)
+  puts "Sprite event: #{spriteid} #{thingid}  #{pose} #{direction} #{kind}."
+end
+
 # Called on an update tick, just before drawing to the screen.
 def on_update(dt)
   # Update the timers
@@ -524,6 +530,7 @@ def on_poll(*args)
       Main.send(meth, *args)
     else
       # ignore
+      log_to "input", "#{__FILE__.split('/').last}:#{__LINE__}: input: #{type} #{meth} #{args}"
       # puts "input #{type} #{meth} #{args}"
     end
   end

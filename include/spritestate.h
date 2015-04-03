@@ -100,6 +100,7 @@ int spritestate_set_pose_direction_loop(SpriteState * self, int pose, int direct
 int spritestate_get_pose_direction_loop(SpriteState * self, int pose, int direction);
 
 
+Sprite * spritestate_sprite(SpriteState * self);
 
 #endif
 

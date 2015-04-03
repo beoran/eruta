@@ -13,11 +13,4 @@ def script_once(filenname)
   return res
 end
 
-# loads an ULPCSS sprite layer, fills in the prefix
-def sprite_load_ulpcss(name)
-  prefix = "image/ulpcss/" 
-  return sprite_loadulpcss(prefix + name)
-end
-
-
 

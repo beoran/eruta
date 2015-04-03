@@ -2,7 +2,7 @@
 
 #include "eruta.h"
 #include "camera.h"
-#include "collide.h"
+#include "callrb.h"
 #include "bump.h"
 #include "bumpshape.h"
 
@@ -35,7 +35,8 @@
  * gun shots or rays? Perhaps attacks should be better modeled as linked Things 
  * in stead? But even in that case such a thing would still need a sensor hull.
  * 
- * So, first implement sensor and disabled hulls.
+ * Also, the advantage of using a Thing for even non-ranged attacks is that 
+ * then a sprite animation can be used to "show" the attack.
  * 
  */
 
@@ -941,7 +942,8 @@ bumpworld_collide_hulls
   }
   
   /* Allow the script to break off a beginning collision. */
-  if ((round == 0) && (!collide_hulls(hull1, hull2, COLLIDE_BEGIN, NULL))) {
+  if ((round == 0) 
+  && (!callrb_collide_hulls(hull1, hull2, COLLIDE_BEGIN, NULL))) {
     return;
   }
   
@@ -981,7 +983,7 @@ bumpworld_collide_hulls
       if(!bumpaabb_overlap_p(bounds1, bounds2)) {
         colltype    = COLLIDE_END;
       }
-    collide_hulls(hull1, hull2, colltype, NULL);
+    callrb_collide_hulls(hull1, hull2, colltype, NULL);
   }
   
 }
