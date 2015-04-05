@@ -18,7 +18,8 @@
 #include "sprite.h"
 #include "scegra.h"
 #include "monolog.h"
-#include <store.h>
+#include "callrb.h"
+#include "store.h"
 
 /* The data struct contains all global state and other data of the application.
 */
@@ -769,9 +770,9 @@ void state_update(State * self) {
   
   camera_update(self->camera);
   // call ruby update callback 
-  mval = mrb_float_value(state_ruby(self), state_frametime(self));
-  rh_run_toplevel_args(state_ruby(self), "on_update", 1, &mval);
-  // Update the scene graph
+  callrb_on_update(self);
+  // Update the scene graph (after the Ruby upate so anty ruby side-changes take 
+  // effect immediately.
   scegra_update(state_frametime(self));
   
 }
@@ -1000,8 +1001,14 @@ int state_get_unused_sprite_id() {
   return spritelist_get_unused_sprite_id(state_sprites(state_get()));
 }
 
-/** Del8etes a sprite from the sprite list of the state. */
+/** Deletes a sprite from the sprite list of the state. */
 int state_delete_sprite(int index) {
   return spritelist_delete_sprite(state_sprites(state_get()), index);
 }
+
+/** Deletes a thing from the things of the state's area. */
+int state_delete_thing(int index) {
+  return area_delete_thing(state_area(state_get()), index);
+}
+
 

@@ -186,6 +186,8 @@ TR_AREA_II_INT(tr_area_set_thing_hull_flag, area_set_thing_hull_flag);
 TR_AREA_II_INT(tr_area_unset_thing_hull_flag,  area_unset_thing_hull_flag);
 
 
+TR_WRAP_I_INT(tr_delete_thing, state_delete_thing);
+
 
 /** Initialize mruby bindings to the physics engine and physical thing
  * functionality. Eru is the parent module, which is normally named "Eruta" on the
@@ -239,6 +241,7 @@ int tr_thing_init(mrb_state * mrb, struct RClass * eru) {
   TR_CLASS_METHOD_ARGC(mrb, thi, "unset_hull_flag", tr_area_unset_thing_hull_flag, 2);
   TR_CLASS_METHOD_ARGC(mrb, thi, "hull_flags"     , tr_area_thing_hull_flags, 2);
   TR_CLASS_METHOD_ARGC(mrb, thi, "hull_flags_"    , tr_area_thing_hull_flags_, 2);
+  TR_CLASS_METHOD_ARGC(mrb, thi, "delete"         , tr_delete_thing, 1);
   
   
   /* Collision types of a thing */

@@ -52,6 +52,7 @@ struct SpriteState_ {
   int                direction_now;
   double             time;
   double             speedup;
+  void             * data;
   /* It's not worth while to use dynamical memory for these, IMO. */
   SpriteStateLayer   layers[SPRITESTATE_LAYER_MAX];
   SpriteStateAction  actions[SPRITESTATE_ACTION_MAX];
@@ -65,11 +66,11 @@ SpriteState * spritestate_alloc();
 Sprite      * spritestate_sprite_(SpriteState * self, Sprite * sprite);
 SpriteState * spritestate_free(SpriteState * self);
 Sprite      * spritestate_sprite(SpriteState * self);
-SpriteState * spritestate_init(SpriteState * self, Sprite * sprite);
+SpriteState * spritestate_init(SpriteState * self, Sprite * sprite, void * data);
 SpriteState * spritestate_done(SpriteState * self);
 double        spritestate_speedup(SpriteState * self);
 double        spritestate_speedup_(SpriteState * self, double speedup); 
-SpriteState * spritestate_new(Sprite *  sprite);
+SpriteState * spritestate_new(Sprite *  sprite, void * data);
 void          spritestate_draw(SpriteState * self, Point * at);
 SpriteState * spritestate_now_(SpriteState * self, int actionnow, int framenow);
 void          spritestate_update(SpriteState * self, double dt);
@@ -99,8 +100,9 @@ int spritestate_is_action_done(SpriteState * self, int action);
 int spritestate_set_pose_direction_loop(SpriteState * self, int pose, int direction, int loopmode);
 int spritestate_get_pose_direction_loop(SpriteState * self, int pose, int direction);
 
-
+Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite);
 Sprite * spritestate_sprite(SpriteState * self);
+void  * spritestate_data(SpriteState * self);
 
 #endif
 

@@ -17,7 +17,7 @@ module Timer
     # Current cycle stop
     attr_reader :cycle_stop
         
-    
+    # Initializes the timer.
     def initialize(name, delay, &to_call)
       @name         = name.to_sym
       @to_call      = to_call
@@ -29,6 +29,7 @@ module Timer
       @done         = false
     end
     
+    # Updates the timer.
     def update()
       now      = Eruta.time
       @total   = now - @start
@@ -42,8 +43,14 @@ module Timer
       return @done
     end
     
+    # Checks if timer is done.
     def done?
       return @done
+    end
+    
+    # Forces timer to done.
+    def done!
+      @done = true
     end
   end
   
@@ -55,6 +62,7 @@ module Timer
     @timers ||= {}    
     timer = ::Timer::Timer.new(name, delay, &callback)
     @timers[timer.name] = timer
+    p @timers
     return timer
   end
   
@@ -65,7 +73,7 @@ module Timer
   end
 
   # Updates all timers
-  def self.update    
+  def self.update
     @timers ||= {}
     done_timers = []
     @timers.each do | name, timer |
@@ -73,6 +81,8 @@ module Timer
         done_timers << timer
       end
     end
+    
+    p @timers unless @timers.empty?
     
     done_timers.each do | timer |
       @timers.delete(timer.name)

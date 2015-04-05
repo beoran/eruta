@@ -147,7 +147,7 @@ Thing * thing_init_generic(Thing * self, Area * area, int id, int kind, int z,
   self->hull    = shape;
   self->flags   = 0;
   thing_z_(self, z);
-  spritestate_init(&self->spritestate, NULL);
+  spritestate_init(&self->spritestate, NULL, self);
   
   /* If the thing has a body and it is not static, 
   assume it is owned by this thing and must be freed when calling 

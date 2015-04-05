@@ -57,6 +57,21 @@ module Registry
   def lookup(name_or_id)
     return self[name_or_id]
   end
+  
+  # Calls a callback for each registry item with name, item
+  def registry_each_name
+    @registry_by_name.each do | n, e |
+      yield n, e
+    end
+  end
+  
+    # Calls a callback for each registry item with id, item
+  def registry_each_id
+    @registry_by_id.each do | id, e |
+      yield id, e
+    end
+  end
+
 
 end
 

@@ -67,7 +67,8 @@ Sprite * spritestate_sprite(SpriteState * self) {
   return self->sprite;
 }
 
-SpriteState * spritestate_init(SpriteState * self, Sprite * sprite) {
+/** Thing is passed as a void data pointer to avoid dependencies. */
+SpriteState * spritestate_init(SpriteState * self, Sprite * sprite, void * data) {
   int index;
   
   if(!self) return NULL;
@@ -82,8 +83,14 @@ SpriteState * spritestate_init(SpriteState * self, Sprite * sprite) {
     spritestateaction_init_empty(self->actions + index);
   }
   
+  self->data = data;
   
   return self;
+}
+
+void  * spritestate_data(SpriteState * self) {
+  if (!self) return NULL;
+  return self->data;
 }
 
 
@@ -97,8 +104,8 @@ double spritestate_speedup_(SpriteState * self, double speedup) {
   return self->speedup = speedup;
 }
 
-SpriteState * spritestate_new(Sprite *  sprite) {
-  return spritestate_init(spritestate_alloc(), sprite);
+SpriteState * spritestate_new(Sprite *  sprite, void * data) {
+  return spritestate_init(spritestate_alloc(), sprite, data);
 }
 
 
@@ -110,7 +117,11 @@ void spritestate_draw_frame(SpriteState * me, SpriteFrame * frame, Point * at)
   SpriteCell * cell;
   Color * tint; 
   if (!me) return;
-  if (!frame) return;  
+  if (!frame) { 
+    /* Draw a red box to show the missing frame */
+    al_draw_filled_rectangle(at->x, at->y, at->x+16, at->y+16, al_map_rgb(255, 64, 64));  
+    return;
+  };  
   
   al_hold_bitmap_drawing(true);
   stop = spriteframe_maxlayers(frame);
@@ -132,7 +143,8 @@ void spritestate_draw_frame(SpriteState * me, SpriteFrame * frame, Point * at)
 /* Draw the SpriteState at the given location. This takes
   the current action, frame, layers and offsets into consideration. */
 void spritestate_draw(SpriteState * self, Point * at) {
-  if(!self) return;
+  if (!self) return;
+  if (!self->sprite) return;
   spritestate_draw_frame(self, self->frame_now, at);
 }
 
@@ -212,7 +224,8 @@ void spritestate_update(SpriteState * self, double dt) {
   sprite = self->sprite;
   if (!sprite) return;
   if(!self->frame_now) { 
-    LOG_WARNING("NULL current sprite frame!: %d\n", self->action_index);
+    int x, y, w, h;
+    LOG_LEVEL(__FILE__, "NULL current sprite frame!: %d\n", self->action_index);
     // try to restore back to first frame if out of whack somehow.
     spritestate_now_(self, self->action_index, 0);
     return;

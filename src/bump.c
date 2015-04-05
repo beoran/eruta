@@ -36,7 +36,9 @@
  * in stead? But even in that case such a thing would still need a sensor hull.
  * 
  * Also, the advantage of using a Thing for even non-ranged attacks is that 
- * then a sprite animation can be used to "show" the attack.
+ * then a sprite animation can be used to "show" the attack. 
+ * And since a thing can have multiple hulls, this can be used for "split"
+ * attacks. So things for attacks it is!
  * 
  */
 

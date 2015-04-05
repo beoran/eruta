@@ -214,6 +214,11 @@ Image * spritecell_image(SpriteCell * self) {
  * case.
  */
 
+
+Point spritecell_real_position(SpriteCell * self, Point * at) {
+  return bevec_add((*at), self->offset);
+}
+
 /* Draw a sprite cell with point at as the relevant game object's core position. 
  * the cell will be tinted with the given tint. */
 void spritecell_draw_tinted(SpriteCell * self, Point * at, Color tint) {
@@ -233,6 +238,7 @@ void spritecell_draw(SpriteCell * self, Point * at) {
   Color notint = al_map_rgb(255,255,255);
   spritecell_draw_tinted(self, at, notint);
 }
+
 
 /* Cleans up a layer after use, also frees the layer's Image. */
 SpriteCell * 

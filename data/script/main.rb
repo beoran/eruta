@@ -53,6 +53,8 @@ script 'tilemap.rb'
 # Load UI subsystem
 script 'zori.rb'
 
+# Attacks
+script 'attack.rb'
 
 # Main menu
 script 'mainmenu.rb'
@@ -347,13 +349,13 @@ module Main
 
   # Searches and interacts with things in front of the actor.
   # Or if already talking/reading, continue with it.
-  def actor_attack
-  
+  def actor_attack  
     return if !Thing.actor
     Thing.actor.v = [ 0, 0 ]
     pose = Thing.actor.pose
     Thing.actor.one_shot_action(Sprite::SLASH)
     Thing.actor.pose = Sprite::SLASH
+    Attack.make(Thing.actor, 0, 0, 64, 64)
   end
 
 
@@ -472,7 +474,7 @@ end # module Main
 
 
 # Called when the main.rb script is loaded for the first time.
-def on_start(*args)
+def eruta_on_start(*args)
   puts "on_start #{args}"
   State.time_start = Eruta.time
   Zori.open
@@ -482,17 +484,16 @@ end
 
 
 # Called when the main.rb script is reloaded (through the F5 key).
-def on_reload(*args)
+def eruta_on_reload(*args)
   puts "on_reload #{args}"
   puts "load thing ok: #{Thing.methods - Object.methods}"
   puts "load thing ok: #{Eruta::Thing.methods - Object.methods}"
-  $t1 = Thing.make(1, 700, 700, 1, 32, 32)
   return :ok
 end
 
 
 # Called on a physics collision.
-def on_bump(t1, t2, h1, h2, kind = nil)
+def eruta_on_bump(t1, t2, h1, h2, kind = nil)
   if kind == 1 # Begin of collision
     # puts "Begin collision!"
   elsif kind == 2 # Collision active
@@ -506,18 +507,22 @@ def on_bump(t1, t2, h1, h2, kind = nil)
 end
 
 # Called on certain sprite events (end of one shot animation)
-def on_sprite(spriteid, thingid, pose, direction, kind = nil)
+def eruta_on_sprite(spriteid, thingid, pose, direction, kind = nil)
+  thing = Thing[thingid]
+  if thing
+    thing.on_sprite(spriteid, pose, direction, kind)
+  end
   puts "Sprite event: #{spriteid} #{thingid}  #{pose} #{direction} #{kind}."
 end
 
 # Called on an update tick, just before drawing to the screen.
-def on_update(dt)
+def eruta_on_update(dt)
   # Update the timers
   Timer.update
 end
 
 # Called when an input event occurs.
-def on_poll(*args)
+def eruta_on_poll(*args)
   # Send to Zori ui first. If it returns non-nil the event is handled,
   # otherwise, pass on to key handler.
   res = Zori.on_event(*args)

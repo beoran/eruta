@@ -73,7 +73,7 @@ void area_draw_layer (Area * self, Camera * camera, int layer);
 
 
 /* There are some tile map related functionalities that are declared in tilemap.h 
- * in stead to avoid cyclical dependencies. 
+ * in stead of here to avoid cyclical dependencies. 
  */
 
 /* Finding of things. */
@@ -101,8 +101,11 @@ Thing * area_new_thing(Area * self, int kind,
                         int x, int y, int z, int w, int h);                        
 int area_new_thing_id(Area * self, int kind, int x, int y, int z, int w, int h);
 
+int area_delete_thing(Area * area, int index);
 
 Thing * bumphull_thing(BumpHull * hull);
+
+
 
 #ifdef COMMENT_
 int thing_track (Tracker * tracker , void * data );

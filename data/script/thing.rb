@@ -263,6 +263,12 @@ class Thing < Eruta::Thing
     @sprite.load_ulpcss_stab(layer, vpath)
   end
   
+  # React to sprite event
+  def on_sprite(spriteid, pose, direction, kind)
+    p "Sprite event for #{name}"
+  end
+  
+  
   
   
   

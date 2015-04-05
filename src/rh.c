@@ -553,12 +553,12 @@ int rh_poll_event(mrb_state * mrb, ALLEGRO_EVENT * event) {
       );
     break;
   }
-  rh_run_toplevel_args(state_ruby(state), "on_poll", nargs, event_args);
+  rh_run_toplevel_args(state_ruby(state), "eruta_on_poll", nargs, event_args);
   return TRUE;
 }
 
 /* Polls the event queue and while events are available, send them to the ruby 
- main "on_poll"   */
+ main "eruta_on_poll"   */
 int rh_poll_events(mrb_state * mrb, ALLEGRO_EVENT_QUEUE * queue) {
   ALLEGRO_EVENT event;
   while(al_get_next_event(queue, &event)) { 
@@ -571,21 +571,10 @@ int rh_poll_events(mrb_state * mrb, ALLEGRO_EVENT_QUEUE * queue) {
 /* Tries to (re-)load the main ruby file, output to console. */
 int rh_load_main() { 
   State * state = state_get();
-  // Try to load the mainruby file.
+  // Try to load the main ruby file.
   return rh_run_script(state_ruby(state), "main.rb");
 }
   
-/* Calls the on_start function  */ 
-int rh_on_start() { 
-  State * state = state_get();
-  return rh_dostring(state_ruby(state), "on_start()");
-}
-
-/* Calls the on_reload function  */ 
-int rh_on_reload() { 
-  State * state = state_get();
-  return rh_dostring(state_ruby(state), "on_reload()");
-}
 
 /** For execution of ruby strings by the console */
 int rh_run_console_command(BBConsole * console, const char * command, void * extra)

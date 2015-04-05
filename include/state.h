@@ -107,6 +107,9 @@ int global_state_show_physics_(int show);
 int state_get_unused_thing_id();
 int state_get_unused_sprite_id();
 
+int state_delete_sprite(int index);
+
+int state_delete_thing(int index);
 
 
 #endif

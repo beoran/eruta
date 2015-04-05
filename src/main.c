@@ -20,6 +20,7 @@
 #include "alps.h"
 #include "store.h"
 #include "scegra.h"
+#include "callrb.h"
 
 
 
@@ -49,12 +50,14 @@ void puts_standard_path(int path, char * name) {
  
 /* Low level keys, not handled by the script. */ 
 React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {  
-  Point f = bevec0();
-  State * state = (State *) self->data;
+  State * state = state_get();
+  /*
+  Point f = bevec0();  
   Camera * camera = NULL;
   if (!state) return NULL;
   camera = state_camera(state);
   if (!camera) return NULL;
+  */ 
   switch(event->keycode) {
     /* Console control */
     case ALLEGRO_KEY_F1:
@@ -69,7 +72,7 @@ React * main_react_key_down(React * self, ALLEGRO_KEYBOARD_EVENT * event) {
     case ALLEGRO_KEY_F5:
       /* Reload main script (and hence all other scripts that it loads)  on F5 */
       rh_load_main();
-      rh_on_reload();
+      callrb_on_reload();
     break;    
     /* Emergency exit keys. */
     case ALLEGRO_KEY_F12:
@@ -148,7 +151,7 @@ int real_main(void) {
 
   /* Finally initialize ruby and call the ruby startup function. */
   rh_load_main();
-  rh_on_start();
+  callrb_on_start();
     
   /* Main game loop, controlled by the State object. */  
   while(state_busy(state)) { 

@@ -160,6 +160,8 @@ void spritecell_draw(SpriteCell * self, Point * at);
 
 int sprite_id(Sprite * sprite);
 
+Point spritecell_real_position(SpriteCell * self, Point * at);
+
 
 #endif
 
