@@ -14,14 +14,14 @@ class Attack
     x         += offset_x
     y         += offset_y
     z          = @att_thing.z
-    name       = "#{@att_thing.name}_attack}"
-    
+    name       = "#{attacking_thing.name}_attack_#{self.class.serno}"  
     @my_thing  = Thing.make(name, Thing::Kind::ATTACK, x, y, z, w, h)
-    name       = "#{name}_sprite}"
     @done      = false
-    @timer     = Timer.make(name, 3.0) do | timer |
+    @timer     = Timer.make(3.0) do | timer |
       @done    = true
       p "Attack done by timer."
+      # update the attacks
+      Attack.update
       true
     end
   end
@@ -34,6 +34,12 @@ class Attack
   def delete
     @my_thing.delete
     @timer.done!
+  end
+  
+  def self.serno
+    @serno ||= 0
+    @serno += 1
+    return @serno
   end
    
   def self.register(attack)
@@ -54,6 +60,22 @@ class Attack
       attack.delete
     end
   end
+  
+  # Purge attacs that are over due to sprite event
+  def self.on_sprite(thing_id)
+    @attacks ||= []
+    done       = []
+    @attacks.each do | attack |
+      done << attack if attack.done?
+    end
+    
+    done.each do | attack |
+      @attacks.delete(attack)
+      attack.delete
+    end
+
+  end
+  
   
   def self.make(attacking_thing, w, h, offset_x = 0, offset_y = 0) 
     attack = self.new(attacking_thing, w, h, offset_x, offset_y) 

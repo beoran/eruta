@@ -269,9 +269,13 @@ class Thing < Eruta::Thing
   end
   
   
-  
-  
-  
+  # Deletes the thing
+  def delete
+    Thing.unregister(self)
+    Eruta::Thing.delete(@id)
+    @id = nil
+    return nil
+  end
   
   
 

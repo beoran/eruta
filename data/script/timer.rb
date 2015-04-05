@@ -4,8 +4,6 @@ module Timer
   
   # Timer class models a normal timer
   class Timer
-    # Name of the timer, stored as a symbol
-    attr_reader :name
     # Start time in ticks since Eruta engine start
     attr_reader :start
     # Delay of timer
@@ -18,8 +16,7 @@ module Timer
     attr_reader :cycle_stop
         
     # Initializes the timer.
-    def initialize(name, delay, &to_call)
-      @name         = name.to_sym
+    def initialize(delay, &to_call)
       @to_call      = to_call
       @delay        = delay
       @start        = Eruta.time
@@ -57,35 +54,26 @@ module Timer
   
   # Makes a new timer
   # If the callback terurns true, the timer will not be 
-  # called again. If false it wll be called again.
-  def self.make(name, delay, &callback)
-    @timers ||= {}    
-    timer = ::Timer::Timer.new(name, delay, &callback)
-    @timers[timer.name] = timer
-    p @timers
+  # called again. If false it will be called again.
+  def self.make(delay, &callback)
+    @timers ||= []    
+    timer = ::Timer::Timer.new(delay, &callback)
+    @timers << timer
     return timer
   end
   
-  # Gets a timer by name
-  def self.get(name)
-    @timers ||= {}
-    return @timers[name.to_sym]
-  end
-
   # Updates all timers
   def self.update
-    @timers ||= {}
+    @timers ||= []
     done_timers = []
-    @timers.each do | name, timer |
+    @timers.each do | timer |
       if timer.update
         done_timers << timer
       end
     end
-    
-    p @timers unless @timers.empty?
-    
+        
     done_timers.each do | timer |
-      @timers.delete(timer.name)
+      @timers.delete(timer)
     end
   end
 end  

@@ -500,6 +500,10 @@ int thing_compare_for_drawing(const void * p1, const void * p2) {
   /* compare y if z is equal */
   if ( pos1.y < pos2.y ) return -1;
   if ( pos1.y > pos2.y ) return 1;
+  /* Compare by address or whatever*/
+  if (((uintptr_t)p1) < ((uintptr_t)p2)) return -1;
+  if (((uintptr_t)p1) > ((uintptr_t)p2)) return 1;
+  if (((uintptr_t)p1) == ((uintptr_t)p2)) return 0;
   return 0;
 }
 

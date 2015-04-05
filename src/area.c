@@ -9,6 +9,7 @@
 #include "draw.h"
 #include "sprite.h"
 #include "callrb.h"
+#include "monolog.h"
 
 #include "thing_struct.h"
 
@@ -96,6 +97,8 @@ Thing * area_add_thing(Area * area, int index, Thing * thing) {
   /* Don't forget to add physical body and hull to the space if needed. */
   bumpworld_add_body(area->world, thing->physical);
   bumpworld_add_hull(area->world, thing->hull);
+  /* Fix up drawing array. */
+  area_update_things(area);  
   return thing;
 }
 
@@ -120,6 +123,8 @@ Thing * area_remove_thing(Area * area, Thing * thing) {
   bumpworld_remove_body_only(area->world, thing->physical);
   bumpworld_delete_hulls_for(area->world, thing->physical);
   area_thing_(area, thing->id, NULL);
+  /* Fix up drawing array. */
+  area_update_things(area);  
   return thing;
 }
 
@@ -131,6 +136,7 @@ int area_delete_thing(Area * area, int index) {
   if(thing && del) {
      thing_free(thing);
   }
+  
   return 0;
 }
 
@@ -197,6 +203,29 @@ Area * area_init(Area * self) {
   area_done(self);
   return NULL;
 }
+
+
+/** Updates the things in the area, must be called whan adding or deleting a thing too. */
+void area_update_things(Area * self) {
+  int index;
+  int subindex = 0;
+  /* Empty the draw queue to avoid stragling references after deleting a thing
+   * or it's physical body. */
+  for(index = 0; index <  AREA_THINGS; index++) {
+    self->things_todraw[index] = NULL;
+  }
+
+  for(index = 0; index <  AREA_THINGS; index++) {
+    Thing * thing = area_thing(self, index);
+    if (thing &&  thing->physical) {
+      self->things_todraw[subindex] = thing;
+      subindex++;
+    }
+  }
+  /** Sort drawing array so the painter's algorihm can be used. */
+  qsort(self->things_todraw, subindex, sizeof(Thing*), thing_compare_for_drawing);
+}
+
 
 /** Sets the area so it will draw its physics
  *  bounds boxes when it is drawn or not.
@@ -296,22 +325,23 @@ void area_draw_layer (Area * self, Camera * camera, int layer) {
 }
 
 
+
 /** Updates the area */
 void area_update(Area * self, double dt) {
   int subindex = 0;
   int index;
   bumpworld_update(self->world, dt);
+  area_update_things(self);
+  
   for(index = 0; index <  (self->lastid + 1); index++) {
     Thing * thing = area_thing(self, index);
     /* this is a bandaid, somehow uninitialized things are stored in the area. */
     if (thing &&  thing->physical) {
       thing_update(thing, dt);
-      self->things_todraw[subindex] = thing;
-      subindex++;
+    } else if (thing && (thing->id > AREA_THINGS)) {
+      LOG_WARNING("Corrupted thing detected! %p", thing);
     }
   }
-  /** Sort drawing array so the painter's algorihm can be used. */
-  qsort(self->things_todraw, subindex, sizeof(Thing*), thing_compare_for_drawing);
 }
 
 

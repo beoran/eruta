@@ -82,8 +82,8 @@ module Main
   end
 
   def start_load_sprites
-    Timer.make(:tick_tock, 1.0) do | timer |
-      puts "In timer #{timer.name}, total run time: #{timer.total}."   
+    Timer.make(1.0) do | timer |
+      puts "In timer tick_tock, total run time: #{timer.total}."   
       timer.total > 10.0   
     end
   

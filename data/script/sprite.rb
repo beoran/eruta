@@ -64,6 +64,7 @@ class Sprite < Eruta::Sprite
   
   # Deletes the underlying sprite. Don't use it anumore afterward!
   def delete
+    Sprite.unregister(self)
     Eruta::Sprite.delete(@id)
     @id = nil
     return nil
