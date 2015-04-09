@@ -386,26 +386,21 @@ void thing_draw(Thing * self, Camera * camera) {
   }
   drawx = x - cx;
   drawy = y - cy;
-  /* Draw sprite if available, otherwise debug box to alert scripters of it's 
-   * absence. */
-  if(thing_sprite(self)) {
-#ifndef ERUTA_NOGFX_MODE
+  /* Draw sprite if available... */
+  if(spritestate_can_draw_p(&self->spritestate)) {
     BeVec spriteat = bevec(drawx, drawy);
-    /* Draw elliptical shadow under sprite */
-#ifndef ERUTA_NOSHADOW_MODE
-    color     = color_rgbaf(0.0, 0.0, 0.0, 0.5);
-    sx        = drawx + w / 2;
-    sy        = drawy + ((4*h)/5);
-    sw        = (4 * w) / 11;
-    sh        = h / 3;
-    al_draw_filled_ellipse(sx, sy, sw, sh, color);
-#endif
+    /* Draw elliptical shadow under sprite unless disabled */
+    if (!(self->flags & THING_FLAGS_NO_SHADOW)) { 
+      color     = color_rgbaf(0.0, 0.0, 0.0, 0.5);
+      sx        = drawx + w / 2;
+      sy        = drawy + ((4*h)/5);
+      sw        = (4 * w) / 11;
+      sh        = h / 3;
+      al_draw_filled_ellipse(sx, sy, sw, sh, color);
+    }
     spritestate_draw(&self->spritestate, &spriteat);
-    
-#else
-    draw_box(drawx, drawy, w, h, color, t);
-#endif
-  } else {    
+  } else {
+    /* ...  otherwise debug box to alert scripters of it's absence. */
     draw_box(drawx, drawy, w, h, color, t);
   }
 }

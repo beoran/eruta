@@ -109,6 +109,13 @@ SpriteState * spritestate_new(Sprite *  sprite, void * data) {
 }
 
 
+/** Returns whether or not the sprite state can be drawn or not. */
+int spritestate_can_draw_p(SpriteState * self) {
+  if (!self) return FALSE;
+  if (!(self->frame_now)) return FALSE; 
+  return TRUE;
+}
+
 /* Draws the given layer of the sprite using the sprite state.   
  */
 void spritestate_draw_frame(SpriteState * me, SpriteFrame * frame, Point * at) 
@@ -139,6 +146,8 @@ void spritestate_draw_frame(SpriteState * me, SpriteFrame * frame, Point * at)
   }
   al_hold_bitmap_drawing(false);
 }
+
+
 
 /* Draw the SpriteState at the given location. This takes
   the current action, frame, layers and offsets into consideration. */
@@ -188,16 +197,17 @@ void spritestate_next_frame(SpriteState * self) {
         if (!self->actions[self->action_index].done) {
           /* Notify scripting of end of this loop. */
           callrb_sprite_event(self, action_loop, NULL); 
-          /* Set action to done toprevent double emitting the event above. */
+          /* Set action to done to prevent double emitting the event above. */
           self->actions[self->action_index].done = TRUE;
         }
       } else {
+        /* Notify script side. */
+        callrb_sprite_event(self, action_loop, NULL);
         /* Go to back to first frame of standing pose with current direction. */
         action = sprite_action_index_for
           (self->sprite, SPRITE_WALK, self->direction_now);
         spritestate_pose_(self, SPRITE_WALK);
         spritestate_now_(self, action, 0);
-        callrb_sprite_event(self, action_loop, NULL); 
         /* Action to done. */
         self->actions[self->action_index].done = TRUE;
       }

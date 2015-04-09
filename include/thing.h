@@ -38,6 +38,7 @@ enum Thingflags_ {
   /* Persistent things are to be copied from one map to the next.
    Especially useful (and automatcical) for PCs. */
   THING_FLAGS_PERSISTENT       = 8,
+  THING_FLAGS_NO_SHADOW        = 16, /* > Thing does not cast a shadow. */
 };
 
 

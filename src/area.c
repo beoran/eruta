@@ -209,7 +209,7 @@ Area * area_init(Area * self) {
 void area_update_things(Area * self) {
   int index;
   int subindex = 0;
-  /* Empty the draw queue to avoid stragling references after deleting a thing
+  /* Empty the draw queue to avoid stale references after deleting a thing
    * or it's physical body. */
   for(index = 0; index <  AREA_THINGS; index++) {
     self->things_todraw[index] = NULL;

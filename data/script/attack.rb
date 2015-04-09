@@ -10,12 +10,15 @@ class Attack
   # Creates a new attack for the given attacker's thing.
   def initialize(attacking_thing, w, h, offset_x = 0, offset_y = 0) 
     @att_thing = attacking_thing
+    p "Initialize attack: #{w} #{h}"
     x, y, w, h = @att_thing.rectangle_in_front(w, h)
+    p "Attack area: #{x} #{y} #{w} #{h}"
     x         += offset_x
     y         += offset_y
     z          = @att_thing.z
     name       = "#{attacking_thing.name}_attack_#{self.class.serno}"  
     @my_thing  = Thing.make(name, Thing::Kind::ATTACK, x, y, z, w, h)
+    @my_thing.hull_flags = Thing::Flag::SENSOR
     @done      = false
     @timer     = Timer.make(3.0) do | timer |
       @done    = true
@@ -61,19 +64,18 @@ class Attack
     end
   end
   
-  # Purge attacs that are over due to sprite event
+  # Purge attacks that are over due to sprite event
   def self.on_sprite(thing_id)
     @attacks ||= []
     done       = []
     @attacks.each do | attack |
-      done << attack if attack.done?
+      done << attack if attack.att_thing.id == thing_id
     end
     
     done.each do | attack |
       @attacks.delete(attack)
       attack.delete
     end
-
   end
   
   

@@ -355,7 +355,7 @@ module Main
     pose = Thing.actor.pose
     Thing.actor.one_shot_action(Sprite::SLASH)
     Thing.actor.pose = Sprite::SLASH
-    Attack.make(Thing.actor, 0, 0, 64, 64)
+    Attack.make(Thing.actor, 64, 64)
   end
 
 

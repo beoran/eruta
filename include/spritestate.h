@@ -71,7 +71,9 @@ SpriteState * spritestate_done(SpriteState * self);
 double        spritestate_speedup(SpriteState * self);
 double        spritestate_speedup_(SpriteState * self, double speedup); 
 SpriteState * spritestate_new(Sprite *  sprite, void * data);
+int           spritestate_can_draw_p(SpriteState * self);
 void          spritestate_draw(SpriteState * self, Point * at);
+
 SpriteState * spritestate_now_(SpriteState * self, int actionnow, int framenow);
 void          spritestate_update(SpriteState * self, double dt);
 int           spriteaction_ispose(SpriteAction * self, int pose, int direction);
@@ -103,6 +105,8 @@ int spritestate_get_pose_direction_loop(SpriteState * self, int pose, int direct
 Sprite * spritestate_sprite_(SpriteState * self, Sprite * sprite);
 Sprite * spritestate_sprite(SpriteState * self);
 void  * spritestate_data(SpriteState * self);
+
+
 
 #endif
 

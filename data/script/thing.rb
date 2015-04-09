@@ -79,19 +79,23 @@ class Thing < Eruta::Thing
   # of the direction the thing is facing.
   def rectangle_in_front(w = 32, h = 32)
     dire = self.direction
-    cx   = self.cx
+    cx   = self.cx 
     cy   = self.cy
+    sh   = self.h
+    sw   = self.w
+    # sh   = 32 if sh > 32
     if is_facing?(Eruta::Sprite::NORTH)
-      cy -= ( h / 2.0 + self.h / 2.0)
+      cy -= ( h / 2.0 + sh / 2.0)
     elsif is_facing?(Eruta::Sprite::EAST)
-      cx += ( w / 2.0 + self.w / 2.0)
+      cx += ( w / 2.0 + sw / 2.0)
     elsif is_facing?(Eruta::Sprite::SOUTH)
-      cy += ( h / 2.0 + self.h / 2.0)
+      cy += ( h / 2.0 + sh / 2.0)
     elsif is_facing?(Eruta::Sprite::WEST)
-      cx -= ( w / 2.0 + self.w / 2.0)
+      cx -= ( w / 2.0 + sw / 2.0)
     end
-    x = cx - (w / 2.0)
-    y = cy - (h / 2.0)
+
+    x = cx # - (w / 2.0)
+    y = cy # - (h / 2.0)
     return x, y, w, h
   end
 
@@ -212,15 +216,12 @@ class Thing < Eruta::Thing
     
     poses.each do | pose |
       directions.each do | direction |
-        p "Pose"
-        p self.set_pose_direction_loop(pose, direction, Sprite::State::ACTION_ONESHOT)
+        self.set_pose_direction_loop(pose, direction, Sprite::State::ACTION_ONESHOT)
       end
     end
     
     # the "Drop down" action is a one stop action in ULPCSS sprites.
     res = self.set_pose_direction_loop(Sprite::DOWN, Sprite::ALL_DIRECTIONS, Sprite::State::ACTION_ONESTOP)
-    p "Drop Down"
-    p res
   end
   
   # Sets a flag of the main hull (physical presence) of the thing
@@ -265,7 +266,12 @@ class Thing < Eruta::Thing
   
   # React to sprite event
   def on_sprite(spriteid, pose, direction, kind)
-    p "Sprite event for #{name}"
+    p "Sprite event for #{name} #{spriteid}, #{pose}, #{direction}, #{kind}"
+    p "Check: #{Sprite::SLASH} (#{Sprite::STAB}) #{Sprite::DOWN}"
+    if (pose & Sprite::SLASH) == Sprite::SLASH
+      p "Sprite event on attack"
+      Attack.on_sprite(@id)
+    end
   end
   
   
