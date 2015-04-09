@@ -102,6 +102,7 @@ module Main
     player_1.direction = Sprite::SOUTH
     player_1.pose      = Sprite::STAND
     player_1.hide_layer(Sprite::Layer::STAFF)
+    player_1.group     = Thing::Kind::PLAYER
     
     # hf = Thing[100].hull_flags= Thing::Flag::DISABLED
     # p "set hull flag", hf, Thing[100].hull_flags

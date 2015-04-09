@@ -575,7 +575,15 @@ int thing_hull_flags(Thing * me) {
   return bumphull_flags(me->hull);
 }
 
+/** Returns the group of the main hull of the thing. */
+int thing_hull_group(Thing * me) {
+  if (!me) return -1;
+  return bumphull_group(me->hull);
+}
 
-
-
+/** Sets the group of the main hull of the thing. */
+int thing_hull_group_(Thing * me, int group) {
+  if (!me) return -1;
+  return bumphull_group_(me->hull, group);
+}
 

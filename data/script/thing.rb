@@ -236,6 +236,12 @@ class Thing < Eruta::Thing
   # Gets all flags of the main hull (physical presence) of the thing
   forward_thing :hull_flags
   
+  # Sets the group of the thing
+  forward_thing :group=
+  
+  # Gets the group of the thing
+  forward_thing :group
+  
   # Loads a sprite sheet with built in layout as a layer
   # of the sprite of this thing.
   def load_builtin(layer, vpath, layout = :ulpcss)

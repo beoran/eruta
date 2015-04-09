@@ -120,6 +120,10 @@ int thing_unset_hull_flag(Thing * me, int flag);
 int thing_hull_flags_(Thing * me, int flags);
 int thing_hull_flags(Thing * me);
  
+int thing_hull_group(Thing * me);
+int thing_hull_group_(Thing * me, int group);
+
+ 
 
 #endif
 

@@ -97,6 +97,10 @@ int area_unset_hull_flag(Area * me        , int index,  int flag);
 int area_hull_flags_(Area * me            , int index,  int flags);
 int area_hull_flags(Area * me             , int index);
 
+int area_thing_hull_group(Area * me , int index);
+int area_thing_hull_group_(Area * me, int index, int group);
+
+
 void area_update_things(Area * self);
 
 Thing * area_new_thing(Area * self, int kind,

@@ -166,6 +166,11 @@ int bumpworld_unset_hull_flag(BumpWorld * me, int index,  int flag);
 int bumpworld_hull_flags_(BumpWorld * me, int index,  int flags);
 int bumpworld_hull_flags(BumpWorld * me, int index);
 
+int bumphull_group(BumpHull * hull);
+int bumphull_group_(BumpHull * hull, int group);
+
+
+
 #endif
 
 

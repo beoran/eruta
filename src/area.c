@@ -483,6 +483,21 @@ int area_hull_flags(Area * me, int index) {
 }
 
 
+int area_thing_hull_group(Area * me , int index) {
+  if (!me) return -1;
+  return thing_hull_group(area_thing(me, index));
+}
+
+int area_thing_hull_group_(Area * me, int index, int group) {
+  if (!me) return -1;
+  return thing_hull_group_(area_thing(me, index), group);
+}
+
+
+
+
+
+
 /** Returns the thing related to the hull's body, if any. 
  * This is in area.c for dependency reasons.
  */

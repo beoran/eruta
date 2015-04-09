@@ -19,6 +19,7 @@ class Attack
     name       = "#{attacking_thing.name}_attack_#{self.class.serno}"  
     @my_thing  = Thing.make(name, Thing::Kind::ATTACK, x, y, z, w, h)
     @my_thing.hull_flags = Thing::Flag::SENSOR
+    @my_thing.group      = @att_thing.group
     @done      = false
     @timer     = Timer.make(3.0) do | timer |
       @done    = true
@@ -36,6 +37,8 @@ class Attack
    
   def delete
     @my_thing.delete
+    @my_thing = nil
+    @att_thing = nil
     @timer.done!
   end
   

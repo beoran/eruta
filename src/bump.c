@@ -83,6 +83,10 @@ struct BumpHull_ {
   int         support;
   /* Flags of the hull. */
   int         flags;
+  /* Group of the hull. Hulls in the same srictly positive group do not collide.
+   * Zero or negative groups have no effect. The group is set to 0 by default 
+   */
+  int         group;
 };
 
 typedef struct BumpHash_        BumpHash;
@@ -356,6 +360,7 @@ BumpHull * bumphull_initall(
   self->id      = -1;
   self->support = FALSE;
   self->flags   = BUMP_FLAG_NORMAL;
+  self->group   = 0;
   return self;
   
 }
@@ -612,6 +617,20 @@ int bumphull_unset_flag(BumpHull * hull, int flag) {
   if (!hull) return 0;
   hull->flags &= (~flag);  
   return bumphull_get_flag(hull, flag);
+}
+
+
+/** Returns the group of the hull, or -1 if the hull is NULL.*/
+int bumphull_group(BumpHull * hull) {
+  if (!hull) return -1;
+  return hull->group;
+}
+
+/** Sets the group of the hull. Returns the group set or -1 if the hull 
+ * is NULL */
+int bumphull_group_(BumpHull * hull, int group) {
+  if (!hull) return -1;
+  return hull->group = group;
 }
 
 
@@ -921,9 +940,17 @@ bumpworld_collide_hulls
   
   BumpAABB bounds1;
   BumpAABB bounds2;  
-  int x, y, z, tx, ty;
+  int x, y, z, tx, ty, g1, g2;
   if ((!hull1) || (!hull1->body)) return;
   if ((!hull2) || (!hull2->body)) return;
+  
+  
+  /* Group check: hulls in the same strictly positive group do not collide. */
+  g1 = hull1->group;
+  g2 = hull2->group;
+  if ( (g1 > 0) &&  (g2 > 0) && (g1 == g2) ) {
+    return; 
+  }
   
   (void) self;
   
